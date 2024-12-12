@@ -541,8 +541,13 @@ fn decode_table_row(
 fn decode_table_cell(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> TableCell {
     record_attrs_lost(path, node, [], losses);
 
+    let mut content = vec![p(decode_inlines(path, node.children(), losses))];
+    if decode_inlines(path, node.children(), losses).is_empty() {
+        content = decode_blocks(path, node.children(), losses, depth);
+    }
+
     TableCell {
-        content: decode_blocks(path, node.children(), losses, depth),
+        content,
         ..Default::default()
     }
 }

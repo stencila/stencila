@@ -1,6 +1,7 @@
 ---
 source: rust/codec-jats/tests/examples.rs
 expression: article
+snapshot_kind: text
 ---
 {
   "type": "Article",
@@ -6253,6 +6254,3056 @@ expression: article
                   "value": {
                     "string": ")."
                   }
+                }
+              ]
+            },
+            {
+              "type": "Table",
+              "label": "Table 1.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Comparison of the percentage of large-budded cells back to baseline levels."
+                      }
+                    }
+                  ]
+                }
+              ],
+              "rows": [
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Figure"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Strain"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Timepoint comparison"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "p-Value"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Significance"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Post hoc test"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ],
+                  "rowType": "HeaderRow"
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                  "
+                              }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                  "
+                              }
+                            },
+                            {
+                              "type": "Emphasis",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "DDC2-AID"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 5 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "<0.0001"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "****"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 6 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "<0.0001"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "****"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 7 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "<0.0001"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "****"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 8 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.0009"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "***"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 9 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.054"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ns"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                  "
+                              }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                  "
+                              }
+                            },
+                            {
+                              "type": "Emphasis",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "DDC2-AID CHK1∆"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 5 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "<0.0001"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "****"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 6 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "<0.0001"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "****"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 7 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.10"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ns"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 8 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.25"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ns"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 9 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.072"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ns"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                  "
+                              }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                  "
+                              }
+                            },
+                            {
+                              "type": "Emphasis",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "RAD9-AID"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 5 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "<0.0001"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "****"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 6 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "<0.0001"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "****"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 7 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "<0.0001"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "****"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 8 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.0055"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "**"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 9 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "1.00"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ns"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                  "
+                              }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                  "
+                              }
+                            },
+                            {
+                              "type": "Emphasis",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "RAD9-AID CHK1∆"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 5 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.00050"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "***"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 6 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.0052"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "**"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 7 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.21"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ns"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                  "
+                              }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                  "
+                              }
+                            },
+                            {
+                              "type": "Emphasis",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "RAD24-AID"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 5 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "<0.0001"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "****"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 6 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "<0.0001"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "****"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 7 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.00"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "***"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 8 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.36"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ns"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 9 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.90"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ns"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                  "
+                              }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                  "
+                              }
+                            },
+                            {
+                              "type": "Emphasis",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "RAD24-AID CHK1∆"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 5 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.00010"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "***"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 6 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.00020"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "***"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0 vs 7 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.10"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ns"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                  "
+                              }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Emphasis",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "RAD53-AID TIR1(F74G"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": ")"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "18 vs 18 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.35"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ns"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "21 vs 21 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.96"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ns"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "24 vs 24 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.42"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ns"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                  "
+                              }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                  "
+                              }
+                            },
+                            {
+                              "type": "Emphasis",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "RAD9-AID pRAD9-AID"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "18 vs 18 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.80"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ns"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "21 vs 21 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.99"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ns"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "24 vs 24 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.84"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ns"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                  "
+                              }
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                  "
+                              }
+                            },
+                            {
+                              "type": "Emphasis",
+                              "content": [
+                                {
+                                  "type": "Text",
+                                  "value": {
+                                    "string": "DDC2-AID MAD2-AID AND MAD2-AID"
+                                  }
+                                }
+                              ]
+                            },
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "\n                "
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "18 + IAA vs 18 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.95"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ns"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "21 + IAA vs 21 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.64"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ns"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "TableRow",
+                  "cells": [
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "24 + IAA vs 24 + IAA"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "0.97"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "ns"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "TableCell",
+                      "content": [
+                        {
+                          "type": "Paragraph",
+                          "content": [
+                            {
+                              "type": "Text",
+                              "value": {
+                                "string": "Sidak"
+                              }
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              "notes": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Timepoints are relative to when galactose was added."
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "A one-way ANOVA was used to test for significant differences."
+                      }
+                    }
+                  ]
                 }
               ]
             },

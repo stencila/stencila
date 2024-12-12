@@ -1,6 +1,7 @@
 ---
 source: rust/codec-jats/tests/examples.rs
 expression: info.losses
+snapshot_kind: text
 ---
 //article/back/ack: 1
 //article/back/app-group: 1
@@ -29,7 +30,18 @@ expression: info.losses
 //article/body/sec/sec/fig/p/supplementary-material/@id: 10
 //article/body/sec/sec/fig/p/xref: 1
 //article/body/sec/sec/p/xref: 61
-//article/body/sec/sec/table-wrap: 1
+//article/body/sec/sec/table-wrap/@id: 1
+//article/body/sec/sec/table-wrap/@position: 1
+//article/body/sec/sec/table-wrap/table-wrap-foot/fn/@id: 2
+//article/body/sec/sec/table-wrap/table-wrap-foot/fn/label: 2
+//article/body/sec/sec/table-wrap/table/tbody/tr/td/@align: 158
+//article/body/sec/sec/table-wrap/table/tbody/tr/td/@char: 61
+//article/body/sec/sec/table-wrap/table/tbody/tr/td/@rowspan: 18
+//article/body/sec/sec/table-wrap/table/tbody/tr/td/@valign: 158
+//article/body/sec/sec/table-wrap/table/tbody/tr/td/xref: 18
+//article/body/sec/sec/table-wrap/table/thead/tr/th/@align: 6
+//article/body/sec/sec/table-wrap/table/thead/tr/th/@valign: 6
+//article/body/sec/sec/table-wrap/table/thead/tr/th/xref: 4
 //article/front/article-meta/article-id/@specific-use: 1
 //article/front/article-meta/article-version/@article-version-type: 1
 //article/front/article-meta/author-notes: 1
