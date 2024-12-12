@@ -387,18 +387,13 @@ fn decode_list_item(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
     }
 }
 
-/// Decode a `<tabel-wrap>` to a Stencila [`Block::Table`]
+/// Decode a `<table-wrap>` to a Stencila [`Block::Table`]
 ///
-/// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/table-wrap.html
+/// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/table-wrap.html
 fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    let mut label_automatically = None;
-
-    if let Some(label_auto) = node
+    let label_automatically = node
         .attribute("label-automatically")
-        .map(|auto| auto.parse().ok())
-    {
-        label_automatically = label_auto;
-    }
+        .and_then(|string| string.parse().ok());
 
     record_attrs_lost(path, node, ["label-automatically"], losses);
 
@@ -419,7 +414,7 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
             let path = &extend_path(path, "table");
             for grandchild in child.children() {
                 if grandchild.tag_name().name() == "thead" {
-                    rows.push(decode_table_content(
+                    rows.push(decode_table_section(
                         &extend_path(path, "thead"),
                         &grandchild,
                         losses,
@@ -427,7 +422,7 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
                         Some(TableRowType::HeaderRow),
                     ));
                 } else if grandchild.tag_name().name() == "tbody" {
-                    rows.push(decode_table_content(
+                    rows.push(decode_table_section(
                         &extend_path(path, "tbody"),
                         &grandchild,
                         losses,
@@ -435,7 +430,7 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
                         None,
                     ));
                 } else if grandchild.tag_name().name() == "tfoot" {
-                    rows.push(decode_table_content(
+                    rows.push(decode_table_section(
                         &extend_path(path, "tfoot"),
                         &grandchild,
                         losses,
@@ -465,37 +460,27 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
     })
 }
 
-/// Decode a `<thead>,<tbody>,<tfoot>` to a Stencila [`Vec<TableRow>`]
+/// Decode a `<thead>`,`<tbody>`, or `<tfoot>` to a Stencila [`Vec<TableRow>`]
 ///
-/// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/thead.html
-/// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/tbody.html
-/// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/tfoot.html
-fn decode_table_content(
+/// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/thead.html,
+/// https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/tbody.html,
+/// and https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/tfoot.html
+fn decode_table_section(
     path: &str,
     node: &Node,
     losses: &mut Losses,
     depth: u8,
     row_type: Option<TableRowType>,
 ) -> Vec<TableRow> {
-    let mut rows = Vec::new();
-
-    for child in node.children() {
-        if child.tag_name().name() == "tr" {
-            rows.push(decode_table_row(
-                &extend_path(path, "tr"),
-                &child,
-                losses,
-                depth,
-                row_type.clone(),
-            ));
-        }
-    }
-    rows
+    node.children()
+        .filter(|child| child.tag_name().name() == "tr")
+        .map(|child| decode_table_row(&path, &child, losses, depth, row_type.clone()))
+        .collect()
 }
 
 /// Decode a `<tr>` to a Stencila [`TableRow`]
 ///
-/// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/table.html
+/// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/tr.html
 fn decode_table_row(
     path: &str,
     node: &Node,
@@ -506,8 +491,8 @@ fn decode_table_row(
     record_attrs_lost(path, node, [], losses);
 
     let mut cells = Vec::new();
-
     let path = &extend_path(path, "tr");
+
     for child in node.children() {
         if child.tag_name().name() == "td" {
             cells.push(decode_table_cell(
@@ -533,10 +518,10 @@ fn decode_table_row(
     }
 }
 
-/// Decode a `<td>,<th>` to a Stencila [`TableCell`]
+/// Decode a `<td>` or `<th>` to a Stencila [`TableCell`]
 ///
-/// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/td.html
-/// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/th.html
+/// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/td.html
+/// and https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/th.html
 fn decode_table_cell(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> TableCell {
     record_attrs_lost(path, node, [], losses);
 
