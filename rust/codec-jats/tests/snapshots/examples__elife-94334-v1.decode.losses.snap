@@ -10,9 +10,7 @@ expression: info.losses
 //article/body/sec/@sec-type: 4
 //article/body/sec/fig/@id: 1
 //article/body/sec/fig/@position: 1
-//article/body/sec/fig/caption: 1
 //article/body/sec/fig/graphic: 1
-//article/body/sec/fig/label: 1
 //article/body/sec/p/xref: 73
 //article/body/sec/p/xref/@ref-type: 73
 //article/body/sec/p/xref/@rid: 73
@@ -20,16 +18,12 @@ expression: info.losses
 //article/body/sec/sec/fig-group/fig/@id: 14
 //article/body/sec/sec/fig-group/fig/@position: 14
 //article/body/sec/sec/fig-group/fig/@specific-use: 9
-//article/body/sec/sec/fig-group/fig/caption: 14
 //article/body/sec/sec/fig-group/fig/graphic: 14
-//article/body/sec/sec/fig-group/fig/label: 14
 //article/body/sec/sec/fig-group/fig/p/supplementary-material: 60
 //article/body/sec/sec/fig-group/fig/p/supplementary-material/@id: 60
 //article/body/sec/sec/fig/@id: 4
 //article/body/sec/sec/fig/@position: 4
-//article/body/sec/sec/fig/caption: 4
 //article/body/sec/sec/fig/graphic: 4
-//article/body/sec/sec/fig/label: 4
 //article/body/sec/sec/fig/p/supplementary-material: 10
 //article/body/sec/sec/fig/p/supplementary-material/@id: 10
 //article/body/sec/sec/fig/p/xref: 2

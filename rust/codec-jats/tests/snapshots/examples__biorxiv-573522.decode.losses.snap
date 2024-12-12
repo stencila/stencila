@@ -17,9 +17,7 @@ expression: info.losses
 //article/body/sec/sec/fig/@orientation: 3
 //article/body/sec/sec/fig/@position: 3
 //article/body/sec/sec/fig/@rev-id: 3
-//article/body/sec/sec/fig/caption: 3
 //article/body/sec/sec/fig/graphic: 3
-//article/body/sec/sec/fig/label: 3
 //article/body/sec/sec/fig/object-id: 9
 //article/body/sec/sec/fig/p/@id: 3
 //article/body/sec/sec/fig/title/@id: 3
@@ -36,9 +34,7 @@ expression: info.losses
 //article/body/sec/sec/sec/fig/@orientation: 4
 //article/body/sec/sec/sec/fig/@position: 4
 //article/body/sec/sec/sec/fig/@rev-id: 4
-//article/body/sec/sec/sec/fig/caption: 4
 //article/body/sec/sec/sec/fig/graphic: 4
-//article/body/sec/sec/sec/fig/label: 4
 //article/body/sec/sec/sec/fig/object-id: 12
 //article/body/sec/sec/sec/fig/p/@id: 4
 //article/body/sec/sec/sec/fig/title/@id: 4

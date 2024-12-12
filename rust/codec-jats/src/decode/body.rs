@@ -208,8 +208,19 @@ fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block 
         .find(|child| child.tag_name().name() == "caption")
         .map(|node| decode_blocks(path, node.children(), losses, depth));
 
+    // Decode remaining blocks (not <label> or <caption>)
+    let content = decode_blocks(
+        path,
+        node.children().filter(|child| {
+            let tag_name = child.tag_name().name();
+            tag_name != "label" && tag_name != "caption"
+        }),
+        losses,
+        depth,
+    );
+
     Block::Figure(Figure {
-        content: decode_blocks(path, node.children(), losses, depth),
+        content,
         caption,
         label_automatically,
         label,
