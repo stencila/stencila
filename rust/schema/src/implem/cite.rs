@@ -12,7 +12,7 @@ impl Cite {
 
         let mut content = String::new();
         if let Some(prefix) = &self.options.citation_prefix {
-            content.push_str(&prefix);
+            content.push_str(prefix);
         }
         if let Some(inner) = &self.options.content {
             let (inner, inner_losses) = inner.to_jats();
@@ -20,7 +20,7 @@ impl Cite {
             losses.merge(inner_losses);
         }
         if let Some(suffix) = &self.options.citation_suffix {
-            content.push_str(&suffix);
+            content.push_str(suffix);
         }
 
         let xref = elem("xref", attrs, content);

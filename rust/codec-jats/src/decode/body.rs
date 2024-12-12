@@ -490,7 +490,7 @@ fn decode_table_section(
 ) -> Vec<TableRow> {
     node.children()
         .filter(|child| child.tag_name().name() == "tr")
-        .map(|child| decode_table_row(&path, &child, losses, depth, row_type.clone()))
+        .map(|child| decode_table_row(path, &child, losses, depth, row_type.clone()))
         .collect()
 }
 
@@ -595,7 +595,7 @@ fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
                 "xref" => match child.attribute("ref-type") {
                     Some("bibr") => decode_xref_bibr(&child_path, &child, losses),
                     _ => {
-                        record_node_lost(&path, &child, losses);
+                        record_node_lost(path, &child, losses);
                         continue;
                     }
                 },
