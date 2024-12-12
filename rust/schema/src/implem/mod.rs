@@ -17,6 +17,7 @@ mod code_inline;
 mod code_location;
 mod compilation_message;
 mod cord;
+mod cite;
 mod datatable;
 mod datatable_columns;
 mod date;

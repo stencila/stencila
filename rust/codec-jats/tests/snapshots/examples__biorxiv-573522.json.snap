@@ -87,10 +87,17 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "type": "Cite",
+              "target": "c17",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Herz, 2005"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -99,10 +106,55 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "c44",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Soudry et al., 2011"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c21",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Kadohisa, 2013"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Cite",
+              "target": "c23",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Kontaris et al., 2020"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -111,10 +163,17 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "type": "Cite",
+              "target": "c39",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Price, 1973"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -123,10 +182,17 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "type": "Cite",
+              "target": "c3",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Broadwell, 1975"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -135,10 +201,74 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "c43",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Scalia and Winans, 1975"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c25",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Krettek and Price, 1978"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Cite",
+              "target": "c30",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Luskin and Price, 1983"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Cite",
+              "target": "c24",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Krabbe et al., 2019"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -147,10 +277,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "c25",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Krettek and Price, 1978"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). It displays a unique gene expression pattern that distinguishes it from surrounding amygdalar nuclei ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c19",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Hochgerner et al., 2023"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -170,16 +326,55 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "type": "Cite",
+              "target": "c47",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Turner et al., 1978"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c6",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Deryckere et al., 2022"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Cite",
+              "target": "c34",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Metwalli et al., 2022"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -188,10 +383,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "c5",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Crosby and Schnitzlein, 1982"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "), supporting the notion that it plays an important role in odor-guided behaviors. Several other findings suggest that NLOT plays an important role in odor-guided behaviors and particularly in linking olfactory and emotional functions. First, chemical ablation of NLOT was reported to cause severe deficits in odor-guided behaviors ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c48",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Vaz et al., 2017"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -200,10 +421,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "c46",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Tanisumi et al., 2021"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "), similarly to the olfactory tubercle (OT) ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c12",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Gadziola et al., 2015"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -212,16 +459,55 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "c36",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Millman and Murthy, 2020"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). Third, perturbation of NLOT activity affects social behavior in rats, that is known to rely on olfaction and be affected by emotional state ("
               }
             },
             {
+              "type": "Cite",
+              "target": "c16",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Hernández-Pérez et al., 2022"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). Lastly, NLOT neurons show marked transcriptomic changes following fear conditioning ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c19",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Hochgerner et al., 2023"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -241,16 +527,55 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "type": "Cite",
+              "target": "c39",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Price, 1973"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c43",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Scalia and Winans, 1975"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Cite",
+              "target": "c30",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Luskin and Price, 1983"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -259,16 +584,55 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "c25",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Krettek and Price, 1978"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": ")). Reported outputs include projections to the OB, the anterior olfactory nucleus (AON), piriform cortex (PC), the OT, and the BLA ("
               }
             },
             {
+              "type": "Cite",
+              "target": "c42",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Santiago and Shammah-Lagnado, 2004"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c24",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Krabbe et al., 2019"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -288,10 +652,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "c49",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Vaz et al., 2016"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). In mice, we estimate that it contains about 2500 neurons, less than one percent of the number of neurons in PC ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c45",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Srinivasan and Stevens, 2017"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -300,16 +690,55 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "type": "Cite",
+              "target": "c33",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "McDonald, 1983"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c35",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Millhouse and Uemura-Sumi, 1985"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Cite",
+              "target": "c16",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Hernández-Pérez et al., 2022"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -383,16 +812,55 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "c14",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Haddad et al., 2013"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ")) were crossed with Ai32 mice (Jackson Laboratory strain 024109, ("
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "c31",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Madisen et al., 2012"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ")). C57bl6 mice were used in all experiments in which ChR2 expression was driven virally. Rbp4-cre mice (MGI:4367067, ("
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "c13",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Gong et al., 2003"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -768,6 +1236,19 @@ expression: article
                   }
                 },
                 {
+                  "type": "Cite",
+                  "target": "c27",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Licht et al., 2023"
+                      }
+                    }
+                  ]
+                },
+                {
                   "type": "Text",
                   "value": {
                     "string": ") with anti-GFP (1:400; Abcam RRID: AB_305643) and Alexa 488 anti-goat (RRID: AB_2336933) as secondary antibody. Acute slices with biocytin-filled cells were stained with Streptavidin-cy3 (Jackson Immunoresearch) diluted 1:400. Sections were mounted on glass slides, covered by mounting medium containing Dapi (SouthernBiotech), and coverslipped. Low-magnification images were acquired using Nikon SMZ-25 fluorescent stereoscope equipped with X1 and X2 objectives. Confocal microscopy was done using Olympus FV-1000 on 10X and 20X objectives and 1µm distance between confocal z-slices."
@@ -978,6 +1459,19 @@ expression: article
                   "value": {
                     "string": " currents ("
                   }
+                },
+                {
+                  "type": "Cite",
+                  "target": "c9",
+                  "citationMode": "Parenthetical",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Faber and Sah, 2002"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Text",
@@ -1515,6 +2009,19 @@ expression: article
                       }
                     },
                     {
+                      "type": "Cite",
+                      "target": "c18",
+                      "citationMode": "Parenthetical",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Hirata et al., 2019"
+                          }
+                        }
+                      ]
+                    },
+                    {
                       "type": "Text",
                       "value": {
                         "string": ")), and within two lateral islands of Calleja ("
@@ -1698,6 +2205,19 @@ expression: article
                       "value": {
                         "string": "Trans-synaptic tracing does not inform us of the strength and functional significance of synaptic connections ("
                       }
+                    },
+                    {
+                      "type": "Cite",
+                      "target": "c41",
+                      "citationMode": "Parenthetical",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Rogers and Beier, 2021"
+                          }
+                        }
+                      ]
                     },
                     {
                       "type": "Text",
@@ -2724,10 +3244,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "c4",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Connors and Gutnick, 1990"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c32",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Markram et al., 2004"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -2736,10 +3282,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "c28",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Lisman, 1997"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c20",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Izhikevich, 2006"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -2748,10 +3320,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "c40",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Rainnie et al., 1993"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c8",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Faber et al., 2001"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -2760,10 +3358,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "c38",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "O’Leary et al., 2020"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). We find that layer 2 neurons are quite homogeneously bursting neurons. The distinct properties of NLOT neurons as compared to other amygdalar neurons is in line with their unique gene expression profile ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c19",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Hochgerner et al., 2023"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -2783,10 +3407,17 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "type": "Cite",
+              "target": "c39",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Price, 1973"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -2795,10 +3426,17 @@ expression: article
               }
             },
             {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "type": "Cite",
+              "target": "c43",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Scalia and Winans, 1975"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -2807,16 +3445,93 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "c25",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Krettek and Price, 1978"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c30",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Luskin and Price, 1983"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Cite",
+              "target": "c42",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Santiago and Shammah-Lagnado, 2004"
+                  }
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "type": "Cite",
+              "target": "c24",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Krabbe et al., 2019"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
               "value": {
                 "string": "). Olfactory brain regions represent the largest fraction of NLOT inputs and outputs followed by BLA, cortical amygdala nuclei, and internal NLOT connectivity. Additionally, we show here that there are two inputs from brain regions that contain cholinergic neurons – the SI and the NDB, which may explain the dense expression of acetylcholine esterase in the NLOT ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c35",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Millhouse and Uemura-Sumi, 1985"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -2836,16 +3551,55 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "c10",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Franks and Isaacson, 2005"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": ", "
               }
             },
             {
+              "type": "Cite",
+              "target": "c11",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "2006"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c50",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Wiegand et al., 2011"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -2854,10 +3608,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "c46",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Tanisumi et al., 2021"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). Interestingly, similar findings were described for olfactory inputs into the medial amygdala ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c22",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Keshavarzi et al., 2015"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -2866,10 +3646,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "c1",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Bernander et al., 1994"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c15",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Häusser, 2001"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
@@ -2878,10 +3684,36 @@ expression: article
               }
             },
             {
+              "type": "Cite",
+              "target": "c26",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Larkum et al., 1999"
+                  }
+                }
+              ]
+            },
+            {
               "type": "Text",
               "value": {
                 "string": "). Indeed, we find that when NLOT neurons are depolarized, OB inputs may elicit regenerative responses that are most probably dendritic spikes. Second, distal inputs may induce plastic changes of proximal input responses. Such interaction has been reported in hippocampal CA1 neurons ("
               }
+            },
+            {
+              "type": "Cite",
+              "target": "c7",
+              "citationMode": "Parenthetical",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Dudman et al., 2007"
+                  }
+                }
+              ]
             },
             {
               "type": "Text",
