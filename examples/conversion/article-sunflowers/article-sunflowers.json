@@ -949,7 +949,17 @@
               ]
             }
           ],
-          "content": []
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "498369v1_fig1.tif"
+                }
+              ]
+            }
+          ]
         },
         {
           "type": "Paragraph",
@@ -1485,7 +1495,17 @@
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "498369v1_fig2.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Paragraph",
@@ -1868,7 +1888,17 @@
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "498369v1_fig3.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Paragraph",
@@ -2035,7 +2065,17 @@
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "498369v1_fig4.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Paragraph",
@@ -2265,7 +2305,17 @@
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "498369v1_fig5.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Paragraph",
@@ -2484,7 +2534,17 @@
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "498369v1_fig6.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Paragraph",
@@ -2625,7 +2685,17 @@
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "498369v1_fig7.tif"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         },

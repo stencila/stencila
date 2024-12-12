@@ -953,7 +953,17 @@
               ]
             }
           ],
-          "stencila:content": []
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "ImageObject",
+                  "contentUrl": "498369v1_fig1.tif"
+                }
+              ]
+            }
+          ]
         },
         {
           "@type": "stencila:Paragraph",
@@ -1489,7 +1499,17 @@
                   ]
                 }
               ],
-              "stencila:content": []
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "ImageObject",
+                      "contentUrl": "498369v1_fig2.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "@type": "stencila:Paragraph",
@@ -1872,7 +1892,17 @@
                   ]
                 }
               ],
-              "stencila:content": []
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "ImageObject",
+                      "contentUrl": "498369v1_fig3.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "@type": "stencila:Paragraph",
@@ -2039,7 +2069,17 @@
                   ]
                 }
               ],
-              "stencila:content": []
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "ImageObject",
+                      "contentUrl": "498369v1_fig4.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "@type": "stencila:Paragraph",
@@ -2269,7 +2309,17 @@
                   ]
                 }
               ],
-              "stencila:content": []
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "ImageObject",
+                      "contentUrl": "498369v1_fig5.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "@type": "stencila:Paragraph",
@@ -2488,7 +2538,17 @@
                   ]
                 }
               ],
-              "stencila:content": []
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "ImageObject",
+                      "contentUrl": "498369v1_fig6.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "@type": "stencila:Paragraph",
@@ -2629,7 +2689,17 @@
                   ]
                 }
               ],
-              "stencila:content": []
+              "stencila:content": [
+                {
+                  "@type": "stencila:Paragraph",
+                  "stencila:content": [
+                    {
+                      "@type": "ImageObject",
+                      "contentUrl": "498369v1_fig7.tif"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         },

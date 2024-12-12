@@ -1753,7 +1753,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "elife-94334-fig1-v1.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Paragraph",
@@ -2758,7 +2768,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "elife-94334-fig2-v1.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Figure",
@@ -3077,7 +3097,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "elife-94334-fig2-figsupp1-v1.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Figure",
@@ -3481,7 +3511,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "elife-94334-fig2-figsupp2-v1.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Figure",
@@ -3596,7 +3636,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "elife-94334-fig2-figsupp3-v1.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Paragraph",
@@ -4387,7 +4437,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "elife-94334-fig3-v1.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Figure",
@@ -4536,7 +4596,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "elife-94334-fig3-figsupp1-v1.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Paragraph",
@@ -5286,7 +5356,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "elife-94334-fig4-v1.tif"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         },
@@ -5837,7 +5917,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "elife-94334-fig5-v1.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Figure",
@@ -5969,7 +6059,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "elife-94334-fig5-figsupp1-v1.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Paragraph",
@@ -6813,7 +6913,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "elife-94334-fig6-v1.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Figure",
@@ -6911,7 +7021,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "elife-94334-fig6-figsupp1-v1.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Figure",
@@ -7111,7 +7231,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "elife-94334-fig6-figsupp2-v1.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Figure",
@@ -7260,7 +7390,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "elife-94334-fig6-figsupp3-v1.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Paragraph",
@@ -7706,7 +7846,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "elife-94334-fig7-v1.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Figure",
@@ -8076,7 +8226,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "elife-94334-fig7-figsupp1-v1.tif"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         },
@@ -8671,7 +8831,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "elife-94334-fig8-v1.tif"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Paragraph",
@@ -8792,7 +8962,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "elife-94334-fig9-v1.tif"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         }
@@ -8892,7 +9072,17 @@ expression: article
               ]
             }
           ],
-          "content": []
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "elife-94334-fig10-v1.tif"
+                }
+              ]
+            }
+          ]
         },
         {
           "type": "Paragraph",

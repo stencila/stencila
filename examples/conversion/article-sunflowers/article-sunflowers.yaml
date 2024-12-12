@@ -483,7 +483,11 @@ content:
       - type: Text
         value:
           string: ); florets and ovaries along a single parastichy that belong to three different pseudowhorls. Plants grown in LD|25°C (16h:8h), photograph taken at ZT 2.
-    content: []
+    content:
+    - type: Paragraph
+      content:
+      - type: ImageObject
+        contentUrl: 498369v1_fig1.tif
   - type: Paragraph
     content:
     - type: Text
@@ -748,7 +752,11 @@ content:
         - type: Text
           value:
             string: ' < 0.001). For all graphs the period of dark exposure is shown with grey background.'
-      content: []
+      content:
+      - type: Paragraph
+        content:
+        - type: ImageObject
+          contentUrl: 498369v1_fig2.tif
     - type: Paragraph
       content:
       - type: Text
@@ -936,7 +944,11 @@ content:
         - type: Text
           value:
             string: .
-      content: []
+      content:
+      - type: Paragraph
+        content:
+        - type: ImageObject
+          contentUrl: 498369v1_fig3.tif
     - type: Paragraph
       content:
       - type: Text
@@ -1016,7 +1028,11 @@ content:
         - type: Text
           value:
             string: .
-      content: []
+      content:
+      - type: Paragraph
+        content:
+        - type: ImageObject
+          contentUrl: 498369v1_fig4.tif
     - type: Paragraph
       content:
       - type: Text
@@ -1129,7 +1145,11 @@ content:
         - type: Text
           value:
             string: .
-      content: []
+      content:
+      - type: Paragraph
+        content:
+        - type: ImageObject
+          contentUrl: 498369v1_fig5.tif
     - type: Paragraph
       content:
       - type: Text
@@ -1234,7 +1254,11 @@ content:
         - type: Text
           value:
             string: .
-      content: []
+      content:
+      - type: Paragraph
+        content:
+        - type: ImageObject
+          contentUrl: 498369v1_fig6.tif
     - type: Paragraph
       content:
       - type: Text
@@ -1303,7 +1327,11 @@ content:
         - type: Text
           value:
             string: ' Speculative model for transition of floret development from age-dependent continuous gradients to organization into discrete pseudowhorls that undergo coordinated anthesis. After anthesis, florets comprising pseudowhorl 1 send an unknown signal (dashed line) to younger florets, creating a permissive state for the transition to anthesis. In order to respond to this signal, younger florets must both 1) be developmentally competent, and 2) be exposed to a sufficient period of darkness during the subjective night (as determined by the circadian clock). Florets younger than pseudowhorl 2 do not elongate floral organs until the post-anthesis state of pseudowhorl 2, floret developmental status, environmental cues, and the circadian clock allow transition to anthesis and the generation of the next pseudowhorl.'
-      content: []
+      content:
+      - type: Paragraph
+        content:
+        - type: ImageObject
+          contentUrl: 498369v1_fig7.tif
   - type: Section
     content:
     - type: Heading
