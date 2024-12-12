@@ -30,7 +30,7 @@ impl TableRow {
 
             let cell = elem(tag, attrs, cell_content);
             cells.push_str(&cell);
-            
+
             losses.merge(cell_losses);
         }
 

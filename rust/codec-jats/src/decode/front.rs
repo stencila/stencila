@@ -27,7 +27,7 @@ pub(super) fn decode_front(path: &str, node: &Node, article: &mut Article, losse
         match tag {
             "article-meta" => decode_article_meta(&child_path, &child, article, losses),
             "journal-meta" => decode_journal_meta(&child_path, &child, article, losses),
-            _ => record_node_lost(&path, &child, losses),
+            _ => record_node_lost(path, &child, losses),
         };
     }
 }
@@ -147,8 +147,6 @@ fn decode_journal_meta(path: &str, node: &Node, _article: &mut Article, losses: 
     for child in node.children() {
         let tag = child.tag_name().name();
         let _child_path = extend_path(path, tag);
-        match tag {
-            _ => record_node_lost(path, &child, losses),
-        };
+        record_node_lost(path, &child, losses);
     }
 }
