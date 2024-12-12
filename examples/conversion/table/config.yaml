@@ -1,9 +1,3 @@
-compact.jats.xml:
-  decode:
-    # TODO: implement encoding and decoding of `Table`
-    strip-props:
-      - Table.notes
-
 myst:
   decode:
     strip-props:

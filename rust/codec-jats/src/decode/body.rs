@@ -53,6 +53,10 @@ pub(super) fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>
                 blocks.append(&mut decode_fig_group(&child_path, &child, losses, depth));
                 continue;
             }
+            "fn" => {
+                blocks.append(&mut decode_fn(&child_path, &child, losses, depth));
+                continue;
+            }
             "graphic" => decode_graphic(&child_path, &child, losses),
             "hr" => decode_hr(&child_path, &child, losses),
             "list" => decode_list(&child_path, &child, losses, depth),
@@ -238,6 +242,14 @@ fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block 
     })
 }
 
+/// Decode a `<fn>` element to a vector of Stencila [`Block`]s
+fn decode_fn(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
+    // TODO: attach the decoded blocks to a Stencila `Note`
+    record_attrs_lost(path, node, [], losses);
+
+    decode_blocks(path, node.children(), losses, depth)
+}
+
 /// Decode a `<graphic>` element to a Stencila [`Block::Paragraph`] with a single [`Inline::ImageObject`]
 fn decode_graphic(path: &str, node: &Node, losses: &mut Losses) -> Block {
     let url = node
@@ -406,56 +418,60 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
     let caption = node
         .children()
         .find(|child| child.tag_name().name() == "caption")
-        .map(|node| decode_blocks(path, node.children(), losses, depth));
+        .map(|node| {
+            decode_blocks(
+                &extend_path(path, "caption"),
+                node.children(),
+                losses,
+                depth,
+            )
+        });
 
-    let mut rows = Vec::new();
-    for child in node.children() {
-        if child.tag_name().name() == "table" {
+    let rows = node
+        .children()
+        .filter(|child| child.tag_name().name() == "table")
+        .flat_map(|child| {
             let path = &extend_path(path, "table");
-            for grandchild in child.children() {
-                if grandchild.tag_name().name() == "thead" {
-                    rows.push(decode_table_section(
-                        &extend_path(path, "thead"),
-                        &grandchild,
-                        losses,
-                        depth,
-                        Some(TableRowType::HeaderRow),
-                    ));
-                } else if grandchild.tag_name().name() == "tbody" {
-                    rows.push(decode_table_section(
-                        &extend_path(path, "tbody"),
-                        &grandchild,
-                        losses,
-                        depth,
-                        None,
-                    ));
-                } else if grandchild.tag_name().name() == "tfoot" {
-                    rows.push(decode_table_section(
-                        &extend_path(path, "tfoot"),
-                        &grandchild,
-                        losses,
-                        depth,
-                        None,
-                    ));
-                } else if grandchild.tag_name().name() == "tr" {
-                    rows.push(vec![decode_table_row(
-                        path,
-                        &grandchild,
-                        losses,
-                        depth,
-                        None,
-                    )]);
-                }
-            }
-        }
-    }
-    let rows = rows.into_iter().flatten().collect();
+            child
+                .children()
+                .flat_map(|grandchild| {
+                    let tag = grandchild.tag_name().name();
+                    let grandchild_path = extend_path(path, tag);
+                    let row_type = match tag {
+                        "thead" => Some(TableRowType::HeaderRow),
+                        "tfoot" => Some(TableRowType::FooterRow),
+                        _ => None,
+                    };
+                    if tag == "thead" || tag == "tbody" || tag == "tfoot" {
+                        decode_table_section(&grandchild_path, &grandchild, losses, depth, row_type)
+                    } else if tag == "tr" {
+                        vec![decode_table_row(path, &grandchild, losses, depth, None)]
+                    } else {
+                        Vec::new()
+                    }
+                })
+                .collect::<Vec<TableRow>>()
+        })
+        .collect();
+
+    let notes = node
+        .children()
+        .find(|child| child.tag_name().name() == "table-wrap-foot")
+        .map(|node| {
+            decode_blocks(
+                &extend_path(path, "table-wrap-foot"),
+                node.children(),
+                losses,
+                depth,
+            )
+        });
 
     Block::Table(Table {
         label,
         label_automatically,
         caption,
         rows,
+        notes,
         ..Default::default()
     })
 }

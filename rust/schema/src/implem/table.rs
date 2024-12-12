@@ -58,6 +58,12 @@ impl Table {
         let table = elem_no_attrs("table", table);
         table_wrap.push_str(&table);
 
+        if let Some(notes) = &self.notes {
+            let (notes, notes_losses) = notes.to_jats();
+            table_wrap.push_str(&elem_no_attrs("table-wrap-foot", notes));
+            losses.merge(notes_losses);
+        }
+
         (elem("table-wrap", attrs, table_wrap), losses)
     }
 
