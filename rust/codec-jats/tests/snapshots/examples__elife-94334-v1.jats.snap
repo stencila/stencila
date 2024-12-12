@@ -1,6 +1,7 @@
 ---
 source: rust/codec-jats/tests/examples.rs
 expression: jats
+snapshot_kind: text
 ---
 <article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
@@ -209,6 +210,587 @@ expression: jats
           </p>
         </fig>
         <p>We then asked whether other DDC factors such as Rad9, Rad24, and Rad53 are dispensable for the prolonged arrest following the induction of 2 DSBs. However, as noted above, AID-tagged DDC activation proteins were unable to maintain this prolonged arrest in a 2-DSB strain even in the absence of IAA, which precludes their use in this analysis. To be able to study the contribution of these DDC factors in prolonged cell cycle arrest, we turned to the AID version 2 (AID2) system (<xref ref-type="bibr" rid="bib64">Yesbolatova et al., 2020</xref>). To this end, we integrated a TIR1-F74G point mutation and used 5-phenyl-IAA (5-Ph-IAA) instead of IAA to lower the basal degradation of AID-tagged proteins. Switching to the AID2 system did not fully restore function to<italic>RAD9-AID2</italic>and<italic>RAD24-AID2</italic>strains as they mostly adapted after 24 hr after the exposure to DNA damage, but 87% of<italic>RAD53-AID2</italic>cells remained in G<sub>2</sub>/M arrest at 24 hr (). Using Rad53-AID2, we then asked whether Rad53 is required for extended G<sub>2</sub>/M arrest in response to 2 DSBs. Rapid depletion of Rad53-AID2 with 5-Ph-IAA 4 hr after DSB induction led cells to escape G<sub>2</sub>/M arrest, but as with the<italic>RAD53-AID</italic>strain, we detected a 4 hr delay in cell cycle re-entry, confirming our previous results ( and ). However, degradation of Rad53-AID2 15 hr after DSB induction did not prompt cell cycle re-entry even 9 hr after complete depletion of Rad53 (, ), akin to what we observe following the depletion of Ddc2-AID ().</p>
+        <table-wrap>
+          <label>Table 1.</label>
+          <caption>
+            <title level="2">Comparison of the percentage of large-budded cells back to baseline levels.</title>
+          </caption>
+          <table>
+            <thead>
+              <tr>
+                <th>
+                  <p>Figure</p>
+                </th>
+                <th>
+                  <p>Strain</p>
+                </th>
+                <th>
+                  <p>Timepoint comparison</p>
+                </th>
+                <th>
+                  <p>p-Value</p>
+                </th>
+                <th>
+                  <p>Significance</p>
+                </th>
+                <th>
+                  <p>Post hoc test</p>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <p>&#10;                  &#10;</p>
+                </td>
+                <td>
+                  <p>&#10;<italic>DDC2-AID</italic>&#10;</p>
+                </td>
+                <td>
+                  <p>0 vs 5 + IAA</p>
+                </td>
+                <td>
+                  <p>&lt;0.0001</p>
+                </td>
+                <td>
+                  <p>****</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 6 + IAA</p>
+                </td>
+                <td>
+                  <p>&lt;0.0001</p>
+                </td>
+                <td>
+                  <p>****</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 7 + IAA</p>
+                </td>
+                <td>
+                  <p>&lt;0.0001</p>
+                </td>
+                <td>
+                  <p>****</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 8 + IAA</p>
+                </td>
+                <td>
+                  <p>0.0009</p>
+                </td>
+                <td>
+                  <p>***</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 9 + IAA</p>
+                </td>
+                <td>
+                  <p>0.054</p>
+                </td>
+                <td>
+                  <p>ns</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>&#10;                  &#10;</p>
+                </td>
+                <td>
+                  <p>&#10;<italic>DDC2-AID CHK1∆</italic>&#10;</p>
+                </td>
+                <td>
+                  <p>0 vs 5 + IAA</p>
+                </td>
+                <td>
+                  <p>&lt;0.0001</p>
+                </td>
+                <td>
+                  <p>****</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 6 + IAA</p>
+                </td>
+                <td>
+                  <p>&lt;0.0001</p>
+                </td>
+                <td>
+                  <p>****</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 7 + IAA</p>
+                </td>
+                <td>
+                  <p>0.10</p>
+                </td>
+                <td>
+                  <p>ns</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 8 + IAA</p>
+                </td>
+                <td>
+                  <p>0.25</p>
+                </td>
+                <td>
+                  <p>ns</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 9 + IAA</p>
+                </td>
+                <td>
+                  <p>0.072</p>
+                </td>
+                <td>
+                  <p>ns</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>&#10;                  &#10;</p>
+                </td>
+                <td>
+                  <p>&#10;<italic>RAD9-AID</italic>&#10;</p>
+                </td>
+                <td>
+                  <p>0 vs 5 + IAA</p>
+                </td>
+                <td>
+                  <p>&lt;0.0001</p>
+                </td>
+                <td>
+                  <p>****</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 6 + IAA</p>
+                </td>
+                <td>
+                  <p>&lt;0.0001</p>
+                </td>
+                <td>
+                  <p>****</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 7 + IAA</p>
+                </td>
+                <td>
+                  <p>&lt;0.0001</p>
+                </td>
+                <td>
+                  <p>****</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 8 + IAA</p>
+                </td>
+                <td>
+                  <p>0.0055</p>
+                </td>
+                <td>
+                  <p>**</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 9 + IAA</p>
+                </td>
+                <td>
+                  <p>1.00</p>
+                </td>
+                <td>
+                  <p>ns</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>&#10;                  &#10;</p>
+                </td>
+                <td>
+                  <p>&#10;<italic>RAD9-AID CHK1∆</italic>&#10;</p>
+                </td>
+                <td>
+                  <p>0 vs 5 + IAA</p>
+                </td>
+                <td>
+                  <p>0.00050</p>
+                </td>
+                <td>
+                  <p>***</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 6 + IAA</p>
+                </td>
+                <td>
+                  <p>0.0052</p>
+                </td>
+                <td>
+                  <p>**</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 7 + IAA</p>
+                </td>
+                <td>
+                  <p>0.21</p>
+                </td>
+                <td>
+                  <p>ns</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>&#10;                  &#10;</p>
+                </td>
+                <td>
+                  <p>&#10;<italic>RAD24-AID</italic>&#10;</p>
+                </td>
+                <td>
+                  <p>0 vs 5 + IAA</p>
+                </td>
+                <td>
+                  <p>&lt;0.0001</p>
+                </td>
+                <td>
+                  <p>****</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 6 + IAA</p>
+                </td>
+                <td>
+                  <p>&lt;0.0001</p>
+                </td>
+                <td>
+                  <p>****</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 7 + IAA</p>
+                </td>
+                <td>
+                  <p>0.00</p>
+                </td>
+                <td>
+                  <p>***</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 8 + IAA</p>
+                </td>
+                <td>
+                  <p>0.36</p>
+                </td>
+                <td>
+                  <p>ns</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 9 + IAA</p>
+                </td>
+                <td>
+                  <p>0.90</p>
+                </td>
+                <td>
+                  <p>ns</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>&#10;                  &#10;</p>
+                </td>
+                <td>
+                  <p>&#10;<italic>RAD24-AID CHK1∆</italic>&#10;</p>
+                </td>
+                <td>
+                  <p>0 vs 5 + IAA</p>
+                </td>
+                <td>
+                  <p>0.00010</p>
+                </td>
+                <td>
+                  <p>***</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 6 + IAA</p>
+                </td>
+                <td>
+                  <p>0.00020</p>
+                </td>
+                <td>
+                  <p>***</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>0 vs 7 + IAA</p>
+                </td>
+                <td>
+                  <p>0.10</p>
+                </td>
+                <td>
+                  <p>ns</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>&#10;                  &#10;</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>RAD53-AID TIR1(F74G</italic>)</p>
+                </td>
+                <td>
+                  <p>18 vs 18 + IAA</p>
+                </td>
+                <td>
+                  <p>0.35</p>
+                </td>
+                <td>
+                  <p>ns</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>21 vs 21 + IAA</p>
+                </td>
+                <td>
+                  <p>0.96</p>
+                </td>
+                <td>
+                  <p>ns</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>24 vs 24 + IAA</p>
+                </td>
+                <td>
+                  <p>0.42</p>
+                </td>
+                <td>
+                  <p>ns</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>&#10;                  &#10;</p>
+                </td>
+                <td>
+                  <p>&#10;<italic>RAD9-AID pRAD9-AID</italic>&#10;</p>
+                </td>
+                <td>
+                  <p>18 vs 18 + IAA</p>
+                </td>
+                <td>
+                  <p>0.80</p>
+                </td>
+                <td>
+                  <p>ns</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>21 vs 21 + IAA</p>
+                </td>
+                <td>
+                  <p>0.99</p>
+                </td>
+                <td>
+                  <p>ns</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>24 vs 24 + IAA</p>
+                </td>
+                <td>
+                  <p>0.84</p>
+                </td>
+                <td>
+                  <p>ns</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>&#10;                  &#10;</p>
+                </td>
+                <td>
+                  <p>&#10;<italic>DDC2-AID MAD2-AID AND MAD2-AID</italic>&#10;</p>
+                </td>
+                <td>
+                  <p>18 + IAA vs 18 + IAA</p>
+                </td>
+                <td>
+                  <p>0.95</p>
+                </td>
+                <td>
+                  <p>ns</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>21 + IAA vs 21 + IAA</p>
+                </td>
+                <td>
+                  <p>0.64</p>
+                </td>
+                <td>
+                  <p>ns</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>24 + IAA vs 24 + IAA</p>
+                </td>
+                <td>
+                  <p>0.97</p>
+                </td>
+                <td>
+                  <p>ns</p>
+                </td>
+                <td>
+                  <p>Sidak</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table-wrap-foot>
+            <p>Timepoints are relative to when galactose was added.</p>
+            <p>A one-way ANOVA was used to test for significant differences.</p>
+          </table-wrap-foot>
+        </table-wrap>
         <p>Because TIR1-mediated degradation of Rad9-AID even without auxin caused most cells to adapt 24 hr after inducing DNA damage, we asked whether overexpression of<italic>RAD9-AID</italic>could overcome this effect. We added a<italic>TRP1</italic>centromere-containing plasmid copy of<italic>RAD9-AID</italic>with its endogenous promoter (pRAD9-AID) to our 2-DSB<italic>RAD9-AID</italic>strain. Degradation of Rad9-AID by IAA 15 hr after DSB induction did not trigger release of cells from G<sub>2</sub>/M arrest (, ). However, unlike degradation of Ddc2-AID or Rad53-AID2 in this same situation, Rad53 remained hyperphosphorylated up to 9 hr after adding IAA (). Therefore, while the DDC proteins Ddc2, Rad9, and Rad53 are required for the maintenance of checkpoint arrest at early stages, surprisingly, they are dispensable for prolonged arrest following induction of 2 DSBs. These results suggest that prolonged cell cycle arrest is maintained by signaling proteins other than the Mec1 branch of the DDC.</p>
       </sec>
       <sec>
