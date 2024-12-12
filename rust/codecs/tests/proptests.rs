@@ -192,12 +192,12 @@ proptest! {
                 "IncludeBlock".into(),
                 "RawBlock".into(),
                 "StyledBlock".into(),
-                "Table".into()
             ],
             properties: vec![
                 // Properties that are not yet supported
                 "ListItem.is_checked".into(),
-                "CodeChunk.execution_mode".into()
+                "CodeChunk.execution_mode".into(),
+                "Table.notes".into(),
             ],
             ..Default::default()
         });
