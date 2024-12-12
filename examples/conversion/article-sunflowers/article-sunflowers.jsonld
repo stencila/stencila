@@ -59,10 +59,36 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c43",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Richmond and Oates, 2012"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "). In plants, the regular spacing of lateral roots along the length of the primary root axis is controlled by a ‘root clock’ that generates a temporally oscillating developmental signal ("
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c54",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Xuan et al., 2020"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -71,16 +97,55 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c34",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Mosier and Hurley, 2021"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "). Circadian clocks coordinate development on daily and seasonal time scales. In both plants and animals, the circadian clock can integrate environmental cues such as day length and temperature to time the transition to reproductive stages to the appropriate season ("
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c17",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Ikegami and Yoshimura, 2012"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c19",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Inoue et al., 2018"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -123,16 +188,55 @@
               }
             },
             {
-              "@type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "@type": "stencila:Cite",
+              "target": "c6",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Brady et al., 2021"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c23",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Larrondo and Canessa, 2018"
+                  }
+                }
+              ]
+            },
+            {
+              "@type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c30",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "McClung, 2019"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -152,10 +256,36 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c42",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Rensing and Ruoff, 2002"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "). First, they are stably entrained to environmental cues. Second, they persist in free running environmental conditions. Third, circadian rhythms are temperature compensated such that they maintain a uniform period over a range of ambient temperatures, in contrast to the general rule that the rate of enzymatic processes changes with temperature. In addition, the circadian clock gates certain biological processes so that responsiveness to environmental cues is time-of-day dependent. For example, studies in humans show the timing of drug treatment can be critical to creating an effective therapeutic response ("
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c45",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Ruan et al., 2021"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -164,10 +294,36 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c12",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Dodd et al., 2005"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c32",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Michael et al., 2003"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -176,16 +332,55 @@
               }
             },
             {
-              "@type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "@type": "stencila:Cite",
+              "target": "c33",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Miller et al., 2004"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c13",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Emerson et al., 2008"
+                  }
+                }
+              ]
+            },
+            {
+              "@type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c49",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Spoelstra et al., 2016"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -194,10 +389,36 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c37",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Ouyang et al., 1998"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "), and fungi ("
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c22",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Koritala et al., 2020"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -217,22 +438,74 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c18",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Imaizumi and Kay, 2006"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "). The circadian clock also regulates daily aspects of floral development, for example coordinating daily rhythms in scent emission and floral opening and closing with pollinator activity ("
               }
             },
             {
-              "@type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "@type": "stencila:Cite",
+              "target": "c57",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Yon et al., 2017"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c19",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Inoue et al., 2018"
+                  }
+                }
+              ]
+            },
+            {
+              "@type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c35",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Muroya et al., 2021"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -241,10 +514,36 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c3",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Atamian et al., 2016"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c10",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Creux et al., 2021"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -264,6 +563,19 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c14",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Funk et al., 2009"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "). Asteraceae are characterized by the arrangement of individual florets together in a complex, compressed inflorescence called the capitulum. Individual florets are arranged on the capitulum disk in spiral patterns, a classic type of phyllotaxis observed in many plants ("
@@ -276,16 +588,55 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c58",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Zhang et al., 2021"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "). In domesticated sunflower, specification of the hundreds or even thousands of floret primordia found on a single capitulum takes approximately 10-14 days ("
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c28",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Marc and Palmer, 1981"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c38",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Palmer and Steer, 1985"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -294,10 +645,36 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c24",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Lindström and Hernández, 2015"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "). Anthesis of all florets on a capitulum head typically occurs over 5-10 days ("
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c48",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Seiler, 2015"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -306,10 +683,36 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c28",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Marc and Palmer, 1981"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c58",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Zhang et al., 2021"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -324,10 +727,36 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c4",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Baroncelli et al., 1990"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c26",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Lobello et al., 2000"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -585,6 +1014,19 @@
                   }
                 },
                 {
+                  "@type": "stencila:Cite",
+                  "target": "c28",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Marc and Palmer, 1981"
+                      }
+                    }
+                  ]
+                },
+                {
                   "@type": "Text",
                   "value": {
                     "string": "). Each disc floret is an individual flower with an epigynous ovary that holds a corolla tube of fused petals ("
@@ -632,6 +1074,19 @@
                   }
                 },
                 {
+                  "@type": "stencila:Cite",
+                  "target": "c36",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Neff and Simpson, 1990"
+                      }
+                    }
+                  ]
+                },
+                {
                   "@type": "Text",
                   "value": {
                     "string": "). Before anthesis all reproductive organs are enclosed within the corolla tube ("
@@ -668,10 +1123,36 @@
                   }
                 },
                 {
+                  "@type": "stencila:Cite",
+                  "target": "c4",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Baroncelli et al., 1990"
+                      }
+                    }
+                  ]
+                },
+                {
                   "@type": "Text",
                   "value": {
                     "string": "; "
                   }
+                },
+                {
+                  "@type": "stencila:Cite",
+                  "target": "c26",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Lobello et al., 2000"
+                      }
+                    }
+                  ]
                 },
                 {
                   "@type": "Text",
@@ -692,6 +1173,19 @@
                   }
                 },
                 {
+                  "@type": "stencila:Cite",
+                  "target": "c21",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Jeffrey, 2009"
+                      }
+                    }
+                  ]
+                },
+                {
                   "@type": "Text",
                   "value": {
                     "string": "). The stigmas then unfold and become receptive to pollen the day after pollen release ("
@@ -702,6 +1196,19 @@
                   "value": {
                     "string": "). The temporal and spatial separation between pollen release and stigma presentation in sunflowers promotes cross-fertilization across head ("
                   }
+                },
+                {
+                  "@type": "stencila:Cite",
+                  "target": "c39",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Patterson, 2009"
+                      }
+                    }
+                  ]
                 },
                 {
                   "@type": "Text",
@@ -744,10 +1251,36 @@
                   }
                 },
                 {
+                  "@type": "stencila:Cite",
+                  "target": "c4",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Baroncelli et al., 1990"
+                      }
+                    }
+                  ]
+                },
+                {
                   "@type": "Text",
                   "value": {
                     "string": "; "
                   }
+                },
+                {
+                  "@type": "stencila:Cite",
+                  "target": "c26",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Lobello et al., 2000"
+                      }
+                    }
+                  ]
                 },
                 {
                   "@type": "Text",
@@ -1033,6 +1566,19 @@
                   }
                 },
                 {
+                  "@type": "stencila:Cite",
+                  "target": "c58",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Zhang et al., 2021"
+                      }
+                    }
+                  ]
+                },
+                {
                   "@type": "Text",
                   "value": {
                     "string": "). We therefore examined the timing of ovary, stamen, and style growth within a pseudowhorl along separate parastichies ("
@@ -1069,16 +1615,55 @@
                   }
                 },
                 {
-                  "@type": "Text",
-                  "value": {
-                    "string": "; "
-                  }
+                  "@type": "stencila:Cite",
+                  "target": "c25",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Lindström et al., 2007"
+                      }
+                    }
+                  ]
                 },
                 {
                   "@type": "Text",
                   "value": {
                     "string": "; "
                   }
+                },
+                {
+                  "@type": "stencila:Cite",
+                  "target": "c24",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Lindström and Hernández, 2015"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "; "
+                  }
+                },
+                {
+                  "@type": "stencila:Cite",
+                  "target": "c26",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Lobello et al., 2000"
+                      }
+                    }
+                  ]
                 },
                 {
                   "@type": "Text",
@@ -1466,6 +2051,19 @@
                   }
                 },
                 {
+                  "@type": "stencila:Cite",
+                  "target": "c15",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Greenham and McClung, 2015"
+                      }
+                    }
+                  ]
+                },
+                {
                   "@type": "Text",
                   "value": {
                     "string": "). We therefore determined the free-running periods for ovary and stamen developmental rhythms in sunflowers maintained in constant darkness at 18°C, 25°C, or 30°C. Across the three different growth conditions, the estimated periods for cycles of ovary development were not statistically different while the estimated period for stamen development was slightly but significantly longer at 30°C, suggesting modest overcompensation ("
@@ -1516,6 +2114,19 @@
                   "value": {
                     "string": "Environmental influences on clock-regulated processes are often ‘gated’ by the circadian clock, meaning that the same stimulus can evoke different responses when applied at different times of day ("
                   }
+                },
+                {
+                  "@type": "stencila:Cite",
+                  "target": "c52",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Wenden et al., 2011"
+                      }
+                    }
+                  ]
                 },
                 {
                   "@type": "Text",
@@ -1889,6 +2500,19 @@
                   }
                 },
                 {
+                  "@type": "stencila:Cite",
+                  "target": "c44",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Roenneberg et al., 2005"
+                      }
+                    }
+                  ]
+                },
+                {
                   "@type": "Text",
                   "value": {
                     "string": "). We therefore examined whether multiple periods of darkness during a 24-hour period would affect the timing of floret anthesis within pseudowhorls. We first exposed sunflowers to four equal periods of darkness and light every 24 hours, LDLD|25°C (6h:6h:6h:6h). One pseudowhorl of florets underwent anthesis every 24 hours, but florets within each pseudowhorl were poorly coordinated ("
@@ -2034,10 +2658,36 @@
                   }
                 },
                 {
+                  "@type": "stencila:Cite",
+                  "target": "c4",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Baroncelli et al., 1990"
+                      }
+                    }
+                  ]
+                },
+                {
                   "@type": "Text",
                   "value": {
                     "string": "; "
                   }
+                },
+                {
+                  "@type": "stencila:Cite",
+                  "target": "c26",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Lobello et al., 2000"
+                      }
+                    }
+                  ]
                 },
                 {
                   "@type": "Text",
@@ -2189,6 +2839,19 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c5",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Bloch et al., 2017"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "). In a few cases, such as petal opening and closing in "
@@ -2229,10 +2892,36 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c8",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Bünsow, 1953"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c56",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Yon et al., 2016"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -2259,6 +2948,19 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c4",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Baroncelli et al., 1990"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": ") ("
@@ -2271,10 +2973,36 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c36",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Neff and Simpson, 1990"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "). This temporal separation between release of pollen and stigma receptivity is thought to reduce self-pollination and is prevalent throughout the Asteraceae family ("
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c21",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Jeffrey, 2009"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -2324,16 +3052,55 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c10",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Creux et al., 2021"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "). Overall, the different sensitivities of floral organs to light and temperature suggest they may be regulated by distinct growth regulatory pathways. This is consistent with studies in other plants, which revealed that different hormones regulate the growth of male and female reproductive organs ("
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c9",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Chandler, 2011"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c29",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Marciniak and Przedniczek, 2019"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -2353,10 +3120,17 @@
               }
             },
             {
-              "@type": "Text",
-              "value": {
-                "string": "; "
-              }
+              "@type": "stencila:Cite",
+              "target": "c7",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Budumajji and Raju, 2018"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -2365,10 +3139,55 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c16",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Hipólito et al., 2013"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c36",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Neff and Simpson, 1990"
+                  }
+                }
+              ]
+            },
+            {
+              "@type": "Text",
+              "value": {
+                "string": "; "
+              }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c50",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Valentin-Silva et al., 2016"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -2377,10 +3196,36 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c2",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Amorim et al., 2021"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "). Since the precise timing of pollen release relative to dawn affects male reproductive success in sunflower ("
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c10",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Creux et al., 2021"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -2398,6 +3243,19 @@
               "value": {
                 "string": "The ecological and evolutionary success of the Asteraceae family, estimated to contain ∼10% of angiosperm species, is attributed in part to their compressed inflorescences that act together as single false flowers to attract pollinators ("
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c27",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Mandel et al., 2019"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -2418,16 +3276,55 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c28",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Marc and Palmer, 1981"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "; "
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c38",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Palmer and Steer, 1985"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "). Recent experimental and modeling studies in gerbera daisies attributed formation of this spiral pattern to short-range interactions between spatially close initia ("
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c58",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Zhang et al., 2021"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -2465,10 +3362,36 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c40",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Pittendrigh and Minis, 1964"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "; "
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c55",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Yanovsky and Kay, 2003"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -2481,6 +3404,19 @@
               "value": {
                 "string": "). This is conceptually similar to photoperiodic control of flowering in short day plants such as rice, in which light at night inactivates a clock-regulated transcription factor that promotes the transition to flowering ("
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c20",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Izawa et al., 2002"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -2524,6 +3460,19 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c31",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Michael et al., 2008"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "). We were therefore surprised to find robust rhythms of anthesis in conditions of constant temperature and darkness but not constant temperature and light ("
@@ -2559,6 +3508,19 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c46",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Sargent et al., 1966"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "). An interesting question for further study is whether in constant light sunflower floret rhythms are present but masked, or whether the floral circadian clock is arrhythmic in this condition. The very rapid resetting of the different phases of organ growth to new light conditions ("
@@ -2582,16 +3544,55 @@
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c11",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "DeGrandi-Hoffman and Watkins, 2000"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "; "
               }
             },
             {
+              "@type": "stencila:Cite",
+              "target": "c36",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Neff and Simpson, 1990"
+                  }
+                }
+              ]
+            },
+            {
               "@type": "Text",
               "value": {
                 "string": "). In the case of the highly social honeybees, hive members communicate via a dance language to quickly reallocate the numbers of foragers sent to different food sources based on resource availability ("
               }
+            },
+            {
+              "@type": "stencila:Cite",
+              "target": "c51",
+              "stencila:citationMode": "Parenthetical",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Visscher and Seeley, 1982"
+                  }
+                }
+              ]
             },
             {
               "@type": "Text",
@@ -2711,6 +3712,19 @@
                   }
                 },
                 {
+                  "@type": "stencila:Cite",
+                  "target": "c47",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Schneider et al., 2012"
+                      }
+                    }
+                  ]
+                },
+                {
                   "@type": "Text",
                   "value": {
                     "string": "). For each image, the ovaries, stamens, and styles were scored for a change in size from the previous image. Ovary growth was seen as corolla tube swelling above the immature capitulum surface ("
@@ -2763,6 +3777,19 @@
                   }
                 },
                 {
+                  "@type": "stencila:Cite",
+                  "target": "c53",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Wickham et al., 2019"
+                      }
+                    }
+                  ]
+                },
+                {
                   "@type": "Text",
                   "value": {
                     "string": "). To create polar plots based on each pseudowhorl, scoring data was separated into pseudowhorls. At times, more than 24 hours of data is presented on one polar plot. In the environmental conditions that eliminated pseudowhorl coordination, polar plots were created based on 24 hours of data. The average time of anthesis for each organ, and standard deviation was calculated using the circular package in R (Agostinelli, C. and Lund, 2022). This information was calculated for each pseudowhorl, all pseudowhorls together superimposed on one 24-hour cycle, and for pseudowhorls 3 and up (after resetting is complete). The BioDare2 website ("
@@ -2785,6 +3812,19 @@
                   "value": {
                     "string": ") was used to calculate rhythmic parameters for all conditions and organs ("
                   }
+                },
+                {
+                  "@type": "stencila:Cite",
+                  "target": "c59",
+                  "stencila:citationMode": "Parenthetical",
+                  "stencila:content": [
+                    {
+                      "@type": "Text",
+                      "value": {
+                        "string": "Zielinski et al., 2014"
+                      }
+                    }
+                  ]
                 },
                 {
                   "@type": "Text",
