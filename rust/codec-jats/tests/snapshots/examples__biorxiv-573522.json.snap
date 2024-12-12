@@ -1639,7 +1639,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "573522v1_fig1"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Figure",
@@ -1731,7 +1741,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "573522v1_fig3"
+                    }
+                  ]
+                }
+              ]
             }
           ]
         },
@@ -1959,7 +1979,17 @@ expression: article
                   ]
                 }
               ],
-              "content": []
+              "content": [
+                {
+                  "type": "Paragraph",
+                  "content": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "573522v1_fig2"
+                    }
+                  ]
+                }
+              ]
             },
             {
               "type": "Section",
@@ -2495,7 +2525,17 @@ expression: article
                       ]
                     }
                   ],
-                  "content": []
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "ImageObject",
+                          "contentUrl": "573522v1_fig4"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "type": "Paragraph",
@@ -2719,7 +2759,17 @@ expression: article
                       ]
                     }
                   ],
-                  "content": []
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "ImageObject",
+                          "contentUrl": "573522v1_fig5"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "type": "Paragraph",
@@ -2937,7 +2987,17 @@ expression: article
                       ]
                     }
                   ],
-                  "content": []
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "ImageObject",
+                          "contentUrl": "573522v1_fig6"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "type": "Paragraph",
@@ -3172,7 +3232,17 @@ expression: article
                       ]
                     }
                   ],
-                  "content": []
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "ImageObject",
+                          "contentUrl": "573522v1_fig7"
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "type": "Paragraph",

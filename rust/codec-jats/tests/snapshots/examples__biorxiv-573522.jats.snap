@@ -63,6 +63,10 @@ expression: jats
             <p>
               <bold>A.</bold>A coronal section showing the NLOT under bright-field illumination.<bold>B.</bold>The responses of a layer 2 neuron to current injections. Inset shows the F/I curve of this neuron.<bold>C.</bold>Box plots showing the distributions of resting membrane properties and spiking threshold of layer 2 neurons.<bold>D.</bold>The effect of the sodium channel blocker TTX (1 µM), and the calcium channel blocker Ni<sup>2+</sup>(200 μM), on the responses to current injection in an example neuron.<bold>E.</bold>The superimposed responses of the neuron in D. Note that blocking action potentials with TTX reveals the contribution of a voltage gated calcium current.<bold>F.</bold>The effect of Ni2+ on bursting in an example neuron.<bold>G.</bold>quantification of the effect of Ni2+ on spiking threshold current, the number of spikes evoked by threshold current, the firing rate within the burst, and burst duration.</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="573522v1_fig1">
+            </inline-graphic>
+          </p>
         </fig>
         <fig>
           <label>Figure 3.</label>
@@ -71,6 +75,10 @@ expression: jats
             <p>
               <bold>A.</bold>Experimental scheme. Two retrograde AAVs, one carrying the genes for TVA and mCherry, and one carrying the gene for oPBG were injected unilaterally into the OB of Rbp4-Cre mice and allowed 4 weeks for expression. Then a pseudotyped rabies virus carrying the gene for GFP was injected into the ipsilateral NLOT.<bold>B.</bold>Fluorescently labeled cells in the ipsilateral NLOT. Yellow cells express both mCherry and GFP and are presumed to be starter cells. The occurrence of cells expressing only GFP indicates synaptic connectivity within the NLOT.<bold>C-G.</bold>Rabies-labeled neurons in the ipsilateral OB (C), ipsilateral tenia tecta (D), ipsilateral PC and NDB (E), ipsilateral SI (F), and ipsi- and contra-lateral BLA (G).<bold>H.</bold>The fraction of rabies-labeled cells in different regions of the brain. The olfactory category includes the OB, PC, AON, TT, and the OT. The NLOT and BLA categories include both hemispheres. The cholinergic category includes the SI and the NDB.</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="573522v1_fig3">
+            </inline-graphic>
+          </p>
         </fig>
       </sec>
       <sec>
@@ -83,6 +91,10 @@ expression: jats
             <p>
               <bold>A.</bold>Experimental schema. NLOT neurons were specifically labeled by a unilateral injection of retrograde AAV carrying the gene for mCherry into the OB.<bold>B.</bold>A coronal section showing the labeled NLOT.<bold>C.</bold>Sections of the ipsi- and contra-lateral OBs showing NLOT axons densely populating the granule cell layer (GCL) yet also reaching the external plexiform and glomerular layers (EPL and GL).<bold>D.</bold>The ipsi- and contra-lateral NLOTs labeled by unilateral retrograde AAV injection into the OB.<bold>E.</bold>NLOT axons within the aPC and the islands of Calleja (IC) in the OT. Note that NLOT axons specifically target the bordering regions of the aPC and OT.<bold>F.</bold>The ipsi- and contra-lateral NLOTs were labeled by retrograde AAV injection into the OT.<bold>G.</bold>NLOT projections in layer-1b of the contralateral, but not in the ipsilateral pPC.<bold>H.</bold>Retrograde AAV injection into pPC labeled the contralateral but not the ipsilateral NLOT.<bold>I.</bold>NLOT axonal projections within the contralateral BLA. No axons were evident in the ipsilateral BLA.<bold>J.</bold>Retrograde AAV injection into the BLA labeled the contralateral, but not the ipsilateral NLOT.</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="573522v1_fig2">
+            </inline-graphic>
+          </p>
         </fig>
         <sec>
           <title level="3">NLOT Output projections</title>
@@ -107,6 +119,10 @@ expression: jats
               <p>
                 <bold>A.</bold>The expression of ChR2-EYFP in OB mitral and tufted cells.<bold>B.</bold>Fluorescent OB output axons (LOT) within layer 1 of the NLOT.<bold>C.</bold>A biocytin-labeled cell (red), and the LOT within layer 1. Note that the LOT contacts the dendrite at its distal end.<bold>D.</bold>Example LOT-evoked EPSCs (top) and EPSPs (bottom). Gray traces show individual trials and black lines show the average response across trials. Red line shows EPSC obtained in the presence of CNQX and APV. Blue ticks indicate the timing of light pulses.<bold>E.</bold>Voltage dependence of an example LOT-evoked EPSC. Red cross indicates reversal potential.<bold>F.</bold>Box plots showing the distribution of EPSC amplitudes (at -70 mV holding potential) and reversal potentials of LOT inputs. n=25 cells and 8 cells for the amplitude and reversal, respectively.<bold>G.</bold>LOT-evoked action potentials are only triggered when the cell is depolarized with current injection.<bold>H.</bold>LOT-evoked dendritic spikes recorded under voltage clamp (top) and current clamp (bottom) conditions (from two different cells). 10 repetitions of the same stimulation are shown for each. In the voltage clamp mode, the cell was held at -20 mV. Note the all- or-none nature of the responses that is indicative of a regenerative process (red).<bold>I-J.</bold>Paired-pulse dynamics of LOT inputs into NLOT neurons.<bold>I.</bold>Example data from one neuron.<bold>J.</bold>Paired-pulse ratio as a function of the inter-pulse interval averaged across cells (n=4). Note that LOT inputs are facilitating at intervals that are less than 100 ms.</p>
             </caption>
+            <p>
+              <inline-graphic xlink:href="573522v1_fig4">
+              </inline-graphic>
+            </p>
           </fig>
           <p>Next, we describe the properties of inputs into NLOT from higher olfactory centers. We start with the PC. AAVs carrying the gene for ChR2 were stereotactically injected into the PC of young adult mice and were allowed 3-5 weeks’ time for expression (). We found no differences between the inputs from the anterior and posterior PC and combined them for the following description. PC axons were visible in the dorsal part of layer 1 and surrounding layer 3 where they could make contact with proximal dendrites of NLOT axons (). In line with that, brief light pulses evoked large responses in NLOT neurons (). EPSC amplitudes ranged between a few hundred pA and 2 nA (713 ± 106 pA, mean ± SEM, n=24) and the reversal potential of PC inputs was typical for glutamatergic synapses (9 ± 7 mV, mean ± SEM, n=11, ). PC inputs showed strong paired pulse depression when the inter-stimulus interval was below 100 ms (). Importantly, PC inputs were sufficient to evoke action potential bursts similar to those seen with current injection (). Like with current injections, PC inputs typically evoked bursts of action potentials that rode over a slow depolarization lasting around 200 ms. Spike bursts tended to only occur in response to the earlier synaptic activations due to depression.</p>
           <fig>
@@ -116,6 +132,10 @@ expression: jats
               <p>
                 <bold>A.</bold>A coronal section showing expression of ChR2-GFP in PC.<bold>B.</bold>A confocal image showing the spread of PC axons within the NLOT.<bold>C.</bold>Example PC-evoked EPSCs (top) and EPSPs (bottom). Gray traces show individual trials and black traces show their averages. Red trace shows the EPSC obtained in the presence of glutamatergic blockers. Blue ticks indicate the timing of light stimulation.<bold>D.</bold>Voltage dependence of an example PC-evoked EPSC. Red cross indicates reversal potential.<bold>E.</bold>Box plots showing the distributions of amplitudes and reversal potentials of PC-evoked EPSCs. n=24 and 11 cells for amplitude and reversal, respectively.<bold>F-G.</bold>Paired pulse dynamics of PC-evoked EPSCs.<bold>F.</bold>Example traces showing the EPSCs obtained with pairs of light pulses at variable intervals.<bold>G.</bold>The average paired pulse ratio as a function of the inter pulse interval. Shaded area shows the SEM (n=6 cells).<bold>H.</bold>PC-evoked action potential bursts. 5 trials are shown.</p>
             </caption>
+            <p>
+              <inline-graphic xlink:href="573522v1_fig5">
+              </inline-graphic>
+            </p>
           </fig>
           <p>Next, we describe the properties of synaptic input from the TT/AON to the NLOT. TT/AON neurons were virally infected with ChR2 (). The TT is a narrow brain region and our injections often also infected the medial part of the anterior olfactory nucleus (AON). Injections that completely missed the TT and infected lateral parts of the AON failed to evoke synaptic input in NLOT neurons. Additionally, the rabies experiment showed many more labeled cells in the TT compared to the AON. However, as we could not isolate expression in either the medial AON or the TT, we treat these two possible inputs combined. TT/AON axons were visible within layer 2, suggesting that they contact NLOT neurons proximal to the soma (). Light pulses evoked EPSCs that were similar in their characteristics to the PC inputs but smaller in amplitude (403 ± 136 pA, mean ± SEM, n=13, ). These inputs were reversibly blocked by glutamatergic blockers, reversed at normal glutamatergic reversal potential (11 ± 4 mV, mean ± SEM, n=13), and showed paired-pulse depression (). In the current clamp mode, light pulses readily evoked action potential bursts ().</p>
           <fig>
@@ -125,6 +145,10 @@ expression: jats
               <p>
                 <bold>A.</bold>A coronal section showing the expression of ChR2-GFP in the medial-AON/TT.<bold>B.</bold>A confocal image showing the spread of AON/TT axons within NLOT.<bold>C.</bold>Example AON/TT-evoked EPSCs (top) and EPSPs (bottom). Gray traces show individual trials and black traces show their averages. Blue ticks mark the timing of light stimulation.<bold>D.</bold>Voltage dependence of EPSCs from one example cell. Black line is a linear fit. Red cross denotes reversal potential.<bold>E.</bold>Box plots showing the distributions of amplitudes and reversal potentials of AON/TT-evoked EPSCs (n=13 for both amplitude and reversal).<bold>F-G.</bold>Short-term synaptic plasticity of AON/TT inputs into NLOT.<bold>F.</bold>Responses from one example cell to paired stimulation with variable intervals.<bold>G.</bold>Average paired-pulse ratio as a function of inter-pulse interval. Shaded area shows the mean±SEM (n=9 cells).<bold>H.</bold>Example AON/TT-evoked action potential bursts. 10 repetitions of the same stimulation are shown.</p>
             </caption>
+            <p>
+              <inline-graphic xlink:href="573522v1_fig6">
+              </inline-graphic>
+            </p>
           </fig>
           <p>These data indicate that of the olfactory inputs into the NLOT, third order regions (PC, AON/TT) that project more processed olfactory information are much more efficacious in activating NLOT neurons than the more peripheral OB.</p>
           <p>Lastly, we analyze the input from the BLA to the NLOT. We expressed ChR2 in BLA neurons using viral injections (). Similar to the AON/TT axons, BLA axons were visible within layer 2 of the NLOT, suggesting that they innervate NLOT neurons at their proximal dendrites (). In line with that, light pulses evoked large and fast EPSCs (663 ± 100 pA, mean ± SEM, n=25 cells, ). These were reversibly blocked by glutamatergic blockers (APV, CNQX), and reversed at -9 ± 12 mV (mean ± SEM, n=7, ). Similar to the PC input, BLA synaptic input showed a marked pair-pulse depression at below 100 ms intervals (). BLA input was sufficient to evoke action potential bursts in NLOT neurons, but these tended to be limited to early stimuli within stimulation trains ().</p>
@@ -135,6 +159,10 @@ expression: jats
               <p>
                 <bold>A.</bold>A coronal section showing expression of ChR2-GFP in the BLA.<bold>B.</bold>A confocal image showing the spread of BLA axons within the NLOT.<bold>C.</bold>Example BLA-evoked EPSCs (top) and EPSPs (bottom). Gray traces show individual trials and black traces show their average. Red trace shows the EPSC obtained in the presence of CNQX and APV. Blue ticks mark the timing of light stimulation.<bold>D.</bold>Voltage dependence of BLA-evoked EPSCs from one example cell. Black line is a linear fit. Red cross denotes reversal potential.<bold>E.</bold>Box plots showing the distributions of amplitudes (n=25 cells) and reversal potentials (n=7 cells) of BLA-evoked EPSCs.<bold>F-G.</bold>Short-term synaptic plasticity of BLA inputs into NLOT.<bold>F.</bold>Example repeated stimulation with variable intervals.<bold>G.</bold>Average paired-pulse ratio as a function of inter-pulse interval. Shaded area shows the mean±SEM (n=15 cells).<bold>H.</bold>Example BLA-evoked action potential bursts. 5 repetitions of the same stimulation are shown.</p>
             </caption>
+            <p>
+              <inline-graphic xlink:href="573522v1_fig7">
+              </inline-graphic>
+            </p>
           </fig>
           <p>In summary, NLOT neurons are most efficiently activated by PC and BLA inputs. These inputs show paired-pulse depression which limits the time of activation with repeated stimulus trains.</p>
         </sec>

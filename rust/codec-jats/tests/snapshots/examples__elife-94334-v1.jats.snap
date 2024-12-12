@@ -33,6 +33,10 @@ expression: jats
             <p>&#10;              &#10;</p>
             <p>&#10;              &#10;</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="elife-94334-fig1-v1.tif">
+            </inline-graphic>
+          </p>
         </fig>
         <p>In both 1-DSB and 2-DSB strains, 4 hr after the induction of DNA damage, &gt;90% of cells arrested at G<sub>2</sub>/M as determined by an adaptation assay () and DAPI staining (). In agreement, western blot analysis showed that Rad53 was hyperphosphorylated (), demonstrating that DDC was fully activated in both these strains after DNA damage. By 12–15 hr after the induction of a single persistent DSB, most 1-DSB cells adapted; that is, they escaped the G<sub>2</sub>/M arrest and re-entered mitosis (). The timing of Rad53 dephosphorylation following the induction of a single irreparable DSB correlated with the timing of adaptation and escape from the G<sub>2</sub>/M arrest (), as previously shown (<xref ref-type="bibr" rid="bib47">Pellicioli et al., 2001</xref>) In contrast, in the 2-DSB strain, over 90% of cells remained permanently arrested in G<sub>2</sub>/M with persistently hyper-phosphorylated Rad53 throughout the 24 hr time course (). We leveraged this permanent cell cycle arrest observed in the 2-DSB strain to study how the DNA damage-induced cell cycle arrest is maintained once it had been established.</p>
       </sec>
@@ -55,6 +59,10 @@ expression: jats
             <p>&#10;                &#10;</p>
             <p>&#10;                &#10;</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="elife-94334-fig2-v1.tif">
+            </inline-graphic>
+          </p>
         </fig>
         <fig>
           <label>Figure 2—figure supplement 1.</label>
@@ -62,6 +70,10 @@ expression: jats
             <title level="2">Adaptation assay of AID-tagged checkpoint activation proteins.</title>
             <p>(<bold>A</bold>) Adaptation assay of 50 G<sub>1</sub>cells on a YEP-Gal plate after 24 hr for 2-DSB (WT), 2-DSB<italic>DDC2-AID</italic>, 2-DSB<italic>RAD9-AID</italic>, 2-DSB<italic>RAD24-AID</italic>, and 2-DSB<italic>RAD53-AID</italic>with TIR1. (<bold>B</bold>) Adaptation assay of 50 G<sub>1</sub>cells on a YEP-Gal plate after 24 hr for 2-DSB (WT), 2-DSB<italic>DDC2-AID</italic>, 2-DSB<italic>RAD9-AID</italic>, 2-DSB<italic>RAD24-AID</italic>, and 2-DSB<italic>RAD53-AID</italic>without TIR1. (<bold>C</bold>) Adaptation assay of 50 G<sub>1</sub>cells on YEP-Gal plate after 24 hr for 2-DSB (WT), 2-DSB<italic>RAD9-AID</italic>TIR1 (F74G), 2-DSB<italic>RAD24-AID</italic>(F74G), and 2-DSB<italic>RAD53-AID</italic>TIR1 (F74G).</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="elife-94334-fig2-figsupp1-v1.tif">
+            </inline-graphic>
+          </p>
         </fig>
         <fig>
           <label>Figure 2—figure supplement 2.</label>
@@ -79,6 +91,10 @@ expression: jats
             <p>&#10;                &#10;</p>
             <p>&#10;                &#10;</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="elife-94334-fig2-figsupp2-v1.tif">
+            </inline-graphic>
+          </p>
         </fig>
         <fig>
           <label>Figure 2—figure supplement 3.</label>
@@ -86,6 +102,10 @@ expression: jats
             <title level="2">Cell cycle profile as determined by budding and DAPI staining in Ddc2-AID and Rad53-AID mutants ±IAA 4 hr after galactose.</title>
             <p>(<bold>A</bold>) Profile of DAPI-stained cells in a 2-DSB<italic>DDC2-AID</italic>strain after HO induction. Cultures were split 4 hr after Gal-HO induction. Cells were divided based on cell morphology and number of DAPI signals. (<bold>B</bold>) Same as (<bold>A</bold>) for 2-DSB<italic>RAD53-AID</italic>.</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="elife-94334-fig2-figsupp3-v1.tif">
+            </inline-graphic>
+          </p>
         </fig>
         <p>Compared to<italic>DDC2-AID</italic>,<italic>RAD9-AID,</italic>or<italic>RAD24-AID</italic>, we found that<italic>RAD53-AID</italic>cells maintained G<sub>2</sub>/M arrest for an additional 4 hr after complete depletion of Rad53 (). In contrast to Ddc2-AID depletion, cell cycle analysis by DAPI staining showed that Rad53 depletion led to a more gradual transition into late anaphase (). This delay after the conditional depletion of Rad53 could be due to continued signaling from downstream targets activated by Rad53 kinase, such as Dun1, or from other targets of the Mec1 kinase, downstream of Ddc2, Rad9, and Rad24.</p>
       </sec>
@@ -108,6 +128,10 @@ expression: jats
             <p>&#10;                &#10;</p>
             <p>&#10;                &#10;</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="elife-94334-fig3-v1.tif">
+            </inline-graphic>
+          </p>
         </fig>
         <fig>
           <label>Figure 3—figure supplement 1.</label>
@@ -117,6 +141,10 @@ expression: jats
             <p>&#10;                &#10;</p>
             <p>&#10;                &#10;</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="elife-94334-fig3-figsupp1-v1.tif">
+            </inline-graphic>
+          </p>
         </fig>
         <p>To explore further how Chk1 signaling contributes to the maintenance of DDC-dependent cell cycle arrest, we depleted DDC factors Ddc2-AID, Rad9-AID, or Rad24-AID in<italic>chk1∆</italic>cells 4 hr after the induction of DSBs. Depletion of these upstream factors in the absence of<italic>CHK1</italic>led to a more rapid release from the cell cycle arrest () compared to the depletion of DDC factors alone (). Collectively, these findings demonstrate that Chk1 plays a key role in maintaining cell cycle arrest in response to DNA damage.</p>
         <p>Tel1 is thought to play a minor role in response to DSBs as the establishment of DSB-induced cell cycle arrest normally depends entirely on Mec1 (<xref ref-type="bibr" rid="bib11">Dotiwala et al., 2010</xref>). However, previous studies have shown that, in addition to Mec1, Tel1 can also target Chk1 for phosphorylation (<xref ref-type="bibr" rid="bib28">Limbo et al., 2011</xref>;<xref ref-type="bibr" rid="bib51">Sanchez et al., 1999</xref>). Additionally, when the initial 5’ to 3’ end resection of DSB ends is impaired, Tel1 alone can activate the DDC (<xref ref-type="bibr" rid="bib58">Usui and Petrini, 2007</xref>). To study how Tel1 contributes to the maintenance of the permanent cell cycle arrest, we deleted<italic>TEL1</italic>in 2-DSB strain. Unlike<italic>chk1</italic>∆ with 2 DSBs, a<italic>TEL1</italic>deletion did not affect either the establishment of the DDC or the maintenance of checkpoint arrest up to 24 hr (), agreeing with previously published results (<xref ref-type="bibr" rid="bib12">Dubrana et al., 2007</xref>). Taken together, these data illustrate that DNA damage-dependent cell cycle arrest is initiated by Mec1 branch of the DDC via Ddc2, Rad9 and Rad24, and the cell cycle arrest is largely sustained by the downstream kinases Rad53 and Chk1, with minor contributions from other downstream targets of DDC.</p>
@@ -136,6 +164,10 @@ expression: jats
             <p>&#10;              &#10;</p>
             <p>&#10;              &#10;</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="elife-94334-fig4-v1.tif">
+            </inline-graphic>
+          </p>
         </fig>
       </sec>
       <sec>
@@ -156,6 +188,10 @@ expression: jats
             <p>&#10;                &#10;</p>
             <p>&#10;                &#10;</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="elife-94334-fig5-v1.tif">
+            </inline-graphic>
+          </p>
         </fig>
         <fig>
           <label>Figure 5—figure supplement 1.</label>
@@ -167,6 +203,10 @@ expression: jats
             <p>&#10;                &#10;</p>
             <p>&#10;                &#10;</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="elife-94334-fig5-figsupp1-v1.tif">
+            </inline-graphic>
+          </p>
         </fig>
         <p>We then asked whether other DDC factors such as Rad9, Rad24, and Rad53 are dispensable for the prolonged arrest following the induction of 2 DSBs. However, as noted above, AID-tagged DDC activation proteins were unable to maintain this prolonged arrest in a 2-DSB strain even in the absence of IAA, which precludes their use in this analysis. To be able to study the contribution of these DDC factors in prolonged cell cycle arrest, we turned to the AID version 2 (AID2) system (<xref ref-type="bibr" rid="bib64">Yesbolatova et al., 2020</xref>). To this end, we integrated a TIR1-F74G point mutation and used 5-phenyl-IAA (5-Ph-IAA) instead of IAA to lower the basal degradation of AID-tagged proteins. Switching to the AID2 system did not fully restore function to<italic>RAD9-AID2</italic>and<italic>RAD24-AID2</italic>strains as they mostly adapted after 24 hr after the exposure to DNA damage, but 87% of<italic>RAD53-AID2</italic>cells remained in G<sub>2</sub>/M arrest at 24 hr (). Using Rad53-AID2, we then asked whether Rad53 is required for extended G<sub>2</sub>/M arrest in response to 2 DSBs. Rapid depletion of Rad53-AID2 with 5-Ph-IAA 4 hr after DSB induction led cells to escape G<sub>2</sub>/M arrest, but as with the<italic>RAD53-AID</italic>strain, we detected a 4 hr delay in cell cycle re-entry, confirming our previous results ( and ). However, degradation of Rad53-AID2 15 hr after DSB induction did not prompt cell cycle re-entry even 9 hr after complete depletion of Rad53 (, ), akin to what we observe following the depletion of Ddc2-AID ().</p>
         <p>Because TIR1-mediated degradation of Rad9-AID even without auxin caused most cells to adapt 24 hr after inducing DNA damage, we asked whether overexpression of<italic>RAD9-AID</italic>could overcome this effect. We added a<italic>TRP1</italic>centromere-containing plasmid copy of<italic>RAD9-AID</italic>with its endogenous promoter (pRAD9-AID) to our 2-DSB<italic>RAD9-AID</italic>strain. Degradation of Rad9-AID by IAA 15 hr after DSB induction did not trigger release of cells from G<sub>2</sub>/M arrest (, ). However, unlike degradation of Ddc2-AID or Rad53-AID2 in this same situation, Rad53 remained hyperphosphorylated up to 9 hr after adding IAA (). Therefore, while the DDC proteins Ddc2, Rad9, and Rad53 are required for the maintenance of checkpoint arrest at early stages, surprisingly, they are dispensable for prolonged arrest following induction of 2 DSBs. These results suggest that prolonged cell cycle arrest is maintained by signaling proteins other than the Mec1 branch of the DDC.</p>
@@ -186,6 +226,10 @@ expression: jats
             <p>&#10;                &#10;</p>
             <p>&#10;                &#10;</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="elife-94334-fig6-v1.tif">
+            </inline-graphic>
+          </p>
         </fig>
         <fig>
           <label>Figure 6—figure supplement 1.</label>
@@ -193,6 +237,10 @@ expression: jats
             <title level="2">Mad2 is required for permanent arrest in a 2-DSB strain.</title>
             <p>(<bold>A</bold>) Adaptation assay of 1-DSB and 2-DSB where morphology is measured for up to 24 hr and 48 hr, respectively. A second copy of Ddc2 with a GAL1,10 promotor, Ddc2 overexpression (Ddc2oe), was integrated into the 1-DSB and 2-DSB strains.<italic>MAD2</italic>was deleted in both backgrounds with the second copy of Ddc2. (<bold>B</bold>) Adaptation assay for a<italic>mad2∆</italic>in a 2-DSB strain.</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="elife-94334-fig6-figsupp1-v1.tif">
+            </inline-graphic>
+          </p>
         </fig>
         <fig>
           <label>Figure 6—figure supplement 2.</label>
@@ -204,6 +252,10 @@ expression: jats
             <p>&#10;                &#10;</p>
             <p>&#10;                &#10;</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="elife-94334-fig6-figsupp2-v1.tif">
+            </inline-graphic>
+          </p>
         </fig>
         <fig>
           <label>Figure 6—figure supplement 3.</label>
@@ -213,6 +265,10 @@ expression: jats
             <p>&#10;                &#10;</p>
             <p>&#10;                &#10;</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="elife-94334-fig6-figsupp3-v1.tif">
+            </inline-graphic>
+          </p>
         </fig>
         <p>To show that the late stages of the permanent cell cycle arrest in response to 2 DSBs is independent of DDC and dependent on SAC, we inactivated DDC by depleting Ddc2-AID together with Mad2-AID. Although the simultaneous depletion of Ddc2-AID and Mad2-AID led to Rad53 dephosphorylation as detected by western blotting, we found no statistically significant difference in the percentage of cells escaping G<sub>2</sub>/M arrest in response to<italic>DDC2-AID MAD2-AID</italic>double depletion strain compared to Mad2-AID alone ( and ). Collectively, our findings indicate that DDC initiates and sustains the cell cycle arrest approximately for 15 hr following DNA damage, but after that DDC becomes dispensable and the permanent arrest is sustained by SAC.</p>
       </sec>
@@ -229,6 +285,10 @@ expression: jats
             <p>&#10;                &#10;</p>
             <p>&#10;                &#10;</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="elife-94334-fig7-v1.tif">
+            </inline-graphic>
+          </p>
         </fig>
         <fig>
           <label>Figure 7—figure supplement 1.</label>
@@ -240,6 +300,10 @@ expression: jats
             <p>&#10;                &#10;</p>
             <p>&#10;                &#10;</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="elife-94334-fig7-figsupp1-v1.tif">
+            </inline-graphic>
+          </p>
         </fig>
       </sec>
       <sec>
@@ -252,6 +316,10 @@ expression: jats
             <title level="2">Adaptation assay of different 2-DSB strains.</title>
             <p>(<bold>A</bold>) Adaptation assay of 1-DSB and 2-DSB strains tracking the morphology of 50 G<sub>1</sub>cells on a YEP-Gal plate. The percentage of G<sub>2</sub>/M-arrested cells was shown 4 hr and 24 hr after placement of YEP-Gal plates. JKM179 is a 1-DSB strain with an HO-cut site in the<italic>MAT</italic>locus on chromosome III 86 kb away from the centromere. DW417 is a 2-DSB strain derived from JKM179 with an additional HO-cut site on chromosome VI 52 kb away from the centromere. YSL53 is a 2-DSB strain derived from JKM179 with an additional HO-cut site at the<italic>URA3</italic>locus on chromosome V 36 kb away from the centromere (<xref ref-type="bibr" rid="bib25">Lee et al., 1998</xref>). GEM188 is a 2-DSB strain derived from JKM179 with an additional HO-cut site at<italic>LYS2</italic>on chromosome II 230 kb away from the centromere. (<bold>B</bold>) Cartoon representations of strains showing the location of the HO-cut sites relative to their respective centromeres.</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="elife-94334-fig8-v1.tif">
+            </inline-graphic>
+          </p>
         </fig>
         <p>Our previous data have suggested that the involvement of the SAC in prolonging DSB-induced arrest was dependent on centromere sequences on the broken chromosome and involved post-translational modification of chromatin by the Mec1- and Tel1-dependent phosphorylation of the histone H2A (<xref ref-type="bibr" rid="bib11">Dotiwala et al., 2010</xref>). In budding yeast, histone H2B is also targeted by DDC kinases upon DNA damage (<xref ref-type="bibr" rid="bib26">Lee et al., 2014</xref>). To test whether the presence of these chromatin modifications around centromeres would be sufficient to elicit a SAC response, we examined cell cycle progression in strains in which both histone H2A and/or histone H2B genes were mutated to their putative phosphomimetic forms (H2A-S129E and H2B-T129E). We note that although histone H2A-S129E is recognized by an antibody specific for the phosphorylation of histone H2A-S129 (<xref ref-type="bibr" rid="bib14">Eapen et al., 2012</xref>), the mutation to S129E may not be fully phosphomimetic. As shown in , there was no effect on the growth rate of either the single or the double mutants, suggesting that cells did not experience a SAC-dependent delay in entering mitosis because of these modifications.</p>
         <fig>
@@ -260,6 +328,10 @@ expression: jats
             <title level="2">Phosphomimetic and non-phosphorylatable mutants of histone H2A and H2B do not affect the growth rate of cells.</title>
             <p>Growth rate of strains were measured in YPD (2% dextrose) in H2A and H2B mutants for up to 10 hr. Cultures were grown in YPD until they reached an OD<sub>600</sub>of 0.1. The OD of each strain was then measured at 3, 5, 7, and 10 hr.</p>
           </caption>
+          <p>
+            <inline-graphic xlink:href="elife-94334-fig9-v1.tif">
+            </inline-graphic>
+          </p>
         </fig>
       </sec>
     </sec>
@@ -272,6 +344,10 @@ expression: jats
           <title level="1">Activation and maintenance of checkpoint arrest in response to a DSB.</title>
           <p>The Mre11-Rad50-Xrs2 (MRX) complex is one of the first complexes recruited to DSBs and initiates the resection of dsDNA to ssDNA. ssDNA is then coated with RPA which recruits Ddc2. Mec1 is the primary kinase responsible for checkpoint arrest in budding yeast and is activated by Ddc2 and Ddc1 from the 9-1-1 clamp. Proteins in green (Ddc2, Rad9, Rad24, and Rad53) were required for the activation and maintenance of checkpoint arrest. While Chk1 was not required for establishment of G<sub>2</sub>/M arrest, it contributed to the maintenance of arrest. In contrast, Dun1 was required for checkpoint activation but was dispensable 4 hr after DSB induction. Prolonged arrest &gt;24 hr in a 2-DSB strain was dependent on the SAC proteins Mad2, Mad1, and Bub2 as well as the distance between the second HO-cut site and the centromere.</p>
         </caption>
+        <p>
+          <inline-graphic xlink:href="elife-94334-fig10-v1.tif">
+          </inline-graphic>
+        </p>
       </fig>
       <p>Phosphorylation of Rad53 by Mec1 is tightly linked to cell cycle arrest following DNA damage (<xref ref-type="bibr" rid="bib47">Pellicioli et al., 2001</xref>). While Rad53 is also shown to be targeted by Tel1, deleting<italic>TEL1</italic>did not affect the prolonged checkpoint arrest in a 2-DSB strain. This finding supports the previous reports showing that cell cycle arrest in response to enzymatic DNA breaks is largely orchestrated by Mec1, with a minor contribution from Tel1 (<xref ref-type="bibr" rid="bib47">Pellicioli et al., 2001</xref>;<xref ref-type="bibr" rid="bib60">Vaze et al., 2002</xref>). Here, we add that Mec1 inactivation via Ddc2 depletion, 4 hr after DSB induction, results in rapid resumption of the cell cycle, most likely through Ptc2, Ptc3, Pph3, and Glc7-dependent dephosphorylation and inactivation of the DDC signaling protein Rad53 (<xref ref-type="bibr" rid="bib5">Bazzi et al., 2010</xref>;<xref ref-type="bibr" rid="bib27">Leroy et al., 2003</xref>;<xref ref-type="bibr" rid="bib44">O’Neill et al., 2007</xref>). However, the regulation and consequences of Rad53 phosphorylation are apparently more complex, given that cells can re-enter mitosis in the presence of persistent Rad53 phosphorylation when SAC proteins Mad1 and Mad2 are depleted (see below).</p>
       <p>Mec1 activation in the S and G<sub>2</sub>cell cycle phases is achieved by at least two converging mechanisms; first, through Ddc2 binding to RPA-coated ssDNA created the 5’ to 3’ resection of the DSB ends, and second, through binding of the 9-1-1 clamp subunit Ddc1 (<xref ref-type="bibr" rid="bib12">Dubrana et al., 2007</xref>;<xref ref-type="bibr" rid="bib42">Navadgi-Patil and Burgers, 2009</xref>;<xref ref-type="bibr" rid="bib68">Zou and Elledge, 2003</xref>;<xref ref-type="bibr" rid="bib36">Melo et al., 2001</xref>). Before Ddc1 can activate Mec1, the 9-1-1 checkpoint clamp must be loaded by the clamp loader, which consists of Rad24-Rfc2-5 (<xref ref-type="bibr" rid="bib36">Melo et al., 2001</xref>). DDC activation largely depends on a functional clamp loader as cells lacking<italic>RAD24</italic>proceed directly into mitosis in response to a single DSB, with only a brief delay (<xref ref-type="bibr" rid="bib3">Aylon and Kupiec, 2003</xref>). If the clamp loader acts just once to load the 9-1-1 clamp and the clamp then slides away from the DSB as DNA is resected, then removal of Rad24 after the checkpoint had been robustly activated should not perturb arrest. However, we find that Rad24 depletion leads to rapid cell cycle resumption in response to 2 DSBs, suggesting that multiple 9-1-1 clamp loading events are required to sustain extended cell cycle arrest. We posit that 9-1-1 clamp may require continuous reloading as the 5’ end is being continuously resected by Exo1 and Sgs1-Rmi1-Top3-Dna2 exonucleases (<xref ref-type="bibr" rid="bib67">Zhu et al., 2008</xref>).</p>
