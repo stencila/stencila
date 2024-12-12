@@ -489,7 +489,7 @@ impl TextDocument {
 
                     // Notify watchers that document is out of sync
                     if let Err(error) = sync_state_sender.send(SyncState::Stale) {
-                        tracing::error!("Unable to send synced update: {error}")
+                        tracing::debug!("Unable to send synced update: {error}")
                     }
 
                     // Update the latest source or continue
@@ -560,7 +560,7 @@ impl TextDocument {
 
             // Notify watchers that document is updating
             if let Err(error) = sync_state_sender.send(SyncState::Updating) {
-                tracing::error!("Unable to send synced update: {error}")
+                tracing::debug!("Unable to send synced update: {error}")
             }
         }
     }
@@ -693,7 +693,7 @@ impl TextDocument {
 
             // Notify watchers that document is updating
             if let Err(error) = sync_state_sender.send(SyncState::Updated) {
-                tracing::error!("Unable to send synced update: {error}")
+                tracing::debug!("Unable to send synced update: {error}")
             }
         }
     }
