@@ -539,7 +539,14 @@ fn decode_table_row(
 /// See https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/td.html
 /// and https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/th.html
 fn decode_table_cell(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> TableCell {
-    record_attrs_lost(path, node, [], losses);
+    let vertical_alignment = node
+        .attribute("valign")
+        .and_then(|alignment| alignment.parse().ok());
+    let horizontal_alignment = node
+        .attribute("align")
+        .and_then(|alignment| alignment.parse().ok());
+
+    record_attrs_lost(path, node, ["valign", "align"], losses);
 
     let mut content = vec![p(decode_inlines(path, node.children(), losses))];
     if decode_inlines(path, node.children(), losses).is_empty() {
@@ -548,6 +555,8 @@ fn decode_table_cell(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
 
     TableCell {
         content,
+        vertical_alignment,
+        horizontal_alignment,
         ..Default::default()
     }
 }
