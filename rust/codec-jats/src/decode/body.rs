@@ -4,7 +4,7 @@ use std::str::FromStr;
 
 use codec::{
     schema::{
-        shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
+        shortcuts::{em, img, mi, p, qb, qi, stg, stk, sub, sup, t, u},
         Admonition, Article, AudioObject, AudioObjectOptions, Block, Cite, CiteOptions, Claim,
         ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord, Date, DateTime,
         Duration, ExecutionMode, Figure, Heading, ImageObject, ImageObjectOptions, Inline, Link,
@@ -53,6 +53,7 @@ pub(super) fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>
                 blocks.append(&mut decode_fig_group(&child_path, &child, losses, depth));
                 continue;
             }
+            "graphic" => decode_graphic(&child_path, &child, losses),
             "hr" => decode_hr(&child_path, &child, losses),
             "list" => decode_list(&child_path, &child, losses, depth),
             "p" => decode_p(&child_path, &child, losses),
@@ -188,6 +189,13 @@ fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> 
     })
 }
 
+/// Decode a `<fig-group>` element to a vector of Stencila [`Block::Figure`]s
+fn decode_fig_group(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
+    record_attrs_lost(path, node, [], losses);
+
+    decode_blocks(path, node.children(), losses, depth)
+}
+
 /// Decode a `<fig>` element to a Stencila [`Block::Figure`]
 ///
 /// see https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/fig.html
@@ -229,11 +237,16 @@ fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block 
     })
 }
 
-/// Decode a `<fig-group>` element to a vector of Stencila [`Block::Figure`]s
-fn decode_fig_group(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Block> {
-    record_attrs_lost(path, node, [], losses);
+/// Decode a `<graphic>` element to a Stencila [`Block::Paragraph`] with a single [`Inline::ImageObject`]
+fn decode_graphic(path: &str, node: &Node, losses: &mut Losses) -> Block {
+    let url = node
+        .attribute((XLINK, "href"))
+        .map(String::from)
+        .unwrap_or_default();
 
-    decode_blocks(path, node.children(), losses, depth)
+    record_attrs_lost(path, node, ["href"], losses);
+
+    p(vec![img(url)])
 }
 
 /// Decode a `<code>` to a Stencila [`Block::CodeBlock`] or Stencila [`Block::CodeChunk`]
