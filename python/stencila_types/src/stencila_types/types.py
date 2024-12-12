@@ -299,6 +299,18 @@ class FormDeriveAction(StrEnum):
     UpdateOrDelete = "UpdateOrDelete"
 
 
+class HorizontalAlignment(StrEnum):
+    """
+    The horizontal alignment of content.
+    """
+
+    AlignLeft = "AlignLeft"
+    AlignRight = "AlignRight"
+    AlignJustify = "AlignJustify"
+    AlignCenter = "AlignCenter"
+    AlignCharacter = "AlignCharacter"
+
+
 class InstructionType(StrEnum):
     """
     The type of an instruction describing the operation to be performed.
@@ -453,6 +465,17 @@ class TimeUnit(StrEnum):
     Picosecond = "Picosecond"
     Femtosecond = "Femtosecond"
     Attosecond = "Attosecond"
+
+
+class VerticalAlignment(StrEnum):
+    """
+    The vertical alignment of content.
+    """
+
+    AlignBaseline = "AlignBaseline"
+    AlignBottom = "AlignBottom"
+    AlignTop = "AlignTop"
+    AlignMiddle = "AlignMiddle"
 
 
 
@@ -2798,6 +2821,15 @@ class TableCell(Entity):
     row_span: int | None = None
     """How many columns the cell extends."""
 
+    horizontal_alignment: HorizontalAlignment | None = None
+    """The horizontal alignment of the content of a table cell."""
+
+    horizontal_alignment_character: str | None = None
+    """The character to be used in horizontal alignment of the content of a table cell."""
+
+    vertical_alignment: VerticalAlignment | None = None
+    """The vertical alignment of the content of a table cell."""
+
     content: list[Block]
     """Contents of the table cell."""
 
@@ -3361,6 +3393,7 @@ ThingType = Union[
     Figure,
     FormDeriveAction,
     Grant,
+    HorizontalAlignment,
     ImageObject,
     InstructionType,
     LabelType,
@@ -3390,6 +3423,7 @@ ThingType = Union[
     TableCellType,
     TableRowType,
     TimeUnit,
+    VerticalAlignment,
     VideoObject,
 ]
 """

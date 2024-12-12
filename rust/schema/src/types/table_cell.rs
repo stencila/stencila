@@ -3,9 +3,11 @@
 use crate::prelude::*;
 
 use super::block::Block;
+use super::horizontal_alignment::HorizontalAlignment;
 use super::integer::Integer;
 use super::string::String;
 use super::table_cell_type::TableCellType;
+use super::vertical_alignment::VerticalAlignment;
 
 /// A cell within a `Table`.
 #[skip_serializing_none]
@@ -32,6 +34,21 @@ pub struct TableCell {
     #[serde(alias = "cell-type", alias = "cell_type")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub cell_type: Option<TableCellType>,
+
+    /// The horizontal alignment of the content of a table cell.
+    #[serde(alias = "horizontal-alignment", alias = "horizontal_alignment")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub horizontal_alignment: Option<HorizontalAlignment>,
+
+    /// The character to be used in horizontal alignment of the content of a table cell.
+    #[serde(alias = "horizontal-alignment-character", alias = "horizontal_alignment_character")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub horizontal_alignment_character: Option<String>,
+
+    /// The vertical alignment of the content of a table cell.
+    #[serde(alias = "vertical-alignment", alias = "vertical_alignment")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub vertical_alignment: Option<VerticalAlignment>,
 
     /// Contents of the table cell.
     #[serde(deserialize_with = "one_or_many")]

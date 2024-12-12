@@ -27,6 +27,7 @@ use super::execution_status::ExecutionStatus;
 use super::figure::Figure;
 use super::form_derive_action::FormDeriveAction;
 use super::grant::Grant;
+use super::horizontal_alignment::HorizontalAlignment;
 use super::image_object::ImageObject;
 use super::instruction_type::InstructionType;
 use super::label_type::LabelType;
@@ -56,6 +57,7 @@ use super::table::Table;
 use super::table_cell_type::TableCellType;
 use super::table_row_type::TableRowType;
 use super::time_unit::TimeUnit;
+use super::vertical_alignment::VerticalAlignment;
 use super::video_object::VideoObject;
 
 /// Union type for all types that are descended from `Thing`
@@ -112,6 +114,8 @@ pub enum ThingType {
     FormDeriveAction(FormDeriveAction),
 
     Grant(Grant),
+
+    HorizontalAlignment(HorizontalAlignment),
 
     ImageObject(ImageObject),
 
@@ -170,6 +174,8 @@ pub enum ThingType {
     TableRowType(TableRowType),
 
     TimeUnit(TimeUnit),
+
+    VerticalAlignment(VerticalAlignment),
 
     VideoObject(VideoObject),
 }

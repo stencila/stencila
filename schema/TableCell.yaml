@@ -15,6 +15,9 @@ required:
   - content
 core:
   - cellType
+  - horizontalAlignment
+  - horizontalAlignmentCharacter
+  - verticalAlignment
 properties:
   cellType:
     "@id": stencila:cellType
@@ -47,6 +50,21 @@ properties:
     type: integer
     minimum: 0
     maximum: 65534
+  horizontalAlignment:
+    "@id": stencila:horizontalAlignment
+    description: The horizontal alignment of the content of a table cell.
+    $comment: Based on the JATS [`align`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/align.html) attribute.
+    $ref: HorizontalAlignment
+  horizontalAlignmentCharacter:
+    "@id": stencila:horizontalAlignmentCharacter
+    description: The character to be used in horizontal alignment of the content of a table cell.
+    $comment: Based on the JATS [`char`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/char.html) attribute.
+    type: string
+  verticalAlignment:
+    "@id": stencila:verticalAlignment
+    description: The vertical alignment of the content of a table cell.
+    $comment: Based on the JATS [`valign`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/valign.html) attribute.
+    $ref: VerticalAlignment
   content:
     "@id": stencila:content
     description: Contents of the table cell.

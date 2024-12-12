@@ -90,6 +90,7 @@
     "Grant": "schema:Grant",
     "Heading": "stencila:Heading",
     "Hint": "stencila:Hint",
+    "HorizontalAlignment": "stencila:HorizontalAlignment",
     "IfBlock": "stencila:IfBlock",
     "IfBlockClause": "stencila:IfBlockClause",
     "ImageObject": "schema:ImageObject",
@@ -190,6 +191,7 @@
     "UnsignedInteger": "stencila:UnsignedInteger",
     "Validator": "stencila:Validator",
     "Variable": "stencila:Variable",
+    "VerticalAlignment": "stencila:VerticalAlignment",
     "VideoObject": "schema:VideoObject",
     "Walkthrough": "stencila:Walkthrough",
     "WalkthroughStep": "stencila:WalkthroughStep",
@@ -300,6 +302,8 @@
     "hint": "stencila:hint",
     "honorificPrefix": "schema:honorificPrefix",
     "honorificSuffix": "schema:honorificSuffix",
+    "horizontalAlignment": "stencila:horizontalAlignment",
+    "horizontalAlignmentCharacter": "stencila:horizontalAlignmentCharacter",
     "idPattern": "stencila:idPattern",
     "identifiers": "schema:identifier",
     "images": "schema:image",
@@ -439,6 +443,7 @@
     "values": "stencila:values",
     "variable": "stencila:variable",
     "version": "schema:version",
+    "verticalAlignment": "stencila:verticalAlignment",
     "volumeNumber": "schema:volumeNumber"
   }
 }

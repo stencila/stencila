@@ -1,14 +1,14 @@
 {
   "$schema": "https://stencila.org/meta.schema.json",
-  "$id": "https://stencila.org/TableCellType.schema.json",
-  "@id": "stencila:TableCellType",
-  "title": "TableCellType",
+  "$id": "https://stencila.org/VerticalAlignment.schema.json",
+  "@id": "stencila:VerticalAlignment",
+  "title": "VerticalAlignment",
   "extends": [
     "Enumeration"
   ],
   "category": "works",
-  "description": "Indicates whether the cell is a header or data.",
-  "$comment": "When `HeaderCell`, the cell is similar to the HTML [`<th>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th)).\nWhen `DataCell`, the cell is similar to the HTML [`<td>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td)).\n",
+  "description": "The vertical alignment of content.",
+  "$comment": "Based on the JATS [`valign`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/valign.html) attribute.",
   "proptest": {},
   "required": [
     "type"
@@ -129,13 +129,25 @@
   },
   "anyOf": [
     {
-      "@id": "stencila:DataCell",
-      "const": "DataCell"
+      "@id": "stencila:AlignLeft",
+      "description": "Aligned to a baseline.",
+      "const": "AlignBaseline"
     },
     {
-      "@id": "stencila:HeaderCell",
-      "const": "HeaderCell"
+      "@id": "stencila:AlignBottom",
+      "description": "Aligned with bottom.",
+      "const": "AlignBottom"
+    },
+    {
+      "@id": "stencila:AlignTop",
+      "description": "Aligned with top.",
+      "const": "AlignTop"
+    },
+    {
+      "@id": "stencila:AlignMiddle",
+      "description": "Centered vertically.",
+      "const": "AlignMiddle"
     }
   ],
-  "default": "DataCell"
+  "default": "AlignBaseline"
 }

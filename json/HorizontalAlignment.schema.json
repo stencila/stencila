@@ -1,14 +1,14 @@
 {
   "$schema": "https://stencila.org/meta.schema.json",
-  "$id": "https://stencila.org/TableCellType.schema.json",
-  "@id": "stencila:TableCellType",
-  "title": "TableCellType",
+  "$id": "https://stencila.org/HorizontalAlignment.schema.json",
+  "@id": "stencila:HorizontalAlignment",
+  "title": "HorizontalAlignment",
   "extends": [
     "Enumeration"
   ],
   "category": "works",
-  "description": "Indicates whether the cell is a header or data.",
-  "$comment": "When `HeaderCell`, the cell is similar to the HTML [`<th>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th)).\nWhen `DataCell`, the cell is similar to the HTML [`<td>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td)).\n",
+  "description": "The horizontal alignment of content.",
+  "$comment": "Based on the JATS [`align`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/align.html) attribute.",
   "proptest": {},
   "required": [
     "type"
@@ -129,13 +129,30 @@
   },
   "anyOf": [
     {
-      "@id": "stencila:DataCell",
-      "const": "DataCell"
+      "@id": "stencila:AlignLeft",
+      "description": "Left align content.",
+      "const": "AlignLeft"
     },
     {
-      "@id": "stencila:HeaderCell",
-      "const": "HeaderCell"
+      "@id": "stencila:AlignRight",
+      "description": "Right align content.",
+      "const": "AlignRight"
+    },
+    {
+      "@id": "stencila:AlignJustify",
+      "description": "Fully justify cell content.",
+      "const": "AlignJustify"
+    },
+    {
+      "@id": "stencila:AlignCenter",
+      "description": "Center align the cell content.",
+      "const": "AlignCenter"
+    },
+    {
+      "@id": "stencila:AlignCharacter",
+      "description": "Align the content on a character.",
+      "const": "AlignCharacter"
     }
   ],
-  "default": "DataCell"
+  "default": "AlignLeft"
 }

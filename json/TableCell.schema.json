@@ -25,7 +25,10 @@
   ],
   "core": [
     "id",
-    "cellType"
+    "cellType",
+    "horizontalAlignment",
+    "horizontalAlignmentCharacter",
+    "verticalAlignment"
   ],
   "properties": {
     "type": {
@@ -90,6 +93,36 @@
       "type": "integer",
       "minimum": 0.0,
       "maximum": 65534.0
+    },
+    "horizontalAlignment": {
+      "@id": "stencila:horizontalAlignment",
+      "description": "The horizontal alignment of the content of a table cell.",
+      "$comment": "Based on the JATS [`align`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/align.html) attribute.",
+      "aliases": [
+        "horizontal-alignment",
+        "horizontal_alignment"
+      ],
+      "$ref": "HorizontalAlignment.schema.json"
+    },
+    "horizontalAlignmentCharacter": {
+      "@id": "stencila:horizontalAlignmentCharacter",
+      "description": "The character to be used in horizontal alignment of the content of a table cell.",
+      "$comment": "Based on the JATS [`char`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/char.html) attribute.",
+      "aliases": [
+        "horizontal-alignment-character",
+        "horizontal_alignment_character"
+      ],
+      "type": "string"
+    },
+    "verticalAlignment": {
+      "@id": "stencila:verticalAlignment",
+      "description": "The vertical alignment of the content of a table cell.",
+      "$comment": "Based on the JATS [`valign`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/valign.html) attribute.",
+      "aliases": [
+        "vertical-alignment",
+        "vertical_alignment"
+      ],
+      "$ref": "VerticalAlignment.schema.json"
     },
     "content": {
       "@id": "stencila:content",
