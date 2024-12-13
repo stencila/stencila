@@ -1,52 +1,46 @@
-import { html } from 'lit'
-import { customElement } from 'lit/decorators.js'
-// import { createRef, ref, Ref } from 'lit/directives/ref'
+import { html, LitElement } from 'lit'
+import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
-// import type { UIImageUpload } from '../ui/inputs/image-upload'
 
-import { Entity } from './entity'
+import '../ui/model-chat/message-inputs'
 
-import '../ui/nodes/properties/authors'
-import '../ui/nodes/properties/provenance'
+type MessageStatus = 'empty' | 'edited' | 'sent' | 'recieved'
 
 /**
  * Web component representing a Stencila Schema `InstructionMessage` node
- *
- * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction-message.md
+ * Can be used both for new message input and displaying existing messages
  */
 @customElement('stencila-instruction-message')
 @withTwind()
-export class InstructionMessage extends Entity {
-  /**
-   * Ref for the images-drop component.
-   *
-   * Use `this.imageDropRef.value.files` to get the `Files[]`
-   */
-  //protected imageDropRef: Ref<UIImageUpload> = createRef()
+export class InstructionMessage extends LitElement {
+  @property({ type: String })
+  model: string = 'model'
+
+  @property({ type: Boolean })
+  pending: boolean = false
+
+  @property({ type: String, attribute: 'message-status' })
+  messageStatus: MessageStatus = 'empty'
+
+  @property({ type: Number, attribute: 'time-received' })
+  timeReceived: number
+
+  private renderMessage() {
+    return html` <slot></slot> `
+  }
 
   override render() {
-    return html`
-      <slot name="parts"></slot>
-
-      <stencila-ui-node-authors type="InstructionMessage">
-        <stencila-ui-node-provenance slot="provenance">
-          <slot name="provenance"></slot>
-        </stencila-ui-node-provenance>
-        <slot name="authors"></slot>
-      </stencila-ui-node-authors>
-    `
+    return this.messageStatus === 'empty'
+      ? html`<stencila-message-input
+          ?waiting=${this.pending}
+        ></stencila-message-input>`
+      : this.renderMessage()
   }
+}
 
-  /*
-  This is currently not being used because the upload
-  functionality is not fully implemented.
-
-  private renderImageUpload() {
-    return html`<stencila-ui-image-upload
-      ${ref(this.imageDropRef)}
-      class="text-xs"
-    ></stencila-ui-image-upload>`
+declare global {
+  interface HTMLElementTagNameMap {
+    'stencila-instruction-message': InstructionMessage
   }
-  */
 }

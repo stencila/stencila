@@ -317,6 +317,12 @@ export class StencilaModelChatWebviewProvider implements vscode.WebviewViewProvi
       localResourceRoots: [this.webDist],
     };
 
+    /*
+     TODO: 
+      - subscribe webview to DOM and language server
+      - set up patch messages
+    */
+
     this.view.webview.html = this.getHtml(webviewView.webview);
 
     const disposables: vscode.Disposable[] = [];
@@ -363,8 +369,21 @@ export class StencilaModelChatWebviewProvider implements vscode.WebviewViewProvi
         </head>
         <body>
           <stencila-vscode-model-chat-view>
-            <p>I am a slotted element</p>
-            <p>I am another slotted element</p>
+
+            <!-- EXAMPLE CONTENT -->
+            <stencila-model-chat>
+              <div slot="message-feed">
+                <p>Hello world</p>
+                <p>Hello stencila</p>
+              </div>
+              <div slot="instruction-message">
+                <stencila-instruction-message>
+                </stencila-instruction-message>
+              </div>
+            </stencila-model-chat>
+            <!-- -->
+
+
           </stencila-vscode-model-chat-view>
           <script>
             const vscode = acquireVsCodeApi()

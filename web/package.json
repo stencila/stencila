@@ -95,6 +95,13 @@
     "pagedjs": "0.4.3",
     "plotly.js-dist-min": "^2.35.2",
     "pretty-ms": "9.2.0",
+    "prosemirror-example-setup": "^1.2.3",
+    "prosemirror-menu": "^1.2.4",
+    "prosemirror-model": "^1.24.1",
+    "prosemirror-schema-basic": "^1.2.3",
+    "prosemirror-schema-list": "^1.5.0",
+    "prosemirror-state": "^1.4.3",
+    "prosemirror-view": "^1.37.1",
     "tailwindcss": "3.4.15",
     "vega-embed": "^6.29.0",
     "vega-lite": "^5.22.0"
