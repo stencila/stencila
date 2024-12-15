@@ -24,6 +24,7 @@ mod prelude;
 
 mod article;
 mod call_block;
+mod chat;
 mod code_chunk;
 mod code_expression;
 mod figure;
@@ -620,6 +621,7 @@ impl VisitorAsync for Executor {
         use Node::*;
         Ok(match node {
             Article(node) => self.visit_executable(node).await,
+            Chat(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
         })
     }
