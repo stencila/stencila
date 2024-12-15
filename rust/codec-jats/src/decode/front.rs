@@ -2,8 +2,8 @@ use roxmltree::Node;
 
 use codec::{
     schema::{
-        Article, Block, Primitive, PropertyValue, PropertyValueOrString, Section, SectionType,
-        StringOrNumber, ThingType,
+        Article, Block, Date, Primitive, PropertyValue, PropertyValueOrString, Section,
+        SectionType, StringOrNumber, ThingType,
     },
     Losses,
 };
@@ -42,6 +42,7 @@ fn decode_article_meta(path: &str, node: &Node, article: &mut Article, losses: &
             "article-categories" => decode_article_categories(&child_path, &child, article, losses),
             "article-id" => decode_article_id(&child_path, &child, article, losses),
             "article-version" => decode_article_version(&child_path, &child, article, losses),
+            "pub-date" => decode_pub_date(&child_path, &child, article, losses),
             _ => record_node_lost(path, &child, losses),
         };
     }
@@ -140,6 +141,28 @@ fn decode_article_version(path: &str, node: &Node, article: &mut Article, losses
     if let Some(version) = node.text() {
         article.options.version = Some(StringOrNumber::String(version.into()))
     };
+}
+
+fn decode_pub_date(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    record_attrs_lost(path, node, [], losses);
+    let mut day = "";
+    let mut month = "";
+    let mut year = "";
+
+    for child in node.children() {
+        let tag = child.tag_name().name();
+        if tag == "day" {
+            day = child.text().unwrap_or_default()
+        } else if tag == "month" {
+            month = child.text().unwrap_or_default()
+        } else if tag == "year" {
+            year = child.text().unwrap_or_default()
+        }
+    }
+    article.date_published = Some(Date {
+        value: [year, "-", month, "-", day].concat(),
+        ..Default::default()
+    });
 }
 
 /// Decode an `<journal-meta>` tag to properties on an [`Article`]
