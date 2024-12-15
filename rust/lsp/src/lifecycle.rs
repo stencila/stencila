@@ -7,9 +7,10 @@ use std::{ops::ControlFlow, process};
 use async_lsp::{
     lsp_types::{
         CodeLensOptions, CompletionOptions, DocumentSymbolOptions, ExecuteCommandOptions,
-        HoverProviderCapability, InitializeResult, InitializedParams, MessageType, OneOf,
-        ServerCapabilities, ServerInfo, ShowMessageParams, TextDocumentSyncCapability,
-        TextDocumentSyncKind, WorkDoneProgressOptions,
+        HoverProviderCapability, InitializeResult, InitializedParams, MessageType, Notebook,
+        NotebookCellSelector, NotebookDocumentFilter, NotebookDocumentSyncOptions,
+        NotebookSelector, OneOf, ServerCapabilities, ServerInfo, ShowMessageParams,
+        TextDocumentSyncCapability, TextDocumentSyncKind, WorkDoneProgressOptions,
     },
     Error, LanguageClient, ResponseError,
 };
@@ -42,6 +43,17 @@ pub(super) async fn initialize() -> Result<InitializeResult, ResponseError> {
         }),
         capabilities: ServerCapabilities {
             text_document_sync: Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::FULL)),
+            notebook_document_sync: Some(OneOf::Left(NotebookDocumentSyncOptions {
+                notebook_selector: vec![NotebookSelector::ByNotebook {
+                    notebook: Notebook::NotebookDocumentFilter(NotebookDocumentFilter::ByType {
+                        notebook_type: "jupyter-notebook".to_string(),
+                        scheme: None,
+                        pattern: None,
+                    }),
+                    cells: None,
+                }],
+                save: Some(true),
+            })),
             document_symbol_provider: Some(OneOf::Right(DocumentSymbolOptions {
                 label: Some("Nodes".to_string()),
                 work_done_progress_options: WorkDoneProgressOptions {

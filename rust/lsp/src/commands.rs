@@ -13,7 +13,7 @@ use async_lsp::{
     lsp_types::{
         ApplyWorkspaceEditParams, DocumentChanges, ExecuteCommandParams, MessageType,
         NumberOrString, OneOf, OptionalVersionedTextDocumentIdentifier, Position, ProgressParams,
-        ProgressParamsValue, ShowMessageParams, TextDocumentEdit, Url, WorkDoneProgress,
+        ProgressParamsValue, ShowMessageParams, TextDocumentEdit, Uri, WorkDoneProgress,
         WorkDoneProgressBegin, WorkDoneProgressCancelParams, WorkDoneProgressCreateParams,
         WorkDoneProgressEnd, WorkDoneProgressReport, WorkspaceEdit,
     },
@@ -401,7 +401,7 @@ pub(super) async fn execute_command(
             client
                 .show_message(ShowMessageParams {
                     typ: MessageType::ERROR,
-                    message: format!("While sending command to {uri}: {error}"),
+                    message: format!("While sending command to {}: {error}", uri.as_str()),
                 })
                 .ok();
             return Ok(None);
@@ -469,7 +469,7 @@ pub(super) async fn execute_command(
                     client
                         .show_message(ShowMessageParams {
                             typ: MessageType::ERROR,
-                            message: format!("{error}\n\n{uri}"),
+                            message: format!("{error}\n\n{}", uri.as_str()),
                         })
                         .ok();
                 }
@@ -483,7 +483,7 @@ pub(super) async fn execute_command(
 }
 
 /// Extract a document URI from a command arg
-pub(super) fn uri_arg(arg: Option<Value>) -> Result<Url, ResponseError> {
+pub(super) fn uri_arg(arg: Option<Value>) -> Result<Uri, ResponseError> {
     arg.and_then(|value| serde_json::from_value(value).ok())
         .ok_or_else(|| {
             ResponseError::new(

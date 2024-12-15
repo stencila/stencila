@@ -9,7 +9,7 @@ use async_lsp::{
     lsp_types::{
         Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
         DidOpenTextDocumentParams, DidSaveTextDocumentParams, MessageType, Position,
-        PublishDiagnosticsParams, Range, ShowMessageParams, Url,
+        PublishDiagnosticsParams, Range, ShowMessageParams, Uri,
     },
     ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
@@ -345,14 +345,14 @@ pub(super) enum SyncState {
 impl TextDocument {
     /// Create a new text document with an initial source
     fn new(
-        uri: Url,
+        uri: Uri,
         format: String,
         source: String,
         client: ClientSocket,
         user: Option<Person>,
     ) -> Result<Self, Report> {
         // Get path without percent encodings (e.g. for spaces)
-        let path = percent_encoding::percent_decode_str(uri.path()).decode_utf8_lossy();
+        let path = percent_encoding::percent_decode_str(uri.path().as_str()).decode_utf8_lossy();
 
         let path = PathBuf::from(path.as_ref());
         let Some(home) = path.parent() else {
@@ -460,7 +460,7 @@ impl TextDocument {
     async fn update_task(
         mut receiver: mpsc::UnboundedReceiver<(String, UpdateDelay)>,
         sync_state_sender: watch::Sender<SyncState>,
-        uri: Url,
+        uri: Uri,
         format: Format,
         source: Arc<RwLock<String>>,
         doc: Arc<RwLock<Document>>,
@@ -568,7 +568,7 @@ impl TextDocument {
     /// An async background task to publish diagnostics related to decoding the document
     async fn diagnostics_task(
         mut receiver: mpsc::Receiver<Messages>,
-        uri: Url,
+        uri: Uri,
         mut client: ClientSocket,
     ) {
         // This is the delay before publishing diagnostics. It is additional to the delay in processing
@@ -645,7 +645,7 @@ impl TextDocument {
     async fn watch_task(
         mut receiver: watch::Receiver<Node>,
         sync_state_sender: watch::Sender<SyncState>,
-        uri: Url,
+        uri: Uri,
         format: Format,
         source: Arc<RwLock<String>>,
         root: Arc<RwLock<TextNode>>,
@@ -708,6 +708,8 @@ pub(super) fn did_open(
     let format = params.text_document.language_id;
     let source = params.text_document.text;
 
+    tracing::debug!("Opening text document {}", uri.to_string());
+
     let client = state.client.clone();
     let user = state
         .options
@@ -724,18 +726,18 @@ pub(super) fn did_open(
             ))))
         }
     };
-    state.documents.insert(uri, text_doc);
+    state.text_documents.insert(uri, text_doc);
 
     ControlFlow::Continue(())
 }
 
-/// Handle a notification from the client that a text document was changes
+/// Handle a notification from the client that a text document was changed
 pub(super) fn did_change(
     state: &mut ServerState,
     mut params: DidChangeTextDocumentParams,
 ) -> ControlFlow<Result<(), Error>> {
     let uri = params.text_document.uri;
-    if let Some(text_doc) = state.documents.get_mut(&uri) {
+    if let Some(text_doc) = state.text_documents.get_mut(&uri) {
         // TODO: This assumes a whole document change (with TextDocumentSyncKind::FULL in initialize):
         // needs more defensiveness and potentially implement incremental sync
         let source = params.content_changes.swap_remove(0).text;
@@ -743,7 +745,7 @@ pub(super) fn did_change(
             tracing::error!("While sending updated source: {error}");
         }
     } else {
-        tracing::warn!("Unknown document `{uri}`")
+        tracing::warn!("Unknown document `{}`", uri.as_str())
     }
 
     ControlFlow::Continue(())
@@ -754,7 +756,11 @@ pub(super) fn did_save(
     state: &mut ServerState,
     params: DidSaveTextDocumentParams,
 ) -> ControlFlow<Result<(), Error>> {
-    if let Some(text_doc) = state.documents.get(&params.text_document.uri) {
+    let uri = params.text_document.uri;
+
+    tracing::debug!("Saving text document {}", uri.to_string());
+
+    if let Some(text_doc) = state.text_documents.get(&uri) {
         let doc = text_doc.doc.clone();
         let client = state.client.clone();
         save(
@@ -783,7 +789,11 @@ pub(super) fn did_close(
     state: &mut ServerState,
     params: DidCloseTextDocumentParams,
 ) -> ControlFlow<Result<(), Error>> {
-    state.documents.remove(&params.text_document.uri);
+    let uri = params.text_document.uri;
+
+    tracing::debug!("Closing text document {}", uri.to_string());
+
+    state.text_documents.remove(&uri);
 
     ControlFlow::Continue(())
 }
