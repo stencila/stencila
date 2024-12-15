@@ -14155,5 +14155,9 @@ snapshot_kind: text
       "value": "Chromosomes and Gene Expression"
     }
   ],
+  "publisher": {
+    "type": "Organization",
+    "name": "eLife Sciences Publications, Ltd"
+  },
   "version": "version of record"
 }

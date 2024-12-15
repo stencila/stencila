@@ -2,8 +2,8 @@ use roxmltree::Node;
 
 use codec::{
     schema::{
-        Article, Block, Date, Primitive, PropertyValue, PropertyValueOrString, Section,
-        SectionType, StringOrNumber, ThingType,
+        Article, Block, Date, Organization, PersonOrOrganization, Primitive, PropertyValue,
+        PropertyValueOrString, Section, SectionType, StringOrNumber, ThingType,
     },
     Losses,
 };
@@ -143,7 +143,7 @@ fn decode_article_version(path: &str, node: &Node, article: &mut Article, losses
     };
 }
 
-///Decode an '<pub-date>' element
+///Decode an `<pub-date>` element
 fn decode_pub_date(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     record_attrs_lost(path, node, [], losses);
     let mut day = "";
@@ -167,10 +167,28 @@ fn decode_pub_date(path: &str, node: &Node, article: &mut Article, losses: &mut 
 }
 
 /// Decode an `<journal-meta>` tag to properties on an [`Article`]
-fn decode_journal_meta(path: &str, node: &Node, _article: &mut Article, losses: &mut Losses) {
+fn decode_journal_meta(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     for child in node.children() {
         let tag = child.tag_name().name();
-        let _child_path = extend_path(path, tag);
-        record_node_lost(path, &child, losses);
+        let child_path = extend_path(path, tag);
+        match tag {
+            "publisher" => decode_publisher(&child_path, &child, article, losses),
+            _ => record_node_lost(path, &child, losses),
+        };
     }
+}
+
+/// Decode an `<publisher>` element
+fn decode_publisher(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    record_attrs_lost(path, node, [], losses);
+
+    let name = node
+        .children()
+        .find(|child| child.tag_name().name() == "publisher-name")
+        .map(|child| child.text().unwrap_or_default().into());
+
+    article.options.publisher = Some(PersonOrOrganization::Organization(Organization {
+        name,
+        ..Default::default()
+    }));
 }
