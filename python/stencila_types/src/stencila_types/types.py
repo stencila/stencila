@@ -349,7 +349,7 @@ class MessageRole(StrEnum):
 
     System = "System"
     User = "User"
-    Assistant = "Assistant"
+    Model = "Model"
 
 
 class NoteType(StrEnum):
@@ -1186,6 +1186,42 @@ class CallBlock(IncludeBlock):
 
     arguments: list[CallArgument]
     """The value of the source document's parameters to call it with"""
+
+
+@dataclass(kw_only=True, repr=False)
+class Chat(CreativeWork, Executable):
+    """
+    A chat conversation, usually with a generative AI model.
+    """
+
+    type: Literal["Chat"] = "Chat"
+
+    target: str | None = None
+    """The subject of the conversation."""
+
+    model: InstructionModel | None = None
+    """The name, and other options, for the model involved in the chat."""
+
+    prompt: str | None = None
+    """The id of the system prompt to prefix chat messages with."""
+
+    content: list[Block]
+    """The messages, and optionally other content, that make up the conversation."""
+
+
+@dataclass(kw_only=True, repr=False)
+class ChatMessage(Executable):
+    """
+    A message within a `Chat`.
+    """
+
+    type: Literal["ChatMessage"] = "ChatMessage"
+
+    role: MessageRole
+    """The role of the message in the conversation."""
+
+    content: list[Block]
+    """The content of the message."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3030,6 +3066,7 @@ Union type for things that can be an author in `AuthorRole`.
 Block = Union[
     Admonition,
     CallBlock,
+    ChatMessage,
     Claim,
     CodeBlock,
     CodeChunk,
@@ -3065,6 +3102,7 @@ Union type in block content node types.
 CreativeWorkType = Union[
     Article,
     AudioObject,
+    Chat,
     Claim,
     Collection,
     Comment,
@@ -3209,6 +3247,8 @@ Node = Union[
     Button,
     CallArgument,
     CallBlock,
+    Chat,
+    ChatMessage,
     Cite,
     CiteGroup,
     Claim,
@@ -3341,6 +3381,7 @@ ThingType = Union[
     AudioObject,
     AuthorRoleName,
     Brand,
+    Chat,
     CitationIntent,
     CitationMode,
     Claim,
@@ -3449,6 +3490,8 @@ TYPES = [
     Button,
     CallArgument,
     CallBlock,
+    Chat,
+    ChatMessage,
     Cite,
     CiteGroup,
     Claim,

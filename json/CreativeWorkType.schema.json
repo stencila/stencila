@@ -10,6 +10,9 @@
       "$ref": "AudioObject.schema.json"
     },
     {
+      "$ref": "Chat.schema.json"
+    },
+    {
       "$ref": "Claim.schema.json"
     },
     {

@@ -9,6 +9,8 @@ mod author_role;
 mod block;
 mod call_argument;
 mod call_block;
+mod chat;
+mod chat_message;
 mod claim;
 mod code_block;
 mod code_chunk;

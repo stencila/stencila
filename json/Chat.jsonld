@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/Figure",
-  "name": "Figure",
+  "@id": "https://stencila.org/Chat",
+  "name": "Chat",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,10 +9,10 @@
   },
   "@graph": [
     {
-      "@id": "stencila:Figure",
+      "@id": "stencila:Chat",
       "@type": "rdfs:Class",
-      "rdfs:label": "Figure",
-      "rdfs:comment": "Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.",
+      "rdfs:label": "Chat",
+      "rdfs:comment": "A chat conversation, usually with a generative AI model.",
       "rdfs:subClassOf": {
         "@id": "schema:CreativeWork"
       }
@@ -552,10 +552,287 @@
       ]
     },
     {
+      "@id": "stencila:executionMode",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionMode",
+      "rdfs:comment": "Under which circumstances the code should be executed.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeExpression"
+        },
+        {
+          "@id": "stencila:Executable"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionMode"
+      }
+    },
+    {
+      "@id": "stencila:compilationDigest",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationDigest",
+      "rdfs:comment": "A digest of the content, semantics and dependencies of the node.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationDigest"
+      }
+    },
+    {
+      "@id": "stencila:compilationMessages",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationMessages",
+      "rdfs:comment": "Messages generated while compiling the code.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationMessage"
+      }
+    },
+    {
+      "@id": "stencila:executionDigest",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionDigest",
+      "rdfs:comment": "The `compilationDigest` of the node when it was last executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationDigest"
+      }
+    },
+    {
+      "@id": "stencila:executionDependencies",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionDependencies",
+      "rdfs:comment": "The upstream dependencies of this node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionDependency"
+      }
+    },
+    {
+      "@id": "stencila:executionDependants",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionDependants",
+      "rdfs:comment": "The downstream dependants of this node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionDependant"
+      }
+    },
+    {
+      "@id": "stencila:executionTags",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionTags",
+      "rdfs:comment": "Tags in the code which affect its execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionTag"
+      }
+    },
+    {
+      "@id": "stencila:executionCount",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionCount",
+      "rdfs:comment": "A count of the number of times that the node has been executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:executionRequired",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionRequired",
+      "rdfs:comment": "Whether, and why, the code requires execution or re-execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionRequired"
+      }
+    },
+    {
+      "@id": "stencila:executionStatus",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionStatus",
+      "rdfs:comment": "Status of the most recent, including any current, execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionStatus"
+      }
+    },
+    {
+      "@id": "stencila:executionInstance",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionInstance",
+      "rdfs:comment": "The id of the kernel instance that performed the last execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:executionKind",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionKind",
+      "rdfs:comment": "The kind (e.g. main kernel vs kernel fork) of the last execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionKind"
+      }
+    },
+    {
+      "@id": "stencila:executionEnded",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionEnded",
+      "rdfs:comment": "The timestamp when the last execution ended.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Timestamp"
+      }
+    },
+    {
+      "@id": "stencila:executionDuration",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionDuration",
+      "rdfs:comment": "Duration of the last execution.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Duration"
+      }
+    },
+    {
+      "@id": "stencila:executionMessages",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionMessages",
+      "rdfs:comment": "Messages emitted while executing the node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionMessage"
+      }
+    },
+    {
+      "@id": "schema:target",
+      "@type": "rdfs:Property",
+      "rdfs:label": "target",
+      "rdfs:comment": "The subject of the conversation.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:ModifyOperation"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:model",
+      "@type": "rdfs:Property",
+      "rdfs:label": "model",
+      "rdfs:comment": "The name, and other options, for the model involved in the chat.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:Instruction"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:InstructionModel"
+      }
+    },
+    {
+      "@id": "stencila:prompt",
+      "@type": "rdfs:Property",
+      "rdfs:label": "prompt",
+      "rdfs:comment": "The id of the system prompt to prefix chat messages with.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:Instruction"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
-      "rdfs:comment": "The content of the figure.",
+      "rdfs:comment": "The messages, and optionally other content, that make up the conversation.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Article"
@@ -649,90 +926,6 @@
         },
         {
           "@id": "stencila:WalkthroughStep"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "stencila:Block"
-      }
-    },
-    {
-      "@id": "stencila:label",
-      "@type": "rdfs:Property",
-      "rdfs:label": "label",
-      "rdfs:comment": "A short label for the figure.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:Claim"
-        },
-        {
-          "@id": "schema:Table"
-        },
-        {
-          "@id": "stencila:Button"
-        },
-        {
-          "@id": "stencila:CodeChunk"
-        },
-        {
-          "@id": "stencila:Figure"
-        },
-        {
-          "@id": "stencila:MathBlock"
-        },
-        {
-          "@id": "stencila:Parameter"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "stencila:labelAutomatically",
-      "@type": "rdfs:Property",
-      "rdfs:label": "labelAutomatically",
-      "rdfs:comment": "Whether the label should be automatically updated.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:Table"
-        },
-        {
-          "@id": "stencila:CodeChunk"
-        },
-        {
-          "@id": "stencila:Figure"
-        },
-        {
-          "@id": "stencila:MathBlock"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Boolean"
-      }
-    },
-    {
-      "@id": "schema:caption",
-      "@type": "rdfs:Property",
-      "rdfs:label": "caption",
-      "rdfs:comment": "A caption for the figure.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:AudioObject"
-        },
-        {
-          "@id": "schema:ImageObject"
-        },
-        {
-          "@id": "schema:Table"
-        },
-        {
-          "@id": "schema:VideoObject"
-        },
-        {
-          "@id": "stencila:CodeChunk"
-        },
-        {
-          "@id": "stencila:Figure"
         }
       ],
       "schema:rangeIncludes": {

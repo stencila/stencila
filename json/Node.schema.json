@@ -60,6 +60,12 @@
       "$ref": "CallBlock.schema.json"
     },
     {
+      "$ref": "Chat.schema.json"
+    },
+    {
+      "$ref": "ChatMessage.schema.json"
+    },
+    {
       "$ref": "Cite.schema.json"
     },
     {

@@ -137,7 +137,7 @@
     },
     {
       "@id": "stencila:ModelMessage",
-      "description": "An message from a model",
+      "description": "A message from a model",
       "const": "Model"
     }
   ],

@@ -17,6 +17,8 @@ export * from "./Brand.js";
 export * from "./Button.js";
 export * from "./CallArgument.js";
 export * from "./CallBlock.js";
+export * from "./Chat.js";
+export * from "./ChatMessage.js";
 export * from "./CitationIntent.js";
 export * from "./CitationMode.js";
 export * from "./Cite.js";

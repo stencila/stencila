@@ -4,6 +4,7 @@ import { type Article } from "./Article.js";
 import { type AudioObject } from "./AudioObject.js";
 import { type AuthorRoleName } from "./AuthorRoleName.js";
 import { type Brand } from "./Brand.js";
+import { type Chat } from "./Chat.js";
 import { type CitationIntent } from "./CitationIntent.js";
 import { type CitationMode } from "./CitationMode.js";
 import { type Claim } from "./Claim.js";
@@ -64,6 +65,7 @@ export type ThingType =
   AudioObject |
   AuthorRoleName |
   Brand |
+  Chat |
   CitationIntent |
   CitationMode |
   Claim |

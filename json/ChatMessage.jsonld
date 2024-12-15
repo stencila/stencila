@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/Instruction",
-  "name": "Instruction",
+  "@id": "https://stencila.org/ChatMessage",
+  "name": "ChatMessage",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,10 +9,10 @@
   },
   "@graph": [
     {
-      "@id": "stencila:Instruction",
+      "@id": "stencila:ChatMessage",
       "@type": "rdfs:Class",
-      "rdfs:label": "Instruction",
-      "rdfs:comment": "Abstract base type for a document editing instruction.",
+      "rdfs:label": "ChatMessage",
+      "rdfs:comment": "A message within a `Chat`.",
       "rdfs:subClassOf": {
         "@id": "stencila:Executable"
       }
@@ -235,120 +235,124 @@
       }
     },
     {
-      "@id": "stencila:instructionType",
+      "@id": "stencila:role",
       "@type": "rdfs:Property",
-      "rdfs:label": "instructionType",
-      "rdfs:comment": "The type of instruction describing the operation to be performed.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Instruction"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:InstructionType"
-      }
-    },
-    {
-      "@id": "stencila:message",
-      "@type": "rdfs:Property",
-      "rdfs:label": "message",
-      "rdfs:comment": "The instruction message, possibly including images, audio, or other media.",
+      "rdfs:label": "role",
+      "rdfs:comment": "The role of the message in the conversation.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:CompilationMessage"
+          "@id": "stencila:ChatMessage"
         },
         {
-          "@id": "stencila:ExecutionMessage"
-        },
-        {
-          "@id": "stencila:Instruction"
+          "@id": "stencila:InstructionMessage"
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "stencila:InstructionMessage"
+        "@id": "stencila:MessageRole"
       }
     },
     {
-      "@id": "stencila:prompt",
+      "@id": "stencila:content",
       "@type": "rdfs:Property",
-      "rdfs:label": "prompt",
-      "rdfs:comment": "An identifier for the prompt to be used for the instruction",
+      "rdfs:label": "content",
+      "rdfs:comment": "The content of the message.",
       "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:Comment"
+        },
+        {
+          "@id": "schema:ListItem"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
         {
           "@id": "stencila:Chat"
         },
         {
-          "@id": "stencila:Instruction"
+          "@id": "stencila:ChatMessage"
+        },
+        {
+          "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:ForBlock"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:IfBlockClause"
+        },
+        {
+          "@id": "stencila:IncludeBlock"
+        },
+        {
+          "@id": "stencila:InstructionBlock"
+        },
+        {
+          "@id": "stencila:InstructionInline"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Mark"
+        },
+        {
+          "@id": "stencila:Note"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:Prompt"
         },
         {
           "@id": "stencila:PromptBlock"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "stencila:model",
-      "@type": "rdfs:Property",
-      "rdfs:label": "model",
-      "rdfs:comment": "The name, and other options, for the model that the assistant should use to generate suggestions.",
-      "schema:domainIncludes": [
-        {
-          "@id": "stencila:Chat"
         },
         {
-          "@id": "stencila:Instruction"
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:StyledBlock"
+        },
+        {
+          "@id": "stencila:StyledInline"
+        },
+        {
+          "@id": "stencila:SuggestionBlock"
+        },
+        {
+          "@id": "stencila:SuggestionInline"
+        },
+        {
+          "@id": "stencila:TableCell"
+        },
+        {
+          "@id": "stencila:WalkthroughStep"
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "stencila:InstructionModel"
-      }
-    },
-    {
-      "@id": "stencila:replicates",
-      "@type": "rdfs:Property",
-      "rdfs:label": "replicates",
-      "rdfs:comment": "The number of suggestions to generate for the instruction",
-      "schema:domainIncludes": {
-        "@id": "stencila:Instruction"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:UnsignedInteger"
-      }
-    },
-    {
-      "@id": "stencila:recursion",
-      "@type": "rdfs:Property",
-      "rdfs:label": "recursion",
-      "rdfs:comment": "A string identifying which operations should, or should not, automatically be applied to generated suggestions.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Instruction"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "stencila:promptProvided",
-      "@type": "rdfs:Property",
-      "rdfs:label": "promptProvided",
-      "rdfs:comment": "The prompt chosen, rendered and provided to the model",
-      "schema:domainIncludes": {
-        "@id": "stencila:Instruction"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:PromptBlock"
-      }
-    },
-    {
-      "@id": "stencila:activeSuggestion",
-      "@type": "rdfs:Property",
-      "rdfs:label": "activeSuggestion",
-      "rdfs:comment": "The index of the suggestion that is currently active",
-      "schema:domainIncludes": {
-        "@id": "stencila:Instruction"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:UnsignedInteger"
+        "@id": "stencila:Block"
       }
     }
   ]

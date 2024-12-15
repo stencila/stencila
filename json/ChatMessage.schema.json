@@ -1,0 +1,323 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/ChatMessage.schema.json",
+  "@id": "stencila:ChatMessage",
+  "title": "ChatMessage",
+  "nick": "chm",
+  "extends": [
+    "Executable"
+  ],
+  "category": "works",
+  "description": "A message within a `Chat`.",
+  "status": "under-development",
+  "markdown": {
+    "derive": false
+  },
+  "required": [
+    "type",
+    "role",
+    "content"
+  ],
+  "core": [
+    "id",
+    "executionMode"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "executionMode": {
+      "@id": "stencila:executionMode",
+      "description": "Under which circumstances the code should be executed.",
+      "aliases": [
+        "execution-mode",
+        "execution_mode"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "$ref": "ExecutionMode.schema.json"
+    },
+    "compilationDigest": {
+      "@id": "stencila:compilationDigest",
+      "description": "A digest of the content, semantics and dependencies of the node.",
+      "aliases": [
+        "compilation-digest",
+        "compilation_digest"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "dom": {
+        "skip": true
+      },
+      "$ref": "CompilationDigest.schema.json"
+    },
+    "compilationMessages": {
+      "@id": "stencila:compilationMessages",
+      "description": "Messages generated while compiling the code.",
+      "aliases": [
+        "compilation-messages",
+        "compilation_messages",
+        "compilationMessage",
+        "compilation-message",
+        "compilation_message"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "CompilationMessage.schema.json"
+      }
+    },
+    "executionDigest": {
+      "@id": "stencila:executionDigest",
+      "description": "The `compilationDigest` of the node when it was last executed.",
+      "aliases": [
+        "execution-digest",
+        "execution_digest"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "dom": {
+        "skip": true
+      },
+      "$ref": "CompilationDigest.schema.json"
+    },
+    "executionDependencies": {
+      "@id": "stencila:executionDependencies",
+      "description": "The upstream dependencies of this node.",
+      "aliases": [
+        "execution-dependencies",
+        "execution_dependencies",
+        "executionDependency",
+        "execution-dependency",
+        "execution_dependency"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionDependency.schema.json"
+      }
+    },
+    "executionDependants": {
+      "@id": "stencila:executionDependants",
+      "description": "The downstream dependants of this node.",
+      "aliases": [
+        "execution-dependants",
+        "execution_dependants",
+        "executionDependant",
+        "execution-dependant",
+        "execution_dependant"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionDependant.schema.json"
+      }
+    },
+    "executionTags": {
+      "@id": "stencila:executionTags",
+      "description": "Tags in the code which affect its execution.",
+      "aliases": [
+        "execution-tags",
+        "execution_tags",
+        "executionTag",
+        "execution-tag",
+        "execution_tag"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionTag.schema.json"
+      }
+    },
+    "executionCount": {
+      "@id": "stencila:executionCount",
+      "description": "A count of the number of times that the node has been executed.",
+      "$comment": "Intended to increment with each successive execution of the node, including across sessions.\nNote that this differs to the `execution_count` in Jupyter Notebook format which is\nthe \"code cell's prompt number\" and which resets at the start of each new session.\n",
+      "aliases": [
+        "execution-count",
+        "execution_count"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "type": "integer",
+      "minimum": 0.0
+    },
+    "executionRequired": {
+      "@id": "stencila:executionRequired",
+      "description": "Whether, and why, the code requires execution or re-execution.",
+      "aliases": [
+        "execution-required",
+        "execution_required"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionRequired.schema.json"
+    },
+    "executionStatus": {
+      "@id": "stencila:executionStatus",
+      "description": "Status of the most recent, including any current, execution.",
+      "aliases": [
+        "execution-status",
+        "execution_status"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionStatus.schema.json"
+    },
+    "executionInstance": {
+      "@id": "stencila:executionInstance",
+      "description": "The id of the kernel instance that performed the last execution.",
+      "$comment": "Used to help identify whether execution is required due to the last execution\nbeing in a difference instance (e.g. after a kernel restart).\n",
+      "aliases": [
+        "execution-instance",
+        "execution_instance"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "type": "string"
+    },
+    "executionKind": {
+      "@id": "stencila:executionKind",
+      "description": "The kind (e.g. main kernel vs kernel fork) of the last execution.",
+      "aliases": [
+        "execution-kind",
+        "execution_kind"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionKind.schema.json"
+    },
+    "executionEnded": {
+      "@id": "stencila:executionEnded",
+      "description": "The timestamp when the last execution ended.",
+      "aliases": [
+        "execution-ended",
+        "execution_ended"
+      ],
+      "strip": [
+        "execution",
+        "timestamps"
+      ],
+      "dom": {
+        "with": "Timestamp::to_dom_attr"
+      },
+      "$ref": "Timestamp.schema.json"
+    },
+    "executionDuration": {
+      "@id": "stencila:executionDuration",
+      "description": "Duration of the last execution.",
+      "aliases": [
+        "execution-duration",
+        "execution_duration"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "dom": {
+        "with": "Duration::to_dom_attr"
+      },
+      "$ref": "Duration.schema.json"
+    },
+    "executionMessages": {
+      "@id": "stencila:executionMessages",
+      "description": "Messages emitted while executing the node.",
+      "aliases": [
+        "execution-messages",
+        "execution_messages",
+        "executionMessage",
+        "execution-message",
+        "execution_message"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ExecutionMessage.schema.json"
+      }
+    },
+    "role": {
+      "@id": "stencila:role",
+      "description": "The role of the message in the conversation.",
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "dom": {
+        "attr": "message-role"
+      },
+      "$ref": "MessageRole.schema.json"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content of the message.",
+      "dom": {
+        "elem": "div"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
+    }
+  }
+}

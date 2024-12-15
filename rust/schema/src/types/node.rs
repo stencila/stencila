@@ -15,6 +15,8 @@ use super::brand::Brand;
 use super::button::Button;
 use super::call_argument::CallArgument;
 use super::call_block::CallBlock;
+use super::chat::Chat;
+use super::chat_message::ChatMessage;
 use super::cite::Cite;
 use super::cite_group::CiteGroup;
 use super::claim::Claim;
@@ -184,6 +186,10 @@ pub enum Node {
     CallArgument(CallArgument),
 
     CallBlock(CallBlock),
+
+    Chat(Chat),
+
+    ChatMessage(ChatMessage),
 
     Cite(Cite),
 

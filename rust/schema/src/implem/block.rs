@@ -13,6 +13,7 @@ impl Block {
         variants!(
             Admonition,
             CallBlock,
+            ChatMessage,
             Claim,
             CodeBlock,
             CodeChunk,
@@ -54,6 +55,7 @@ impl Block {
         variants!(
             Admonition,
             CallBlock,
+            ChatMessage,
             Claim,
             CodeBlock,
             CodeChunk,
@@ -153,6 +155,7 @@ impl MarkdownCodec for Block {
         variants!(
             Admonition,
             CallBlock,
+            ChatMessage,
             Claim,
             CodeBlock,
             CodeChunk,
