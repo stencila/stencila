@@ -177,8 +177,8 @@
       {
         "command": "stencila.open-model-chat",
         "category": "Stencila",
-        "title": "Open model chat",
-        "shortTitle": "Model chat",
+        "title": "Chat about document",
+        "shortTitle": "Document chat",
         "icon": "$(robot)"
       },
       {
@@ -920,8 +920,8 @@
           "icon": "./icons/stencila-sidebar.svg"
         },
         {
-          "id": "stencila-model-chat-sidebar",
-          "title": "Model Chat",
+          "id": "stencila-chat",
+          "title": "Stencila Chat",
           "icon": "./icons/stencila-sidebar.svg"
         }
       ]
@@ -929,30 +929,29 @@
     "views": {
       "stencila-sidebar": [
         {
-          "id": "stencila-setup",
-          "name": "Setup"
-        },
-        {
           "id": "stencila-prompts",
           "name": "Prompts"
         },
         {
           "id": "stencila-models",
           "name": "Models",
-          "collapsed": true
+          "visibility": "collapsed"
         },
         {
           "id": "stencila-kernels",
           "name": "Kernels",
-          "collapsed": true
+          "visibility": "collapsed"
+        },
+        {
+          "id": "stencila-setup",
+          "name": "Setup"
         }
       ],
-      "stencila-model-chat-sidebar": [
+      "stencila-chat": [
         {
           "type": "webview",
-          "id": "stencila-model-chat",
-          "name": "",
-          "visibility": "visible"
+          "id": "stencila-chat",
+          "name": ""
         }
       ]
     },
