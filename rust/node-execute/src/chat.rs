@@ -1,3 +1,4 @@
+use common::tokio;
 use schema::{
     shortcuts::{cc, mb, p, t},
     Block, Chat, ChatMessage, MessageRole,
@@ -70,9 +71,6 @@ impl Executable for Chat {
 
         tracing::debug!("Executing Chat {node_id}");
 
-        // TODO: if the chat is associated with a document then
-        // execute within the associated document's kernels.
-
         executor.patch(
             &node_id,
             [
@@ -83,7 +81,26 @@ impl Executable for Chat {
 
         let started = Timestamp::now();
 
-        //
+        // TODO: if the chat is associated with a document then
+        // execute within the associated document's kernels.
+
+        // TODO: construct a model task from all the messages in this chat
+        for block in self.content.iter_mut() {
+            if let Block::ChatMessage(msg) = block {
+                if msg.options.execution_status.is_none() {
+                    executor.patch(
+                        &msg.node_id(),
+                        [
+                            set(NodeProperty::ExecutionStatus, ExecutionStatus::Running),
+                            none(NodeProperty::ExecutionMessages),
+                        ],
+                    );
+                }
+            }
+        }
+
+        // TODO: replace this simulation with actual model generated content
+        tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
         let messages = None;
         let content = vec![
             p([t("This is placeholder content for model response. Laborum duis ut cillum ex incididunt officia ex aliquip. Here is some executable code:")]),
@@ -93,7 +110,24 @@ impl Executable for Chat {
             p([t("Last paragraph of the model response. Enim pariatur in voluptate reprehenderit Lorem quis esse cupidatat minim. Anim ipsum exercitation eiusmod laboris nostrud ullamco commodo amet nisi sit. Aute sunt quis ad tempor consectetur eiusmod non est. Laborum ea et esse irure nostrud labore irure. Officia labore velit cillum id cupidatat aliquip aute fugiat ea deserunt esse aliqua in. Non amet est eu enim mollit velit fugiat et ullamco cillum. Reprehenderit reprehenderit adipisicing laboris veniam in aute aute aliqua..")]),
         ];
         let chat_messages = vec![model_chat_message(content), user_chat_message()];
-        //
+
+        // Set the status of each message
+        for block in self.content.iter_mut() {
+            if let Block::ChatMessage(msg) = block {
+                if !matches!(
+                    msg.options.execution_status,
+                    Some(ExecutionStatus::Succeeded)
+                ) {
+                    executor.patch(
+                        &msg.node_id(),
+                        [set(
+                            NodeProperty::ExecutionStatus,
+                            ExecutionStatus::Succeeded,
+                        )],
+                    );
+                }
+            }
+        }
 
         let ended = Timestamp::now();
 
