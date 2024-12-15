@@ -143,6 +143,7 @@ fn decode_article_version(path: &str, node: &Node, article: &mut Article, losses
     };
 }
 
+///Decode an '<pub-date>' element
 fn decode_pub_date(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     record_attrs_lost(path, node, [], losses);
     let mut day = "";
