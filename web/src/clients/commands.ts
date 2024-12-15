@@ -21,6 +21,7 @@ export interface DocumentCommand {
     | 'interrupt-document'
     | 'interrupt-nodes'
     | 'patch-node'
+    | 'patch-node-content'
     | 'accept-node'
     | 'reject-node'
     | 'revise-node'

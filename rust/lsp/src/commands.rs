@@ -32,7 +32,7 @@ use common::{
     tracing,
 };
 use document::{
-    Command, CommandNodes, CommandScope, CommandStatus, Document, SaveDocumentSidecar,
+    Command, CommandNodes, CommandScope, CommandStatus, ContentType, Document, SaveDocumentSidecar,
     SaveDocumentSource,
 };
 use node_execute::ExecuteOptions;
@@ -44,6 +44,7 @@ use schema::{
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
 
 pub(super) const PATCH_NODE: &str = "stencila.patch-node";
+pub(super) const PATCH_NODE_CONTENT: &str = "stencila.patch-node-content";
 pub(super) const PATCH_CURR: &str = "stencila.patch-curr";
 pub(super) const VERIFY_NODE: &str = "stencila.verify-node";
 
@@ -74,6 +75,7 @@ pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
 pub(super) fn commands() -> Vec<String> {
     [
         PATCH_NODE,
+        PATCH_NODE_CONTENT,
         PATCH_CURR,
         VERIFY_NODE,
         RUN_NODE,
@@ -156,6 +158,24 @@ pub(super) async fn execute_command(
                     authors: Some(vec![author]),
                     ..Default::default()
                 }),
+                false,
+                true,
+            )
+        }
+        PATCH_NODE_CONTENT => {
+            let node_id = node_id_arg(args.next())?;
+            let content = args
+                .next()
+                .and_then(|arg| arg.as_str().map(String::from))
+                .unwrap_or_default();
+            (
+                "Patching node content".to_string(),
+                Command::PatchNodeContent((
+                    Some(node_id),
+                    Format::Markdown,
+                    content,
+                    ContentType::Block,
+                )),
                 false,
                 true,
             )

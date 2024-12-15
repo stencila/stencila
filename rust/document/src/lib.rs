@@ -105,6 +105,9 @@ pub enum Command {
     /// Patch a node in the document
     PatchNode(Patch),
 
+    /// Patch a node in the document using content in a specific format
+    PatchNodeContent((Option<NodeId>, Format, String, ContentType)),
+
     /// Patch and the document and then execute nodes within it
     ///
     /// This command should be used when it is necessary to patch and then
@@ -130,6 +133,15 @@ pub enum SaveDocumentSidecar {
     #[default]
     IfExists,
     No,
+}
+
+/// The type of content
+#[derive(Default, Debug, Display, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "kebab-case", crate = "common::serde")]
+pub enum ContentType {
+    #[default]
+    Block,
+    Inline,
 }
 
 /// The node ids for commands that require them
