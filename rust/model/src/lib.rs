@@ -244,7 +244,7 @@ pub fn test_task_repeat_word() -> ModelTask {
                 ..Default::default()
             },
             InstructionMessage {
-                role: Some(MessageRole::Assistant),
+                role: Some(MessageRole::Model),
                 parts: vec![MessagePart::Text("Hello".into())],
                 ..Default::default()
             },

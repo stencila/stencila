@@ -97,12 +97,12 @@ impl Model for AnthropicModel {
                     return None;
                 }
 
-                let role = message
-                    .role
-                    .clone()
-                    .unwrap_or_default()
-                    .to_string()
-                    .to_lowercase();
+                let role = match message.role {
+                    Some(MessageRole::Model) => "assistant",
+                    Some(MessageRole::System) => "system",
+                    _ => "user",
+                }
+                .to_string();
 
                 let content = message
                     .parts

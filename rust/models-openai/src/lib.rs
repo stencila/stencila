@@ -201,7 +201,7 @@ impl OpenAIModel {
                         ..Default::default()
                     })
                 }
-                MessageRole::Assistant => {
+                MessageRole::Model => {
                     let content = message
                         .parts
                         .iter()

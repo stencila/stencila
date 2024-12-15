@@ -14,6 +14,6 @@ pub enum MessageRole {
     #[default]
     User,
 
-    /// An assistant message
-    Assistant,
+    /// A message from a model
+    Model,
 }
