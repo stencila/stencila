@@ -28,7 +28,7 @@ export class ChatMessage extends Executable {
   @state()
   source: string = ''
 
-  onSourceChange(event: Event) {
+  onSourceInput(event: Event) {
     const textarea = event.target as HTMLTextAreaElement
 
     // Update the height of the text area
@@ -101,13 +101,13 @@ export class ChatMessage extends Executable {
   renderUserMessageActive() {
     const hasContent = this.source.trim().length > 0
 
-    return html`<div class="my-3 rounded border border-blue-400">
+    return html`<div class="my-3 rounded border border-gray-200">
       <div class="flex items-end max-w-4xl mx-auto rounded p-2">
         <textarea
           class="w-full resize-none overflow-hidden outline-none px-2 py-1"
           placeholder=""
           rows=${1}
-          @change=${(event: Event) => this.onSourceChange(event)}
+          @input=${(event: Event) => this.onSourceInput(event)}
         ></textarea>
 
         <sl-tooltip content=${hasContent ? 'Send message' : 'Message is empty'}
