@@ -182,10 +182,11 @@ pub(super) async fn execute_command(
         RUN_NODE => {
             let node_type = node_type_arg(args.next())?;
             let node_id = node_id_arg(args.next())?;
-            // Only update if running an instruction
+            // Only update if running an instruction or chat message (since these update
+            // the content of the document)
             let update = matches!(
                 node_type,
-                NodeType::InstructionBlock | NodeType::InstructionInline
+                NodeType::InstructionBlock | NodeType::InstructionInline | NodeType::ChatMessage
             );
             (
                 "Running node".to_string(),
@@ -200,8 +201,9 @@ pub(super) async fn execute_command(
         RUN_CURR => {
             let position = position_arg(args.next())?;
             if let Some(node_id) = root.read().await.node_id_closest(position) {
-                // Only update if running an instruction
-                let update = matches!(node_id.nick(), "isb" | "isi");
+                // Only update if running an instruction or chat message (since these update
+                // the content of the document)
+                let update = matches!(node_id.nick(), "isb" | "isi" | "chm");
                 (
                     "Running current node".to_string(),
                     Command::ExecuteNodes((

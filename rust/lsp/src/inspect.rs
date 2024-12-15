@@ -2,17 +2,19 @@ use async_lsp::lsp_types::Range;
 
 use codec_text_trait::TextCodec;
 use codecs::{Mapping, PoshMap};
+use common::tracing;
 use schema::{
-    Admonition, Article, AudioObject, Block, Button, CallBlock, Cite, CiteGroup, Claim, CodeBlock,
-    CodeChunk, CodeExpression, CodeInline, Date, DateTime, DeleteBlock, DeleteInline, Duration,
-    Emphasis, ExecutionStatus, Figure, ForBlock, Form, Heading, IfBlock, IfBlockClause,
-    ImageObject, IncludeBlock, Inline, InsertBlock, InsertInline, InstructionBlock,
+    Admonition, Article, AudioObject, Block, Button, CallBlock, Chat, ChatMessage, Cite, CiteGroup,
+    Claim, CodeBlock, CodeChunk, CodeExpression, CodeInline, Date, DateTime, DeleteBlock,
+    DeleteInline, Duration, Emphasis, ExecutionStatus, Figure, ForBlock, Form, Heading, IfBlock,
+    IfBlockClause, ImageObject, IncludeBlock, Inline, InsertBlock, InsertInline, InstructionBlock,
     InstructionInline, LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject,
     ModifyBlock, ModifyInline, Node, NodeId, NodeProperty, NodeType, Note, Paragraph, Parameter,
-    PromptBlock, ProvenanceCount, QuoteBlock, QuoteInline, RawBlock, ReplaceBlock, ReplaceInline,
-    Section, Strikeout, Strong, StyledBlock, StyledInline, Subscript, SuggestionBlock,
-    SuggestionInline, Superscript, Table, TableCell, TableRow, Text, ThematicBreak, Time,
-    Timestamp, Underline, VideoObject, Visitor, WalkControl, Walkthrough, WalkthroughStep,
+    Prompt, PromptBlock, ProvenanceCount, QuoteBlock, QuoteInline, RawBlock, ReplaceBlock,
+    ReplaceInline, Section, Strikeout, Strong, StyledBlock, StyledInline, Subscript,
+    SuggestionBlock, SuggestionInline, Superscript, Table, TableCell, TableRow, Text,
+    ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl, Walkthrough,
+    WalkthroughStep,
 };
 
 use crate::{
@@ -149,7 +151,11 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         #[allow(clippy::single_match)]
         match node {
             Node::Article(node) => node.inspect(self),
-            _ => {}
+            Node::Chat(node) => node.inspect(self),
+            Node::Prompt(node) => node.inspect(self),
+            _ => {
+                tracing::warn!("Node type `{node}` not inspected");
+            }
         };
 
         // Break walk because `variant` visited above
@@ -168,6 +174,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         variants!(
             Admonition,
             CallBlock,
+            ChatMessage,
             Claim,
             CodeBlock,
             CodeChunk,
@@ -393,33 +400,63 @@ trait Inspect {
     fn inspect(&self, inspector: &mut Inspector);
 }
 
-impl Inspect for Article {
+macro_rules! root {
+    ($( $type:ident ),*) => {
+        $(impl Inspect for $type {
+            fn inspect(&self, inspector: &mut Inspector) {
+                // Set this as the root node that others will become children of
+                inspector.stack.push(TextNode {
+                    range: Range::default(),
+                    parent_type: NodeType::Null,
+                    parent_id: NodeId::null(),
+                    is_block: false,
+                    node_type: self.node_type(),
+                    node_id: self.node_id(),
+                    name: stringify!($type).to_string(),
+                    detail: None,
+                    // Do not collect execution details or provenance because
+                    // we do not want these displayed on the first line in code lenses etc
+                    ..Default::default()
+                });
+
+                // Visit the root node
+                inspector.visit(self);
+
+                // Expand the range of the root to the last node
+                if let (Some(last), Some(node)) = (
+                    inspector.stack.last().map(|last| last.range),
+                    inspector.stack.first_mut(),
+                ) {
+                    node.range.end = last.end;
+                }
+            }
+        })*
+    }
+}
+root!(Article, Prompt, Chat);
+
+impl Inspect for ChatMessage {
     fn inspect(&self, inspector: &mut Inspector) {
-        // Set this as the root node that others will become children of
-        inspector.stack.push(TextNode {
-            range: Range::default(),
-            parent_type: NodeType::Null,
-            parent_id: NodeId::null(),
-            is_block: false,
-            node_type: self.node_type(),
-            node_id: self.node_id(),
-            name: "Article".to_string(),
-            detail: None,
-            // Do not collect execution details or provenance because
-            // we do not want these displayed on the first line in code lenses etc
+        let execution = Some(TextNodeExecution {
+            mode: self.execution_mode.clone(),
+            status: self.options.execution_status.clone(),
+            required: self.options.execution_required.clone(),
+            duration: self.options.execution_duration.clone(),
+            ended: self.options.execution_ended.clone(),
+            messages: self.options.execution_messages.clone(),
             ..Default::default()
         });
 
-        // Visit the article
+        inspector.enter_node(
+            self.node_type(),
+            self.node_id(),
+            Some("Message".into()),
+            Some(self.role.to_string()),
+            execution,
+            None,
+        );
         inspector.visit(self);
-
-        // Expand the range of the article to the last node
-        if let (Some(last), Some(node)) = (
-            inspector.stack.last().map(|last| last.range),
-            inspector.stack.first_mut(),
-        ) {
-            node.range.end = last.end;
-        }
+        inspector.exit_node();
     }
 }
 
