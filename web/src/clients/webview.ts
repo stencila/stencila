@@ -387,13 +387,21 @@ export class WebViewClient {
     // If no cursor, try to maintain viewport position using start/end elements
     if (startId) {
       const startElement = document.getElementById(startId)
-      if (startElement) {
+
+      /*
+        To avoid jumpy screens, only track an element
+        if it is the top level of the document.
+      */
+      // @ts-expect-error `depth` property will not expected on `Element`
+      if (startElement && startElement?.depth === 1) {
         const viewportHeight = window.innerHeight
         const rect = startElement.getBoundingClientRect()
 
+        const top = rect.top + window.scrollY - viewportHeight * 0.1
+
         // Scroll to position the start element near the top with some padding
         window.scrollTo({
-          top: rect.top + window.scrollY - viewportHeight * 0.1,
+          top,
           behavior: 'smooth',
         })
       }
