@@ -79,12 +79,11 @@ interface ScrollSyncMessage {
  */
 export async function createDocumentViewPanel(
   context: vscode.ExtensionContext,
-  editor: vscode.TextEditor,
+  documentUri: vscode.Uri,
+  editor?: vscode.TextEditor,
   nodeId?: string,
   expandAuthors?: boolean
 ): Promise<vscode.WebviewPanel> {
-  const documentUri = editor.document.uri;
-
   if (documentViewPanels.has(documentUri)) {
     // If there is already a panel open for this document, reveal it
     const panel = documentViewPanels.get(documentUri) as vscode.WebviewPanel;
@@ -171,9 +170,11 @@ export async function createDocumentViewPanel(
 
   const disposables: vscode.Disposable[] = [];
 
-  // Create a scroller sync for the view
-  const scrollSync = new ScrollSyncer(editor, panel);
-  disposables.push(scrollSync);
+  if (editor) {
+    // Create a scroller sync for the view
+    const scrollSync = new ScrollSyncer(editor, panel);
+    disposables.push(scrollSync);
+  }
 
   // Listen to the view state changes of the webview panel to update status bar
   panel.onDidChangeViewState(
@@ -290,20 +291,22 @@ export function closeDocumentViewPanels() {
 /**
  * Provider for the model chat webview panel
  */
-export class StencilaModelChatWebviewProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = 'stencila-model-chat';
+export class StencilaModelChatWebviewProvider
+  implements vscode.WebviewViewProvider
+{
+  public static readonly viewType = "stencila-model-chat";
 
-  private view?: vscode.WebviewView
-  
+  private view?: vscode.WebviewView;
+
   private readonly extensionUri: vscode.Uri;
 
-  get webDist() { 
-    return vscode.Uri.joinPath(this.extensionUri, "out", "web")
-  };
+  get webDist() {
+    return vscode.Uri.joinPath(this.extensionUri, "out", "web");
+  }
 
   constructor(extensionUri: vscode.Uri) {
-    this.extensionUri = extensionUri
-  };
+    this.extensionUri = extensionUri;
+  }
 
   public resolveWebviewView(
     webviewView: vscode.WebviewView,
@@ -327,16 +330,18 @@ export class StencilaModelChatWebviewProvider implements vscode.WebviewViewProvi
 
     const disposables: vscode.Disposable[] = [];
 
-    this.view.webview.onDidReceiveMessage((message) => {
-      console.log('message recieved', message)
-    }, null, disposables);
-    
-    
-    this.view.onDidDispose(
-      () => disposables.forEach((disposable) => disposable.dispose())
+    this.view.webview.onDidReceiveMessage(
+      (message) => {
+        console.log("message recieved", message);
+      },
+      null,
+      disposables
     );
-  };
 
+    this.view.onDidDispose(() =>
+      disposables.forEach((disposable) => disposable.dispose())
+    );
+  }
 
   private getHtml(webview: vscode.Webview) {
     const webDist = this.webDist;
@@ -393,9 +398,9 @@ export class StencilaModelChatWebviewProvider implements vscode.WebviewViewProvi
           </script>
         </body>
       </html>
-    `  
-  };
-};
+    `;
+  }
+}
 
 /**
  * Registers an instance of `StencilaModelChatWebviewProvider` to the current `ExtensionContext`
@@ -408,4 +413,4 @@ export function registerModelChatView(context: vscode.ExtensionContext) {
       provider
     )
   );
-};
+}

@@ -157,7 +157,7 @@
         "command": "stencila.new-myst",
         "category": "Create",
         "title": "New MyST Markdown document",
-        "shortTitle": "MyST",
+        "shortTitle": "MyST Markdown",
         "icon": "$(new-file)"
       },
       {
@@ -168,6 +168,20 @@
         "icon": "$(new-file)"
       },
       {
+        "command": "stencila.new-chat",
+        "category": "Create",
+        "title": "New Stencila AI Chat",
+        "shortTitle": "Chat",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "stencila.new-prompt",
+        "category": "Create",
+        "title": "New Stencila AI Prompt",
+        "shortTitle": "Prompt",
+        "icon": "$(comment)"
+      },
+      {
         "command": "stencila.view-doc",
         "category": "Stencila",
         "title": "Preview document",
@@ -175,11 +189,11 @@
         "icon": "$(preview)"
       },
       {
-        "command": "stencila.open-model-chat",
+        "command": "stencila.chat-doc",
         "category": "Stencila",
         "title": "Chat about document",
         "shortTitle": "Document chat",
-        "icon": "$(robot)"
+        "icon": "$(comment-discussion)"
       },
       {
         "command": "stencila.invoke.run-curr",
@@ -437,6 +451,12 @@
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
       },
       {
+        "command": "stencila.chat-doc",
+        "key": "ctrl+shift+c",
+        "mac": "cmd+shift+c",
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
+      },
+      {
         "command": "stencila.invoke.export-doc",
         "key": "ctrl+shift+e",
         "mac": "cmd+shift+e",
@@ -516,6 +536,14 @@
         {
           "command": "stencila.new-qmd",
           "group": "Document"
+        },
+        {
+          "command": "stencila.new-chat",
+          "group": "AI"
+        },
+        {
+          "command": "stencila.new-prompt",
+          "group": "AI"
         }
       ],
       "commandPalette": [
@@ -532,7 +560,17 @@
           "command": "stencila.new-qmd"
         },
         {
+          "command": "stencila.new-chat"
+        },
+        {
+          "command": "stencila.new-prompt"
+        },
+        {
           "command": "stencila.view-doc",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
+        },
+        {
+          "command": "stencila.chat-doc",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
@@ -609,7 +647,7 @@
           "group": "000-Stencila@3"
         },
         {
-          "command": "stencila.open-model-chat",
+          "command": "stencila.chat-doc",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@4"
         }
