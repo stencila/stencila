@@ -1,6 +1,7 @@
 ---
 source: rust/codec-jats/tests/examples.rs
 expression: info.losses
+snapshot_kind: text
 ---
 //article/back/ref-list: 1
 //article/body/sec/@id: 9
@@ -42,7 +43,11 @@ expression: info.losses
 //article/body/sec/sec/sec/p/xref/@id: 2
 //article/body/sec/sec/sec/p/xref/@rel-id: 2
 //article/body/sec/sec/sec/title/@id: 5
-//article/body/sec/sec/table-wrap: 2
+//article/body/sec/sec/table-wrap/@id: 4
+//article/body/sec/sec/table-wrap/@orientation: 2
+//article/body/sec/sec/table-wrap/@position: 2
+//article/body/sec/sec/table-wrap/@rev-id: 2
+//article/body/sec/sec/table-wrap/caption/title/@id: 2
 //article/body/sec/sec/title/@id: 6
 //article/body/sec/supplementary-material: 1
 //article/body/sec/title/@id: 5
@@ -62,11 +67,13 @@ expression: info.losses
 //article/front/article-meta/elocation-id: 1
 //article/front/article-meta/history: 1
 //article/front/article-meta/permissions: 1
-//article/front/article-meta/pub-date: 5
+//article/front/article-meta/pub-date/@date-type: 1
+//article/front/article-meta/pub-date/@pub-type: 5
+//article/front/article-meta/pub-date/@publication-format: 1
+//article/front/article-meta/pub-date/@start: 5
 //article/front/article-meta/self-uri: 8
 //article/front/article-meta/title-group: 1
 //article/front/journal-meta/abbrev-journal-title: 1
 //article/front/journal-meta/journal-id: 2
 //article/front/journal-meta/journal-title: 1
-//article/front/journal-meta/publisher: 1
 //article/front/notes: 1
