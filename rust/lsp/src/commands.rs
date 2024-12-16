@@ -44,7 +44,7 @@ use schema::{
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
 
 pub(super) const PATCH_NODE: &str = "stencila.patch-node";
-pub(super) const PATCH_NODE_CONTENT: &str = "stencila.patch-node-content";
+pub(super) const PATCH_NODE_FORMAT: &str = "stencila.patch-node-format";
 pub(super) const PATCH_CURR: &str = "stencila.patch-curr";
 pub(super) const VERIFY_NODE: &str = "stencila.verify-node";
 
@@ -75,7 +75,7 @@ pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
 pub(super) fn commands() -> Vec<String> {
     [
         PATCH_NODE,
-        PATCH_NODE_CONTENT,
+        PATCH_NODE_FORMAT,
         PATCH_CURR,
         VERIFY_NODE,
         RUN_NODE,
@@ -162,20 +162,34 @@ pub(super) async fn execute_command(
                 true,
             )
         }
-        PATCH_NODE_CONTENT => {
-            let node_id = node_id_arg(args.next())?;
+        PATCH_NODE_FORMAT => {
+            let node_id = Some(node_id_arg(args.next())?);
+            let property = node_property_arg(args.next())?;
+            let format = args
+                .next()
+                .and_then(|arg| arg.as_str().map(Format::from_name))
+                .unwrap_or_default();
             let content = args
                 .next()
                 .and_then(|arg| arg.as_str().map(String::from))
                 .unwrap_or_default();
+            let content_type = args
+                .next()
+                .and_then(|arg| {
+                    arg.as_str()
+                        .and_then(|value| ContentType::from_str(value).ok())
+                })
+                .unwrap_or_default();
+
             (
-                "Patching node content".to_string(),
-                Command::PatchNodeContent((
-                    Some(node_id),
-                    Format::Markdown,
+                "Patching node format".to_string(),
+                Command::PatchNodeFormat {
+                    node_id,
+                    property,
+                    format,
                     content,
-                    ContentType::Block,
-                )),
+                    content_type,
+                },
                 false,
                 true,
             )

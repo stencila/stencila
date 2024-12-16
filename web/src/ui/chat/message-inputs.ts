@@ -110,8 +110,8 @@ export class MessageInput extends LitElement {
 
     this.dispatchEvent(
       documentCommandEvent({
-        command: 'patch-node-content',
-        args: [this.id, this.source],
+        command: 'patch-node-format',
+        args: [this.id, 'content', 'md', this.source, 'block'],
       })
     )
 

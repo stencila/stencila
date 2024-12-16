@@ -25,7 +25,7 @@ use common::{
 use format::Format;
 use kernels::Kernels;
 use node_execute::ExecuteOptions;
-use schema::{Article, AuthorRole, Node, NodeId, NodeType, Null, Patch, Prompt};
+use schema::{Article, AuthorRole, Node, NodeId, NodeProperty, NodeType, Null, Patch, Prompt};
 
 mod config;
 mod sync_directory;
@@ -106,7 +106,13 @@ pub enum Command {
     PatchNode(Patch),
 
     /// Patch a node in the document using content in a specific format
-    PatchNodeContent((Option<NodeId>, Format, String, ContentType)),
+    PatchNodeFormat {
+        node_id: Option<NodeId>,
+        property: NodeProperty,
+        format: Format,
+        content: String,
+        content_type: ContentType,
+    },
 
     /// Patch and the document and then execute nodes within it
     ///
@@ -135,9 +141,10 @@ pub enum SaveDocumentSidecar {
     No,
 }
 
-/// The type of content
-#[derive(Default, Debug, Display, Clone, Serialize, Deserialize, PartialEq)]
+/// The type of content in a
+#[derive(Default, Debug, Display, EnumString, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "kebab-case", crate = "common::serde")]
+#[strum(ascii_case_insensitive, crate = "common::strum")]
 pub enum ContentType {
     #[default]
     Block,

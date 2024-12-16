@@ -2,16 +2,13 @@ use std::path::PathBuf;
 
 use codecs::{to_path, DecodeOptions, EncodeOptions, LossesResponse};
 use common::{
-    eyre::Report,
+    eyre::{bail, Report},
     itertools::Itertools,
     tokio::{self, task::JoinHandle},
     tracing,
 };
 use node_execute::{compile, execute, interrupt, ExecuteOptions};
-use schema::{
-    transforms::blocks_to_inlines, Article, Node, NodeProperty, Patch, PatchNode, PatchOp,
-    PatchPath,
-};
+use schema::{transforms::blocks_to_inlines, Article, Node, Patch, PatchNode, PatchOp, PatchPath};
 
 use crate::{
     Command, CommandNodes, CommandStatus, ContentType, Document, DocumentCommandReceiver,
@@ -145,16 +142,26 @@ impl Document {
                     };
                     send_status(&status_sender, command_id, status);
                 }
-                PatchNodeContent((node_id, format, content, content_type)) => {
-                    if let Ok(Node::Article(Article { content, .. })) = codecs::from_str(
-                        &content,
-                        Some(DecodeOptions {
-                            format: Some(format),
-                            ..Default::default()
-                        }),
-                    )
-                    .await
-                    {
+                PatchNodeFormat {
+                    node_id,
+                    property,
+                    format,
+                    content,
+                    content_type,
+                } => {
+                    let status = if let Err(error) = async {
+                        let Ok(Node::Article(Article { content, .. })) = codecs::from_str(
+                            &content,
+                            Some(DecodeOptions {
+                                format: Some(format),
+                                ..Default::default()
+                            }),
+                        )
+                        .await
+                        else {
+                            bail!("Unexpected node type when patching node with format")
+                        };
+
                         let value = match content_type {
                             ContentType::Block => content
                                 .iter()
@@ -165,26 +172,25 @@ impl Document {
                                 .filter_map(|inline| inline.to_value().ok())
                                 .collect_vec(),
                         };
-                        patch_sender
-                            .send(Patch {
-                                node_id,
-                                ops: vec![
-                                    (PatchPath::from(NodeProperty::Content), PatchOp::Clear),
-                                    (
-                                        PatchPath::from(NodeProperty::Content),
-                                        PatchOp::Append(value),
-                                    ),
-                                ],
-                                ..Default::default()
-                            })
-                            .ok(); // TODO
-                    } else {
-                        send_status(
-                            &status_sender,
-                            command_id,
-                            CommandStatus::Failed(format!("Failed to patch node content")),
-                        );
+
+                        patch_sender.send(Patch {
+                            node_id,
+                            ops: vec![
+                                (PatchPath::from(property), PatchOp::Clear),
+                                (PatchPath::from(property), PatchOp::Append(value)),
+                            ],
+                            ..Default::default()
+                        })?;
+
+                        Ok(())
                     }
+                    .await
+                    {
+                        CommandStatus::Failed(format!("Failed to patch node with format: {error}"))
+                    } else {
+                        CommandStatus::Succeeded
+                    };
+                    send_status(&status_sender, command_id, status);
                 }
                 CompileDocument => {
                     let status_sender = status_sender.clone();
