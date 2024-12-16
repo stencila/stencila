@@ -1,6 +1,7 @@
 ---
 source: rust/codec-jats/tests/examples.rs
 expression: jats
+snapshot_kind: text
 ---
 <article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
@@ -32,7 +33,23 @@ expression: jats
       <sec>
         <title level="2">Virus injections</title>
         <p>Mice were anesthetized with isoflurane, given analgesia (Meloxicam 5mg/kg) and were placed in a stereotactic device (Kopf). A small craniotomy was made over the desired injection site and viral solution was injected into the brain with a fine syringe (volume: 80-150 nl at a rate of 100 nL/min, MICRO-2T, WPI). The coordinates for the different brain regions are shown in .</p>
+        <table-wrap>
+          <label>Table 1.</label>
+          <caption>
+            <title level="2">Coordinates used for virus injections.</title>
+          </caption>
+          <table>
+          </table>
+        </table-wrap>
         <p>The syringe was then slowly retracted, the craniotomy was sealed with bone wax, and the skin was sutured. A minimum of 3 weeks were allowed for all adeno-associated viruses (AAVs) to express. Pseudotyped-rabies were allowed 5-7 days to express. All adeno-associated viruses (AAVs) were made from AddGene plasmids by the ELSC vector core facility at the Hebrew University (EVCF). EnvA pseudotyped-G deleted rabies virus expressing GFP (EnvA-ΔG-RV-GFP) was purchased from the viral vector core of Kavli Institute for Systems Neuroscience, Norway. All viruses used in this study are listed in .</p>
+        <table-wrap>
+          <label>Table 2.</label>
+          <caption>
+            <title level="2">Viruses used in this study</title>
+          </caption>
+          <table>
+          </table>
+        </table-wrap>
       </sec>
       <sec>
         <title level="2">Slice Electrophysiology</title>

@@ -1,9 +1,14 @@
 ---
 source: rust/codec-jats/tests/examples.rs
 expression: article
+snapshot_kind: text
 ---
 {
   "type": "Article",
+  "datePublished": {
+    "type": "Date",
+    "value": "2024-1-1"
+  },
   "content": [
     {
       "type": "Section",
@@ -922,6 +927,25 @@ expression: article
               ]
             },
             {
+              "type": "Table",
+              "label": "Table 1.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Coordinates used for virus injections."
+                      }
+                    }
+                  ]
+                }
+              ],
+              "rows": []
+            },
+            {
               "type": "Paragraph",
               "content": [
                 {
@@ -937,6 +961,25 @@ expression: article
                   }
                 }
               ]
+            },
+            {
+              "type": "Table",
+              "label": "Table 2.",
+              "caption": [
+                {
+                  "type": "Heading",
+                  "level": 2,
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Viruses used in this study"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "rows": []
             }
           ]
         },
@@ -3873,5 +3916,9 @@ expression: article
       "value": "Neuroscience"
     }
   ],
+  "publisher": {
+    "type": "Organization",
+    "name": "Cold Spring Harbor Laboratory"
+  },
   "version": "1.1"
 }

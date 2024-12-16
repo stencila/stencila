@@ -2,8 +2,9 @@ use roxmltree::Node;
 
 use codec::{
     schema::{
-        Article, Block, Date, Organization, PersonOrOrganization, Primitive, PropertyValue,
-        PropertyValueOrString, Section, SectionType, StringOrNumber, ThingType,
+        Article, Block, CreativeWorkType, Date, IntegerOrString, Organization,
+        PersonOrOrganization, Primitive, PropertyValue, PropertyValueOrString, PublicationVolume,
+        Section, SectionType, StringOrNumber, ThingType,
     },
     Losses,
 };
@@ -43,6 +44,7 @@ fn decode_article_meta(path: &str, node: &Node, article: &mut Article, losses: &
             "article-id" => decode_article_id(&child_path, &child, article, losses),
             "article-version" => decode_article_version(&child_path, &child, article, losses),
             "pub-date" => decode_pub_date(&child_path, &child, article, losses),
+            "volume" => decode_volume(&child_path, &child, article, losses),
             _ => record_node_lost(path, &child, losses),
         };
     }
@@ -164,6 +166,22 @@ fn decode_pub_date(path: &str, node: &Node, article: &mut Article, losses: &mut 
         value: [year, "-", month, "-", day].concat(),
         ..Default::default()
     });
+}
+
+/// Decode an `<volume>` element
+fn decode_volume(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    record_attrs_lost(path, node, [], losses);
+
+    if let Some(volume_number) = node.text().unwrap_or_default().parse().ok() {
+        if article.options.parts.is_none() {
+            article.options.parts = Some(vec![CreativeWorkType::PublicationVolume(
+                PublicationVolume {
+                    volume_number: Some(IntegerOrString::Integer(volume_number)),
+                    ..Default::default()
+                },
+            )]);
+        }
+    }
 }
 
 /// Decode an `<journal-meta>` tag to properties on an [`Article`]
