@@ -1,11 +1,12 @@
-import { html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { css, html } from 'lit'
+import { customElement, property } from 'lit/decorators.js'
 
-import { documentCommandEvent } from '../clients/commands'
 import { withTwind } from '../twind'
-import '../ui/nodes/properties/authors'
 
 import { Executable } from './executable'
+
+import '../ui/nodes/properties/authors'
+import '../ui/chat/message-inputs'
 
 /**
  * Web component representing a Stencila `ChatMessage` node
@@ -25,49 +26,6 @@ export class ChatMessage extends Executable {
   @property({ attribute: 'message-role' })
   messageRole: 'System' | 'User' | 'Model'
 
-  @state()
-  source: string = ''
-
-  onSourceInput(event: Event) {
-    const textarea = event.target as HTMLTextAreaElement
-
-    // Update the height of the text area
-    textarea.style.height = 'auto'
-    textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`
-
-    // Update the message source
-    this.source = textarea.value
-  }
-
-  /**
-   * Send a user message to the chat
-   *
-   * Patches the content of the chat (the server has a custom patch handler to
-   * convert Markdown content to a vector of blocks) and executes the chat message
-   * (which executes the entire chat).
-   */
-  onSend(event: Event) {
-    event.stopImmediatePropagation()
-
-    const nodeType = 'ChatMessage'
-    const nodeIds = [this.id]
-
-    this.dispatchEvent(
-      documentCommandEvent({
-        command: 'patch-node-content',
-        args: [this.id, this.source],
-      })
-    )
-
-    this.dispatchEvent(
-      documentCommandEvent({
-        command: 'execute-nodes',
-        nodeType,
-        nodeIds,
-      })
-    )
-  }
-
   override render() {
     switch (this.messageRole) {
       case 'System':
@@ -80,9 +38,11 @@ export class ChatMessage extends Executable {
   }
 
   renderSystemMessage() {
-    return html`<div class="my-3 rounded border border-gray-400 p-3">
-      <slot name="content"></slot>
-    </div>`
+    return html`
+      <div class="my-3 p-3 bg-blue-100/50 rounded">
+        <slot name="content"></slot>
+      </div>
+    `
   }
 
   renderUserMessage() {
@@ -93,37 +53,25 @@ export class ChatMessage extends Executable {
   }
 
   renderUserMessageInactive() {
-    return html`<div class="my-3 rounded border border-blue-400 p-3">
-      <slot name="content"></slot>
-    </div>`
+    return html`
+      <div class="flex justify-end">
+        <div class="my-3 p-3 bg-green-100/50 rounded w-content">
+          <slot name="content"></slot>
+        </div>
+      </div>
+    `
   }
 
   renderUserMessageActive() {
-    const hasContent = this.source.trim().length > 0
-
-    return html`<div class="my-3 rounded border border-gray-200">
-      <div class="flex items-end max-w-4xl mx-auto rounded p-2">
-        <textarea
-          class="w-full resize-none overflow-hidden outline-none px-2 py-1"
-          placeholder=""
-          rows=${1}
-          @input=${(event: Event) => this.onSourceInput(event)}
-        ></textarea>
-
-        <sl-tooltip content=${hasContent ? 'Send message' : 'Message is empty'}
-          ><stencila-ui-icon-button
-            name="arrowNarrowUp"
-            class=${hasContent ? 'text-blue-900' : 'text-grey-500'}
-            ?disabled=${!hasContent}
-            @click=${(event: Event) => this.onSend(event)}
-          ></stencila-ui-icon-button
-        ></sl-tooltip>
-      </div>
-    </div>`
+    return html`
+      <stencila-chat-message-inputs
+        message-id=${this.id}
+      ></stencila-chat-message-inputs>
+    `
   }
 
   renderModelMessage() {
-    return html`<div class="my-3 rounded border border-red-400 p-3">
+    return html`<div class="my-3 p-3">
       <slot name="content"></slot>
     </div>`
   }

@@ -3,10 +3,11 @@ import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
-import '../ui/model-chat/message-inputs'
+import '../ui/chat/message-inputs'
 
 type MessageStatus = 'empty' | 'edited' | 'sent' | 'recieved'
 
+// MOVED TO CHAT MESSAGE FOR NOW
 /**
  * Web component representing a Stencila Schema `InstructionMessage` node
  * Can be used both for new message input and displaying existing messages
@@ -27,7 +28,7 @@ export class InstructionMessage extends LitElement {
   timeReceived: number
 
   private renderMessage() {
-    return html` <slot></slot> `
+    return html`<slot></slot>`
   }
 
   override render() {
@@ -36,11 +37,5 @@ export class InstructionMessage extends LitElement {
           ?waiting=${this.pending}
         ></stencila-message-input>`
       : this.renderMessage()
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'stencila-instruction-message': InstructionMessage
   }
 }

@@ -5,7 +5,7 @@ import { withTwind } from '../twind'
 
 /**
  * Web component representing a Stencila `Chat` node
- * 
+ *
  * A `Chat` node is similar to `Article` and `Prompt` nodes in that they
  * are usually (but not necessarily) the root node of a document.
  *
@@ -29,7 +29,10 @@ export class StencilaChat extends LitElement {
   override render() {
     return html`
       <slot name="model"></slot>
-      <slot name="content"></slot>
+
+      <div class="px-12">
+        <slot name="content"></slot>
+      </div>
     `
   }
 }

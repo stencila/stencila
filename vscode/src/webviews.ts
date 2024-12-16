@@ -371,16 +371,19 @@ export class StencilaModelChatWebviewProvider implements vscode.WebviewViewProvi
           <stencila-vscode-model-chat-view>
 
             <!-- EXAMPLE CONTENT -->
-            <stencila-model-chat>
-              <div slot="message-feed">
-                <p>Hello world</p>
-                <p>Hello stencila</p>
+            <stencila-chat>
+              <div slot="model">
+                <stencila-instruction-model
+                  id="ism_xxxxxx"
+                  depth="1"
+                  ancestors="Chat"
+                  temperature="90"
+                >
+                </stencila-instruction-model>
               </div>
-              <div slot="instruction-message">
-                <stencila-instruction-message>
-                </stencila-instruction-message>
+              <div slot="content">
               </div>
-            </stencila-model-chat>
+            </stencila-chat>
             <!-- -->
 
 
