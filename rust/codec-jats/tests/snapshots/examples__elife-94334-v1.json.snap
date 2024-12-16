@@ -14155,6 +14155,33 @@ snapshot_kind: text
       "value": "Chromosomes and Gene Expression"
     }
   ],
+  "funders": [
+    {
+      "type": "Organization",
+      "name": "National Institutes of Health",
+      "url": "http://dx.doi.org/10.13039/100000002"
+    },
+    {
+      "type": "Organization",
+      "name": "National Institutes of Health",
+      "url": "http://dx.doi.org/10.13039/100000002"
+    },
+    {
+      "type": "Organization",
+      "name": "Howard Hughes Medical Institute",
+      "url": "http://dx.doi.org/10.13039/100000011"
+    },
+    {
+      "type": "Organization",
+      "name": "National Institutes of Health",
+      "url": "http://dx.doi.org/10.13039/100000002"
+    },
+    {
+      "type": "Organization",
+      "name": "National Institute of General Medical Sciences",
+      "url": "http://dx.doi.org/10.13039/100000057"
+    }
+  ],
   "parts": [
     {
       "type": "PublicationVolume",
