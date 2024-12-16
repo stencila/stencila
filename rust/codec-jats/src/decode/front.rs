@@ -252,7 +252,7 @@ fn decode_publisher(path: &str, node: &Node, article: &mut Article, losses: &mut
     let name = node
         .children()
         .find(|child| child.tag_name().name() == "publisher-name")
-        .map(|child| child.text().unwrap_or_default().into());
+        .and_then(|child| child.text().map(str::to_string));
 
     article.options.publisher = Some(PersonOrOrganization::Organization(Organization {
         name,
