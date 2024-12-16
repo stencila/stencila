@@ -8,18 +8,9 @@ use crate::{interrupt_impl, prelude::*};
 
 impl Executable for Chat {
     #[tracing::instrument(skip_all)]
-    async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
+    async fn compile(&mut self, _executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
         tracing::trace!("Compiling Chat {node_id}");
-
-        // Ensure that the chat has a user message at the end
-        match self.content.last() {
-            Some(Block::ChatMessage(ChatMessage {
-                role: MessageRole::User,
-                ..
-            })) => {}
-            _ => executor.patch(&node_id, [push(NodeProperty::Content, user_chat_message())]),
-        }
 
         // Continue walk to compile nodes in `content` and `title`
         WalkControl::Continue
