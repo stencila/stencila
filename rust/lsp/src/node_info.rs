@@ -66,7 +66,10 @@ fn node_infos(node: &TextNode, items: &mut Vec<NodeInfo>) {
                 node.node_type,
                 NodeType::IfBlockClause | NodeType::Walkthrough | NodeType::WalkthroughStep
             )))
-        && !matches!(node.node_type, NodeType::Article | NodeType::Prompt)
+        && !matches!(
+            node.node_type,
+            NodeType::Article | NodeType::Prompt | NodeType::Chat
+        )
     {
         return;
     }

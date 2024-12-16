@@ -93,6 +93,7 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
             node_type,
             Admonition
                 | CallBlock
+                | ChatMessage
                 | Claim
                 | CodeBlock
                 | CodeChunk
