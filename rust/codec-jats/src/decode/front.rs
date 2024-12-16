@@ -2,7 +2,7 @@ use roxmltree::Node;
 
 use codec::{
     schema::{
-        Article, Block, CreativeWorkType, Date, IntegerOrString, Organization,
+        Article, Block, CreativeWorkType, Date, IntegerOrString, Organization, OrganizationOptions,
         PersonOrOrganization, Primitive, PropertyValue, PropertyValueOrString, PublicationVolume,
         Section, SectionType, StringOrNumber, ThingType,
     },
@@ -45,6 +45,7 @@ fn decode_article_meta(path: &str, node: &Node, article: &mut Article, losses: &
             "article-version" => decode_article_version(&child_path, &child, article, losses),
             "pub-date" => decode_pub_date(&child_path, &child, article, losses),
             "volume" => decode_volume(&child_path, &child, article, losses),
+            "funding-group" => decode_funding_group(&child_path, &child, article, losses),
             _ => record_node_lost(path, &child, losses),
         };
     }
@@ -182,6 +183,54 @@ fn decode_volume(path: &str, node: &Node, article: &mut Article, losses: &mut Lo
             )]);
         }
     }
+}
+
+/// Decode an `<funding-group>` element
+fn decode_funding_group(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    record_attrs_lost(path, node, [], losses);
+
+    let funders = node
+        .children()
+        .filter(|child| child.tag_name().name() == "award-group")
+        .flat_map(|award_group| {
+            let path = &extend_path(path, "award-group");
+            award_group
+                .children()
+                .filter(|child| child.tag_name().name() == "funding-source")
+                .map(|child| decode_funding_source(path, &child, losses))
+                .collect::<Vec<PersonOrOrganization>>()
+        })
+        .collect();
+
+    article.options.funders = Some(funders);
+}
+
+/// Decode an `<funding-source>` element
+fn decode_funding_source(path: &str, node: &Node, losses: &mut Losses) -> PersonOrOrganization {
+    record_attrs_lost(path, node, [], losses);
+
+    let mut funder = None;
+    let mut url = None;
+
+    for funding_source in node.children() {
+        for child in funding_source.children() {
+            let tag = child.tag_name().name();
+            if tag == "institution" {
+                funder = child.text().map(str::to_string);
+            } else if tag == "institution-id" {
+                url = child.text().map(str::to_string);
+            }
+        }
+    }
+
+    PersonOrOrganization::Organization(Organization {
+        name: funder,
+        options: Box::new(OrganizationOptions {
+            url,
+            ..Default::default()
+        }),
+        ..Default::default()
+    })
 }
 
 /// Decode an `<journal-meta>` tag to properties on an [`Article`]
