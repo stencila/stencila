@@ -2,9 +2,9 @@ use roxmltree::Node;
 
 use codec::{
     schema::{
-        Article, Block, CreativeWorkType, Date, IntegerOrString, Organization, OrganizationOptions,
-        PersonOrOrganization, Primitive, PropertyValue, PropertyValueOrString, PublicationVolume,
-        Section, SectionType, StringOrNumber, ThingType,
+        Article, Author, Block, CreativeWorkType, Date, IntegerOrString, Organization,
+        OrganizationOptions, Person, PersonOptions, PersonOrOrganization, Primitive, PropertyValue,
+        PropertyValueOrString, PublicationVolume, Section, SectionType, StringOrNumber, ThingType,
     },
     Losses,
 };
@@ -46,6 +46,7 @@ fn decode_article_meta(path: &str, node: &Node, article: &mut Article, losses: &
             "pub-date" => decode_pub_date(&child_path, &child, article, losses),
             "volume" => decode_volume(&child_path, &child, article, losses),
             "funding-group" => decode_funding_group(&child_path, &child, article, losses),
+            "contrib-group" => decode_contrib_group(&child_path, &child, article, losses),
             _ => record_node_lost(path, &child, losses),
         };
     }
@@ -227,6 +228,75 @@ fn decode_funding_source(path: &str, node: &Node, losses: &mut Losses) -> Person
         name: funder,
         options: Box::new(OrganizationOptions {
             url,
+            ..Default::default()
+        }),
+        ..Default::default()
+    })
+}
+
+/// Decode an `<contrib-group>` element
+fn decode_contrib_group(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    record_attrs_lost(path, node, [], losses);
+
+    let mut authors = node
+        .children()
+        .filter(|child| child.tag_name().name() == "contrib")
+        .map(|child| decode_contrib(path, &child, losses))
+        .collect();
+
+    if let Some(ref mut vector) = article.authors {
+        vector.append(&mut authors);
+    } else {
+        article.authors = Some(authors);
+    }
+}
+
+/// Decode an `<contrib-id>, <email> and <name>` elements
+fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> Author {
+    record_attrs_lost(path, node, [], losses);
+
+    let mut family_names = None;
+    let mut given_names = None;
+    let mut url = None;
+    let mut emails = None;
+
+    for child in node.children() {
+        let tag = child.tag_name().name();
+        if tag == "name" {
+            family_names = Some(Vec::new());
+            given_names = Some(Vec::new());
+            for grandchild in child.children() {
+                let grandchild_tag = grandchild.tag_name().name();
+                if grandchild_tag == "surname" {
+                    if let Some(ref mut vector) = family_names {
+                        vector.push(grandchild.text().unwrap_or_default().into());
+                    }
+                } else if grandchild_tag == "given-names" {
+                    if let Some(ref mut vector) = given_names {
+                        vector.push(grandchild.text().unwrap_or_default().into());
+                    }
+                }
+            }
+        } else if tag == "contrib-id" {
+            url = Some(child.text().unwrap_or_default().into());
+        } else if tag == "email" {
+            if emails.is_none() {
+                emails = Some(Vec::new());
+            }
+            if let Some(ref mut vector) = emails {
+                vector.push(child.text().unwrap_or_default().into());
+            }
+        } else {
+            record_node_lost(path, &child, losses);
+        }
+    }
+
+    Author::Person(Person {
+        family_names,
+        given_names,
+        options: Box::new(PersonOptions {
+            url,
+            emails,
             ..Default::default()
         }),
         ..Default::default()

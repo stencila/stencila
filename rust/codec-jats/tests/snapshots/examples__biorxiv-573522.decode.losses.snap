@@ -61,7 +61,11 @@ snapshot_kind: text
 //article/front/article-meta/article-categories/subj-group/@journal-coll-id: 1
 //article/front/article-meta/article-id/@sub-type: 5
 //article/front/article-meta/author-notes: 1
-//article/front/article-meta/contrib-group: 1
+//article/front/article-meta/contrib-group/@contrib-type: 5
+//article/front/article-meta/contrib-group/@corresp: 2
+//article/front/article-meta/contrib-group/@id: 6
+//article/front/article-meta/contrib-group/object-id: 5
+//article/front/article-meta/contrib-group/xref: 7
 //article/front/article-meta/counts: 1
 //article/front/article-meta/custom-meta-wrap: 1
 //article/front/article-meta/elocation-id: 1

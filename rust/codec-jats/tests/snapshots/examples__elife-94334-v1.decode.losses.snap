@@ -41,7 +41,13 @@ snapshot_kind: text
 //article/front/article-meta/article-id/@specific-use: 1
 //article/front/article-meta/article-version/@article-version-type: 1
 //article/front/article-meta/author-notes: 1
-//article/front/article-meta/contrib-group: 2
+//article/front/article-meta/contrib-group/@content-type: 1
+//article/front/article-meta/contrib-group/@contrib-type: 9
+//article/front/article-meta/contrib-group/@corresp: 1
+//article/front/article-meta/contrib-group/@equal-contrib: 2
+//article/front/article-meta/contrib-group/aff: 2
+//article/front/article-meta/contrib-group/role: 2
+//article/front/article-meta/contrib-group/xref: 33
 //article/front/article-meta/custom-meta-group: 1
 //article/front/article-meta/elocation-id: 1
 //article/front/article-meta/history: 1

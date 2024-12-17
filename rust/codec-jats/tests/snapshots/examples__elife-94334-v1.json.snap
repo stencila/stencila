@@ -5,6 +5,94 @@ snapshot_kind: text
 ---
 {
   "type": "Article",
+  "authors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Zhou"
+      ],
+      "givenNames": [
+        "Felix Y"
+      ],
+      "url": "https://orcid.org/0000-0002-8619-7160"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Waterman"
+      ],
+      "givenNames": [
+        "David P"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Ashton"
+      ],
+      "givenNames": [
+        "Marissa"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Caban-Penix"
+      ],
+      "givenNames": [
+        "Suhaily"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Memisoglu"
+      ],
+      "givenNames": [
+        "Gonen"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Eapen"
+      ],
+      "givenNames": [
+        "Vinay V"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Haber"
+      ],
+      "givenNames": [
+        "James E"
+      ],
+      "url": "https://orcid.org/0000-0002-1878-0610",
+      "emails": [
+        "haber@brandeis.edu"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Aguilera"
+      ],
+      "givenNames": [
+        "Andrés"
+      ]
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Cooper"
+      ],
+      "givenNames": [
+        "Jonathan A"
+      ]
+    }
+  ],
   "datePublished": {
     "type": "Date",
     "value": "2024-12-10"
