@@ -24,22 +24,26 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
     );
   }
 
-  // Create a new chat (not linked to a document)
+  // Create a new chat document and open with the chat editor
   vscode.commands.registerCommand(`stencila.new-chat`, async () => {
-    // Although this does not call `showTextDocument` the document is shown
-    // anyway but with the webview panel in front of it
-    const document = await vscode.workspace.openTextDocument({
-      language: "smd",
-      content: `---
-type: Chat
----
-
-::: user
-
-:::
-`,
+    const regex = new RegExp(`untitled:untitled-(\\d+)\\.chat$`);
+    let maxIndex = 0;
+    vscode.workspace.textDocuments.forEach((doc) => {
+      const uri = doc.uri.toString();
+      const match = regex.exec(uri);
+      if (match) {
+        const index = parseInt(match[1], 10);
+        if (!isNaN(index) && index > maxIndex) {
+          maxIndex = index;
+        }
+      }
     });
-    await createDocumentViewPanel(context, document.uri);
+
+    await vscode.commands.executeCommand(
+      "vscode.openWith",
+      vscode.Uri.parse(`untitled:untitled-${maxIndex + 1}.chat`),
+      "stencila.chat-editor"
+    );
   });
 
   // Create a new prompt

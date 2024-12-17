@@ -756,7 +756,8 @@
           "Stencila Markdown"
         ],
         "extensions": [
-          ".smd"
+          ".smd",
+          ".chat"
         ],
         "configuration": "./syntaxes/smd/configuration.json",
         "icon": {
@@ -948,6 +949,18 @@
         "label": "Stencila Light",
         "uiTheme": "vs",
         "path": "./themes/stencila-light-color-theme.json"
+      }
+    ],
+    "customEditors": [
+      {
+        "viewType": "stencila.chat-editor",
+        "displayName": "Chat",
+        "selector": [
+          {
+            "filenamePattern": "*.chat"
+          }
+        ],
+        "priority": "default"
       }
     ],
     "viewsContainers": {

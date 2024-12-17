@@ -26,6 +26,7 @@ import { cliPath } from "./cli";
 import { registerWalkthroughCommands } from "./walkthroughs";
 import { registerStencilaShell } from "./shell";
 import { registerSetupView } from "./setup";
+import { registerChatEditor } from "./editors";
 
 let client: LanguageClient | undefined;
 
@@ -54,9 +55,10 @@ export async function activate(context: vscode.ExtensionContext) {
   registerAuthenticationProvider(context);
   registerSecretsCommands(context);
   registerDocumentCommands(context);
-  registerStatusBar(context);
   registerWalkthroughCommands(context);
+  registerStatusBar(context);
   registerStencilaShell(context);
+  registerChatEditor(context);
   registerOtherCommands(context);
   registerModelChatView(context);
 

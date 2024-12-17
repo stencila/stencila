@@ -72,10 +72,10 @@ interface ScrollSyncMessage {
 }
 
 /**
- * Create a WebView panel that display the document
+ * Create a WebView panel that displays a document
  *
  * @param nodeId The id of the node that the document should scroll to
- * @param expand Whether the node card should be in expanded to show authorship/provenance
+ * @param expandAuthors Whether the node card should be in expanded to show authorship/provenance
  */
 export async function createDocumentViewPanel(
   context: vscode.ExtensionContext,
@@ -101,28 +101,50 @@ export async function createDocumentViewPanel(
     return panel;
   }
 
-  const filename = path.basename(documentUri.fsPath);
-
-  // Folder containing bundled JS and other assets for the web view
-  const webDist = vscode.Uri.joinPath(context.extensionUri, "out", "web");
-
+  // Create the panel
   const panel = vscode.window.createWebviewPanel(
     "document-view",
-    `Preview ${filename}`,
+    `Preview ${path.basename(documentUri.fsPath)}`,
     vscode.ViewColumn.Beside,
     {
       enableScripts: true,
       retainContextWhenHidden: true,
-      localResourceRoots: [webDist],
+      localResourceRoots: [
+        vscode.Uri.joinPath(context.extensionUri, "out", "web"),
+      ],
     }
   );
+
+  initializeDocumentViewPanel(context, documentUri, panel, editor);
+
+  // If `nodeId` param is defined, scroll webview panel to target node.
+  if (nodeId) {
+    panel.webview.postMessage({
+      type: "view-node",
+      nodeId,
+      expandAuthors,
+    });
+  }
+
+  return panel;
+}
+
+/**
+ * Initialize a WebView panel that displays a document
+ */
+export async function initializeDocumentViewPanel(
+  context: vscode.ExtensionContext,
+  documentUri: vscode.Uri,
+  panel: vscode.WebviewPanel,
+  editor?: vscode.TextEditor
+) {
   panel.iconPath = vscode.Uri.joinPath(
     context.extensionUri,
     "icons",
     "stencila-128.png"
   );
 
-  // Subscribe to updates of DOM HTML for document and get theme
+  // Subscribe to updates of DOM HTML for document
   const [subscriptionId, themeName, viewHtml] = await subscribeToDom(
     documentUri,
     (patch: unknown) => {
@@ -133,6 +155,8 @@ export async function createDocumentViewPanel(
     }
   );
 
+  // Folder containing bundled JS and other assets for the web view
+  const webDist = vscode.Uri.joinPath(context.extensionUri, "out", "web");
   const themeCss = panel.webview.asWebviewUri(
     vscode.Uri.joinPath(webDist, "themes", `${themeName}.css`)
   );
@@ -255,15 +279,6 @@ export async function createDocumentViewPanel(
   // Track the webview by adding it to the map
   documentViewPanels.set(documentUri, panel);
   documentViewHandlers.set(documentUri, disposables);
-
-  // If `nodeId` param is defined, scroll webview panel to target node.
-  if (nodeId) {
-    panel.webview.postMessage({
-      type: "view-node",
-      nodeId,
-      expandAuthors,
-    });
-  }
 
   return panel;
 }
