@@ -162,6 +162,13 @@ export class MessageInput extends LitElement {
     `
   }
 
+  override firstUpdated(): void {
+    const textarea = this.shadowRoot?.querySelector('textarea')
+    if (textarea) {
+      textarea.focus()
+    }
+  }
+
   override disconnectedCallback(): void {
     this.tempFileUrls.forEach((url) => {
       URL.revokeObjectURL(url)
