@@ -1,11 +1,10 @@
-import { css, html } from 'lit'
+import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
 import { Executable } from './executable'
 
-import '../ui/nodes/properties/authors'
 import '../ui/chat/message-inputs'
 
 /**
@@ -25,6 +24,17 @@ import '../ui/chat/message-inputs'
 export class ChatMessage extends Executable {
   @property({ attribute: 'message-role' })
   messageRole: 'System' | 'User' | 'Model'
+
+  /**
+   * Whether the message has any content
+   *
+   * Used to determine whether to render inputs for user messages
+   * and placeholder text for model messages while running.
+   */
+  private hasContent(): boolean {
+    // The `<div slot=content>` is the only present if content is not empty
+    return this.querySelector('div[slot=content]') !== null
+  }
 
   override render() {
     switch (this.messageRole) {
@@ -46,8 +56,7 @@ export class ChatMessage extends Executable {
   }
 
   renderUserMessage() {
-    return this.executionCount >= 0 ||
-      ['Pending', 'Running', 'Succeeded'].includes(this.executionStatus)
+    return this.hasContent()
       ? this.renderUserMessageInactive()
       : this.renderUserMessageActive()
   }
@@ -72,6 +81,7 @@ export class ChatMessage extends Executable {
 
   renderModelMessage() {
     return html`<div class="my-3 p-3">
+      ${this.hasContent() ? '' : this.executionStatus}
       <slot name="content"></slot>
     </div>`
   }
