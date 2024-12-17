@@ -1,7 +1,7 @@
 use common::tokio;
 use schema::{
     shortcuts::{cc, mb, p, t},
-    Block, Chat, ChatMessage, MessageRole,
+    Block, Chat, ChatMessage, ChatMessageOptions, MessageRole,
 };
 
 use crate::{interrupt_impl, prelude::*};
@@ -30,8 +30,8 @@ impl Executable for Chat {
                 .flatten()
                 .any(|node_id| matches!(node_id.nick(), "cht" | "chm"));
 
-        // If not, then return early and continue walking document to prepare
-        // nodes in `content`
+        // If not to be execute, then return early and continue walking document
+        // to prepare nodes in `content`
         if !prepare_self {
             return WalkControl::Continue;
         }
@@ -78,17 +78,39 @@ impl Executable for Chat {
         // TODO: construct a model task from all the messages in this chat
         for block in self.content.iter_mut() {
             if let Block::ChatMessage(msg) = block {
+                // If the message does not have an execution status then
+                // set to succeeded. This is important for user messages because
+                // it triggers a re-render of the Web Component.
                 if msg.options.execution_status.is_none() {
                     executor.patch(
                         &msg.node_id(),
-                        [
-                            set(NodeProperty::ExecutionStatus, ExecutionStatus::Running),
-                            none(NodeProperty::ExecutionMessages),
-                        ],
+                        [set(
+                            NodeProperty::ExecutionStatus,
+                            ExecutionStatus::Succeeded,
+                        )],
                     );
                 }
             }
         }
+
+        // Add a new model message to the chat, with no content, so the user
+        // can see it as running
+        let model_message = ChatMessage {
+            role: MessageRole::Model,
+            options: Box::new(ChatMessageOptions {
+                execution_status: Some(ExecutionStatus::Running),
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
+        let model_message_id = model_message.node_id();
+        executor.patch(
+            &node_id,
+            [push(
+                NodeProperty::Content,
+                Block::ChatMessage(model_message),
+            )],
+        );
 
         // TODO: replace this simulation with actual model generated content
         tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
@@ -100,7 +122,6 @@ impl Executable for Chat {
             mb("E = mc ^ 2 * \\pi", Some("tex")),
             p([t("Last paragraph of the model response. Enim pariatur in voluptate reprehenderit Lorem quis esse cupidatat minim. Anim ipsum exercitation eiusmod laboris nostrud ullamco commodo amet nisi sit. Aute sunt quis ad tempor consectetur eiusmod non est. Laborum ea et esse irure nostrud labore irure. Officia labore velit cillum id cupidatat aliquip aute fugiat ea deserunt esse aliqua in. Non amet est eu enim mollit velit fugiat et ullamco cillum. Reprehenderit reprehenderit adipisicing laboris veniam in aute aute aliqua..")]),
         ];
-        let chat_messages = vec![model_chat_message(content), user_chat_message()];
 
         // Set the status of each message
         for block in self.content.iter_mut() {
@@ -127,10 +148,26 @@ impl Executable for Chat {
         let duration = execution_duration(&started, &ended);
         let count = self.options.execution_count.unwrap_or_default() + 1;
 
+        // Patch the status and content of the model message
+        executor.patch(
+            &model_message_id,
+            [
+                set(NodeProperty::ExecutionStatus, status.clone()),
+                append(NodeProperty::Content, content),
+            ],
+        );
+
+        // Patch the chat, including appending a new, empty user message
         executor.patch(
             &node_id,
             [
-                append(NodeProperty::Content, chat_messages),
+                push(
+                    NodeProperty::Content,
+                    Block::ChatMessage(ChatMessage {
+                        role: MessageRole::User,
+                        ..Default::default()
+                    }),
+                ),
                 set(NodeProperty::ExecutionStatus, status),
                 set(NodeProperty::ExecutionRequired, required),
                 set(NodeProperty::ExecutionMessages, messages),
@@ -154,21 +191,4 @@ impl Executable for Chat {
         // Continue to interrupt executable nodes in `content`
         WalkControl::Continue
     }
-}
-
-/// Create an empty user chat message
-fn user_chat_message() -> Block {
-    Block::ChatMessage(ChatMessage {
-        role: MessageRole::User,
-        ..Default::default()
-    })
-}
-
-/// Create a model chat message
-fn model_chat_message(content: Vec<Block>) -> Block {
-    Block::ChatMessage(ChatMessage {
-        role: MessageRole::Model,
-        content,
-        ..Default::default()
-    })
 }
