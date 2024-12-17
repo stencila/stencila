@@ -104,6 +104,8 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
 
     override connectedCallback(): void {
       super.connectedCallback()
+      // set node cards in 'test-expand-all' mode to expand by default
+      // for regression snapshot testing
       const testMode = getModeParam(window)
       if (testMode && testMode === 'test-expand-all') {
         this.toggle = true
@@ -125,9 +127,8 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
 
       const { borderColour, icon } = nodeUi(this.type)
 
-      const markerStateClasses = this.toggle
-        ? 'opacity-100'
-        : this.docViewContext.nodeMarkerState === 'hidden'
+      const markerStateClasses =
+        this.toggle || this.docViewContext.nodeMarkerState === 'hidden'
           ? 'opacity-0 pointer-events-none'
           : this.docViewContext.nodeMarkerState === 'hover-only'
             ? 'opacity-0 group-hover:opacity-100'
