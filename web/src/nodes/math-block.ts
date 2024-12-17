@@ -18,7 +18,7 @@ export class MathBlock extends Math {
    * and `mathLanguage`, in addition to the compiled MathML.
    */
   override render() {
-    if (this.ancestors.includes('StyledBlock')) {
+    if (this.ancestors.includes('StyledBlock') || this.isUserChatNode()) {
       return this.renderContent()
     }
 

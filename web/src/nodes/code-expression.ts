@@ -23,6 +23,12 @@ import { CodeExecutable } from './code-executable'
 @withTwind()
 export class CodeExpression extends CodeExecutable {
   override render() {
+    if (this.isUserChatNode()) {
+      return html`
+        ${this.executionCount > 0 ? html`<slot name="output"></slot>` : ''}
+      `
+    }
+
     const { icon, title } = getTitleIcon(this.programmingLanguage) ?? {
       title: 'Code',
       icon: 'code',

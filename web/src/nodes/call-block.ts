@@ -21,7 +21,7 @@ import { IncludeBlock } from './include-block'
 @withTwind()
 export class CallBlock extends IncludeBlock {
   override render() {
-    if (this.ancestors.includes('StyledBlock')) {
+    if (this.ancestors.includes('StyledBlock') || this.isUserChatNode()) {
       return this.renderContent()
     }
 

@@ -32,7 +32,7 @@ export class IfBlock extends Executable {
   }
 
   override render() {
-    if (this.ancestors.includes('StyledBlock')) {
+    if (this.ancestors.includes('StyledBlock') || this.isUserChatNode()) {
       return html`<slot name="clauses"></slot>`
     }
 

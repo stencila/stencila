@@ -61,7 +61,7 @@ export class Admonition extends Entity {
       'shadow rounded',
     ])
 
-    if (this.ancestors.includes('StyledBlock')) {
+    if (this.ancestors.includes('StyledBlock') || this.isUserChatNode()) {
       return html`
         <div class=${styles}>
           ${this.renderHeader()} ${this.renderContent()}

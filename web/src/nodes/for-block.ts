@@ -39,7 +39,7 @@ export class ForBlock extends CodeExecutable {
   override render() {
     const { colour, borderColour } = nodeUi('ForBlock')
 
-    if (this.ancestors.includes('StyledBlock')) {
+    if (this.ancestors.includes('StyledBlock') || this.isUserChatNode()) {
       return html`<slot name="iterations"></slot>`
     }
 

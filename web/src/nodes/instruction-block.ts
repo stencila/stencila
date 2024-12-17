@@ -232,7 +232,7 @@ export class InstructionBlock extends Instruction {
   `
 
   override render() {
-    if (this.ancestors.includes('StyledBlock')) {
+    if (this.ancestors.includes('StyledBlock') || this.isUserChatNode()) {
       return html`
         ${this.activeSuggestion === null || this.activeSuggestion === undefined
           ? html`<slot name="content"></slot>`
