@@ -706,7 +706,22 @@ pub(super) fn did_open(
 ) -> ControlFlow<Result<(), Error>> {
     let uri = params.text_document.uri;
     let format = params.text_document.language_id;
-    let source = params.text_document.text;
+    let mut source = params.text_document.text;
+
+    // Ensure if the document is a new chat document, that is it well formed, including
+    // having an initial user message to be typed into
+    if uri.path().ends_with(".chat") && source.is_empty() {
+        source.push_str(
+            "---
+type: Chat
+---
+
+::: user
+
+:::
+",
+        );
+    }
 
     let client = state.client.clone();
     let user = state
