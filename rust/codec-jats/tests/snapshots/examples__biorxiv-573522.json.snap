@@ -5,6 +5,58 @@ snapshot_kind: text
 ---
 {
   "type": "Article",
+  "authors": [
+    {
+      "type": "Person",
+      "familyNames": [
+        "Penker"
+      ],
+      "givenNames": [
+        "Sapir"
+      ],
+      "url": "http://orcid.org/0000-0002-6935-0047"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Lawabny"
+      ],
+      "givenNames": [
+        "Naheel"
+      ],
+      "url": "http://orcid.org/0000-0002-6760-4728"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Dhamshy"
+      ],
+      "givenNames": [
+        "Aya"
+      ],
+      "url": "http://orcid.org/0009-0004-0947-2984"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Licht"
+      ],
+      "givenNames": [
+        "Tamar"
+      ],
+      "url": "http://orcid.org/0000-0003-2333-1665"
+    },
+    {
+      "type": "Person",
+      "familyNames": [
+        "Rokni"
+      ],
+      "givenNames": [
+        "Dan"
+      ],
+      "url": "http://orcid.org/0000-0002-3041-8462"
+    }
+  ],
   "datePublished": {
     "type": "Date",
     "value": "2024-1-1"
