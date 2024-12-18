@@ -1,12 +1,11 @@
 use roxmltree::Node;
 
 use codec::{
-    schema::{
+    common::itertools::Itertools, schema::{
         Article, Author, Block, CreativeWorkType, Date, IntegerOrString, Organization,
         OrganizationOptions, Person, PersonOptions, PersonOrOrganization, Primitive, PropertyValue,
         PropertyValueOrString, PublicationVolume, Section, SectionType, StringOrNumber, ThingType,
-    },
-    Losses,
+    }, Losses
 };
 
 use super::{
@@ -147,27 +146,28 @@ fn decode_article_version(path: &str, node: &Node, article: &mut Article, losses
     };
 }
 
-///Decode an `<pub-date>` element
+/// Decode a `<pub-date>` element
 fn decode_pub_date(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     record_attrs_lost(path, node, [], losses);
-    let mut day = "";
-    let mut month = "";
-    let mut year = "";
+
+    let mut day = None;
+    let mut month = None;
+    let mut year = None;
 
     for child in node.children() {
-        let tag = child.tag_name().name();
-        if tag == "day" {
-            day = child.text().unwrap_or_default()
-        } else if tag == "month" {
-            month = child.text().unwrap_or_default()
-        } else if tag == "year" {
-            year = child.text().unwrap_or_default()
+        if let Some(value) = child.text() {
+            match child.tag_name().name() {
+                "day" => day = Some(value),
+                "month" => month = Some(value),
+                "year" => year = Some(value),
+                _ => {}
+            }
         }
     }
-    article.date_published = Some(Date {
-        value: [year, "-", month, "-", day].concat(),
-        ..Default::default()
-    });
+
+    let date = year.iter().chain(month.iter()).chain(day.iter()).join("-");
+
+    article.date_published = (!date.is_empty()).then(|| Date::new(date))
 }
 
 /// Decode an `<volume>` element
