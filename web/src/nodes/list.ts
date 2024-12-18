@@ -19,7 +19,7 @@ export class List extends Entity {
     if (
       this.closestGlobally('nav[slot=headings]') ||
       this.ancestors.includes('StyledBlock') ||
-      this.isUserChatNode()
+      this.isUserChatMessageNode()
     ) {
       return html`<slot name="items"></slot>`
     }

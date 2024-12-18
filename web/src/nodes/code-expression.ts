@@ -23,7 +23,7 @@ import { CodeExecutable } from './code-executable'
 @withTwind()
 export class CodeExpression extends CodeExecutable {
   override render() {
-    if (this.isUserChatNode()) {
+    if (this.isUserChatMessageNode()) {
       return html`
         ${this.executionCount > 0 ? html`<slot name="output"></slot>` : ''}
       `

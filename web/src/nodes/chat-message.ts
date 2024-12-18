@@ -26,6 +26,25 @@ export class ChatMessage extends Executable {
   messageRole: 'System' | 'User' | 'Model'
 
   /**
+   * A public list of node cards to expand automatically in a model chat message
+   */
+  public static DEFAULT_EXPANDED_NODE_CARDS = [
+    'CodeExpression',
+    'CodeChunk',
+    'CodeBlock',
+    'Figure',
+    'ForBlock',
+    'IncludeBlock',
+    'IfBlock',
+    'MathBlock',
+    'Datatable',
+    'Table',
+    'StyledBlock',
+    'RawBlock',
+    'InstructionBlock', // < ?
+  ]
+
+  /**
    * Whether the message has any content
    *
    * Used to determine whether to render inputs for user messages

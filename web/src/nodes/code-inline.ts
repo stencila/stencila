@@ -17,7 +17,7 @@ import { CodeStatic } from './code-static'
 export class CodeInline extends CodeStatic {
   override render() {
     // If no programming language, then do not show node card to reduce visual noise
-    if (!this.programmingLanguage || this.isUserChatNode()) {
+    if (!this.programmingLanguage || this.isUserChatMessageNode()) {
       return html`<slot></slot>`
     }
 

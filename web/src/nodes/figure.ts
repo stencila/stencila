@@ -18,7 +18,10 @@ import { Entity } from './entity'
 @withTwind()
 export class Figure extends Entity {
   override render() {
-    if (this.ancestors.includes('StyledBlock') || this.isUserChatNode()) {
+    if (
+      this.ancestors.includes('StyledBlock') ||
+      this.isUserChatMessageNode()
+    ) {
       return html`
         <figure class="m-0">
           <slot name="content"></slot>

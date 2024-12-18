@@ -4,6 +4,8 @@ import { apply } from '@twind/core'
 import { html } from 'lit'
 import { state, property } from 'lit/decorators'
 
+import { ChatMessage } from '../../../nodes/chat-message'
+import { closestGlobally } from '../../../utilities/closestGlobally'
 import { getModeParam } from '../../../utilities/getModeParam'
 import { DocumentContext, documentContext } from '../../document/context'
 import { UIBaseCard } from '../cards/base-card'
@@ -92,6 +94,28 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
       this.dispatchToggleEvent()
     }
 
+    /**
+     * Returns a boolean value signaling whether to the
+     * card should expand upon render
+     */
+    protected expandByDefault() {
+      const testMode = getModeParam(window)
+      if (testMode && testMode === 'test-expand-all') {
+        // set node cards in 'test-expand-all' mode to expand by default
+        return true
+      } else {
+        // If part of a model chat message and included in the list of
+        // chat messages auto expanding node types
+        return (
+          closestGlobally(
+            this,
+            'stencila-chat-message[message-role="Model"]'
+          ) !== null &&
+          ChatMessage.DEFAULT_EXPANDED_NODE_CARDS.includes(this.type)
+        )
+      }
+    }
+
     protected dispatchToggleEvent() {
       this.shadowRoot.dispatchEvent(
         new CustomEvent(`toggle-${this.nodeId}`, {
@@ -106,8 +130,7 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
       super.connectedCallback()
       // set node cards in 'test-expand-all' mode to expand by default
       // for regression snapshot testing
-      const testMode = getModeParam(window)
-      if (testMode && testMode === 'test-expand-all') {
+      if (this.expandByDefault()) {
         this.toggle = true
       }
     }

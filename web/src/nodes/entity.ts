@@ -124,7 +124,7 @@ export abstract class Entity extends LitElement {
   /**
    * Checks this entity ancestors for a 'User' chat-message node and returns a boolean value
    */
-  protected isUserChatNode() {
+  protected isUserChatMessageNode() {
     return (
       this.closestGlobally('stencila-chat-message[message-role="User"]') !==
       null

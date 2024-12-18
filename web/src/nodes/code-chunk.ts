@@ -50,7 +50,10 @@ export class CodeChunk extends CodeExecutable {
   }
 
   override render() {
-    if (this.ancestors.includes('StyledBlock') || this.isUserChatNode()) {
+    if (
+      this.ancestors.includes('StyledBlock') ||
+      this.isUserChatMessageNode()
+    ) {
       return this.renderContent()
     }
 

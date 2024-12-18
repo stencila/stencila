@@ -37,7 +37,10 @@ export class PromptBlock extends Executable {
   }
 
   override render() {
-    if (this.ancestors.includes('StyledBlock') || this.isUserChatNode()) {
+    if (
+      this.ancestors.includes('StyledBlock') ||
+      this.isUserChatMessageNode()
+    ) {
       return html`
         <div class="w-full ${this.showContent ? '' : 'hidden'}">
           <slot name="content"></slot>

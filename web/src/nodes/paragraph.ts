@@ -98,7 +98,7 @@ export class Paragraph extends Entity {
     if (
       Paragraph.parentNodeTypesSubscribedTo.includes(this.parentNodeType) ||
       this.ancestors.includes('StyledBlock') ||
-      this.isUserChatNode()
+      this.isUserChatMessageNode()
     ) {
       return html`<slot name="content"></slot>`
     }
