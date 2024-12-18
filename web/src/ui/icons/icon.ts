@@ -284,7 +284,7 @@ export abstract class UIIcon extends LitElement {
 
   static override styles = css`
     :host {
-      display: inline-block;
+      display: block;
       width: 1em;
       height: 1em;
       box-sizing: content-box !important;

@@ -7,6 +7,7 @@ import { withTwind } from '../twind'
 import { Executable } from './executable'
 
 import '../ui/chat/message-inputs'
+import '../ui/animation/logo'
 
 /**
  * Web component representing a Stencila `ChatMessage` node
@@ -111,9 +112,17 @@ export class ChatMessage extends Executable {
   }
 
   renderModelMessage() {
-    return html`<div class="my-3 p-3">
-      ${this.hasContent() ? '' : this.executionStatus}
-      <slot name="content"></slot>
-    </div>`
+    return html`
+      <div class="my-3 p-3">
+        ${this.hasContent()
+          ? ''
+          : html`
+              <div class="text-4xl flex justify-center items-center">
+                <stencila-animated-logo></stencila-animated-logo>
+              </div>
+            `}
+        <slot name="content"></slot>
+      </div>
+    `
   }
 }
