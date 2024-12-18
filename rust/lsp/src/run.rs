@@ -16,8 +16,10 @@ use tracing_subscriber::filter::LevelFilter;
 use common::serde_json;
 
 use crate::{
-    code_lens, commands, completion, content, dom, formatting, hover, kernels_, lifecycle, logging,
-    models_, node_ids, prompts_, symbols, text_document, ServerState, ServerStatus,
+    code_lens,
+    commands::{self, CLONE_NODE},
+    completion, content, dom, formatting, hover, kernels_, lifecycle, logging, models_, node_ids,
+    prompts_, symbols, text_document, ServerState, ServerStatus,
 };
 
 /// Run the language server
@@ -120,12 +122,30 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
                             )
                         })
                     });
+
+                let source_doc = if params.command == CLONE_NODE {
+                    params
+                        .arguments
+                        .get(2)
+                        .and_then(|value| serde_json::from_value(value.clone()).ok())
+                        .and_then(|uri| {
+                            state
+                                .documents
+                                .get(&uri)
+                                .map(|text_doc| text_doc.doc.clone())
+                        })
+                } else {
+                    None
+                };
+
                 let client = state.client.clone();
                 async move {
                     match doc_props {
                         Some((author, format, root, doc)) => {
-                            commands::execute_command(params, author, format, root, doc, client)
-                                .await
+                            commands::execute_command(
+                                params, author, format, root, doc, source_doc, client,
+                            )
+                            .await
                         }
                         None => Ok(None),
                     }

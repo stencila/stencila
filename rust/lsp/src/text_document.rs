@@ -253,7 +253,7 @@ impl TextNode {
         None
     }
 
-    /// Get the [`NodeId`] of the [`NodeType::Walkthrough`] at a position if any
+    /// Get the [`NodeId`] of the [`NodeType`] at a position if any
     pub fn node_type_ancestor(&self, node_type: NodeType, position: Position) -> Option<NodeId> {
         // Check if this is the desired type and spans the position
         if self.node_type == node_type && position >= self.range.start && position < self.range.end
@@ -269,6 +269,59 @@ impl TextNode {
         }
 
         None
+    }
+
+    /// Get the [`NodeId`] and index within block content at a position
+    ///
+    /// Used for finding the index to insert a new block within the [`NodeProperty::Content`]
+    /// of a node.
+    pub fn block_content_index(&self, position: Position) -> Option<(NodeId, usize)> {
+        // Return early with `None` if this is not a node type that
+        // has a content property with blocks
+        use NodeType::*;
+        if !matches!(
+            self.node_type,
+            // This list can be updated by searching for `content: Vec<Block>` in `schema/src/types/*.rs`
+            Admonition
+                | Article
+                | Chat
+                | ChatMessage
+                | Claim
+                | Comment
+                | Figure
+                | ForBlock
+                | Form
+                | IfBlockClause
+                | ListItem
+                | Note
+                | Prompt
+                | QuoteBlock
+                | Section
+                | StyledBlock
+                | SuggestionBlock
+                | TableCell
+                | WalkthroughStep
+        ) {
+            return None;
+        }
+
+        for (index, child) in self.children.iter().enumerate() {
+            // Use less than or equal here so that if cursor is at start we return
+            // the index before the child
+            if position <= child.range.start {
+                return Some((self.node_id.clone(), index));
+            }
+
+            if position < child.range.end {
+                // Check if in child or one of child's descendants
+                if let Some(result) = child.block_content_index(position) {
+                    return Some(result);
+                }
+            }
+        }
+
+        (position >= self.range.start && position < self.range.end)
+            .then_some((self.node_id.clone(), self.children.len()))
     }
 
     /// Get the [`Range`] of a [`NodeId`]

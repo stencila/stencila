@@ -36,9 +36,10 @@ use document::{
     SaveDocumentSource,
 };
 use node_execute::ExecuteOptions;
+use node_find::find;
 use schema::{
-    AuthorRole, AuthorRoleName, NodeId, NodeProperty, NodeType, Patch, PatchOp, PatchPath,
-    PatchValue, Timestamp,
+    replicate, AuthorRole, AuthorRoleName, Block, NodeId, NodeProperty, NodeType, Patch, PatchNode,
+    PatchOp, PatchPath, PatchValue, Timestamp,
 };
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
@@ -68,6 +69,8 @@ pub(super) const NEXT_NODE: &str = "stencila.next-node";
 pub(super) const ARCHIVE_NODE: &str = "stencila.archive-node";
 pub(super) const REVISE_NODE: &str = "stencila.revise-node";
 
+pub(super) const CLONE_NODE: &str = "stencila.clone-node";
+
 pub(super) const SAVE_DOC: &str = "stencila.save-doc";
 pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
 
@@ -94,6 +97,7 @@ pub(super) fn commands() -> Vec<String> {
         NEXT_NODE,
         ARCHIVE_NODE,
         REVISE_NODE,
+        CLONE_NODE,
         SAVE_DOC,
         EXPORT_DOC,
     ]
@@ -111,6 +115,7 @@ pub(super) async fn execute_command(
     format: Format,
     root: Arc<RwLock<TextNode>>,
     doc: Arc<RwLock<Document>>,
+    source_doc: Option<Arc<RwLock<Document>>>,
     mut client: ClientSocket,
 ) -> Result<Option<Value>, ResponseError> {
     let mut args = arguments.into_iter();
@@ -402,6 +407,58 @@ pub(super) async fn execute_command(
                         ..Default::default()
                     },
                 )),
+                false,
+                true,
+            )
+        }
+        CLONE_NODE => {
+            let position = position_arg(args.next())?;
+            args.next(); // Skip the argument for the URI of the source document (already used)
+            let node_type = node_type_arg(args.next())?;
+            let node_id = node_id_arg(args.next())?;
+
+            // Get the node from the source document
+            let source_doc = source_doc.ok_or_else(|| {
+                ResponseError::new(
+                    ErrorCode::INVALID_REQUEST,
+                    "Source document URI missing or invalid".to_string(),
+                )
+            })?;
+            let source_doc = source_doc.read().await;
+            let source_root = source_doc.root_read().await;
+            let source_node = find(&*source_root, node_id).ok_or_else(|| {
+                ResponseError::new(
+                    ErrorCode::INVALID_REQUEST,
+                    "Node not found in source document".to_string(),
+                )
+            })?;
+
+            // Convert the node into a block, replicate it (to avoid having duplicate ids)
+            // and convert to a patch value
+            let value = Block::try_from(source_node)
+                .and_then(|block| replicate(&block))
+                .and_then(|block| block.to_value())
+                .map_err(|error| {
+                    ResponseError::new(ErrorCode::INVALID_REQUEST, error.to_string())
+                })?;
+
+            // Find where to insert the block based on the position in the text document
+            // falling back to appending to the end of the document's root node's content.
+            let (node_id, op) = match root.read().await.block_content_index(position) {
+                Some((node_id, index)) => (Some(node_id), PatchOp::Insert(vec![(index, value)])),
+                None => (None, PatchOp::Push(value)),
+            };
+
+            // Patch the content of the destination document
+            let patch = Patch {
+                node_id,
+                ops: vec![(PatchPath::from(NodeProperty::Content), op)],
+                ..Default::default()
+            };
+
+            (
+                format!("Cloning {node_type}"),
+                Command::PatchNode(patch),
                 false,
                 true,
             )
