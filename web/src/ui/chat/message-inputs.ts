@@ -150,7 +150,7 @@ export class MessageInput extends LitElement {
             <sl-tooltip
               content=${hasContent ? 'Send message' : 'Message is empty'}
               ><stencila-ui-icon-button
-                name="arrowNarrowUp"
+                name=${hasContent ? 'arrowUpCircleFill' : 'arrowUpCircle'}
                 class=${hasContent ? 'text-blue-900' : 'text-grey-500'}
                 ?disabled=${!hasContent}
                 @click=${(event: Event) => this.onSend(event)}
