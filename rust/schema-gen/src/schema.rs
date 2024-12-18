@@ -700,7 +700,7 @@ pub struct JatsOptions {
     #[serde(skip_serializing_if = "is_false")]
     pub special: bool,
 
-    /// The HTML attribute name for a property
+    /// The name of the JATS attribute to use for a property
     ///
     /// Should only be used when `elem` is not `None`. When `elem` is `None`,
     /// the name of the attribute will be the name of the property.

@@ -1,0 +1,3145 @@
+<article
+  article-type="article"
+  specific-use="production"
+  xml:lang="en"
+  xmlns:hw="org.highwire.hpp"
+  xmlns:mml="http://www.w3.org/1998/Math/MathML"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:ali="http://www.niso.org/schemas/ali/1.0/"
+  xmlns:ref="http://schema.highwire.org/Reference"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:nlm="http://schema.highwire.org/NLM/Journal"
+  xmlns:a="http://www.w3.org/2005/Atom"
+  xmlns:c="http://schema.highwire.org/Compound"
+  xmlns:hpp="http://schema.highwire.org/Publishing"
+  xmlns:hwp="http://schema.highwire.org/Journal"
+  xmlns:l="http://schema.highwire.org/Linking"
+  xmlns:r="http://schema.highwire.org/Revision"
+  xmlns:x="http://www.w3.org/1999/xhtml"
+  xmlns:app="http://www.w3.org/2007/app"
+>
+  <front>
+    <journal-meta>
+      <journal-id journal-id-type="hwp">biorxiv</journal-id>
+      <journal-id journal-id-type="publisher-id">BIORXIV</journal-id>
+      <journal-title>bioRxiv</journal-title>
+      <abbrev-journal-title
+        abbrev-type="publisher"
+      >bioRxiv</abbrev-journal-title>
+      <publisher>
+        <publisher-name>Cold Spring Harbor Laboratory</publisher-name>
+      </publisher>
+    </journal-meta>
+    <article-meta>
+      <article-id pub-id-type="doi">10.1101/2023.12.31.573522</article-id>
+      <article-id
+        pub-id-type="other"
+        hwp:sub-type="pisa"
+      >biorxiv;2023.12.31.573522v1</article-id>
+      <article-id
+        pub-id-type="other"
+        hwp:sub-type="pisa-master"
+      >biorxiv;2023.12.31.573522</article-id>
+      <article-id
+        pub-id-type="other"
+        hwp:sub-type="slug"
+      >2023.12.31.573522</article-id>
+      <article-id
+        pub-id-type="other"
+        hwp:sub-type="atom-slug"
+      >2023.12.31.573522</article-id>
+      <article-id
+        pub-id-type="other"
+        hwp:sub-type="tag"
+      >2023.12.31.573522</article-id>
+      <article-version>1.1</article-version>
+      <article-categories>
+        <subj-group subj-group-type="author-type">
+          <subject>Regular Article</subject>
+        </subj-group>
+        <subj-group subj-group-type="heading">
+          <subject>New Results</subject>
+        </subj-group>
+        <subj-group
+          subj-group-type="hwp-journal-coll"
+          hwp:journal-coll-id="Neuroscience"
+          hwp:journal="biorxiv"
+        >
+          <subject>Neuroscience</subject>
+        </subj-group>
+      </article-categories>
+      <title-group>
+        <article-title
+          hwp:id="article-title-1"
+        >Synaptic connectivity and electrophysiological properties of the nucleus of the lateral olfactory tract</article-title>
+      </title-group>
+      <author-notes hwp:id="author-notes-1">
+        <corresp
+          id="cor1"
+          hwp:id="corresp-1"
+          hwp:rev-id="xref-corresp-1-1 xref-corresp-1-2"
+        ><label>*</label>Correspondence: Tamar Licht – <email
+          hwp:id="email-1"
+        >tamarli@ekmd.huji.ac.il</email> Dan Rokni – <email
+          hwp:id="email-2"
+        >dan.rokni@mail.huji.ac.il</email></corresp>
+      </author-notes>
+      <contrib-group hwp:id="contrib-group-1">
+        <contrib contrib-type="author" hwp:id="contrib-1">
+          <contrib-id
+            contrib-id-type="orcid"
+            authenticated="false"
+          >http://orcid.org/0000-0002-6935-0047</contrib-id>
+          <name name-style="western" hwp:sortable="Penker Sapir">
+            <surname>Penker</surname>
+            <given-names>Sapir</given-names>
+          </name>
+          <xref
+            ref-type="aff"
+            rid="a1"
+            hwp:id="xref-aff-1-1"
+            hwp:rel-id="aff-1"
+          >1</xref>
+          <object-id
+            pub-id-type="other"
+            hwp:sub-type="orcid"
+            xlink:href="http://orcid.org/0000-0002-6935-0047"
+          />
+        </contrib>
+        <contrib contrib-type="author" hwp:id="contrib-2">
+          <contrib-id
+            contrib-id-type="orcid"
+            authenticated="false"
+          >http://orcid.org/0000-0002-6760-4728</contrib-id>
+          <name name-style="western" hwp:sortable="Lawabny Naheel">
+            <surname>Lawabny</surname>
+            <given-names>Naheel</given-names>
+          </name>
+          <xref
+            ref-type="aff"
+            rid="a1"
+            hwp:id="xref-aff-1-2"
+            hwp:rel-id="aff-1"
+          >1</xref>
+          <object-id
+            pub-id-type="other"
+            hwp:sub-type="orcid"
+            xlink:href="http://orcid.org/0000-0002-6760-4728"
+          />
+        </contrib>
+        <contrib contrib-type="author" hwp:id="contrib-3">
+          <contrib-id
+            contrib-id-type="orcid"
+            authenticated="false"
+          >http://orcid.org/0009-0004-0947-2984</contrib-id>
+          <name name-style="western" hwp:sortable="Dhamshy Aya">
+            <surname>Dhamshy</surname>
+            <given-names>Aya</given-names>
+          </name>
+          <xref
+            ref-type="aff"
+            rid="a1"
+            hwp:id="xref-aff-1-3"
+            hwp:rel-id="aff-1"
+          >1</xref>
+          <object-id
+            pub-id-type="other"
+            hwp:sub-type="orcid"
+            xlink:href="http://orcid.org/0009-0004-0947-2984"
+          />
+        </contrib>
+        <contrib contrib-type="author" corresp="yes" hwp:id="contrib-4">
+          <contrib-id
+            contrib-id-type="orcid"
+            authenticated="false"
+          >http://orcid.org/0000-0003-2333-1665</contrib-id>
+          <name name-style="western" hwp:sortable="Licht Tamar">
+            <surname>Licht</surname>
+            <given-names>Tamar</given-names>
+          </name>
+          <xref
+            ref-type="aff"
+            rid="a1"
+            hwp:id="xref-aff-1-4"
+            hwp:rel-id="aff-1"
+          >1</xref>
+          <xref
+            ref-type="corresp"
+            rid="cor1"
+            hwp:id="xref-corresp-1-1"
+            hwp:rel-id="corresp-1"
+          >*</xref>
+          <object-id
+            pub-id-type="other"
+            hwp:sub-type="orcid"
+            xlink:href="http://orcid.org/0000-0003-2333-1665"
+          />
+        </contrib>
+        <contrib contrib-type="author" corresp="yes" hwp:id="contrib-5">
+          <contrib-id
+            contrib-id-type="orcid"
+            authenticated="false"
+          >http://orcid.org/0000-0002-3041-8462</contrib-id>
+          <name name-style="western" hwp:sortable="Rokni Dan">
+            <surname>Rokni</surname>
+            <given-names>Dan</given-names>
+          </name>
+          <xref
+            ref-type="aff"
+            rid="a1"
+            hwp:id="xref-aff-1-5"
+            hwp:rel-id="aff-1"
+          >1</xref>
+          <xref
+            ref-type="corresp"
+            rid="cor1"
+            hwp:id="xref-corresp-1-2"
+            hwp:rel-id="corresp-1"
+          >*</xref>
+          <object-id
+            pub-id-type="other"
+            hwp:sub-type="orcid"
+            xlink:href="http://orcid.org/0000-0002-3041-8462"
+          />
+        </contrib>
+        <aff
+          id="a1"
+          hwp:id="aff-1"
+          hwp:rev-id="xref-aff-1-1 xref-aff-1-2 xref-aff-1-3 xref-aff-1-4 xref-aff-1-5"
+        ><label>1</label><institution
+          hwp:id="institution-1"
+        >Department of Medical Neurobiology, Faculty of Medicine and IMRIC, The Hebrew University of Jerusalem</institution>, 9112102, Jerusalem, <country
+        >Israel</country></aff>
+      </contrib-group>
+      <pub-date
+        pub-type="epub-original"
+        date-type="pub"
+        publication-format="electronic"
+        hwp:start="2024"
+      >
+        <year>2024</year>
+      </pub-date>
+      <pub-date pub-type="hwp-created" hwp:start="2024-01-01T10:21:14-08:00">
+        <day>1</day>
+        <month>1</month>
+        <year>2024</year>
+      </pub-date>
+      <pub-date pub-type="hwp-received" hwp:start="2024-01-01T10:21:14-08:00">
+        <day>1</day>
+        <month>1</month>
+        <year>2024</year>
+      </pub-date>
+      <pub-date pub-type="epub" hwp:start="2024-01-01T10:24:39-08:00">
+        <day>1</day>
+        <month>1</month>
+        <year>2024</year>
+      </pub-date>
+      <pub-date pub-type="epub-version" hwp:start="2024-01-01T10:24:39-08:00">
+        <day>1</day>
+        <month>1</month>
+        <year>2024</year>
+      </pub-date>
+      <elocation-id>2023.12.31.573522</elocation-id>
+      <history hwp:id="history-1">
+        <date date-type="received" hwp:start="2023-12-31">
+          <day>31</day>
+          <month>12</month>
+          <year>2023</year>
+        </date>
+        <date date-type="rev-recd" hwp:start="2023-12-31">
+          <day>31</day>
+          <month>12</month>
+          <year>2023</year>
+        </date>
+        <date date-type="accepted" hwp:start="2024-01-01">
+          <day>01</day>
+          <month>1</month>
+          <year>2024</year>
+        </date>
+      </history>
+      <permissions>
+        <copyright-statement
+          hwp:id="copyright-statement-1"
+        >© 2024, Posted by Cold Spring Harbor Laboratory</copyright-statement>
+        <copyright-year>2024</copyright-year>
+        <license
+          license-type="creative-commons"
+          xlink:href="http://creativecommons.org/licenses/by-nc/4.0/"
+          hwp:id="license-1"
+        >
+          <p
+            hwp:id="p-1"
+          >This pre-print is available under a Creative Commons License (Attribution-NonCommercial 4.0 International), CC BY-NC 4.0, as described at <ext-link
+            l:rel="related"
+            l:ref-type="uri"
+            l:ref="http://creativecommons.org/licenses/by-nc/4.0/"
+            ext-link-type="uri"
+            xlink:href="http://creativecommons.org/licenses/by-nc/4.0/"
+            hwp:id="ext-link-1"
+          >http://creativecommons.org/licenses/by-nc/4.0/</ext-link></p>
+        </license>
+      </permissions>
+      <self-uri
+        xlink:href="573522.pdf"
+        content-type="pdf"
+        xlink:role="full-text"
+      />
+      <self-uri
+        l:ref="forthcoming:yes"
+        c:role="http://schema.highwire.org/variant/abstract"
+        xlink:role="abstract"
+        content-type="xhtml+xml"
+        hwp:variant="yes"
+      />
+      <self-uri
+        l:ref="forthcoming:yes"
+        c:role="http://schema.highwire.org/variant/full-text"
+        xlink:href="file:/content/biorxiv/vol0/issue2024/pdf/2023.12.31.573522v1.pdf"
+        hwp:variant="yes"
+        content-type="pdf"
+        xlink:role="full-text"
+      />
+      <self-uri
+        l:ref="forthcoming:yes"
+        c:role="http://schema.highwire.org/variant/full-text"
+        xlink:role="full-text"
+        content-type="xhtml+xml"
+        hwp:variant="yes"
+      />
+      <self-uri
+        l:ref="forthcoming:yes"
+        c:role="http://schema.highwire.org/variant/source"
+        xlink:role="source"
+        content-type="xml"
+        xlink:show="none"
+        hwp:variant="yes"
+      />
+      <self-uri
+        l:ref="forthcoming:yes"
+        c:role="http://schema.highwire.org/variant/original"
+        xlink:role="original"
+        content-type="xml"
+        xlink:show="none"
+        hwp:variant="yes"
+        xlink:href="573522.xml"
+      />
+      <self-uri
+        content-type="abstract"
+        xlink:href="file:/content/biorxiv/vol0/issue2024/abstracts/2023.12.31.573522v1/2023.12.31.573522v1.htslp"
+      />
+      <self-uri
+        content-type="fulltext"
+        xlink:href="file:/content/biorxiv/vol0/issue2024/fulltext/2023.12.31.573522v1/2023.12.31.573522v1.htslp"
+      />
+      <abstract hwp:id="abstract-1">
+        <title hwp:id="title-1">Abstract</title>
+        <p
+          hwp:id="p-2"
+        >The sense of smell is tightly linked to emotions, a link that is thought to rely on the direct synaptic connections between the olfactory bulb and nuclei of the amygdala. A small number of amygdaloid nuclei are the recipients of such direct input from the olfactory bulb and their unique functions are not known. Among them, the nucleus of the lateral olfactory tract (NLOT) is unique in its developmental history and gene expression. NLOT has been very little studied and consequentially its function is unknown. Furthermore, formulation of informed hypotheses about NLOT function is at this stage limited by the lack of knowledge about its connectivity and physiological properties. Here, we used pseudo-rabies tracing methods to systematically reveal monosynaptic inputs into NLOT, and adeno-associated viruses to reveal NLOT projection targets. We found that the NLOT is interconnected with several olfactory brain regions and with the basolateral amygdala. Some of these connections were reciprocal, and some showed unique interhemispheric patterns. We tested the excitable properties of NLOT neurons and the properties of each of the major synaptic inputs. We found that the NLOT receives powerful input from piriform cortex, tenia tecta, and the basolateral amygdala, but only very weak input from the olfactory bulb. When input crosses threshold, NLOT neurons respond with calcium-dependent bursts of action potentials. This integration of olfactory and amygdalar inputs suggests that NLOT plays a role in behaviors that combine smell and emotion, possibly assigning emotional value to odors.</p>
+        <sec hwp:id="sec-1">
+          <title hwp:id="title-2">Significance statement</title>
+          <p
+            hwp:id="p-3"
+          >Despite the well-known functional links between olfaction and emotions, the physiological properties of these links remain largely understudied. One major pathway by which olfactory and emotional signals interact, is via the nucleus of the lateral olfactory tract (NLOT). NLOT has been little studied and its function is yet unclear. The lack of physiological information hinders informed hypotheses. Here, we characterize the synaptic and intrinsic properties of NLOT neurons. We show that the NLOT receives converging olfactory and amygdalar inputs, and that NLOT neurons respond to input with high-rate bursts of action potentials. This suggests that the NLOT, that harbors ∼2500 cells, encodes a low-dimensional signal that is of high importance. We hypothesize that the NLOT assigns emotional value to odors.</p>
+        </sec>
+      </abstract>
+      <counts>
+        <page-count count="34" />
+      </counts>
+      <custom-meta-wrap>
+        <custom-meta hwp:id="custom-meta-1">
+          <meta-name>special-property</meta-name>
+          <meta-value>contains-inline-supplementary-material</meta-value>
+        </custom-meta>
+      </custom-meta-wrap>
+    </article-meta>
+    <notes hwp:id="notes-1">
+      <notes notes-type="competing-interest-statement" hwp:id="notes-2">
+        <title hwp:id="title-3">Competing Interest Statement</title>
+        <p hwp:id="p-4">The authors have declared no competing interest.</p>
+      </notes>
+    </notes>
+  </front>
+  <body>
+    <sec id="s1" hwp:id="sec-2">
+      <title hwp:id="title-4">Introduction</title>
+      <p
+        hwp:id="p-5"
+      >The intimate links between olfaction and emotions are thought to rely on the direct input from early olfactory processing centers to the amygdala (<xref
+        ref-type="bibr"
+        rid="c17"
+        hwp:id="xref-ref-17-1"
+        hwp:rel-id="ref-17"
+      >Herz, 2005</xref>; <xref
+        ref-type="bibr"
+        rid="c44"
+        hwp:id="xref-ref-44-1"
+        hwp:rel-id="ref-44"
+      >Soudry et al., 2011</xref>; <xref
+        ref-type="bibr"
+        rid="c21"
+        hwp:id="xref-ref-21-1"
+        hwp:rel-id="ref-21"
+      >Kadohisa, 2013</xref>; <xref
+        ref-type="bibr"
+        rid="c23"
+        hwp:id="xref-ref-23-1"
+        hwp:rel-id="ref-23"
+      >Kontaris et al., 2020</xref>). However, there are several pathways projecting olfactory signals to the amygdala and many of them remain poorly analyzed. The nucleus of the lateral olfactory tract (NLOT) is a major hub that is positioned at the caudal end of the lateral olfactory tract (LOT) and is interconnected with several olfactory brain regions as well as the basolateral amygdala (BLA) (<xref
+        ref-type="bibr"
+        rid="c39"
+        hwp:id="xref-ref-39-1"
+        hwp:rel-id="ref-39"
+      >Price, 1973</xref>; <xref
+        ref-type="bibr"
+        rid="c3"
+        hwp:id="xref-ref-3-1"
+        hwp:rel-id="ref-3"
+      >Broadwell, 1975</xref>; <xref
+        ref-type="bibr"
+        rid="c43"
+        hwp:id="xref-ref-43-1"
+        hwp:rel-id="ref-43"
+      >Scalia and Winans, 1975</xref>; <xref
+        ref-type="bibr"
+        rid="c25"
+        hwp:id="xref-ref-25-1"
+        hwp:rel-id="ref-25"
+      >Krettek and Price, 1978</xref>; <xref
+        ref-type="bibr"
+        rid="c30"
+        hwp:id="xref-ref-30-1"
+        hwp:rel-id="ref-30"
+      >Luskin and Price, 1983</xref>; <xref
+        ref-type="bibr"
+        rid="c24"
+        hwp:id="xref-ref-24-1"
+        hwp:rel-id="ref-24"
+      >Krabbe et al., 2019</xref>). NLOT is an amygdaloid nucleus that is also considered part of olfactory cortex since it receives direct synaptic input from the olfactory bulb (OB) (<xref
+        ref-type="bibr"
+        rid="c25"
+        hwp:id="xref-ref-25-2"
+        hwp:rel-id="ref-25"
+      >Krettek and Price, 1978</xref>). It displays a unique gene expression pattern that distinguishes it from surrounding amygdalar nuclei (<xref
+        ref-type="bibr"
+        rid="c19"
+        hwp:id="xref-ref-19-1"
+        hwp:rel-id="ref-19"
+      >Hochgerner et al., 2023</xref>). It is perhaps the least studied olfactory cortical region. Its functional connectivity and physiological properties are unknown and its function is yet unclear.</p>
+      <p
+        hwp:id="p-6"
+      >NLOT is evolutionarily conserved and can be found in both mammalian and non-mammalian species (<xref
+        ref-type="bibr"
+        rid="c47"
+        hwp:id="xref-ref-47-1"
+        hwp:rel-id="ref-47"
+      >Turner et al., 1978</xref>; <xref
+        ref-type="bibr"
+        rid="c6"
+        hwp:id="xref-ref-6-1"
+        hwp:rel-id="ref-6"
+      >Deryckere et al., 2022</xref>; <xref
+        ref-type="bibr"
+        rid="c34"
+        hwp:id="xref-ref-34-1"
+        hwp:rel-id="ref-34"
+      >Metwalli et al., 2022</xref>). In mammalians, it is more prominent in macrosmatic species (<xref
+        ref-type="bibr"
+        rid="c5"
+        hwp:id="xref-ref-5-1"
+        hwp:rel-id="ref-5"
+      >Crosby and Schnitzlein, 1982</xref>), supporting the notion that it plays an important role in odor-guided behaviors. Several other findings suggest that NLOT plays an important role in odor-guided behaviors and particularly in linking olfactory and emotional functions. First, chemical ablation of NLOT was reported to cause severe deficits in odor-guided behaviors (<xref
+        ref-type="bibr"
+        rid="c48"
+        hwp:id="xref-ref-48-1"
+        hwp:rel-id="ref-48"
+      >Vaz et al., 2017</xref>). Second, odor responses in NLOT are strongly influenced by odor valence (<xref
+        ref-type="bibr"
+        rid="c46"
+        hwp:id="xref-ref-46-1"
+        hwp:rel-id="ref-46"
+      >Tanisumi et al., 2021</xref>), similarly to the olfactory tubercle (OT) (<xref
+        ref-type="bibr"
+        rid="c12"
+        hwp:id="xref-ref-12-1"
+        hwp:rel-id="ref-12"
+      >Gadziola et al., 2015</xref>; <xref
+        ref-type="bibr"
+        rid="c36"
+        hwp:id="xref-ref-36-1"
+        hwp:rel-id="ref-36"
+      >Millman and Murthy, 2020</xref>). Third, perturbation of NLOT activity affects social behavior in rats, that is known to rely on olfaction and be affected by emotional state (<xref
+        ref-type="bibr"
+        rid="c16"
+        hwp:id="xref-ref-16-1"
+        hwp:rel-id="ref-16"
+      >Hernández-Pérez et al., 2022</xref>). Lastly, NLOT neurons show marked transcriptomic changes following fear conditioning (<xref
+        ref-type="bibr"
+        rid="c19"
+        hwp:id="xref-ref-19-2"
+        hwp:rel-id="ref-19"
+      >Hochgerner et al., 2023</xref>). Given these findings, it stands to reason that NLOT plays an important role in linking odors to emotional experiences.</p>
+      <p
+        hwp:id="p-7"
+      >The input sources and output targets of NLOT have not been fully determined. Reported inputs include olfactory brain regions such as the OB and piriform cortex (<xref
+        ref-type="bibr"
+        rid="c39"
+        hwp:id="xref-ref-39-2"
+        hwp:rel-id="ref-39"
+      >Price, 1973</xref>; <xref
+        ref-type="bibr"
+        rid="c43"
+        hwp:id="xref-ref-43-2"
+        hwp:rel-id="ref-43"
+      >Scalia and Winans, 1975</xref>; <xref
+        ref-type="bibr"
+        rid="c30"
+        hwp:id="xref-ref-30-2"
+        hwp:rel-id="ref-30"
+      >Luskin and Price, 1983</xref>), and the basolateral amygdala (BLA, (<xref
+        ref-type="bibr"
+        rid="c25"
+        hwp:id="xref-ref-25-3"
+        hwp:rel-id="ref-25"
+      >Krettek and Price, 1978</xref>)). Reported outputs include projections to the OB, the anterior olfactory nucleus (AON), piriform cortex (PC), the OT, and the BLA (<xref
+        ref-type="bibr"
+        rid="c42"
+        hwp:id="xref-ref-42-1"
+        hwp:rel-id="ref-42"
+      >Santiago and Shammah-Lagnado, 2004</xref>; <xref
+        ref-type="bibr"
+        rid="c24"
+        hwp:id="xref-ref-24-2"
+        hwp:rel-id="ref-24"
+      >Krabbe et al., 2019</xref>). The relative synaptic efficacies of the various inputs into NLOT in driving its activity are unknown.</p>
+      <p
+        hwp:id="p-8"
+      >NLOT was estimated to contain about 20000 neurons in rats (<xref
+        ref-type="bibr"
+        rid="c49"
+        hwp:id="xref-ref-49-1"
+        hwp:rel-id="ref-49"
+      >Vaz et al., 2016</xref>). In mice, we estimate that it contains about 2500 neurons, less than one percent of the number of neurons in PC (<xref
+        ref-type="bibr"
+        rid="c45"
+        hwp:id="xref-ref-45-1"
+        hwp:rel-id="ref-45"
+      >Srinivasan and Stevens, 2017</xref>). This already suggests that NLOT may not be able to encode the full odor space, and probably operates on lower dimensional features. The cellular organization of NLOT is reminiscent of PC. It has three layers with layer 1 containing mostly neuropil. Its portion that is closest to the pial surface (layer 1a) contains the lateral olfactory tract (LOT) which consists of olfactory bulb mitral cell axons. Layer 2 contains most of NLOT neurons. However, unlike PC, layer 2 neurons are almost exclusively glutamatergic, pyramidal-like neurons (<xref
+        ref-type="bibr"
+        rid="c33"
+        hwp:id="xref-ref-33-1"
+        hwp:rel-id="ref-33"
+      >McDonald, 1983</xref>; <xref
+        ref-type="bibr"
+        rid="c35"
+        hwp:id="xref-ref-35-1"
+        hwp:rel-id="ref-35"
+      >Millhouse and Uemura-Sumi, 1985</xref>; <xref
+        ref-type="bibr"
+        rid="c16"
+        hwp:id="xref-ref-16-2"
+        hwp:rel-id="ref-16"
+      >Hernández-Pérez et al., 2022</xref>). These send their apical dendrites ventrally into layer 1 where they branch and form synaptic connections with olfactory bulb mitral cell axons. Layer 3 neurons are more diverse and less well characterized.</p>
+      <p
+        hwp:id="p-9"
+      >In this study, we developed a virus-based method to specifically infect NLOT neurons and used it to trace NLOT input sources and output targets. Additionally, we characterized the synaptic properties of the major inputs into the NLOT and the firing properties of NLOT neurons in acute slices.</p>
+    </sec>
+    <sec id="s2" hwp:id="sec-3">
+      <title hwp:id="title-5">Methods</title>
+      <p
+        hwp:id="p-10"
+      >All procedures were performed using approved protocols in accordance with institutional (Hebrew University Institutional Animal Care and Use Committee) and national guidelines.</p>
+      <sec id="s2a" hwp:id="sec-4">
+        <title hwp:id="title-6">Mice</title>
+        <p
+          hwp:id="p-11"
+        >For activation of olfactory bulb inputs, Tbet-Cre mice (Jackson Laboratory strain 024507 (<xref
+          ref-type="bibr"
+          rid="c14"
+          hwp:id="xref-ref-14-1"
+          hwp:rel-id="ref-14"
+        >Haddad et al., 2013</xref>)) were crossed with Ai32 mice (Jackson Laboratory strain 024109, (<xref
+          ref-type="bibr"
+          rid="c31"
+          hwp:id="xref-ref-31-1"
+          hwp:rel-id="ref-31"
+        >Madisen et al., 2012</xref>)). C57bl6 mice were used in all experiments in which ChR2 expression was driven virally. Rbp4-cre mice (MGI:4367067, (<xref
+          ref-type="bibr"
+          rid="c13"
+          hwp:id="xref-ref-13-1"
+          hwp:rel-id="ref-13"
+        >Gong et al., 2003</xref>)) were used to specifically express the rabies helper viruses in the NLOT. 2–6-month-old male and female mice were used for connectivity tracing experiments. For electrophysiology, AAVs carrying the channelrhodopsin (ChR2) gene were injected into 3–6-week-old males. Animals were kept in a regular specific pathogen–free housing conditions with a 12-hour light/ 12-hour dark cycle. Irradiated rodent food and water were given <italic
+          toggle="yes"
+        >ad libitum</italic>.</p>
+      </sec>
+      <sec id="s2b" hwp:id="sec-5">
+        <title hwp:id="title-7">Virus injections</title>
+        <p
+          hwp:id="p-12"
+        >Mice were anesthetized with isoflurane, given analgesia (Meloxicam 5mg/kg) and were placed in a stereotactic device (Kopf). A small craniotomy was made over the desired injection site and viral solution was injected into the brain with a fine syringe (volume: 80-150 nl at a rate of 100 nL/min, MICRO-2T, WPI). The coordinates for the different brain regions are shown in <xref
+          rid="tbl1"
+          ref-type="table"
+          hwp:id="xref-table-wrap-1-1"
+          hwp:rel-id="T1"
+        >Table 1</xref>.</p>
+        <table-wrap
+          id="tbl1"
+          orientation="portrait"
+          position="float"
+          hwp:id="T1"
+          hwp:rev-id="xref-table-wrap-1-1"
+        >
+          <object-id
+            pub-id-type="other"
+            hwp:sub-type="pisa"
+          >biorxiv;2023.12.31.573522v1/TBL1</object-id>
+          <object-id pub-id-type="other" hwp:sub-type="slug">T1</object-id>
+          <object-id pub-id-type="publisher-id">tbl1</object-id>
+          <label>Table 1.</label>
+          <caption hwp:id="caption-1">
+            <title
+              hwp:id="title-8"
+            >Coordinates used for virus injections.</title>
+          </caption>
+          <graphic
+            xlink:href="573522v1_tbl1"
+            position="float"
+            orientation="portrait"
+            hwp:id="graphic-1"
+          />
+        </table-wrap>
+        <p
+          hwp:id="p-13"
+        >The syringe was then slowly retracted, the craniotomy was sealed with bone wax, and the skin was sutured. A minimum of 3 weeks were allowed for all adeno-associated viruses (AAVs) to express. Pseudotyped-rabies were allowed 5-7 days to express. All adeno-associated viruses (AAVs) were made from AddGene plasmids by the ELSC vector core facility at the Hebrew University (EVCF). EnvA pseudotyped-G deleted rabies virus expressing GFP (EnvA-ΔG-RV-GFP) was purchased from the viral vector core of Kavli Institute for Systems Neuroscience, Norway. All viruses used in this study are listed in <xref
+          rid="tbl2"
+          ref-type="table"
+          hwp:id="xref-table-wrap-2-1"
+          hwp:rel-id="T2"
+        >Table 2</xref>.</p>
+        <table-wrap
+          id="tbl2"
+          orientation="portrait"
+          position="float"
+          hwp:id="T2"
+          hwp:rev-id="xref-table-wrap-2-1"
+        >
+          <object-id
+            pub-id-type="other"
+            hwp:sub-type="pisa"
+          >biorxiv;2023.12.31.573522v1/TBL2</object-id>
+          <object-id pub-id-type="other" hwp:sub-type="slug">T2</object-id>
+          <object-id pub-id-type="publisher-id">tbl2</object-id>
+          <label>Table 2.</label>
+          <caption hwp:id="caption-2">
+            <title hwp:id="title-9">Viruses used in this study</title>
+          </caption>
+          <graphic
+            xlink:href="573522v1_tbl2"
+            position="float"
+            orientation="portrait"
+            hwp:id="graphic-2"
+          />
+          <graphic
+            xlink:href="573522v1_tbl2a"
+            position="float"
+            orientation="portrait"
+            hwp:id="graphic-3"
+          />
+        </table-wrap>
+      </sec>
+      <sec id="s2c" hwp:id="sec-6">
+        <title hwp:id="title-10">Slice Electrophysiology</title>
+        <sec id="s2c1" hwp:id="sec-7">
+          <title hwp:id="title-11">Slice preparation and solutions</title>
+          <p
+            hwp:id="p-14"
+          >Mice were anesthetized with 5% Isoflurane (RWD Vaporizer for isoflurane), decapitated, and 300 µm coronal slices were made in ice-cold solution containing (in mM: NaCl 126, KCl 2.5, MgCl<sub
+          >2</sub> 1.2, NaH<sub>2</sub>PO<sub>4</sub> 1.4, CaCl<sub
+          >2</sub> 2.4, Glucose 11, NaHCO<sub
+          >3</sub> 25, Ascorbate 0.4, Sodium pyruvate 2, Kynurenic acid 2.5, NaOH 0.6) and equilibrated with 95% O2/5% CO2. Slices were transferred to a holding chamber containing (in mM: NaCl 126, KCl 2.5, MgCl<sub
+          >2</sub> 1.2, NaH<sub>2</sub>PO<sub>4</sub> 1.4, CaCl<sub
+          >2</sub> 2.4, Glucose 11, NaHCO<sub
+          >3</sub> 25, Ascorbate 0.4, Sodium pyruvate 2) equilibrated with gases as above and let to rest for at least 30 min at room temperature. During recordings slices were continuously perfused with the same solution as in the holding chamber at 32° C. For voltage clamp experiments, patch pipettes (2 Mohm) were filled with (in mM: CsMS 128, HEPES-K 10, EGTA 1, MgCl2 1, NaCl 10, Mg-ATP 2, Na-GTP 0.3, at pH 7.2–7.4). For current clamp experiments the internal solution contained (in mM: D-Gluconic acid 130, EGTA 1, HEPES-K 10, KCL 20, MgCl<sub
+          >2</sub> 1, Mg-ATP 2, Na-GTP 0.3, at pH 7.2–7.4). In some of the experiments, the internal solution also contained biocytin (5.36 mM, B4261 Sigma-Aldrich) to allow post hoc visualization of cellular morphology. The following ionic channel and synaptic blockers were added to the ACSF and applied via the perfusion system: NiCl 200 µM (Sigma-Aldrich), TTX 1 µM (Alomone labs), APV 60 µM (Alomone labs), CNQX 10 µM (Alomone labs).</p>
+        </sec>
+        <sec id="s2c2" hwp:id="sec-8">
+          <title hwp:id="title-12">Data acquisition</title>
+          <p
+            hwp:id="p-15"
+          >Slices were visualized with an Olympus BX51 microscope mounted on a Luigs and Neumann shifting table. Current and voltage were recorded using a MultiClamp 700B amplifier (Molecular Devices), digitized with 16-bit resolution and sampled at 10KHz (Axon Digidata 1550B). PClamp (Molecular Devices) was used for data acquisition as well as controlling light stimulation and current and voltage-clamp protocols. An ultra-bright LED (470 nm, 1450mW, Prizmatix) that was mounted on the rear lamp housing of the microscope was for light stimulation. Light from the LED was passed through an Olympus U-M49002 filter set (ET470/40x, beam-splitter T495LP, emitter ET525/50m) and through the objective onto the focal plane. Light pulses ranged between 0.2 and 1 ms.</p>
+          <p
+            hwp:id="p-16"
+          >All analysis of electrophysiological data was performed using custom-written code in Matlab (Mathworks).</p>
+        </sec>
+      </sec>
+      <sec id="s2d" hwp:id="sec-9">
+        <title hwp:id="title-13">Histology and microscopy</title>
+        <p
+          hwp:id="p-17"
+        >Brains or acute slices were fixed by immersion in 4% paraformaldehyde on ice for 12h. Brains were washed with PBS, and sectioned to 50-μm coronal sections by a vibratome (Leica). Staining was performed for rabies tracing experiments as described (<xref
+          ref-type="bibr"
+          rid="c27"
+          hwp:id="xref-ref-27-1"
+          hwp:rel-id="ref-27"
+        >Licht et al., 2023</xref>) with anti-GFP (1:400; Abcam RRID: AB_305643) and Alexa 488 anti-goat (RRID: AB_2336933) as secondary antibody. Acute slices with biocytin-filled cells were stained with Streptavidin-cy3 (Jackson Immunoresearch) diluted 1:400. Sections were mounted on glass slides, covered by mounting medium containing Dapi (SouthernBiotech), and coverslipped. Low-magnification images were acquired using Nikon SMZ-25 fluorescent stereoscope equipped with X1 and X2 objectives. Confocal microscopy was done using Olympus FV-1000 on 10X and 20X objectives and 1µm distance between confocal z-slices.</p>
+      </sec>
+    </sec>
+    <sec id="s3" hwp:id="sec-10">
+      <title hwp:id="title-14">Results</title>
+      <sec id="s3a" hwp:id="sec-11">
+        <title hwp:id="title-15">Intrinsic properties of NLOT neurons</title>
+        <p
+          hwp:id="p-18"
+        >We first analyzed the excitability of layer-2 NLOT neurons in acute coronal slices from young adult mice (1-4 months old). NLOT is readily recognized under bright-field illumination allowing easy identification (<xref
+          rid="fig1"
+          ref-type="fig"
+          hwp:id="xref-fig-1-1"
+          hwp:rel-id="F1"
+        >Figure 1A</xref>). We performed whole cell recordings using the current clamp mode to study resting membrane parameters and firing properties (<xref
+          rid="fig1"
+          ref-type="fig"
+          hwp:id="xref-fig-1-2"
+          hwp:rel-id="F1"
+        >Figure 1B</xref>). NLOT neurons had a resting membrane potential of ∼-65 mV (-67 ± 5 mV, median ± MAD, n=22), and an input resistance of ∼ 180 MΩ (179 ± 88 MΩ, median ± MAD, n=22, <xref
+          rid="fig1"
+          ref-type="fig"
+          hwp:id="xref-fig-1-3"
+          hwp:rel-id="F1"
+        >Figure 1C</xref>). At rest, NLOT neurons were quiescent and typically required a depolarization of a little over 10 mV to reach action potential threshold (11.1 ± 3.9 mV, median ± MAD, n=22). When supra-threshold currents were injected, NLOT neurons fired bursts of action potentials (<xref
+          rid="fig1"
+          ref-type="fig"
+          hwp:id="xref-fig-1-4"
+          hwp:rel-id="F1"
+        >Figure 1B,D-F</xref>). These bursts had an average firing rate of over 30Hz and rode over a slower depolarization (<xref
+          rid="fig1"
+          ref-type="fig"
+          hwp:id="xref-fig-1-5"
+          hwp:rel-id="F1"
+        >Figure 1G</xref>). The slower depolarization was also evident (although less prominent) when action potentials were blocked with the Na<sup
+        >+</sup> channel blocker TTX (<xref
+          rid="fig3"
+          ref-type="fig"
+          hwp:id="xref-fig-2-1"
+          hwp:rel-id="F2"
+        >Figure 3D-E</xref>). Ni<sup
+        >2+</sup> blocked the slow depolarization, indicating that it is caused by a voltage-dependent Ca<sup
+        >2+</sup> current. Ni<sup
+        >2+</sup> also reduced the burstiness of NLOT neurons as indicated by its effect on action potential threshold, the number of spikes evoked by just suprathreshold currents, the firing rate within a burst, and the duration of the burst (<xref
+          rid="fig1"
+          ref-type="fig"
+          hwp:id="xref-fig-1-6"
+          hwp:rel-id="F1"
+        >Figure 1F-G</xref>). The prolonged firing when Ca<sup
+        >2+</sup> channels are blocked also suggests that bursts are terminated by Ca<sup
+        >2+</sup>-activated K<sup>+</sup> currents (<xref
+          ref-type="bibr"
+          rid="c9"
+          hwp:id="xref-ref-9-1"
+          hwp:rel-id="ref-9"
+        >Faber and Sah, 2002</xref>). These data suggest that NLOT neurons convey information by brief, high-rate, bursts of action potentials that are the result of an interplay between voltage-gated sodium and calcium channels.</p>
+        <fig
+          id="fig1"
+          position="float"
+          orientation="portrait"
+          fig-type="figure"
+          hwp:id="F1"
+          hwp:rev-id="xref-fig-1-1 xref-fig-1-2 xref-fig-1-3 xref-fig-1-4 xref-fig-1-5 xref-fig-1-6"
+        >
+          <object-id
+            pub-id-type="other"
+            hwp:sub-type="pisa"
+          >biorxiv;2023.12.31.573522v1/FIG1</object-id>
+          <object-id pub-id-type="other" hwp:sub-type="slug">F1</object-id>
+          <object-id pub-id-type="publisher-id">fig1</object-id>
+          <label>Figure 1:</label>
+          <caption hwp:id="caption-3">
+            <title
+              hwp:id="title-16"
+            >Calcium currents underly bursting in NLOT neurons.</title>
+            <p hwp:id="p-19"><bold
+            >A.</bold> A coronal section showing the NLOT under bright-field illumination. <bold
+            >B.</bold> The responses of a layer 2 neuron to current injections. Inset shows the F/I curve of this neuron. <bold
+            >C.</bold> Box plots showing the distributions of resting membrane properties and spiking threshold of layer 2 neurons. <bold
+            >D.</bold> The effect of the sodium channel blocker TTX (1 µM), and the calcium channel blocker Ni<sup
+            >2+</sup> (200 μM), on the responses to current injection in an example neuron. <bold
+            >E.</bold> The superimposed responses of the neuron in D. Note that blocking action potentials with TTX reveals the contribution of a voltage gated calcium current. <bold
+            >F.</bold> The effect of Ni2+ on bursting in an example neuron. <bold
+            >G.</bold> quantification of the effect of Ni2+ on spiking threshold current, the number of spikes evoked by threshold current, the firing rate within the burst, and burst duration.</p>
+          </caption>
+          <graphic
+            xlink:href="573522v1_fig1"
+            position="float"
+            orientation="portrait"
+            hwp:id="graphic-4"
+          />
+        </fig>
+        <fig
+          id="fig3"
+          position="float"
+          orientation="portrait"
+          fig-type="figure"
+          hwp:id="F2"
+          hwp:rev-id="xref-fig-2-1 xref-fig-2-2 xref-fig-2-3 xref-fig-2-4 xref-fig-2-5 xref-fig-2-6 xref-fig-2-7 xref-fig-2-8 xref-fig-2-9 xref-fig-2-10"
+        >
+          <object-id
+            pub-id-type="other"
+            hwp:sub-type="pisa"
+          >biorxiv;2023.12.31.573522v1/FIG3</object-id>
+          <object-id pub-id-type="other" hwp:sub-type="slug">F2</object-id>
+          <object-id pub-id-type="publisher-id">fig3</object-id>
+          <label>Figure 3.</label>
+          <caption hwp:id="caption-4">
+            <title
+              hwp:id="title-17"
+            >Inputs into the NLOT as revealed with g-deleted rabies monosynaptic tracing.</title>
+            <p hwp:id="p-20"><bold
+            >A.</bold> Experimental scheme. Two retrograde AAVs, one carrying the genes for TVA and mCherry, and one carrying the gene for oPBG were injected unilaterally into the OB of Rbp4-Cre mice and allowed 4 weeks for expression. Then a pseudotyped rabies virus carrying the gene for GFP was injected into the ipsilateral NLOT. <bold
+            >B.</bold> Fluorescently labeled cells in the ipsilateral NLOT. Yellow cells express both mCherry and GFP and are presumed to be starter cells. The occurrence of cells expressing only GFP indicates synaptic connectivity within the NLOT. <bold
+            >C-G.</bold> Rabies-labeled neurons in the ipsilateral OB (C), ipsilateral tenia tecta (D), ipsilateral PC and NDB (E), ipsilateral SI (F), and ipsi- and contra-lateral BLA (G). <bold
+            >H.</bold> The fraction of rabies-labeled cells in different regions of the brain. The olfactory category includes the OB, PC, AON, TT, and the OT. The NLOT and BLA categories include both hemispheres. The cholinergic category includes the SI and the NDB.</p>
+          </caption>
+          <graphic
+            xlink:href="573522v1_fig3"
+            position="float"
+            orientation="portrait"
+            hwp:id="graphic-5"
+          />
+        </fig>
+      </sec>
+      <sec id="s3b" hwp:id="sec-12">
+        <title hwp:id="title-18">NLOT connectivity</title>
+        <p
+          hwp:id="p-21"
+        >The connectivity of NLOT has not been systematically analyzed using modern tracing methods. To reveal its inputs and outputs we adopted virus-based tracing approaches. Because NLOT is small (∼0.5 mm) and ventral, direct virus injection almost always infects neighboring regions as well. Serendipitously, we found that NLOT is the only brain region that both projects to the main OB, and expresses Cre recombinase in the Rbp4-cre mouse line. Therefore, injections of Cre-dependent retrograde AAVs to the OB of Rbp4-Cre mice specifically infect NLOT neurons (<xref
+          rid="fig2"
+          ref-type="fig"
+          hwp:id="xref-fig-3-1"
+          hwp:rel-id="F3"
+        >Figure 2A,B</xref>). We used this approach to either label NLOT neurons and their projections and identify putative output targets, or to express helper viruses for monosynaptic rabies-based tracing of input sources.</p>
+        <fig
+          id="fig2"
+          position="float"
+          orientation="portrait"
+          fig-type="figure"
+          hwp:id="F3"
+          hwp:rev-id="xref-fig-3-1 xref-fig-3-2 xref-fig-3-3 xref-fig-3-4 xref-fig-3-5 xref-fig-3-6 xref-fig-3-7 xref-fig-3-8 xref-fig-3-9"
+        >
+          <object-id
+            pub-id-type="other"
+            hwp:sub-type="pisa"
+          >biorxiv;2023.12.31.573522v1/FIG2</object-id>
+          <object-id pub-id-type="other" hwp:sub-type="slug">F3</object-id>
+          <object-id pub-id-type="publisher-id">fig2</object-id>
+          <label>Figure 2:</label>
+          <caption hwp:id="caption-5">
+            <title hwp:id="title-19">Axonal projections of NLOT neurons.</title>
+            <p hwp:id="p-22"><bold
+            >A.</bold> Experimental schema. NLOT neurons were specifically labeled by a unilateral injection of retrograde AAV carrying the gene for mCherry into the OB. <bold
+            >B.</bold> A coronal section showing the labeled NLOT. <bold
+            >C.</bold> Sections of the ipsi- and contra-lateral OBs showing NLOT axons densely populating the granule cell layer (GCL) yet also reaching the external plexiform and glomerular layers (EPL and GL). <bold
+            >D.</bold> The ipsi- and contra-lateral NLOTs labeled by unilateral retrograde AAV injection into the OB. <bold
+            >E.</bold> NLOT axons within the aPC and the islands of Calleja (IC) in the OT. Note that NLOT axons specifically target the bordering regions of the aPC and OT. <bold
+            >F.</bold> The ipsi- and contra-lateral NLOTs were labeled by retrograde AAV injection into the OT. <bold
+            >G.</bold> NLOT projections in layer-1b of the contralateral, but not in the ipsilateral pPC. <bold
+            >H.</bold> Retrograde AAV injection into pPC labeled the contralateral but not the ipsilateral NLOT. <bold
+            >I.</bold> NLOT axonal projections within the contralateral BLA. No axons were evident in the ipsilateral BLA. <bold
+            >J.</bold> Retrograde AAV injection into the BLA labeled the contralateral, but not the ipsilateral NLOT.</p>
+          </caption>
+          <graphic
+            xlink:href="573522v1_fig2"
+            position="float"
+            orientation="portrait"
+            hwp:id="graphic-6"
+          />
+        </fig>
+        <sec id="s3b1" hwp:id="sec-13">
+          <title hwp:id="title-20">NLOT Output projections</title>
+          <p
+            hwp:id="p-23"
+          >We injected retrograde AAVs expressing Cre-dependent mCherry into one OB in each animal and examined the pattern of NLOT axonal projections across the brain’s two hemispheres. We found axonal projections in the OB, PC, the OT, and the BLA. We then complemented these experiments by Injecting retrograde AAVs expressing mCherry into these output targets and verifying that NLOT cells are labeled.</p>
+          <p
+            hwp:id="p-24"
+          >In the OB, labeling was densest within the granule cell layer but some axons crossed all the way to the glomerular layer (<xref
+            rid="fig2"
+            ref-type="fig"
+            hwp:id="xref-fig-3-2"
+            hwp:rel-id="F3"
+          >Figure 2C</xref>). This was true in both the ipsilateral and the contralateral OBs, but stronger labeling was evident in the ipsilateral side. Retrograde labeling from a single OB labeled neurons in the NLOT of both hemispheres but many more cells were labeled in the ipsilateral side (<xref
+            rid="fig2"
+            ref-type="fig"
+            hwp:id="xref-fig-3-3"
+            hwp:rel-id="F3"
+          >Figure 2D</xref>). The anterior piriform cortex (aPC) was mostly devoid of NLOT axons other than the ventromedial-most region bordering the OT. Within the OT axons were evident in the area bordering PC (presumably the anterolateral isolation of the CAP compartments (aiCAP) region that is the target of projections from a specific subpopulation of mitral cells (<xref
+            ref-type="bibr"
+            rid="c18"
+            hwp:id="xref-ref-18-1"
+            hwp:rel-id="ref-18"
+          >Hirata et al., 2019</xref>)), and within two lateral islands of Calleja (<xref
+            rid="fig2"
+            ref-type="fig"
+            hwp:id="xref-fig-3-4"
+            hwp:rel-id="F3"
+          >Figure 2E</xref>). This pattern was bilateral and was verified by unilateral retrograde AAV injection into the OT that labeled the NLOT in both hemispheres (<xref
+            rid="fig2"
+            ref-type="fig"
+            hwp:id="xref-fig-3-5"
+            hwp:rel-id="F3"
+          >Figure 2F</xref>). Projections to the posterior piriform cortex (pPC) were contralateral exclusively. These axons were evident in layer 1b suggesting that they may form synaptic connections close to the soma of pyramidal neurons and could potentially efficiently activate them (<xref
+            rid="fig2"
+            ref-type="fig"
+            hwp:id="xref-fig-3-6"
+            hwp:rel-id="F3"
+          >Figure 2G</xref>). Unilateral Injection of retrograde AAV into the pPC confirmed this cross-hemispheric connection by labeling NLOT cells only in the contralateral side (<xref
+            rid="fig2"
+            ref-type="fig"
+            hwp:id="xref-fig-3-7"
+            hwp:rel-id="F3"
+          >Figure 2H</xref>). NLOT projections to the BLA were also exclusively contralateral (<xref
+            rid="fig2"
+            ref-type="fig"
+            hwp:id="xref-fig-3-8"
+            hwp:rel-id="F3"
+          >Figure 2I</xref>), as was also confirmed by unilateral injection of retrograde AAV into the BLA (<xref
+            rid="fig2"
+            ref-type="fig"
+            hwp:id="xref-fig-3-9"
+            hwp:rel-id="F3"
+          >Figure 2J</xref>). We did not find any spatial organization of NLOT axons within the BLA.</p>
+          <p
+            hwp:id="p-25"
+          >To conclude, we show that the NLOT innervates the OB in both hemispheres (with more innervation in the ipsilateral OB), the aiCAP region and lateral Islands of Calleja in both hemispheres equally, and the pPC and BLA exclusively in the contralateral hemisphere. This is a rare example of exclusive cross-hemispheric connectivity involving two different brain areas.</p>
+        </sec>
+        <sec id="s3b2" hwp:id="sec-14">
+          <title hwp:id="title-21">Inputs into NLOT</title>
+          <p
+            hwp:id="p-26"
+          >To identify input sources into NLOT, we used the monosynaptic glycoprotein-deleted rabies virus tracing method. In order to selectively express the helper viruses in the NLOT, we injected Cre-dependent retrograde AAVs carrying the genes for TVA-mCherry and oPBG into the olfactory bulb of Rbp4-cre mice and allowed 4 weeks for the virus to be expressed in NLOT neurons. We then injected the modified rabies expressing GFP (rRb-EnvA-GFP) into NLOT (<xref
+            rid="fig3"
+            ref-type="fig"
+            hwp:id="xref-fig-2-2"
+            hwp:rel-id="F2"
+          >Figure 3A</xref>). 5-7 days later, we fixed the brains and made histological sections. As expected, we found starter cells (expressing both GFP and mCherry) only in the NLOT (<xref
+            rid="fig3"
+            ref-type="fig"
+            hwp:id="xref-fig-2-3"
+            hwp:rel-id="F2"
+          >Figure 3B</xref>).</p>
+          <p
+            hwp:id="p-27"
+          >Afferent inputs, labeled with GFP were found in 7 main brain regions: The main OB, tenia tecta (TT), PC, BLA, several nuclei of the cortical amygdala (CoA), the substantia innominate (SI), the nucleus of the diagonal band (NDB). Notably, we also found GFP-expressing cells in the NLOT indicating local synaptic connectivity. Some GFP-expressing cells were also found in the contralateral NLOT. For complete details of all GFP-expressing cells that were mapped in these experiments, see supplementary table 1.</p>
+          <p
+            hwp:id="p-28"
+          >In the OB, all labelled cells were mitral cells (<xref
+            rid="fig3"
+            ref-type="fig"
+            hwp:id="xref-fig-2-4"
+            hwp:rel-id="F2"
+          >Figure 3C</xref>). Their soma was in the mitral cell layer, a single apical dendrite projected to the glomerular layer where it formed a tuft, and lateral dendrites transverse the external plexiform layer. All labeled cells were in the ipsilateral OB. TT is a brain region that has been little studied. It is divided into dorsal and ventral parts that differ in their connectivity and presumably also in their function. Most cells that were labeled by the rabies virus were in the dorsal TT (<xref
+            rid="fig3"
+            ref-type="fig"
+            hwp:id="xref-fig-2-5"
+            hwp:rel-id="F2"
+          >Figure 3D</xref>). Layer specificity of the labeled cells within TT suggests that specific subgroups of TT neurons, project to the NLOT. Here as well all labeled cells were in the ipsilateral hemisphere. Rabies-labeled neurons were found in both the aPC and pPC (<xref
+            rid="fig3"
+            ref-type="fig"
+            hwp:id="xref-fig-2-6"
+            hwp:rel-id="F2"
+          >Figure 3E</xref>). Mostly layer-2 but also some layer-3 neurons were labeled. Labeled cells were only found in the ipsilateral PC. Additionally, we found labeled cells in two cholinergic centers – the nucleus of the diagonal band (NDB, <xref
+            rid="fig3"
+            ref-type="fig"
+            hwp:id="xref-fig-2-7"
+            hwp:rel-id="F2"
+          >Figure 3E</xref>), and the Substantia Innominata (SI, <xref
+            rid="fig3"
+            ref-type="fig"
+            hwp:id="xref-fig-2-8"
+            hwp:rel-id="F2"
+          >Figure 3F</xref>). In both of these regions labeled cells were only found in the ipsilateral hemisphere. The BLA was the main brain region that provides bilateral input into the NLOT. We found labeled cells in both the ipsilateral and the contralateral BLA without any apparent spatial organization (<xref
+            rid="fig3"
+            ref-type="fig"
+            hwp:id="xref-fig-2-9"
+            hwp:rel-id="F2"
+          >Figure 3G</xref>). Functionally, most of the labeled cells were within brain regions that are part of the olfactory system with the other two major sources being amygdalar nuclei (including the NLOT itself) and cholinergic centers (<xref
+            rid="fig3"
+            ref-type="fig"
+            hwp:id="xref-fig-2-10"
+            hwp:rel-id="F2"
+          >Figure 3H</xref>). These experiments indicate that the NLOT integrates unilateral olfactory information and bilateral BLA information, and may be modulated by cholinergic centers.</p>
+        </sec>
+        <sec id="s3b3" hwp:id="sec-15">
+          <title hwp:id="title-22">Synaptic physiology of the NLOT</title>
+          <p
+            hwp:id="p-29"
+          >Trans-synaptic tracing does not inform us of the strength and functional significance of synaptic connections (<xref
+            ref-type="bibr"
+            rid="c41"
+            hwp:id="xref-ref-41-1"
+            hwp:rel-id="ref-41"
+          >Rogers and Beier, 2021</xref>). To analyze synaptic efficacy, we turned to slice physiology experiments. We specifically analyzed the synaptic properties of inputs from the OB, PC, AON/TT, and the BLA. These inputs represent the majority of olfactory and amygdalar inputs and their integration by the NLOT may underlie olfactory-emotional linking. Each input was analyzed separately by selective activation with channelrhodopsin2 (ChR2) while recording synaptic currents and potentials in NLOT layer 2 neurons. Synaptic currents were studied using a Cs-based internal solution and synaptic potentials using a K-based internal solution. Biocytin was added to the internal solution for recovering the cellular morphology of the recorded neurons. We found that the NLOT receives strong input from the PC, the BLA, and TT, but only very weak input from the OB. Below we describe the properties of each of these inputs in detail.</p>
+          <p
+            hwp:id="p-30"
+          >We first analyzed OB inputs using transgenic mice that express ChR2 in all OB output neurons (<xref
+            rid="fig4"
+            ref-type="fig"
+            hwp:id="xref-fig-4-1"
+            hwp:rel-id="F4"
+          >Figure 4A</xref>, Tbet-ChR2 mice were obtained by crossing Tbet-Cre mice with ai32 mice). The lateral olfactory tract (LOT), containing the axons of OB mitral cells, was evident in these mice in the ventral most part of layer 1 (<xref
+            rid="fig4"
+            ref-type="fig"
+            hwp:id="xref-fig-4-2"
+            hwp:rel-id="F4"
+          >Figure 4B-C</xref>). Layer 2 neuron dendrites projected ventrally and often branched and sent several distal branches into this ventral portion of layer 1 where they could form synaptic connections with mitral cell axons (<xref
+            rid="fig4"
+            ref-type="fig"
+            hwp:id="xref-fig-4-3"
+            hwp:rel-id="F4"
+          >Figure 4C</xref>). Brief light pulses (0.1-1 ms) evoked synaptic currents that were blocked by CNQX and APV, indicating that these are glutamatergic synapses (<xref
+            rid="fig4"
+            ref-type="fig"
+            hwp:id="xref-fig-4-4"
+            hwp:rel-id="F4"
+          >Figure 4D</xref>). OB-evoked EPSC amplitudes were extremely small (38 ± 8 pA, mean ± AEM, n=25 cells), and reversal potential was extremely depolarized (56 ± 12 mV, mean ± SEM, n=8 cells), probably reflecting, at least in part, the electrotonic distance of the synaptic connections from the soma (<xref
+            rid="fig4"
+            ref-type="fig"
+            hwp:id="xref-fig-4-5"
+            hwp:rel-id="F4"
+          >Figure 4D-F</xref>). When evoked in the current clamp mode, OB inputs were never sufficient to evoke action potentials on their own. Only when combined with current injection that brought cells close to their firing threshold were OB inputs able to elicit spikes (<xref
+            rid="fig4"
+            ref-type="fig"
+            hwp:id="xref-fig-4-6"
+            hwp:rel-id="F4"
+          >Figure 4G</xref>). However, two features may boost the efficacy of OB inputs. First, OB inputs could in some cases evoke regenerative responses that are below the threshold for somatic action potentials (<xref
+            rid="fig4"
+            ref-type="fig"
+            hwp:id="xref-fig-4-7"
+            hwp:rel-id="F4"
+          >Figure 4H</xref>). These were all-or-none in nature, as evident by the bimodal responses to repeated presentations of the same stimulus. Furthermore, these regenerative responses were more often elicited when the cell was depolarized. These features are suggestive of local dendritic spikes. Second, the OB input is facilitating as indicated by pairs of stimuli (<xref
+            rid="fig4"
+            ref-type="fig"
+            hwp:id="xref-fig-4-8"
+            hwp:rel-id="F4"
+          >Figure 4D</xref>, I &amp; J). These data indicate that the OB is incapable of driving NLOT activity in itself, but may have an effect in combination with other inputs.</p>
+          <fig
+            id="fig4"
+            position="float"
+            orientation="portrait"
+            fig-type="figure"
+            hwp:id="F4"
+            hwp:rev-id="xref-fig-4-1 xref-fig-4-2 xref-fig-4-3 xref-fig-4-4 xref-fig-4-5 xref-fig-4-6 xref-fig-4-7 xref-fig-4-8"
+          >
+            <object-id
+              pub-id-type="other"
+              hwp:sub-type="pisa"
+            >biorxiv;2023.12.31.573522v1/FIG4</object-id>
+            <object-id pub-id-type="other" hwp:sub-type="slug">F4</object-id>
+            <object-id pub-id-type="publisher-id">fig4</object-id>
+            <label>Figure 4:</label>
+            <caption hwp:id="caption-6">
+              <title
+                hwp:id="title-23"
+              >OB inputs are weak and insufficient to elicit NLOT firing.</title>
+              <p hwp:id="p-31"><bold
+              >A.</bold> The expression of ChR2-EYFP in OB mitral and tufted cells. <bold
+              >B.</bold> Fluorescent OB output axons (LOT) within layer 1 of the NLOT. <bold
+              >C.</bold> A biocytin-labeled cell (red), and the LOT within layer 1. Note that the LOT contacts the dendrite at its distal end. <bold
+              >D.</bold> Example LOT-evoked EPSCs (top) and EPSPs (bottom). Gray traces show individual trials and black lines show the average response across trials. Red line shows EPSC obtained in the presence of CNQX and APV. Blue ticks indicate the timing of light pulses. <bold
+              >E.</bold> Voltage dependence of an example LOT-evoked EPSC. Red cross indicates reversal potential. <bold
+              >F.</bold> Box plots showing the distribution of EPSC amplitudes (at -70 mV holding potential) and reversal potentials of LOT inputs. n=25 cells and 8 cells for the amplitude and reversal, respectively. <bold
+              >G.</bold> LOT-evoked action potentials are only triggered when the cell is depolarized with current injection. <bold
+              >H.</bold> LOT-evoked dendritic spikes recorded under voltage clamp (top) and current clamp (bottom) conditions (from two different cells). 10 repetitions of the same stimulation are shown for each. In the voltage clamp mode, the cell was held at -20 mV. Note the all- or-none nature of the responses that is indicative of a regenerative process (red). <bold
+              >I-J.</bold> Paired-pulse dynamics of LOT inputs into NLOT neurons. <bold
+              >I.</bold> Example data from one neuron. <bold
+              >J.</bold> Paired-pulse ratio as a function of the inter-pulse interval averaged across cells (n=4). Note that LOT inputs are facilitating at intervals that are less than 100 ms.</p>
+            </caption>
+            <graphic
+              xlink:href="573522v1_fig4"
+              position="float"
+              orientation="portrait"
+              hwp:id="graphic-7"
+            />
+          </fig>
+          <p
+            hwp:id="p-32"
+          >Next, we describe the properties of inputs into NLOT from higher olfactory centers. We start with the PC. AAVs carrying the gene for ChR2 were stereotactically injected into the PC of young adult mice and were allowed 3-5 weeks’ time for expression (<xref
+            rid="fig5"
+            ref-type="fig"
+            hwp:id="xref-fig-5-1"
+            hwp:rel-id="F5"
+          >Figure 5A</xref>). We found no differences between the inputs from the anterior and posterior PC and combined them for the following description. PC axons were visible in the dorsal part of layer 1 and surrounding layer 3 where they could make contact with proximal dendrites of NLOT axons (<xref
+            rid="fig5"
+            ref-type="fig"
+            hwp:id="xref-fig-5-2"
+            hwp:rel-id="F5"
+          >Figure 5B</xref>). In line with that, brief light pulses evoked large responses in NLOT neurons (<xref
+            rid="fig5"
+            ref-type="fig"
+            hwp:id="xref-fig-5-3"
+            hwp:rel-id="F5"
+          >Figure 5C</xref>). EPSC amplitudes ranged between a few hundred pA and 2 nA (713 ± 106 pA, mean ± SEM, n=24) and the reversal potential of PC inputs was typical for glutamatergic synapses (9 ± 7 mV, mean ± SEM, n=11, <xref
+            rid="fig5"
+            ref-type="fig"
+            hwp:id="xref-fig-5-4"
+            hwp:rel-id="F5"
+          >Figure 5D-E</xref>). PC inputs showed strong paired pulse depression when the inter-stimulus interval was below 100 ms (<xref
+            rid="fig5"
+            ref-type="fig"
+            hwp:id="xref-fig-5-5"
+            hwp:rel-id="F5"
+          >Figure 5F-G</xref>). Importantly, PC inputs were sufficient to evoke action potential bursts similar to those seen with current injection (<xref
+            rid="fig5"
+            ref-type="fig"
+            hwp:id="xref-fig-5-6"
+            hwp:rel-id="F5"
+          >Figure 5H</xref>). Like with current injections, PC inputs typically evoked bursts of action potentials that rode over a slow depolarization lasting around 200 ms. Spike bursts tended to only occur in response to the earlier synaptic activations due to depression.</p>
+          <fig
+            id="fig5"
+            position="float"
+            orientation="portrait"
+            fig-type="figure"
+            hwp:id="F5"
+            hwp:rev-id="xref-fig-5-1 xref-fig-5-2 xref-fig-5-3 xref-fig-5-4 xref-fig-5-5 xref-fig-5-6"
+          >
+            <object-id
+              pub-id-type="other"
+              hwp:sub-type="pisa"
+            >biorxiv;2023.12.31.573522v1/FIG5</object-id>
+            <object-id pub-id-type="other" hwp:sub-type="slug">F5</object-id>
+            <object-id pub-id-type="publisher-id">fig5</object-id>
+            <label>Figure 5:</label>
+            <caption hwp:id="caption-7">
+              <title hwp:id="title-24">Piriform inputs into NLOT.</title>
+              <p hwp:id="p-33"><bold
+              >A.</bold> A coronal section showing expression of ChR2-GFP in PC. <bold
+              >B.</bold> A confocal image showing the spread of PC axons within the NLOT. <bold
+              >C.</bold> Example PC-evoked EPSCs (top) and EPSPs (bottom). Gray traces show individual trials and black traces show their averages. Red trace shows the EPSC obtained in the presence of glutamatergic blockers. Blue ticks indicate the timing of light stimulation. <bold
+              >D.</bold> Voltage dependence of an example PC-evoked EPSC. Red cross indicates reversal potential. <bold
+              >E.</bold> Box plots showing the distributions of amplitudes and reversal potentials of PC-evoked EPSCs. n=24 and 11 cells for amplitude and reversal, respectively. <bold
+              >F-G.</bold> Paired pulse dynamics of PC-evoked EPSCs. <bold
+              >F.</bold> Example traces showing the EPSCs obtained with pairs of light pulses at variable intervals. <bold
+              >G.</bold> The average paired pulse ratio as a function of the inter pulse interval. Shaded area shows the SEM (n=6 cells). <bold
+              >H.</bold> PC-evoked action potential bursts. 5 trials are shown.</p>
+            </caption>
+            <graphic
+              xlink:href="573522v1_fig5"
+              position="float"
+              orientation="portrait"
+              hwp:id="graphic-8"
+            />
+          </fig>
+          <p
+            hwp:id="p-34"
+          >Next, we describe the properties of synaptic input from the TT/AON to the NLOT. TT/AON neurons were virally infected with ChR2 (<xref
+            rid="fig6"
+            ref-type="fig"
+            hwp:id="xref-fig-6-1"
+            hwp:rel-id="F6"
+          >Figure 6A</xref>). The TT is a narrow brain region and our injections often also infected the medial part of the anterior olfactory nucleus (AON). Injections that completely missed the TT and infected lateral parts of the AON failed to evoke synaptic input in NLOT neurons. Additionally, the rabies experiment showed many more labeled cells in the TT compared to the AON. However, as we could not isolate expression in either the medial AON or the TT, we treat these two possible inputs combined. TT/AON axons were visible within layer 2, suggesting that they contact NLOT neurons proximal to the soma (<xref
+            rid="fig6"
+            ref-type="fig"
+            hwp:id="xref-fig-6-2"
+            hwp:rel-id="F6"
+          >Figure 6B</xref>). Light pulses evoked EPSCs that were similar in their characteristics to the PC inputs but smaller in amplitude (403 ± 136 pA, mean ± SEM, n=13, <xref
+            rid="fig6"
+            ref-type="fig"
+            hwp:id="xref-fig-6-3"
+            hwp:rel-id="F6"
+          >Figure 6C</xref>). These inputs were reversibly blocked by glutamatergic blockers, reversed at normal glutamatergic reversal potential (11 ± 4 mV, mean ± SEM, n=13), and showed paired-pulse depression (<xref
+            rid="fig6"
+            ref-type="fig"
+            hwp:id="xref-fig-6-4"
+            hwp:rel-id="F6"
+          >Figure 6D-G</xref>). In the current clamp mode, light pulses readily evoked action potential bursts (<xref
+            rid="fig6"
+            ref-type="fig"
+            hwp:id="xref-fig-6-5"
+            hwp:rel-id="F6"
+          >Figure 6H</xref>).</p>
+          <fig
+            id="fig6"
+            position="float"
+            orientation="portrait"
+            fig-type="figure"
+            hwp:id="F6"
+            hwp:rev-id="xref-fig-6-1 xref-fig-6-2 xref-fig-6-3 xref-fig-6-4 xref-fig-6-5"
+          >
+            <object-id
+              pub-id-type="other"
+              hwp:sub-type="pisa"
+            >biorxiv;2023.12.31.573522v1/FIG6</object-id>
+            <object-id pub-id-type="other" hwp:sub-type="slug">F6</object-id>
+            <object-id pub-id-type="publisher-id">fig6</object-id>
+            <label>Figure 6:</label>
+            <caption hwp:id="caption-8">
+              <title hwp:id="title-25">AON/TT inputs into NLOT.</title>
+              <p hwp:id="p-35"><bold
+              >A.</bold> A coronal section showing the expression of ChR2-GFP in the medial-AON/TT. <bold
+              >B.</bold> A confocal image showing the spread of AON/TT axons within NLOT. <bold
+              >C.</bold> Example AON/TT-evoked EPSCs (top) and EPSPs (bottom). Gray traces show individual trials and black traces show their averages. Blue ticks mark the timing of light stimulation. <bold
+              >D.</bold> Voltage dependence of EPSCs from one example cell. Black line is a linear fit. Red cross denotes reversal potential. <bold
+              >E.</bold> Box plots showing the distributions of amplitudes and reversal potentials of AON/TT-evoked EPSCs (n=13 for both amplitude and reversal). <bold
+              >F-G.</bold> Short-term synaptic plasticity of AON/TT inputs into NLOT. <bold
+              >F.</bold> Responses from one example cell to paired stimulation with variable intervals. <bold
+              >G.</bold> Average paired-pulse ratio as a function of inter-pulse interval. Shaded area shows the mean±SEM (n=9 cells). <bold
+              >H.</bold> Example AON/TT-evoked action potential bursts. 10 repetitions of the same stimulation are shown.</p>
+            </caption>
+            <graphic
+              xlink:href="573522v1_fig6"
+              position="float"
+              orientation="portrait"
+              hwp:id="graphic-9"
+            />
+          </fig>
+          <p
+            hwp:id="p-36"
+          >These data indicate that of the olfactory inputs into the NLOT, third order regions (PC, AON/TT) that project more processed olfactory information are much more efficacious in activating NLOT neurons than the more peripheral OB.</p>
+          <p
+            hwp:id="p-37"
+          >Lastly, we analyze the input from the BLA to the NLOT. We expressed ChR2 in BLA neurons using viral injections (<xref
+            rid="fig7"
+            ref-type="fig"
+            hwp:id="xref-fig-7-1"
+            hwp:rel-id="F7"
+          >Figure 7A</xref>). Similar to the AON/TT axons, BLA axons were visible within layer 2 of the NLOT, suggesting that they innervate NLOT neurons at their proximal dendrites (<xref
+            rid="fig7"
+            ref-type="fig"
+            hwp:id="xref-fig-7-2"
+            hwp:rel-id="F7"
+          >Figure 7B</xref>). In line with that, light pulses evoked large and fast EPSCs (663 ± 100 pA, mean ± SEM, n=25 cells, <xref
+            rid="fig7"
+            ref-type="fig"
+            hwp:id="xref-fig-7-3"
+            hwp:rel-id="F7"
+          >Figure 7C</xref>). These were reversibly blocked by glutamatergic blockers (APV, CNQX), and reversed at -9 ± 12 mV (mean ± SEM, n=7, <xref
+            rid="fig7"
+            ref-type="fig"
+            hwp:id="xref-fig-7-4"
+            hwp:rel-id="F7"
+          >Figure 7D-E</xref>). Similar to the PC input, BLA synaptic input showed a marked pair-pulse depression at below 100 ms intervals (<xref
+            rid="fig7"
+            ref-type="fig"
+            hwp:id="xref-fig-7-5"
+            hwp:rel-id="F7"
+          >Figure 7F-G</xref>). BLA input was sufficient to evoke action potential bursts in NLOT neurons, but these tended to be limited to early stimuli within stimulation trains (<xref
+            rid="fig7"
+            ref-type="fig"
+            hwp:id="xref-fig-7-6"
+            hwp:rel-id="F7"
+          >Figure 7H</xref>).</p>
+          <fig
+            id="fig7"
+            position="float"
+            orientation="portrait"
+            fig-type="figure"
+            hwp:id="F7"
+            hwp:rev-id="xref-fig-7-1 xref-fig-7-2 xref-fig-7-3 xref-fig-7-4 xref-fig-7-5 xref-fig-7-6"
+          >
+            <object-id
+              pub-id-type="other"
+              hwp:sub-type="pisa"
+            >biorxiv;2023.12.31.573522v1/FIG7</object-id>
+            <object-id pub-id-type="other" hwp:sub-type="slug">F7</object-id>
+            <object-id pub-id-type="publisher-id">fig7</object-id>
+            <label>Figure 7:</label>
+            <caption hwp:id="caption-9">
+              <title hwp:id="title-26">BLA inputs into NLOT.</title>
+              <p hwp:id="p-38"><bold
+              >A.</bold> A coronal section showing expression of ChR2-GFP in the BLA. <bold
+              >B.</bold> A confocal image showing the spread of BLA axons within the NLOT. <bold
+              >C.</bold> Example BLA-evoked EPSCs (top) and EPSPs (bottom). Gray traces show individual trials and black traces show their average. Red trace shows the EPSC obtained in the presence of CNQX and APV. Blue ticks mark the timing of light stimulation. <bold
+              >D.</bold> Voltage dependence of BLA-evoked EPSCs from one example cell. Black line is a linear fit. Red cross denotes reversal potential. <bold
+              >E.</bold> Box plots showing the distributions of amplitudes (n=25 cells) and reversal potentials (n=7 cells) of BLA-evoked EPSCs. <bold
+              >F-G.</bold> Short-term synaptic plasticity of BLA inputs into NLOT. <bold
+              >F.</bold> Example repeated stimulation with variable intervals. <bold
+              >G.</bold> Average paired-pulse ratio as a function of inter-pulse interval. Shaded area shows the mean±SEM (n=15 cells). <bold
+              >H.</bold> Example BLA-evoked action potential bursts. 5 repetitions of the same stimulation are shown.</p>
+            </caption>
+            <graphic
+              xlink:href="573522v1_fig7"
+              position="float"
+              orientation="portrait"
+              hwp:id="graphic-10"
+            />
+          </fig>
+          <p
+            hwp:id="p-39"
+          >In summary, NLOT neurons are most efficiently activated by PC and BLA inputs. These inputs show paired-pulse depression which limits the time of activation with repeated stimulus trains.</p>
+        </sec>
+      </sec>
+    </sec>
+    <sec id="s4" hwp:id="sec-16">
+      <title hwp:id="title-27">Discussion</title>
+      <p
+        hwp:id="p-40"
+      >We combined virus-based tracing methods with acute slice electrophysiology to describe the biophysical properties of NLOT neurons and their synaptic connectivity. We describe the physiological properties of synaptic inputs into the NLOT from olfactory brain regions and from the BLA.</p>
+      <p
+        hwp:id="p-41"
+      >We find that NLOT neurons are bursters. When injected with minimal current steps, or activated synaptically, they respond with a single short burst of action potentials. These bursts are dependent on a calcium current and are typically brief (100-200 ms) with action potentials occurring at a high rate of over 30 Hz. Ca<sup
+      >2+</sup>-current dependent bursts are common in various neuron types including several types of cortical pyramidal neurons (<xref
+        ref-type="bibr"
+        rid="c4"
+        hwp:id="xref-ref-4-1"
+        hwp:rel-id="ref-4"
+      >Connors and Gutnick, 1990</xref>; <xref
+        ref-type="bibr"
+        rid="c32"
+        hwp:id="xref-ref-32-1"
+        hwp:rel-id="ref-32"
+      >Markram et al., 2004</xref>). Such bursting has been suggested to be transmitted across synapses with much greater reliability as the high rate of action potentials ensures temporal summation of postsynaptic potentials and may be specifically efficient in facilitating synapses (<xref
+        ref-type="bibr"
+        rid="c28"
+        hwp:id="xref-ref-28-1"
+        hwp:rel-id="ref-28"
+      >Lisman, 1997</xref>; <xref
+        ref-type="bibr"
+        rid="c20"
+        hwp:id="xref-ref-20-1"
+        hwp:rel-id="ref-20"
+      >Izhikevich, 2006</xref>). However, bursting also means that the neuronal output may act in a binary fashion rather than a continuous firing rate value and therefore may have a lower encoding capacity. Bursting of NLOT neurons may therefore convey a low-dimensional signal that is of high importance and needs to efficiently activate its postsynaptic targets. The firing properties of NLOT neurons seem distinct from the properties of other amygdalar excitatory neurons. These have been shown to be variable both molecularly and biophysically, ranging in their firing properties from adapting to continuous firing neurons (<xref
+        ref-type="bibr"
+        rid="c40"
+        hwp:id="xref-ref-40-1"
+        hwp:rel-id="ref-40"
+      >Rainnie et al., 1993</xref>; <xref
+        ref-type="bibr"
+        rid="c8"
+        hwp:id="xref-ref-8-1"
+        hwp:rel-id="ref-8"
+      >Faber et al., 2001</xref>; Lopez De Armentia and Sah, 2004; <xref
+        ref-type="bibr"
+        rid="c38"
+        hwp:id="xref-ref-38-1"
+        hwp:rel-id="ref-38"
+      >O’Leary et al., 2020</xref>). We find that layer 2 neurons are quite homogeneously bursting neurons. The distinct properties of NLOT neurons as compared to other amygdalar neurons is in line with their unique gene expression profile (<xref
+        ref-type="bibr"
+        rid="c19"
+        hwp:id="xref-ref-19-3"
+        hwp:rel-id="ref-19"
+      >Hochgerner et al., 2023</xref>).</p>
+      <p
+        hwp:id="p-42"
+      >Using virus-based tracing methods we find that the main input sources as well as output targets of NLOT are olfactory and amygdalar brain regions. Some of the connectivity that we describe here has been previously shown using other techniques (<xref
+        ref-type="bibr"
+        rid="c39"
+        hwp:id="xref-ref-39-3"
+        hwp:rel-id="ref-39"
+      >Price, 1973</xref>; <xref
+        ref-type="bibr"
+        rid="c43"
+        hwp:id="xref-ref-43-3"
+        hwp:rel-id="ref-43"
+      >Scalia and Winans, 1975</xref>; <xref
+        ref-type="bibr"
+        rid="c25"
+        hwp:id="xref-ref-25-4"
+        hwp:rel-id="ref-25"
+      >Krettek and Price, 1978</xref>; <xref
+        ref-type="bibr"
+        rid="c30"
+        hwp:id="xref-ref-30-3"
+        hwp:rel-id="ref-30"
+      >Luskin and Price, 1983</xref>; <xref
+        ref-type="bibr"
+        rid="c42"
+        hwp:id="xref-ref-42-2"
+        hwp:rel-id="ref-42"
+      >Santiago and Shammah-Lagnado, 2004</xref>; <xref
+        ref-type="bibr"
+        rid="c24"
+        hwp:id="xref-ref-24-3"
+        hwp:rel-id="ref-24"
+      >Krabbe et al., 2019</xref>). Olfactory brain regions represent the largest fraction of NLOT inputs and outputs followed by BLA, cortical amygdala nuclei, and internal NLOT connectivity. Additionally, we show here that there are two inputs from brain regions that contain cholinergic neurons – the SI and the NDB, which may explain the dense expression of acetylcholine esterase in the NLOT (<xref
+        ref-type="bibr"
+        rid="c35"
+        hwp:id="xref-ref-35-2"
+        hwp:rel-id="ref-35"
+      >Millhouse and Uemura-Sumi, 1985</xref>). These may play a role in state-dependent modulation NLOT function. Interestingly, the projections from the NLOT to many brain regions are either bi-hemispheric, or exclusively contralateral. The NLOT projects bilaterally to the more anterior structures (OB, aPC, OT), and contralaterally to the more posterior structures (pPC and BLA). The significance of this interhemispheric projection pattern is yet unclear.</p>
+      <p
+        hwp:id="p-43"
+      >The input from the OB is rather weak and incapable of driving NLOT output by itself, much different than OB input into PC (<xref
+        ref-type="bibr"
+        rid="c10"
+        hwp:id="xref-ref-10-1"
+        hwp:rel-id="ref-10"
+      >Franks and Isaacson, 2005</xref>, <xref
+        ref-type="bibr"
+        rid="c11"
+        hwp:id="xref-ref-11-1"
+        hwp:rel-id="ref-11"
+      >2006</xref>; <xref
+        ref-type="bibr"
+        rid="c50"
+        hwp:id="xref-ref-50-1"
+        hwp:rel-id="ref-50"
+      >Wiegand et al., 2011</xref>). On the other hand, inputs from olfactory cortical regions (PC and TT/AON) are powerful and can drive NLOT bursting. This suggests that NLOT activity primarily reflects highly processed olfactory information (<xref
+        ref-type="bibr"
+        rid="c46"
+        hwp:id="xref-ref-46-2"
+        hwp:rel-id="ref-46"
+      >Tanisumi et al., 2021</xref>). Interestingly, similar findings were described for olfactory inputs into the medial amygdala (<xref
+        ref-type="bibr"
+        rid="c22"
+        hwp:id="xref-ref-22-1"
+        hwp:rel-id="ref-22"
+      >Keshavarzi et al., 2015</xref>). There, direct input from the accessory OB is much weaker (and located distally on the dendrite) compared to the more processed cortical amygdala input. What may be the impact of the OB input that is located so distally on the dendrite? The potential effects of distal inputs on neuronal output have been studied both experimentally and theoretically (<xref
+        ref-type="bibr"
+        rid="c1"
+        hwp:id="xref-ref-1-1"
+        hwp:rel-id="ref-1"
+      >Bernander et al., 1994</xref>; <xref
+        ref-type="bibr"
+        rid="c15"
+        hwp:id="xref-ref-15-1"
+        hwp:rel-id="ref-15"
+      >Häusser, 2001</xref>). Two findings seem relevant to the NLOT. First, distal inputs may be effective in modifying spike output when they coincide with proximal inputs. This coincidence is particularly effective in activating dendritic voltage gated channels and eliciting dendritic action potentials (<xref
+        ref-type="bibr"
+        rid="c26"
+        hwp:id="xref-ref-26-1"
+        hwp:rel-id="ref-26"
+      >Larkum et al., 1999</xref>). Indeed, we find that when NLOT neurons are depolarized, OB inputs may elicit regenerative responses that are most probably dendritic spikes. Second, distal inputs may induce plastic changes of proximal input responses. Such interaction has been reported in hippocampal CA1 neurons (<xref
+        ref-type="bibr"
+        rid="c7"
+        hwp:id="xref-ref-7-1"
+        hwp:rel-id="ref-7"
+      >Dudman et al., 2007</xref>).</p>
+      <p
+        hwp:id="p-44"
+      >What can we learn from the synaptic properties of NLOT about its function? We find that the major sources of glutamatergic input into NLOT are from olfactory brain regions and from the BLA. Based on this integration of sensory and emotional signals, it is parsimonious to hypothesize that NLOT is involved in assigning emotional value to specific smells. The fact that NLOT also projects back to olfactory regions, including the OB, may suggest that it may also play a role in modifying olfactory perception based on emotional state. Recording the activity of NLOT neurons during carefully designed behavioral paradigms may shed more light on this hypothesis.</p>
+    </sec>
+    <sec sec-type="supplementary-material" hwp:id="sec-17">
+      <title hwp:id="title-28">Supporting information</title>
+      <supplementary-material
+        position="float"
+        orientation="portrait"
+        hwp:id="DC1"
+      >
+        <object-id pub-id-type="other" hwp:sub-type="slug">DC1</object-id>
+        <label>supplemental Table 1</label>
+        <media
+          xlink:href="supplements/573522_file02.xlsx"
+          position="float"
+          orientation="portrait"
+          hwp:id="media-1"
+        />
+      </supplementary-material>
+    </sec>
+  </body>
+  <back>
+    <ref-list hwp:id="ref-list-1">
+      <title hwp:id="title-29">References</title>
+      <ref id="c1" hwp:id="ref-1" hwp:rev-id="xref-ref-1-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.1"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-1"
+        ><string-name name-style="western" hwp:sortable="Bernander O">
+          <surname>Bernander</surname>
+          <given-names>O</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Koch C">
+          <surname>Koch</surname>
+          <given-names>C</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Douglas RJ"
+        >
+          <surname>Douglas</surname>
+          <given-names>RJ</given-names>
+        </string-name> (<year>1994</year>) <article-title
+          hwp:id="article-title-2"
+        >Amplification and linearization of distal synaptic input to cortical pyramidal cells</article-title>. <source
+          hwp:id="source-1"
+        >Journal of Neurophysiology</source> <volume>72</volume>:<fpage
+        >2743</fpage>–<lpage>2753</lpage>.</citation>
+      </ref>
+      <ref id="c2" hwp:id="ref-2">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.2"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-2"
+        ><string-name name-style="western" hwp:sortable="Boyden ES">
+          <surname>Boyden</surname>
+          <given-names>ES</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Zhang F"
+        >
+          <surname>Zhang</surname>
+          <given-names>F</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Bamberg E"
+        >
+          <surname>Bamberg</surname>
+          <given-names>E</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Nagel G"
+        >
+          <surname>Nagel</surname>
+          <given-names>G</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Deisseroth K"
+        >
+          <surname>Deisseroth</surname>
+          <given-names>K</given-names>
+        </string-name> (<year>2005</year>) <article-title
+          hwp:id="article-title-3"
+        >Millisecond-timescale, genetically targeted optical control of neural activity</article-title>. <source
+          hwp:id="source-2"
+        >Nat Neurosci</source> <volume>8</volume>:<fpage>1263</fpage>–<lpage
+        >1268</lpage>.</citation>
+      </ref>
+      <ref id="c3" hwp:id="ref-3" hwp:rev-id="xref-ref-3-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.3"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-3"
+        ><string-name name-style="western" hwp:sortable="Broadwell RD">
+          <surname>Broadwell</surname>
+          <given-names>RD</given-names>
+        </string-name> (<year>1975</year>) <article-title
+          hwp:id="article-title-4"
+        >Olfactory relationships of the telencephlaon and diencephalon in the rabbit. 1. An autoradiographic study of the efferent connections of the main and accessory olfactory bulbs</article-title>. <source
+          hwp:id="source-3"
+        >Journal of Comparative Neurology</source> <volume>163</volume>:<fpage
+        >329</fpage>–<lpage>345</lpage>.</citation>
+      </ref>
+      <ref id="c4" hwp:id="ref-4" hwp:rev-id="xref-ref-4-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.4"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-4"
+        ><string-name name-style="western" hwp:sortable="Connors BW">
+          <surname>Connors</surname>
+          <given-names>BW</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Gutnick MJ"
+        >
+          <surname>Gutnick</surname>
+          <given-names>MJ</given-names>
+        </string-name> (<year>1990</year>) <article-title
+          hwp:id="article-title-5"
+        >Intrinsic firing patterns of diverse neocortical neurons</article-title>. <source
+          hwp:id="source-4"
+        >Trends in Neurosciences</source> <volume>13</volume>:<fpage
+        >99</fpage>–<lpage>104</lpage>.</citation>
+      </ref>
+      <ref id="c5" hwp:id="ref-5" hwp:rev-id="xref-ref-5-1">
+        <citation
+          publication-type="book"
+          citation-type="book"
+          ref:id="2023.12.31.573522v1.5"
+          ref:linkable="no"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-5"
+        ><string-name name-style="western" hwp:sortable="Crosby E">
+          <surname>Crosby</surname>
+          <given-names>E</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Schnitzlein HN"
+        >
+          <surname>Schnitzlein</surname>
+          <given-names>HN</given-names>
+        </string-name> eds. (<year>1982</year>) <chapter-title
+        >Comparative correlative neuroanatomy of the vertebrate telencephalon</chapter-title>. <publisher-name
+        >Macmillan Pub Co</publisher-name>.</citation>
+      </ref>
+      <ref id="c6" hwp:id="ref-6" hwp:rev-id="xref-ref-6-1">
+        <citation
+          publication-type="website"
+          citation-type="web"
+          ref:id="2023.12.31.573522v1.6"
+          ref:linkable="no"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-6"
+        ><string-name name-style="western" hwp:sortable="Deryckere A">
+          <surname>Deryckere</surname>
+          <given-names>A</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Woych J"
+        >
+          <surname>Woych</surname>
+          <given-names>J</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Jaeger ECB"
+        >
+          <surname>Jaeger</surname>
+          <given-names>ECB</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Tosches MA"
+        >
+          <surname>Tosches</surname>
+          <given-names>MA</given-names>
+        </string-name> (<year>2022</year>) <article-title
+          hwp:id="article-title-6"
+        >Glutamatergic neuron types in the amygdala of the urodele amphibian Pleurodeles waltl</article-title>. :2022.06.15.496313 Available at: <ext-link
+          l:rel="related"
+          l:ref-type="uri"
+          l:ref="https://www.biorxiv.org/content/10.1101/2022.06.15.496313v1"
+          ext-link-type="uri"
+          xlink:href="https://www.biorxiv.org/content/10.1101/2022.06.15.496313v1"
+          hwp:id="ext-link-2"
+        >https://www.biorxiv.org/content/10.1101/2022.06.15.496313v1</ext-link> [Accessed October 6, 2022].</citation>
+      </ref>
+      <ref id="c7" hwp:id="ref-7" hwp:rev-id="xref-ref-7-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.7"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-7"
+        ><string-name name-style="western" hwp:sortable="Dudman JT">
+          <surname>Dudman</surname>
+          <given-names>JT</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Tsay D">
+          <surname>Tsay</surname>
+          <given-names>D</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Siegelbaum SA"
+        >
+          <surname>Siegelbaum</surname>
+          <given-names>SA</given-names>
+        </string-name> (<year>2007</year>) <article-title
+          hwp:id="article-title-7"
+        >A Role for Synaptic Inputs at Distal Dendrites: Instructive Signals for Hippocampal Long-Term Plasticity</article-title>. <source
+          hwp:id="source-5"
+        >Neuron</source> <volume>56</volume>:<fpage>866</fpage>–<lpage
+        >879</lpage>.</citation>
+      </ref>
+      <ref id="c8" hwp:id="ref-8" hwp:rev-id="xref-ref-8-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.8"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-8"
+        ><string-name name-style="western" hwp:sortable="Faber E">
+          <surname>Faber</surname>
+          <given-names>E</given-names>
+        </string-name> s. l., <string-name
+          name-style="western"
+          hwp:sortable="Callister RJ"
+        >
+          <surname>Callister</surname>
+          <given-names>RJ</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Sah P">
+          <surname>Sah</surname>
+          <given-names>P</given-names>
+        </string-name> (<year>2001</year>) <article-title
+          hwp:id="article-title-8"
+        >Morphological and Electrophysiological Properties of Principal Neurons in the Rat Lateral Amygdala In Vitro</article-title>. <source
+          hwp:id="source-6"
+        >Journal of Neurophysiology</source> <volume>85</volume>:<fpage
+        >714</fpage>–<lpage>723</lpage>.</citation>
+      </ref>
+      <ref id="c9" hwp:id="ref-9" hwp:rev-id="xref-ref-9-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.9"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-9"
+        ><string-name name-style="western" hwp:sortable="Faber ESL">
+          <surname>Faber</surname>
+          <given-names>ESL</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Sah P">
+          <surname>Sah</surname>
+          <given-names>P</given-names>
+        </string-name> (<year>2002</year>) <article-title
+          hwp:id="article-title-9"
+        >Physiological Role of Calcium-Activated Potassium Currents in the Rat Lateral Amygdala</article-title>. <source
+          hwp:id="source-7"
+        >J Neurosci</source> <volume>22</volume>:<fpage>1618</fpage>–<lpage
+        >1628</lpage>.</citation>
+      </ref>
+      <ref id="c10" hwp:id="ref-10" hwp:rev-id="xref-ref-10-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.10"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-10"
+        ><string-name name-style="western" hwp:sortable="Franks KM">
+          <surname>Franks</surname>
+          <given-names>KM</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Isaacson JS"
+        >
+          <surname>Isaacson</surname>
+          <given-names>JS</given-names>
+        </string-name> (<year>2005</year>) <article-title
+          hwp:id="article-title-10"
+        >Synapse-Specific Downregulation of NMDA Receptors by Early Experience: A Critical Period for Plasticity of Sensory Input to Olfactory Cortex</article-title>. <source
+          hwp:id="source-8"
+        >Neuron</source> <volume>47</volume>:<fpage>101</fpage>–<lpage
+        >114</lpage>.</citation>
+      </ref>
+      <ref id="c11" hwp:id="ref-11" hwp:rev-id="xref-ref-11-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.11"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-11"
+        ><string-name name-style="western" hwp:sortable="Franks KM">
+          <surname>Franks</surname>
+          <given-names>KM</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Isaacson JS"
+        >
+          <surname>Isaacson</surname>
+          <given-names>JS</given-names>
+        </string-name> (<year>2006</year>) <article-title
+          hwp:id="article-title-11"
+        >Strong Single-Fiber Sensory Inputs to Olfactory Cortex: Implications for Olfactory Coding</article-title>. <source
+          hwp:id="source-9"
+        >Neuron</source> <volume>49</volume>:<fpage>357</fpage>–<lpage
+        >363</lpage>.</citation>
+      </ref>
+      <ref id="c12" hwp:id="ref-12" hwp:rev-id="xref-ref-12-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.12"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-12"
+        ><string-name name-style="western" hwp:sortable="Gadziola MA">
+          <surname>Gadziola</surname>
+          <given-names>MA</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Tylicki KA"
+        >
+          <surname>Tylicki</surname>
+          <given-names>KA</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Christian DL"
+        >
+          <surname>Christian</surname>
+          <given-names>DL</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Wesson DW"
+        >
+          <surname>Wesson</surname>
+          <given-names>DW</given-names>
+        </string-name> (<year>2015</year>) <article-title
+          hwp:id="article-title-12"
+        >The Olfactory Tubercle Encodes Odor Valence in Behaving Mice</article-title>. <source
+          hwp:id="source-10"
+        >J Neurosci</source> <volume>35</volume>:<fpage>4515</fpage>–<lpage
+        >4527</lpage>.</citation>
+      </ref>
+      <ref id="c13" hwp:id="ref-13" hwp:rev-id="xref-ref-13-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.13"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-13"
+        ><string-name name-style="western" hwp:sortable="Gong S">
+          <surname>Gong</surname>
+          <given-names>S</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Zheng C"
+        >
+          <surname>Zheng</surname>
+          <given-names>C</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Doughty ML"
+        >
+          <surname>Doughty</surname>
+          <given-names>ML</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Losos K"
+        >
+          <surname>Losos</surname>
+          <given-names>K</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Didkovsky N"
+        >
+          <surname>Didkovsky</surname>
+          <given-names>N</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Schambra UB"
+        >
+          <surname>Schambra</surname>
+          <given-names>UB</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Nowak NJ"
+        >
+          <surname>Nowak</surname>
+          <given-names>NJ</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Joyner A"
+        >
+          <surname>Joyner</surname>
+          <given-names>A</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Leblanc G"
+        >
+          <surname>Leblanc</surname>
+          <given-names>G</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Hatten ME"
+        >
+          <surname>Hatten</surname>
+          <given-names>ME</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Heintz N"
+        >
+          <surname>Heintz</surname>
+          <given-names>N</given-names>
+        </string-name> (<year>2003</year>) <article-title
+          hwp:id="article-title-13"
+        >A gene expression atlas of the central nervous system based on bacterial artificial chromosomes</article-title>. <source
+          hwp:id="source-11"
+        >Nature</source> <volume>425</volume>:<fpage>917</fpage>–<lpage
+        >925</lpage>.</citation>
+      </ref>
+      <ref id="c14" hwp:id="ref-14" hwp:rev-id="xref-ref-14-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.14"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-14"
+        ><string-name name-style="western" hwp:sortable="Haddad R">
+          <surname>Haddad</surname>
+          <given-names>R</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Lanjuin A"
+        >
+          <surname>Lanjuin</surname>
+          <given-names>A</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Madisen L"
+        >
+          <surname>Madisen</surname>
+          <given-names>L</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Zeng H">
+          <surname>Zeng</surname>
+          <given-names>H</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Murthy VN"
+        >
+          <surname>Murthy</surname>
+          <given-names>VN</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Uchida N"
+        >
+          <surname>Uchida</surname>
+          <given-names>N</given-names>
+        </string-name> (<year>2013</year>) <article-title
+          hwp:id="article-title-14"
+        >Olfactory cortical neurons read out a relative time code in the olfactory bulb</article-title>. <source
+          hwp:id="source-12"
+        >Nat Neurosci</source> <volume>16</volume>:<fpage>949</fpage>–<lpage
+        >957</lpage>.</citation>
+      </ref>
+      <ref id="c15" hwp:id="ref-15" hwp:rev-id="xref-ref-15-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.15"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-15"
+        ><string-name name-style="western" hwp:sortable="Häusser M">
+          <surname>Häusser</surname>
+          <given-names>M</given-names>
+        </string-name> (<year>2001</year>) <article-title
+          hwp:id="article-title-15"
+        >Synaptic function: Dendritic democracy</article-title>. <source
+          hwp:id="source-13"
+        >Current Biology</source> <volume>11</volume>:<fpage>R10</fpage>–<lpage
+        >R12</lpage>.</citation>
+      </ref>
+      <ref id="c16" hwp:id="ref-16" hwp:rev-id="xref-ref-16-1 xref-ref-16-2">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.16"
+          ref:linkable="no"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-16"
+        ><string-name name-style="western" hwp:sortable="Hernández-Pérez OR">
+          <surname>Hernández-Pérez</surname>
+          <given-names>OR</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Hernández VS"
+        >
+          <surname>Hernández</surname>
+          <given-names>VS</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Zetter MA"
+        >
+          <surname>Zetter</surname>
+          <given-names>MA</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Eiden LE"
+        >
+          <surname>Eiden</surname>
+          <given-names>LE</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Zhang L"
+        >
+          <surname>Zhang</surname>
+          <given-names>L</given-names>
+        </string-name> (<year>2022</year>) <article-title
+          hwp:id="article-title-16"
+        >Nucleus of the lateral olfactory tract: A hub linking the water homeostasis-associated supraoptic nucleus-arginine vasopressin circuit and neocortical regions to promote social behavior under osmotic challenge</article-title>. <source
+          hwp:id="source-14"
+        >Journal of Neuroendocrinology n/a:e</source><volume
+        >13202</volume>.</citation>
+      </ref>
+      <ref id="c17" hwp:id="ref-17" hwp:rev-id="xref-ref-17-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.17"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-17"
+        ><string-name name-style="western" hwp:sortable="Herz RS">
+          <surname>Herz</surname>
+          <given-names>RS</given-names>
+        </string-name> (<year>2005</year>) <article-title
+          hwp:id="article-title-17"
+        >Odor-associative Learning and Emotion: Effects on Perception and Behavior</article-title>. <source
+          hwp:id="source-15"
+        >Chemical Senses</source> <volume>30</volume>:<fpage>i250</fpage>–<lpage
+        >i251</lpage>.</citation>
+      </ref>
+      <ref id="c18" hwp:id="ref-18" hwp:rev-id="xref-ref-18-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.18"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-18"
+        ><string-name name-style="western" hwp:sortable="Hirata T">
+          <surname>Hirata</surname>
+          <given-names>T</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Shioi G"
+        >
+          <surname>Shioi</surname>
+          <given-names>G</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Abe T">
+          <surname>Abe</surname>
+          <given-names>T</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Kiyonari H"
+        >
+          <surname>Kiyonari</surname>
+          <given-names>H</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Kato S">
+          <surname>Kato</surname>
+          <given-names>S</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Kobayashi K"
+        >
+          <surname>Kobayashi</surname>
+          <given-names>K</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Mori K">
+          <surname>Mori</surname>
+          <given-names>K</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Kawasaki T"
+        >
+          <surname>Kawasaki</surname>
+          <given-names>T</given-names>
+        </string-name> (<year>2019</year>) <article-title
+          hwp:id="article-title-18"
+        >A Novel Birthdate-Labeling Method Reveals Segregated Parallel Projections of Mitral and External Tufted Cells in the Main Olfactory System</article-title>. <source
+          hwp:id="source-16"
+        >eNeuro</source> <volume>6</volume>:ENEURO.<fpage>0234</fpage>–<lpage
+        >19</lpage>.2019.</citation>
+      </ref>
+      <ref
+        id="c19"
+        hwp:id="ref-19"
+        hwp:rev-id="xref-ref-19-1 xref-ref-19-2 xref-ref-19-3"
+      >
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.19"
+          ref:linkable="no"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-19"
+        ><string-name name-style="western" hwp:sortable="Hochgerner H">
+          <surname>Hochgerner</surname>
+          <given-names>H</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Singh S"
+        >
+          <surname>Singh</surname>
+          <given-names>S</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Tibi M">
+          <surname>Tibi</surname>
+          <given-names>M</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Lin Z">
+          <surname>Lin</surname>
+          <given-names>Z</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Skarbianskis N"
+        >
+          <surname>Skarbianskis</surname>
+          <given-names>N</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Admati I"
+        >
+          <surname>Admati</surname>
+          <given-names>I</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Ophir O"
+        >
+          <surname>Ophir</surname>
+          <given-names>O</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Reinhardt N"
+        >
+          <surname>Reinhardt</surname>
+          <given-names>N</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Netser S"
+        >
+          <surname>Netser</surname>
+          <given-names>S</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Wagner S"
+        >
+          <surname>Wagner</surname>
+          <given-names>S</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Zeisel A"
+        >
+          <surname>Zeisel</surname>
+          <given-names>A</given-names>
+        </string-name> (<year>2023</year>) <article-title
+          hwp:id="article-title-19"
+        >Neuronal types in the mouse amygdala and their transcriptional response to fear conditioning</article-title>. <source
+          hwp:id="source-17"
+        >Nat Neurosci</source>:<fpage>1</fpage>–<lpage>13</lpage>.</citation>
+      </ref>
+      <ref id="c20" hwp:id="ref-20" hwp:rev-id="xref-ref-20-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.20"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-20"
+        ><string-name name-style="western" hwp:sortable="Izhikevich EM">
+          <surname>Izhikevich</surname>
+          <given-names>EM</given-names>
+        </string-name> (<year>2006</year>) <article-title
+          hwp:id="article-title-20"
+        >Bursting</article-title>. <source
+          hwp:id="source-18"
+        >Scholarpedia</source> <volume>1</volume>:<fpage
+        >1300</fpage>.</citation>
+      </ref>
+      <ref id="c21" hwp:id="ref-21" hwp:rev-id="xref-ref-21-1">
+        <citation
+          publication-type="website"
+          citation-type="web"
+          ref:id="2023.12.31.573522v1.21"
+          ref:linkable="no"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-21"
+        ><string-name name-style="western" hwp:sortable="Kadohisa M">
+          <surname>Kadohisa</surname>
+          <given-names>M</given-names>
+        </string-name> (<year>2013</year>) <article-title
+          hwp:id="article-title-21"
+        >Effects of odor on emotion, with implications</article-title>. <source
+          hwp:id="source-19"
+        >Frontiers in Systems Neuroscience</source> <volume
+        >7</volume> Available at: <ext-link
+          l:rel="related"
+          l:ref-type="uri"
+          l:ref="https://www.frontiersin.org/articles/10.3389/fnsys.2013.00066"
+          ext-link-type="uri"
+          xlink:href="https://www.frontiersin.org/articles/10.3389/fnsys.2013.00066"
+          hwp:id="ext-link-3"
+        >https://www.frontiersin.org/articles/10.3389/fnsys.2013.00066</ext-link> [Accessed October 20, 2022].</citation>
+      </ref>
+      <ref id="c22" hwp:id="ref-22" hwp:rev-id="xref-ref-22-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.22"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-22"
+        ><string-name name-style="western" hwp:sortable="Keshavarzi S">
+          <surname>Keshavarzi</surname>
+          <given-names>S</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Power JM"
+        >
+          <surname>Power</surname>
+          <given-names>JM</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Albers EHH"
+        >
+          <surname>Albers</surname>
+          <given-names>EHH</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Sullivan RKS"
+        >
+          <surname>Sullivan</surname>
+          <given-names>RKS</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Sah P">
+          <surname>Sah</surname>
+          <given-names>P</given-names>
+        </string-name> (<year>2015</year>) <article-title
+          hwp:id="article-title-22"
+        >Dendritic Organization of Olfactory Inputs to Medial Amygdala Neurons</article-title>. <source
+          hwp:id="source-20"
+        >J Neurosci</source> <volume>35</volume>:<fpage>13020</fpage>–<lpage
+        >13028</lpage>.</citation>
+      </ref>
+      <ref id="c23" hwp:id="ref-23" hwp:rev-id="xref-ref-23-1">
+        <citation
+          publication-type="website"
+          citation-type="web"
+          ref:id="2023.12.31.573522v1.23"
+          ref:linkable="no"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-23"
+        ><string-name name-style="western" hwp:sortable="Kontaris I">
+          <surname>Kontaris</surname>
+          <given-names>I</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="East BS"
+        >
+          <surname>East</surname>
+          <given-names>BS</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Wilson DA"
+        >
+          <surname>Wilson</surname>
+          <given-names>DA</given-names>
+        </string-name> (<year>2020</year>) <article-title
+          hwp:id="article-title-23"
+        >Behavioral and Neurobiological Convergence of Odor, Mood and Emotion: A Review</article-title>. <source
+          hwp:id="source-21"
+        >Frontiers in Behavioral Neuroscience</source> <volume
+        >14</volume> Available at: <ext-link
+          l:rel="related"
+          l:ref-type="uri"
+          l:ref="https://www.frontiersin.org/articles/10.3389/fnbeh.2020.00035"
+          ext-link-type="uri"
+          xlink:href="https://www.frontiersin.org/articles/10.3389/fnbeh.2020.00035"
+          hwp:id="ext-link-4"
+        >https://www.frontiersin.org/articles/10.3389/fnbeh.2020.00035</ext-link> [Accessed October 20, 2022].</citation>
+      </ref>
+      <ref
+        id="c24"
+        hwp:id="ref-24"
+        hwp:rev-id="xref-ref-24-1 xref-ref-24-2 xref-ref-24-3"
+      >
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.24"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-24"
+        ><string-name name-style="western" hwp:sortable="Krabbe S">
+          <surname>Krabbe</surname>
+          <given-names>S</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Paradiso E"
+        >
+          <surname>Paradiso</surname>
+          <given-names>E</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="d’Aquin S"
+        >
+          <surname>d’Aquin</surname>
+          <given-names>S</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Bitterman Y"
+        >
+          <surname>Bitterman</surname>
+          <given-names>Y</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Courtin J"
+        >
+          <surname>Courtin</surname>
+          <given-names>J</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Xu C">
+          <surname>Xu</surname>
+          <given-names>C</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Yonehara K"
+        >
+          <surname>Yonehara</surname>
+          <given-names>K</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Markovic M"
+        >
+          <surname>Markovic</surname>
+          <given-names>M</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Müller C"
+        >
+          <surname>Müller</surname>
+          <given-names>C</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Eichlisberger T"
+        >
+          <surname>Eichlisberger</surname>
+          <given-names>T</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Gründemann J"
+        >
+          <surname>Gründemann</surname>
+          <given-names>J</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Ferraguti F"
+        >
+          <surname>Ferraguti</surname>
+          <given-names>F</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Lüthi A"
+        >
+          <surname>Lüthi</surname>
+          <given-names>A</given-names>
+        </string-name> (<year>2019</year>) <article-title
+          hwp:id="article-title-24"
+        >Adaptive disinhibitory gating by VIP interneurons permits associative learning</article-title>. <source
+          hwp:id="source-22"
+        >Nat Neurosci</source> <volume>22</volume>:<fpage>1834</fpage>–<lpage
+        >1843</lpage>.</citation>
+      </ref>
+      <ref
+        id="c25"
+        hwp:id="ref-25"
+        hwp:rev-id="xref-ref-25-1 xref-ref-25-2 xref-ref-25-3 xref-ref-25-4"
+      >
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.25"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-25"
+        ><string-name name-style="western" hwp:sortable="Krettek JE">
+          <surname>Krettek</surname>
+          <given-names>JE</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Price JL"
+        >
+          <surname>Price</surname>
+          <given-names>JL</given-names>
+        </string-name> (<year>1978</year>) <article-title
+          hwp:id="article-title-25"
+        >A description of the amygdaloid complex in the rat and cat with observations on intra-amygdaloid axonal connections</article-title>. <source
+          hwp:id="source-23"
+        >Journal of Comparative Neurology</source> <volume>178</volume>:<fpage
+        >255</fpage>–<lpage>279</lpage>.</citation>
+      </ref>
+      <ref id="c26" hwp:id="ref-26" hwp:rev-id="xref-ref-26-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.26"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-26"
+        ><string-name name-style="western" hwp:sortable="Larkum ME">
+          <surname>Larkum</surname>
+          <given-names>ME</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Zhu JJ">
+          <surname>Zhu</surname>
+          <given-names>JJ</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Sakmann B"
+        >
+          <surname>Sakmann</surname>
+          <given-names>B</given-names>
+        </string-name> (<year>1999</year>) <article-title
+          hwp:id="article-title-26"
+        >A new cellular mechanism for coupling inputs arriving at different cortical layers</article-title>. <source
+          hwp:id="source-24"
+        >Nature</source> <volume>398</volume>:<fpage>338</fpage>–<lpage
+        >341</lpage>.</citation>
+      </ref>
+      <ref id="c27" hwp:id="ref-27" hwp:rev-id="xref-ref-27-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.27"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-27"
+        ><string-name name-style="western" hwp:sortable="Licht T">
+          <surname>Licht</surname>
+          <given-names>T</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Yunerman M"
+        >
+          <surname>Yunerman</surname>
+          <given-names>M</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Maor I">
+          <surname>Maor</surname>
+          <given-names>I</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Lawabny N"
+        >
+          <surname>Lawabny</surname>
+          <given-names>N</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Oz Rokach R"
+        >
+          <surname>Oz Rokach</surname>
+          <given-names>R</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Shiff I"
+        >
+          <surname>Shiff</surname>
+          <given-names>I</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Mizrahi A"
+        >
+          <surname>Mizrahi</surname>
+          <given-names>A</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Rokni D"
+        >
+          <surname>Rokni</surname>
+          <given-names>D</given-names>
+        </string-name> (<year>2023</year>) <article-title
+          hwp:id="article-title-27"
+        >Adaptive olfactory circuitry restores function despite severe olfactory bulb degeneration</article-title>. <source
+          hwp:id="source-25"
+        >Current Biology</source> <volume>33</volume>:<fpage>4857</fpage>–<lpage
+        >4868</lpage>.e6.</citation>
+      </ref>
+      <ref id="c28" hwp:id="ref-28" hwp:rev-id="xref-ref-28-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.28"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-28"
+        ><string-name name-style="western" hwp:sortable="Lisman JE">
+          <surname>Lisman</surname>
+          <given-names>JE</given-names>
+        </string-name> (<year>1997</year>) <article-title
+          hwp:id="article-title-28"
+        >Bursts as a unit of neural information: making unreliable synapses reliable</article-title>. <source
+          hwp:id="source-26"
+        >Trends in Neurosciences</source> <volume>20</volume>:<fpage
+        >38</fpage>–<lpage>43</lpage>.</citation>
+      </ref>
+      <ref id="c29" hwp:id="ref-29">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.29"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-29"
+        ><string-name name-style="western" hwp:sortable="De Armentia M Lopez">
+          <given-names>Lopez</given-names>
+          <surname>De Armentia M</surname>
+        </string-name>, <string-name name-style="western" hwp:sortable="Sah P">
+          <surname>Sah</surname>
+          <given-names>P</given-names>
+        </string-name> (<year>2004</year>) <article-title
+          hwp:id="article-title-29"
+        >Firing Properties and Connectivity of Neurons in the Rat Lateral Central Nucleus of the Amygdala</article-title>. <source
+          hwp:id="source-27"
+        >Journal of Neurophysiology</source> <volume>92</volume>:<fpage
+        >1285</fpage>–<lpage>1294</lpage>.</citation>
+      </ref>
+      <ref
+        id="c30"
+        hwp:id="ref-30"
+        hwp:rev-id="xref-ref-30-1 xref-ref-30-2 xref-ref-30-3"
+      >
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.30"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-30"
+        ><string-name name-style="western" hwp:sortable="Luskin MB">
+          <surname>Luskin</surname>
+          <given-names>MB</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Price JL"
+        >
+          <surname>Price</surname>
+          <given-names>JL</given-names>
+        </string-name> (<year>1983</year>) <article-title
+          hwp:id="article-title-30"
+        >The topographic organization of associational fibers of the olfactory system in the rat, including centrifugal fibers to the olfactory bulb</article-title>. <source
+          hwp:id="source-28"
+        >J Comp Neurol</source> <volume>216</volume>:<fpage>264</fpage>–<lpage
+        >291</lpage>.</citation>
+      </ref>
+      <ref id="c31" hwp:id="ref-31" hwp:rev-id="xref-ref-31-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.31"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-31"
+        ><string-name name-style="western" hwp:sortable="Madisen L">
+          <surname>Madisen</surname>
+          <given-names>L</given-names>
+        </string-name> <etal>et al.</etal> (<year>2012</year>) <article-title
+          hwp:id="article-title-31"
+        >A toolbox of Cre-dependent optogenetic transgenic mice for light-induced activation and silencing</article-title>. <source
+          hwp:id="source-29"
+        >Nat Neurosci</source> <volume>15</volume>:<fpage>793</fpage>–<lpage
+        >802</lpage>.</citation>
+      </ref>
+      <ref id="c32" hwp:id="ref-32" hwp:rev-id="xref-ref-32-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.32"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-32"
+        ><string-name name-style="western" hwp:sortable="Markram H">
+          <surname>Markram</surname>
+          <given-names>H</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Toledo-Rodriguez M"
+        >
+          <surname>Toledo-Rodriguez</surname>
+          <given-names>M</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Wang Y">
+          <surname>Wang</surname>
+          <given-names>Y</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Gupta A"
+        >
+          <surname>Gupta</surname>
+          <given-names>A</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Silberberg G"
+        >
+          <surname>Silberberg</surname>
+          <given-names>G</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Wu C">
+          <surname>Wu</surname>
+          <given-names>C</given-names>
+        </string-name> (<year>2004</year>) <article-title
+          hwp:id="article-title-32"
+        >Interneurons of the neocortical inhibitory system</article-title>. <source
+          hwp:id="source-30"
+        >Nat Rev Neurosci</source> <volume>5</volume>:<fpage>793</fpage>–<lpage
+        >807</lpage>.</citation>
+      </ref>
+      <ref id="c33" hwp:id="ref-33" hwp:rev-id="xref-ref-33-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.33"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-33"
+        ><string-name name-style="western" hwp:sortable="McDonald AJ">
+          <surname>McDonald</surname>
+          <given-names>AJ</given-names>
+        </string-name> (<year>1983</year>) <article-title
+          hwp:id="article-title-33"
+        >Cytoarchitecture of the nucleus of the lateral olfactory tract: A Golgi study in the rat</article-title>. <source
+          hwp:id="source-31"
+        >Brain Research Bulletin</source> <volume>10</volume>:<fpage
+        >497</fpage>–<lpage>503</lpage>.</citation>
+      </ref>
+      <ref id="c34" hwp:id="ref-34" hwp:rev-id="xref-ref-34-1">
+        <citation
+          publication-type="website"
+          citation-type="web"
+          ref:id="2023.12.31.573522v1.34"
+          ref:linkable="no"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-34"
+        ><string-name name-style="western" hwp:sortable="Metwalli AH">
+          <surname>Metwalli</surname>
+          <given-names>AH</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Abellán A"
+        >
+          <surname>Abellán</surname>
+          <given-names>A</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Freixes J"
+        >
+          <surname>Freixes</surname>
+          <given-names>J</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Pross A"
+        >
+          <surname>Pross</surname>
+          <given-names>A</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Desfilis E"
+        >
+          <surname>Desfilis</surname>
+          <given-names>E</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Medina L"
+        >
+          <surname>Medina</surname>
+          <given-names>L</given-names>
+        </string-name> (<year>2022</year>) <article-title
+          hwp:id="article-title-34"
+        >Distinct Subdivisions in the Transition Between Telencephalon and Hypothalamus Produce Otp and Sim1 Cells for the Extended Amygdala in Sauropsids</article-title>. <source
+          hwp:id="source-32"
+        >Frontiers in Neuroanatomy</source> <volume
+        >16</volume> Available at: <ext-link
+          l:rel="related"
+          l:ref-type="uri"
+          l:ref="https://www.frontiersin.org/articles/10.3389/fnana.2022.883537"
+          ext-link-type="uri"
+          xlink:href="https://www.frontiersin.org/articles/10.3389/fnana.2022.883537"
+          hwp:id="ext-link-5"
+        >https://www.frontiersin.org/articles/10.3389/fnana.2022.883537</ext-link> [Accessed October 6, 2022].</citation>
+      </ref>
+      <ref id="c35" hwp:id="ref-35" hwp:rev-id="xref-ref-35-1 xref-ref-35-2">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.35"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-35"
+        ><string-name name-style="western" hwp:sortable="Millhouse OE">
+          <surname>Millhouse</surname>
+          <given-names>OE</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Uemura-Sumi M"
+        >
+          <surname>Uemura-Sumi</surname>
+          <given-names>M</given-names>
+        </string-name> (<year>1985</year>) <article-title
+          hwp:id="article-title-35"
+        >The structure of the nucleus of the lateral olfactory tract</article-title>. <source
+          hwp:id="source-33"
+        >Journal of Comparative Neurology</source> <volume>233</volume>:<fpage
+        >517</fpage>–<lpage>552</lpage>.</citation>
+      </ref>
+      <ref id="c36" hwp:id="ref-36" hwp:rev-id="xref-ref-36-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.36"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-36"
+        ><string-name name-style="western" hwp:sortable="Millman DJ">
+          <surname>Millman</surname>
+          <given-names>DJ</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Murthy VN"
+        >
+          <surname>Murthy</surname>
+          <given-names>VN</given-names>
+        </string-name> (<year>2020</year>) <article-title
+          hwp:id="article-title-36"
+        >Rapid Learning of Odor–Value Association in the Olfactory Striatum</article-title>. <source
+          hwp:id="source-34"
+        >J Neurosci</source> <volume>40</volume>:<fpage>4335</fpage>–<lpage
+        >4347</lpage>.</citation>
+      </ref>
+      <ref id="c37" hwp:id="ref-37">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.37"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-37"
+        ><string-name name-style="western" hwp:sortable="Miyamichi K">
+          <surname>Miyamichi</surname>
+          <given-names>K</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Shlomai-Fuchs Y"
+        >
+          <surname>Shlomai-Fuchs</surname>
+          <given-names>Y</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Shu M">
+          <surname>Shu</surname>
+          <given-names>M</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Weissbourd BC"
+        >
+          <surname>Weissbourd</surname>
+          <given-names>BC</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Luo L">
+          <surname>Luo</surname>
+          <given-names>L</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Mizrahi A"
+        >
+          <surname>Mizrahi</surname>
+          <given-names>A</given-names>
+        </string-name> (<year>2013</year>) <article-title
+          hwp:id="article-title-37"
+        >Dissecting Local Circuits: Parvalbumin Interneurons Underlie Broad Feedback Control of Olfactory Bulb Output</article-title>. <source
+          hwp:id="source-35"
+        >Neuron</source> <volume>80</volume>:<fpage>1232</fpage>–<lpage
+        >1245</lpage>.</citation>
+      </ref>
+      <ref id="c38" hwp:id="ref-38" hwp:rev-id="xref-ref-38-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.38"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-38"
+        ><string-name name-style="western" hwp:sortable="O’Leary TP">
+          <surname>O’Leary</surname>
+          <given-names>TP</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Sullivan KE"
+        >
+          <surname>Sullivan</surname>
+          <given-names>KE</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Wang L">
+          <surname>Wang</surname>
+          <given-names>L</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Clements J"
+        >
+          <surname>Clements</surname>
+          <given-names>J</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Lemire AL"
+        >
+          <surname>Lemire</surname>
+          <given-names>AL</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Cembrowski MS"
+        >
+          <surname>Cembrowski</surname>
+          <given-names>MS</given-names>
+        </string-name> (<year>2020</year>) <article-title
+          hwp:id="article-title-38"
+        >Extensive and spatially variable within-cell-type heterogeneity across the basolateral amygdala</article-title> <string-name
+          name-style="western"
+          hwp:sortable="West AE"
+        >
+          <surname>West</surname>
+          <given-names>AE</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Colgin LL"
+        >
+          <surname>Colgin</surname>
+          <given-names>LL</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Okaty BW"
+        >
+          <surname>Okaty</surname>
+          <given-names>BW</given-names>
+        </string-name>, eds. <source hwp:id="source-36">eLife</source> <volume
+        >9</volume>:<fpage>e59003</fpage>.</citation>
+      </ref>
+      <ref
+        id="c39"
+        hwp:id="ref-39"
+        hwp:rev-id="xref-ref-39-1 xref-ref-39-2 xref-ref-39-3"
+      >
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.39"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-39"
+        ><string-name name-style="western" hwp:sortable="Price JL">
+          <surname>Price</surname>
+          <given-names>JL</given-names>
+        </string-name> (<year>1973</year>) <article-title
+          hwp:id="article-title-39"
+        >An autoradiographic study of complementary laminar patterns of termination of afferent fibers to the olfactory cortex</article-title>. <source
+          hwp:id="source-37"
+        >Journal of Comparative Neurology</source> <volume>150</volume>:<fpage
+        >87</fpage>–<lpage>108</lpage>.</citation>
+      </ref>
+      <ref id="c40" hwp:id="ref-40" hwp:rev-id="xref-ref-40-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.40"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-40"
+        ><string-name name-style="western" hwp:sortable="Rainnie DG">
+          <surname>Rainnie</surname>
+          <given-names>DG</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Asprodini EK"
+        >
+          <surname>Asprodini</surname>
+          <given-names>EK</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Shinnick-Gallagher P"
+        >
+          <surname>Shinnick-Gallagher</surname>
+          <given-names>P</given-names>
+        </string-name> (<year>1993</year>) <article-title
+          hwp:id="article-title-40"
+        >Intracellular recordings from morphologically identified neurons of the basolateral amygdala</article-title>. <source
+          hwp:id="source-38"
+        >Journal of Neurophysiology</source> <volume>69</volume>:<fpage
+        >1350</fpage>–<lpage>1362</lpage>.</citation>
+      </ref>
+      <ref id="c41" hwp:id="ref-41" hwp:rev-id="xref-ref-41-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.41"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-41"
+        ><string-name name-style="western" hwp:sortable="Rogers A">
+          <surname>Rogers</surname>
+          <given-names>A</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Beier KT"
+        >
+          <surname>Beier</surname>
+          <given-names>KT</given-names>
+        </string-name> (<year>2021</year>) <article-title
+          hwp:id="article-title-41"
+        >Can transsynaptic viral strategies be used to reveal functional aspects of neural circuitry?</article-title> <source
+          hwp:id="source-39"
+        >Journal of Neuroscience Methods</source> <volume>348</volume>:<fpage
+        >109005</fpage>.</citation>
+      </ref>
+      <ref id="c42" hwp:id="ref-42" hwp:rev-id="xref-ref-42-1 xref-ref-42-2">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.42"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-42"
+        ><string-name name-style="western" hwp:sortable="Santiago AC">
+          <surname>Santiago</surname>
+          <given-names>AC</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Shammah-Lagnado SJ"
+        >
+          <surname>Shammah-Lagnado</surname>
+          <given-names>SJ</given-names>
+        </string-name> (<year>2004</year>) <article-title
+          hwp:id="article-title-42"
+        >Efferent connections of the nucleus of the lateral olfactory tract in the rat</article-title>. <source
+          hwp:id="source-40"
+        >Journal of Comparative Neurology</source> <volume>471</volume>:<fpage
+        >314</fpage>–<lpage>332</lpage>.</citation>
+      </ref>
+      <ref
+        id="c43"
+        hwp:id="ref-43"
+        hwp:rev-id="xref-ref-43-1 xref-ref-43-2 xref-ref-43-3"
+      >
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.43"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-43"
+        ><string-name name-style="western" hwp:sortable="Scalia F">
+          <surname>Scalia</surname>
+          <given-names>F</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Winans SS"
+        >
+          <surname>Winans</surname>
+          <given-names>SS</given-names>
+        </string-name> (<year>1975</year>) <article-title
+          hwp:id="article-title-43"
+        >The differential projections of the olfactory bulb and accessory olfactory bulb in mammals</article-title>. <source
+          hwp:id="source-41"
+        >Journal of Comparative Neurology</source> <volume>161</volume>:<fpage
+        >31</fpage>–<lpage>55</lpage>.</citation>
+      </ref>
+      <ref id="c44" hwp:id="ref-44" hwp:rev-id="xref-ref-44-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.44"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-44"
+        ><string-name name-style="western" hwp:sortable="Soudry Y">
+          <surname>Soudry</surname>
+          <given-names>Y</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Lemogne C"
+        >
+          <surname>Lemogne</surname>
+          <given-names>C</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Malinvaud D"
+        >
+          <surname>Malinvaud</surname>
+          <given-names>D</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Consoli S-M"
+        >
+          <surname>Consoli</surname>
+          <given-names>S-M</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Bonfils P"
+        >
+          <surname>Bonfils</surname>
+          <given-names>P</given-names>
+        </string-name> (<year>2011</year>) <article-title
+          hwp:id="article-title-44"
+        >Olfactory system and emotion: Common substrates. European Annals of Otorhinolaryngology</article-title>, <source
+          hwp:id="source-42"
+        >Head and Neck Diseases</source> <volume>128</volume>:<fpage
+        >18</fpage>– <lpage>23</lpage>.</citation>
+      </ref>
+      <ref id="c45" hwp:id="ref-45" hwp:rev-id="xref-ref-45-1">
+        <citation
+          publication-type="website"
+          citation-type="web"
+          ref:id="2023.12.31.573522v1.45"
+          ref:linkable="no"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-45"
+        ><string-name name-style="western" hwp:sortable="Srinivasan S">
+          <surname>Srinivasan</surname>
+          <given-names>S</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Stevens CF"
+        >
+          <surname>Stevens</surname>
+          <given-names>CF</given-names>
+        </string-name> (<year>2017</year>) <article-title
+          hwp:id="article-title-45"
+        >A quantitative description of the mouse piriform cortex</article-title>. :099002 Available at: <ext-link
+          l:rel="related"
+          l:ref-type="uri"
+          l:ref="https://www.biorxiv.org/content/10.1101/099002v1"
+          ext-link-type="uri"
+          xlink:href="https://www.biorxiv.org/content/10.1101/099002v1"
+          hwp:id="ext-link-6"
+        >https://www.biorxiv.org/content/10.1101/099002v1</ext-link> [Accessed August 28, 2023].</citation>
+      </ref>
+      <ref id="c46" hwp:id="ref-46" hwp:rev-id="xref-ref-46-1 xref-ref-46-2">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.46"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-46"
+        ><string-name name-style="western" hwp:sortable="Tanisumi Y">
+          <surname>Tanisumi</surname>
+          <given-names>Y</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Shiotani K"
+        >
+          <surname>Shiotani</surname>
+          <given-names>K</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Hirokawa J"
+        >
+          <surname>Hirokawa</surname>
+          <given-names>J</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Sakurai Y"
+        >
+          <surname>Sakurai</surname>
+          <given-names>Y</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Manabe H"
+        >
+          <surname>Manabe</surname>
+          <given-names>H</given-names>
+        </string-name> (<year>2021</year>) <article-title
+          hwp:id="article-title-46"
+        >Bi-directional encoding of context-based odors and behavioral states by the nucleus of the lateral olfactory tract</article-title>. <source
+          hwp:id="source-43"
+        >iScience</source> <volume>24</volume>:<fpage>102381</fpage>.</citation>
+      </ref>
+      <ref id="c47" hwp:id="ref-47" hwp:rev-id="xref-ref-47-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.47"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-47"
+        ><string-name name-style="western" hwp:sortable="Turner BH">
+          <surname>Turner</surname>
+          <given-names>BH</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Gupta KC"
+        >
+          <surname>Gupta</surname>
+          <given-names>KC</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Mishkin M"
+        >
+          <surname>Mishkin</surname>
+          <given-names>M</given-names>
+        </string-name> (<year>1978</year>) <article-title
+          hwp:id="article-title-47"
+        >The locus and cytoarchitecture of the projection areas of the olfactory bulb in Macaca mulatta</article-title>. <source
+          hwp:id="source-44"
+        >Journal of Comparative Neurology</source> <volume>177</volume>:<fpage
+        >381</fpage>–<lpage>396</lpage>.</citation>
+      </ref>
+      <ref id="c48" hwp:id="ref-48" hwp:rev-id="xref-ref-48-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.48"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-48"
+        ><string-name name-style="western" hwp:sortable="Vaz RP">
+          <surname>Vaz</surname>
+          <given-names>RP</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Cardoso A"
+        >
+          <surname>Cardoso</surname>
+          <given-names>A</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Sá SI">
+          <surname>Sá</surname>
+          <given-names>SI</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Pereira PA"
+        >
+          <surname>Pereira</surname>
+          <given-names>PA</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Madeira MD"
+        >
+          <surname>Madeira</surname>
+          <given-names>MD</given-names>
+        </string-name> (<year>2017</year>) <article-title
+          hwp:id="article-title-48"
+        >The integrity of the nucleus of the lateral olfactory tract is essential for the normal functioning of the olfactory system</article-title>. <source
+          hwp:id="source-45"
+        >Brain Struct Funct</source> <volume>222</volume>:<fpage
+        >3615</fpage>–<lpage>3637</lpage>.</citation>
+      </ref>
+      <ref id="c49" hwp:id="ref-49" hwp:rev-id="xref-ref-49-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.49"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-49"
+        ><string-name name-style="western" hwp:sortable="Vaz RP">
+          <surname>Vaz</surname>
+          <given-names>RP</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Pereira PA"
+        >
+          <surname>Pereira</surname>
+          <given-names>PA</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Madeira MD"
+        >
+          <surname>Madeira</surname>
+          <given-names>MD</given-names>
+        </string-name> (<year>2016</year>) <article-title
+          hwp:id="article-title-49"
+        >Age effects on the nucleus of the lateral olfactory tract of the rat</article-title>. <source
+          hwp:id="source-46"
+        >Journal of Comparative Neurology</source> <volume>524</volume>:<fpage
+        >759</fpage>–<lpage>771</lpage>.</citation>
+      </ref>
+      <ref id="c50" hwp:id="ref-50" hwp:rev-id="xref-ref-50-1">
+        <citation
+          publication-type="journal"
+          citation-type="journal"
+          ref:id="2023.12.31.573522v1.50"
+          ref:linkable="yes"
+          ref:use-reference-as-is="yes"
+          hwp:id="citation-50"
+        ><string-name name-style="western" hwp:sortable="Wiegand HF">
+          <surname>Wiegand</surname>
+          <given-names>HF</given-names>
+        </string-name>, <string-name name-style="western" hwp:sortable="Beed P">
+          <surname>Beed</surname>
+          <given-names>P</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Bendels MHK"
+        >
+          <surname>Bendels</surname>
+          <given-names>MHK</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Leibold C"
+        >
+          <surname>Leibold</surname>
+          <given-names>C</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Schmitz D"
+        >
+          <surname>Schmitz</surname>
+          <given-names>D</given-names>
+        </string-name>, <string-name
+          name-style="western"
+          hwp:sortable="Johenning FW"
+        >
+          <surname>Johenning</surname>
+          <given-names>FW</given-names>
+        </string-name> (<year>2011</year>) <article-title
+          hwp:id="article-title-50"
+        >Complementary Sensory and Associative Microcircuitry in Primary Olfactory Cortex</article-title>. <source
+          hwp:id="source-47"
+        >J Neurosci</source> <volume>31</volume>:<fpage>12149</fpage>–<lpage
+        >12158</lpage>.</citation>
+      </ref>
+    </ref-list>
+  </back>
+</article>

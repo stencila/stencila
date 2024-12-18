@@ -1,5 +1,5 @@
 title: Cite
-'@id': stencila:Cite
+"@id": stencila:Cite
 extends: Entity
 category: prose
 description: A reference to a `CreativeWork` that is cited in another `CreativeWork`.
@@ -7,26 +7,30 @@ $comment: |
   A `Cite` node is used within a [`CreativeWork`](./CreativeWork), usually an
   [`Article`](./Article), to refer to an other `CreativeWork`.
   Often a `Cite` will be associated with other citations, in a [`CiteGroup`](./CiteGroup).
+jats:
+  special: true
+markdown:
+  derive: false
 required:
   - target
   - citationMode
 properties:
   target:
-    '@id': schema:target
+    "@id": schema:target
     description: The target of the citation (URL or reference ID).
     type: string
   citationMode:
-    '@id': stencila:citationMode
+    "@id": stencila:citationMode
     description: Determines how the citation is shown within the surrounding text.
     $ref: CitationMode
   citationIntent:
-    '@id': stencila:citationIntent
+    "@id": stencila:citationIntent
     description: The type/s of the citation, both factually and rhetorically.
     type: array
     items:
       $ref: CitationIntent
   content:
-    '@id': stencila:content
+    "@id": stencila:content
     description: Optional structured content/text of this citation.
     type: array
     items:
@@ -34,25 +38,25 @@ properties:
     dom:
       elem: span
   pageStart:
-    '@id': schema:pageStart
+    "@id": schema:pageStart
     description: The page on which the work starts; for example "135" or "xiii".
     anyOf:
       - type: integer
       - type: string
   pageEnd:
-    '@id': schema:pageEnd
+    "@id": schema:pageEnd
     description: The page on which the work ends; for example "138" or "xvi".
     anyOf:
       - type: integer
       - type: string
   pagination:
-    '@id': schema:pagination
+    "@id": schema:pagination
     description: |
       Any description of pages that is not separated into pageStart and pageEnd;
       for example, "1-6, 9, 55".
     type: string
   citationPrefix:
-    '@id': stencila:citationPrefix
+    "@id": stencila:citationPrefix
     description: Text to show before the citation.
     type: string
     $comment: |
@@ -60,7 +64,7 @@ properties:
       and `honorificPrefix`, to avoid ambiguity with other prefixes was renamed
       to `citationPrefix`.
   citationSuffix:
-    '@id': stencila:citationSuffix
+    "@id": stencila:citationSuffix
     description: Text to show after the citation.
     type: string
     $comment: |

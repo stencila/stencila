@@ -60,7 +60,11 @@ properties:
     type: boolean
     patch:
       formats: [md, smd, myst, ipynb, qmd]
+    jats:
+      attr: is-checked
   position:
     "@id": schema:position
     description: The position of the item in a series or sequence of items.
     type: integer
+    jats:
+      attr: position

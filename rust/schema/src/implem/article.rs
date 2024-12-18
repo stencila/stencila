@@ -2,7 +2,7 @@ use codec_markdown_trait::to_markdown;
 use common::serde_yaml;
 use node_strip::{StripNode, StripTargets};
 
-use crate::{prelude::*, Article, Author};
+use crate::{prelude::*, Article, Author, Block, Section, SectionType};
 
 impl Article {
     pub fn to_jats_special(&self) -> (String, Losses) {
@@ -10,13 +10,38 @@ impl Article {
 
         let mut losses = Losses::none();
 
-        let front = String::new(); // TODO elem_no_attrs("front", "");
+        // Extract sections from content that belong in <front> or <back>
+        // and not in <body>
+        let mut front = String::new();
+        let mut body = String::new();
+        let back = String::new();
+        for block in &self.content {
+            if let Block::Section(Section {
+                section_type: Some(SectionType::Abstract),
+                content,
+                ..
+            }) = block
+            {
+                let (abstract_jats, abstract_losses) = content.to_jats();
+                front.push_str(&elem_no_attrs("abstract", abstract_jats));
+                losses.merge(abstract_losses);
+            } else {
+                let (block_jats, block_losses) = block.to_jats();
+                body.push_str(&block_jats);
+                losses.merge(block_losses);
+            }
+        }
 
-        let (content_jats, content_losses) = self.content.to_jats();
-        let body = elem_no_attrs("body", content_jats);
-        losses.merge(content_losses);
-
-        let back = String::new(); // TODO elem_no_attrs("back", "");
+        let mut content = String::new();
+        if !front.is_empty() {
+            content.push_str(&elem_no_attrs("front", front));
+        }
+        if !body.is_empty() {
+            content.push_str(&elem_no_attrs("body", body));
+        }
+        if !back.is_empty() {
+            content.push_str(&elem_no_attrs("back", back));
+        }
 
         (
             elem(
@@ -26,7 +51,7 @@ impl Article {
                     ("xmlns:xlink", "http://www.w3.org/1999/xlink"),
                     ("xmlns:mml", "http://www.w3.org/1998/Math/MathML"),
                 ],
-                [front, body, back].concat(),
+                content,
             ),
             losses,
         )

@@ -1,4 +1,4 @@
-use roxmltree::Document;
+use roxmltree::{Document, ParsingOptions};
 
 use codec::{
     common::eyre::{bail, Result},
@@ -22,11 +22,17 @@ use self::utilities::{extend_path, record_node_lost};
 /// This is the main entry point for decoding. It parses the XML, and then traverses the
 /// XML DOM, building an [`Article`] from it (JATS is always treated as an article, not any other
 /// type of `CreativeWork`).
-pub(super) fn decode(jats: &str, _options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
+pub fn decode(jats: &str, _options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
     let mut article = Article::default();
     let mut losses = Losses::none();
 
-    let dom = Document::parse(jats)?;
+    let dom = Document::parse_with_options(
+        jats,
+        ParsingOptions {
+            allow_dtd: true,
+            ..Default::default()
+        },
+    )?;
     let root = if !dom.root_element().has_tag_name("article") {
         bail!("XML document does not have an <article> root element")
     } else {

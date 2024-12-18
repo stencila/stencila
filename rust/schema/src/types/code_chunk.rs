@@ -93,6 +93,7 @@ pub struct CodeChunk {
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(LabelType::arbitrary())"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(LabelType::arbitrary())"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(LabelType::arbitrary())"#))]
+    #[jats(attr = "label-type")]
     pub label_type: Option<LabelType>,
 
     /// A short label for the chunk.
@@ -101,12 +102,14 @@ pub struct CodeChunk {
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
+    #[jats(elem = "label")]
     pub label: Option<String>,
 
     /// Whether the label should be automatically updated.
     #[serde(alias = "label-automatically", alias = "label_automatically")]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[jats(attr = "label-automatically")]
     pub label_automatically: Option<Boolean>,
 
     /// A caption for the chunk.
@@ -117,6 +120,7 @@ pub struct CodeChunk {
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
+    #[jats(elem = "caption")]
     pub caption: Option<Vec<Block>>,
 
     /// Outputs from executing the chunk.

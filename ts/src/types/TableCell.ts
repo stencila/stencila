@@ -2,8 +2,10 @@
 
 import { Block } from "./Block.js";
 import { Entity } from "./Entity.js";
+import { HorizontalAlignment } from "./HorizontalAlignment.js";
 import { Integer } from "./Integer.js";
 import { TableCellType } from "./TableCellType.js";
+import { VerticalAlignment } from "./VerticalAlignment.js";
 
 /**
  * A cell within a `Table`.
@@ -31,6 +33,21 @@ export class TableCell extends Entity {
    * How many columns the cell extends.
    */
   rowSpan?: Integer;
+
+  /**
+   * The horizontal alignment of the content of a table cell.
+   */
+  horizontalAlignment?: HorizontalAlignment;
+
+  /**
+   * The character to be used in horizontal alignment of the content of a table cell.
+   */
+  horizontalAlignmentCharacter?: string;
+
+  /**
+   * The vertical alignment of the content of a table cell.
+   */
+  verticalAlignment?: VerticalAlignment;
 
   /**
    * Contents of the table cell.

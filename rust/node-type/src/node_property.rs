@@ -113,6 +113,8 @@ pub enum NodeProperty {
     Hint,
     HonorificPrefix,
     HonorificSuffix,
+    HorizontalAlignment,
+    HorizontalAlignmentCharacter,
     Id,
     IdPattern,
     Identifiers,
@@ -254,5 +256,6 @@ pub enum NodeProperty {
     Values,
     Variable,
     Version,
+    VerticalAlignment,
     VolumeNumber,
 }

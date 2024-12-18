@@ -24,6 +24,7 @@ import { type ExecutionStatus } from "./ExecutionStatus.js";
 import { type Figure } from "./Figure.js";
 import { type FormDeriveAction } from "./FormDeriveAction.js";
 import { type Grant } from "./Grant.js";
+import { type HorizontalAlignment } from "./HorizontalAlignment.js";
 import { type ImageObject } from "./ImageObject.js";
 import { type InstructionType } from "./InstructionType.js";
 import { type LabelType } from "./LabelType.js";
@@ -53,6 +54,7 @@ import { type Table } from "./Table.js";
 import { type TableCellType } from "./TableCellType.js";
 import { type TableRowType } from "./TableRowType.js";
 import { type TimeUnit } from "./TimeUnit.js";
+import { type VerticalAlignment } from "./VerticalAlignment.js";
 import { type VideoObject } from "./VideoObject.js";
 
 /**
@@ -84,6 +86,7 @@ export type ThingType =
   Figure |
   FormDeriveAction |
   Grant |
+  HorizontalAlignment |
   ImageObject |
   InstructionType |
   LabelType |
@@ -113,6 +116,7 @@ export type ThingType =
   TableCellType |
   TableRowType |
   TimeUnit |
+  VerticalAlignment |
   VideoObject;
 
 

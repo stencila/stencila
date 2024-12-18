@@ -9,6 +9,12 @@
   "category": "prose",
   "description": "A reference to a `CreativeWork` that is cited in another `CreativeWork`.",
   "$comment": "A `Cite` node is used within a [`CreativeWork`](./CreativeWork), usually an\n[`Article`](./Article), to refer to an other `CreativeWork`.\nOften a `Cite` will be associated with other citations, in a [`CiteGroup`](./CiteGroup).\n",
+  "jats": {
+    "special": true
+  },
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type",
     "target",

@@ -1,0 +1,21 @@
+title: VerticalAlignment
+"@id": stencila:VerticalAlignment
+extends: Enumeration
+category: works
+description: The vertical alignment of content.
+$comment: Based on the JATS [`valign`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/valign.html) attribute.
+proptest: {}
+default: AlignBaseline
+anyOf:
+  - const: AlignBaseline
+    "@id": stencila:AlignLeft
+    description: Aligned to a baseline.
+  - const: AlignBottom
+    "@id": stencila:AlignBottom
+    description: Aligned with bottom.
+  - const: AlignTop
+    "@id": stencila:AlignTop
+    description: Aligned with top.
+  - const: AlignMiddle
+    "@id": stencila:AlignMiddle
+    description: Centered vertically.

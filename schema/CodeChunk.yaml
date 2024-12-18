@@ -31,6 +31,8 @@ properties:
     $ref: LabelType
     patch:
       formats: [md, smd, myst, ipynb, qmd, ipynb]
+    jats:
+      attr: label-type
     proptest:
       min:
         description: No label type
@@ -44,6 +46,8 @@ properties:
     type: string
     patch:
       formats: [md, smd, myst, ipynb, qmd, ipynb]
+    jats:
+      elem: label
     proptest:
       min:
         description: No label
@@ -60,6 +64,8 @@ properties:
     type: boolean
     patch:
       formats: [md, smd, myst, ipynb, qmd]
+    jats:
+      attr: label-automatically
   caption:
     "@id": schema:caption
     description: A caption for the chunk.
@@ -71,6 +77,8 @@ properties:
       formats: [md, smd, myst, ipynb, qmd]
     dom:
       elem: div
+    jats:
+      elem: caption
     proptest:
       min:
         description: No caption

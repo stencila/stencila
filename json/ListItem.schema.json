@@ -192,11 +192,17 @@
           "qmd"
         ]
       },
+      "jats": {
+        "attr": "is-checked"
+      },
       "type": "boolean"
     },
     "position": {
       "@id": "schema:position",
       "description": "The position of the item in a series or sequence of items.",
+      "jats": {
+        "attr": "position"
+      },
       "type": "integer"
     }
   }
