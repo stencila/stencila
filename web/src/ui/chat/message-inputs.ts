@@ -128,7 +128,7 @@ export class MessageInput extends LitElement {
     const hasContent = this.source.trim().length > 0
 
     return html`
-      <div class="my-3 rounded border border-gray-500">
+      <div class="my-3 bg-white rounded border border-gray-500">
         <div class="max-w-4xl mx-auto rounded p-2">
           <textarea
             class="w-full resize-none overflow-hidden outline-none px-1 py-1"

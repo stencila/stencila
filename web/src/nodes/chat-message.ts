@@ -1,3 +1,4 @@
+import { apply } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
@@ -91,10 +92,21 @@ export class ChatMessage extends Executable {
   }
 
   renderUserMessageActive() {
+    const containerStyles = apply([
+      'fixed bottom-0 left-0 z-10',
+      'w-full',
+      'bg-gray-100',
+      'border-t border-black/20',
+    ])
+
     return html`
-      <stencila-chat-message-inputs
-        message-id=${this.id}
-      ></stencila-chat-message-inputs>
+      <div class=${containerStyles}>
+        <div class="max-w-[400px] mx-auto">
+          <stencila-chat-message-inputs
+            message-id=${this.id}
+          ></stencila-chat-message-inputs>
+        </div>
+      </div>
     `
   }
 

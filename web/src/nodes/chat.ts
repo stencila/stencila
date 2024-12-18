@@ -28,7 +28,9 @@ export class StencilaChat extends LitElement {
 
   override render() {
     return html`
-      <slot name="model"></slot>
+      <div class="fixed top-0 left-0 z-10 w-full">
+        <slot name="model"></slot>
+      </div>
 
       <div class="px-12">
         <slot name="content"></slot>
