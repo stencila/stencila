@@ -29,11 +29,14 @@ import arrowNarrowUp from './arrow-narrow-up.svg'
 import arrowRampRight3 from './arrow-ramp-right-3.svg'
 import arrowRightSquare from './arrow-right-square.svg'
 import arrowRight from './arrow-right.svg'
+import arrowUpCircleFill from './arrow-up-circle-fill.svg'
+import arrowUpCircle from './arrow-up-circle.svg'
 import arrowsCollapse from './arrows-collapse.svg'
 import arrowsExpand from './arrows-expand.svg'
 import at from './at.svg'
 import bars from './bars.svg'
 import bash from './bash.svg'
+import boxArrowInLeft from './box-arrow-in-left.svg'
 import boxArrowUpRight from './box-arrow-up-right.svg'
 import box from './box.svg'
 import bracesAsterisk from './braces-asterisk.svg'
@@ -144,10 +147,13 @@ const icons = {
   arrowRightSquare,
   arrowsCollapse,
   arrowsExpand,
+  arrowUpCircle,
+  arrowUpCircleFill,
   at,
   bars,
   bash,
   box,
+  boxArrowInLeft,
   boxArrowUpRight,
   braces,
   bracesAsterisk,
