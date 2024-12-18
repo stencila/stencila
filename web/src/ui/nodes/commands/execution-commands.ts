@@ -42,13 +42,13 @@ export class UINodeExecutionCommands extends UIBaseClass {
   }
 
   override render() {
-    const containerClasses = apply([
+    const classes = apply([
       'flex flex-row items-center flex-shrink-0',
       `text-${this.ui.textColour}`,
     ])
 
     return html`
-      <div class=${containerClasses}>
+      <div class=${classes}>
         <sl-tooltip content="Run this node">
           <stencila-ui-icon-button
             name="play"
@@ -57,7 +57,6 @@ export class UINodeExecutionCommands extends UIBaseClass {
           ></stencila-ui-icon-button>
         </sl-tooltip>
         ${this.renderDropdown()}
-
         <slot></slot>
       </div>
     `

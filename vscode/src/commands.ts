@@ -6,6 +6,20 @@ import { createDocumentViewPanel } from "./webviews";
  * Register document related commands provided by the extension
  */
 export function registerDocumentCommands(context: vscode.ExtensionContext) {
+  // Keep track of the most recently active text editor for
+  // some of the commands below
+  let lastTextEditor: vscode.TextEditor | null = null;
+  context.subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor((editor) => {
+      if (
+        editor?.document.languageId &&
+        ["smd", "myst", "qmd"].includes(editor?.document.languageId)
+      ) {
+        lastTextEditor = editor;
+      }
+    })
+  );
+
   // Create document commands
   for (const format of ["smd", "myst", "qmd"]) {
     context.subscriptions.push(
@@ -23,6 +37,46 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
       })
     );
   }
+
+  // Create a new chat document and open with the chat editor
+  vscode.commands.registerCommand(`stencila.new-chat`, async () => {
+    const regex = new RegExp(`untitled:untitled-(\\d+)\\.chat$`);
+    let maxIndex = 0;
+    vscode.workspace.textDocuments.forEach((doc) => {
+      const uri = doc.uri.toString();
+      const match = regex.exec(uri);
+      if (match) {
+        const index = parseInt(match[1], 10);
+        if (!isNaN(index) && index > maxIndex) {
+          maxIndex = index;
+        }
+      }
+    });
+
+    await vscode.commands.executeCommand(
+      "vscode.openWith",
+      vscode.Uri.parse(`untitled:untitled-${maxIndex + 1}.chat`),
+      "stencila.chat-editor"
+    );
+  });
+
+  // Create a new prompt
+  vscode.commands.registerCommand(`stencila.new-prompt`, async () => {
+    // TODO: ask user for required fields, e.g instruction types, node types
+
+    await vscode.workspace.openTextDocument({
+      language: "smd",
+      content: `---
+type: Prompt
+name: user/type/name
+version: 0.1.0
+description: description
+instructionTypes: []
+nodeTypes: []
+---
+`,
+    });
+  });
 
   // Commands executed by the server but which are invoked on the client
   // and which use are passed the document URI and selection (position) as arguments
@@ -103,6 +157,31 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
           // then those arguments will not be present so pass the selection.
           ...(nodeId ? [nodeType, nodeId] : [editor.selection.active]),
           feedback
+        );
+      }
+    )
+  );
+
+  // Clone node
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "stencila.invoke.clone-node",
+      async (docUri, nodeType, nodeId) => {
+        const editor = vscode.window.activeTextEditor ?? lastTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
+        }
+
+        vscode.commands.executeCommand(
+          `stencila.clone-node`,
+          // For consistency, first args are destination document and position
+          editor.document.uri.toString(),
+          editor.selection.active,
+          // Remaining args are the source document and node
+          docUri,
+          nodeType,
+          nodeId
         );
       }
     )
@@ -201,8 +280,6 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "stencila.view-doc",
-      // docUri and nodeType are not used but are in the arguments
-      // that we pass to all commands from code lenses so need to be here
       async (docUri, nodeType) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
@@ -210,7 +287,7 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
           return;
         }
 
-        await createDocumentViewPanel(context, editor);
+        await createDocumentViewPanel(context, editor.document.uri, editor);
       }
     )
   );
@@ -224,7 +301,12 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
           return;
         }
 
-        await createDocumentViewPanel(context, editor, nodeId);
+        await createDocumentViewPanel(
+          context,
+          editor.document.uri,
+          editor,
+          nodeId
+        );
       }
     )
   );
@@ -238,8 +320,21 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
           return;
         }
 
-        await createDocumentViewPanel(context, editor, nodeId, true);
+        await createDocumentViewPanel(
+          context,
+          editor.document.uri,
+          editor,
+          nodeId,
+          true
+        );
       }
     )
+  );
+
+  // Chat about the current document
+  context.subscriptions.push(
+    vscode.commands.registerCommand("stencila.chat-doc", () => {
+      //vscode.commands.executeCommand('workbench.view.extension.stencila-model-chat-sidebar')
+    })
   );
 }

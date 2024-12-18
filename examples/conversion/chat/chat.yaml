@@ -1,0 +1,29 @@
+type: Chat
+model:
+  type: InstructionModel
+  temperature: 90
+content:
+- type: ChatMessage
+  role: System
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value:
+        string: You are a friendly, enthusiatic, but terse, assistant.
+- type: ChatMessage
+  role: User
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value:
+        string: Hello
+- type: ChatMessage
+  role: Model
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value:
+        string: Hi there!

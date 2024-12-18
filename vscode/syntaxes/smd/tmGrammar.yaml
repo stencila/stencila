@@ -38,6 +38,7 @@ repository:
       - include: "#figure-block"
       - include: "#table-block"
       - include: "#styled-block"
+      - include: "#chat-message"
       - include: "#raw_block"
       - include: "#link-def"
       - include: "#table"
@@ -619,6 +620,23 @@ repository:
             end: $
             contentName: meta.embedded.language.css
             include: source.css
+
+########## ChatMessage ##########
+
+  chat-message:
+    name: meta.stencila.chat-message
+    match: >
+      (?x)
+      ^
+        (:{3,})
+        \s*
+        (system|user|model)
+      $
+    captures:
+      "1": { name: markup.heading.stencila } # semicolons
+      "2": { name: keyword.control.stencila } # role
+
+  ######################################################################
 
   # The following grammar rules are taken from the VSCode builtin Markdown grammar at
   #   https://github.com/microsoft/vscode-markdown-tm-grammar/blob/main/markdown.tmLanguage.base.yaml

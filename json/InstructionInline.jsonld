@@ -273,6 +273,9 @@
       "rdfs:comment": "An identifier for the prompt to be used for the instruction",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:Chat"
+        },
+        {
           "@id": "stencila:Instruction"
         },
         {
@@ -288,9 +291,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "model",
       "rdfs:comment": "The name, and other options, for the model that the assistant should use to generate suggestions.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Instruction"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:Instruction"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "stencila:InstructionModel"
       }
@@ -363,6 +371,12 @@
         },
         {
           "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:ChatMessage"
         },
         {
           "@id": "stencila:Cite"

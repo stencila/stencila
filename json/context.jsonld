@@ -28,6 +28,8 @@
     "Button": "stencila:Button",
     "CallArgument": "stencila:CallArgument",
     "CallBlock": "stencila:CallBlock",
+    "Chat": "stencila:Chat",
+    "ChatMessage": "stencila:ChatMessage",
     "CitationIntent": "stencila:CitationIntent",
     "CitationMode": "stencila:CitationMode",
     "Cite": "stencila:Cite",

@@ -5,6 +5,6 @@
 export type MessageRole =
   'System' |
   'User' |
-  'Assistant';
+  'Model';
 
 

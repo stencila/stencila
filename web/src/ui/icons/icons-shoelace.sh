@@ -8,8 +8,11 @@ icons=(
     arrow-left-square
     arrow-right
     arrow-right-square
+    arrow-up-circle
+    arrow-up-circle-fill
     at
     box
+    box-arrow-in-left
     box-arrow-up-right
     braces
     braces-asterisk

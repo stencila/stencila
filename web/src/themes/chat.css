@@ -1,0 +1,20 @@
+/*
+  A theme stylesheet for the model chat view.
+
+  Based of the default theme styles, but overrides when appropriate for the chat interface
+*/
+@import url('./default.css');
+
+:root {
+  padding: 0;
+}
+
+[root] {
+  p {
+    @apply m-0;
+  }
+
+  stencila-chat-message[message-role='User'] [slot='content'] {
+    text-align: right;
+  }
+}

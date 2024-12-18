@@ -45,7 +45,7 @@ pub fn root_from_pandoc(pandoc: pandoc::Pandoc) -> Result<(Node, DecodeInfo)> {
 
 fn node_to_pandoc(node: &Node, context: &mut PandocEncodeContext) -> Result<pandoc::Pandoc> {
     match node {
-        Node::Article(article) => Ok(article_to_pandoc(article, context)?),
+        Node::Article(article) => article_to_pandoc(article, context),
         _ => bail!("Unsupported node type: {}", node.node_type()),
     }
 }

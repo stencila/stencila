@@ -13,13 +13,13 @@ use codec::{
     common::{indexmap::IndexMap, tracing},
     format::Format,
     schema::{
-        shortcuts, Admonition, AdmonitionType, Block, CallArgument, CallBlock, Claim, CodeBlock,
-        CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
-        IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage, InstructionModel,
-        LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node, Paragraph, PromptBlock,
-        QuoteBlock, RawBlock, ReplaceBlock, Section, StyledBlock, SuggestionBlock,
-        SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text, ThematicBreak,
-        Walkthrough, WalkthroughStep,
+        shortcuts, Admonition, AdmonitionType, Block, CallArgument, CallBlock, ChatMessage, Claim,
+        CodeBlock, CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock,
+        IfBlockClause, IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage,
+        InstructionModel, LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node,
+        Paragraph, PromptBlock, QuoteBlock, RawBlock, ReplaceBlock, Section, StyledBlock,
+        SuggestionBlock, SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text,
+        ThematicBreak, Walkthrough, WalkthroughStep,
     },
 };
 
@@ -509,6 +509,7 @@ fn block(input: &mut Located<&str>) -> PResult<Block> {
             for_block,
             instruction_block,
             suggestion_block,
+            chat_message,
             delete_block,
             insert_block,
             replace_block,
@@ -703,6 +704,21 @@ fn code_chunk(input: &mut Located<&str>) -> PResult<Block> {
             }),
             label: label.map(|label| label.to_string()),
             label_automatically: label.is_some().then_some(false),
+            ..Default::default()
+        })
+    })
+    .parse_next(input)
+}
+
+/// Parse a [`ChatMessage`] node
+fn chat_message(input: &mut Located<&str>) -> PResult<Block> {
+    terminated(
+        alt((Caseless("system"), Caseless("user"), Caseless("model"))),
+        multispace0,
+    )
+    .map(|role: &str| {
+        Block::ChatMessage(ChatMessage {
+            role: role.parse().ok().unwrap_or_default(),
             ..Default::default()
         })
     })
@@ -1088,6 +1104,7 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
     if let Block::SuggestionBlock(SuggestionBlock { content, .. })
     | Block::DeleteBlock(DeleteBlock { content, .. })
     | Block::InsertBlock(InsertBlock { content, .. })
+    | Block::ChatMessage(ChatMessage { content, .. })
     | Block::Claim(Claim { content, .. })
     | Block::Section(Section { content, .. })
     | Block::StyledBlock(StyledBlock { content, .. }) = parent

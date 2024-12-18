@@ -7,6 +7,7 @@ use super::article::Article;
 use super::audio_object::AudioObject;
 use super::author_role_name::AuthorRoleName;
 use super::brand::Brand;
+use super::chat::Chat;
 use super::citation_intent::CitationIntent;
 use super::citation_mode::CitationMode;
 use super::claim::Claim;
@@ -72,6 +73,8 @@ pub enum ThingType {
     AuthorRoleName(AuthorRoleName),
 
     Brand(Brand),
+
+    Chat(Chat),
 
     CitationIntent(CitationIntent),
 

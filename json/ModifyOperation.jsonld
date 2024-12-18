@@ -24,6 +24,9 @@
       "rdfs:comment": "The target property of each node to be modified.",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:Chat"
+        },
+        {
           "@id": "stencila:Cite"
         },
         {

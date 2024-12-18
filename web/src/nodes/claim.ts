@@ -21,7 +21,10 @@ export class Claim extends Entity {
   claimType: string
 
   override render() {
-    if (this.ancestors.includes('StyledBlock')) {
+    if (
+      this.ancestors.includes('StyledBlock') ||
+      this.isUserChatMessageNode()
+    ) {
       return html`<slot name="content"></slot>`
     }
 

@@ -57,6 +57,7 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
         Block::Admonition(block) => admonition_to_pandoc(block, context),
         Block::Claim(block) => claim_to_pandoc(block, context),
         Block::CallBlock(block) => call_block_to_pandoc(block, context),
+        Block::ChatMessage(block) => chat_message_to_pandoc(block, context),
         Block::IfBlock(block) => if_block_to_pandoc(block, context),
         Block::IncludeBlock(block) => include_block_to_pandoc(block, context),
         Block::InstructionBlock(block) => instruction_block_to_pandoc(block, context),
@@ -620,6 +621,20 @@ fn call_block_to_pandoc(block: &CallBlock, context: &mut PandocEncodeContext) ->
     pandoc::Block::Div(attrs, blocks_to_pandoc(content, context))
 }
 
+fn chat_message_to_pandoc(
+    message: &ChatMessage,
+    context: &mut PandocEncodeContext,
+) -> pandoc::Block {
+    let attrs = pandoc::Attr {
+        classes: vec!["chat-message".into()],
+        ..attrs_empty()
+    };
+
+    let blocks = blocks_to_pandoc(&message.content, context);
+
+    pandoc::Block::Div(attrs, blocks)
+}
+
 fn admonition_to_pandoc(admon: &Admonition, context: &mut PandocEncodeContext) -> pandoc::Block {
     let class = [
         "callout-",
@@ -905,6 +920,13 @@ fn styled_block_from_pandoc(
             select,
             content,
             arguments,
+            ..Default::default()
+        });
+    }
+
+    if attrs.classes.iter().any(|class| class == "chat-message") {
+        return Block::ChatMessage(ChatMessage {
+            content,
             ..Default::default()
         });
     }

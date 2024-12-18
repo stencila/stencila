@@ -1,15 +1,17 @@
 use std::path::PathBuf;
 
-use codecs::{to_path, EncodeOptions, LossesResponse};
+use codecs::{to_path, DecodeOptions, EncodeOptions, LossesResponse};
 use common::{
-    eyre::Report,
+    eyre::{bail, Report},
+    itertools::Itertools,
     tokio::{self, task::JoinHandle},
     tracing,
 };
 use node_execute::{compile, execute, interrupt, ExecuteOptions};
+use schema::{transforms::blocks_to_inlines, Article, Node, Patch, PatchNode, PatchOp, PatchPath};
 
 use crate::{
-    Command, CommandNodes, CommandStatus, Document, DocumentCommandReceiver,
+    Command, CommandNodes, CommandStatus, ContentType, Document, DocumentCommandReceiver,
     DocumentCommandStatusSender, DocumentKernels, DocumentPatchSender, DocumentRoot,
     SaveDocumentSidecar, SaveDocumentSource,
 };
@@ -135,6 +137,56 @@ impl Document {
                 PatchNode(patch) => {
                     let status = if let Err(error) = patch_sender.send(patch) {
                         CommandStatus::Failed(format!("While sending patch: {error}"))
+                    } else {
+                        CommandStatus::Succeeded
+                    };
+                    send_status(&status_sender, command_id, status);
+                }
+                PatchNodeFormat {
+                    node_id,
+                    property,
+                    format,
+                    content,
+                    content_type,
+                } => {
+                    let status = if let Err(error) = async {
+                        let Ok(Node::Article(Article { content, .. })) = codecs::from_str(
+                            &content,
+                            Some(DecodeOptions {
+                                format: Some(format),
+                                ..Default::default()
+                            }),
+                        )
+                        .await
+                        else {
+                            bail!("Unexpected node type when patching node with format")
+                        };
+
+                        let value = match content_type {
+                            ContentType::Block => content
+                                .iter()
+                                .filter_map(|block| block.to_value().ok())
+                                .collect_vec(),
+                            ContentType::Inline => blocks_to_inlines(content)
+                                .iter()
+                                .filter_map(|inline| inline.to_value().ok())
+                                .collect_vec(),
+                        };
+
+                        patch_sender.send(Patch {
+                            node_id,
+                            ops: vec![
+                                (PatchPath::from(property), PatchOp::Clear),
+                                (PatchPath::from(property), PatchOp::Append(value)),
+                            ],
+                            ..Default::default()
+                        })?;
+
+                        Ok(())
+                    }
+                    .await
+                    {
+                        CommandStatus::Failed(format!("Failed to patch node with format: {error}"))
                     } else {
                         CommandStatus::Succeeded
                     };

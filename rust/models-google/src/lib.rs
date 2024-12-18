@@ -97,7 +97,7 @@ impl Model for GoogleModel {
                 }
 
                 let role = match message.role.clone().unwrap_or_default() {
-                    MessageRole::Assistant => Some(Role::Model),
+                    MessageRole::Model => Some(Role::Model),
                     MessageRole::User => Some(Role::User),
                     _ => None
                 };

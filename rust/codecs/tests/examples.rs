@@ -486,9 +486,12 @@ async fn examples() -> Result<()> {
                         write(mapping_file, actual).await?;
                     }
 
-                    // Check that mapping ends with an `Article`
+                    // Check that mapping ends with one of the supported creative works
                     if let Some(entry) = mapping.entries().last() {
-                        assert_eq!(entry.node_type, NodeType::Article);
+                        assert!(matches!(
+                            entry.node_type,
+                            NodeType::Article | NodeType::Prompt | NodeType::Chat
+                        ));
                     }
                 } else {
                     // Just encode to file if it does not yet exist or updating. At present not attempting
@@ -546,9 +549,12 @@ async fn examples() -> Result<()> {
                     write(mapping_file, actual).await?;
                 }
 
-                // Check that mapping ends with an `Article`
+                // Check that mapping ends with one of the supported creative works
                 if let Some(entry) = mapping.entries().last() {
-                    assert_eq!(entry.node_type, NodeType::Article);
+                    assert!(matches!(
+                        entry.node_type,
+                        NodeType::Article | NodeType::Prompt | NodeType::Chat
+                    ));
                 }
 
                 // Apply decode strip options to both original and decoded value for fair valid comparison

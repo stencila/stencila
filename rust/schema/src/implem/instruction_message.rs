@@ -23,7 +23,7 @@ impl InstructionMessage {
 
     pub fn assistant<S: AsRef<str>>(value: S, authors: Option<Vec<Author>>) -> Self {
         Self {
-            role: Some(MessageRole::Assistant),
+            role: Some(MessageRole::Model),
             parts: vec![MessagePart::from(value)],
             authors,
             ..Default::default()

@@ -429,6 +429,12 @@
           "@id": "stencila:Admonition"
         },
         {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:ChatMessage"
+        },
+        {
           "@id": "stencila:Cite"
         },
         {

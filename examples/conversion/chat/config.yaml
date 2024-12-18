@@ -1,0 +1,7 @@
+smd:
+  canonical: true
+
+pandoc:
+  encode:
+    # Not yet supported
+    skip: true

@@ -136,9 +136,9 @@
       "const": "User"
     },
     {
-      "@id": "stencila:AssistantMessage",
-      "description": "An assistant message",
-      "const": "Assistant"
+      "@id": "stencila:ModelMessage",
+      "description": "A message from a model",
+      "const": "Model"
     }
   ],
   "default": "User"

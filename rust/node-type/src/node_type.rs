@@ -28,6 +28,8 @@ pub enum NodeType {
     Button,
     CallArgument,
     CallBlock,
+    Chat,
+    ChatMessage,
     Cite,
     CiteGroup,
     Claim,

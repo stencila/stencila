@@ -20,6 +20,8 @@ export type NodeType =
   | "Button"
   | "CallArgument"
   | "CallBlock"
+  | "Chat"
+  | "ChatMessage"
   | "Cite"
   | "CiteGroup"
   | "Claim"
@@ -161,6 +163,8 @@ export const NodeTypeList = [
   "Button",
   "CallArgument",
   "CallBlock",
+  "Chat",
+  "ChatMessage",
   "Cite",
   "CiteGroup",
   "Claim",

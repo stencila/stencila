@@ -18,6 +18,9 @@
       "$ref": "Brand.schema.json"
     },
     {
+      "$ref": "Chat.schema.json"
+    },
+    {
       "$ref": "CitationIntent.schema.json"
     },
     {

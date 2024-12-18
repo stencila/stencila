@@ -66,17 +66,21 @@ fn node_infos(node: &TextNode, items: &mut Vec<NodeInfo>) {
                 node.node_type,
                 NodeType::IfBlockClause | NodeType::Walkthrough | NodeType::WalkthroughStep
             )))
-        && !matches!(node.node_type, NodeType::Article | NodeType::Prompt)
+        && !matches!(
+            node.node_type,
+            NodeType::Article | NodeType::Prompt | NodeType::Chat
+        )
     {
         return;
     }
 
-    // Do not publish node info for top level Article or Prompt and some other
+    // Do not publish node info for root nodes and some other
     // container types which are effectively "look-through" for the user
     if !matches!(
         node.node_type,
         NodeType::Article
             | NodeType::Prompt
+            | NodeType::Chat
             | NodeType::IfBlockClause
             | NodeType::SuggestionBlock
             | NodeType::Walkthrough

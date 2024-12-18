@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::admonition::Admonition;
 use super::call_block::CallBlock;
+use super::chat_message::ChatMessage;
 use super::claim::Claim;
 use super::code_block::CodeBlock;
 use super::code_chunk::CodeChunk;
@@ -41,6 +42,12 @@ pub enum Block {
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     CallBlock(CallBlock),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    ChatMessage(ChatMessage),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Claim(Claim),

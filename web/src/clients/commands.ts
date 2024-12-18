@@ -21,10 +21,12 @@ export interface DocumentCommand {
     | 'interrupt-document'
     | 'interrupt-nodes'
     | 'patch-node'
+    | 'patch-node-format'
     | 'accept-node'
     | 'reject-node'
     | 'revise-node'
     | 'archive-node'
+    | 'clone-node'
 
   /**
    * The arguments of the command

@@ -241,6 +241,9 @@
       "rdfs:comment": "An identifier for the prompt to be rendered",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:Chat"
+        },
+        {
           "@id": "stencila:Instruction"
         },
         {
@@ -271,6 +274,12 @@
         },
         {
           "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:ChatMessage"
         },
         {
           "@id": "stencila:Cite"

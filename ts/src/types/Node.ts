@@ -14,6 +14,8 @@ import { type Brand } from "./Brand.js";
 import { type Button } from "./Button.js";
 import { type CallArgument } from "./CallArgument.js";
 import { type CallBlock } from "./CallBlock.js";
+import { type Chat } from "./Chat.js";
+import { type ChatMessage } from "./ChatMessage.js";
 import { type Cite } from "./Cite.js";
 import { type CiteGroup } from "./CiteGroup.js";
 import { type Claim } from "./Claim.js";
@@ -161,6 +163,8 @@ export type Node =
   Button |
   CallArgument |
   CallBlock |
+  Chat |
+  ChatMessage |
   Cite |
   CiteGroup |
   Claim |
@@ -301,6 +305,8 @@ export function node(other: Node): Node {
     case "Button":
     case "CallArgument":
     case "CallBlock":
+    case "Chat":
+    case "ChatMessage":
     case "Cite":
     case "CiteGroup":
     case "Claim":

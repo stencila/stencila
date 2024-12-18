@@ -157,7 +157,7 @@
         "command": "stencila.new-myst",
         "category": "Create",
         "title": "New MyST Markdown document",
-        "shortTitle": "MyST",
+        "shortTitle": "MyST Markdown",
         "icon": "$(new-file)"
       },
       {
@@ -168,11 +168,32 @@
         "icon": "$(new-file)"
       },
       {
+        "command": "stencila.new-chat",
+        "category": "Create",
+        "title": "New Stencila AI Chat",
+        "shortTitle": "Chat",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "stencila.new-prompt",
+        "category": "Create",
+        "title": "New Stencila AI Prompt",
+        "shortTitle": "Prompt",
+        "icon": "$(comment)"
+      },
+      {
         "command": "stencila.view-doc",
         "category": "Stencila",
         "title": "Preview document",
         "shortTitle": "Preview doc",
         "icon": "$(preview)"
+      },
+      {
+        "command": "stencila.chat-doc",
+        "category": "Stencila",
+        "title": "Chat about document",
+        "shortTitle": "Document chat",
+        "icon": "$(comment-discussion)"
       },
       {
         "command": "stencila.invoke.run-curr",
@@ -430,6 +451,12 @@
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
       },
       {
+        "command": "stencila.chat-doc",
+        "key": "ctrl+shift+c",
+        "mac": "cmd+shift+c",
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
+      },
+      {
         "command": "stencila.invoke.export-doc",
         "key": "ctrl+shift+e",
         "mac": "cmd+shift+e",
@@ -509,6 +536,14 @@
         {
           "command": "stencila.new-qmd",
           "group": "Document"
+        },
+        {
+          "command": "stencila.new-chat",
+          "group": "AI"
+        },
+        {
+          "command": "stencila.new-prompt",
+          "group": "AI"
         }
       ],
       "commandPalette": [
@@ -525,7 +560,17 @@
           "command": "stencila.new-qmd"
         },
         {
+          "command": "stencila.new-chat"
+        },
+        {
+          "command": "stencila.new-prompt"
+        },
+        {
           "command": "stencila.view-doc",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
+        },
+        {
+          "command": "stencila.chat-doc",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
@@ -600,6 +645,11 @@
           "command": "stencila.invoke.export-doc",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@3"
+        },
+        {
+          "command": "stencila.chat-doc",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
+          "group": "000-Stencila@4"
         }
       ],
       "editor/context": [
@@ -706,7 +756,8 @@
           "Stencila Markdown"
         ],
         "extensions": [
-          ".smd"
+          ".smd",
+          ".chat"
         ],
         "configuration": "./syntaxes/smd/configuration.json",
         "icon": {
@@ -900,11 +951,28 @@
         "path": "./themes/stencila-light-color-theme.json"
       }
     ],
+    "customEditors": [
+      {
+        "viewType": "stencila.chat-editor",
+        "displayName": "Chat Editor",
+        "selector": [
+          {
+            "filenamePattern": "*.chat"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
     "viewsContainers": {
       "activitybar": [
         {
           "id": "stencila-sidebar",
           "title": "Stencila",
+          "icon": "./icons/stencila-sidebar.svg"
+        },
+        {
+          "id": "stencila-chat",
+          "title": "Stencila Chat",
           "icon": "./icons/stencila-sidebar.svg"
         }
       ]
@@ -912,22 +980,29 @@
     "views": {
       "stencila-sidebar": [
         {
-          "id": "stencila-setup",
-          "name": "Setup"
-        },
-        {
           "id": "stencila-prompts",
           "name": "Prompts"
         },
         {
           "id": "stencila-models",
           "name": "Models",
-          "collapsed": true
+          "visibility": "collapsed"
         },
         {
           "id": "stencila-kernels",
           "name": "Kernels",
-          "collapsed": true
+          "visibility": "collapsed"
+        },
+        {
+          "id": "stencila-setup",
+          "name": "Setup"
+        }
+      ],
+      "stencila-chat": [
+        {
+          "type": "webview",
+          "id": "stencila-chat",
+          "name": ""
         }
       ]
     },
