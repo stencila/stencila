@@ -954,7 +954,7 @@
     "customEditors": [
       {
         "viewType": "stencila.chat-editor",
-        "displayName": "Chat",
+        "displayName": "Chat Editor",
         "selector": [
           {
             "filenamePattern": "*.chat"
