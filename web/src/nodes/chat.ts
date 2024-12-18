@@ -3,8 +3,6 @@ import { customElement, property, query } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
-import { ChatMessage } from './chat-message'
-
 /**
  * Web component representing a Stencila `Chat` node
  *
