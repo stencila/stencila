@@ -6,6 +6,20 @@ import { createDocumentViewPanel } from "./webviews";
  * Register document related commands provided by the extension
  */
 export function registerDocumentCommands(context: vscode.ExtensionContext) {
+  // Keep track of the most recently active text editor for
+  // some of the commands below
+  let lastTextEditor: vscode.TextEditor | null = null;
+  context.subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor((editor) => {
+      if (
+        editor?.document.languageId &&
+        ["smd", "myst", "qmd"].includes(editor?.document.languageId)
+      ) {
+        lastTextEditor = editor;
+      }
+    })
+  );
+
   // Create document commands
   for (const format of ["smd", "myst", "qmd"]) {
     context.subscriptions.push(
@@ -143,6 +157,31 @@ nodeTypes: []
           // then those arguments will not be present so pass the selection.
           ...(nodeId ? [nodeType, nodeId] : [editor.selection.active]),
           feedback
+        );
+      }
+    )
+  );
+
+  // Clone node
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "stencila.invoke.clone-node",
+      async (docUri, nodeType, nodeId) => {
+        const editor = vscode.window.activeTextEditor ?? lastTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
+        }
+
+        vscode.commands.executeCommand(
+          `stencila.clone-node`,
+          // For consistency, first args are destination document and position
+          editor.document.uri.toString(),
+          editor.selection.active,
+          // Remaining args are the source document and node
+          docUri,
+          nodeType,
+          nodeId
         );
       }
     )

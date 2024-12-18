@@ -4,6 +4,7 @@ import { customElement } from 'lit/decorators'
 import { withTwind } from '../twind'
 
 import '../ui/nodes/cards/block-on-demand'
+import '../ui/nodes/commands/clone-commands'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/provenance'
@@ -13,10 +14,6 @@ import { Math } from './math'
 @customElement('stencila-math-block')
 @withTwind()
 export class MathBlock extends Math {
-  /**
-   * render a node card with `authors`, `code`
-   * and `mathLanguage`, in addition to the compiled MathML.
-   */
   override render() {
     if (
       this.ancestors.includes('StyledBlock') ||
@@ -31,6 +28,15 @@ export class MathBlock extends Math {
         depth=${this.depth}
         ancestors=${this.ancestors}
       >
+        <span slot="header-right">
+          <stencila-ui-node-clone-commands
+            type="MathBlock"
+            node-id=${this.id}
+            ?enabled=${this.withinChat()}
+          >
+          </stencila-ui-node-clone-commands>
+        </span>
+
         <div slot="body">
           <stencila-ui-node-authors type="MathBlock">
             <stencila-ui-node-provenance slot="provenance">
@@ -49,6 +55,7 @@ export class MathBlock extends Math {
             <slot name="compilation-messages" slot="messages"></slot>
           </stencila-ui-node-code>
         </div>
+
         <div slot="content">${this.renderContent()}</div>
       </stencila-ui-block-on-demand>
     `

@@ -71,25 +71,31 @@ export class CodeChunk extends CodeExecutable {
       header-title=${title}
       ?noVisibleContent=${!this.hasOutputs}
     >
-      <span slot="header-right">
-        <stencila-ui-node-execution-commands
-          node-id=${this.id}
+      <span slot="header-right" class="flex flex-row items-center gap-3">
+        <stencila-ui-node-clone-commands
           type="CodeChunk"
+          node-id=${this.id}
+          ?enabled=${this.withinChat()}
         >
-          <sl-tooltip
-            content=${this.isInvisible ? 'Show output' : 'Hide output'}
-          >
-            <stencila-ui-icon-button
-              class="ml-3"
-              name=${this.isInvisible ? 'eye' : 'eyeSlash'}
-              @click=${(e: Event) => {
-                // Stop the click behavior of the card header parent element
-                e.stopImmediatePropagation()
-                this.isInvisible = !this.isInvisible
-              }}
-            ></stencila-ui-icon-button>
-          </sl-tooltip>
+        </stencila-ui-node-clone-commands>
+
+        <stencila-ui-node-execution-commands
+          type="CodeChunk"
+          node-id=${this.id}
+        >
         </stencila-ui-node-execution-commands>
+
+        <sl-tooltip content=${this.isInvisible ? 'Show output' : 'Hide output'}>
+          <stencila-ui-icon-button
+            class="text-xl"
+            name=${this.isInvisible ? 'eye' : 'eyeSlash'}
+            @click=${(e: Event) => {
+              // Stop the click behavior of the card header parent element
+              e.stopImmediatePropagation()
+              this.isInvisible = !this.isInvisible
+            }}
+          ></stencila-ui-icon-button>
+        </sl-tooltip>
       </span>
 
       <div slot="body">

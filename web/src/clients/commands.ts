@@ -26,6 +26,7 @@ export interface DocumentCommand {
     | 'reject-node'
     | 'revise-node'
     | 'archive-node'
+    | 'clone-node'
 
   /**
    * The arguments of the command

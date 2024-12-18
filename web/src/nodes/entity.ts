@@ -122,6 +122,13 @@ export abstract class Entity extends LitElement {
   }
 
   /**
+   * Whether the node is within a `Chat`
+   */
+  protected withinChat(): boolean {
+    return this.ancestors.includes('Chat')
+  }
+
+  /**
    * Checks this entity ancestors for a 'User' chat-message node and returns a boolean value
    */
   protected isUserChatMessageNode() {

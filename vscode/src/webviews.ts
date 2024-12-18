@@ -264,6 +264,8 @@ export async function initializeDocumentViewPanel(
         } else {
           command = "run-node";
         }
+      } else if (command === "clone-node") {
+        command = "invoke.clone-node";
       }
 
       vscode.commands.executeCommand(
