@@ -14,7 +14,10 @@ snapshot_kind: text
       "givenNames": [
         "Sapir"
       ],
-      "url": "http://orcid.org/0000-0002-6935-0047"
+      "identifiers": [
+        "http://orcid.org/0000-0002-6935-0047"
+      ],
+      "emails": []
     },
     {
       "type": "Person",
@@ -24,7 +27,10 @@ snapshot_kind: text
       "givenNames": [
         "Naheel"
       ],
-      "url": "http://orcid.org/0000-0002-6760-4728"
+      "identifiers": [
+        "http://orcid.org/0000-0002-6760-4728"
+      ],
+      "emails": []
     },
     {
       "type": "Person",
@@ -34,7 +40,10 @@ snapshot_kind: text
       "givenNames": [
         "Aya"
       ],
-      "url": "http://orcid.org/0009-0004-0947-2984"
+      "identifiers": [
+        "http://orcid.org/0009-0004-0947-2984"
+      ],
+      "emails": []
     },
     {
       "type": "Person",
@@ -44,7 +53,10 @@ snapshot_kind: text
       "givenNames": [
         "Tamar"
       ],
-      "url": "http://orcid.org/0000-0003-2333-1665"
+      "identifiers": [
+        "http://orcid.org/0000-0003-2333-1665"
+      ],
+      "emails": []
     },
     {
       "type": "Person",
@@ -54,7 +66,10 @@ snapshot_kind: text
       "givenNames": [
         "Dan"
       ],
-      "url": "http://orcid.org/0000-0002-3041-8462"
+      "identifiers": [
+        "http://orcid.org/0000-0002-3041-8462"
+      ],
+      "emails": []
     }
   ],
   "datePublished": {

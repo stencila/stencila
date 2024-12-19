@@ -14,7 +14,10 @@ snapshot_kind: text
       "givenNames": [
         "Felix Y"
       ],
-      "url": "https://orcid.org/0000-0002-8619-7160"
+      "identifiers": [
+        "https://orcid.org/0000-0002-8619-7160"
+      ],
+      "emails": []
     },
     {
       "type": "Person",
@@ -23,7 +26,11 @@ snapshot_kind: text
       ],
       "givenNames": [
         "David P"
-      ]
+      ],
+      "identifiers": [
+        ""
+      ],
+      "emails": []
     },
     {
       "type": "Person",
@@ -32,7 +39,11 @@ snapshot_kind: text
       ],
       "givenNames": [
         "Marissa"
-      ]
+      ],
+      "identifiers": [
+        ""
+      ],
+      "emails": []
     },
     {
       "type": "Person",
@@ -41,7 +52,11 @@ snapshot_kind: text
       ],
       "givenNames": [
         "Suhaily"
-      ]
+      ],
+      "identifiers": [
+        ""
+      ],
+      "emails": []
     },
     {
       "type": "Person",
@@ -50,7 +65,11 @@ snapshot_kind: text
       ],
       "givenNames": [
         "Gonen"
-      ]
+      ],
+      "identifiers": [
+        ""
+      ],
+      "emails": []
     },
     {
       "type": "Person",
@@ -59,7 +78,11 @@ snapshot_kind: text
       ],
       "givenNames": [
         "Vinay V"
-      ]
+      ],
+      "identifiers": [
+        ""
+      ],
+      "emails": []
     },
     {
       "type": "Person",
@@ -69,7 +92,9 @@ snapshot_kind: text
       "givenNames": [
         "James E"
       ],
-      "url": "https://orcid.org/0000-0002-1878-0610",
+      "identifiers": [
+        "https://orcid.org/0000-0002-1878-0610"
+      ],
       "emails": [
         "haber@brandeis.edu"
       ]
@@ -81,7 +106,11 @@ snapshot_kind: text
       ],
       "givenNames": [
         "Andrés"
-      ]
+      ],
+      "identifiers": [
+        ""
+      ],
+      "emails": []
     },
     {
       "type": "Person",
@@ -90,7 +119,11 @@ snapshot_kind: text
       ],
       "givenNames": [
         "Jonathan A"
-      ]
+      ],
+      "identifiers": [
+        ""
+      ],
+      "emails": []
     }
   ],
   "datePublished": {
