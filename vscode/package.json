@@ -954,6 +954,7 @@
     "package": "npm run package-vsix"
   },
   "dependencies": {
+    "posthog-js": "^1.202.2",
     "vscode-languageclient": "9.0.1"
   },
   "devDependencies": {
