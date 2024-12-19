@@ -7,6 +7,8 @@ import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import { Entity } from './entity'
 
+import '../ui/inputs/select'
+
 /**
  * Web component representing a Stencila Schema `InstructionModel` node
  *
@@ -55,7 +57,20 @@ export class InstructionModel extends Entity {
     return html`
       <div class=${styles}>
         <div class="max-w-4xl mx-auto">
-          <span>Model:</span>
+          <div>
+            <span>Model:</span>
+            <ui-select-input
+              ?multi=${true}
+              ?clearable=${true}
+              .options=${[
+                { value: 'chat-gpt' },
+                { value: 'claude' },
+                { value: 'ollama' },
+                { value: 'gemini' },
+              ]}
+            >
+            </ui-select-input>
+          </div>
           <div class="flex flex-row items-center flex-wrap gap-3">
             <span class="flex flex-row items-center">
               <sl-tooltip content="Model selection quality weighting">

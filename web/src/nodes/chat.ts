@@ -1,3 +1,4 @@
+import { apply } from '@twind/core'
 import { LitElement, html } from 'lit'
 import { customElement, property, query } from 'lit/decorators'
 
@@ -23,6 +24,8 @@ export class StencilaChat extends LitElement {
     const slottedElement = this.contentSlot.assignedElements()[0]
     if (slottedElement) {
       this.contentObserver = new MutationObserver(() => {
+        // TODO refine this for smoother transition
+        // possibly try to add the typing effect for the text content?
         window.scrollTo({
           top: document.body.scrollHeight,
           behavior: 'smooth',
@@ -54,13 +57,30 @@ export class StencilaChat extends LitElement {
   prompt?: string
 
   override render() {
-    return html`
-      <div class="fixed top-0 left-0 z-10 w-full">
-        <slot name="model"></slot>
-      </div>
+    const containerStyles = apply([
+      'fixed bottom-0 left-0 z-10',
+      'w-full',
+      'bg-gray-100',
+      'border-t border-black/20',
+    ])
 
-      <div class="px-12 pb-[300px]">
-        <slot name="content"></slot>
+    return html`
+      <div>
+        <div class="fixed top-0 left-0 z-10 w-full">
+          <slot name="model"></slot>
+        </div>
+
+        <div class="px-12 pb-[300px]">
+          <slot name="content"></slot>
+        </div>
+
+        <div class=${containerStyles}>
+          <div class="max-w-[400px] mx-auto">
+            <stencila-chat-message-inputs
+              message-id=${this.id}
+            ></stencila-chat-message-inputs>
+          </div>
+        </div>
       </div>
     `
   }
