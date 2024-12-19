@@ -2,6 +2,8 @@ import * as vscode from "vscode";
 
 import { createDocumentViewPanel } from "./webviews";
 
+import { event } from "./events"
+
 /**
  * Register document related commands provided by the extension
  */
@@ -184,6 +186,8 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
         ),
       });
 
+        event('vscode_export', {"format": format?.label });
+
       if (!saveUri) {
         vscode.window.showInformationMessage("Document export cancelled.");
         return;
@@ -209,7 +213,7 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
           vscode.window.showErrorMessage("No active editor");
           return;
         }
-
+        event('vscode_preview');
         await createDocumentViewPanel(context, editor);
       }
     )
