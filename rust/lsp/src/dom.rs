@@ -104,7 +104,7 @@ pub async fn subscribe(
 
     let subscription_id = Uuid::now_v7().to_string();
 
-    tracing::debug!("subscribe {subscription_id}");
+    tracing::debug!("Starting subscription `{subscription_id}`");
 
     // Start task to send patches to the client
     let sub_id = subscription_id.clone();
@@ -114,7 +114,7 @@ pub async fn subscribe(
                 subscription_id: sub_id.clone(),
                 patch,
             }) {
-                tracing::error!("While publishing DOM patch {error}");
+                tracing::error!("While publishing DOM patch: {error}");
             };
         }
     });
@@ -145,7 +145,7 @@ pub async fn subscribe(
 
 /// Handle a request to reset the DOM HTML for a document
 pub async fn reset(subscription_id: String) -> Result<(), ResponseError> {
-    tracing::debug!("reset {subscription_id}");
+    tracing::debug!("Resetting subscription `{subscription_id}`");
 
     if let Some((sender, ..)) = SUBSCRIPTIONS.lock().await.get(&subscription_id) {
         sender
@@ -159,7 +159,7 @@ pub async fn reset(subscription_id: String) -> Result<(), ResponseError> {
 
 /// Handle a request to unsubscribe from DOM HTML updates for a document
 pub async fn unsubscribe(subscription_id: String) -> Result<(), ResponseError> {
-    tracing::debug!("unsubscribe {subscription_id}");
+    tracing::debug!("Stopping subscription `{subscription_id}`");
 
     if let Some((.., task)) = SUBSCRIPTIONS.lock().await.remove(&subscription_id) {
         task.abort();
