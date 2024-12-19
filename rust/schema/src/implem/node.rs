@@ -595,6 +595,7 @@ impl From<Block> for Node {
         variants!(
             Admonition,
             CallBlock,
+            Chat,
             ChatMessage,
             Claim,
             CodeBlock,

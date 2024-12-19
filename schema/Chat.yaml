@@ -8,21 +8,12 @@ description: A chat conversation, usually with a generative AI model.
 markdown:
   derive: false
 required:
+  - model
   - content
 core:
   - title
-  - target
-  - model
   - prompt
 properties:
-  target:
-    '@id': schema:target
-    description: The subject of the conversation.
-    $comment: |
-      The URI of the `Thing` (usually an `Article`) that is the subject of the conversation.  
-    type: string
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
   model:
     "@id": stencila:model
     description: The name, and other options, for the model involved in the chat.

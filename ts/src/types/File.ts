@@ -24,6 +24,11 @@ export class File extends Entity {
    */
   mediaType?: string;
 
+  /**
+   * The content of the file.
+   */
+  content?: string;
+
   constructor(name: string, path: string, options?: Partial<File>) {
     super();
     this.type = "File";

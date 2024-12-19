@@ -17,6 +17,7 @@
   "required": [
     "type",
     "type",
+    "model",
     "content"
   ],
   "core": [
@@ -24,8 +25,6 @@
     "id",
     "executionMode",
     "title",
-    "target",
-    "model",
     "prompt"
   ],
   "properties": {
@@ -862,21 +861,6 @@
       "items": {
         "$ref": "ExecutionMessage.schema.json"
       }
-    },
-    "target": {
-      "@id": "schema:target",
-      "description": "The subject of the conversation.",
-      "$comment": "The URI of the `Thing` (usually an `Article`) that is the subject of the conversation.  \n",
-      "patch": {
-        "formats": [
-          "md",
-          "smd",
-          "myst",
-          "ipynb",
-          "qmd"
-        ]
-      },
-      "type": "string"
     },
     "model": {
       "@id": "stencila:model",

@@ -20,7 +20,8 @@
   ],
   "core": [
     "id",
-    "executionMode"
+    "executionMode",
+    "files"
   ],
   "properties": {
     "type": {
@@ -317,6 +318,20 @@
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"
+      }
+    },
+    "files": {
+      "@id": "stencila:files",
+      "description": "The content of the message.",
+      "aliases": [
+        "file"
+      ],
+      "dom": {
+        "elem": "div"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "File.schema.json"
       }
     }
   }

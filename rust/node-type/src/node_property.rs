@@ -103,6 +103,7 @@ pub enum NodeProperty {
     ExecutionTags,
     FamilyNames,
     Feedback,
+    Files,
     Format,
     FundedBy,
     FundedItems,

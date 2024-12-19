@@ -10,6 +10,8 @@ markdown:
 required:
   - role
   - content
+core:
+  - files
 properties:
   role:
     '@id': stencila:role
@@ -26,5 +28,13 @@ properties:
     type: array
     items:
       $ref: Block
+    dom:
+      elem: div
+  files:
+    '@id': stencila:files
+    description: The content of the message.
+    type: array
+    items:
+      $ref: File
     dom:
       elem: div

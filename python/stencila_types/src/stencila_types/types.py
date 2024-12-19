@@ -1196,10 +1196,7 @@ class Chat(CreativeWork, Executable):
 
     type: Literal["Chat"] = "Chat"
 
-    target: str | None = None
-    """The subject of the conversation."""
-
-    model: InstructionModel | None = None
+    model: InstructionModel
     """The name, and other options, for the model involved in the chat."""
 
     prompt: str | None = None
@@ -1221,6 +1218,9 @@ class ChatMessage(Executable):
     """The role of the message in the conversation."""
 
     content: list[Block]
+    """The content of the message."""
+
+    files: list[File] | None = None
     """The content of the message."""
 
 
@@ -1825,6 +1825,9 @@ class File(Entity):
 
     media_type: str | None = None
     """IANA media type (MIME type)."""
+
+    content: str | None = None
+    """The content of the file."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3066,6 +3069,7 @@ Union type for things that can be an author in `AuthorRole`.
 Block = Union[
     Admonition,
     CallBlock,
+    Chat,
     ChatMessage,
     Claim,
     CodeBlock,

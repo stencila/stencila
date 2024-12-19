@@ -292,6 +292,7 @@
     "executionTags": "stencila:executionTags",
     "familyNames": "schema:familyName",
     "feedback": "stencila:feedback",
+    "files": "stencila:files",
     "format": "stencila:format",
     "fundedBy": "stencila:fundedBy",
     "fundedItems": "schema:fundedItem",

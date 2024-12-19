@@ -30,6 +30,11 @@ pub struct File {
     #[serde(alias = "encodingFormat", alias = "media-type", alias = "media_type")]
     pub media_type: Option<String>,
 
+    /// The content of the file.
+    #[walk]
+    #[patch(format = "all")]
+    pub content: Option<String>,
+
     /// A unique identifier for a node within a document
     
     #[serde(skip)]

@@ -12,6 +12,7 @@ required:
   - path
 core:
   - mediaType
+  - content
 properties:
   name:
     '@id': schema:name
@@ -32,3 +33,9 @@ properties:
       as listed at http://www.iana.org/assignments/media-types/media-types.xhtml.
     type: string
     pattern: '^\w+/[-+.\w]+$'
+  content:
+    '@id': schema:content
+    description: The content of the file.
+    $comment: |
+      For binary formats, such as images, the content should be base64 encoded.
+    type: string

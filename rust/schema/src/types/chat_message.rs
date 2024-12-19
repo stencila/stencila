@@ -14,6 +14,7 @@ use super::execution_mode::ExecutionMode;
 use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
+use super::file::File;
 use super::integer::Integer;
 use super::message_role::MessageRole;
 use super::string::String;
@@ -52,6 +53,12 @@ pub struct ChatMessage {
     #[patch(format = "all")]
     #[dom(elem = "div")]
     pub content: Vec<Block>,
+
+    /// The content of the message.
+    #[serde(alias = "file")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[dom(elem = "div")]
+    pub files: Option<Vec<File>>,
 
     /// Non-core optional fields
     #[serde(flatten)]

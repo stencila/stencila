@@ -51,6 +51,9 @@
           "@id": "stencila:Figure"
         },
         {
+          "@id": "stencila:File"
+        },
+        {
           "@id": "stencila:ForBlock"
         },
         {
@@ -127,9 +130,6 @@
       "rdfs:label": "target",
       "rdfs:comment": "The target of the link.",
       "schema:domainIncludes": [
-        {
-          "@id": "stencila:Chat"
-        },
         {
           "@id": "stencila:Cite"
         },

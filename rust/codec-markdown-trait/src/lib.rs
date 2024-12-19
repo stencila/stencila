@@ -73,6 +73,11 @@ impl MarkdownEncodeContext {
         self.content.chars().count()
     }
 
+    /// Is the node currently being encoded the root node?
+    pub fn is_root(&self) -> bool {
+        self.node_stack.is_empty()
+    }
+
     /// Enter a node
     ///
     /// Pushes the node id and start position onto the stack.

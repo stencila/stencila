@@ -13,13 +13,13 @@ use codec::{
     common::{indexmap::IndexMap, tracing},
     format::Format,
     schema::{
-        shortcuts, Admonition, AdmonitionType, Block, CallArgument, CallBlock, ChatMessage, Claim,
-        CodeBlock, CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock,
-        IfBlockClause, IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage,
-        InstructionModel, LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node,
-        Paragraph, PromptBlock, QuoteBlock, RawBlock, ReplaceBlock, Section, StyledBlock,
-        SuggestionBlock, SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text,
-        ThematicBreak, Walkthrough, WalkthroughStep,
+        shortcuts, Admonition, AdmonitionType, Block, CallArgument, CallBlock, Chat, ChatMessage,
+        Claim, CodeBlock, CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading,
+        IfBlock, IfBlockClause, IncludeBlock, Inline, InsertBlock, InstructionBlock,
+        InstructionMessage, InstructionModel, LabelType, List, ListItem, ListOrder, MathBlock,
+        ModifyBlock, Node, Paragraph, PromptBlock, QuoteBlock, RawBlock, ReplaceBlock, Section,
+        StyledBlock, SuggestionBlock, SuggestionStatus, Table, TableCell, TableRow, TableRowType,
+        Text, ThematicBreak, Walkthrough, WalkthroughStep,
     },
 };
 
@@ -509,6 +509,7 @@ fn block(input: &mut Located<&str>) -> PResult<Block> {
             for_block,
             instruction_block,
             suggestion_block,
+            chat,
             chat_message,
             delete_block,
             insert_block,
@@ -704,6 +705,20 @@ fn code_chunk(input: &mut Located<&str>) -> PResult<Block> {
             }),
             label: label.map(|label| label.to_string()),
             label_automatically: label.is_some().then_some(false),
+            ..Default::default()
+        })
+    })
+    .parse_next(input)
+}
+
+/// Parse a [`Chat`] node
+fn chat(input: &mut Located<&str>) -> PResult<Block> {
+    preceded(
+        (Caseless("chat"), multispace0),
+        opt(take_while(1.., |_| true)),
+    )
+    .map(|message| {
+        Block::Chat(Chat {
             ..Default::default()
         })
     })

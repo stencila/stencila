@@ -5,7 +5,18 @@ use crate::{prelude::*, Chat};
 
 impl MarkdownCodec for Chat {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        // Based on `Article::to_markdown` but with some differences
+        // If not the root node (i.e. within an `Article` or other document) then
+        // just represent as a single line so that the user knows that the chat is there
+        // and can interact with it (e.g. via code lenses or key bindings)
+        if !context.is_root() {
+            context
+                .enter_node(self.node_type(), self.node_id())
+                .push_str("::: chat\n\n")
+                .exit_node();
+            return;
+        }
+
+        // The following is based on `Article::to_markdown` but with some differences
         // (e.g. not yet supporting authors)
 
         context.enter_node(self.node_type(), self.node_id());

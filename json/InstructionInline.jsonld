@@ -385,6 +385,9 @@
           "@id": "stencila:Figure"
         },
         {
+          "@id": "stencila:File"
+        },
+        {
           "@id": "stencila:ForBlock"
         },
         {

@@ -769,29 +769,6 @@
       }
     },
     {
-      "@id": "schema:target",
-      "@type": "rdfs:Property",
-      "rdfs:label": "target",
-      "rdfs:comment": "The subject of the conversation.",
-      "schema:domainIncludes": [
-        {
-          "@id": "stencila:Chat"
-        },
-        {
-          "@id": "stencila:Cite"
-        },
-        {
-          "@id": "stencila:Link"
-        },
-        {
-          "@id": "stencila:ModifyOperation"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
       "@id": "stencila:model",
       "@type": "rdfs:Property",
       "rdfs:label": "model",
@@ -860,6 +837,9 @@
         },
         {
           "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:File"
         },
         {
           "@id": "stencila:ForBlock"

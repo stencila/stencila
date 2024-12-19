@@ -37,6 +37,15 @@
     {
       "proptest": {
         "min": {
+          "description": "Do not generate `Chat` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "Chat.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
           "description": "Do not generate `ChatMessage` nodes in block content.",
           "skip": true
         }

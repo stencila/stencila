@@ -2,6 +2,7 @@
 
 import { Block } from "./Block.js";
 import { Executable } from "./Executable.js";
+import { File } from "./File.js";
 import { MessageRole } from "./MessageRole.js";
 
 /**
@@ -20,6 +21,11 @@ export class ChatMessage extends Executable {
    * The content of the message.
    */
   content: Block[];
+
+  /**
+   * The content of the message.
+   */
+  files?: File[];
 
   constructor(role: MessageRole, content: Block[], options?: Partial<ChatMessage>) {
     super();

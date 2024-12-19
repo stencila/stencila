@@ -16,7 +16,8 @@
   ],
   "core": [
     "id",
-    "mediaType"
+    "mediaType",
+    "content"
   ],
   "properties": {
     "type": {
@@ -58,6 +59,12 @@
       ],
       "type": "string",
       "pattern": "^\\w+/[-+.\\w]+$"
+    },
+    "content": {
+      "@id": "schema:content",
+      "description": "The content of the file.",
+      "$comment": "For binary formats, such as images, the content should be base64 encoded.\n",
+      "type": "string"
     }
   }
 }

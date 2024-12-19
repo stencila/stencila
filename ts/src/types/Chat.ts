@@ -12,14 +12,9 @@ export class Chat extends CreativeWork {
   type: "Chat";
 
   /**
-   * The subject of the conversation.
-   */
-  target?: string;
-
-  /**
    * The name, and other options, for the model involved in the chat.
    */
-  model?: InstructionModel;
+  model: InstructionModel;
 
   /**
    * The id of the system prompt to prefix chat messages with.
@@ -31,10 +26,11 @@ export class Chat extends CreativeWork {
    */
   content: Block[];
 
-  constructor(content: Block[], options?: Partial<Chat>) {
+  constructor(model: InstructionModel, content: Block[], options?: Partial<Chat>) {
     super();
     this.type = "Chat";
     if (options) Object.assign(this, options);
+    this.model = model;
     this.content = content;
   }
 }
@@ -42,6 +38,6 @@ export class Chat extends CreativeWork {
 /**
 * Create a new `Chat`
 */
-export function chat(content: Block[], options?: Partial<Chat>): Chat {
-  return new Chat(content, options);
+export function chat(model: InstructionModel, content: Block[], options?: Partial<Chat>): Chat {
+  return new Chat(model, content, options);
 }

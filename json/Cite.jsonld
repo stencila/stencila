@@ -24,9 +24,6 @@
       "rdfs:comment": "The target of the citation (URL or reference ID).",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Chat"
-        },
-        {
           "@id": "stencila:Cite"
         },
         {
@@ -96,6 +93,9 @@
         },
         {
           "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:File"
         },
         {
           "@id": "stencila:ForBlock"

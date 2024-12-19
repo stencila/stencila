@@ -65,15 +65,11 @@ pub struct Chat {
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub execution_mode: Option<ExecutionMode>,
 
-    /// The subject of the conversation.
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
-    pub target: Option<String>,
-
     /// The name, and other options, for the model involved in the chat.
     #[walk]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[dom(elem = "div")]
-    pub model: Option<InstructionModel>,
+    pub model: InstructionModel,
 
     /// The id of the system prompt to prefix chat messages with.
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
@@ -379,8 +375,9 @@ impl Chat {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(content: Vec<Block>) -> Self {
+    pub fn new(model: InstructionModel, content: Vec<Block>) -> Self {
         Self {
+            model,
             content,
             ..Default::default()
         }

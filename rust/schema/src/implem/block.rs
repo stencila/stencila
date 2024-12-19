@@ -13,6 +13,7 @@ impl Block {
         variants!(
             Admonition,
             CallBlock,
+            Chat,
             ChatMessage,
             Claim,
             CodeBlock,
@@ -55,6 +56,7 @@ impl Block {
         variants!(
             Admonition,
             CallBlock,
+            Chat,
             ChatMessage,
             Claim,
             CodeBlock,
@@ -102,6 +104,7 @@ impl TryFrom<Node> for Block {
         variants!(
             Admonition,
             CallBlock,
+            Chat,
             ChatMessage,
             Claim,
             CodeBlock,
@@ -202,6 +205,7 @@ impl MarkdownCodec for Block {
         variants!(
             Admonition,
             CallBlock,
+            Chat,
             ChatMessage,
             Claim,
             CodeBlock,
