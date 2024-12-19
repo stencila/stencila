@@ -9,7 +9,7 @@ use std::{
 
 use codecs::EncodeOptions;
 use common::{
-    eyre::Result,
+    eyre::{bail, Result},
     itertools::Itertools,
     serde::{Deserialize, Serialize},
     serde_with::skip_serializing_none,
@@ -24,6 +24,8 @@ use common::{
     tracing,
 };
 use format::Format;
+use node_find::find;
+use schema::NodeId;
 
 use crate::Document;
 
@@ -152,6 +154,7 @@ impl Document {
     #[tracing::instrument(skip_all)]
     pub async fn sync_dom(
         &self,
+        node_id: Option<NodeId>,
         mut patch_receiver: Receiver<DomPatch>,
         patch_sender: Sender<DomPatch>,
     ) -> Result<String> {
@@ -173,8 +176,19 @@ impl Document {
         });
 
         // Create initial encoding of the root node
-        let node = self.root.read().await;
-        let initial_content = codecs::to_string(&node, encode_options.clone()).await?;
+        let initial_content = match node_id.as_ref() {
+            Some(node_id) => {
+                let root = self.root.read().await;
+                let Some(node) = find(&*root, node_id.clone()) else {
+                    bail!("Unable to find node `{node_id}` in document")
+                };
+                codecs::to_string(&node, encode_options.clone()).await?
+            }
+            None => {
+                let node = self.root.read().await;
+                codecs::to_string(&node, encode_options.clone()).await?
+            }
+        };
 
         // Create the mutex for the current content and initialize the version
         let current = Arc::new(Mutex::new(initial_content.clone()));
@@ -227,10 +241,20 @@ impl Document {
             while node_receiver.changed().await.is_ok() {
                 tracing::trace!("Root node changed, updating string buffer");
 
-                let node = node_receiver.borrow_and_update().clone();
+                let root = node_receiver.borrow_and_update().clone();
 
                 // Encode the node to a string in the format
-                let new_content = match codecs::to_string(&node, encode_options.clone()).await {
+                let new_content = match node_id.as_ref() {
+                    Some(node_id) => {
+                        let Some(node) = find(&root, node_id.clone()) else {
+                            tracing::error!("Unable to find node `{node_id}` in document");
+                            continue;
+                        };
+                        codecs::to_string(&node, encode_options.clone()).await
+                    }
+                    None => codecs::to_string(&root, encode_options.clone()).await,
+                };
+                let new_content = match new_content {
                     Ok(string) => string,
                     Err(error) => {
                         tracing::error!("While encoding node to string: {error}");

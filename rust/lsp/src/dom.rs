@@ -24,6 +24,7 @@ use common::{
     uuid::Uuid,
 };
 use document::{Document, DomPatch};
+use schema::NodeId;
 
 pub struct SubscribeDom;
 
@@ -95,6 +96,7 @@ static SUBSCRIPTIONS: Lazy<Mutex<HashMap<String, (Sender<DomPatch>, JoinHandle<(
 /// Handle a request to subscribe to DOM HTML updates for a document
 pub async fn subscribe(
     doc: Arc<RwLock<Document>>,
+    node_id: Option<NodeId>,
     client: ClientSocket,
 ) -> Result<(String, String, String), ResponseError> {
     let (in_sender, in_receiver) = mpsc::channel(256);
@@ -132,7 +134,7 @@ pub async fn subscribe(
 
     // Start the DOM syncing task and the initial HTML content
     let html = doc
-        .sync_dom(in_receiver, out_sender)
+        .sync_dom(node_id, in_receiver, out_sender)
         .await
         .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))?;
 

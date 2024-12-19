@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
 use async_lsp::{
     client_monitor::ClientProcessMonitorLayer,
@@ -10,6 +10,7 @@ use async_lsp::{
     tracing::TracingLayer,
     ErrorCode, MainLoop, ResponseError,
 };
+use schema::NodeId;
 use tower::ServiceBuilder;
 use tracing_subscriber::filter::LevelFilter;
 
@@ -147,7 +148,10 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
                             )
                             .await
                         }
-                        None => Ok(None),
+                        None => Err(ResponseError::new(
+                            ErrorCode::INVALID_PARAMS,
+                            "Invalid document URI",
+                        )),
                     }
                 }
             })
@@ -169,15 +173,22 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
 
         router
             .request::<dom::SubscribeDom, _>(|state, params| {
-                let uri = &params.uri;
+                let (uri, node_id) = match params.uri.fragment() {
+                    Some(fragment) => {
+                        let mut uri = params.uri.clone();
+                        uri.set_fragment(None);
+                        (uri, NodeId::from_str(fragment).ok())
+                    }
+                    None => (params.uri.clone(), None),
+                };
                 let doc = state
                     .documents
-                    .get(uri)
+                    .get(&uri)
                     .map(|text_doc| text_doc.doc.clone());
                 let client = state.client.clone();
                 async move {
                     match doc {
-                        Some(doc) => dom::subscribe(doc, client).await,
+                        Some(doc) => dom::subscribe(doc, node_id, client).await,
                         None => Err(ResponseError::new(
                             ErrorCode::INVALID_PARAMS,
                             "Unknown document",

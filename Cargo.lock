@@ -1962,6 +1962,7 @@ dependencies = [
  "json-patch",
  "kernels",
  "node-execute",
+ "node-find",
  "node-map",
  "node-strip",
  "notify",
