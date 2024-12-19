@@ -104,6 +104,8 @@ pub async fn subscribe(
 
     let subscription_id = Uuid::now_v7().to_string();
 
+    tracing::debug!("subscribe {subscription_id}");
+
     // Start task to send patches to the client
     let sub_id = subscription_id.clone();
     let task = tokio::spawn(async move {
@@ -143,6 +145,8 @@ pub async fn subscribe(
 
 /// Handle a request to reset the DOM HTML for a document
 pub async fn reset(subscription_id: String) -> Result<(), ResponseError> {
+    tracing::debug!("reset {subscription_id}");
+
     if let Some((sender, ..)) = SUBSCRIPTIONS.lock().await.get(&subscription_id) {
         sender
             .send(DomPatch::reset_request())
@@ -155,6 +159,8 @@ pub async fn reset(subscription_id: String) -> Result<(), ResponseError> {
 
 /// Handle a request to unsubscribe from DOM HTML updates for a document
 pub async fn unsubscribe(subscription_id: String) -> Result<(), ResponseError> {
+    tracing::debug!("unsubscribe {subscription_id}");
+
     if let Some((.., task)) = SUBSCRIPTIONS.lock().await.remove(&subscription_id) {
         task.abort();
     }
