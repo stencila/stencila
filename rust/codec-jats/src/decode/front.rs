@@ -1,11 +1,13 @@
 use roxmltree::Node;
 
 use codec::{
-    common::itertools::Itertools, schema::{
+    common::itertools::Itertools,
+    schema::{
         Article, Author, Block, CreativeWorkType, Date, IntegerOrString, Organization,
         OrganizationOptions, Person, PersonOptions, PersonOrOrganization, Primitive, PropertyValue,
         PropertyValueOrString, PublicationVolume, Section, SectionType, StringOrNumber, ThingType,
-    }, Losses
+    },
+    Losses,
 };
 
 use super::{
@@ -174,7 +176,7 @@ fn decode_pub_date(path: &str, node: &Node, article: &mut Article, losses: &mut 
 fn decode_volume(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     record_attrs_lost(path, node, [], losses);
 
-    if let Some(volume_number) = node.text().unwrap_or_default().parse().ok() {
+    if let Ok(volume_number) = node.text().unwrap_or_default().parse() {
         if article.options.parts.is_none() {
             article.options.parts = Some(vec![CreativeWorkType::PublicationVolume(
                 PublicationVolume {
@@ -255,36 +257,31 @@ fn decode_contrib_group(path: &str, node: &Node, article: &mut Article, losses: 
 fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> Author {
     record_attrs_lost(path, node, [], losses);
 
-    let mut family_names = None;
-    let mut given_names = None;
-    let mut url = None;
-    let mut emails = None;
+    let mut family_names = Vec::new();
+    let mut given_names = Vec::new();
+    let mut identifiers = "".into();
+    let mut emails = Vec::new();
 
     for child in node.children() {
         let tag = child.tag_name().name();
         if tag == "name" {
-            family_names = Some(Vec::new());
-            given_names = Some(Vec::new());
             for grandchild in child.children() {
                 let grandchild_tag = grandchild.tag_name().name();
                 if grandchild_tag == "surname" {
-                    if let Some(ref mut vector) = family_names {
-                        vector.push(grandchild.text().unwrap_or_default().into());
+                    if let Some(value) = grandchild.text() {
+                        family_names.push(value.to_string());
                     }
                 } else if grandchild_tag == "given-names" {
-                    if let Some(ref mut vector) = given_names {
-                        vector.push(grandchild.text().unwrap_or_default().into());
+                    if let Some(value) = grandchild.text() {
+                        given_names.push(value.to_string());
                     }
                 }
             }
         } else if tag == "contrib-id" {
-            url = Some(child.text().unwrap_or_default().into());
+            identifiers = child.text().unwrap_or_default().into();
         } else if tag == "email" {
-            if emails.is_none() {
-                emails = Some(Vec::new());
-            }
-            if let Some(ref mut vector) = emails {
-                vector.push(child.text().unwrap_or_default().into());
+            if let Some(value) = child.text() {
+                emails.push(value.into());
             }
         } else {
             record_node_lost(path, &child, losses);
@@ -292,11 +289,11 @@ fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> Author {
     }
 
     Author::Person(Person {
-        family_names,
-        given_names,
+        family_names:Some(family_names),
+        given_names:Some(given_names),
         options: Box::new(PersonOptions {
-            url,
-            emails,
+            identifiers: Some(vec![PropertyValueOrString::String(identifiers)]),
+            emails:Some(emails),
             ..Default::default()
         }),
         ..Default::default()
