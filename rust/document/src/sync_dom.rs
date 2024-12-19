@@ -247,8 +247,9 @@ impl Document {
                 let new_content = match node_id.as_ref() {
                     Some(node_id) => {
                         let Some(node) = find(&root, node_id.clone()) else {
-                            tracing::error!("Unable to find node `{node_id}` in document");
-                            continue;
+                            // If node has been removed from the document, end the task
+                            tracing::debug!("Unable to find node `{node_id}`, stopping `sync_dom` task");
+                            return;
                         };
                         codecs::to_string(&node, encode_options.clone()).await
                     }
