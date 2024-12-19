@@ -259,7 +259,7 @@ fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> Author {
 
     let mut family_names = Vec::new();
     let mut given_names = Vec::new();
-    let mut identifiers = "".into();
+    let mut identifiers = Vec::new();
     let mut emails = Vec::new();
 
     for child in node.children() {
@@ -278,7 +278,9 @@ fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> Author {
                 }
             }
         } else if tag == "contrib-id" {
-            identifiers = child.text().unwrap_or_default().into();
+            if let Some(value) = child.text() {
+                identifiers.push(PropertyValueOrString::String(value.into()));
+            }
         } else if tag == "email" {
             if let Some(value) = child.text() {
                 emails.push(value.into());
@@ -288,12 +290,17 @@ fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> Author {
         }
     }
 
+    let family_names = (!family_names.is_empty()).then_some(family_names);
+    let given_names = (!given_names.is_empty()).then_some(given_names);
+    let identifiers = (!identifiers.is_empty()).then_some(identifiers);
+    let emails = (!emails.is_empty()).then_some(emails);
+
     Author::Person(Person {
-        family_names:Some(family_names),
-        given_names:Some(given_names),
+        family_names,
+        given_names,
         options: Box::new(PersonOptions {
-            identifiers: Some(vec![PropertyValueOrString::String(identifiers)]),
-            emails:Some(emails),
+            identifiers,
+            emails,
             ..Default::default()
         }),
         ..Default::default()
