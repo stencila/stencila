@@ -5,7 +5,7 @@ snapshot_kind: text
 ---
 //article/back/ack: 1
 //article/back/app-group: 1
-//article/back/ref-list: 1
+//article/back/ref-list/ref/@publication-type: 68
 //article/back/sec: 3
 //article/body/sec/@id: 4
 //article/body/sec/@sec-type: 4
