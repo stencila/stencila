@@ -116,15 +116,17 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
         // Application of patches is implemented for all fields
         patch_fields.extend(quote! {
-            context.enter_property(NodeProperty::#property);
-            if self.#field_name.patch(patch, context)? {
+            if context.within_property(NodeProperty::#property, |context| self.#field_name.patch(patch, context))? {
                 return Ok(true);
             }
-            context.exit_property();
         });
+        // Borrowing rules prevent the use of `within_property` here:
         apply_fields.extend(quote! {
             NodeProperty::#property => {
-                self.#field_name.apply(path, op, context)?;
+                context.enter_property(NodeProperty::#property);
+                let result = self.#field_name.apply(path, op, context);
+                context.exit_property();
+                result?;
             },
         });
         apply_verify_fields.extend(quote! {
@@ -178,9 +180,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
         diff_fields.extend(quote! {
             if #field_diffed {
-                context.enter_property(NodeProperty::#property);
-                self.#field_name.diff(&other.#field_name, context)?;
-                context.exit_property();
+                context.within_property(NodeProperty::#property, |context| self.#field_name.diff(&other.#field_name, context))?
             }
         });
     });

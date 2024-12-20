@@ -94,9 +94,9 @@ impl PatchNode for InstructionBlock {
     fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
         macro_rules! diff_property {
             ($property:ident, $field:ident) => {
-                context.enter_property(NodeProperty::$property);
-                self.$field.diff(&other.$field, context)?;
-                context.exit_property();
+                context.within_property(NodeProperty::$property, |context| {
+                    self.$field.diff(&other.$field, context)
+                })?;
             };
         }
 
@@ -125,21 +125,23 @@ impl PatchNode for InstructionBlock {
                     let index = active_suggestion.min(suggestions_count - 1) as usize;
                     let suggestion = &suggestions[index];
 
-                    context
-                        .enter_property(NodeProperty::Suggestions)
-                        .enter_index(index)
-                        .enter_property(NodeProperty::Content);
-                    suggestion.content.diff(other_content, context)?;
-                    context.exit_property().exit_index().exit_property();
+                    context.within_path(
+                        PatchPath::from([
+                            PatchSlot::Property(NodeProperty::Suggestions),
+                            PatchSlot::Index(index),
+                            PatchSlot::Property(NodeProperty::Content),
+                        ]),
+                        |context| suggestion.content.diff(other_content, context),
+                    )?;
                 } else {
-                    context.enter_property(NodeProperty::Content);
-                    self.content.diff(&other.content, context)?;
-                    context.exit_property();
+                    context.within_property(NodeProperty::Content, |context| {
+                        self.content.diff(&other.content, context)
+                    })?
                 }
             } else {
-                context.enter_property(NodeProperty::Content);
-                self.content.diff(&other.content, context)?;
-                context.exit_property();
+                context.within_property(NodeProperty::Content, |context| {
+                    self.content.diff(&other.content, context)
+                })?
             }
         } else {
             // Other node is from a non-Markdown format so
@@ -163,11 +165,9 @@ impl PatchNode for InstructionBlock {
         macro_rules! patch_properties {
             ($( ($property:ident, $field:expr), )*) => {
                 $(
-                    context.enter_property(NodeProperty::$property);
-                    if $field.patch(patch, context)? {
+                    if context.within_property(NodeProperty::$property, |context| $field.patch(patch, context))? {
                         return Ok(true);
                     }
-                    context.exit_property();
                 )*
             };
         }
