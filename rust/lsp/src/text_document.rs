@@ -44,6 +44,9 @@ pub(super) struct TextNode {
     /// The range in the document that the node occurs
     pub range: Range,
 
+    /// Whether the node is the root node of a document
+    pub is_root: bool,
+
     /// The type of the parent of the node
     pub parent_type: NodeType,
 
@@ -115,6 +118,7 @@ impl Default for TextNode {
     fn default() -> Self {
         Self {
             range: Range::default(),
+            is_root: false,
             parent_type: NodeType::Null,
             parent_id: NodeId::null(),
             is_block: false,

@@ -64,14 +64,20 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
         execution: Option<TextNodeExecution>,
         provenance: Option<Vec<ProvenanceCount>>,
     ) -> &mut TextNode {
-        let range = match self.poshmap.node_id_to_range16(&node_id) {
-            Some(range) => range16_to_range(range),
-            None => {
-                // A range may not exist for nodes that are not encoded into the
-                // text document (e.g. the non-active suggestions of an instruction).
-                // In these cases we return the default range (first char of document)
-                // and use that as a way of knowing whether to show code lenses of not
-                Range::default()
+        let is_root = self.stack.is_empty();
+
+        let range = if is_root {
+            Range::default()
+        } else {
+            match self.poshmap.node_id_to_range16(&node_id) {
+                Some(range) => range16_to_range(range),
+                None => {
+                    // A range may not exist for nodes that are not encoded into the
+                    // text document (e.g. the non-active suggestions of an instruction).
+                    // In these cases we return the default range (first char of document)
+                    // and use that as a way of knowing whether to show code lenses of not
+                    Range::default()
+                }
             }
         };
 
@@ -89,38 +95,41 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
         });
 
         use NodeType::*;
-        let is_block = matches!(
-            node_type,
-            Admonition
-                | CallBlock
-                | ChatMessage
-                | Claim
-                | CodeBlock
-                | CodeChunk
-                | DeleteBlock
-                | Figure
-                | ForBlock
-                | Form
-                | Heading
-                | IfBlock
-                | IncludeBlock
-                | InsertBlock
-                | InstructionBlock
-                | List
-                | MathBlock
-                | ModifyBlock
-                | Paragraph
-                | QuoteBlock
-                | ReplaceBlock
-                | Section
-                | StyledBlock
-                | SuggestionBlock
-                | Table
-                | ThematicBreak
-        );
+        let is_block = !is_root
+            && matches!(
+                node_type,
+                Admonition
+                    | CallBlock
+                    | Chat
+                    | ChatMessage
+                    | Claim
+                    | CodeBlock
+                    | CodeChunk
+                    | DeleteBlock
+                    | Figure
+                    | ForBlock
+                    | Form
+                    | Heading
+                    | IfBlock
+                    | IncludeBlock
+                    | InsertBlock
+                    | InstructionBlock
+                    | List
+                    | MathBlock
+                    | ModifyBlock
+                    | Paragraph
+                    | QuoteBlock
+                    | ReplaceBlock
+                    | Section
+                    | StyledBlock
+                    | SuggestionBlock
+                    | Table
+                    | ThematicBreak
+            );
 
         self.stack.push(TextNode {
             range,
+            is_root,
             parent_type,
             parent_id,
             is_block,
@@ -139,6 +148,7 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
     fn exit_node(&mut self) {
         if self.stack.len() > 1 {
             if let Some(node) = self.stack.pop() {
+                // If has parent, add to its children
                 if let Some(parent) = self.stack.last_mut() {
                     parent.children.push(node)
                 }
@@ -175,6 +185,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         variants!(
             Admonition,
             CallBlock,
+            Chat,
             ChatMessage,
             Claim,
             CodeBlock,
@@ -400,41 +411,6 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
 trait Inspect {
     fn inspect(&self, inspector: &mut Inspector);
 }
-
-macro_rules! root {
-    ($( $type:ident ),*) => {
-        $(impl Inspect for $type {
-            fn inspect(&self, inspector: &mut Inspector) {
-                // Set this as the root node that others will become children of
-                inspector.stack.push(TextNode {
-                    range: Range::default(),
-                    parent_type: NodeType::Null,
-                    parent_id: NodeId::null(),
-                    is_block: false,
-                    node_type: self.node_type(),
-                    node_id: self.node_id(),
-                    name: stringify!($type).to_string(),
-                    detail: None,
-                    // Do not collect execution details or provenance because
-                    // we do not want these displayed on the first line in code lenses etc
-                    ..Default::default()
-                });
-
-                // Visit the root node
-                inspector.visit(self);
-
-                // Expand the range of the root to the last node
-                if let (Some(last), Some(node)) = (
-                    inspector.stack.last().map(|last| last.range),
-                    inspector.stack.first_mut(),
-                ) {
-                    node.range.end = last.end;
-                }
-            }
-        })*
-    }
-}
-root!(Article, Prompt, Chat);
 
 impl Inspect for ChatMessage {
     fn inspect(&self, inspector: &mut Inspector) {
@@ -787,6 +763,10 @@ macro_rules! default {
 }
 
 default!(
+    // Works
+    Article,
+    Prompt,
+    Chat,
     // Blocks
     Admonition,
     Claim,

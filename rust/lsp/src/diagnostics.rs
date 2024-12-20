@@ -296,12 +296,7 @@ fn diagnostics(node: &TextNode) -> Vec<Diagnostic> {
 
     // Do not show diagnostics for nodes without a range e.g. suggestions or original
     // content of instruction that are not encoded to the text document
-    if node.range == Range::default()
-        && !matches!(
-            node.node_type,
-            NodeType::Article | NodeType::Prompt | NodeType::Chat
-        )
-    {
+    if node.range == Range::default() && !node.is_root {
         return diags;
     }
 
