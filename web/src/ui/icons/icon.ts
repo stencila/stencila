@@ -73,6 +73,7 @@ import filePlay from './file-play.svg'
 import filePlus from './file-plus.svg'
 import fileTypeRaw from './filetype-raw.svg'
 import fullscreen from './fullscreen.svg'
+import gear from './gear.svg'
 import google from './google.svg'
 import handThumbsDownFill from './hand-thumbs-down-fill.svg'
 import handThumbsDown from './hand-thumbs-down.svg'
@@ -189,6 +190,7 @@ const icons = {
   filePlus,
   fileTypeRaw,
   fullscreen,
+  gear,
   google,
   handThumbsDown,
   handThumbsDownFill,

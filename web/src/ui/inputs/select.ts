@@ -30,7 +30,12 @@ export class UISelect extends LitElement {
 
   protected override render(): unknown {
     return html`
-      <sl-select ?multiple=${this.multi} ?clearable=${this.clearable}>
+      <sl-select
+        ?multiple=${this.multi}
+        ?clearable=${this.clearable}
+        size="small"
+        max-options-visible="2"
+      >
         ${this.options.map((opt) => {
           return html`
             <sl-option value=${opt.value}>

@@ -42,6 +42,7 @@ icons=(
     file-plus
     filetype-raw
     fullscreen
+    gear
     hand-thumbs-down
     hand-thumbs-down-fill
     hand-thumbs-up
