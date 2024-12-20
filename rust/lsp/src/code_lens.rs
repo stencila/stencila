@@ -95,6 +95,9 @@ pub(crate) async fn request(
                 };
 
                 let mut lenses = match node_type {
+                    NodeType::Chat => {
+                        vec![lens(ARCHIVE_NODE), lens(VIEW_NODE)]
+                    }
                     NodeType::CallBlock
                     | NodeType::CodeChunk
                     | NodeType::ForBlock
@@ -269,7 +272,13 @@ pub(crate) async fn resolve(
             String::new(),
             None,
         ),
-        ARCHIVE_NODE => Command::new("$(pass) Accept".to_string(), command, arguments),
+        ARCHIVE_NODE => {
+            let title = match node_type {
+                "InstructionBlock" => "$(pass) Accept".to_string(),
+                _ => "$(archive) Archive".to_string(),
+            };
+            Command::new(title, command, arguments)
+        }
         REVISE_NODE => Command::new(
             "$(refresh) Revise".to_string(),
             // Call corresponding `invoke` command on the client to collect any feedback from user

@@ -13,6 +13,22 @@ impl Chat {
         op: &PatchOp,
         context: &mut PatchContext,
     ) -> Result<bool> {
+        if path.is_empty() && matches!(op, PatchOp::Archive) {
+            // Add this instruction to the root's archive
+            context.op_additional(
+                PatchPath::from(NodeProperty::Archive),
+                PatchOp::Push(self.to_value()?),
+            );
+
+            // Remove this from the containing vector, if any
+            let mut path = context.path();
+            if let Some(PatchSlot::Index(index)) = path.pop_back() {
+                context.op_additional(path, PatchOp::Remove(vec![index]));
+            }
+
+            return Ok(true);
+        }
+
         if let Some(PatchSlot::Property(NodeProperty::Content)) = path.front() {
             // Only apply patches to the content of the chat if the patch is
             // associated with no, or a lossless, format, or if it is a root
@@ -26,7 +42,9 @@ impl Chat {
 
             if lossless_format || is_root {
                 path.pop_front();
-                self.content.apply(path, op.clone(), context)?;
+                context.within_property(NodeProperty::Content, |context| {
+                    self.content.apply(path, op.clone(), context)
+                })?;
             }
 
             return Ok(true);
