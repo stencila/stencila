@@ -64,8 +64,8 @@ const BOX_PROPERTIES: &[&str] = &[
     "CallArgument.value",
     "CodeExpression.output",
     "ConstantValidator.value",
-    "InstructionBlock.model",
-    "InstructionInline.model",
+    "InstructionBlock.model_parameters",
+    "InstructionInline.model_parameters",
     "ListItem.item",
     "ModifyOperation.value",
     "Parameter.default",
@@ -609,13 +609,18 @@ pub enum NodeProperty {{
 
             // Add #[serde] attribute for field if necessary
             if let Some(serde) = &property.serde {
-                let mut args = vec!["default".to_string()];
+                let mut args = Vec::new();
+
+                if serde.default {
+                    args.push("default".to_string());
+                }
 
                 if let Some(deserialize_with) = &serde.deserialize_with {
                     // `deserializeWith: none` is used in the schema to avoid the
                     // default behavior for arrays below (which is problematic for
                     // arrays of `Node` or `Primitive` (since they can be arrays themselves))
                     if deserialize_with != "none" {
+                        args.push("default".to_string());
                         args.push(format!("deserialize_with = \"{deserialize_with}\""));
                     }
                 }

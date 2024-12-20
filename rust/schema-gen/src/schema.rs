@@ -596,6 +596,11 @@ pub struct PatchOptions {
     crate = "common::serde"
 )]
 pub struct SerdeOptions {
+    /// Set the `default` attribute of a field
+    ///
+    /// See https://serde.rs/field-attrs.html#default
+    pub default: bool,
+
     /// Set the `deserialize_with` attribute of a field
     ///
     /// See https://serde.rs/field-attrs.html#deserialize_with
