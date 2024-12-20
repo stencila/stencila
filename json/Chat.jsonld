@@ -911,6 +911,18 @@
       "schema:rangeIncludes": {
         "@id": "stencila:Block"
       }
+    },
+    {
+      "@id": "stencila:isEphemeral",
+      "@type": "rdfs:Property",
+      "rdfs:label": "isEphemeral",
+      "rdfs:comment": "Whether a chat that is nested within another node is ephemeral or not.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Chat"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
     }
   ]
 }

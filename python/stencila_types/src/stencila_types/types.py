@@ -1205,6 +1205,9 @@ class Chat(CreativeWork, Executable):
     content: list[Block]
     """The messages, and optionally other content, that make up the conversation."""
 
+    is_ephemeral: bool | None = None
+    """Whether a chat that is nested within another node is ephemeral or not."""
+
 
 @dataclass(kw_only=True, repr=False)
 class ChatMessage(Executable):

@@ -125,6 +125,7 @@ pub enum NodeProperty {
     IsChecked,
     IsCollapsed,
     IsDisabled,
+    IsEphemeral,
     IsFolded,
     IsGlobal,
     IsInvisible,

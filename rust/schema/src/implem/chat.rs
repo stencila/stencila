@@ -3,6 +3,39 @@ use node_strip::{StripNode, StripTargets};
 
 use crate::{prelude::*, Chat};
 
+impl Chat {
+    /// Custom implementation of [`PatchNode::apply`].
+    ///
+    /// Only allow operations on the `content` vector if the chat is not nested.
+    pub fn apply_with(
+        &mut self,
+        path: &mut PatchPath,
+        op: &PatchOp,
+        context: &mut PatchContext,
+    ) -> Result<bool> {
+        if let Some(PatchSlot::Property(NodeProperty::Content)) = path.front() {
+            // Only apply patches to the content of the chat if the patch is
+            // associated with no, or a lossless, format, or if it is a root
+            // node (not nested)
+            let lossless_format = context
+                .format
+                .as_ref()
+                .map(|format| format.is_lossless())
+                .unwrap_or(true);
+            let is_root = self.is_ephemeral.is_none();
+
+            if lossless_format || is_root {
+                path.pop_front();
+                self.content.apply(path, op.clone(), context)?;
+            }
+
+            return Ok(true);
+        }
+
+        Ok(false)
+    }
+}
+
 impl MarkdownCodec for Chat {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         // If not the root node (i.e. within an `Article` or other document) then

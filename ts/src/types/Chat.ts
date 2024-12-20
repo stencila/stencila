@@ -26,6 +26,11 @@ export class Chat extends CreativeWork {
    */
   content: Block[];
 
+  /**
+   * Whether a chat that is nested within another node is ephemeral or not.
+   */
+  isEphemeral?: boolean;
+
   constructor(model: InstructionModel, content: Block[], options?: Partial<Chat>) {
     super();
     this.type = "Chat";

@@ -719,6 +719,7 @@ fn chat(input: &mut Located<&str>) -> PResult<Block> {
     )
     .map(|message| {
         Block::Chat(Chat {
+            is_ephemeral: message.is_some().then_some(false),
             ..Default::default()
         })
     })

@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::author::Author;
 use super::block::Block;
+use super::boolean::Boolean;
 use super::comment::Comment;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
@@ -41,7 +42,7 @@ use super::timestamp::Timestamp;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "Chat")]
-#[patch(authors_on = "options")]
+#[patch(authors_on = "options", apply_with = "Chat::apply_with")]
 pub struct Chat {
     /// The type of this item.
     pub r#type: MustBe!("Chat"),
@@ -81,6 +82,10 @@ pub struct Chat {
     #[patch(format = "all")]
     #[dom(elem = "div")]
     pub content: Vec<Block>,
+
+    /// Whether a chat that is nested within another node is ephemeral or not.
+    #[serde(alias = "is-ephemeral", alias = "is_ephemeral")]
+    pub is_ephemeral: Option<Boolean>,
 
     /// Non-core optional fields
     #[serde(flatten)]

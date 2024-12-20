@@ -313,6 +313,7 @@
     "isChecked": "stencila:isChecked",
     "isCollapsed": "stencila:isCollapsed",
     "isDisabled": "stencila:isDisabled",
+    "isEphemeral": "stencila:isEphemeral",
     "isFolded": "stencila:isFolded",
     "isGlobal": "stencila:isGlobal",
     "isInvisible": "stencila:isInvisible",
