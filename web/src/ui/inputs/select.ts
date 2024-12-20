@@ -2,15 +2,15 @@ import { html, LitElement } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../../twind'
+import { IconName } from '../icons/icon'
 
 import '@shoelace-style/shoelace/dist/components/select/select'
 import '@shoelace-style/shoelace/dist/components/option/option'
-import '../icons/icon'
 
 type SelectOption = {
   value: string
   label?: string
-  icon?: string
+  icon?: IconName
 }
 
 @customElement('ui-select-input')

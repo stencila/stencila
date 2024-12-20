@@ -11,6 +11,16 @@ export function registerPromptsView(
     treeDataProvider,
   });
 
+  const list = vscode.commands.registerCommand(
+    "stencila.prompts.list",
+    async () => {
+      if (treeDataProvider.list.length === 0) {
+        await treeDataProvider.refresh();
+      }
+      return treeDataProvider.list;
+    }
+  );
+
   const refresh = vscode.commands.registerCommand(
     "stencila.prompts.refresh",
     () => treeDataProvider.refresh()
@@ -90,7 +100,7 @@ export function registerPromptsView(
     }
   );
 
-  context.subscriptions.push(treeView, refresh, open, use, menu, picker);
+  context.subscriptions.push(treeView, list, refresh, open, use, menu, picker);
 
   return treeDataProvider;
 }

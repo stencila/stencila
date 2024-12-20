@@ -2,7 +2,10 @@ import { apply } from '@twind/core'
 import { css, html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
+import { data } from '../system'
 import { withTwind } from '../twind'
+import { iconMaybe } from '../ui/icons/icon'
+import '../ui/inputs/select'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import { Entity } from './entity'
@@ -10,45 +13,6 @@ import { Entity } from './entity'
 import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
 import '@shoelace-style/shoelace/dist/components/range/range.js'
 import '@shoelace-style/shoelace/dist/components/divider/divider.js'
-
-import '../ui/inputs/select'
-
-// const models = [
-//   'stencila/router',
-//   'anthropic/claude-3-5-haiku-20241022',
-//   'anthropic/claude-3-5-sonnet-20240620',
-//   'anthropic/claude-3-5-sonnet-20241022',
-//   'anthropic/claude-3-haiku-20240307',
-//   'anthropic/claude-3-opus-20240229',
-//   'anthropic/claude-3-sonnet-20240229',
-//   'cloudflare/deepseek-coder-6.7b-instruct-awq',
-//   'cloudflare/llama-3.1-70b-instruct',
-//   'cloudflare/llama-3.1-8b-instruct',
-//   'cloudflare/llama-3.2-3b-instruct ',
-//   'google/gemini-1.0-pro-001',
-//   'google/gemini-1.5-flash-001',
-//   'google/gemini-1.5-pro-001',
-//   'mistral/codestral-2405',
-//   'mistral/codestral-mamba-2407',
-//   'mistral/mistral-large-2407',
-//   'mistral/mistral-medium-2312',
-//   'mistral/mistral-small-2402',
-//   'mistral/mistral-tiny-2312',
-//   'mistral/mistral-tiny-2407',
-//   'mistral/open-mistral-nemo-2407',
-//   'mistral/open-mixtral-8x22b-2404',
-//   'openai/dall-e-2',
-//   'openai/dall-e-3',
-//   'openai/gpt-3.5-turbo-1106',
-//   'openai/gpt-3.5-turbo-instruct-0914',
-//   'openai/gpt-4-0613',
-//   'openai/gpt-4-turbo-2024-04-09',
-//   'openai/gpt-4o-2024-05-13',
-//   'openai/gpt-4o-2024-08-06',
-//   'openai/gpt-4o-mini-2024-07-18',
-//   'openai/o1-mini-2024-09-12',
-//   'openai/o1-preview-2024-09-12',
-// ]
 
 const TOTAL_COLLECTIVE_WEIGHT_SUM = 100
 
@@ -133,6 +97,20 @@ export class InstructionModel extends Entity {
     this[changedField] = +newValue
   }
 
+  override connectedCallback() {
+    super.connectedCallback()
+    data.addEventListener('models', this.onModelsUpdated.bind(this))
+  }
+
+  override disconnectedCallback() {
+    super.disconnectedCallback()
+    data.removeEventListener('models', this.onModelsUpdated.bind(this))
+  }
+
+  onModelsUpdated() {
+    this.requestUpdate()
+  }
+
   override render() {
     const { borderColour, colour } = nodeUi('InstructionBlock')
     const styles = apply(
@@ -152,12 +130,11 @@ export class InstructionModel extends Entity {
             class="w-1/2"
             ?multi=${true}
             ?clearable=${true}
-            .options=${[
-              { value: 'chat-gpt' },
-              { value: 'claude' },
-              { value: 'ollama' },
-              { value: 'gemini' },
-            ]}
+            .options=${data.models.map((model) => ({
+              value: model.id,
+              icon: iconMaybe(model.provider.toLowerCase()) ?? 'robot',
+              label: `${model.name} ${model.version}`,
+            }))}
           >
           </ui-select-input>
           <div>

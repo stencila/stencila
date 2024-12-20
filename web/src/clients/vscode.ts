@@ -1,6 +1,7 @@
 import { Idiomorph } from 'idiomorph/dist/idiomorph.esm.js'
 
 import { Entity } from '../nodes/entity'
+import { data, Kernel, Model, Prompt } from '../system'
 import { NodeId } from '../types'
 import { MarkerToggleInterface } from '../ui/nodes/mixins/toggle-marker'
 import { UIBaseClass } from '../ui/nodes/mixins/ui-base-class'
@@ -11,7 +12,11 @@ import { FormatPatch } from './format'
 /**
  * A message received from VSCode by the web view
  */
-type ReceivedMessage = DomPatchMessage | ViewNodeMessage | ScrollSyncMessage
+type ReceivedMessage =
+  | DomPatchMessage
+  | ViewNodeMessage
+  | ScrollSyncMessage
+  | SystemDataMessage
 
 interface DomPatchMessage {
   type: 'dom-patch'
@@ -29,6 +34,13 @@ interface ScrollSyncMessage {
   startId?: string
   endId?: string
   cursorId?: string
+}
+
+interface SystemDataMessage {
+  type: 'system-data'
+  kernels?: Kernel[]
+  prompts?: Prompt[]
+  models?: Model[]
 }
 
 /**
@@ -68,7 +80,7 @@ declare const vscode: VSCode
  * Note: this re-implements functionality in `FormatClient` and `DomClient` but
  * instead of using a Websocket, receives messages over VSCodes `postMessage`.
  */
-export class PreviewClient {
+export class VSCodeClient {
   /**
    * The local version of the DOM HTML
    *
@@ -239,6 +251,8 @@ export class PreviewClient {
         return this.handleViewNodeMessage(data)
       case 'scroll-sync':
         return this.handleScrollSyncMessage(data)
+      case 'system-data':
+        return this.handleSystemDataMessage(data)
       default:
         throw new Error(`Unhandled received message type: ${type}`)
     }
@@ -397,6 +411,25 @@ export class PreviewClient {
           behavior: 'smooth',
         })
       }
+    }
+  }
+
+  /**
+   * Handle a received `SystemDataMessage` message
+   */
+  private handleSystemDataMessage({
+    kernels,
+    prompts,
+    models,
+  }: SystemDataMessage) {
+    if (kernels) {
+      data.kernels = kernels
+    }
+    if (prompts) {
+      data.prompts = prompts
+    }
+    if (models) {
+      data.models = models
     }
   }
 }

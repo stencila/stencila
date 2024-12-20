@@ -197,10 +197,10 @@ export async function initializeWebViewPanel(
     vscode.Uri.joinPath(webDist, "themes", `${themeName}.css`)
   );
   const viewCss = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(webDist, "views", "vscode-preview.css")
+    vscode.Uri.joinPath(webDist, "views", "vscode.css")
   );
   const viewJs = panel.webview.asWebviewUri(
-    vscode.Uri.joinPath(webDist, "views", "vscode-preview.js")
+    vscode.Uri.joinPath(webDist, "views", "vscode.js")
   );
 
   panel.webview.html = `
@@ -218,15 +218,23 @@ export async function initializeWebViewPanel(
             <script type="text/javascript" src="${viewJs}"></script>
         </head>
         <body style="background: white;">
-          <stencila-vscode-preview-view theme="${themeName}">
+          <stencila-vscode-view theme="${themeName}">
             ${viewHtml}
-          </stencila-vscode-preview-view>
+          </stencila-vscode-view>
           <script>
             const vscode = acquireVsCodeApi()
           </script>
         </body>
     </html>
   `;
+
+  // Send system data to the webview
+  await panel.webview.postMessage({
+    type: "system-data",
+    kernels: await vscode.commands.executeCommand("stencila.kernels.list"),
+    prompts: await vscode.commands.executeCommand("stencila.prompts.list"),
+    models: await vscode.commands.executeCommand("stencila.models.list"),
+  });
 
   const disposables: vscode.Disposable[] = [];
 

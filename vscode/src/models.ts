@@ -11,6 +11,16 @@ export function registerModelsView(
     treeDataProvider,
   });
 
+  const list = vscode.commands.registerCommand(
+    "stencila.models.list",
+    async () => {
+      if (treeDataProvider.list.length === 0) {
+        await treeDataProvider.refresh();
+      }
+      return treeDataProvider.list;
+    }
+  );
+
   const refresh = vscode.commands.registerCommand(
     "stencila.models.refresh",
     () => treeDataProvider.refresh()
@@ -53,7 +63,7 @@ export function registerModelsView(
     }
   );
 
-  context.subscriptions.push(treeView, refresh, picker, use);
+  context.subscriptions.push(treeView, list, refresh, picker, use);
 
   return treeDataProvider;
 }

@@ -39,8 +39,7 @@
       "source": [
         "src/themes/default.css",
         "src/themes/stencila.css",
-        "src/views/vscode-preview.ts",
-        "src/views/vscode-model-chat.ts"
+        "src/views/vscode.ts"
       ],
       "distDir": "../vscode/out/web"
     }
@@ -56,7 +55,7 @@
     "e2e": "playwright test",
     "start": "parcel watch",
     "build": "cross-env NODE_ENV=production parcel build --target default --no-scope-hoist",
-    "build:vscode": "cross-env STENCILA_VIEW=vscode NODE_ENV=production parcel build --target vscode --config .parcelrc-vscode --no-source-maps --no-cache",
+    "build:vscode": "cross-env NODE_ENV=production parcel build --target vscode --config .parcelrc-vscode --no-source-maps --no-cache",
     "export:vscode": "tsx scripts/export-to-vscode.ts",
     "unused": "depcheck --quiet --ignores '@parcel/*,parcel-*,postcss-*' --ignore-patterns '.eslintrc*'"
   },
