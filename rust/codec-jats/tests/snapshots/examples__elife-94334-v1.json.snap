@@ -101,6 +101,4575 @@ snapshot_kind: text
     "type": "Date",
     "value": "2024-12-10"
   },
+  "references": [
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Agarwal"
+          ],
+          "givenNames": [
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tang"
+          ],
+          "givenNames": [
+            "Z"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yu"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Cohen-Fix"
+          ],
+          "givenNames": [
+            "O"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Two distinct pathways for inhibiting pds1 ubiquitination in response to DNA damage"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1074/jbc.M306783200",
+        "12947083"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "The Journal of Biological Chemistry"
+      },
+      "version": "278",
+      "pageStart": "45027",
+      "pageEnd": "45033"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Anand"
+          ],
+          "givenNames": [
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Beach"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Li"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haber"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Rad51-mediated double-strand break repair and mismatch correction of divergent substrates"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1038/nature22046",
+        "28405019"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Nature"
+      },
+      "version": "544",
+      "pageStart": "377",
+      "pageEnd": "380"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Aylon"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kupiec"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The checkpoint protein Rad24 of "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " is involved in processing double-strand break ends and in recombination partner choice"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1128/MCB.23.18.6585-6596.2003"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Molecular and Cellular Biology"
+      },
+      "version": "23",
+      "pageStart": "6585",
+      "pageEnd": "6596"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bardin"
+          ],
+          "givenNames": [
+            "AJ"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Visintin"
+          ],
+          "givenNames": [
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Amon"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A mechanism for coupling exit from mitosis to partitioning of the nucleus"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1016/s0092-8674(00)00007-6",
+        "10929710"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Cell"
+      },
+      "version": "102",
+      "pageStart": "21",
+      "pageEnd": "31"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bazzi"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mantiero"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Trovesi"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lucchini"
+          ],
+          "givenNames": [
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Longhese"
+          ],
+          "givenNames": [
+            "MP"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Dephosphorylation of gamma H2A by Glc7/protein phosphatase 1 promotes recovery from inhibition of DNA replication"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1128/MCB.01000-09",
+        "19884341"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Molecular and Cellular Biology"
+      },
+      "version": "30",
+      "pageStart": "131",
+      "pageEnd": "145"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chen"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Smolka"
+          ],
+          "givenNames": [
+            "MB"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhou"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mechanism of Dun1 activation by Rad53 phosphorylation in "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1074/jbc.M609322200",
+        "17114794"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "The Journal of Biological Chemistry"
+      },
+      "version": "282",
+      "pageStart": "986",
+      "pageEnd": "995"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Clerici"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Paciotti"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Baldo"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Romano"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lucchini"
+          ],
+          "givenNames": [
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Longhese"
+          ],
+          "givenNames": [
+            "MP"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Hyperactivation of the yeast DNA damage checkpoint by TEL1 and DDC2 overexpression"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1093/emboj/20.22.6485",
+        "11707419"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "The EMBO Journal"
+      },
+      "version": "20",
+      "pageStart": "6485",
+      "pageEnd": "6498"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "de la Torre-Ruiz"
+          ],
+          "givenNames": [
+            "MA"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Green"
+          ],
+          "givenNames": [
+            "CM"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lowndes"
+          ],
+          "givenNames": [
+            "NF"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "RAD9 and RAD24 define two additive, interacting branches of the DNA damage checkpoint pathway in budding yeast normally required for Rad53 modification and activation"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1093/emboj/17.9.2687",
+        "9564050"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "The EMBO Journal"
+      },
+      "version": "17",
+      "pageStart": "2687",
+      "pageEnd": "2698"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dick"
+          ],
+          "givenNames": [
+            "AE"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gerlich"
+          ],
+          "givenNames": [
+            "DW"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Kinetic framework of spindle assembly checkpoint signalling"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1038/ncb2842",
+        "24096243"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Nature Cell Biology"
+      },
+      "version": "15",
+      "pageStart": "1370",
+      "pageEnd": "1377"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dotiwala"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haase"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Arbel-Eden"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bloom"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haber"
+          ],
+          "givenNames": [
+            "JE"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The yeast DNA damage checkpoint proteins control a cytoplasmic response to DNA damage"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1073/pnas.0609636104",
+        "17586685"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "PNAS"
+      },
+      "version": "104",
+      "pageStart": "11358",
+      "pageEnd": "11363"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dotiwala"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Harrison"
+          ],
+          "givenNames": [
+            "JC"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jain"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sugawara"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haber"
+          ],
+          "givenNames": [
+            "JE"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mad2 prolongs DNA damage checkpoint arrest caused by a double-strand break via a centromere-dependent mechanism"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1016/j.cub.2009.12.033",
+        "20096585"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Current Biology"
+      },
+      "version": "20",
+      "pageStart": "328",
+      "pageEnd": "332"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dubrana"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "van Attikum"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hediger"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gasser"
+          ],
+          "givenNames": [
+            "SM"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The processing of double-strand breaks and binding of single-strand-binding proteins RPA and Rad51 modulate the formation of ATR-kinase foci in yeast"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1242/jcs.018366",
+        "18003698"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Journal of Cell Science"
+      },
+      "version": "120",
+      "pageStart": "4209",
+      "pageEnd": "4220"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Durocher"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Henckel"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Fersht"
+          ],
+          "givenNames": [
+            "AR"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jackson"
+          ],
+          "givenNames": [
+            "SP"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The FHA domain is a modular phosphopeptide recognition motif"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1016/s1097-2765(00)80340-8",
+        "10518219"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Molecular Cell"
+      },
+      "version": "4",
+      "pageStart": "387",
+      "pageEnd": "394"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Eapen"
+          ],
+          "givenNames": [
+            "VV"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sugawara"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tsabar"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wu"
+          ],
+          "givenNames": [
+            "WH"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haber"
+          ],
+          "givenNames": [
+            "JE"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " chromatin remodeler Fun30 regulates DNA end resection and checkpoint deactivation"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1128/MCB.00566-12",
+        "23007155"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Molecular and Cellular Biology"
+      },
+      "version": "32",
+      "pageStart": "4727",
+      "pageEnd": "4740"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ellison"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Stillman"
+          ],
+          "givenNames": [
+            "B"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Biochemical characterization of DNA damage checkpoint complexes: clamp loader and clamp complexes with specificity for 5’ recessed DNA"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1371/journal.pbio.0000033",
+        "14624239"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "PLOS Biology"
+      },
+      "version": "1"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Emili"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "MEC1-dependent phosphorylation of Rad9p in response to DNA damage"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1016/s1097-2765(00)80128-8",
+        "9734355"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Molecular Cell"
+      },
+      "version": "2",
+      "pageStart": "183",
+      "pageEnd": "189"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Fiorani"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mimun"
+          ],
+          "givenNames": [
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Caleca"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Piccini"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pellicioli"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Characterization of the activation domain of the Rad53 checkpoint kinase"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.4161/cc.7.4.5323",
+        "18287812"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Cell Cycle"
+      },
+      "version": "7",
+      "pageStart": "493",
+      "pageEnd": "499"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Garber"
+          ],
+          "givenNames": [
+            "PM"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rine"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Overlapping roles of the spindle assembly and DNA damage checkpoints in the cell-cycle response to altered chromosomes in "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1093/genetics/161.2.521",
+        "12072451"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Genetics"
+      },
+      "version": "161",
+      "pageStart": "521",
+      "pageEnd": "534"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Geymonat"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Spanos"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Smith"
+          ],
+          "givenNames": [
+            "SJM"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wheatley"
+          ],
+          "givenNames": [
+            "E"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rittinger"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Johnston"
+          ],
+          "givenNames": [
+            "LH"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sedgwick"
+          ],
+          "givenNames": [
+            "SG"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Control of mitotic exit in budding yeast. In vitro regulation of Tem1 GTPase by Bub2 and Bfa1"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1074/jbc.M202540200",
+        "12048186"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "The Journal of Biological Chemistry"
+      },
+      "version": "277",
+      "pageStart": "28439",
+      "pageEnd": "28445"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hu"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liu"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Li"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Qin"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Elledge"
+          ],
+          "givenNames": [
+            "SJ"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Regulation of the Bub2/Bfa1 GAP complex by Cdc5 and cell cycle checkpoints"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1016/s0092-8674(01)00580-3",
+        "11733064"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Cell"
+      },
+      "version": "107",
+      "pageStart": "655",
+      "pageEnd": "665"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kim"
+          ],
+          "givenNames": [
+            "JA"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kruhlak"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dotiwala"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nussenzweig"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haber"
+          ],
+          "givenNames": [
+            "JE"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Heterochromatin is refractory to gamma-H2AX modification in yeast and mammals"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1083/jcb.200612031",
+        "17635934"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "The Journal of Cell Biology"
+      },
+      "version": "178",
+      "pageStart": "209",
+      "pageEnd": "218"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kim"
+          ],
+          "givenNames": [
+            "EM"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Burke"
+          ],
+          "givenNames": [
+            "DJ"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "DNA damage activates the SAC in an ATM/ATR-dependent manner, independently of the kinetochore"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1371/journal.pgen.1000015",
+        "18454191"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "PLOS Genetics"
+      },
+      "version": "4"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lanz"
+          ],
+          "givenNames": [
+            "MC"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dibitetto"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Smolka"
+          ],
+          "givenNames": [
+            "MB"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "DNA damage kinase signaling: checkpoint and repair at 30 years"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.15252/embj.2019101801",
+        "31393028"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "The EMBO Journal"
+      },
+      "version": "38"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lazzaro"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sapountzi"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Granata"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pellicioli"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Vaze"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haber"
+          ],
+          "givenNames": [
+            "JE"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Plevani"
+          ],
+          "givenNames": [
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lydall"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Muzi-Falconi"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Histone methyltransferase Dot1 and Rad9 inhibit single-stranded DNA accumulation at DSBs and uncapped telomeres"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1038/emboj.2008.81",
+        "18418382"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "The EMBO Journal"
+      },
+      "version": "27",
+      "pageStart": "1502",
+      "pageEnd": "1512"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lee"
+          ],
+          "givenNames": [
+            "SE"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Moore"
+          ],
+          "givenNames": [
+            "JK"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Holmes"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Umezu"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kolodner"
+          ],
+          "givenNames": [
+            "RD"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haber"
+          ],
+          "givenNames": [
+            "JE"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Saccharomyces Ku70, mre11/rad50 and RPA proteins regulate adaptation to G2/M arrest after DNA damage"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1016/s0092-8674(00)81482-8",
+        "9708741"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Cell"
+      },
+      "version": "94",
+      "pageStart": "399",
+      "pageEnd": "409"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lee"
+          ],
+          "givenNames": [
+            "CS"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lee"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Legube"
+          ],
+          "givenNames": [
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haber"
+          ],
+          "givenNames": [
+            "JE"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Dynamics of yeast histone H2A and H2B phosphorylation in response to a double-strand break"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1038/nsmb.2737",
+        "24336221"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Nature Structural & Molecular Biology"
+      },
+      "version": "21",
+      "pageStart": "103",
+      "pageEnd": "109"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Leroy"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lee"
+          ],
+          "givenNames": [
+            "SE"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Vaze"
+          ],
+          "givenNames": [
+            "MB"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ochsenbein"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Guerois"
+          ],
+          "givenNames": [
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haber"
+          ],
+          "givenNames": [
+            "JE"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Marsolier-Kergoat"
+          ],
+          "givenNames": [
+            "MC"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "PP2C phosphatases Ptc2 and Ptc3 are required for DNA checkpoint inactivation after a double-strand break"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1016/s1097-2765(03)00058-3",
+        "12667463"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Molecular Cell"
+      },
+      "version": "11",
+      "pageStart": "827",
+      "pageEnd": "835"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Limbo"
+          ],
+          "givenNames": [
+            "O"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Porter-Goff"
+          ],
+          "givenNames": [
+            "ME"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rhind"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Russell"
+          ],
+          "givenNames": [
+            "P"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mre11 nuclease activity and Ctp1 regulate Chk1 activation by Rad3ATR and Tel1ATM checkpoint kinases at double-strand breaks"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1128/MCB.00994-10",
+        "21098122"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Molecular and Cellular Biology"
+      },
+      "version": "31",
+      "pageStart": "573",
+      "pageEnd": "583"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Majka"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Binz"
+          ],
+          "givenNames": [
+            "SK"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wold"
+          ],
+          "givenNames": [
+            "MS"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Burgers"
+          ],
+          "givenNames": [
+            "PMJ"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Replication protein A directs loading of the DNA damage checkpoint clamp to 5’-DNA junctions"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1074/jbc.M605176200",
+        "16864589"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "The Journal of Biological Chemistry"
+      },
+      "version": "281",
+      "pageStart": "27855",
+      "pageEnd": "27861"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mantiero"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Clerici"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lucchini"
+          ],
+          "givenNames": [
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Longhese"
+          ],
+          "givenNames": [
+            "MP"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Dual role for "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " Tel1 in the checkpoint response to double-strand breaks"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1038/sj.embor.7400911",
+        "17347674"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "EMBO Reports"
+      },
+      "version": "8",
+      "pageStart": "380",
+      "pageEnd": "387"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Marangos"
+          ],
+          "givenNames": [
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Stevense"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Niaka"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lagoudaki"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nabti"
+          ],
+          "givenNames": [
+            "I"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jessberger"
+          ],
+          "givenNames": [
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Carroll"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "DNA damage-induced metaphase I arrest is mediated by the spindle assembly checkpoint and maternal age"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1038/ncomms9706",
+        "26522734"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Nature Communications"
+      },
+      "version": "6"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Maréchal"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zou"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "RPA-coated single-stranded DNA as a platform for post-translational modifications in the DNA damage response"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1038/cr.2014.147",
+        "25403473"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Cell Research"
+      },
+      "version": "25",
+      "pageStart": "9",
+      "pageEnd": "23"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Matellán"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Monje-Casas"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Regulation of mitotic exit by cell cycle checkpoints: lessons from "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.3390/genes11020195",
+        "32059558"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Genes"
+      },
+      "version": "11"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "McAinsh"
+          ],
+          "givenNames": [
+            "AD"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kops"
+          ],
+          "givenNames": [
+            "GJPL"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Principles and dynamics of spindle assembly checkpoint signalling"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1038/s41580-023-00593-z",
+        "36964313"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Nature Reviews. Molecular Cell Biology"
+      },
+      "version": "24",
+      "pageStart": "543",
+      "pageEnd": "559"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mehta"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haber"
+          ],
+          "givenNames": [
+            "JE"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Sources of DNA double-strand breaks and models of recombinational DNA repair"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1101/cshperspect.a016428",
+        "25104768"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Cold Spring Harbor Perspectives in Biology"
+      },
+      "version": "6"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Melo"
+          ],
+          "givenNames": [
+            "JA"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Cohen"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Toczyski"
+          ],
+          "givenNames": [
+            "DP"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Two checkpoint complexes are independently recruited to sites of DNA damage in vivo"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1101/gad.903501",
+        "11691833"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Genes & Development"
+      },
+      "version": "15",
+      "pageStart": "2809",
+      "pageEnd": "2821"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Memisoglu"
+          ],
+          "givenNames": [
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lanz"
+          ],
+          "givenNames": [
+            "MC"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Eapen"
+          ],
+          "givenNames": [
+            "VV"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Jordan"
+          ],
+          "givenNames": [
+            "JM"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lee"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Smolka"
+          ],
+          "givenNames": [
+            "MB"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haber"
+          ],
+          "givenNames": [
+            "JE"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mec1ATR Autophosphorylation and Ddc2ATRIP Phosphorylation Regulates DNA Damage Checkpoint Signaling"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1016/j.celrep.2019.06.068"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Cell Reports"
+      },
+      "version": "28",
+      "pageStart": "1090",
+      "pageEnd": "1102"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Miller-Fleming"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Cheong"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Antas"
+          ],
+          "givenNames": [
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Klionsky"
+          ],
+          "givenNames": [
+            "DJ"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Detection of "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " Atg13 by western blot"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.4161/auto.27707",
+        "24430166"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Autophagy"
+      },
+      "version": "10",
+      "pageStart": "514",
+      "pageEnd": "517"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Moore"
+          ],
+          "givenNames": [
+            "JK"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haber"
+          ],
+          "givenNames": [
+            "JE"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Cell cycle and genetic requirements of two pathways of nonhomologous end-joining repair of double-strand breaks in "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1128/MCB.16.5.2164",
+        "8628283"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Molecular and Cellular Biology"
+      },
+      "version": "16",
+      "pageStart": "2164",
+      "pageEnd": "2173"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Morawska"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ulrich"
+          ],
+          "givenNames": [
+            "HD"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "An expanded tool kit for the auxin-inducible degron system in budding yeast"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1002/yea.2967",
+        "23836714"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Yeast"
+      },
+      "version": "30",
+      "pageStart": "341",
+      "pageEnd": "351"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Musacchio"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The molecular biology of spindle assembly checkpoint signaling dynamics"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1016/j.cub.2015.08.051",
+        "26485365"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Current Biology"
+      },
+      "version": "25",
+      "pageStart": "R1002",
+      "pageEnd": "R1018"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Navadgi-Patil"
+          ],
+          "givenNames": [
+            "VM"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Burgers"
+          ],
+          "givenNames": [
+            "PM"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The unstructured C-terminal tail of the 9-1-1 clamp subunit Ddc1 activates Mec1/ATR via two distinct mechanisms"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1016/j.molcel.2009.10.014",
+        "20005839"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Molecular Cell"
+      },
+      "version": "36",
+      "pageStart": "743",
+      "pageEnd": "753"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nishimura"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Fukagawa"
+          ],
+          "givenNames": [
+            "T"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Takisawa"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kakimoto"
+          ],
+          "givenNames": [
+            "T"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kanemaki"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "An auxin-based degron system for the rapid depletion of proteins in nonplant cells"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1038/nmeth.1401",
+        "19915560"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Nature Methods"
+      },
+      "version": "6",
+      "pageStart": "917",
+      "pageEnd": "922"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "O’Neill"
+          ],
+          "givenNames": [
+            "BM"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Szyjka"
+          ],
+          "givenNames": [
+            "SJ"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lis"
+          ],
+          "givenNames": [
+            "ET"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bailey"
+          ],
+          "givenNames": [
+            "AO"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yates"
+          ],
+          "givenNames": [
+            "JR"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Aparicio"
+          ],
+          "givenNames": [
+            "OM"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Romesberg"
+          ],
+          "givenNames": [
+            "FE"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Pph3-Psy2 is a phosphatase complex required for Rad53 dephosphorylation and replication fork restart during recovery from DNA damage"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1073/pnas.0703252104",
+        "17517611"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "PNAS"
+      },
+      "version": "104",
+      "pageStart": "9290",
+      "pageEnd": "9295"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Paciotti"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Clerici"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lucchini"
+          ],
+          "givenNames": [
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Longhese"
+          ],
+          "givenNames": [
+            "MP"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The checkpoint protein Ddc2, functionally related to "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "S. pombe"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " Rad26, interacts with Mec1 and is regulated by Mec1-dependent phosphorylation in budding yeast"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10950868"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Genes & Development"
+      },
+      "version": "14",
+      "pageStart": "2046",
+      "pageEnd": "2059"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pellicioli"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lucca"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liberi"
+          ],
+          "givenNames": [
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Marini"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lopes"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Plevani"
+          ],
+          "givenNames": [
+            "P"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Romano"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Di Fiore"
+          ],
+          "givenNames": [
+            "PP"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Foiani"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Activation of Rad53 kinase in response to DNA damage and its effect in modulating phosphorylation of the lagging strand DNA polymerase"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1093/emboj/18.22.6561",
+        "10562568"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "The EMBO Journal"
+      },
+      "version": "18",
+      "pageStart": "6561",
+      "pageEnd": "6572"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pellicioli"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lee"
+          ],
+          "givenNames": [
+            "SE"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lucca"
+          ],
+          "givenNames": [
+            "C"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Foiani"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haber"
+          ],
+          "givenNames": [
+            "JE"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Regulation of Saccharomyces Rad53 checkpoint kinase during adaptation from DNA damage-induced G2/M arrest"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1016/s1097-2765(01)00177-0",
+        "11239458"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Molecular Cell"
+      },
+      "version": "7",
+      "pageStart": "293",
+      "pageEnd": "300"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rao"
+          ],
+          "givenNames": [
+            "RP"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hunter"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kashpur"
+          ],
+          "givenNames": [
+            "O"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Normanly"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Aberrant synthesis of indole-3-acetic acid in "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " triggers morphogenic transition, a virulence trait of pathogenic fungi"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1534/genetics.109.112854",
+        "20233857"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Genetics"
+      },
+      "version": "185",
+      "pageStart": "211",
+      "pageEnd": "220"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rogakou"
+          ],
+          "givenNames": [
+            "EP"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pilch"
+          ],
+          "givenNames": [
+            "DR"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Orr"
+          ],
+          "givenNames": [
+            "AH"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ivanova"
+          ],
+          "givenNames": [
+            "VS"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bonner"
+          ],
+          "givenNames": [
+            "WM"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "DNA double-stranded breaks induce histone H2AX phosphorylation on serine 139"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1074/jbc.273.10.5858",
+        "9488723"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "The Journal of Biological Chemistry"
+      },
+      "version": "273",
+      "pageStart": "5858",
+      "pageEnd": "5868"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sadeghi"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Dervey"
+          ],
+          "givenNames": [
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gligorovski"
+          ],
+          "givenNames": [
+            "V"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Labagnara"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rahi"
+          ],
+          "givenNames": [
+            "SJ"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The optimal strategy balancing risk and speed predicts DNA damage checkpoint override times"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1038/s41567-022-01601-3",
+        "36281344"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Nature Physics"
+      },
+      "version": "18",
+      "pageStart": "832",
+      "pageEnd": "839"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sanchez"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bachant"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wang"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hu"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liu"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tetzlaff"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Elledge"
+          ],
+          "givenNames": [
+            "SJ"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Control of the DNA damage checkpoint by chk1 and rad53 protein kinases through distinct mechanisms"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1126/science.286.5442.1166",
+        "10550056"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Science"
+      },
+      "version": "286",
+      "pageStart": "1166",
+      "pageEnd": "1171"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Schwartz"
+          ],
+          "givenNames": [
+            "MF"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Duong"
+          ],
+          "givenNames": [
+            "JK"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sun"
+          ],
+          "givenNames": [
+            "Z"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Morrow"
+          ],
+          "givenNames": [
+            "JS"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pradhan"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Stern"
+          ],
+          "givenNames": [
+            "DF"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Rad9 phosphorylation sites couple Rad53 to the "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " DNA damage checkpoint"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1016/s1097-2765(02)00532-4",
+        "12049741"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Molecular Cell"
+      },
+      "version": "9",
+      "pageStart": "1055",
+      "pageEnd": "1065"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Shirayama"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Matsui"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Toh-E"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The yeast TEM1 gene, which encodes a GTP-binding protein, is involved in termination of M phase"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1128/mcb.14.11.7476-7482.1994",
+        "7935462"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Molecular and Cellular Biology"
+      },
+      "version": "14",
+      "pageStart": "7476",
+      "pageEnd": "7482"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Shroff"
+          ],
+          "givenNames": [
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Arbel-Eden"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pilch"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ira"
+          ],
+          "givenNames": [
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bonner"
+          ],
+          "givenNames": [
+            "WM"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Petrini"
+          ],
+          "givenNames": [
+            "JH"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haber"
+          ],
+          "givenNames": [
+            "JE"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lichten"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Distribution and dynamics of chromatin modification induced by a defined DNA double-strand break"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1016/j.cub.2004.09.047",
+        "15458641"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Current Biology"
+      },
+      "version": "14",
+      "pageStart": "1703",
+      "pageEnd": "1711"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Smolka"
+          ],
+          "givenNames": [
+            "MB"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Albuquerque"
+          ],
+          "givenNames": [
+            "CP"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chen"
+          ],
+          "givenNames": [
+            "S"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhou"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Proteome-wide identification of in vivo targets of DNA damage checkpoint kinases"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1073/pnas.0701622104",
+        "17563356"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "PNAS"
+      },
+      "version": "104",
+      "pageStart": "10364",
+      "pageEnd": "10369"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Sweeney"
+          ],
+          "givenNames": [
+            "FD"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yang"
+          ],
+          "givenNames": [
+            "F"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chi"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Shabanowitz"
+          ],
+          "givenNames": [
+            "J"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hunt"
+          ],
+          "givenNames": [
+            "DF"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Durocher"
+          ],
+          "givenNames": [
+            "D"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " Rad9 acts as a Mec1 adaptor to allow Rad53 activation"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1016/j.cub.2005.06.063",
+        "16085488"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Current Biology"
+      },
+      "version": "15",
+      "pageStart": "1364",
+      "pageEnd": "1375"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tsabar"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Eapen"
+          ],
+          "givenNames": [
+            "VV"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Mason"
+          ],
+          "givenNames": [
+            "JM"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Memisoglu"
+          ],
+          "givenNames": [
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Waterman"
+          ],
+          "givenNames": [
+            "DP"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Long"
+          ],
+          "givenNames": [
+            "MJ"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Bishop"
+          ],
+          "givenNames": [
+            "DK"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haber"
+          ],
+          "givenNames": [
+            "JE"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Caffeine impairs resection during DNA break repair by reducing the levels of nucleases Sae2 and Dna2"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1093/nar/gkv520",
+        "26019182"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Nucleic Acids Research"
+      },
+      "version": "43",
+      "pageStart": "6889",
+      "pageEnd": "6901"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Usui"
+          ],
+          "givenNames": [
+            "T"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Petrini"
+          ],
+          "givenNames": [
+            "JHJ"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " 14-3-3 proteins Bmh1 and Bmh2 directly influence the DNA damage-dependent functions of Rad53"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1073/pnas.0611259104",
+        "17299042"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "PNAS"
+      },
+      "version": "104",
+      "pageStart": "2797",
+      "pageEnd": "2802"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Usui"
+          ],
+          "givenNames": [
+            "T"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Foster"
+          ],
+          "givenNames": [
+            "SS"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Petrini"
+          ],
+          "givenNames": [
+            "JHJ"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Maintenance of the DNA-damage checkpoint requires DNA-damage-induced mediator protein oligomerization"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1016/j.molcel.2008.12.022",
+        "19187758"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Molecular Cell"
+      },
+      "version": "33",
+      "pageStart": "147",
+      "pageEnd": "159"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Vaze"
+          ],
+          "givenNames": [
+            "MB"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pellicioli"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lee"
+          ],
+          "givenNames": [
+            "SE"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ira"
+          ],
+          "givenNames": [
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Liberi"
+          ],
+          "givenNames": [
+            "G"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Arbel-Eden"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Foiani"
+          ],
+          "givenNames": [
+            "M"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haber"
+          ],
+          "givenNames": [
+            "JE"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Recovery from checkpoint-mediated arrest after repair of a double-strand break requires Srs2 helicase"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1016/s1097-2765(02)00593-2",
+        "12191482"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Molecular Cell"
+      },
+      "version": "10",
+      "pageStart": "373",
+      "pageEnd": "385"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Wach"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Brachat"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Pöhlmann"
+          ],
+          "givenNames": [
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Philippsen"
+          ],
+          "givenNames": [
+            "P"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "New heterologous modules for classical or PCR-based gene disruptions in "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1002/yea.320101310",
+        "7747518"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Yeast"
+      },
+      "version": "10",
+      "pageStart": "1793",
+      "pageEnd": "1808"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Waterman"
+          ],
+          "givenNames": [
+            "DP"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Haber"
+          ],
+          "givenNames": [
+            "JE"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Smolka"
+          ],
+          "givenNames": [
+            "MB"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Checkpoint Responses to DNA Double-Strand Breaks"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1146/annurev-biochem-011520-104722",
+        "32176524"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Annual Review of Biochemistry"
+      },
+      "version": "89",
+      "pageStart": "103",
+      "pageEnd": "133"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yam"
+          ],
+          "givenNames": [
+            "CQX"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chia"
+          ],
+          "givenNames": [
+            "DB"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Shi"
+          ],
+          "givenNames": [
+            "I"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lim"
+          ],
+          "givenNames": [
+            "HH"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Surana"
+          ],
+          "givenNames": [
+            "U"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Dun1, a Chk2-related kinase, is the central regulator of securin-separase dynamics during DNA damage signaling"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1093/nar/gkaa355",
+        "32402080"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Nucleic Acids Research"
+      },
+      "version": "48",
+      "pageStart": "6092",
+      "pageEnd": "6107"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Yesbolatova"
+          ],
+          "givenNames": [
+            "A"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Saito"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kitamoto"
+          ],
+          "givenNames": [
+            "N"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Makino-Itou"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ajima"
+          ],
+          "givenNames": [
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nakano"
+          ],
+          "givenNames": [
+            "R"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Nakaoka"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Fukui"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Gamo"
+          ],
+          "givenNames": [
+            "K"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Tominari"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Takeuchi"
+          ],
+          "givenNames": [
+            "H"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Saga"
+          ],
+          "givenNames": [
+            "Y"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Hayashi"
+          ],
+          "givenNames": [
+            "KI"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Kanemaki"
+          ],
+          "givenNames": [
+            "MT"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The auxin-inducible degron 2 technology provides sharp degradation control in yeast, mammalian cells, and mice"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1038/s41467-020-19532-z",
+        "33177522"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Nature Communications"
+      },
+      "version": "11"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhao"
+          ],
+          "givenNames": [
+            "X"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Rothstein"
+          ],
+          "givenNames": [
+            "R"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The Dun1 checkpoint kinase phosphorylates and regulates the ribonucleotide reductase inhibitor Sml1"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1073/pnas.062502299",
+        "11904430"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "PNAS"
+      },
+      "version": "99",
+      "pageStart": "3746",
+      "pageEnd": "3751"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhou"
+          ],
+          "givenNames": [
+            "Z"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Elledge"
+          ],
+          "givenNames": [
+            "SJ"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "DUN1 encodes a protein kinase that controls the DNA damage response in yeast"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1016/0092-8674(93)90321-g",
+        "8261511"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Cell"
+      },
+      "version": "75",
+      "pageStart": "1119",
+      "pageEnd": "1127"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zhu"
+          ],
+          "givenNames": [
+            "Z"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Chung"
+          ],
+          "givenNames": [
+            "WH"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Shim"
+          ],
+          "givenNames": [
+            "EY"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Lee"
+          ],
+          "givenNames": [
+            "SE"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Ira"
+          ],
+          "givenNames": [
+            "G"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Sgs1 helicase and two nucleases Dna2 and Exo1 resect DNA double-strand break ends"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1016/j.cell.2008.08.037",
+        "18805091"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Cell"
+      },
+      "version": "134",
+      "pageStart": "981",
+      "pageEnd": "994"
+    },
+    {
+      "type": "Article",
+      "authors": [
+        {
+          "type": "Person",
+          "familyNames": [
+            "Zou"
+          ],
+          "givenNames": [
+            "L"
+          ]
+        },
+        {
+          "type": "Person",
+          "familyNames": [
+            "Elledge"
+          ],
+          "givenNames": [
+            "SJ"
+          ]
+        }
+      ],
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Sensing DNA damage through ATRIP recognition of RPA-ssDNA complexes"
+          }
+        }
+      ],
+      "content": [],
+      "identifiers": [
+        "10.1126/science.1083430",
+        "12791985"
+      ],
+      "publisher": {
+        "type": "Organization",
+        "name": "Science"
+      },
+      "version": "300",
+      "pageStart": "1542",
+      "pageEnd": "1548"
+    }
+  ],
   "content": [
     {
       "type": "Section",

@@ -565,7 +565,7 @@ fn decode_table_cell(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
 ///
 /// Iterates over all child elements and either decodes them, or adds them to
 /// losses.
-fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
+pub fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
     path: &str,
     nodes: I,
     losses: &mut Losses,

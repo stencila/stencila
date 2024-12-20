@@ -3,7 +3,14 @@ source: rust/codec-jats/tests/examples.rs
 expression: info.losses
 snapshot_kind: text
 ---
-//article/back/ref-list: 1
+//article/back/ref-list/@id: 1
+//article/back/ref-list/ref/@citation-type: 50
+//article/back/ref-list/ref/@id: 100
+//article/back/ref-list/ref/@linkable: 50
+//article/back/ref-list/ref/@name-style: 189
+//article/back/ref-list/ref/@publication-type: 50
+//article/back/ref-list/ref/@sortable: 189
+//article/back/ref-list/ref/@use-reference-as-is: 50
 //article/body/sec/@id: 9
 //article/body/sec/@sec-type: 1
 //article/body/sec/p/@id: 11
