@@ -18,7 +18,7 @@ use common::{
     itertools::Itertools,
     regex::Regex,
     reqwest::Client,
-    serde::{Deserialize, Serialize},
+    serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer},
     serde_json,
     tar::Archive,
     tokio::fs::{create_dir_all, read_to_string, remove_dir_all, write},
@@ -49,8 +49,8 @@ use version::stencila_version;
 ///
 /// A wrapper around an [`Prompt`] used to cache derived properties
 /// such as regexes / embeddings
-#[derive(Clone, Deref, DerefMut, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
+#[derive(Default, Clone, Deref, DerefMut, Deserialize)]
+#[serde(default, crate = "common::serde")]
 pub struct PromptInstance {
     #[deref]
     #[deref_mut]
@@ -72,6 +72,25 @@ pub struct PromptInstance {
     /// Compiled regexes for the prompt's instruction regexes
     #[serde(skip)]
     instruction_regexes: Vec<Regex>,
+}
+
+/// Custom serialization to flatten and avoid unnecessarily serializing content of prompt
+impl Serialize for PromptInstance {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("PromptInstance", 2)?;
+        state.serialize_field("id", &self.inner.id)?;
+        state.serialize_field("version", &self.inner.version)?;
+        state.serialize_field("name", &self.inner.name)?;
+        state.serialize_field("description", &self.inner.description)?;
+        state.serialize_field("instructionTypes", &self.inner.instruction_types)?;
+        state.serialize_field("instructionPatterns", &self.inner.instruction_patterns)?;
+        state.serialize_field("nodeTypes", &self.inner.node_types)?;
+        state.serialize_field("path", &self.path)?;
+        state.end()
+    }
 }
 
 impl PromptInstance {

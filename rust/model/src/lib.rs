@@ -71,6 +71,33 @@ pub enum ModelIO {
     Video,
 }
 
+/// Specifications for a model
+/// 
+/// Currently used only for outputs and display.
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "common::serde", rename_all = "camelCase")]
+pub struct ModelSpecification {
+    id: String,
+    provider: String,
+    name: String,
+    version: String,
+    r#type: ModelType,
+    availability: ModelAvailability,
+}
+
+impl From<&dyn Model> for ModelSpecification {
+    fn from(model: &dyn Model) -> Self {
+        Self {
+            id: model.id(),
+            provider: model.provider(),
+            name: model.name(),
+            version: model.version(),
+            r#type: model.r#type(),
+            availability: model.availability(),
+        }
+    }
+}
+
 /// A generative model
 ///
 /// Provides a common, shared interface for the various generative models

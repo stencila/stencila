@@ -14,7 +14,7 @@ use model::{
     Model, ModelOutput, ModelTask,
 };
 
-pub use model::{ModelAvailability, ModelType};
+pub use model::{ModelAvailability, ModelSpecification, ModelType};
 
 pub mod cli;
 

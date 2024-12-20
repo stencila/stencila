@@ -1,6 +1,6 @@
 use cli_utils::{
     table::{self, Attribute, Cell, Color},
-    Code, ToStdout,
+    AsFormat, Code, ToStdout,
 };
 use codecs::{EncodeOptions, Format};
 use model::{
@@ -30,7 +30,7 @@ enum Command {
 impl Cli {
     pub async fn run(self) -> Result<()> {
         let Some(command) = self.command else {
-            List {}.run().await?;
+            List::default().run().await?;
             return Ok(());
         };
 
@@ -47,15 +47,26 @@ impl Cli {
 }
 
 /// List the prompts available
-#[derive(Debug, Args)]
-struct List;
+#[derive(Default, Debug, Args)]
+struct List {
+    /// Output the list as JSON or YAML
+    #[arg(long, short)]
+    r#as: Option<AsFormat>,
+}
 
 impl List {
     async fn run(self) -> Result<()> {
+        let list = super::list().await;
+
+        if let Some(format) = self.r#as {
+            Code::new_from(format.into(), &list)?.to_stdout();
+            return Ok(());
+        }
+
         let mut table = table::new();
         table.set_header(["Id", "Version", "Description"]);
 
-        for prompt in super::list().await {
+        for prompt in list {
             let Prompt {
                 id,
                 version,

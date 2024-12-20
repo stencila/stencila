@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 
 use cli_utils::{
     table::{self, Attribute, Cell, CellAlignment, Color},
-    Code, ToStdout,
+    AsFormat, Code, ToStdout,
 };
 use kernel::{
     common::{
@@ -13,11 +13,11 @@ use kernel::{
     },
     format::Format,
     schema::StringOrNumber,
-    KernelAvailability, KernelForks, KernelInterrupt, KernelKill, KernelProvider, KernelTerminate,
-    KernelType,
+    KernelAvailability, KernelForks, KernelInterrupt, KernelKill, KernelProvider,
+    KernelSpecification, KernelTerminate, KernelType,
 };
 
-use crate::{list, Kernels};
+use crate::Kernels;
 
 /// Manage execution kernels
 #[derive(Debug, Parser)]
@@ -54,14 +54,19 @@ impl Cli {
 /// List the kernels available
 #[derive(Debug, Default, Args)]
 struct List {
-    /// Only show languages of a particular type
+    /// Only list kernels of a particular type
     #[arg(short, long)]
     r#type: Option<KernelType>,
+
+    /// Output the list as JSON or YAML
+    #[arg(long, short)]
+    r#as: Option<AsFormat>,
 }
 
 impl List {
     async fn run(self) -> Result<()> {
-        let list = list().await;
+        let list = super::list().await;
+
         let list = if let Some(type_) = self.r#type {
             list.into_iter()
                 .filter(|kernel| kernel.r#type() == type_)
@@ -69,6 +74,17 @@ impl List {
         } else {
             list
         };
+
+        if let Some(format) = self.r#as {
+            let list = list
+                .into_iter()
+                .map(|kernel| KernelSpecification::from(kernel.as_ref()))
+                .collect_vec();
+
+            Code::new_from(format.into(), &list)?.to_stdout();
+
+            return Ok(());
+        }
 
         let list = list
             .into_iter()
