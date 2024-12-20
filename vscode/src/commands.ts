@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { createDocumentViewPanel } from "./webviews";
+import { createNodeViewPanel, createDocumentViewPanel } from "./webviews";
 
 /**
  * Register document related commands provided by the extension
@@ -331,10 +331,83 @@ nodeTypes: []
     )
   );
 
-  // Chat about the current document
+  // Insert a `Chat` command
   context.subscriptions.push(
-    vscode.commands.registerCommand("stencila.chat-doc", () => {
-      //vscode.commands.executeCommand('workbench.view.extension.stencila-model-chat-sidebar')
+    vscode.commands.registerCommand(`stencila.insert-chat`, async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showErrorMessage("No active editor");
+        return;
+      }
+
+      const nodeId = await vscode.commands.executeCommand<string>(
+        "stencila.insert-node",
+        editor.document.uri.toString(),
+        editor.selection.active,
+        "Chat"
+      );
+
+      await createNodeViewPanel(
+        context,
+        editor.document.uri.with({ fragment: nodeId }),
+        editor.selection.active,
+        "Chat"
+      );
+    })
+  );
+
+  // Insert a `create` command
+  context.subscriptions.push(
+    vscode.commands.registerCommand(`stencila.insert-create`, async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showErrorMessage("No active editor");
+        return;
+      }
+
+      let prompt = null;
+      const item: { prompt: { id: string } } =
+        await vscode.commands.executeCommand("stencila.prompts.menu", "Create");
+      if (item) {
+        prompt = item.prompt.id;
+      }
+
+      let message = await vscode.window.showInputBox({
+        title: "Instructions",
+        placeHolder:
+          "Describe what you want created (end with '...' for more options)",
+        ignoreFocusOut: true,
+      });
+
+      let models = null;
+      if (message?.endsWith("...")) {
+        message = message.slice(0, -3);
+
+        const items: { model: { id: string } }[] =
+          await vscode.commands.executeCommand("stencila.models.picker");
+        console.log(items);
+        if (items && items.length > 0) {
+          models = items.map((item) => item.model.id);
+        }
+      }
+
+      const nodeId = await vscode.commands.executeCommand<string>(
+        "stencila.insert-node",
+        editor.document.uri.toString(),
+        editor.selection.active,
+        "InstructionBlock",
+        "Create",
+        prompt,
+        message,
+        models
+      );
+
+      await vscode.commands.executeCommand(
+        "stencila.run-node",
+        editor.document.uri.toString(),
+        "InstructionBlock",
+        nodeId
+      );
     })
   );
 }

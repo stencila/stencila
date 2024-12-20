@@ -637,6 +637,7 @@ impl VisitorAsync for Executor {
         use Block::*;
         Ok(match block {
             CallBlock(node) => self.visit_executable(node).await,
+            Chat(node) => self.visit_executable(node).await,
             CodeChunk(node) => self.visit_executable(node).await,
             Figure(node) => self.visit_executable(node).await,
             ForBlock(node) => self.visit_executable(node).await,

@@ -38,8 +38,9 @@ use document::{
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
-    replicate, AuthorRole, AuthorRoleName, Block, NodeId, NodeProperty, NodeType, Patch, PatchNode,
-    PatchOp, PatchPath, PatchValue, Timestamp,
+    replicate, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, InstructionBlock,
+    InstructionMessage, InstructionModel, InstructionType, MessageRole, NodeId, NodeProperty,
+    NodeType, Patch, PatchNode, PatchOp, PatchPath, PatchValue, Timestamp,
 };
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
@@ -69,6 +70,7 @@ pub(super) const NEXT_NODE: &str = "stencila.next-node";
 pub(super) const ARCHIVE_NODE: &str = "stencila.archive-node";
 pub(super) const REVISE_NODE: &str = "stencila.revise-node";
 
+pub(super) const INSERT_NODE: &str = "stencila.insert-node";
 pub(super) const CLONE_NODE: &str = "stencila.clone-node";
 
 pub(super) const SAVE_DOC: &str = "stencila.save-doc";
@@ -97,6 +99,7 @@ pub(super) fn commands() -> Vec<String> {
         NEXT_NODE,
         ARCHIVE_NODE,
         REVISE_NODE,
+        INSERT_NODE,
         CLONE_NODE,
         SAVE_DOC,
         EXPORT_DOC,
@@ -118,6 +121,8 @@ pub(super) async fn execute_command(
     source_doc: Option<Arc<RwLock<Document>>>,
     mut client: ClientSocket,
 ) -> Result<Option<Value>, ResponseError> {
+    let mut return_value = None;
+
     let mut args = arguments.into_iter();
     let uri = uri_arg(args.next())?;
 
@@ -221,14 +226,16 @@ pub(super) async fn execute_command(
         RUN_NODE => {
             let node_type = node_type_arg(args.next())?;
             let node_id = node_id_arg(args.next())?;
+
             // Only update if running an instruction or chat message (since these update
             // the content of the document)
             let update = matches!(
                 node_type,
                 NodeType::InstructionBlock | NodeType::InstructionInline | NodeType::ChatMessage
             );
+
             (
-                "Running node".to_string(),
+                format!("Running node {node_type}"),
                 Command::ExecuteNodes((
                     CommandNodes::new(vec![node_id], CommandScope::Only),
                     ExecuteOptions::default(),
@@ -243,6 +250,7 @@ pub(super) async fn execute_command(
                 // Only update if running an instruction or chat message (since these update
                 // the content of the document)
                 let update = matches!(node_id.nick(), "isb" | "isi" | "chm");
+
                 (
                     "Running current node".to_string(),
                     Command::ExecuteNodes((
@@ -411,6 +419,103 @@ pub(super) async fn execute_command(
                 true,
             )
         }
+        INSERT_NODE => {
+            // Required args
+            let position = position_arg(args.next())?;
+            let node_type = node_type_arg(args.next())?;
+
+            // Optional args for `InstructionBlock`s
+            let instruction_type = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok())
+                .unwrap_or_default();
+            let prompt = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok());
+            let message = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok())
+                .map(|msg: String| InstructionMessage::from(msg));
+            let model = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok())
+                .map(|models: Vec<String>| {
+                    Box::new(InstructionModel {
+                        id_pattern: Some(models.join(",")),
+                        ..Default::default()
+                    })
+                });
+
+            // Create the new node
+            let block = match node_type {
+                NodeType::Chat => Block::Chat(Chat {
+                    is_ephemeral: Some(true),
+                    content: vec![Block::ChatMessage(ChatMessage::new(
+                        MessageRole::User,
+                        vec![],
+                    ))],
+                    ..Default::default()
+                }),
+                NodeType::InstructionBlock => Block::InstructionBlock(InstructionBlock {
+                    instruction_type,
+                    prompt,
+                    model,
+                    message,
+                    ..Default::default()
+                }),
+                _ => {
+                    return Err(ResponseError::new(
+                        ErrorCode::INVALID_REQUEST,
+                        format!("Unhandled node type: {node_type}"),
+                    ))
+                }
+            };
+
+            // Return the node's id so that the client can subscribe to its DOM
+            return_value = block
+                .node_id()
+                .map(|id| serde_json::Value::String(id.to_string()));
+
+            // Create a patch to add to chat to the document's `content`
+            let value = block.to_value().map_err(|error| {
+                ResponseError::new(
+                    ErrorCode::INTERNAL_ERROR,
+                    format!("While converting block to patch value: {error}"),
+                )
+            })?;
+
+            // Find where to insert the block based on the position in the text document
+            // falling back to appending to the end of the document's root node's content.
+            let (node_id, op) = match root.read().await.block_content_index(position) {
+                Some((node_id, index)) => {
+                    let op = match block {
+                        // For edit and fix instructions, wrap the node at the index
+                        Block::InstructionBlock(InstructionBlock {
+                            instruction_type: InstructionType::Edit | InstructionType::Fix,
+                            ..
+                        }) => PatchOp::Wrap((index..(index + 1), value, NodeProperty::Content)),
+                        // For all other blocks, insert at the index
+                        _ => PatchOp::Insert(vec![(index, value)]),
+                    };
+                    (Some(node_id), op)
+                }
+                None => (None, PatchOp::Push(value)),
+            };
+
+            // Patch the `content` of the document
+            let patch = Patch {
+                node_id,
+                ops: vec![(PatchPath::from(NodeProperty::Content), op)],
+                ..Default::default()
+            };
+
+            (
+                format!("Inserting {node_type}"),
+                Command::PatchNode(patch),
+                false,
+                true,
+            )
+        }
         CLONE_NODE => {
             let position = position_arg(args.next())?;
             args.next(); // Skip the argument for the URI of the source document (already used)
@@ -497,7 +602,7 @@ pub(super) async fn execute_command(
                     message: format!("While sending command to {uri}: {error}"),
                 })
                 .ok();
-            return Ok(None);
+            return Ok(return_value);
         }
     };
 
@@ -572,7 +677,7 @@ pub(super) async fn execute_command(
         }
     });
 
-    Ok(None)
+    Ok(return_value)
 }
 
 /// Extract a document URI from a command arg

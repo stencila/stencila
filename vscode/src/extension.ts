@@ -19,7 +19,6 @@ import { registerStatusBar } from "./status-bar";
 import {
   closeDocumentViewPanels,
   documentPatchHandlers,
-  registerModelChatView,
   registerSubscriptionNotifications,
 } from "./webviews";
 import { cliPath } from "./cli";
@@ -60,7 +59,6 @@ export async function activate(context: vscode.ExtensionContext) {
   registerStencilaShell(context);
   registerChatEditor(context);
   registerOtherCommands(context);
-  registerModelChatView(context);
 
   await startServer(context);
 }

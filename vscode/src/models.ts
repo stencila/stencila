@@ -16,6 +16,22 @@ export function registerModelsView(
     () => treeDataProvider.refresh()
   );
 
+  const picker = vscode.commands.registerCommand(
+    "stencila.models.picker",
+    async () => {
+      const items = await treeDataProvider.getPickerItems();
+
+      return await vscode.window.showQuickPick(items, {
+        title: "Models",
+        placeHolder:
+          "Select one or models, or leave blank to use `stencila/router`.",
+        canPickMany: true,
+        ignoreFocusOut: true,
+        matchOnDescription: true,
+      });
+    }
+  );
+
   const use = vscode.commands.registerCommand(
     "stencila.models.use",
     (item: ModelTreeItem) => {
@@ -37,7 +53,7 @@ export function registerModelsView(
     }
   );
 
-  context.subscriptions.push(treeView, refresh, use);
+  context.subscriptions.push(treeView, refresh, picker, use);
 
   return treeDataProvider;
 }
@@ -54,6 +70,16 @@ interface Model {
     | "RequiresKey"
     | "Installable"
     | "Unavailable";
+}
+
+class ModelPickerItem implements vscode.QuickPickItem {
+  label: string;
+  description: string;
+
+  constructor(public model: Model) {
+    this.label = `${model.provider} ${model.name} ${model.version}`;
+    this.description = model.id;
+  }
 }
 
 class ModelTreeItem extends vscode.TreeItem {
@@ -218,5 +244,13 @@ class ModelTreeProvider implements vscode.TreeDataProvider<ModelTreeItem> {
     }
 
     return [];
+  }
+
+  async getPickerItems(): Promise<ModelPickerItem[]> {
+    if (this.list.length === 0) {
+      await this.refresh();
+    }
+
+    return this.list.map((model) => new ModelPickerItem(model));
   }
 }

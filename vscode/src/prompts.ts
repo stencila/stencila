@@ -56,15 +56,31 @@ export function registerPromptsView(
     }
   );
 
+  const menu = vscode.commands.registerCommand(
+    "stencila.prompts.menu",
+    async (instructionType?: InstructionType) => {
+      let items = await treeDataProvider.getPickerItems();
+      if (instructionType) {
+        items = items.filter((item) =>
+          item.prompt.instructionTypes.includes(instructionType)
+        );
+      }
+
+      return await vscode.window.showQuickPick(items, {
+        title: "Prompt",
+        placeHolder: "Select a prompt",
+        ignoreFocusOut: true,
+        matchOnDescription: true,
+      });
+    }
+  );
+
   const picker = vscode.commands.registerCommand(
     "stencila.prompts.picker",
     async () => {
-      const items = await treeDataProvider.getPickerItems();
-
-      const item = await vscode.window.showQuickPick(items, {
-        placeHolder: "Search for a prompt",
-        matchOnDescription: true,
-      });
+      const item = (await vscode.commands.executeCommand(
+        "stencila.prompts.menu"
+      )) as PromptPickerItem;
 
       if (item) {
         vscode.commands.executeCommand("stencila.prompts.use", {
@@ -74,7 +90,7 @@ export function registerPromptsView(
     }
   );
 
-  context.subscriptions.push(treeView, refresh, open, use, picker);
+  context.subscriptions.push(treeView, refresh, open, use, menu, picker);
 
   return treeDataProvider;
 }
@@ -253,7 +269,6 @@ class PromptPickerItem implements vscode.QuickPickItem {
   description: string;
 
   constructor(public prompt: PromptInstance) {
-    // Use full id as label because filtering is done on label only
     this.label = `$(${promptIcon(prompt)}) ${prompt.id}`;
     this.description = prompt.description;
   }

@@ -38,6 +38,7 @@ repository:
       - include: "#figure-block"
       - include: "#table-block"
       - include: "#styled-block"
+      - include: "#chat"
       - include: "#chat-message"
       - include: "#raw_block"
       - include: "#link-def"
@@ -621,7 +622,20 @@ repository:
             contentName: meta.embedded.language.css
             include: source.css
 
-########## ChatMessage ##########
+########## Chat & ChatMessage ##########
+
+  chat:
+    name: meta.stencila.chat
+    match: >
+      (?x)
+      ^
+        (:{3,})
+        \s*
+        (chat)
+      $
+    captures:
+      "1": { name: markup.heading.stencila } # semicolons
+      "2": { name: keyword.control.stencila } # chat
 
   chat-message:
     name: meta.stencila.chat-message

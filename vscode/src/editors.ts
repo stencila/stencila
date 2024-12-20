@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { initializeDocumentViewPanel } from "./webviews";
+import { initializeWebViewPanel } from "./webviews";
 
 export function registerChatEditor(
   context: vscode.ExtensionContext
@@ -36,6 +36,6 @@ export class ChatEditorProvider implements vscode.CustomTextEditorProvider {
       ],
     };
 
-    initializeDocumentViewPanel(this.context, document.uri, panel);
+    initializeWebViewPanel(this.context, document.uri, panel);
   }
 }
