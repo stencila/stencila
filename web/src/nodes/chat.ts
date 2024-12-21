@@ -67,7 +67,7 @@ export class StencilaChat extends LitElement {
     return html`
       <div>
         <div class="fixed top-0 left-0 z-10 w-full">
-          <slot name="model"></slot>
+          <slot name="model-parameters"></slot>
         </div>
 
         <div class="px-12 pb-[300px]">

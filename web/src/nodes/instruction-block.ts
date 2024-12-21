@@ -282,7 +282,7 @@ export class InstructionBlock extends Instruction {
 
         ${this.renderProperties()}
 
-        <slot name="model"></slot>
+        <slot name="model-parameters"></slot>
 
         <div class="border-t border-[${borderColour}]">
           <slot name="message"></slot>
@@ -328,7 +328,7 @@ export class InstructionBlock extends Instruction {
    * Render a ribbon style container with properties of the instruction
    */
   private renderProperties() {
-    const { borderColour, colour, textColour } = nodeUi('InstructionBlock')
+    const { borderColour, colour } = nodeUi('InstructionBlock')
 
     const styles = apply(
       'flex flex-row items-center',
@@ -338,13 +338,6 @@ export class InstructionBlock extends Instruction {
       `border-t border-[${borderColour}]`,
       'gap-x-3'
     )
-
-    const inputStyles = apply([
-      `border border-[${borderColour}] rounded-sm`,
-      `outline-[${borderColour}]/50`,
-      `text-sm text-[${textColour}]`,
-      'ml-2 p-1',
-    ])
 
     return html`
       <div class=${styles}>
@@ -358,21 +351,6 @@ export class InstructionBlock extends Instruction {
               readonly
               disabled
             ></ui-node-text-input>
-          </sl-tooltip>
-        </span>
-
-        <span class="flex flex-row items-center">
-          <sl-tooltip content="Number of suggestions to generate">
-            <stencila-ui-icon class="text-base" name="hash"></stencila-ui-icon>
-            <input
-              class="${inputStyles}"
-              type="number"
-              min="1"
-              max="10"
-              value=${this.replicates ?? 1}
-              readonly
-              disabled
-            />
           </sl-tooltip>
         </span>
       </div>
