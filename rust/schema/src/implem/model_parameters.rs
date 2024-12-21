@@ -130,8 +130,6 @@ impl MarkdownCodec for ModelParameters {
                     .push_prop_str(NodeProperty::RandomSeed, &value.to_string())
                     .push_str(" ");
             }
-
-            context.trim_end();
         }
     }
 }
