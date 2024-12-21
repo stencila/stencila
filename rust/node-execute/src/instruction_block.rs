@@ -10,7 +10,7 @@ use common::{
 };
 use schema::{
     Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, CompilationDigest, InstructionBlock,
-    InstructionModel, PromptBlock, SoftwareApplication,
+    PromptBlock, SoftwareApplication,
 };
 
 use crate::{interrupt_impl, prelude::*};
@@ -39,11 +39,10 @@ impl Executable for InstructionBlock {
         );
         add_to_digest(
             &mut state_digest,
-            self.model.to_cbor().unwrap_or_default().as_slice(),
-        );
-        add_to_digest(
-            &mut state_digest,
-            &self.replicates.unwrap_or(1).to_be_bytes(),
+            self.model_parameters
+                .to_cbor()
+                .unwrap_or_default()
+                .as_slice(),
         );
 
         let compilation_digest = CompilationDigest::new(state_digest);
@@ -87,12 +86,8 @@ impl Executable for InstructionBlock {
 
         // Get options which may be overridden if this is a revision
         // Note: to avoid accidentally generating many replicates, hard code maximum 10 here
-        let mut replicates = (self.replicates.unwrap_or(1) as usize).min(10);
-        let mut model_id_pattern = self
-            .model
-            .as_ref()
-            .and_then(|model| model.id_pattern.clone())
-            .clone();
+        let mut model_ids = self.model_parameters.model_ids.clone().clone();
+        let mut replicates = (self.model_parameters.replicates.unwrap_or(1) as usize).min(10);
 
         // If this is a revision (i.e. a retry, possibly with feedback already added to suggestions)
         // as indicated by previous suggestions being retained, then (a) set the number of replicates
@@ -103,7 +98,7 @@ impl Executable for InstructionBlock {
 
             if let (Some(index), Some(suggestions)) = (self.active_suggestion, &self.suggestions) {
                 if let Some(suggestion) = suggestions.get(index as usize) {
-                    model_id_pattern = suggestion.authors.iter().flatten().find_map(|author| {
+                    model_ids = suggestion.authors.iter().flatten().find_map(|author| {
                         match author {
                             // Gets the first generator author having an id
                             Author::AuthorRole(AuthorRole {
@@ -114,7 +109,7 @@ impl Executable for InstructionBlock {
                                         ..
                                     }),
                                 ..
-                            }) => Some(id.clone()),
+                            }) => Some(vec![id.clone()]),
                             _ => None,
                         }
                     });
@@ -235,19 +230,9 @@ impl Executable for InstructionBlock {
             let system_prompt = system_prompt.to_string();
             let mut instruction = self.clone();
             let dry_run = executor.options.dry_run;
-            if let Some(id_pattern) = model_id_pattern.clone() {
+            if let Some(model_ids) = model_ids.clone() {
                 // Apply the model id for revisions
-                let id_pattern = Some(id_pattern);
-                instruction.model = Some(Box::new(match instruction.model {
-                    Some(model) => InstructionModel {
-                        id_pattern,
-                        ..*model
-                    },
-                    None => InstructionModel {
-                        id_pattern,
-                        ..Default::default()
-                    },
-                }))
+                instruction.model_parameters.model_ids = Some(model_ids);
             };
             futures.push(async move {
                 prompts::execute_instruction_block(

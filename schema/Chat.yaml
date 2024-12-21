@@ -10,20 +10,30 @@ patch:
 markdown:
   derive: false
 required:
-  - model
+  - modelParameters
   - content
 core:
   - title
   - prompt
   - isEphemeral
 properties:
-  model:
-    "@id": stencila:model
-    description: The name, and other options, for the model involved in the chat.
-    $ref: InstructionModel
+  modelParameters:
+    "@id": stencila:modelParameters
+    description: Model selection and inference parameters.
+    $ref: ModelParameters
+    aliases:
+      - model-parameters
+      - model_parameters
+      - model-params
+      - model_params
+      - model-pars
+      - model_pars
+      - model
     walk: true
     patch:
       formats: [md, smd, myst, ipynb, qmd]
+    serde:
+      default: true
     dom:
       elem: div
   prompt:
@@ -36,7 +46,7 @@ properties:
     "@id": stencila:content
     description: The messages, and optionally other content, that make up the conversation.
     $comment: |
-      Usually, a model chat will only contain `ChatMessage`s that alternate
+      Usually, a chat will only contain `ChatMessage`s that alternate
       between user and model roles. However, other types of block content
       are permitted.
     type: array

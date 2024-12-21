@@ -11,14 +11,14 @@
   "description": "Abstract base type for a document editing instruction.",
   "required": [
     "type",
-    "instructionType"
+    "instructionType",
+    "modelParameters"
   ],
   "core": [
     "id",
     "executionMode",
     "message",
     "prompt",
-    "model",
     "replicates",
     "recursion"
   ],
@@ -345,9 +345,18 @@
       },
       "type": "string"
     },
-    "model": {
-      "@id": "stencila:model",
-      "description": "The name, and other options, for the model that the assistant should use to generate suggestions.",
+    "modelParameters": {
+      "@id": "stencila:modelParameters",
+      "description": "Model selection and inference parameters.",
+      "aliases": [
+        "model-parameters",
+        "model_parameters",
+        "model-params",
+        "model_params",
+        "model-pars",
+        "model_pars",
+        "model"
+      ],
       "patch": {
         "formats": [
           "md",
@@ -356,25 +365,14 @@
           "ipynb",
           "qmd"
         ]
+      },
+      "serde": {
+        "default": true
       },
       "dom": {
         "elem": "div"
       },
-      "$ref": "InstructionModel.schema.json"
-    },
-    "replicates": {
-      "@id": "stencila:replicates",
-      "description": "The number of suggestions to generate for the instruction",
-      "patch": {
-        "formats": [
-          "md",
-          "smd",
-          "myst",
-          "ipynb",
-          "qmd"
-        ]
-      },
-      "$ref": "UnsignedInteger.schema.json"
+      "$ref": "ModelParameters.schema.json"
     },
     "recursion": {
       "@id": "stencila:recursion",

@@ -27,6 +27,9 @@
                 }
               }
             ]
+          },
+          "stencila:modelParameters": {
+            "@type": "stencila:ModelParameters"
           }
         },
         {
@@ -59,6 +62,9 @@
                 }
               }
             ]
+          },
+          "stencila:modelParameters": {
+            "@type": "stencila:ModelParameters"
           },
           "stencila:content": [
             {
@@ -100,7 +106,10 @@
               }
             ]
           },
-          "stencila:prompt": "insert-inline-math"
+          "stencila:prompt": "insert-inline-math",
+          "stencila:modelParameters": {
+            "@type": "stencila:ModelParameters"
+          }
         },
         {
           "@type": "Text",
@@ -111,7 +120,10 @@
         {
           "@type": "stencila:InstructionInline",
           "stencila:instructionType": "Create",
-          "stencila:prompt": "insert-math-inline"
+          "stencila:prompt": "insert-math-inline",
+          "stencila:modelParameters": {
+            "@type": "stencila:ModelParameters"
+          }
         },
         {
           "@type": "Text",
@@ -134,6 +146,9 @@
             ]
           },
           "stencila:prompt": "joe",
+          "stencila:modelParameters": {
+            "@type": "stencila:ModelParameters"
+          },
           "stencila:content": [
             {
               "@type": "Text",
@@ -175,6 +190,9 @@
             ]
           },
           "stencila:prompt": "insert-inline-math",
+          "stencila:modelParameters": {
+            "@type": "stencila:ModelParameters"
+          },
           "stencila:suggestions": [
             {
               "@type": "stencila:SuggestionInline",
@@ -209,6 +227,9 @@
                 }
               }
             ]
+          },
+          "stencila:modelParameters": {
+            "@type": "stencila:ModelParameters"
           },
           "stencila:content": [
             {

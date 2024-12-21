@@ -1,0 +1,100 @@
+title: ModelParameters
+"@id": stencila:ModelParameters
+nick: mdp
+extends: Entity
+description: Model selection and inference parameters for generative AI models.
+markdown:
+  derive: false
+core:
+  - modelIds
+  - replicates
+  - qualityWeight
+  - costWeight
+  - speedWeight
+  - minimumScore
+  - temperature
+  - randomSeed
+properties:
+  modelIds:
+    '@id': stencila:modelIds
+    description: The ids of the models to select.
+    $comment: |
+      Each item can be a partial model id string (e.g. "gpt"). The first model found that equals
+      of includes the string will be used.
+    type: array
+    items:
+      type: string
+    aliases:
+      - models
+      - model
+    serde:
+      deserializeWith: option_csv_or_array
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+  replicates:
+    '@id': stencila:replicates
+    description: The number of replicate inferences to run per model id.
+    $ref: UnsignedInteger
+    aliases:
+      - reps
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+  qualityWeight:
+    '@id': stencila:qualityWeight
+    description: The relative weighting given to model quality (0-100).
+    $ref: UnsignedInteger
+    aliases:
+      - quality
+      - qual
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+  costWeight:
+    '@id': stencila:costWeight
+    description: The relative weighting given to model cost (0-100).
+    $ref: UnsignedInteger
+    aliases:
+      - cost
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+  speedWeight:
+    '@id': stencila:speedWeight
+    description: The relative weighting given to model speed (0-100).
+    $ref: UnsignedInteger
+    aliases:
+      - speed
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+  minimumScore:
+    '@id': stencila:minimumScore
+    description: The minimum score for models to be selected (0-100).
+    $ref: UnsignedInteger
+    aliases:
+      - minimum-score
+      - minimum_score
+      - minScore
+      - min-score
+      - min_score
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+  temperature:
+    '@id': stencila:temperature
+    description: The temperature option for model inference (0-100).
+    $comment: |
+      The lower the temperature, the more deterministic the output because the most
+      probable next token is more likely to be picked. Increasing temperature generally leads
+      to more diverse and creative outputs.
+    $ref: UnsignedInteger
+    aliases:
+      - temp
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+  randomSeed:
+    '@id': stencila:randomSeed
+    description: The random seed used for the model (if possible)
+    type: integer
+    aliases:
+      - random-seed
+      - random_seed
+      - rand-seed
+      - rand_seed
+      - seed

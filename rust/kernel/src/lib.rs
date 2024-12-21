@@ -188,7 +188,7 @@ pub enum KernelForks {
 }
 
 /// Specifications for a kernel
-/// 
+///
 /// Currently used only for outputs and display.
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "common::serde", rename_all = "camelCase")]

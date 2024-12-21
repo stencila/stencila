@@ -15,9 +15,9 @@ use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
 use super::instruction_message::InstructionMessage;
-use super::instruction_model::InstructionModel;
 use super::instruction_type::InstructionType;
 use super::integer::Integer;
+use super::model_parameters::ModelParameters;
 use super::prompt_block::PromptBlock;
 use super::string::String;
 use super::suggestion_block::SuggestionBlock;
@@ -66,14 +66,12 @@ pub struct InstructionBlock {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     pub prompt: Option<String>,
 
-    /// The name, and other options, for the model that the assistant should use to generate suggestions.
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    /// Model selection and inference parameters.
+    #[serde(alias = "model-parameters", alias = "model_parameters", alias = "model-params", alias = "model_params", alias = "model-pars", alias = "model_pars", alias = "model")]
+    #[serde(default)]
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[dom(elem = "div")]
-    pub model: Option<Box<InstructionModel>>,
-
-    /// The number of suggestions to generate for the instruction
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub replicates: Option<UnsignedInteger>,
+    pub model_parameters: Box<ModelParameters>,
 
     /// A string identifying which operations should, or should not, automatically be applied to generated suggestions.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
@@ -236,9 +234,10 @@ impl InstructionBlock {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(instruction_type: InstructionType) -> Self {
+    pub fn new(instruction_type: InstructionType, model_parameters: Box<ModelParameters>) -> Self {
         Self {
             instruction_type,
+            model_parameters,
             ..Default::default()
         }
     }

@@ -2,32 +2,32 @@ Example using Markdown as canonical format to test alternative ways to write ins
 
 # Self closing shorthand
 
-::: create message :::
+::: createmessage :::
 
-::: create message :::
+::: createmessage :::
 
 Another paragraph with no empty line between
 
 # Next block only shorthand
 
-::: edit message >>>
+::: editmessage >>>
 
 Paragraph to edit
 
-::: edit message >>>
+::: editmessage >>>
 
 Paragraph to edit with no empty line between
 
 Other types of content,
 
-::: edit improve this >>>
+::: editimprove this >>>
 
 ```{python}
 
 ```
 
 
-::: create admonition >>>
+::: createadmonition >>>
 
 :::{.callout-warning}
 This is a warning
@@ -37,7 +37,7 @@ Following para outside of instruction content.
 
 # Multiple blocks
 
-::: edit 
+::: edit
 
 Paragraph to edit #4
 

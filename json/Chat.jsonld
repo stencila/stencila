@@ -769,10 +769,10 @@
       }
     },
     {
-      "@id": "stencila:model",
+      "@id": "stencila:modelParameters",
       "@type": "rdfs:Property",
-      "rdfs:label": "model",
-      "rdfs:comment": "The name, and other options, for the model involved in the chat.",
+      "rdfs:label": "modelParameters",
+      "rdfs:comment": "Model selection and inference parameters.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:Chat"
@@ -782,7 +782,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "stencila:InstructionModel"
+        "@id": "stencila:ModelParameters"
       }
     },
     {

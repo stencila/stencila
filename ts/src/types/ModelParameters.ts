@@ -5,16 +5,21 @@ import { Integer } from "./Integer.js";
 import { UnsignedInteger } from "./UnsignedInteger.js";
 
 /**
- * Model selection criteria and execution options for the generative model used for an instruction.
+ * Model selection and inference parameters for generative AI models.
  */
-export class InstructionModel extends Entity {
+export class ModelParameters extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'
-  type: "InstructionModel";
+  type: "ModelParameters";
 
   /**
-   * A pattern to filter model ids by.
+   * The ids of the models to select.
    */
-  idPattern?: string;
+  modelIds?: string[];
+
+  /**
+   * The number of replicate inferences to run per model id.
+   */
+  replicates?: UnsignedInteger;
 
   /**
    * The relative weighting given to model quality (0-100).
@@ -22,14 +27,14 @@ export class InstructionModel extends Entity {
   qualityWeight?: UnsignedInteger;
 
   /**
-   * The relative weighting given to model speed (0-100).
-   */
-  speedWeight?: UnsignedInteger;
-
-  /**
    * The relative weighting given to model cost (0-100).
    */
   costWeight?: UnsignedInteger;
+
+  /**
+   * The relative weighting given to model speed (0-100).
+   */
+  speedWeight?: UnsignedInteger;
 
   /**
    * The minimum score for models to be selected (0-100).
@@ -46,17 +51,17 @@ export class InstructionModel extends Entity {
    */
   randomSeed?: Integer;
 
-  constructor(options?: Partial<InstructionModel>) {
+  constructor(options?: Partial<ModelParameters>) {
     super();
-    this.type = "InstructionModel";
+    this.type = "ModelParameters";
     if (options) Object.assign(this, options);
     
   }
 }
 
 /**
-* Create a new `InstructionModel`
+* Create a new `ModelParameters`
 */
-export function instructionModel(options?: Partial<InstructionModel>): InstructionModel {
-  return new InstructionModel(options);
+export function modelParameters(options?: Partial<ModelParameters>): ModelParameters {
+  return new ModelParameters(options);
 }

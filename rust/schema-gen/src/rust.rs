@@ -616,11 +616,17 @@ pub enum NodeProperty {{
                 }
 
                 if let Some(deserialize_with) = &serde.deserialize_with {
+                    // This maintains consistency with previous implementation
+                    // when `default` could nto be specified. But adding this here may
+                    // not be necessary
+                    if args.is_empty() {
+                        args.push("default".to_string());
+                    }
+
                     // `deserializeWith: none` is used in the schema to avoid the
                     // default behavior for arrays below (which is problematic for
                     // arrays of `Node` or `Primitive` (since they can be arrays themselves))
                     if deserialize_with != "none" {
-                        args.push("default".to_string());
                         args.push(format!("deserialize_with = \"{deserialize_with}\""));
                     }
                 }

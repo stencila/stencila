@@ -287,10 +287,10 @@
       }
     },
     {
-      "@id": "stencila:model",
+      "@id": "stencila:modelParameters",
       "@type": "rdfs:Property",
-      "rdfs:label": "model",
-      "rdfs:comment": "The name, and other options, for the model that the assistant should use to generate suggestions.",
+      "rdfs:label": "modelParameters",
+      "rdfs:comment": "Model selection and inference parameters.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:Chat"
@@ -300,19 +300,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "stencila:InstructionModel"
-      }
-    },
-    {
-      "@id": "stencila:replicates",
-      "@type": "rdfs:Property",
-      "rdfs:label": "replicates",
-      "rdfs:comment": "The number of suggestions to generate for the instruction",
-      "schema:domainIncludes": {
-        "@id": "stencila:Instruction"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:UnsignedInteger"
+        "@id": "stencila:ModelParameters"
       }
     },
     {

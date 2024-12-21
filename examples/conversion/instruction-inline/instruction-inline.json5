@@ -19,7 +19,8 @@
                 value: { string: "insert an inline" }
               }
             ]
-          }
+          },
+          modelParameters: { type: "ModelParameters" }
         },
         {
           type: "Text",
@@ -46,6 +47,7 @@
               }
             ]
           },
+          modelParameters: { type: "ModelParameters" },
           content: [
             {
               type: "Text",
@@ -78,7 +80,8 @@
               }
             ]
           },
-          prompt: "insert-inline-math"
+          prompt: "insert-inline-math",
+          modelParameters: { type: "ModelParameters" }
         },
         {
           type: "Text",
@@ -87,7 +90,8 @@
         {
           type: "InstructionInline",
           instructionType: "Create",
-          prompt: "insert-math-inline"
+          prompt: "insert-math-inline",
+          modelParameters: { type: "ModelParameters" }
         },
         {
           type: "Text",
@@ -106,6 +110,7 @@
             ]
           },
           prompt: "joe",
+          modelParameters: { type: "ModelParameters" },
           content: [
             {
               type: "Text",
@@ -139,6 +144,7 @@
             ]
           },
           prompt: "insert-inline-math",
+          modelParameters: { type: "ModelParameters" },
           suggestions: [
             {
               type: "SuggestionInline",
@@ -168,6 +174,7 @@
               }
             ]
           },
+          modelParameters: { type: "ModelParameters" },
           content: [
             {
               type: "Text",

@@ -31,7 +31,8 @@
             value: { string: "message" }
           }
         ]
-      }
+      },
+      modelParameters: { type: "ModelParameters" }
     },
     {
       type: "InstructionBlock",
@@ -44,7 +45,8 @@
             value: { string: "message" }
           }
         ]
-      }
+      },
+      modelParameters: { type: "ModelParameters" }
     },
     {
       type: "Paragraph",
@@ -77,6 +79,7 @@
           }
         ]
       },
+      modelParameters: { type: "ModelParameters" },
       content: [
         {
           type: "Paragraph",
@@ -101,6 +104,7 @@
           }
         ]
       },
+      modelParameters: { type: "ModelParameters" },
       content: [
         {
           type: "Paragraph",
@@ -134,6 +138,7 @@
           }
         ]
       },
+      modelParameters: { type: "ModelParameters" },
       content: [
         {
           type: "CodeChunk",
@@ -154,6 +159,7 @@
           }
         ]
       },
+      modelParameters: { type: "ModelParameters" },
       content: [
         {
           type: "Admonition",
@@ -194,6 +200,7 @@
     {
       type: "InstructionBlock",
       instructionType: "Edit",
+      modelParameters: { type: "ModelParameters" },
       content: [
         {
           type: "Paragraph",

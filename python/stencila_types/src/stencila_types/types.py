@@ -773,11 +773,8 @@ class Instruction(Executable):
     prompt: str | None = None
     """An identifier for the prompt to be used for the instruction"""
 
-    model: InstructionModel | None = None
-    """The name, and other options, for the model that the assistant should use to generate suggestions."""
-
-    replicates: UnsignedInteger | None = None
-    """The number of suggestions to generate for the instruction"""
+    model_parameters: ModelParameters
+    """Model selection and inference parameters."""
 
     recursion: str | None = None
     """A string identifying which operations should, or should not, automatically be applied to generated suggestions."""
@@ -1196,8 +1193,8 @@ class Chat(CreativeWork, Executable):
 
     type: Literal["Chat"] = "Chat"
 
-    model: InstructionModel
-    """The name, and other options, for the model involved in the chat."""
+    model_parameters: ModelParameters
+    """Model selection and inference parameters."""
 
     prompt: str | None = None
     """The id of the system prompt to prefix chat messages with."""
@@ -2026,36 +2023,6 @@ class InstructionMessage(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
-class InstructionModel(Entity):
-    """
-    Model selection criteria and execution options for the generative model used for an instruction.
-    """
-
-    type: Literal["InstructionModel"] = "InstructionModel"
-
-    id_pattern: str | None = None
-    """A pattern to filter model ids by."""
-
-    quality_weight: UnsignedInteger | None = None
-    """The relative weighting given to model quality (0-100)."""
-
-    speed_weight: UnsignedInteger | None = None
-    """The relative weighting given to model speed (0-100)."""
-
-    cost_weight: UnsignedInteger | None = None
-    """The relative weighting given to model cost (0-100)."""
-
-    minimum_score: UnsignedInteger | None = None
-    """The minimum score for models to be selected (0-100)."""
-
-    temperature: UnsignedInteger | None = None
-    """The temperature option for model inference (0-100)."""
-
-    random_seed: int | None = None
-    """The random seed used for the model (if possible)"""
-
-
-@dataclass(kw_only=True, repr=False)
 class IntegerValidator(NumberValidator):
     """
     A validator specifying the constraints on an integer node.
@@ -2149,6 +2116,39 @@ class MathInline(Math):
     """
 
     type: Literal["MathInline"] = "MathInline"
+
+
+@dataclass(kw_only=True, repr=False)
+class ModelParameters(Entity):
+    """
+    Model selection and inference parameters for generative AI models.
+    """
+
+    type: Literal["ModelParameters"] = "ModelParameters"
+
+    model_ids: list[str] | None = None
+    """The ids of the models to select."""
+
+    replicates: UnsignedInteger | None = None
+    """The number of replicate inferences to run per model id."""
+
+    quality_weight: UnsignedInteger | None = None
+    """The relative weighting given to model quality (0-100)."""
+
+    cost_weight: UnsignedInteger | None = None
+    """The relative weighting given to model cost (0-100)."""
+
+    speed_weight: UnsignedInteger | None = None
+    """The relative weighting given to model speed (0-100)."""
+
+    minimum_score: UnsignedInteger | None = None
+    """The minimum score for models to be selected (0-100)."""
+
+    temperature: UnsignedInteger | None = None
+    """The temperature option for model inference (0-100)."""
+
+    random_seed: int | None = None
+    """The random seed used for the model (if possible)"""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3309,7 +3309,6 @@ Node = Union[
     InstructionBlock,
     InstructionInline,
     InstructionMessage,
-    InstructionModel,
     IntegerValidator,
     Link,
     List,
@@ -3317,6 +3316,7 @@ Node = Union[
     MathBlock,
     MathInline,
     MediaObject,
+    ModelParameters,
     ModifyBlock,
     ModifyInline,
     ModifyOperation,
@@ -3548,13 +3548,13 @@ TYPES = [
     InstructionBlock,
     InstructionInline,
     InstructionMessage,
-    InstructionModel,
     IntegerValidator,
     Link,
     List,
     ListItem,
     MathBlock,
     MathInline,
+    ModelParameters,
     ModifyBlock,
     ModifyInline,
     ModifyOperation,

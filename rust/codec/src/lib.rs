@@ -334,7 +334,7 @@ impl CodecSupport {
 }
 
 /// Specifications for a codec
-/// 
+///
 /// Currently used only for outputs and display.
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "common::serde", rename_all = "camelCase")]

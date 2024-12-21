@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/InstructionModel",
-  "name": "InstructionModel",
+  "@id": "https://stencila.org/ModelParameters",
+  "name": "ModelParameters",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,24 +9,36 @@
   },
   "@graph": [
     {
-      "@id": "stencila:InstructionModel",
+      "@id": "stencila:ModelParameters",
       "@type": "rdfs:Class",
-      "rdfs:label": "InstructionModel",
-      "rdfs:comment": "Model selection criteria and execution options for the generative model used for an instruction.",
+      "rdfs:label": "ModelParameters",
+      "rdfs:comment": "Model selection and inference parameters for generative AI models.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }
     },
     {
-      "@id": "stencila:idPattern",
+      "@id": "stencila:modelIds",
       "@type": "rdfs:Property",
-      "rdfs:label": "idPattern",
-      "rdfs:comment": "A pattern to filter model ids by.",
+      "rdfs:label": "modelIds",
+      "rdfs:comment": "The ids of the models to select.",
       "schema:domainIncludes": {
-        "@id": "stencila:InstructionModel"
+        "@id": "stencila:ModelParameters"
       },
       "schema:rangeIncludes": {
         "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:replicates",
+      "@type": "rdfs:Property",
+      "rdfs:label": "replicates",
+      "rdfs:comment": "The number of replicate inferences to run per model id.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ModelParameters"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
       }
     },
     {
@@ -35,19 +47,7 @@
       "rdfs:label": "qualityWeight",
       "rdfs:comment": "The relative weighting given to model quality (0-100).",
       "schema:domainIncludes": {
-        "@id": "stencila:InstructionModel"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:UnsignedInteger"
-      }
-    },
-    {
-      "@id": "stencila:speedWeight",
-      "@type": "rdfs:Property",
-      "rdfs:label": "speedWeight",
-      "rdfs:comment": "The relative weighting given to model speed (0-100).",
-      "schema:domainIncludes": {
-        "@id": "stencila:InstructionModel"
+        "@id": "stencila:ModelParameters"
       },
       "schema:rangeIncludes": {
         "@id": "stencila:UnsignedInteger"
@@ -59,7 +59,19 @@
       "rdfs:label": "costWeight",
       "rdfs:comment": "The relative weighting given to model cost (0-100).",
       "schema:domainIncludes": {
-        "@id": "stencila:InstructionModel"
+        "@id": "stencila:ModelParameters"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
+    },
+    {
+      "@id": "stencila:speedWeight",
+      "@type": "rdfs:Property",
+      "rdfs:label": "speedWeight",
+      "rdfs:comment": "The relative weighting given to model speed (0-100).",
+      "schema:domainIncludes": {
+        "@id": "stencila:ModelParameters"
       },
       "schema:rangeIncludes": {
         "@id": "stencila:UnsignedInteger"
@@ -71,7 +83,7 @@
       "rdfs:label": "minimumScore",
       "rdfs:comment": "The minimum score for models to be selected (0-100).",
       "schema:domainIncludes": {
-        "@id": "stencila:InstructionModel"
+        "@id": "stencila:ModelParameters"
       },
       "schema:rangeIncludes": {
         "@id": "stencila:UnsignedInteger"
@@ -83,7 +95,7 @@
       "rdfs:label": "temperature",
       "rdfs:comment": "The temperature option for model inference (0-100).",
       "schema:domainIncludes": {
-        "@id": "stencila:InstructionModel"
+        "@id": "stencila:ModelParameters"
       },
       "schema:rangeIncludes": {
         "@id": "stencila:UnsignedInteger"
@@ -95,7 +107,7 @@
       "rdfs:label": "randomSeed",
       "rdfs:comment": "The random seed used for the model (if possible)",
       "schema:domainIncludes": {
-        "@id": "stencila:InstructionModel"
+        "@id": "stencila:ModelParameters"
       },
       "schema:rangeIncludes": {
         "@id": "schema:Number"

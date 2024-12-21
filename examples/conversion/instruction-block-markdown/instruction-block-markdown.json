@@ -37,6 +37,9 @@
             }
           }
         ]
+      },
+      "modelParameters": {
+        "type": "ModelParameters"
       }
     },
     {
@@ -52,6 +55,9 @@
             }
           }
         ]
+      },
+      "modelParameters": {
+        "type": "ModelParameters"
       }
     },
     {
@@ -91,6 +97,9 @@
           }
         ]
       },
+      "modelParameters": {
+        "type": "ModelParameters"
+      },
       "content": [
         {
           "type": "Paragraph",
@@ -118,6 +127,9 @@
             }
           }
         ]
+      },
+      "modelParameters": {
+        "type": "ModelParameters"
       },
       "content": [
         {
@@ -158,6 +170,9 @@
           }
         ]
       },
+      "modelParameters": {
+        "type": "ModelParameters"
+      },
       "content": [
         {
           "type": "CodeChunk",
@@ -181,6 +196,9 @@
             }
           }
         ]
+      },
+      "modelParameters": {
+        "type": "ModelParameters"
       },
       "content": [
         {
@@ -228,6 +246,9 @@
     {
       "type": "InstructionBlock",
       "instructionType": "Edit",
+      "modelParameters": {
+        "type": "ModelParameters"
+      },
       "content": [
         {
           "type": "Paragraph",

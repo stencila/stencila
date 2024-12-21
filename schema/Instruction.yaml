@@ -6,10 +6,10 @@ category: edits
 description: Abstract base type for a document editing instruction.
 required:
   - instructionType
+  - modelParameters
 core:
   - message
   - prompt
-  - model
   - replicates
   - recursion
 properties:
@@ -41,20 +41,24 @@ properties:
       max:
         description: Generate an arbitrary prompt id using any characters
         strategy: option::of(String::arbitrary())
-  model:
-    "@id": stencila:model
-    description: The name, and other options, for the model that the assistant should use to generate suggestions.
-    $ref: InstructionModel
+  modelParameters:
+    "@id": stencila:modelParameters
+    description: Model selection and inference parameters.
+    $ref: ModelParameters
+    aliases:
+      - model-parameters
+      - model_parameters
+      - model-params
+      - model_params
+      - model-pars
+      - model_pars
+      - model
     patch:
       formats: [md, smd, myst, ipynb, qmd]
+    serde:
+      default: true
     dom:
       elem: div
-  replicates:
-    "@id": stencila:replicates
-    description: The number of suggestions to generate for the instruction
-    $ref: UnsignedInteger
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
   recursion:
     "@id": stencila:recursion
     description: A string identifying which operations should, or should not, automatically be applied to generated suggestions.

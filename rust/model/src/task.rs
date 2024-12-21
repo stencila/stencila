@@ -5,7 +5,7 @@ use common::{
     strum::Display,
 };
 use format::Format;
-use schema::{InstructionMessage, InstructionModel, InstructionType};
+use schema::{InstructionMessage, InstructionType, ModelParameters};
 
 /// The kind of generative model task
 #[derive(Debug, Default, Display, Clone, Copy, PartialEq, Deserialize, Serialize)]
@@ -60,7 +60,7 @@ pub struct ModelTask {
     pub instruction_type: Option<InstructionType>,
 
     /// The model selection and execution options set by the user
-    pub instruction_model: Option<InstructionModel>,
+    pub model_parameters: Option<ModelParameters>,
 
     /// The list of input messages
     pub messages: Vec<InstructionMessage>,
@@ -200,20 +200,24 @@ pub struct ModelTask {
 impl ModelTask {
     pub fn new(
         instruction_type: InstructionType,
-        instruction_model: Option<InstructionModel>,
+        model_parameters: ModelParameters,
         messages: Vec<InstructionMessage>,
     ) -> Self {
-        // Extract and transform any model execution options
-        let temperature = instruction_model
-            .as_ref()
-            .and_then(|model| model.temperature)
+        // Extract and transform any model execution options from
+        // model parameters and put in the top level of the task
+
+        let temperature = model_parameters
+            .temperature
             .map(|temp| (temp as f32 / 100.).min(1.));
+
+        let seed = model_parameters.random_seed.map(|seed| seed as i32);
 
         Self {
             instruction_type: Some(instruction_type),
-            instruction_model,
+            model_parameters: Some(model_parameters),
             messages,
             temperature,
+            seed,
             ..Default::default()
         }
     }

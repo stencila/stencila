@@ -2,7 +2,7 @@
 
 import { Block } from "./Block.js";
 import { CreativeWork } from "./CreativeWork.js";
-import { InstructionModel } from "./InstructionModel.js";
+import { ModelParameters } from "./ModelParameters.js";
 
 /**
  * A chat conversation, usually with a generative AI model.
@@ -12,9 +12,9 @@ export class Chat extends CreativeWork {
   type: "Chat";
 
   /**
-   * The name, and other options, for the model involved in the chat.
+   * Model selection and inference parameters.
    */
-  model: InstructionModel;
+  modelParameters: ModelParameters;
 
   /**
    * The id of the system prompt to prefix chat messages with.
@@ -31,11 +31,11 @@ export class Chat extends CreativeWork {
    */
   isEphemeral?: boolean;
 
-  constructor(model: InstructionModel, content: Block[], options?: Partial<Chat>) {
+  constructor(modelParameters: ModelParameters, content: Block[], options?: Partial<Chat>) {
     super();
     this.type = "Chat";
     if (options) Object.assign(this, options);
-    this.model = model;
+    this.modelParameters = modelParameters;
     this.content = content;
   }
 }
@@ -43,6 +43,6 @@ export class Chat extends CreativeWork {
 /**
 * Create a new `Chat`
 */
-export function chat(model: InstructionModel, content: Block[], options?: Partial<Chat>): Chat {
-  return new Chat(model, content, options);
+export function chat(modelParameters: ModelParameters, content: Block[], options?: Partial<Chat>): Chat {
+  return new Chat(modelParameters, content, options);
 }

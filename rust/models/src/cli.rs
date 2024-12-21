@@ -10,7 +10,7 @@ use model::{
         serde_yaml,
     },
     format::Format,
-    schema::{InstructionMessage, InstructionModel},
+    schema::{InstructionMessage, ModelParameters},
     ModelAvailability, ModelSpecification, ModelTask, ModelType,
 };
 
@@ -150,8 +150,8 @@ impl Execute {
         let message = InstructionMessage::from(self.prompt);
 
         let model = if self.model.is_some() {
-            Some(InstructionModel {
-                id_pattern: self.model,
+            Some(ModelParameters {
+                model_ids: self.model.map(|model| vec![model]),
                 ..Default::default()
             })
         } else {
@@ -160,7 +160,7 @@ impl Execute {
 
         let task = ModelTask {
             messages: vec![message],
-            instruction_model: model,
+            model_parameters: model,
             dry_run: self.dry_run,
             ..Default::default()
         };

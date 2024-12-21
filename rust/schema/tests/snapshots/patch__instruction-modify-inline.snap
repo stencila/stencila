@@ -53,6 +53,8 @@ old:
                 characterCount: 33
                 characterPercent: 100
           prompt: math
+          modelParameters:
+            type: ModelParameters
         - type: Text
           value:
             string: ".\nFollowed by "
@@ -99,6 +101,8 @@ new:
               - type: Text
                 value:
                   string: insert equation for surface area of cube
+          modelParameters:
+            type: ModelParameters
         - type: Text
           value:
             string: ".\nFollowed by "
@@ -173,6 +177,8 @@ merged:
                 provenanceCategory: Hw
                 characterCount: 40
                 characterPercent: 100
+          modelParameters:
+            type: ModelParameters
         - type: Text
           value:
             string: ".\nFollowed by "

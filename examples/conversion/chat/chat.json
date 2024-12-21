@@ -1,8 +1,7 @@
 {
   "type": "Chat",
-  "model": {
-    "type": "InstructionModel",
-    "temperature": 90
+  "modelParameters": {
+    "type": "ModelParameters"
   },
   "content": [
     {
@@ -15,7 +14,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "You are a friendly, enthusiatic, but terse, assistant."
+                "string": "You are a friendly, enthusiastic, but terse, assistant."
               }
             }
           ]

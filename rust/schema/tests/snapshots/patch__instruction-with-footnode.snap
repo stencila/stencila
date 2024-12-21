@@ -53,6 +53,8 @@ old:
                 characterCount: 33
                 characterPercent: 100
           prompt: math
+          modelParameters:
+            type: ModelParameters
         - type: Text
           value:
             string: "."
@@ -115,6 +117,8 @@ new:
                 value:
                   string: equation for surface area of cube
           prompt: math
+          modelParameters:
+            type: ModelParameters
         - type: Text
           value:
             string: "."
@@ -183,6 +187,8 @@ merged:
                 characterCount: 33
                 characterPercent: 100
           prompt: math
+          modelParameters:
+            type: ModelParameters
         - type: Text
           value:
             string: "."

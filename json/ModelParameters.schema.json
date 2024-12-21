@@ -1,22 +1,26 @@
 {
   "$schema": "https://stencila.org/meta.schema.json",
-  "$id": "https://stencila.org/InstructionModel.schema.json",
-  "@id": "stencila:InstructionModel",
-  "title": "InstructionModel",
-  "nick": "ism",
+  "$id": "https://stencila.org/ModelParameters.schema.json",
+  "@id": "stencila:ModelParameters",
+  "title": "ModelParameters",
+  "nick": "mdp",
   "extends": [
     "Entity"
   ],
-  "description": "Model selection criteria and execution options for the generative model used for an instruction.",
+  "description": "Model selection and inference parameters for generative AI models.",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type"
   ],
   "core": [
     "id",
-    "idPattern",
+    "modelIds",
+    "replicates",
     "qualityWeight",
-    "speedWeight",
     "costWeight",
+    "speedWeight",
     "minimumScore",
     "temperature",
     "randomSeed"
@@ -40,12 +44,18 @@
       },
       "type": "string"
     },
-    "idPattern": {
-      "@id": "stencila:idPattern",
-      "description": "A pattern to filter model ids by.",
+    "modelIds": {
+      "@id": "stencila:modelIds",
+      "description": "The ids of the models to select.",
+      "$comment": "Each item can be a partial model id string (e.g. \"gpt\"). The first model found that equals\nof includes the string will be used.\n",
       "aliases": [
-        "id-pattern",
-        "id_pattern"
+        "models",
+        "model",
+        "model-ids",
+        "model_ids",
+        "modelId",
+        "model-id",
+        "model_id"
       ],
       "patch": {
         "formats": [
@@ -56,14 +66,20 @@
           "qmd"
         ]
       },
-      "type": "string"
+      "serde": {
+        "default": false,
+        "deserializeWith": "option_csv_or_array"
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
-    "qualityWeight": {
-      "@id": "stencila:qualityWeight",
-      "description": "The relative weighting given to model quality (0-100).",
+    "replicates": {
+      "@id": "stencila:replicates",
+      "description": "The number of replicate inferences to run per model id.",
       "aliases": [
-        "quality-weight",
-        "quality_weight"
+        "reps"
       ],
       "patch": {
         "formats": [
@@ -76,12 +92,14 @@
       },
       "$ref": "UnsignedInteger.schema.json"
     },
-    "speedWeight": {
-      "@id": "stencila:speedWeight",
-      "description": "The relative weighting given to model speed (0-100).",
+    "qualityWeight": {
+      "@id": "stencila:qualityWeight",
+      "description": "The relative weighting given to model quality (0-100).",
       "aliases": [
-        "speed-weight",
-        "speed_weight"
+        "quality",
+        "qual",
+        "quality-weight",
+        "quality_weight"
       ],
       "patch": {
         "formats": [
@@ -98,8 +116,28 @@
       "@id": "stencila:costWeight",
       "description": "The relative weighting given to model cost (0-100).",
       "aliases": [
+        "cost",
         "cost-weight",
         "cost_weight"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "$ref": "UnsignedInteger.schema.json"
+    },
+    "speedWeight": {
+      "@id": "stencila:speedWeight",
+      "description": "The relative weighting given to model speed (0-100).",
+      "aliases": [
+        "speed",
+        "speed-weight",
+        "speed_weight"
       ],
       "patch": {
         "formats": [
@@ -117,7 +155,10 @@
       "description": "The minimum score for models to be selected (0-100).",
       "aliases": [
         "minimum-score",
-        "minimum_score"
+        "minimum_score",
+        "minScore",
+        "min-score",
+        "min_score"
       ],
       "patch": {
         "formats": [
@@ -134,6 +175,9 @@
       "@id": "stencila:temperature",
       "description": "The temperature option for model inference (0-100).",
       "$comment": "The lower the temperature, the more deterministic the output because the most\nprobable next token is more likely to be picked. Increasing temperature generally leads\nto more diverse and creative outputs.\n",
+      "aliases": [
+        "temp"
+      ],
       "patch": {
         "formats": [
           "md",
@@ -150,7 +194,10 @@
       "description": "The random seed used for the model (if possible)",
       "aliases": [
         "random-seed",
-        "random_seed"
+        "random_seed",
+        "rand-seed",
+        "rand_seed",
+        "seed"
       ],
       "type": "integer"
     }

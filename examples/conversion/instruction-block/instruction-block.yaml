@@ -13,6 +13,8 @@ content:
     - type: Text
       value:
         string: a 4x10 table
+  modelParameters:
+    type: ModelParameters
 - type: Paragraph
   content:
   - type: Text
@@ -27,6 +29,8 @@ content:
       value:
         string: top five highest mountains, with height in metres
   prompt: table
+  modelParameters:
+    type: ModelParameters
 - type: Paragraph
   content:
   - type: Text
@@ -35,6 +39,8 @@ content:
 - type: InstructionBlock
   instructionType: Create
   prompt: code-chunk
+  modelParameters:
+    type: ModelParameters
 - type: Paragraph
   content:
   - type: Text
@@ -48,6 +54,8 @@ content:
     - type: Text
       value:
         string: improve this paragraph
+  modelParameters:
+    type: ModelParameters
   content:
   - type: Paragraph
     content:
@@ -68,6 +76,8 @@ content:
       value:
         string: please improve this paragraph
   prompt: anne
+  modelParameters:
+    type: ModelParameters
   content:
   - type: Paragraph
     content:
@@ -88,6 +98,8 @@ content:
       value:
         string: analyze data
   prompt: code-chunk
+  modelParameters:
+    type: ModelParameters
   activeSuggestion: 0
   suggestions:
   - type: SuggestionBlock
@@ -108,6 +120,8 @@ content:
     - type: Text
       value:
         string: more succinct
+  modelParameters:
+    type: ModelParameters
   activeSuggestion: 0
   content:
   - type: Paragraph
@@ -123,3 +137,29 @@ content:
       - type: Text
         value:
           string: A paragraph.
+- type: Paragraph
+  content:
+  - type: Text
+    value:
+      string: 'With prompt and model parameters specified:'
+- type: InstructionBlock
+  instructionType: Create
+  message:
+    type: InstructionMessage
+    parts:
+    - type: Text
+      value:
+        string: message
+  prompt: prompt
+  modelParameters:
+    type: ModelParameters
+    modelIds:
+    - model1
+    - model2
+    replicates: 3
+    qualityWeight: 10
+    costWeight: 10
+    speedWeight: 10
+    minimumScore: 40
+    temperature: 10
+    randomSeed: 123

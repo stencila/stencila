@@ -1,14 +1,14 @@
 <stencila-chat id=xxx depth=0 ancestors='' root>
-  <div slot=model>
-    <stencila-instruction-model id=xxx depth=1 ancestors=Chat temperature=90>
-    </stencila-instruction-model>
+  <div slot=model-parameters>
+    <stencila-model-parameters id=xxx depth=1 ancestors=Chat>
+    </stencila-model-parameters>
   </div>
   <div slot=content>
     <stencila-chat-message id=xxx depth=1 ancestors=Chat message-role=System>
       <div slot=content>
         <stencila-paragraph id=xxx depth=2 ancestors=Chat.ChatMessage>
           <p slot=content>
-            <stencila-text id=xxx depth=3 ancestors=Chat.ChatMessage.Paragraph>You are a friendly, enthusiatic, but terse, assistant.</stencila-text>
+            <stencila-text id=xxx depth=3 ancestors=Chat.ChatMessage.Paragraph>You are a friendly, enthusiastic, but terse, assistant.</stencila-text>
           </p>
         </stencila-paragraph>
       </div>

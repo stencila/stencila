@@ -99,6 +99,8 @@ new:
           - type: Text
             value:
               string: more succinct
+      modelParameters:
+        type: ModelParameters
       content:
         - type: Paragraph
           content:
@@ -178,6 +180,8 @@ merged:
             provenanceCategory: Hw
             characterCount: 13
             characterPercent: 100
+      modelParameters:
+        type: ModelParameters
       content:
         - type: Paragraph
           content:
@@ -235,6 +239,8 @@ ops:
                 - type: Text
                   value:
                     string: more succinct
+            modelParameters:
+              type: ModelParameters
             content:
               - type: Paragraph
                 content:

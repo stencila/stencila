@@ -2,8 +2,8 @@
 
 import { Executable } from "./Executable.js";
 import { InstructionMessage } from "./InstructionMessage.js";
-import { InstructionModel } from "./InstructionModel.js";
 import { InstructionType } from "./InstructionType.js";
+import { ModelParameters } from "./ModelParameters.js";
 import { PromptBlock } from "./PromptBlock.js";
 import { UnsignedInteger } from "./UnsignedInteger.js";
 
@@ -30,14 +30,9 @@ export class Instruction extends Executable {
   prompt?: string;
 
   /**
-   * The name, and other options, for the model that the assistant should use to generate suggestions.
+   * Model selection and inference parameters.
    */
-  model?: InstructionModel;
-
-  /**
-   * The number of suggestions to generate for the instruction
-   */
-  replicates?: UnsignedInteger;
+  modelParameters: ModelParameters;
 
   /**
    * A string identifying which operations should, or should not, automatically be applied to generated suggestions.
@@ -54,17 +49,18 @@ export class Instruction extends Executable {
    */
   activeSuggestion?: UnsignedInteger;
 
-  constructor(instructionType: InstructionType, options?: Partial<Instruction>) {
+  constructor(instructionType: InstructionType, modelParameters: ModelParameters, options?: Partial<Instruction>) {
     super();
     this.type = "Instruction";
     if (options) Object.assign(this, options);
     this.instructionType = instructionType;
+    this.modelParameters = modelParameters;
   }
 }
 
 /**
 * Create a new `Instruction`
 */
-export function instruction(instructionType: InstructionType, options?: Partial<Instruction>): Instruction {
-  return new Instruction(instructionType, options);
+export function instruction(instructionType: InstructionType, modelParameters: ModelParameters, options?: Partial<Instruction>): Instruction {
+  return new Instruction(instructionType, modelParameters, options);
 }

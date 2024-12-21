@@ -72,7 +72,7 @@ pub enum ModelIO {
 }
 
 /// Specifications for a model
-/// 
+///
 /// Currently used only for outputs and display.
 #[derive(Serialize, Deserialize)]
 #[serde(crate = "common::serde", rename_all = "camelCase")]

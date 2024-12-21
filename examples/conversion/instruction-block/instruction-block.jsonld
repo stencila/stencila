@@ -29,6 +29,9 @@
             }
           }
         ]
+      },
+      "stencila:modelParameters": {
+        "@type": "stencila:ModelParameters"
       }
     },
     {
@@ -56,7 +59,10 @@
           }
         ]
       },
-      "stencila:prompt": "table"
+      "stencila:prompt": "table",
+      "stencila:modelParameters": {
+        "@type": "stencila:ModelParameters"
+      }
     },
     {
       "@type": "stencila:Paragraph",
@@ -72,7 +78,10 @@
     {
       "@type": "stencila:InstructionBlock",
       "stencila:instructionType": "Create",
-      "stencila:prompt": "code-chunk"
+      "stencila:prompt": "code-chunk",
+      "stencila:modelParameters": {
+        "@type": "stencila:ModelParameters"
+      }
     },
     {
       "@type": "stencila:Paragraph",
@@ -98,6 +107,9 @@
             }
           }
         ]
+      },
+      "stencila:modelParameters": {
+        "@type": "stencila:ModelParameters"
       },
       "stencila:content": [
         {
@@ -139,6 +151,9 @@
         ]
       },
       "stencila:prompt": "anne",
+      "stencila:modelParameters": {
+        "@type": "stencila:ModelParameters"
+      },
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",
@@ -179,6 +194,9 @@
         ]
       },
       "stencila:prompt": "code-chunk",
+      "stencila:modelParameters": {
+        "@type": "stencila:ModelParameters"
+      },
       "stencila:activeSuggestion": 0,
       "stencila:suggestions": [
         {
@@ -219,6 +237,9 @@
           }
         ]
       },
+      "stencila:modelParameters": {
+        "@type": "stencila:ModelParameters"
+      },
       "stencila:activeSuggestion": 0,
       "stencila:content": [
         {
@@ -251,6 +272,47 @@
           ]
         }
       ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "With prompt and model parameters specified:"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:InstructionBlock",
+      "stencila:instructionType": "Create",
+      "stencila:message": {
+        "@type": "stencila:InstructionMessage",
+        "hasParts": [
+          {
+            "@type": "Text",
+            "value": {
+              "string": "message"
+            }
+          }
+        ]
+      },
+      "stencila:prompt": "prompt",
+      "stencila:modelParameters": {
+        "@type": "stencila:ModelParameters",
+        "stencila:modelIds": [
+          "model1",
+          "model2"
+        ],
+        "stencila:replicates": 3,
+        "stencila:qualityWeight": 10,
+        "stencila:costWeight": 10,
+        "stencila:speedWeight": 10,
+        "stencila:minimumScore": 40,
+        "stencila:temperature": 10,
+        "stencila:randomSeed": 123
+      }
     }
   ]
 }

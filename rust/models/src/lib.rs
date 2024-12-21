@@ -77,7 +77,7 @@ fn score(id: &str) -> u32 {
     }
 }
 
-/// Select a model based on selection criteria of the `InstructionModel`
+/// Select a model based on selection criteria of the `ModelParameters`
 #[tracing::instrument(skip_all)]
 pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
     tracing::trace!("Selecting a model for task");
@@ -101,9 +101,9 @@ pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
     // If a model router is available and the task does not specify a id pattern
     // then use the first router
     if task
-        .instruction_model
+        .model_parameters
         .as_ref()
-        .and_then(|model| model.id_pattern.clone())
+        .and_then(|pars| pars.model_ids.clone())
         .is_none()
     {
         if let Some(model) = models
@@ -116,12 +116,13 @@ pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
 
     // Filter according to whether the task is supported, and the selection criteria
     let regex = match task
-        .instruction_model
+        .model_parameters
         .as_ref()
-        .and_then(|model| model.id_pattern.as_deref())
+        .and_then(|model| model.model_ids.as_deref())
     {
         Some(pattern) => {
-            let regex = pattern.replace('.', r"\.").replace('*', "(.*?)");
+            // TODO: don't join here
+            let regex = pattern.join("").replace('.', r"\.").replace('*', "(.*?)");
             Some(Regex::new(&regex)?)
         }
         None => None,
@@ -165,7 +166,7 @@ pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
     }
 
     let Some(min_score) = task
-        .instruction_model
+        .model_parameters
         .as_ref()
         .and_then(|model| model.minimum_score)
     else {

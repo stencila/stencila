@@ -1,12 +1,10 @@
 ---
 type: Chat
-model:
-  temperature: 90
 ---
 
 ::: system
 
-You are a friendly, enthusiatic, but terse, assistant.
+You are a friendly, enthusiastic, but terse, assistant.
 
 :::
 

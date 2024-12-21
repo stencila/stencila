@@ -43,8 +43,7 @@ impl PatchNode for InstructionBlock {
         let mut values = vec![
             compare_property!(instruction_type),
             compare_property!(prompt),
-            compare_property!(model),
-            compare_property!(replicates),
+            compare_property!(model_parameters),
             compare_property!(recursion),
             compare_property!(message),
         ];
@@ -102,8 +101,7 @@ impl PatchNode for InstructionBlock {
 
         diff_property!(InstructionType, instruction_type);
         diff_property!(Prompt, prompt);
-        diff_property!(Model, model);
-        diff_property!(Replicates, replicates);
+        diff_property!(ModelParameters, model_parameters);
         diff_property!(Recursion, recursion);
         diff_property!(Message, message);
 
@@ -178,8 +176,7 @@ impl PatchNode for InstructionBlock {
             (InstructionType, self.instruction_type),
             (Message, self.message),
             (Prompt, self.prompt),
-            (Model, self.model),
-            (Replicates, self.replicates),
+            (ModelParameters, self.model_parameters),
             (Recursion, self.recursion),
             (Content, self.content),
             (Suggestions, self.suggestions),
@@ -427,8 +424,7 @@ impl PatchNode for InstructionBlock {
             (InstructionType, self.instruction_type),
             (Message, self.message),
             (Prompt, self.prompt),
-            (Model, self.model),
-            (Replicates, self.replicates),
+            (ModelParameters, self.model_parameters),
             (Recursion, self.recursion),
             (Content, self.content),
             (Suggestions, self.suggestions),
@@ -504,29 +500,10 @@ impl MarkdownCodec for InstructionBlock {
                                 prompt,
                             );
                         }
-                        if let Some(model) = &self.model {
-                            if let Some(id_pattern) = &model.id_pattern {
-                                context.myst_directive_option(
-                                    NodeProperty::Model,
-                                    Some("model"),
-                                    id_pattern,
-                                );
-                            }
-                            if let Some(temp) = &model.temperature {
-                                context.myst_directive_option(
-                                    NodeProperty::Temperature,
-                                    Some("temp"),
-                                    &temp.to_string(),
-                                );
-                            }
-                        }
-                        if let Some(reps) = &self.replicates {
-                            context.myst_directive_option(
-                                NodeProperty::Replicates,
-                                Some("reps"),
-                                &reps.to_string(),
-                            );
-                        }
+
+                        context.push_prop_fn(NodeProperty::ModelParameters, |context| {
+                            self.model_parameters.to_markdown(context)
+                        });
                     },
                     |context| {
                         // Show the active suggestion (if any) falling back to content (if any)
@@ -569,75 +546,9 @@ impl MarkdownCodec for InstructionBlock {
             context.push_str("@").push_str(prompt).push_str(" ");
         }
 
-        if let Some(model) = self
-            .model
-            .as_ref()
-            .and_then(|model| model.id_pattern.as_ref())
-        {
-            context.push_str("[").push_str(model).push_str("] ");
-        }
-
-        if let Some(replicates) = &self.replicates {
-            context
-                .push_str("x")
-                .push_str(&replicates.to_string())
-                .push_str(" ");
-        }
-
-        if let Some(value) = self
-            .model
-            .as_ref()
-            .and_then(|model| model.minimum_score.as_ref())
-        {
-            context
-                .push_str("y")
-                .push_str(&value.to_string())
-                .push_str(" ");
-        }
-
-        if let Some(value) = self
-            .model
-            .as_ref()
-            .and_then(|model| model.temperature.as_ref())
-        {
-            context
-                .push_str("t")
-                .push_str(&value.to_string())
-                .push_str(" ");
-        }
-
-        if let Some(value) = self
-            .model
-            .as_ref()
-            .and_then(|model| model.quality_weight.as_ref())
-        {
-            context
-                .push_str("q")
-                .push_str(&value.to_string())
-                .push_str(" ");
-        }
-
-        if let Some(value) = self
-            .model
-            .as_ref()
-            .and_then(|model| model.speed_weight.as_ref())
-        {
-            context
-                .push_str("s")
-                .push_str(&value.to_string())
-                .push_str(" ");
-        }
-
-        if let Some(value) = self
-            .model
-            .as_ref()
-            .and_then(|model| model.cost_weight.as_ref())
-        {
-            context
-                .push_str("c")
-                .push_str(&value.to_string())
-                .push_str(" ");
-        }
+        context.push_prop_fn(NodeProperty::ModelParameters, |context| {
+            self.model_parameters.to_markdown(context);
+        });
 
         if let Some(recursion) = &self.recursion {
             context.push_str(&recursion.to_string()).push_str(" ");

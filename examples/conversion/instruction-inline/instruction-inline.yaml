@@ -13,6 +13,8 @@ content:
       - type: Text
         value:
           string: insert an inline
+    modelParameters:
+      type: ModelParameters
   - type: Text
     value:
       string: .
@@ -29,6 +31,8 @@ content:
       - type: Text
         value:
           string: improve this
+    modelParameters:
+      type: ModelParameters
     content:
     - type: Text
       value:
@@ -50,12 +54,16 @@ content:
         value:
           string: equation for surface area of cube
     prompt: insert-inline-math
+    modelParameters:
+      type: ModelParameters
   - type: Text
     value:
       string: ' with a blank instruction '
   - type: InstructionInline
     instructionType: Create
     prompt: insert-math-inline
+    modelParameters:
+      type: ModelParameters
   - type: Text
     value:
       string: ' and '
@@ -68,6 +76,8 @@ content:
         value:
           string: please improve this
     prompt: joe
+    modelParameters:
+      type: ModelParameters
     content:
     - type: Text
       value:
@@ -89,6 +99,8 @@ content:
         value:
           string: area of circle
     prompt: insert-inline-math
+    modelParameters:
+      type: ModelParameters
     suggestions:
     - type: SuggestionInline
       content:
@@ -107,6 +119,8 @@ content:
       - type: Text
         value:
           string: improve
+    modelParameters:
+      type: ModelParameters
     content:
     - type: Text
       value:

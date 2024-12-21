@@ -386,14 +386,6 @@ impl Context {
                     value.insert("content".into(), json!([]));
                 }
 
-                if let Some(model) = value
-                    .get_mut("model")
-                    .and_then(|model: &mut serde_json::Value| model.as_object_mut())
-                {
-                    // Ensure that `model` has `type: InstructionModel`
-                    model.insert("type".into(), json!("InstructionModel"));
-                }
-
                 if let Some(config) = value
                     .get_mut("config")
                     .and_then(|config: &mut serde_json::Value| config.as_object_mut())

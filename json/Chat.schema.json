@@ -20,7 +20,7 @@
   "required": [
     "type",
     "type",
-    "model",
+    "modelParameters",
     "content"
   ],
   "core": [
@@ -64,6 +64,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -177,6 +178,7 @@
         "authors"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -211,6 +213,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -232,6 +235,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -253,6 +257,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -298,6 +303,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -313,6 +319,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -329,6 +336,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -344,6 +352,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -360,6 +369,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -374,6 +384,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -433,6 +444,7 @@
         ]
       },
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -459,6 +471,7 @@
         ]
       },
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -527,6 +540,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "dom": {
@@ -866,9 +880,18 @@
         "$ref": "ExecutionMessage.schema.json"
       }
     },
-    "model": {
-      "@id": "stencila:model",
-      "description": "The name, and other options, for the model involved in the chat.",
+    "modelParameters": {
+      "@id": "stencila:modelParameters",
+      "description": "Model selection and inference parameters.",
+      "aliases": [
+        "model-parameters",
+        "model_parameters",
+        "model-params",
+        "model_params",
+        "model-pars",
+        "model_pars",
+        "model"
+      ],
       "patch": {
         "formats": [
           "md",
@@ -879,10 +902,13 @@
         ]
       },
       "walk": true,
+      "serde": {
+        "default": true
+      },
       "dom": {
         "elem": "div"
       },
-      "$ref": "InstructionModel.schema.json"
+      "$ref": "ModelParameters.schema.json"
     },
     "prompt": {
       "@id": "stencila:prompt",
@@ -901,7 +927,7 @@
     "content": {
       "@id": "stencila:content",
       "description": "The messages, and optionally other content, that make up the conversation.",
-      "$comment": "Usually, a model chat will only contain `ChatMessage`s that alternate\nbetween user and model roles. However, other types of block content\nare permitted.\n",
+      "$comment": "Usually, a chat will only contain `ChatMessage`s that alternate\nbetween user and model roles. However, other types of block content\nare permitted.\n",
       "dom": {
         "elem": "div"
       },

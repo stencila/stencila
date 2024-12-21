@@ -1,7 +1,9 @@
 Article#: 1
 CodeChunk#: 1
-InstructionBlock#: 7
-InstructionMessage#: 6
-Paragraph#: 11
+InstructionBlock#: 8
+InstructionMessage#: 7
+Integer@: 1
+ModelParameters#: 8
+Paragraph#: 12
 SuggestionBlock#: 2
-UnsignedInteger@: 2
+UnsignedInteger@: 8

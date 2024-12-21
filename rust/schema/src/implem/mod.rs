@@ -49,6 +49,7 @@ mod math_inline;
 mod media_objects;
 mod message_level;
 mod message_part;
+mod model_parameters;
 mod modify_block;
 mod modify_inline;
 mod modify_operation;

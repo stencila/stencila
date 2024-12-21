@@ -10,13 +10,17 @@ use winnow::{
 };
 
 use codec::{
-    common::{indexmap::IndexMap, tracing},
+    common::{
+        indexmap::IndexMap,
+        serde_json::{self, json},
+        tracing,
+    },
     format::Format,
     schema::{
         shortcuts, Admonition, AdmonitionType, Block, CallArgument, CallBlock, Chat, ChatMessage,
         Claim, CodeBlock, CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading,
         IfBlock, IfBlockClause, IncludeBlock, Inline, InsertBlock, InstructionBlock,
-        InstructionMessage, InstructionModel, LabelType, List, ListItem, ListOrder, MathBlock,
+        InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock, ModelParameters,
         ModifyBlock, Node, Paragraph, PromptBlock, QuoteBlock, RawBlock, ReplaceBlock, Section,
         StyledBlock, SuggestionBlock, SuggestionStatus, Table, TableCell, TableRow, TableRowType,
         Text, ThematicBreak, Walkthrough, WalkthroughStep,
@@ -27,7 +31,7 @@ use super::{
     decode_blocks, decode_inlines,
     inlines::{inlines, mds_to_inlines, mds_to_string},
     shared::{
-        attrs, attrs_list, execution_mode, instruction_options, instruction_type, model, name,
+        attrs, attrs_list, execution_mode, instruction_type, model_parameters, name,
         node_to_string, primitive_node, prompt, string_to_instruction_message,
     },
     Context,
@@ -854,14 +858,19 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
         terminated(instruction_type, multispace0),
         opt(delimited((multispace0, '@'), prompt, multispace0)),
         opt(delimited(
-            (multispace0, '[', multispace0),
-            model,
-            (multispace0, ']', multispace0),
+            (multispace0, '['),
+            take_until(0.., ']'),
+            (']', multispace0),
         )),
-        delimited(multispace0, instruction_options, multispace0),
+        delimited(multispace0, model_parameters, multispace0),
         opt(take_while(0.., |_| true)),
     )
-        .map(|(instruction_type, prompt, id_pattern, options, message)| {
+        .map(|(instruction_type, prompt, model_ids, options, message)| {
+            let prompt = prompt.map(String::from);
+
+            let model_ids =
+                model_ids.map(|ids| ids.split(",").map(|id| id.trim().to_string()).collect());
+
             let (message, capacity) = match message {
                 Some(message) => {
                     let message = message.trim();
@@ -884,11 +893,12 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
 
             let mut recursion = Vec::new();
             let mut replicates: Option<u64> = None;
-            let mut minimum_score: Option<u64> = None;
-            let mut temperature: Option<u64> = None;
             let mut quality_weight: Option<u64> = None;
             let mut speed_weight: Option<u64> = None;
             let mut cost_weight: Option<u64> = None;
+            let mut minimum_score: Option<u64> = None;
+            let mut temperature: Option<u64> = None;
+            let mut random_seed: Option<i64> = None;
             for option in options {
                 if matches!(option, "run" | "!run") {
                     recursion.push(option);
@@ -898,45 +908,37 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                     let value = chars.collect::<String>().parse().ok();
                     match letter {
                         'x' => replicates = value,
-                        'y' => minimum_score = value,
-                        't' => temperature = value,
                         'q' => quality_weight = value,
-                        's' => speed_weight = value,
                         'c' => cost_weight = value,
+                        's' => speed_weight = value,
+                        'm' => minimum_score = value,
+                        't' => temperature = value,
+                        'r' => random_seed = value.map(|value| value as i64),
                         _ => {}
                     };
                 }
             }
             let recursion = (!recursion.is_empty()).then_some(recursion.join(" "));
 
-            let model = if id_pattern.is_some()
-                || minimum_score.is_some()
-                || temperature.is_some()
-                || quality_weight.is_some()
-                || speed_weight.is_some()
-                || cost_weight.is_some()
-            {
-                Some(Box::new(InstructionModel {
-                    id_pattern: id_pattern.map(String::from),
-                    minimum_score,
-                    temperature,
-                    quality_weight,
-                    speed_weight,
-                    cost_weight,
-                    ..Default::default()
-                }))
-            } else {
-                None
-            };
+            let model_parameters = Box::new(ModelParameters {
+                model_ids,
+                replicates,
+                quality_weight,
+                cost_weight,
+                speed_weight,
+                minimum_score,
+                temperature,
+                random_seed,
+                ..Default::default()
+            });
 
             Block::InstructionBlock(InstructionBlock {
                 instruction_type,
                 message,
                 content,
-                prompt: prompt.map(String::from),
-                replicates,
+                prompt,
                 recursion,
-                model,
+                model_parameters,
                 ..Default::default()
             })
         })
@@ -1561,24 +1563,15 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
             ..Default::default()
         }),
         "create" | "edit" | "fix" | "describe" => {
-            let id_pattern = options.get("model").map(|value| value.to_string());
-            let temperature = options.get("temp").and_then(|value| value.parse().ok());
-            let model = if id_pattern.is_some() || temperature.is_some() {
-                Some(Box::new(InstructionModel {
-                    id_pattern,
-                    temperature,
-                    ..Default::default()
-                }))
-            } else {
-                None
-            };
+            // Use deserialization aliases inherent in schema to permissively
+            // parse model_parameters
+            let model_parameters = serde_json::from_value(json!(options)).unwrap_or_default();
 
             Block::InstructionBlock(InstructionBlock {
                 instruction_type: name.parse().unwrap_or_default(),
                 message: args.map(InstructionMessage::from),
                 prompt: options.get("prompt").map(|value| value.to_string()),
-                replicates: options.get("reps").and_then(|value| value.parse().ok()),
-                model,
+                model_parameters,
                 content: if !value.trim().is_empty() {
                     Some(decode_blocks(&value, context))
                 } else {

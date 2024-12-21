@@ -19,6 +19,8 @@ content:
     - type: Text
       value:
         string: message
+  modelParameters:
+    type: ModelParameters
 - type: InstructionBlock
   instructionType: Create
   message:
@@ -27,6 +29,8 @@ content:
     - type: Text
       value:
         string: message
+  modelParameters:
+    type: ModelParameters
 - type: Paragraph
   content:
   - type: Text
@@ -46,6 +50,8 @@ content:
     - type: Text
       value:
         string: message
+  modelParameters:
+    type: ModelParameters
   content:
   - type: Paragraph
     content:
@@ -60,6 +66,8 @@ content:
     - type: Text
       value:
         string: message
+  modelParameters:
+    type: ModelParameters
   content:
   - type: Paragraph
     content:
@@ -79,6 +87,8 @@ content:
     - type: Text
       value:
         string: improve this
+  modelParameters:
+    type: ModelParameters
   content:
   - type: CodeChunk
     code:
@@ -92,6 +102,8 @@ content:
     - type: Text
       value:
         string: admonition
+  modelParameters:
+    type: ModelParameters
   content:
   - type: Admonition
     admonitionType: Warning
@@ -114,6 +126,8 @@ content:
       string: Multiple blocks
 - type: InstructionBlock
   instructionType: Edit
+  modelParameters:
+    type: ModelParameters
   content:
   - type: Paragraph
     content:

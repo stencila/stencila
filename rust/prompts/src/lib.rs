@@ -550,7 +550,7 @@ pub async fn execute_instruction_block(
     // Create a model task
     let mut task = ModelTask::new(
         instruction.instruction_type.clone(),
-        instruction.model.as_deref().cloned(),
+        *instruction.model_parameters.clone(),
         messages,
     );
     task.dry_run = dry_run;

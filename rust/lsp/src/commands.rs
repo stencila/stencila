@@ -39,7 +39,7 @@ use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
     replicate, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, InstructionBlock,
-    InstructionMessage, InstructionModel, InstructionType, MessageRole, NodeId, NodeProperty,
+    InstructionMessage, InstructionType, MessageRole, ModelParameters, NodeId, NodeProperty,
     NodeType, Patch, PatchNode, PatchOp, PatchPath, PatchValue, Timestamp,
 };
 
@@ -436,15 +436,16 @@ pub(super) async fn execute_command(
                 .next()
                 .and_then(|value| serde_json::from_value(value).ok())
                 .map(|msg: String| InstructionMessage::from(msg));
-            let model = args
+            let model_parameters = args
                 .next()
                 .and_then(|value| serde_json::from_value(value).ok())
-                .map(|models: Vec<String>| {
-                    Box::new(InstructionModel {
-                        id_pattern: Some(models.join(",")),
+                .map(|model_ids| {
+                    Box::new(ModelParameters {
+                        model_ids,
                         ..Default::default()
                     })
-                });
+                })
+                .unwrap_or_default();
 
             // Create the new node
             let block = match node_type {
@@ -459,7 +460,7 @@ pub(super) async fn execute_command(
                 NodeType::InstructionBlock => Block::InstructionBlock(InstructionBlock {
                     instruction_type,
                     prompt,
-                    model,
+                    model_parameters,
                     message,
                     ..Default::default()
                 }),

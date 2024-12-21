@@ -23,8 +23,8 @@ use super::execution_tag::ExecutionTag;
 use super::grant_or_monetary_grant::GrantOrMonetaryGrant;
 use super::image_object::ImageObject;
 use super::inline::Inline;
-use super::instruction_model::InstructionModel;
 use super::integer::Integer;
+use super::model_parameters::ModelParameters;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
@@ -66,11 +66,13 @@ pub struct Chat {
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub execution_mode: Option<ExecutionMode>,
 
-    /// The name, and other options, for the model involved in the chat.
+    /// Model selection and inference parameters.
+    #[serde(alias = "model-parameters", alias = "model_parameters", alias = "model-params", alias = "model_params", alias = "model-pars", alias = "model_pars", alias = "model")]
+    #[serde(default)]
     #[walk]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[dom(elem = "div")]
-    pub model: InstructionModel,
+    pub model_parameters: ModelParameters,
 
     /// The id of the system prompt to prefix chat messages with.
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
@@ -380,9 +382,9 @@ impl Chat {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(model: InstructionModel, content: Vec<Block>) -> Self {
+    pub fn new(model_parameters: ModelParameters, content: Vec<Block>) -> Self {
         Self {
-            model,
+            model_parameters,
             content,
             ..Default::default()
         }

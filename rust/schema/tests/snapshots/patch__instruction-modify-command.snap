@@ -65,6 +65,8 @@ old:
             characterCount: 49
             characterPercent: 100
       prompt: table
+      modelParameters:
+        type: ModelParameters
 new:
   type: Article
   content:
@@ -82,6 +84,8 @@ new:
             value:
               string: "top five highest mountains, with height in feet"
       prompt: table
+      modelParameters:
+        type: ModelParameters
 merged:
   type: Article
   authors:
@@ -173,6 +177,8 @@ merged:
             characterCount: 2
             characterPercent: 4
       prompt: table
+      modelParameters:
+        type: ModelParameters
 ops:
   - - - content
       - 1

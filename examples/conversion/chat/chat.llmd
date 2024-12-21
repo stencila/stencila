@@ -1,13 +1,12 @@
 ---
 type: Chat
-model:
-  type: InstructionModel
-  temperature: 90
+modelParameters:
+  type: ModelParameters
 ---
 
 ::: system
 
-You are a friendly, enthusiatic, but terse, assistant.
+You are a friendly, enthusiastic, but terse, assistant.
 
 :::
 

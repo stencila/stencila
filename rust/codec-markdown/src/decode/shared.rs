@@ -57,14 +57,10 @@ pub(super) fn instruction_type(input: &mut Located<&str>) -> PResult<Instruction
 }
 
 /// Parse instruction options
-pub(super) fn instruction_options<'s>(input: &mut Located<&'s str>) -> PResult<Vec<&'s str>> {
+pub(super) fn model_parameters<'s>(input: &mut Located<&'s str>) -> PResult<Vec<&'s str>> {
     separated(
         0..,
-        alt((
-            "run",
-            "!run",
-            (alt(('x', 'y', 'q', 's', 'c', 't')), digit1).take(),
-        )),
+        (alt(('x', 'q', 'c', 's', 'm', 't', 'r')), digit1).take(),
         multispace1,
     )
     .parse_next(input)
@@ -76,18 +72,6 @@ pub(super) fn prompt<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
         take_while(1.., |c: char| c.is_ascii_alphabetic()),
         take_while(0.., |c: char| {
             c.is_ascii_alphanumeric() || "_-/.@".contains(c)
-        }),
-    )
-        .take()
-        .parse_next(input)
-}
-
-/// Parse the name of a model of an instruction (e.g. `openai/gpt4`)
-pub(super) fn model<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
-    (
-        take_while(1.., |c: char| c.is_ascii_alphabetic()),
-        take_while(0.., |c: char| {
-            c.is_ascii_alphanumeric() || "_-/.".contains(c)
         }),
     )
         .take()
