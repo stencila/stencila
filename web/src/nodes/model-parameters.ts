@@ -282,6 +282,14 @@ export class ModelParameters extends Entity {
       --track-color-inactive: ${ui.colour};
     `
 
+    const help = (content: string) =>
+      html`<sl-tooltip content=${content}>
+        <stencila-ui-icon
+          class="text-sm"
+          name="questionCircle"
+        ></stencila-ui-icon>
+      </sl-tooltip>`
+
     return html`
       <div class="border rounded border-[${ui.borderColour}] bg-white">
         <div class="bg-[${ui.colour}]/30 min-w-[300px] p-4">
@@ -291,6 +299,9 @@ export class ModelParameters extends Entity {
               name="speedometer"
             ></stencila-ui-icon>
             <span class="text-sm">Model selection weights</span>
+            ${help(
+              'Weights used for selecting a model. Only apply if a model router is used.'
+            )}
           </span>
           <sl-range
             class="${weightsClasses}"
@@ -329,6 +340,9 @@ export class ModelParameters extends Entity {
               name="arrowBarUp"
             ></stencila-ui-icon>
             <span class="text-sm">Model selection minimum score</span>
+            ${help(
+              'Minimum weighted score for random model selection. Use 100 to always select the highest scoring model. Only applies if a model router is used.'
+            )}
           </span>
           <sl-range
             class="w-full"
@@ -343,26 +357,12 @@ export class ModelParameters extends Entity {
           <span class=${headerClasses}>
             <stencila-ui-icon
               class="text-lg"
-              name="arrowRepeat"
-            ></stencila-ui-icon>
-            <span class="text-sm">Replicates per model</span>
-          </span>
-          <sl-range
-            class="w-full"
-            min="1"
-            max="10"
-            value=${this.replicates ?? 1}
-            @sl-change=${(e: InputEvent) =>
-              this.onPropertyChanged(e, 'replicates')}
-            style=${rangeStyle}
-          ></sl-range>
-
-          <span class=${headerClasses}>
-            <stencila-ui-icon
-              class="text-lg"
               name="thermometer"
             ></stencila-ui-icon>
-            <span class="text-sm">Model inference temperature</span>
+            <span class="text-sm ml-3">Model inference temperature</span>
+            ${help(
+              'Amount of randomness in model suggestions. Use higher values for less analytical, more creative responses.'
+            )}
           </span>
           <sl-range
             class="w-full"
@@ -371,6 +371,24 @@ export class ModelParameters extends Entity {
             value=${this.temperature ?? 0}
             @sl-change=${(e: InputEvent) =>
               this.onPropertyChanged(e, 'temperature')}
+            style=${rangeStyle}
+          ></sl-range>
+
+          <span class=${headerClasses}>
+            <stencila-ui-icon
+              class="text-lg"
+              name="arrowRepeat"
+            ></stencila-ui-icon>
+            <span class="text-sm">Suggestions per model</span>
+            ${help('Number of suggestions made by each model')}
+          </span>
+          <sl-range
+            class="w-full"
+            min="1"
+            max="10"
+            value=${this.replicates ?? 1}
+            @sl-change=${(e: InputEvent) =>
+              this.onPropertyChanged(e, 'replicates')}
             style=${rangeStyle}
           ></sl-range>
         </div>
