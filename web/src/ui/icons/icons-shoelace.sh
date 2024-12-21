@@ -4,8 +4,10 @@ src="../../../../node_modules/@shoelace-style/shoelace/cdn/assets/icons"
 
 icons=(
     archive
+    arrow-bar-up
     arrow-clockwise
     arrow-left-square
+    arrow-repeat
     arrow-right
     arrow-right-square
     arrow-up-circle
@@ -65,6 +67,7 @@ icons=(
     skip-end
     skip-start
     slash-circle
+    sliders
     speedometer
     square
     star-fill

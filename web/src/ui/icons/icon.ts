@@ -23,10 +23,12 @@ import admonition from './admonition.svg'
 import anthropic from './anthropic.svg'
 import archive from './archive.svg'
 import array from './array.svg'
+import arrowBarUp from './arrow-bar-up.svg'
 import arrowClockwise from './arrow-clockwise.svg'
 import arrowLeftSquare from './arrow-left-square.svg'
 import arrowNarrowUp from './arrow-narrow-up.svg'
 import arrowRampRight3 from './arrow-ramp-right-3.svg'
+import arrowRepeat from './arrow-repeat.svg'
 import arrowRightSquare from './arrow-right-square.svg'
 import arrowRight from './arrow-right.svg'
 import arrowUpCircleFill from './arrow-up-circle-fill.svg'
@@ -120,6 +122,7 @@ import sandbox from './sandbox.svg'
 import skipEnd from './skip-end.svg'
 import skipStart from './skip-start.svg'
 import slashCircle from './slash-circle.svg'
+import sliders from './sliders.svg'
 import speedometer from './speedometer.svg'
 import square from './square.svg'
 import starFill from './star-fill.svg'
@@ -140,10 +143,12 @@ const icons = {
   anthropic,
   archive,
   array,
+  arrowBarUp,
   arrowClockwise,
   arrowLeftSquare,
   arrowNarrowUp,
   arrowRampRight3,
+  arrowRepeat,
   arrowRight,
   arrowRightSquare,
   arrowsCollapse,
@@ -240,6 +245,7 @@ const icons = {
   skipEnd,
   skipStart,
   slashCircle,
+  sliders,
   speedometer,
   square,
   starFill,

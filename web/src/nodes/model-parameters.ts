@@ -7,7 +7,7 @@ import { documentCommandEvent } from '../clients/commands'
 import { data, Model } from '../system'
 import { withTwind } from '../twind'
 import { iconMaybe } from '../ui/icons/icon'
-import { nodeUi } from '../ui/nodes/icons-and-colours'
+import { NodeTypeUI, nodeUi } from '../ui/nodes/icons-and-colours'
 
 import { Entity } from './entity'
 
@@ -205,17 +205,12 @@ export class ModelParameters extends Entity {
       border-top: solid var(--width) var(--color);
       margin: 0.5rem 0;
     }
-    sl-menu-label::part(base) {
-      padding: 0 var(--sl-spacing-2x-small);
-    }
-    sl-range::part(form-control-label) {
-      font-size: 0.875rem;
-    }
   `
 
   override render() {
     const parentNodeType = this.ancestors.split('.').pop() as NodeType
-    const { borderColour, colour } = nodeUi(parentNodeType)
+    const ui = nodeUi(parentNodeType)
+    const { borderColour, colour } = ui
 
     const styles = apply(
       'flex flex-row items-center',
@@ -263,12 +258,12 @@ export class ModelParameters extends Entity {
                   style="--show-delay: 500ms; --hide-delay: 100ms"
                 >
                   <stencila-ui-icon
-                    name="gear"
+                    name="sliders"
                     class="text-base"
                   ></stencila-ui-icon>
                 </sl-tooltip>
               </div>
-              <div>${this.renderDropdown()}</div>
+              <div>${this.renderDropdown(ui)}</div>
             </sl-dropdown>
           </div>
         </div>
@@ -276,72 +271,65 @@ export class ModelParameters extends Entity {
     `
   }
 
-  renderDropdown() {
+  renderDropdown(ui: NodeTypeUI) {
+    const headerClasses = apply('flex flex-row items-center gap-2 mt-6 mb-2')
+    const weightsClasses = apply('items-center my-2 w-full')
+    const rangeStyle = `
+      --sl-input-label-font-size-medium: 0.85rem;
+      --sl-color-primary-600: ${ui.textColour};
+      --sl-color-primary-500: ${ui.borderColour};
+      --track-color-active: ${ui.borderColour};
+      --track-color-inactive: ${ui.colour};
+    `
+
     return html`
-      <div class="p-4 bg-white border rounded min-w-[300px]">
-        <sl-menu-label>Model selection: weights</sl-menu-label>
-        <div class="flex flex-row items-center">
-          <div class="mr-2">
+      <div class="border rounded border-[${ui.borderColour}] bg-white">
+        <div class="bg-[${ui.colour}]/30 min-w-[300px] p-4">
+          <span class="${headerClasses} mt-0">
             <stencila-ui-icon
               class="text-lg"
-              name="starFill"
+              name="speedometer"
             ></stencila-ui-icon>
-          </div>
+            <span class="text-sm">Model selection weights</span>
+          </span>
           <sl-range
-            class="w-full"
+            class="${weightsClasses}"
             label="Quality"
             min="0"
             max="100"
             value=${this.qualityWeight}
             @sl-change=${(e: InputEvent) =>
               this.onWeightChanged(e, 'qualityWeight')}
+            style=${rangeStyle}
           ></sl-range>
-        </div>
-        <div class="flex flex-row items-center">
-          <div class="mr-2">
-            <stencila-ui-icon
-              class="text-lg"
-              name="speedometer"
-            ></stencila-ui-icon>
-          </div>
           <sl-range
-            class="w-full"
-            label="Speed"
-            min="0"
-            max="100"
-            value=${this.speedWeight}
-            @sl-change=${(e: InputEvent) =>
-              this.onWeightChanged(e, 'speedWeight')}
-          ></sl-range>
-        </div>
-        <div class="flex flex-row items-center">
-          <div class="mr-2">
-            <stencila-ui-icon
-              class="text-lg"
-              name="currencyDollar"
-            ></stencila-ui-icon>
-          </div>
-          <sl-range
-            class="w-full"
+            class=${weightsClasses}
             label="Cost"
             min="0"
             max="100"
             value=${this.costWeight}
             @sl-change=${(e: InputEvent) =>
               this.onWeightChanged(e, 'costWeight')}
+            style=${rangeStyle}
           ></sl-range>
-        </div>
+          <sl-range
+            class=${weightsClasses}
+            label="Speed"
+            min="0"
+            max="100"
+            value=${this.speedWeight}
+            @sl-change=${(e: InputEvent) =>
+              this.onWeightChanged(e, 'speedWeight')}
+            style=${rangeStyle}
+          ></sl-range>
 
-        <sl-divider></sl-divider>
-
-        <sl-menu-label>Model selection: minimum score</sl-menu-label>
-        <div class="flex flex-row items-center">
-          <div class="mr-2">
+          <span class=${headerClasses}>
             <stencila-ui-icon
               class="text-lg"
-              name="speedometer"
+              name="arrowBarUp"
             ></stencila-ui-icon>
-          </div>
+            <span class="text-sm">Model selection minimum score</span>
+          </span>
           <sl-range
             class="w-full"
             min="0"
@@ -349,19 +337,16 @@ export class ModelParameters extends Entity {
             value=${this.minimumScore ?? 1}
             @sl-change=${(e: InputEvent) =>
               this.onPropertyChanged(e, 'minimumScore')}
+            style=${rangeStyle}
           ></sl-range>
-        </div>
 
-        <sl-divider></sl-divider>
-
-        <sl-menu-label>Replicate runs per model</sl-menu-label>
-        <div class="flex flex-row items-center">
-          <div class="mr-2">
+          <span class=${headerClasses}>
             <stencila-ui-icon
               class="text-lg"
-              name="arrowClockwise"
+              name="arrowRepeat"
             ></stencila-ui-icon>
-          </div>
+            <span class="text-sm">Replicates per model</span>
+          </span>
           <sl-range
             class="w-full"
             min="1"
@@ -369,19 +354,16 @@ export class ModelParameters extends Entity {
             value=${this.replicates ?? 1}
             @sl-change=${(e: InputEvent) =>
               this.onPropertyChanged(e, 'replicates')}
+            style=${rangeStyle}
           ></sl-range>
-        </div>
 
-        <sl-divider></sl-divider>
-
-        <sl-menu-label>Model inference temperature</sl-menu-label>
-        <div class="flex flex-row items-center">
-          <div class="mr-2">
+          <span class=${headerClasses}>
             <stencila-ui-icon
               class="text-lg"
               name="thermometer"
             ></stencila-ui-icon>
-          </div>
+            <span class="text-sm">Model inference temperature</span>
+          </span>
           <sl-range
             class="w-full"
             min="0"
@@ -389,6 +371,7 @@ export class ModelParameters extends Entity {
             value=${this.temperature ?? 0}
             @sl-change=${(e: InputEvent) =>
               this.onPropertyChanged(e, 'temperature')}
+            style=${rangeStyle}
           ></sl-range>
         </div>
       </div>
