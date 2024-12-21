@@ -66,11 +66,7 @@ export class ModelParameters extends Entity {
 
   /**
    * On a change to a weight, adjust the other weights so that they
-   * all sum to 100 and then send a patch update the weight.
-   *
-   * The adjustment is also done on the server but by doing it here there
-   * is a more immediate change to the sliders (rather than waiting for
-   * the round trip update).
+   * all sum to 100 and then send a patch update all the weights.
    */
   private onWeightChanged(
     event: InputEvent,
@@ -78,39 +74,44 @@ export class ModelParameters extends Entity {
   ) {
     const newValue = parseInt((event.target as HTMLInputElement).value)
 
-    const SUM_OF_WEIGHTS = 100
-    const diff = SUM_OF_WEIGHTS - newValue
-
-    const otherWeights = this.weightFields.filter((f) => f !== changedWeight)
-    const otherValues = otherWeights.map((f) => this[f])
-    const sumOfOtherValues = otherWeights.reduce(
-      (acc, field) => (acc += this[field]),
-      0
+    const remainingWeight = 100 - newValue
+    const otherWeights = this.weightFields.filter(
+      (weight) => weight !== changedWeight
     )
+    const otherSum = this[otherWeights[0]] + this[otherWeights[1]]
 
-    let total = newValue
-    otherWeights.forEach((weight, i) => {
-      let val = Math.round(
-        Math.max(0, Math.min(100, diff * (otherValues[i] / sumOfOtherValues)))
+    // Adjust other weights to guarantee integers that sum to 100
+    let firstWeight
+    let secondWeight
+    if (otherSum > 0) {
+      // Distribute the remaining weight proportionally to the other weights
+      firstWeight = Math.round(
+        (this[otherWeights[0]] / otherSum) * remainingWeight
       )
-      total += val
+      secondWeight = remainingWeight - firstWeight
+    } else {
+      // If otherSum is zero, distribute equally
+      firstWeight = Math.floor(remainingWeight / 2)
+      secondWeight = remainingWeight - firstWeight
+    }
 
-      if (i === otherWeights.length - 1 && total !== SUM_OF_WEIGHTS) {
-        val += SUM_OF_WEIGHTS - total
-      }
-      this[weight] = val
-    })
-
+    this[otherWeights[0]] = firstWeight
+    this[otherWeights[1]] = secondWeight
     this[changedWeight] = newValue
 
-    this.dispatchEvent(
-      documentCommandEvent({
-        command: 'patch-node',
-        nodeType: 'ModelParameters',
-        nodeIds: [this.id],
-        nodeProperty: [changedWeight, this[changedWeight]],
-      })
-    )
+    // Send patch for all weights
+    // TODO: create/modify command so can send a patch with multiple operations
+    // rather than send 3 separate patches as done here
+    for (const weight of this.weightFields) {
+      this.dispatchEvent(
+        documentCommandEvent({
+          command: 'patch-node',
+          nodeType: 'ModelParameters',
+          nodeIds: [this.id],
+          nodeProperty: [weight, this[weight]],
+        })
+      )
+    }
   }
 
   /**
