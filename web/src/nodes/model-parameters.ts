@@ -28,7 +28,7 @@ type ModelParametersWeightField = 'speedWeight' | 'costWeight' | 'qualityWeight'
 @withTwind()
 export class ModelParameters extends Entity {
   @property({ attribute: 'model-ids', type: Array })
-  modelIds?: string[]
+  modelIds?: string[] = []
 
   @property({ type: Number })
   replicates?: number = 1
@@ -43,7 +43,7 @@ export class ModelParameters extends Entity {
   speedWeight?: number = 15
 
   @property({ attribute: 'minimum-score', type: Number })
-  minimumScore?: number
+  minimumScore?: number = 100
 
   @property({ type: Number })
   temperature?: number
@@ -55,7 +55,7 @@ export class ModelParameters extends Entity {
    * Model <select> options updated whenever model list is updated
    * rather than in `render()`
    */
-  private modelOptions: TemplateResult[]
+  private modelOptions: TemplateResult[] = []
 
   private readonly weightFields: ModelParametersWeightField[] = [
     'costWeight',
