@@ -1,20 +1,21 @@
 import { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
-import { css, html } from 'lit'
+import { css, html, TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { documentCommandEvent } from '../clients/commands'
-import { data } from '../system'
+import { data, Model } from '../system'
 import { withTwind } from '../twind'
 import { iconMaybe } from '../ui/icons/icon'
-import '../ui/inputs/select'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import { Entity } from './entity'
 
-import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
-import '@shoelace-style/shoelace/dist/components/range/range.js'
 import '@shoelace-style/shoelace/dist/components/divider/divider.js'
+import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
+import '@shoelace-style/shoelace/dist/components/option/option.js'
+import '@shoelace-style/shoelace/dist/components/range/range.js'
+import '@shoelace-style/shoelace/dist/components/select/select.js'
 
 type ModelParametersWeightField = 'speedWeight' | 'costWeight' | 'qualityWeight'
 
@@ -50,6 +51,12 @@ export class ModelParameters extends Entity {
   @property({ attribute: 'random-seed', type: Number })
   randomSeed?: number
 
+  /**
+   * Model <select> options updated whenever model list is updated
+   * rather than in `render()`
+   */
+  private modelOptions: TemplateResult[]
+
   private readonly weightFields: ModelParametersWeightField[] = [
     'costWeight',
     'qualityWeight',
@@ -61,12 +68,62 @@ export class ModelParameters extends Entity {
    * update (re-render) of this component
    */
   private onModelsUpdated() {
+    // Group models by provider
+    const providers: Record<string, Model[]> = {}
+    for (const model of data.models) {
+      if (model.provider in providers) {
+        providers[model.provider].push(model)
+      } else {
+        providers[model.provider] = [model]
+      }
+    }
+
+    // Render options
+    this.modelOptions = Object.entries(providers).map(
+      ([provider, models], index) => {
+        return html`
+          ${index !== 0 ? html`<sl-divider></sl-divider>` : ''}
+          <span class="flex flex-row items-center gap-2 px-2 text-gray-500">
+            <stencila-ui-icon
+              slot="prefix"
+              class="text-base"
+              name=${iconMaybe(provider.toLowerCase()) ?? 'company'}
+            ></stencila-ui-icon>
+            ${provider}
+          </span>
+          ${models.map(
+            (model) => html`
+              <sl-option value=${model.id}>
+                <span class="text-xs">${model.name} ${model.version}</span>
+              </sl-option>
+            `
+          )}
+        `
+      }
+    )
+
     this.requestUpdate()
   }
 
   /**
+   * On a change to the selected models send a patch to update the property
+   */
+  private onModelIdsChanged(event: InputEvent) {
+    const value = (event.target as HTMLInputElement).value
+
+    this.dispatchEvent(
+      documentCommandEvent({
+        command: 'patch-node',
+        nodeType: 'ModelParameters',
+        nodeIds: [this.id],
+        nodeProperty: ['modelIds', value],
+      })
+    )
+  }
+
+  /**
    * On a change to a weight, adjust the other weights so that they
-   * all sum to 100 and then send a patch update all the weights.
+   * all sum to 100 and then send a patch to update each of the weights.
    */
   private onWeightChanged(
     event: InputEvent,
@@ -115,7 +172,7 @@ export class ModelParameters extends Entity {
   }
 
   /**
-   * On a change to a number property, patch that property in the document
+   * On a change to a number property, send a patch to update that property
    */
   private onPropertyChanged(
     event: InputEvent,
@@ -159,6 +216,7 @@ export class ModelParameters extends Entity {
   override render() {
     const parentNodeType = this.ancestors.split('.').pop() as NodeType
     const { borderColour, colour } = nodeUi(parentNodeType)
+
     const styles = apply(
       'flex flex-row items-center',
       'w-full',
@@ -168,22 +226,34 @@ export class ModelParameters extends Entity {
       `border-t border-[${borderColour}]`
     )
 
+    // Model id strings written by the user may be partial, so here match them with
+    // the id in the model list. This is the same as done in Rust.
+    const modelIds: string[] = []
+    for (const modelId of this.modelIds) {
+      for (const model of data.models) {
+        if (model.id.includes(modelId)) {
+          modelIds.push(model.id)
+          break
+        }
+      }
+    }
+
     return html`
       <div class=${styles}>
         <div class="flex flex-row items-center justify-between w-full">
           <div class="flex flex-row items-center w-11/12">
             <span class="pr-2">Model</span>
-            <ui-select-input
+            <sl-select
               class="w-full"
-              ?multi=${true}
-              ?clearable=${true}
-              .options=${data.models.map((model) => ({
-                value: model.id,
-                icon: iconMaybe(model.provider.toLowerCase()) ?? 'robot',
-                label: `${model.name} ${model.version}`,
-              }))}
+              multiple
+              clearable
+              max-options-visible="2"
+              size="small"
+              value=${modelIds.join(' ')}
+              @sl-change=${(e: InputEvent) => this.onModelIdsChanged(e)}
             >
-            </ui-select-input>
+              ${this.modelOptions}
+            </sl-select>
           </div>
           <div>
             <sl-dropdown placement="bottom-end" distance="20">
