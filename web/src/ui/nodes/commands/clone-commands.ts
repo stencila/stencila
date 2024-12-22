@@ -13,7 +13,7 @@ import '../../buttons/icon'
 @withTwind()
 export class UINodeCloneCommands extends UIBaseClass {
   @property({ type: Boolean })
-  enabled: boolean = true
+  enabled: boolean = false
 
   private clone() {
     this.dispatchEvent(
