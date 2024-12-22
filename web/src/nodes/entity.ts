@@ -31,6 +31,12 @@ export abstract class Entity extends LitElement {
   $id?: string
 
   /**
+   * Whether or not this is the root node in the node tree
+   */
+  @property({ type: Boolean })
+  root: boolean = false
+
+  /**
    * The depth of the node in the node tree
    *
    * The root node (e.g. `Article`) will have a depth of zero.
