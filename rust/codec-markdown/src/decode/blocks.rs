@@ -643,10 +643,10 @@ fn include_block(input: &mut Located<&str>) -> PResult<Block> {
 
 /// Parse a [`PromptBlock`] node
 fn prompt_block(input: &mut Located<&str>) -> PResult<Block> {
-    preceded(("prompt", multispace1), take_while(1.., |_| true))
-        .map(|prompt: &str| {
+    preceded("prompt", opt(preceded(multispace1, prompt)))
+        .map(|target| {
             Block::PromptBlock(PromptBlock {
-                target: prompt.trim().to_string(),
+                target: target.map(String::from),
                 ..Default::default()
             })
         })
@@ -730,7 +730,10 @@ fn chat(input: &mut Located<&str>) -> PResult<Block> {
     .map(
         |(execution_mode, execution_recursion, prompt, model_parameters, _rest)| {
             let prompt = prompt
-                .map(|prompt| PromptBlock::new(prompt.into()))
+                .map(|prompt| PromptBlock {
+                    target: Some(prompt.into()),
+                    ..Default::default()
+                })
                 .unwrap_or_default();
 
             let model_parameters = model_parameters.map(Box::new).unwrap_or_default();
@@ -890,7 +893,10 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                 message,
             )| {
                 let prompt = prompt
-                    .map(|prompt| PromptBlock::new(prompt.into()))
+                    .map(|prompt| PromptBlock {
+                        target: Some(prompt.into()),
+                        ..Default::default()
+                    })
                     .unwrap_or_default();
 
                 let model_parameters = model_parameters.map(Box::new).unwrap_or_default();
@@ -1553,7 +1559,10 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
         "create" | "edit" | "fix" | "describe" => {
             let prompt = options
                 .get("prompt")
-                .map(|value| PromptBlock::new(value.to_string()))
+                .map(|prompt| PromptBlock {
+                    target: Some(prompt.to_string()),
+                    ..Default::default()
+                })
                 .unwrap_or_default();
 
             // Use deserialization aliases inherent in schema to permissively

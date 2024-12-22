@@ -432,7 +432,10 @@ pub(super) async fn execute_command(
             let prompt = args
                 .next()
                 .and_then(|value| serde_json::from_value(value).ok())
-                .map(PromptBlock::new)
+                .map(|value: String| PromptBlock {
+                    target: Some(value),
+                    ..Default::default()
+                })
                 .unwrap_or_default();
             let message = args
                 .next()

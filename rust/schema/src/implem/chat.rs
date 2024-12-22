@@ -87,10 +87,10 @@ impl MarkdownCodec for Chat {
                 }
             }
 
-            if !self.prompt.target.is_empty() {
+            if let Some(target) = &self.prompt.target {
                 context
                     .push_str("@")
-                    .push_prop_str(NodeProperty::Prompt, &self.prompt.target)
+                    .push_prop_str(NodeProperty::Prompt, target)
                     .space();
             }
 

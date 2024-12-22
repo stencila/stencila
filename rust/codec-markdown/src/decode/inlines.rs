@@ -838,7 +838,10 @@ fn instruction_inline(input: &mut Located<&str>) -> PResult<Inline> {
     )
         .map(|(instruction_type, (prompt, (text, term)))| {
             let prompt = prompt
-                .map(|id| PromptBlock::new(id.into()))
+                .map(|prompt| PromptBlock {
+                    target: Some(prompt.into()),
+                    ..Default::default()
+                })
                 .unwrap_or_default();
 
             let message = (!text.is_empty())

@@ -724,7 +724,9 @@ fn instruction_block_to_pandoc(
         block.instruction_type.to_string().to_lowercase(),
     )];
 
-    attributes.push(("prompt".into(), block.prompt.target.to_string()));
+    if let Some(prompt) = &block.prompt.target {
+        attributes.push(("prompt".into(), prompt.to_string()));
+    }
 
     if let Some(MessagePart::Text(Text { value, .. })) = &block.message.parts.first() {
         attributes.push(("message".into(), value.to_string()));
@@ -1009,7 +1011,12 @@ fn styled_block_from_pandoc(
         let prompt = attrs
             .attributes
             .iter()
-            .find_map(|(name, value)| (name == "prompt").then_some(PromptBlock::new(value.into())))
+            .find_map(|(name, value)| {
+                (name == "prompt").then_some(PromptBlock {
+                    target: Some(value.into()),
+                    ..Default::default()
+                })
+            })
             .unwrap_or_default();
 
         let message = attrs

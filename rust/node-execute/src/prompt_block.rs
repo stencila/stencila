@@ -76,15 +76,20 @@ impl Executable for PromptBlock {
         executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
 
         // Get the prompt
-        let prompt = match prompts::get(&self.target, &InstructionType::Create).await {
+        // TODO: separate error if target is None
+        let target = self.target.clone().unwrap_or_default();
+        let prompt = match prompts::get(&target, &InstructionType::Create).await {
             Ok(prompt) => prompt,
             Err(error) => {
                 executor.patch(
                     &node_id,
-                    [set(
-                        NodeProperty::ExecutionMessages,
-                        vec![error_to_execution_message("While getting prompt", error)],
-                    )],
+                    [
+                        set(NodeProperty::ExecutionStatus, ExecutionStatus::Exceptions),
+                        set(
+                            NodeProperty::ExecutionMessages,
+                            vec![error_to_execution_message("While getting prompt", error)],
+                        ),
+                    ],
                 );
                 return WalkControl::Break;
             }

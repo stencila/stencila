@@ -491,11 +491,11 @@ impl MarkdownCodec for InstructionBlock {
                             });
                     },
                     |context| {
-                        if !self.prompt.target.is_empty() {
+                        if let Some(prompt) = &self.prompt.target {
                             context.myst_directive_option(
                                 NodeProperty::Prompt,
                                 Some("prompt"),
-                                &self.prompt.target,
+                                prompt,
                             );
                         }
 
@@ -582,10 +582,10 @@ impl MarkdownCodec for InstructionBlock {
             }
         }
 
-        if !self.prompt.target.is_empty() {
+        if let Some(prompt) = &self.prompt.target {
             context
                 .push_str("@")
-                .push_prop_str(NodeProperty::Prompt, &self.prompt.target)
+                .push_prop_str(NodeProperty::Prompt, &prompt)
                 .space();
         }
 

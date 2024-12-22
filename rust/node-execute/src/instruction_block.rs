@@ -33,7 +33,9 @@ impl Executable for InstructionBlock {
             &mut state_digest,
             self.message.to_cbor().unwrap_or_default().as_slice(),
         );
-        add_to_digest(&mut state_digest, self.prompt.target.clone().as_bytes());
+        if let Some(prompt) = &self.prompt.target {
+            add_to_digest(&mut state_digest, prompt.to_string().as_bytes());
+        }
         add_to_digest(
             &mut state_digest,
             self.model_parameters
@@ -177,7 +179,10 @@ impl Executable for InstructionBlock {
 
         // Create a new `PromptBlock` to render the prompt and patch it to `prompt`
         // so that when it is executed it gets patched
-        let mut prompt_block = PromptBlock::new(prompt_id);
+        let mut prompt_block = PromptBlock {
+            target: Some(prompt_id),
+            ..Default::default()
+        };
         executor.patch(&node_id, [set(NodeProperty::Prompt, prompt_block.clone())]);
 
         // Execute the `PromptBlock`. The instruction context needs to

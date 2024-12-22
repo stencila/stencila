@@ -2424,7 +2424,7 @@ class PromptBlock(Executable):
 
     type: Literal["PromptBlock"] = "PromptBlock"
 
-    target: str
+    target: str | None = None
     """An identifier for the prompt to be rendered"""
 
     content: list[Block] | None = None

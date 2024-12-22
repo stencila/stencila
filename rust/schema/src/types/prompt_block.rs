@@ -48,7 +48,7 @@ pub struct PromptBlock {
 
     /// An identifier for the prompt to be rendered
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
-    pub target: String,
+    pub target: Option<String>,
 
     /// The executed content of the prompt
     #[serde(default, deserialize_with = "option_one_or_many")]
@@ -171,9 +171,8 @@ impl PromptBlock {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(target: String) -> Self {
+    pub fn new() -> Self {
         Self {
-            target,
             ..Default::default()
         }
     }

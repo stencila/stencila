@@ -25,6 +25,8 @@ properties:
       $ref: MessagePart
     patch:
       formats: [md, smd, myst, ipynb, qmd]
+    serde:
+      default: true
     dom:
       elem: div
   authors:

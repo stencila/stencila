@@ -15,13 +15,13 @@
     "derive": false
   },
   "required": [
-    "type",
-    "target"
+    "type"
   ],
   "core": [
     "id",
     "executionMode",
     "executionRecursion",
+    "target",
     "content"
   ],
   "properties": {

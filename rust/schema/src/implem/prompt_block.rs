@@ -40,18 +40,21 @@ impl MarkdownCodec for PromptBlock {
                 '`',
                 "prompt",
                 |context| {
-                    context
-                        .push_str(" ")
-                        .push_prop_str(NodeProperty::Prompt, &self.target);
+                    if let Some(prompt) = &self.target {
+                        context
+                            .push_str(" ")
+                            .push_prop_str(NodeProperty::Prompt, prompt);
+                    }
                 },
                 |_| {},
                 |_| {},
             );
         } else {
-            context
-                .push_colons()
-                .push_str(" prompt ")
-                .push_prop_str(NodeProperty::Prompt, &self.target);
+            context.push_colons().push_str(" prompt");
+
+            if let Some(prompt) = &self.target {
+                context.push_prop_str(NodeProperty::Prompt, prompt);
+            }
         }
 
         context.newline().exit_node().newline();

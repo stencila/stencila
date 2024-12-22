@@ -387,13 +387,13 @@ async fn update_builtin() -> Result<()> {
 pub async fn select(
     instruction_type: &InstructionType,
     message: &InstructionMessage,
-    prompt: &str,
+    prompt: &Option<String>,
     _node_types: &Option<Vec<String>>,
 ) -> Result<PromptInstance> {
     let prompts = list().await;
 
     // If there is a prompt specified then get it
-    if !prompt.is_empty() {
+    if let Some(prompt) = prompt {
         return get(prompt, instruction_type).await;
     }
 

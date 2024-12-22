@@ -1,0 +1,46 @@
+---
+source: rust/schema/tests/patch.rs
+assertion_line: 136
+expression: "Summary { ops_count, ops_total }"
+snapshot_kind: text
+---
+ops_count:
+  admonition-add-para: 1
+  append-one-paragraph: 1
+  append-paragraph-to-section: 1
+  change-and-reorder-headings: 3
+  change-code-chunk-code: 1
+  change-code-chunk-code-and-lang: 2
+  change-first-paragraph: 1
+  change-last-paragraph: 1
+  change-middle-paragraphs: 2
+  delete-code-chunk: 1
+  delete-one-paragraph: 1
+  delete-two-paragraphs: 1
+  footnote-add-text: 1
+  insert-code-and-heading: 1
+  insert-one-paragraph: 1
+  instruction-modify-command: 0
+  instruction-modify-inline: 2
+  instruction-modify-text: 1
+  instruction-with-footnode: 1
+  instruction-wrap: 1
+  list-swap-items: 1
+  move-middle-paragraphs: 1
+  paragraph-copy-0.95: 3
+  paragraph-copy-and-move: 2
+  paragraph-copy-one: 1
+  prepend-one-paragraph: 1
+  section-add-paras: 1
+  split-code-chunk: 2
+  table-add-rows: 1
+  table-change-content: 1
+  table-switch-columns: 10
+  table-switch-rows: 1
+  thematic-simple-add: 1
+  theorem-add-text: 1
+  unwrap-emphasis: 2
+  unwrap-figure: 2
+  wrap-emphasis: 2
+  wrap-figure: 2
+ops_total: 59

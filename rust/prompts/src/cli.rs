@@ -150,7 +150,7 @@ impl Select {
         let prompt = super::select(
             &self.r#type,
             &InstructionMessage::from(self.message),
-            "",
+            &None,
             &None,
         )
         .await?;

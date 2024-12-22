@@ -11,9 +11,8 @@ $comment: |
 status: experimental
 markdown:
   derive: false
-required:
-  - target
 core:
+  - target
   - content
 properties:
   target:

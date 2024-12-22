@@ -1,0 +1,167 @@
+---
+source: rust/schema/tests/patch.rs
+assertion_line: 124
+expression: "Fixture { old, new, ops: patch.ops, merged }"
+snapshot_kind: text
+---
+old:
+  type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 31
+      characterPercent: 100
+  content:
+    - type: InstructionBlock
+      instructionType: Edit
+      prompt:
+        type: PromptBlock
+        target: ""
+      message:
+        type: InstructionMessage
+        parts: []
+        authors:
+          - type: AuthorRole
+            author:
+              type: Person
+              givenNames:
+                - Alice
+            roleName: Importer
+      modelParameters:
+        type: ModelParameters
+      content:
+        - type: Paragraph
+          content:
+            - type: Text
+              value:
+                string: A rather long winded paragraph.
+                authorship:
+                  - - 1
+                    - 0
+                    - 0
+                    - 31
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 31
+              characterPercent: 100
+new:
+  type: Article
+  content:
+    - type: InstructionBlock
+      instructionType: Edit
+      prompt:
+        type: PromptBlock
+        target: ""
+      message:
+        type: InstructionMessage
+        parts: []
+      modelParameters:
+        type: ModelParameters
+      content:
+        - type: Paragraph
+          content:
+            - type: Text
+              value:
+                string: A rather long winded paragraph that goes on and on.
+merged:
+  type: Article
+  authors:
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Alice
+      roleName: Importer
+    - type: AuthorRole
+      author:
+        type: Person
+        givenNames:
+          - Bob
+      roleName: Writer
+  provenance:
+    - type: ProvenanceCount
+      provenanceCategory: Hw
+      characterCount: 51
+      characterPercent: 100
+  content:
+    - type: InstructionBlock
+      instructionType: Edit
+      prompt:
+        type: PromptBlock
+        target: ""
+      message:
+        type: InstructionMessage
+        parts: []
+        authors:
+          - type: AuthorRole
+            author:
+              type: Person
+              givenNames:
+                - Alice
+            roleName: Importer
+      modelParameters:
+        type: ModelParameters
+      content:
+        - type: Paragraph
+          content:
+            - type: Text
+              value:
+                string: A rather long winded paragraph that goes on and on.
+                authorship:
+                  - - 1
+                    - 0
+                    - 0
+                    - 30
+                  - - 1
+                    - 1
+                    - 0
+                    - 20
+                  - - 1
+                    - 0
+                    - 0
+                    - 1
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Bob
+              roleName: Writer
+          provenance:
+            - type: ProvenanceCount
+              provenanceCategory: Hw
+              characterCount: 51
+              characterPercent: 100
+ops:
+  - - - content
+      - 0
+      - content
+      - 0
+      - content
+      - 0
+      - value
+    - Apply:
+        - Insert:
+            - 30
+            - " that goes on and on"
