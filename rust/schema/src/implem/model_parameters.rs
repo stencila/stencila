@@ -17,44 +17,54 @@ impl MarkdownCodec for ModelParameters {
                 }
             }
 
-            if let Some(replicates) = &self.replicates {
-                context.myst_directive_option(
-                    NodeProperty::Replicates,
-                    Some("reps"),
-                    &replicates.to_string(),
-                );
+            if let Some(value) = &self.replicates {
+                if value != 1 {
+                    context.myst_directive_option(
+                        NodeProperty::Replicates,
+                        Some("reps"),
+                        &replicates.to_string(),
+                    );
+                }
             }
 
-            if let Some(value) = &self.quality_weight {
-                context.myst_directive_option(
-                    NodeProperty::QualityWeight,
-                    Some("quality"),
-                    &value.to_string(),
-                );
+            if let Some(value) = self.quality_weight {
+                if value != 0 {
+                    context.myst_directive_option(
+                        NodeProperty::QualityWeight,
+                        Some("quality"),
+                        &value.to_string(),
+                    );
+                }
             }
 
-            if let Some(value) = &self.cost_weight {
-                context.myst_directive_option(
-                    NodeProperty::CostWeight,
-                    Some("cost"),
-                    &value.to_string(),
-                );
+            if let Some(value) = self.cost_weight {
+                if value != 0 {
+                    context.myst_directive_option(
+                        NodeProperty::CostWeight,
+                        Some("cost"),
+                        &value.to_string(),
+                    );
+                }
             }
 
-            if let Some(value) = &self.speed_weight {
-                context.myst_directive_option(
-                    NodeProperty::SpeedWeight,
-                    Some("speed"),
-                    &value.to_string(),
-                );
+            if let Some(value) = self.speed_weight {
+                if value != 0 {
+                    context.myst_directive_option(
+                        NodeProperty::SpeedWeight,
+                        Some("speed"),
+                        &value.to_string(),
+                    );
+                }
             }
 
-            if let Some(value) = &self.minimum_score {
-                context.myst_directive_option(
-                    NodeProperty::MinimumScore,
-                    Some("min-score"),
-                    &value.to_string(),
-                );
+            if let Some(value) = self.minimum_score {
+                if value != 100 {
+                    context.myst_directive_option(
+                        NodeProperty::MinimumScore,
+                        Some("min-score"),
+                        &value.to_string(),
+                    );
+                }
             }
 
             if let Some(value) = &self.temperature {
@@ -82,39 +92,49 @@ impl MarkdownCodec for ModelParameters {
                 }
             }
 
-            if let Some(replicates) = &self.replicates {
-                context
-                    .push_str("x")
-                    .push_prop_str(NodeProperty::Replicates, &replicates.to_string())
-                    .push_str(" ");
+            if let Some(value) = self.replicates {
+                if value != 1 {
+                    context
+                        .push_str("x")
+                        .push_prop_str(NodeProperty::Replicates, &value.to_string())
+                        .push_str(" ");
+                }
             }
 
-            if let Some(value) = &self.quality_weight {
-                context
-                    .push_str("q")
-                    .push_prop_str(NodeProperty::QualityWeight, &value.to_string())
-                    .push_str(" ");
+            if let Some(value) = self.quality_weight {
+                if value != 0 {
+                    context
+                        .push_str("q")
+                        .push_prop_str(NodeProperty::QualityWeight, &value.to_string())
+                        .push_str(" ");
+                }
             }
 
-            if let Some(value) = &self.cost_weight {
-                context
-                    .push_str("c")
-                    .push_prop_str(NodeProperty::CostWeight, &value.to_string())
-                    .push_str(" ");
+            if let Some(value) = self.cost_weight {
+                if value != 0 {
+                    context
+                        .push_str("c")
+                        .push_prop_str(NodeProperty::CostWeight, &value.to_string())
+                        .push_str(" ");
+                }
             }
 
-            if let Some(value) = &self.speed_weight {
-                context
-                    .push_str("s")
-                    .push_prop_str(NodeProperty::SpeedWeight, &value.to_string())
-                    .push_str(" ");
+            if let Some(value) = self.speed_weight {
+                if value != 0 {
+                    context
+                        .push_str("s")
+                        .push_prop_str(NodeProperty::SpeedWeight, &value.to_string())
+                        .push_str(" ");
+                }
             }
 
-            if let Some(value) = &self.minimum_score {
-                context
-                    .push_str("m")
-                    .push_prop_str(NodeProperty::MinimumScore, &value.to_string())
-                    .push_str(" ");
+            if let Some(value) = self.minimum_score {
+                if value != 100 {
+                    context
+                        .push_str("m")
+                        .push_prop_str(NodeProperty::MinimumScore, &value.to_string())
+                        .push_str(" ");
+                }
             }
 
             if let Some(value) = &self.temperature {
