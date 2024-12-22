@@ -19,6 +19,7 @@ import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
  * attributes but should have a `viewBox` (it may be being stripped e.g. https://github.com/svg/svgo/issues/1128#issuecomment-628208565)
  */
 
+import activity from './activity.svg'
 import admonition from './admonition.svg'
 import anthropic from './anthropic.svg'
 import archive from './archive.svg'
@@ -36,6 +37,7 @@ import arrowUpCircle from './arrow-up-circle.svg'
 import arrowsCollapse from './arrows-collapse.svg'
 import arrowsExpand from './arrows-expand.svg'
 import at from './at.svg'
+import ban from './ban.svg'
 import bars from './bars.svg'
 import bash from './bash.svg'
 import boxArrowInLeft from './box-arrow-in-left.svg'
@@ -61,6 +63,7 @@ import codeChunk from './code-chunk.svg'
 import codeSlash from './code-slash.svg'
 import code from './code.svg'
 import compass from './compass.svg'
+import coneStriped from './cone-striped.svg'
 import currencyDollar from './currency-dollar.svg'
 import cursor from './cursor.svg'
 import dashCircle from './dash-circle.svg'
@@ -70,6 +73,7 @@ import exclamationCircle from './exclamation-circle.svg'
 import exclamationTriangle from './exclamation-triangle.svg'
 import eyeSlash from './eye-slash.svg'
 import eye from './eye.svg'
+import fastForwardCircle from './fast-forward-circle.svg'
 import feather from './feather.svg'
 import filePlay from './file-play.svg'
 import filePlus from './file-plus.svg'
@@ -96,6 +100,7 @@ import latex from './latex.svg'
 import lightbulb from './lightbulb.svg'
 import lightning from './lightning.svg'
 import list from './list.svg'
+import lock from './lock.svg'
 import markdown from './markdown.svg'
 import mathBlock from './math-block.svg'
 import mermaid from './mermaid.svg'
@@ -119,6 +124,7 @@ import robot from './robot.svg'
 import rosetteCheck from './rosette-check.svg'
 import rosetteFillCheck from './rosette-fill-check.svg'
 import sandbox from './sandbox.svg'
+import shieldCheck from './shieldCheck.svg'
 import skipEnd from './skip-end.svg'
 import skipStart from './skip-start.svg'
 import slashCircle from './slash-circle.svg'
@@ -139,6 +145,7 @@ import xCircle from './x-circle.svg'
 import x from './x.svg'
 
 const icons = {
+  activity,
   admonition,
   anthropic,
   archive,
@@ -156,6 +163,7 @@ const icons = {
   arrowUpCircle,
   arrowUpCircleFill,
   at,
+  ban,
   bars,
   bash,
   box,
@@ -181,6 +189,7 @@ const icons = {
   codeChunk,
   codeSlash,
   compass,
+  coneStriped,
   cursor,
   currencyDollar,
   dashCircle,
@@ -190,6 +199,7 @@ const icons = {
   exclamationTriangle,
   eye,
   eyeSlash,
+  fastForwardCircle,
   feather,
   filePlay,
   filePlus,
@@ -217,6 +227,7 @@ const icons = {
   lightbulb,
   lightning,
   list,
+  lock,
   markdown,
   mathBlock,
   mermaid,
@@ -242,6 +253,7 @@ const icons = {
   rosetteCheck,
   rosetteFillCheck,
   sandbox,
+  shieldCheck,
   skipEnd,
   skipStart,
   slashCircle,
