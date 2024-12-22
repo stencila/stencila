@@ -26,10 +26,7 @@ export class UINodeExecutionDuration extends LitElement {
     } millisecond${this.value > 1 ? 's' : ''}`
 
     return html`
-      <stencila-ui-node-simple-property
-        icon-name="stopwatch"
-        tooltip-content=${tooltip}
-      >
+      <stencila-ui-node-simple-property icon="stopwatch" tooltip=${tooltip}>
         ${value}
       </stencila-ui-node-simple-property>
     `

@@ -12,31 +12,25 @@ import { IconName } from '../../../icons/icon'
 @customElement('stencila-ui-node-simple-property')
 @withTwind()
 export class UINodeSimpleProperty extends LitElement {
-  @property({ attribute: 'icon-name' })
+  @property({ attribute: 'icon' })
   iconName: IconName
 
-  @property({ attribute: 'tooltip-content' })
-  tooltipContent?: string
+  @property({ attribute: 'tooltip' })
+  tooltip?: string
 
   override render() {
-    const content = html`<slot></slot>`
-
     return html`<sl-tooltip
-      content=${this.tooltipContent}
+      content=${this.tooltip}
       placement="top-start"
-      .disabled=${(this.tooltipContent?.length ?? 0) === 0}
+      .disabled=${(this.tooltip?.length ?? 0) === 0}
     >
-      <div
-        class="flex flex-row w-full h-full items-center gap-x-2 shrink-0 not-italic"
-      >
-        <div class="flex items-center justify-center">
-          <stencila-ui-icon
-            name=${this.iconName}
-            class="text-base"
-          ></stencila-ui-icon>
-        </div>
+      <div class="flex flex-row w-full h-full items-center gap-x-1 shrink-0">
+        <stencila-ui-icon
+          name=${this.iconName}
+          class="text-base"
+        ></stencila-ui-icon>
         <div class="grow">
-          <span>${content}</span>
+          <slot></slot>
         </div>
       </div>
     </sl-tooltip>`

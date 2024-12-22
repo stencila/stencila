@@ -17,8 +17,8 @@ export class UINodeExecutionCount extends LitElement {
   override render() {
     return html`
       <stencila-ui-node-simple-property
-        icon-name="playCircle"
-        tooltip-content="Number of times executed"
+        icon="hash"
+        tooltip="Number of times executed"
       >
         ${this.value}
       </stencila-ui-node-simple-property>

@@ -2,8 +2,6 @@ import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 import { apply, css } from '@twind/core'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
-import tailwindConfig from 'tailwindcss/defaultConfig'
-import resolveConfig from 'tailwindcss/resolveConfig'
 
 import {
   DocumentCommand,
@@ -12,8 +10,6 @@ import {
 import { withTwind } from '../../../twind'
 import { UIBaseClass } from '../mixins/ui-base-class'
 import '../../buttons/icon'
-
-const colours = resolveConfig(tailwindConfig).theme.colors
 
 // TODO - disable all buttons when execution is running / pending.
 // TODO - refactor these menu items into reusable components to use in the preview menu as well.
@@ -49,6 +45,8 @@ export class UINodeExecutionCommands extends UIBaseClass {
 
     return html`
       <div class=${classes}>
+        ${this.renderDropdown()}
+
         <sl-tooltip content="Run this node">
           <stencila-ui-icon-button
             name="play"
@@ -56,13 +54,15 @@ export class UINodeExecutionCommands extends UIBaseClass {
             @click=${(e: Event) => this.emitEvent(e, 'only')}
           ></stencila-ui-icon-button>
         </sl-tooltip>
-        ${this.renderDropdown()}
+
         <slot></slot>
       </div>
     `
   }
 
   renderDropdown() {
+    const { borderColour, textColour } = this.ui
+
     const containerStyles = css`
       &[open] {
         & [slot='trigger'] {
@@ -77,7 +77,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
 
     const buttonStyles = css`
       &::part(base) {
-        color: ${this.ui.textColour};
+        color: ${textColour};
         &:hover {
           color: inherit;
         }
@@ -88,7 +88,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
       'block',
       'w-full',
       'bg-white',
-      'text-sm text-grey-aluminium text-left',
+      'text-sm text-left',
     ])
 
     const itemPartStyles = css`
@@ -100,9 +100,6 @@ export class UINodeExecutionCommands extends UIBaseClass {
       &::part(base) {
         width: 100%;
         padding: 0.25rem 1rem;
-        &:hover {
-          background-color: ${colours['gray'][200]};
-        }
       }
 
       &::part(label) {
@@ -122,16 +119,14 @@ export class UINodeExecutionCommands extends UIBaseClass {
           class="text-xs ${buttonStyles}"
           slot="trigger"
         ></stencila-ui-icon-button>
-        <sl-menu class="z-50">
+
+        <sl-menu class="rounded border border-[${borderColour}] z-50">
           <sl-menu-item
             class="${itemStyles} ${itemPartStyles}"
             @click=${(e: Event) => this.emitEvent(e, 'plus-before')}
           >
-            <div class="flex items-center">
-              <stencila-ui-icon
-                name="skipStart"
-                class="mr-1"
-              ></stencila-ui-icon>
+            <div class="flex items-center gap-1 text-[${textColour}]">
+              <stencila-ui-icon name="skipStart"></stencila-ui-icon>
               Run all above, then this
             </div>
           </sl-menu-item>
@@ -139,8 +134,8 @@ export class UINodeExecutionCommands extends UIBaseClass {
             class="${itemStyles} ${itemPartStyles}"
             @click=${(e: Event) => this.emitEvent(e, 'plus-after')}
           >
-            <div class="flex items-center">
-              <stencila-ui-icon name="skipEnd" class="mr-1"></stencila-ui-icon>
+            <div class="flex items-center text-[${textColour}]">
+              <stencila-ui-icon name="skipEnd"></stencila-ui-icon>
               Run this, then all below
             </div>
           </sl-menu-item>

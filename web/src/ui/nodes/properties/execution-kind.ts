@@ -35,10 +35,7 @@ export class UINodeExecutionKind extends LitElement {
 
     return icon
       ? html`
-          <stencila-ui-node-simple-property
-            icon-name=${icon}
-            tooltip-content=${tooltip}
-          >
+          <stencila-ui-node-simple-property icon=${icon} tooltip=${tooltip}>
             ${this.value}
           </stencila-ui-node-simple-property>
         `

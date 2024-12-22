@@ -4,20 +4,21 @@ import {
   ExecutionRequired,
   ExecutionStatus,
   ExecutionTag,
-  NodeType,
 } from '@stencila/types'
 import { apply } from '@twind/core'
-import { LitElement, html } from 'lit'
+import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
+
+import { withTwind } from '../../../twind'
+import { UIBaseClass } from '../mixins/ui-base-class'
 
 import './execution-count'
 import './execution-duration'
 import './execution-ended'
 import './execution-kind'
+import './execution-mode'
+import './execution-recursion'
 import './execution-state'
-
-import { withTwind } from '../../../twind'
-import { nodeUi } from '../icons-and-colours'
 
 /**
  * A component for displaying various execution related property of executable nodes
@@ -31,12 +32,12 @@ import { nodeUi } from '../icons-and-colours'
  */
 @customElement('stencila-ui-node-execution-details')
 @withTwind()
-export class UINodeExecutionDetails extends LitElement {
-  @property()
-  type: NodeType
-
+export class UINodeExecutionDetails extends UIBaseClass {
   @property()
   mode?: ExecutionMode
+
+  @property()
+  recursion?: ExecutionMode
 
   @property({ type: Array })
   tags?: ExecutionTag[]
@@ -60,10 +61,10 @@ export class UINodeExecutionDetails extends LitElement {
   duration?: number
 
   override render() {
-    const { colour, borderColour } = nodeUi(this.type)
+    const { colour, borderColour } = this.ui
 
     const classes = apply([
-      'flex flex-row flex-wrap gap-3',
+      'flex flex-row flex-wrap items-center gap-3',
       'text-xs leading-tight',
       'min-h-[2.25rem]',
       'py-1.5 px-4',
@@ -73,22 +74,38 @@ export class UINodeExecutionDetails extends LitElement {
     ])
 
     return html`
-      <div class="@container">
-        <div class=${`${classes}`}>
-          ${this.type !== 'SuggestionBlock'
-            ? this.renderAllDetails()
-            : this.renderTimeAndDuration()}
-        </div>
+      <div class=${classes}>
+        ${this.type !== 'SuggestionBlock'
+          ? this.renderAllDetails()
+          : this.renderTimeAndDuration()}
       </div>
     `
   }
 
   protected renderAllDetails() {
-    return html`<stencila-ui-node-execution-state
+    return html` <stencila-ui-node-execution-mode
+        type=${this.type}
+        node-id=${this.nodeId}
+        value=${this.mode}
+      >
+      </stencila-ui-node-execution-mode>
+
+      ${this.recursion !== undefined
+        ? html`<stencila-ui-node-execution-recursion
+            type=${this.type}
+            node-id=${this.nodeId}
+            value=${this.recursion}
+          >
+          </stencila-ui-node-execution-recursion>`
+        : ''}
+
+      <stencila-ui-node-execution-state
         status=${this.status}
         required=${this.required}
         count=${this.count}
-      ></stencila-ui-node-execution-state>
+      >
+      </stencila-ui-node-execution-state>
+
       ${this.count > 0
         ? html`<stencila-ui-node-execution-count
               value=${this.count}
