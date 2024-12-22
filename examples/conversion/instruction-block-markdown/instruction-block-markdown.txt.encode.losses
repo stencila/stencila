@@ -3,7 +3,8 @@ Article#: 1
 CodeChunk#: 1
 Heading#: 3
 InstructionBlock#: 7
-InstructionMessage#: 6
+InstructionMessage#: 7
 Integer@: 3
 ModelParameters#: 7
 Paragraph#: 9
+PromptBlock#: 7

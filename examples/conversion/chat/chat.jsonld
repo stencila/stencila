@@ -4,6 +4,9 @@
     "stencila": "https://stencila.org/"
   },
   "@type": "stencila:Chat",
+  "stencila:prompt": {
+    "@type": "stencila:PromptBlock"
+  },
   "stencila:modelParameters": {
     "@type": "stencila:ModelParameters"
   },

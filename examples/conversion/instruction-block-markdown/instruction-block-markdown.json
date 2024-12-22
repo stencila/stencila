@@ -27,6 +27,9 @@
     {
       "type": "InstructionBlock",
       "instructionType": "Create",
+      "prompt": {
+        "type": "PromptBlock"
+      },
       "message": {
         "type": "InstructionMessage",
         "parts": [
@@ -45,6 +48,9 @@
     {
       "type": "InstructionBlock",
       "instructionType": "Create",
+      "prompt": {
+        "type": "PromptBlock"
+      },
       "message": {
         "type": "InstructionMessage",
         "parts": [
@@ -86,6 +92,9 @@
     {
       "type": "InstructionBlock",
       "instructionType": "Edit",
+      "prompt": {
+        "type": "PromptBlock"
+      },
       "message": {
         "type": "InstructionMessage",
         "parts": [
@@ -117,6 +126,9 @@
     {
       "type": "InstructionBlock",
       "instructionType": "Edit",
+      "prompt": {
+        "type": "PromptBlock"
+      },
       "message": {
         "type": "InstructionMessage",
         "parts": [
@@ -159,6 +171,9 @@
     {
       "type": "InstructionBlock",
       "instructionType": "Edit",
+      "prompt": {
+        "type": "PromptBlock"
+      },
       "message": {
         "type": "InstructionMessage",
         "parts": [
@@ -186,6 +201,9 @@
     {
       "type": "InstructionBlock",
       "instructionType": "Create",
+      "prompt": {
+        "type": "PromptBlock"
+      },
       "message": {
         "type": "InstructionMessage",
         "parts": [
@@ -246,6 +264,13 @@
     {
       "type": "InstructionBlock",
       "instructionType": "Edit",
+      "prompt": {
+        "type": "PromptBlock"
+      },
+      "message": {
+        "type": "InstructionMessage",
+        "parts": []
+      },
       "modelParameters": {
         "type": "ModelParameters"
       },

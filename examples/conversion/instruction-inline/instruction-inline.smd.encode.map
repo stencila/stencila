@@ -1,7 +1,8 @@
 start     end        offsets   node_type+property                   authorship
      0     50        (0, 50)   Text.value
      0     50         (0, 0)   Text
-    59     75       (59, 25)   Text.value
+    52     58        (52, 8)   InstructionInline.instructionType
+    59     75        (7, 17)   Text.value
     59     75         (0, 0)   Text
     59     75         (0, 0)   InstructionMessage.parts
     59     75         (0, 0)   InstructionMessage
@@ -13,7 +14,8 @@ start     end        offsets   node_type+property                   authorship
      0     79         (0, 1)   Paragraph
     80    143       (80, 64)   Text.value
     80    143         (0, 0)   Text
-   152    164       (72, 21)   Text.value
+   145    151        (65, 8)   InstructionInline.instructionType
+   152    164        (7, 13)   Text.value
    152    164         (0, 0)   Text
    152    164         (0, 0)   InstructionMessage.parts
    152    164         (0, 0)   InstructionMessage
@@ -28,62 +30,74 @@ start     end        offsets   node_type+property                   authorship
     80    186         (0, 1)   Paragraph
    187    215      (107, 29)   Text.value
    187    215         (0, 0)   Text
-   244    277       (57, 62)   Text.value
-   244    277         (0, 0)   Text
-   244    277         (0, 0)   InstructionMessage.parts
-   244    277         (0, 0)   InstructionMessage
-   244    277         (0, 0)   InstructionInline.message
-   215    279       (-29, 2)   InstructionInline
-   279    305       (64, 26)   Text.value
-   279    305         (0, 0)   Text
-   305    336       (26, 31)   InstructionInline
-   336    341        (31, 5)   Text.value
-   336    341         (0, 0)   Text
-   353    372       (17, 31)   Text.value
-   353    372         (0, 0)   Text
-   353    372         (0, 0)   InstructionMessage.parts
-   353    372         (0, 0)   InstructionMessage
-   353    372         (0, 0)   InstructionInline.message
-   374    390       (21, 18)   Text.value
-   374    390         (0, 0)   Text
-   374    390         (0, 0)   InstructionInline.content
-   341    392       (-33, 2)   InstructionInline
-   392    393        (51, 1)   Text.value
-   392    393         (0, 0)   Text
-   187    393      (-205, 0)   Paragraph.content
-   187    394         (0, 1)   Paragraph
-   395    427      (208, 33)   Text.value
-   395    427         (0, 0)   Text
-   456    470       (61, 43)   Text.value
-   456    470         (0, 0)   Text
-   456    470         (0, 0)   InstructionMessage.parts
-   456    470         (0, 0)   InstructionMessage
-   456    470         (0, 0)   InstructionInline.message
-   483    492       (27, 22)   MathInline.code
-   482    493        (-1, 1)   MathInline
-   482    493         (0, 0)   SuggestionInline.content
-   472    495       (-10, 2)   SuggestionInline
-   472    495         (0, 0)   InstructionInline.suggestions
-   427    495       (-45, 0)   InstructionInline
-   495    500        (68, 5)   Text.value
-   495    500         (0, 0)   Text
-   507    514       (12, 14)   Text.value
-   507    514         (0, 0)   Text
-   507    514         (0, 0)   InstructionMessage.parts
-   507    514         (0, 0)   InstructionMessage
-   507    514         (0, 0)   InstructionInline.message
-   516    532        (9, 18)   Text.value
-   516    532         (0, 0)   Text
-   516    532         (0, 0)   InstructionInline.content
-   544    560       (28, 28)   Text.value
-   544    560         (0, 0)   Text
-   544    560         (0, 0)   SuggestionInline.content
-   534    562       (-10, 2)   SuggestionInline
-   534    562         (0, 0)   InstructionInline.suggestions
-   500    562       (-34, 0)   InstructionInline
-   562    563        (62, 1)   Text.value
-   562    563         (0, 0)   Text
-   395    563      (-167, 0)   Paragraph.content
-   395    564         (0, 1)   Paragraph
-     0    565      (-395, 1)   Article.content
-     0    565         (0, 0)   Article
+   217    223        (30, 8)   InstructionInline.instructionType
+   225    229         (8, 6)   InstructionInline.prompt
+   230    263        (5, 34)   Text.value
+   230    263         (0, 0)   Text
+   230    263         (0, 0)   InstructionMessage.parts
+   230    263         (0, 0)   InstructionMessage
+   230    263         (0, 0)   InstructionInline.message
+   215    265       (-15, 2)   InstructionInline
+   265    291       (50, 26)   Text.value
+   265    291         (0, 0)   Text
+   293    299        (28, 8)   InstructionInline.instructionType
+   301    305         (8, 6)   InstructionInline.prompt
+   306    306         (5, 1)   InstructionMessage.parts
+   306    306         (0, 0)   InstructionMessage
+   306    306         (0, 0)   InstructionInline.message
+   291    308       (-15, 2)   InstructionInline
+   308    313        (17, 5)   Text.value
+   308    313         (0, 0)   Text
+   315    319         (7, 6)   InstructionInline.instructionType
+   321    325         (6, 6)   InstructionInline.prompt
+   326    345        (5, 20)   Text.value
+   326    345         (0, 0)   Text
+   326    345         (0, 0)   InstructionMessage.parts
+   326    345         (0, 0)   InstructionMessage
+   326    345         (0, 0)   InstructionInline.message
+   347    363       (21, 18)   Text.value
+   347    363         (0, 0)   Text
+   347    363         (0, 0)   InstructionInline.content
+   313    365       (-34, 2)   InstructionInline
+   365    366        (52, 1)   Text.value
+   365    366         (0, 0)   Text
+   187    366      (-178, 0)   Paragraph.content
+   187    367         (0, 1)   Paragraph
+   368    400      (181, 33)   Text.value
+   368    400         (0, 0)   Text
+   402    408        (34, 8)   InstructionInline.instructionType
+   410    414         (8, 6)   InstructionInline.prompt
+   415    429        (5, 15)   Text.value
+   415    429         (0, 0)   Text
+   415    429         (0, 0)   InstructionMessage.parts
+   415    429         (0, 0)   InstructionMessage
+   415    429         (0, 0)   InstructionInline.message
+   442    451       (27, 22)   MathInline.code
+   441    452        (-1, 1)   MathInline
+   441    452         (0, 0)   SuggestionInline.content
+   431    454       (-10, 2)   SuggestionInline
+   431    454         (0, 0)   InstructionInline.suggestions
+   400    454       (-31, 0)   InstructionInline
+   454    459        (54, 5)   Text.value
+   454    459         (0, 0)   Text
+   461    465         (7, 6)   InstructionInline.instructionType
+   466    473         (5, 8)   Text.value
+   466    473         (0, 0)   Text
+   466    473         (0, 0)   InstructionMessage.parts
+   466    473         (0, 0)   InstructionMessage
+   466    473         (0, 0)   InstructionInline.message
+   475    491        (9, 18)   Text.value
+   475    491         (0, 0)   Text
+   475    491         (0, 0)   InstructionInline.content
+   503    519       (28, 28)   Text.value
+   503    519         (0, 0)   Text
+   503    519         (0, 0)   SuggestionInline.content
+   493    521       (-10, 2)   SuggestionInline
+   493    521         (0, 0)   InstructionInline.suggestions
+   459    521       (-34, 0)   InstructionInline
+   521    522        (62, 1)   Text.value
+   521    522         (0, 0)   Text
+   368    522      (-153, 0)   Paragraph.content
+   368    523         (0, 1)   Paragraph
+     0    524      (-368, 1)   Article.content
+     0    524         (0, 0)   Article

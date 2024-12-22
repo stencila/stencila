@@ -1,8 +1,8 @@
 start     end        offsets   node_type+property                   authorship
-    73    128      (73, 128)   Paragraph
-    61    133       (-12, 5)   ChatMessage
-   145    150       (84, 17)   Paragraph
-   135    155       (-10, 5)   ChatMessage
-   168    177       (33, 22)   Paragraph
-   157    182       (-11, 5)   ChatMessage
-     0    183      (-157, 1)   Chat
+   101    156     (101, 156)   Paragraph
+    89    161       (-12, 5)   ChatMessage
+   173    178       (84, 17)   Paragraph
+   163    183       (-10, 5)   ChatMessage
+   196    205       (33, 22)   Paragraph
+   185    210       (-11, 5)   ChatMessage
+     0    211      (-185, 1)   Chat

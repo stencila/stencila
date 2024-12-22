@@ -13,6 +13,8 @@ content:
       string: Self closing shorthand
 - type: InstructionBlock
   instructionType: Create
+  prompt:
+    type: PromptBlock
   message:
     type: InstructionMessage
     parts:
@@ -23,6 +25,8 @@ content:
     type: ModelParameters
 - type: InstructionBlock
   instructionType: Create
+  prompt:
+    type: PromptBlock
   message:
     type: InstructionMessage
     parts:
@@ -44,6 +48,8 @@ content:
       string: Next block only shorthand
 - type: InstructionBlock
   instructionType: Edit
+  prompt:
+    type: PromptBlock
   message:
     type: InstructionMessage
     parts:
@@ -60,6 +66,8 @@ content:
         string: Paragraph to edit
 - type: InstructionBlock
   instructionType: Edit
+  prompt:
+    type: PromptBlock
   message:
     type: InstructionMessage
     parts:
@@ -81,6 +89,8 @@ content:
       string: Other types of content,
 - type: InstructionBlock
   instructionType: Edit
+  prompt:
+    type: PromptBlock
   message:
     type: InstructionMessage
     parts:
@@ -96,6 +106,8 @@ content:
     programmingLanguage: python
 - type: InstructionBlock
   instructionType: Create
+  prompt:
+    type: PromptBlock
   message:
     type: InstructionMessage
     parts:
@@ -126,6 +138,11 @@ content:
       string: Multiple blocks
 - type: InstructionBlock
   instructionType: Edit
+  prompt:
+    type: PromptBlock
+  message:
+    type: InstructionMessage
+    parts: []
   modelParameters:
     type: ModelParameters
   content:

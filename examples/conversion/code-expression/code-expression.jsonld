@@ -146,7 +146,7 @@
         },
         {
           "@type": "stencila:CodeExpression",
-          "stencila:executionMode": "Locked",
+          "stencila:executionMode": "Lock",
           "stencila:code": {
             "string": "c * d"
           },

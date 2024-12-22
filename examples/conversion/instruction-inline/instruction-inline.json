@@ -60,7 +60,10 @@
         {
           "type": "InstructionInline",
           "instructionType": "Create",
-          "prompt": "insert-inline-math",
+          "prompt": {
+            "type": "PromptBlock",
+            "target": "math"
+          },
           "message": {
             "type": "InstructionMessage",
             "parts": [
@@ -75,7 +78,10 @@
         {
           "type": "InstructionInline",
           "instructionType": "Create",
-          "prompt": "insert-math-inline"
+          "prompt": {
+            "type": "PromptBlock",
+            "target": "math"
+          }
         },
         {
           "type": "Text",
@@ -84,7 +90,10 @@
         {
           "type": "InstructionInline",
           "instructionType": "Edit",
-          "prompt": "joe",
+          "prompt": {
+            "type": "PromptBlock",
+            "target": "edit"
+          },
           "message": {
             "type": "InstructionMessage",
             "parts": [{ "type": "Text", "value": "please improve this" }]
@@ -112,7 +121,10 @@
         {
           "type": "InstructionInline",
           "instructionType": "Create",
-          "prompt": "insert-inline-math",
+          "prompt": {
+            "type": "PromptBlock",
+            "target": "math"
+          },
           "message": {
             "type": "InstructionMessage",
             "parts": [{ "type": "Text", "value": "area of circle" }]
@@ -120,7 +132,13 @@
           "suggestions": [
             {
               "type": "SuggestionInline",
-              "content": [{ "type": "MathInline", "code": "2 /pi r^2", "mathLanguage": "tex" }]
+              "content": [
+                {
+                  "type": "MathInline",
+                  "code": "2 /pi r^2",
+                  "mathLanguage": "tex"
+                }
+              ]
             }
           ]
         },

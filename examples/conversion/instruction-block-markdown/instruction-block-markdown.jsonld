@@ -31,6 +31,9 @@
     {
       "@type": "stencila:InstructionBlock",
       "stencila:instructionType": "Create",
+      "stencila:prompt": {
+        "@type": "stencila:PromptBlock"
+      },
       "stencila:message": {
         "@type": "stencila:InstructionMessage",
         "hasParts": [
@@ -49,6 +52,9 @@
     {
       "@type": "stencila:InstructionBlock",
       "stencila:instructionType": "Create",
+      "stencila:prompt": {
+        "@type": "stencila:PromptBlock"
+      },
       "stencila:message": {
         "@type": "stencila:InstructionMessage",
         "hasParts": [
@@ -90,6 +96,9 @@
     {
       "@type": "stencila:InstructionBlock",
       "stencila:instructionType": "Edit",
+      "stencila:prompt": {
+        "@type": "stencila:PromptBlock"
+      },
       "stencila:message": {
         "@type": "stencila:InstructionMessage",
         "hasParts": [
@@ -121,6 +130,9 @@
     {
       "@type": "stencila:InstructionBlock",
       "stencila:instructionType": "Edit",
+      "stencila:prompt": {
+        "@type": "stencila:PromptBlock"
+      },
       "stencila:message": {
         "@type": "stencila:InstructionMessage",
         "hasParts": [
@@ -163,6 +175,9 @@
     {
       "@type": "stencila:InstructionBlock",
       "stencila:instructionType": "Edit",
+      "stencila:prompt": {
+        "@type": "stencila:PromptBlock"
+      },
       "stencila:message": {
         "@type": "stencila:InstructionMessage",
         "hasParts": [
@@ -190,6 +205,9 @@
     {
       "@type": "stencila:InstructionBlock",
       "stencila:instructionType": "Create",
+      "stencila:prompt": {
+        "@type": "stencila:PromptBlock"
+      },
       "stencila:message": {
         "@type": "stencila:InstructionMessage",
         "hasParts": [
@@ -250,6 +268,13 @@
     {
       "@type": "stencila:InstructionBlock",
       "stencila:instructionType": "Edit",
+      "stencila:prompt": {
+        "@type": "stencila:PromptBlock"
+      },
+      "stencila:message": {
+        "@type": "stencila:InstructionMessage",
+        "hasParts": []
+      },
       "stencila:modelParameters": {
         "@type": "stencila:ModelParameters"
       },

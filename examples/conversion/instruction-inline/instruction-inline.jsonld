@@ -17,6 +17,9 @@
         {
           "@type": "stencila:InstructionInline",
           "stencila:instructionType": "Create",
+          "stencila:prompt": {
+            "@type": "stencila:PromptBlock"
+          },
           "stencila:message": {
             "@type": "stencila:InstructionMessage",
             "hasParts": [
@@ -52,6 +55,9 @@
         {
           "@type": "stencila:InstructionInline",
           "stencila:instructionType": "Create",
+          "stencila:prompt": {
+            "@type": "stencila:PromptBlock"
+          },
           "stencila:message": {
             "@type": "stencila:InstructionMessage",
             "hasParts": [
@@ -95,6 +101,10 @@
         {
           "@type": "stencila:InstructionInline",
           "stencila:instructionType": "Create",
+          "stencila:prompt": {
+            "@type": "stencila:PromptBlock",
+            "target": "math"
+          },
           "stencila:message": {
             "@type": "stencila:InstructionMessage",
             "hasParts": [
@@ -106,7 +116,6 @@
               }
             ]
           },
-          "stencila:prompt": "insert-inline-math",
           "stencila:modelParameters": {
             "@type": "stencila:ModelParameters"
           }
@@ -120,7 +129,14 @@
         {
           "@type": "stencila:InstructionInline",
           "stencila:instructionType": "Create",
-          "stencila:prompt": "insert-math-inline",
+          "stencila:prompt": {
+            "@type": "stencila:PromptBlock",
+            "target": "math"
+          },
+          "stencila:message": {
+            "@type": "stencila:InstructionMessage",
+            "hasParts": []
+          },
           "stencila:modelParameters": {
             "@type": "stencila:ModelParameters"
           }
@@ -134,6 +150,10 @@
         {
           "@type": "stencila:InstructionInline",
           "stencila:instructionType": "Edit",
+          "stencila:prompt": {
+            "@type": "stencila:PromptBlock",
+            "target": "edit"
+          },
           "stencila:message": {
             "@type": "stencila:InstructionMessage",
             "hasParts": [
@@ -145,7 +165,6 @@
               }
             ]
           },
-          "stencila:prompt": "joe",
           "stencila:modelParameters": {
             "@type": "stencila:ModelParameters"
           },
@@ -178,6 +197,10 @@
         {
           "@type": "stencila:InstructionInline",
           "stencila:instructionType": "Create",
+          "stencila:prompt": {
+            "@type": "stencila:PromptBlock",
+            "target": "math"
+          },
           "stencila:message": {
             "@type": "stencila:InstructionMessage",
             "hasParts": [
@@ -189,7 +212,6 @@
               }
             ]
           },
-          "stencila:prompt": "insert-inline-math",
           "stencila:modelParameters": {
             "@type": "stencila:ModelParameters"
           },
@@ -217,6 +239,9 @@
         {
           "@type": "stencila:InstructionInline",
           "stencila:instructionType": "Edit",
+          "stencila:prompt": {
+            "@type": "stencila:PromptBlock"
+          },
           "stencila:message": {
             "@type": "stencila:InstructionMessage",
             "hasParts": [

@@ -93,16 +93,19 @@ start     end        offsets   node_type+property                   authorship
    579    594         (0, 0)   Text
    579    594         (0, 0)   Heading.content
    577    595        (-2, 1)   Heading
-   606    606       (29, 11)   InstructionBlock.modelParameters
-   607    627        (1, 21)   Text.value
-   607    627         (0, 0)   Text
-   607    627         (0, 0)   Paragraph.content
-   607    628         (0, 1)   Paragraph
-   629    649       (22, 21)   Text.value
-   629    649         (0, 0)   Text
-   629    649         (0, 0)   Paragraph.content
-   629    650         (0, 1)   Paragraph
-   607    651       (-22, 1)   InstructionBlock.content
-   596    655       (-11, 4)   InstructionBlock
-     0    656      (-596, 1)   Article.content
-     0    656         (0, 0)   Article
+   606    606       (29, 11)   InstructionMessage.parts
+   606    606         (0, 0)   InstructionMessage
+   606    606         (0, 0)   InstructionBlock.message
+   607    607         (1, 1)   InstructionBlock.modelParameters
+   608    628        (1, 21)   Text.value
+   608    628         (0, 0)   Text
+   608    628         (0, 0)   Paragraph.content
+   608    629         (0, 1)   Paragraph
+   630    650       (22, 21)   Text.value
+   630    650         (0, 0)   Text
+   630    650         (0, 0)   Paragraph.content
+   630    651         (0, 1)   Paragraph
+   608    652       (-22, 1)   InstructionBlock.content
+   596    656       (-12, 4)   InstructionBlock
+     0    657      (-596, 1)   Article.content
+     0    657         (0, 0)   Article

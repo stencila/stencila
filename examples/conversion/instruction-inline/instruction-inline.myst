@@ -2,6 +2,6 @@ A paragraph with an instruction to insert content [[create insert an inline]].
 
 A paragraph with an instruction to edit some existing content: [[create improve this>>existing content]].
 
-Instructions with a prompt: [[create @insert-inline-math equation for surface area of cube]] with a blank instruction [[create @insert-math-inline ]] and [[edit @joe please improve this>>existing content]].
+Instructions with a prompt: [[create @math equation for surface area of cube]] with a blank instruction [[create @math ]] and [[edit @edit please improve this>>existing content]].
 
-Instructions with a suggestion: [[create @insert-inline-math area of circle]][[suggest $2 /pi r^2$]] and [[edit improve>>existing content]][[suggest improved content]].
+Instructions with a suggestion: [[create @math area of circle]][[suggest $2 /pi r^2$]] and [[edit improve>>existing content]][[suggest improved content]].

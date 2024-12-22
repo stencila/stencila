@@ -13,6 +13,7 @@
     {
       type: "InstructionBlock",
       instructionType: "Create",
+      prompt: { type: "PromptBlock" },
       message: {
         type: "InstructionMessage",
         parts: [
@@ -36,6 +37,10 @@
     {
       type: "InstructionBlock",
       instructionType: "Create",
+      prompt: {
+        type: "PromptBlock",
+        target: "table"
+      },
       message: {
         type: "InstructionMessage",
         parts: [
@@ -45,7 +50,6 @@
           }
         ]
       },
-      prompt: "table",
       modelParameters: { type: "ModelParameters" }
     },
     {
@@ -60,7 +64,14 @@
     {
       type: "InstructionBlock",
       instructionType: "Create",
-      prompt: "code-chunk",
+      prompt: {
+        type: "PromptBlock",
+        target: "code-chunk"
+      },
+      message: {
+        type: "InstructionMessage",
+        parts: []
+      },
       modelParameters: { type: "ModelParameters" }
     },
     {
@@ -75,6 +86,7 @@
     {
       type: "InstructionBlock",
       instructionType: "Edit",
+      prompt: { type: "PromptBlock" },
       message: {
         type: "InstructionMessage",
         parts: [
@@ -109,6 +121,10 @@
     {
       type: "InstructionBlock",
       instructionType: "Edit",
+      prompt: {
+        type: "PromptBlock",
+        target: "para"
+      },
       message: {
         type: "InstructionMessage",
         parts: [
@@ -118,7 +134,6 @@
           }
         ]
       },
-      prompt: "anne",
       modelParameters: { type: "ModelParameters" },
       content: [
         {
@@ -144,6 +159,10 @@
     {
       type: "InstructionBlock",
       instructionType: "Create",
+      prompt: {
+        type: "PromptBlock",
+        target: "code-chunk"
+      },
       message: {
         type: "InstructionMessage",
         parts: [
@@ -153,7 +172,6 @@
           }
         ]
       },
-      prompt: "code-chunk",
       modelParameters: { type: "ModelParameters" },
       activeSuggestion: 0,
       suggestions: [
@@ -180,6 +198,7 @@
     {
       type: "InstructionBlock",
       instructionType: "Edit",
+      prompt: { type: "PromptBlock" },
       message: {
         type: "InstructionMessage",
         parts: [
@@ -231,6 +250,10 @@
     {
       type: "InstructionBlock",
       instructionType: "Create",
+      prompt: {
+        type: "PromptBlock",
+        target: "prompt"
+      },
       message: {
         type: "InstructionMessage",
         parts: [
@@ -240,7 +263,6 @@
           }
         ]
       },
-      prompt: "prompt",
       modelParameters: {
         type: "ModelParameters",
         modelIds: [

@@ -7,6 +7,8 @@ content:
       string: 'An insert instruction with no prompt:'
 - type: InstructionBlock
   instructionType: Create
+  prompt:
+    type: PromptBlock
   message:
     type: InstructionMessage
     parts:
@@ -22,13 +24,15 @@ content:
       string: 'An insert instruction with a prompt:'
 - type: InstructionBlock
   instructionType: Create
+  prompt:
+    type: PromptBlock
+    target: table
   message:
     type: InstructionMessage
     parts:
     - type: Text
       value:
         string: top five highest mountains, with height in metres
-  prompt: table
   modelParameters:
     type: ModelParameters
 - type: Paragraph
@@ -38,7 +42,12 @@ content:
       string: An insert instruction with a prompt but a blank instruction
 - type: InstructionBlock
   instructionType: Create
-  prompt: code-chunk
+  prompt:
+    type: PromptBlock
+    target: code-chunk
+  message:
+    type: InstructionMessage
+    parts: []
   modelParameters:
     type: ModelParameters
 - type: Paragraph
@@ -48,6 +57,8 @@ content:
       string: 'An edit instruction (has content) with no prompt:'
 - type: InstructionBlock
   instructionType: Edit
+  prompt:
+    type: PromptBlock
   message:
     type: InstructionMessage
     parts:
@@ -69,13 +80,15 @@ content:
       string: 'An edit instruction with a prompt:'
 - type: InstructionBlock
   instructionType: Edit
+  prompt:
+    type: PromptBlock
+    target: para
   message:
     type: InstructionMessage
     parts:
     - type: Text
       value:
         string: please improve this paragraph
-  prompt: anne
   modelParameters:
     type: ModelParameters
   content:
@@ -91,13 +104,15 @@ content:
       string: 'An insert instruction with a prompt and a suggestion:'
 - type: InstructionBlock
   instructionType: Create
+  prompt:
+    type: PromptBlock
+    target: code-chunk
   message:
     type: InstructionMessage
     parts:
     - type: Text
       value:
         string: analyze data
-  prompt: code-chunk
   modelParameters:
     type: ModelParameters
   activeSuggestion: 0
@@ -114,6 +129,8 @@ content:
       string: 'An edit instruction with a suggestion:'
 - type: InstructionBlock
   instructionType: Edit
+  prompt:
+    type: PromptBlock
   message:
     type: InstructionMessage
     parts:
@@ -144,13 +161,15 @@ content:
       string: 'With prompt and model parameters specified:'
 - type: InstructionBlock
   instructionType: Create
+  prompt:
+    type: PromptBlock
+    target: prompt
   message:
     type: InstructionMessage
     parts:
     - type: Text
       value:
         string: message
-  prompt: prompt
   modelParameters:
     type: ModelParameters
     modelIds:

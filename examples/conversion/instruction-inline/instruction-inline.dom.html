@@ -4,6 +4,10 @@
       <p slot=content>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A paragraph with an instruction to insert content</stencila-text>
         <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=Create>
+          <div slot=prompt>
+            <stencila-prompt-block id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
+            </stencila-prompt-block>
+          </div>
           <div slot=message>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>
@@ -24,6 +28,10 @@
       <p slot=content>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A paragraph with an instruction to edit some existing content:</stencila-text>
         <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=Create>
+          <div slot=prompt>
+            <stencila-prompt-block id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
+            </stencila-prompt-block>
+          </div>
           <div slot=message>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>
@@ -46,7 +54,11 @@
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Instructions with a prompt:</stencila-text>
-        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=Create prompt=insert-inline-math>
+        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=Create>
+          <div slot=prompt>
+            <stencila-prompt-block id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline target=math>
+            </stencila-prompt-block>
+          </div>
           <div slot=message>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>
@@ -61,14 +73,26 @@
           </div>
         </stencila-instruction-inline>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>with a blank instruction</stencila-text>
-        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=Create prompt=insert-math-inline>
+        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=Create>
+          <div slot=prompt>
+            <stencila-prompt-block id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline target=math>
+            </stencila-prompt-block>
+          </div>
+          <div slot=message>
+            <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
+            </stencila-instruction-message>
+          </div>
           <div slot=model-parameters>
             <stencila-model-parameters id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
             </stencila-model-parameters>
           </div>
         </stencila-instruction-inline>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>and</stencila-text>
-        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=Edit prompt=joe>
+        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=Edit>
+          <div slot=prompt>
+            <stencila-prompt-block id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline target=edit>
+            </stencila-prompt-block>
+          </div>
           <div slot=message>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>
@@ -91,7 +115,11 @@
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
       <p slot=content>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Instructions with a suggestion:</stencila-text>
-        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=Create prompt=insert-inline-math>
+        <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=Create>
+          <div slot=prompt>
+            <stencila-prompt-block id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline target=math>
+            </stencila-prompt-block>
+          </div>
           <div slot=message>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>
@@ -115,6 +143,10 @@
         </stencila-instruction-inline>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>and</stencila-text>
         <stencila-instruction-inline id=xxx depth=2 ancestors=Article.Paragraph instruction-type=Edit>
+          <div slot=prompt>
+            <stencila-prompt-block id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
+            </stencila-prompt-block>
+          </div>
           <div slot=message>
             <stencila-instruction-message id=xxx depth=3 ancestors=Article.Paragraph.InstructionInline>
               <div slot=parts>

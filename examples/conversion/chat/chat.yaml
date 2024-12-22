@@ -1,4 +1,6 @@
 type: Chat
+prompt:
+  type: PromptBlock
 modelParameters:
   type: ModelParameters
 content:
