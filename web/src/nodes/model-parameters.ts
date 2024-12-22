@@ -51,6 +51,11 @@ export class ModelParameters extends Entity {
   @property({ attribute: 'random-seed', type: Number })
   randomSeed?: number
 
+  private get ui(): NodeTypeUI {
+    const parentNodeType = this.ancestors.split('.').pop() as NodeType
+    return nodeUi(parentNodeType)
+  }
+
   /**
    * Model <select> options updated whenever model list is updated
    * rather than in `render()`
@@ -77,24 +82,33 @@ export class ModelParameters extends Entity {
         providers[model.provider] = [model]
       }
     }
+    const ui = this.ui
+
+    const optionStyle = `
+      --sl-spacing-x-small: 0.25rem;
+    `
 
     // Render options
     this.modelOptions = Object.entries(providers).map(
       ([provider, models], index) => {
         return html`
-          ${index !== 0 ? html`<sl-divider></sl-divider>` : ''}
-          <span class="flex flex-row items-center gap-2 px-2 text-gray-500">
+          ${index !== 0 ? html`<sl-divider class="my-1"></sl-divider>` : ''}
+          <div
+            class="flex flex-row items-center gap-2 px-2 py-1 text-[${ui.textColour}]"
+          >
             <stencila-ui-icon
               slot="prefix"
               class="text-base"
               name=${iconMaybe(provider.toLowerCase()) ?? 'company'}
             ></stencila-ui-icon>
             ${provider}
-          </span>
+          </div>
           ${models.map(
             (model) => html`
-              <sl-option value=${model.id}>
-                <span class="text-xs">${model.name} ${model.version}</span>
+              <sl-option value=${model.id} style=${optionStyle}>
+                <span class="text-xs text-[${ui.textColour}]">
+                  ${model.name} ${model.version}
+                </span>
               </sl-option>
             `
           )}
@@ -208,16 +222,13 @@ export class ModelParameters extends Entity {
   `
 
   override render() {
-    const parentNodeType = this.ancestors.split('.').pop() as NodeType
-    const ui = nodeUi(parentNodeType)
-    const { borderColour, colour } = ui
-
+    const { colour, textColour, borderColour } = this.ui
     const styles = apply(
       'flex flex-row items-center',
       'w-full',
       'px-3 py-4',
       `bg-[${colour}]`,
-      'text-xs leading-tight font-sans',
+      `text-[${textColour}] text-xs leading-tight font-sans`,
       `border-t border-[${borderColour}]`
     )
 
@@ -263,7 +274,7 @@ export class ModelParameters extends Entity {
                   ></stencila-ui-icon>
                 </sl-tooltip>
               </div>
-              ${this.renderDropdown(ui)}
+              ${this.renderDropdown()}
             </sl-dropdown>
           </div>
         </div>
@@ -271,7 +282,8 @@ export class ModelParameters extends Entity {
     `
   }
 
-  renderDropdown(ui: NodeTypeUI) {
+  renderDropdown() {
+    const ui = this.ui
     const headerClasses = apply(
       'flex flex-row items-center gap-2 mt-6 mb-2 text-xs'
     )
