@@ -17,12 +17,12 @@ impl MarkdownCodec for ModelParameters {
                 }
             }
 
-            if let Some(value) = &self.replicates {
+            if let Some(value) = self.replicates {
                 if value != 1 {
                     context.myst_directive_option(
                         NodeProperty::Replicates,
                         Some("reps"),
-                        &replicates.to_string(),
+                        &value.to_string(),
                     );
                 }
             }

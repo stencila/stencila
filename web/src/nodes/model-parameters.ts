@@ -31,19 +31,19 @@ export class ModelParameters extends Entity {
   modelIds?: string[] = []
 
   @property({ type: Number })
-  replicates?: number = 1
+  replicates?: number
 
   @property({ attribute: 'quality-weight', type: Number })
-  qualityWeight?: number = 70
+  qualityWeight?: number
 
   @property({ attribute: 'cost-weight', type: Number })
-  costWeight?: number = 15
+  costWeight?: number
 
   @property({ attribute: 'speed-weight', type: Number })
-  speedWeight?: number = 15
+  speedWeight?: number
 
   @property({ attribute: 'minimum-score', type: Number })
-  minimumScore?: number = 100
+  minimumScore?: number
 
   @property({ type: Number })
   temperature?: number
@@ -310,7 +310,7 @@ export class ModelParameters extends Entity {
             label="Quality"
             min="0"
             max="100"
-            value=${this.qualityWeight}
+            value=${this.qualityWeight ?? 70}
             @sl-change=${(e: InputEvent) =>
               this.onWeightChanged(e, 'qualityWeight')}
             style=${rangeStyle}
@@ -320,7 +320,7 @@ export class ModelParameters extends Entity {
             label="Cost"
             min="0"
             max="100"
-            value=${this.costWeight}
+            value=${this.costWeight ?? 15}
             @sl-change=${(e: InputEvent) =>
               this.onWeightChanged(e, 'costWeight')}
             style=${rangeStyle}
@@ -330,7 +330,7 @@ export class ModelParameters extends Entity {
             label="Speed"
             min="0"
             max="100"
-            value=${this.speedWeight}
+            value=${this.speedWeight ?? 15}
             @sl-change=${(e: InputEvent) =>
               this.onWeightChanged(e, 'speedWeight')}
             style=${rangeStyle}
@@ -350,7 +350,7 @@ export class ModelParameters extends Entity {
             class="w-full"
             min="0"
             max="100"
-            value=${this.minimumScore ?? 1}
+            value=${this.minimumScore ?? 100}
             @sl-change=${(e: InputEvent) =>
               this.onPropertyChanged(e, 'minimumScore')}
             style=${rangeStyle}
@@ -370,7 +370,7 @@ export class ModelParameters extends Entity {
             class="w-full"
             min="0"
             max="100"
-            value=${this.temperature ?? 0}
+            value=${this.temperature ?? 50}
             @sl-change=${(e: InputEvent) =>
               this.onPropertyChanged(e, 'temperature')}
             style=${rangeStyle}
