@@ -585,7 +585,7 @@ impl MarkdownCodec for InstructionBlock {
         if let Some(prompt) = &self.prompt.target {
             context
                 .push_str("@")
-                .push_prop_str(NodeProperty::Prompt, &prompt)
+                .push_prop_str(NodeProperty::Prompt, prompt)
                 .space();
         }
 

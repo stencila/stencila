@@ -79,7 +79,7 @@ impl MarkdownCodec for InstructionInline {
         if let Some(prompt) = &self.prompt.target {
             context
                 .push_str("@")
-                .push_prop_str(NodeProperty::Prompt, &prompt)
+                .push_prop_str(NodeProperty::Prompt, prompt)
                 .push_str(" ");
         }
 
