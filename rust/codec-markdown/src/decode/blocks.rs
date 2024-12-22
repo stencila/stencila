@@ -20,10 +20,10 @@ use codec::{
         shortcuts, Admonition, AdmonitionType, Block, CallArgument, CallBlock, Chat, ChatMessage,
         Claim, CodeBlock, CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading,
         IfBlock, IfBlockClause, IncludeBlock, Inline, InsertBlock, InstructionBlock,
-        InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock, ModelParameters,
-        ModifyBlock, Node, Paragraph, PromptBlock, QuoteBlock, RawBlock, ReplaceBlock, Section,
-        StyledBlock, SuggestionBlock, SuggestionStatus, Table, TableCell, TableRow, TableRowType,
-        Text, ThematicBreak, Walkthrough, WalkthroughStep,
+        InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node,
+        Paragraph, PromptBlock, QuoteBlock, RawBlock, ReplaceBlock, Section, StyledBlock,
+        SuggestionBlock, SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text,
+        ThematicBreak, Walkthrough, WalkthroughStep,
     },
 };
 
@@ -719,14 +719,32 @@ fn code_chunk(input: &mut Located<&str>) -> PResult<Block> {
 fn chat(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
         (Caseless("chat"), multispace0),
-        opt(take_while(1.., |_| true)),
+        (
+            opt(delimited((multispace0, '@'), prompt, multispace0)),
+            opt(delimited(multispace0, model_parameters, multispace0)),
+            opt(delimited(multispace0, execution_mode, multispace0)),
+            opt(delimited('/', execution_mode, multispace0)),
+            opt(take_while(1.., |_| true)),
+        ),
     )
-    .map(|message| {
-        Block::Chat(Chat {
-            is_ephemeral: message.is_some().then_some(false),
-            ..Default::default()
-        })
-    })
+    .map(
+        |(prompt, model_parameters, execution_mode, execution_recursion, _rest)| {
+            let prompt = prompt
+                .map(|prompt| PromptBlock::new(prompt.into()))
+                .unwrap_or_default();
+
+            let model_parameters = model_parameters.map(Box::new).unwrap_or_default();
+
+            Block::Chat(Chat {
+                prompt,
+                model_parameters,
+                execution_mode,
+                execution_recursion,
+                is_ephemeral: Some(false),
+                ..Default::default()
+            })
+        },
+    )
     .parse_next(input)
 }
 
@@ -857,12 +875,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
     (
         terminated(instruction_type, multispace0),
         opt(delimited((multispace0, '@'), prompt, multispace0)),
-        opt(delimited(
-            (multispace0, '['),
-            take_until(0.., ']'),
-            (']', multispace0),
-        )),
-        delimited(multispace0, model_parameters, multispace0),
+        opt(delimited(multispace0, model_parameters, multispace0)),
         opt(delimited(multispace0, execution_mode, multispace0)),
         opt(delimited('/', execution_mode, multispace0)),
         opt(take_while(0.., |_| true)),
@@ -871,7 +884,6 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
             |(
                 instruction_type,
                 prompt,
-                model_ids,
                 model_parameters,
                 execution_mode,
                 execution_recursion,
@@ -881,8 +893,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                     .map(|prompt| PromptBlock::new(prompt.into()))
                     .unwrap_or_default();
 
-                let model_ids =
-                    model_ids.map(|ids| ids.split(",").map(|id| id.trim().to_string()).collect());
+                let model_parameters = model_parameters.map(Box::new).unwrap_or_default();
 
                 let (message, capacity) = match message {
                     Some(message) => {
@@ -906,40 +917,6 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                     .unwrap_or_default();
 
                 let content = capacity.map(Vec::with_capacity);
-
-                let mut replicates: Option<u64> = None;
-                let mut quality_weight: Option<u64> = None;
-                let mut speed_weight: Option<u64> = None;
-                let mut cost_weight: Option<u64> = None;
-                let mut minimum_score: Option<u64> = None;
-                let mut temperature: Option<u64> = None;
-                let mut random_seed: Option<i64> = None;
-                for option in model_parameters {
-                    let mut chars = option.chars();
-                    let letter = chars.next().expect("Should be at least one char");
-                    let value = chars.collect::<String>().parse().ok();
-                    match letter {
-                        'x' => replicates = value,
-                        'q' => quality_weight = value,
-                        'c' => cost_weight = value,
-                        's' => speed_weight = value,
-                        'm' => minimum_score = value,
-                        't' => temperature = value,
-                        'r' => random_seed = value.map(|value| value as i64),
-                        _ => {}
-                    };
-                }
-                let model_parameters = Box::new(ModelParameters {
-                    model_ids,
-                    replicates,
-                    quality_weight,
-                    cost_weight,
-                    speed_weight,
-                    minimum_score,
-                    temperature,
-                    random_seed,
-                    ..Default::default()
-                });
 
                 Block::InstructionBlock(InstructionBlock {
                     instruction_type,
@@ -1316,7 +1293,7 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
 /// Get the execution mode from block options
 fn execution_mode_from_options(options: IndexMap<&str, Option<Node>>) -> Option<ExecutionMode> {
     for (name, value) in options {
-        if matches!(name, "always" | "auto" | "locked" | "lock") && value.is_none() {
+        if matches!(name, "always" | "auto" | "need" | "lock") && value.is_none() {
             return name.parse().ok();
         }
     }

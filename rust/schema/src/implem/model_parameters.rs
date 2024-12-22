@@ -17,16 +17,6 @@ impl MarkdownCodec for ModelParameters {
                 }
             }
 
-            if let Some(value) = self.replicates {
-                if value != 1 {
-                    context.myst_directive_option(
-                        NodeProperty::Replicates,
-                        Some("reps"),
-                        &value.to_string(),
-                    );
-                }
-            }
-
             if let Some(value) = self.quality_weight {
                 if value != 0 {
                     context.myst_directive_option(
@@ -82,6 +72,16 @@ impl MarkdownCodec for ModelParameters {
                     &value.to_string(),
                 );
             }
+
+            if let Some(value) = self.replicates {
+                if value != 1 {
+                    context.myst_directive_option(
+                        NodeProperty::Replicates,
+                        Some("reps"),
+                        &value.to_string(),
+                    );
+                }
+            }
         } else {
             if let Some(model_ids) = &self.model_ids {
                 if !model_ids.is_empty() {
@@ -89,15 +89,6 @@ impl MarkdownCodec for ModelParameters {
                         .push_str("[")
                         .push_prop_str(NodeProperty::ModelIds, &model_ids.join(", "))
                         .push_str("] ");
-                }
-            }
-
-            if let Some(value) = self.replicates {
-                if value != 1 {
-                    context
-                        .push_str("x")
-                        .push_prop_str(NodeProperty::Replicates, &value.to_string())
-                        .push_str(" ");
                 }
             }
 
@@ -149,6 +140,15 @@ impl MarkdownCodec for ModelParameters {
                     .push_str("r")
                     .push_prop_str(NodeProperty::RandomSeed, &value.to_string())
                     .push_str(" ");
+            }
+
+            if let Some(value) = self.replicates {
+                if value != 1 {
+                    context
+                        .push_str("x")
+                        .push_prop_str(NodeProperty::Replicates, &value.to_string())
+                        .push_str(" ");
+                }
             }
         }
     }

@@ -556,47 +556,42 @@ impl MarkdownCodec for InstructionBlock {
 
         context
             .push_colons()
-            .push_str(" ")
+            .space()
             .push_prop_str(NodeProperty::InstructionType, &instruction_type)
-            .push_str(" ");
-
-        if !self.prompt.prompt.is_empty() {
-            context
-                .push_str("@")
-                .push_prop_str(NodeProperty::Prompt, &self.prompt.prompt)
-                .push_str(" ");
-        }
-
-        context.push_prop_fn(NodeProperty::ModelParameters, |context| {
-            self.model_parameters.to_markdown(context);
-        });
+            .space();
 
         if let Some(mode) = &self.execution_mode {
             if !matches!(mode, ExecutionMode::Default) {
-                context.push_prop_str(
-                    NodeProperty::ExecutionMode,
-                    &mode.to_string().to_lowercase(),
-                );
-                if matches!(
-                    self.execution_recursion,
-                    None | Some(ExecutionMode::Default)
-                ) {
-                    context.push_str(" ");
-                }
+                context
+                    .push_prop_str(
+                        NodeProperty::ExecutionMode,
+                        &mode.to_string().to_lowercase(),
+                    )
+                    .space();
             }
         }
 
         if let Some(mode) = &self.execution_recursion {
             if !matches!(mode, ExecutionMode::Default) {
                 context
-                    .push_str("/")
                     .push_prop_str(
                         NodeProperty::ExecutionRecursion,
                         &mode.to_string().to_lowercase(),
                     )
-                    .push_str(" ");
+                    .space();
             }
         }
+
+        if !self.prompt.prompt.is_empty() {
+            context
+                .push_str("@")
+                .push_prop_str(NodeProperty::Prompt, &self.prompt.prompt)
+                .space();
+        }
+
+        context.push_prop_fn(NodeProperty::ModelParameters, |context| {
+            self.model_parameters.to_markdown(context);
+        });
 
         context.push_prop_fn(NodeProperty::Message, |context| {
             self.message.to_markdown(context)

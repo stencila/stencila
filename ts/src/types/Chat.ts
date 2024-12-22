@@ -3,6 +3,7 @@
 import { Block } from "./Block.js";
 import { CreativeWork } from "./CreativeWork.js";
 import { ModelParameters } from "./ModelParameters.js";
+import { PromptBlock } from "./PromptBlock.js";
 
 /**
  * A chat conversation, usually with a generative AI model.
@@ -12,14 +13,14 @@ export class Chat extends CreativeWork {
   type: "Chat";
 
   /**
+   * The prompt selected, rendered and provided to the model
+   */
+  prompt: PromptBlock;
+
+  /**
    * Model selection and inference parameters.
    */
   modelParameters: ModelParameters;
-
-  /**
-   * The id of the system prompt to prefix chat messages with.
-   */
-  prompt?: string;
 
   /**
    * The messages, and optionally other content, that make up the conversation.
@@ -31,10 +32,11 @@ export class Chat extends CreativeWork {
    */
   isEphemeral?: boolean;
 
-  constructor(modelParameters: ModelParameters, content: Block[], options?: Partial<Chat>) {
+  constructor(prompt: PromptBlock, modelParameters: ModelParameters, content: Block[], options?: Partial<Chat>) {
     super();
     this.type = "Chat";
     if (options) Object.assign(this, options);
+    this.prompt = prompt;
     this.modelParameters = modelParameters;
     this.content = content;
   }
@@ -43,6 +45,6 @@ export class Chat extends CreativeWork {
 /**
 * Create a new `Chat`
 */
-export function chat(modelParameters: ModelParameters, content: Block[], options?: Partial<Chat>): Chat {
-  return new Chat(modelParameters, content, options);
+export function chat(prompt: PromptBlock, modelParameters: ModelParameters, content: Block[], options?: Partial<Chat>): Chat {
+  return new Chat(prompt, modelParameters, content, options);
 }

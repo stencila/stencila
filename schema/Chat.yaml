@@ -10,13 +10,23 @@ patch:
 markdown:
   derive: false
 required:
+  - prompt
   - modelParameters
   - content
 core:
   - title
-  - prompt
   - isEphemeral
 properties:
+  prompt:
+    "@id": stencila:prompt
+    description: The prompt selected, rendered and provided to the model
+    $ref: PromptBlock
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+    serde:
+      default: true
+    dom:
+      elem: div
   modelParameters:
     "@id": stencila:modelParameters
     description: Model selection and inference parameters.
@@ -36,12 +46,6 @@ properties:
       default: true
     dom:
       elem: div
-  prompt:
-    "@id": stencila:prompt
-    description: The id of the system prompt to prefix chat messages with.
-    type: string
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
   content:
     "@id": stencila:content
     description: The messages, and optionally other content, that make up the conversation.

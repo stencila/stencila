@@ -349,7 +349,13 @@ impl MarkdownEncodeContext {
         self
     }
 
-    /// A a single newline to the end of the content
+    /// Add a single space to the end of the content
+    pub fn space(&mut self) -> &mut Self {
+        self.content.push(' ');
+        self
+    }
+
+    /// Add a single newline to the end of the content
     pub fn newline(&mut self) -> &mut Self {
         self.content.push('\n');
         self

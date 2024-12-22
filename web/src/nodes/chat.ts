@@ -1,8 +1,10 @@
 import { apply } from '@twind/core'
-import { LitElement, html } from 'lit'
+import { html } from 'lit'
 import { customElement, property, query } from 'lit/decorators'
 
 import { withTwind } from '../twind'
+
+import { Executable } from './executable'
 
 /**
  * Web component representing a Stencila `Chat` node
@@ -14,7 +16,13 @@ import { withTwind } from '../twind'
  */
 @customElement('stencila-chat')
 @withTwind()
-export class StencilaChat extends LitElement {
+export class StencilaChat extends Executable {
+  /**
+   * Whether this is the root node of the document
+   */
+  @property({ type: Boolean })
+  root: boolean
+
   @query('slot[name="content"]')
   contentSlot!: HTMLSlotElement
 
@@ -44,18 +52,6 @@ export class StencilaChat extends LitElement {
     }
   }
 
-  /**
-   * Indicates that this is the root node of the document
-   */
-  @property({ type: Boolean })
-  root: boolean
-
-  @property()
-  target?: string
-
-  @property()
-  prompt?: string
-
   override render() {
     const containerStyles = apply([
       'fixed bottom-0 left-0 z-10',
@@ -67,7 +63,27 @@ export class StencilaChat extends LitElement {
     return html`
       <div>
         <div class="fixed top-0 left-0 z-10 w-full">
+          <stencila-ui-node-execution-details
+            type="Chat"
+            node-id=${this.id}
+            mode=${this.executionMode}
+            recursion=${this.executionRecursion}
+            .tags=${this.executionTags}
+            status=${this.executionStatus}
+            required=${this.executionRequired}
+            count=${this.executionCount}
+            ended=${this.executionEnded}
+            duration=${this.executionDuration}
+          >
+          </stencila-ui-node-execution-details>
+
+          <stencila-ui-node-execution-messages type="Chat">
+            <slot name="execution-messages"></slot>
+          </stencila-ui-node-execution-messages>
+
           <slot name="model-parameters"></slot>
+
+          <slot name="prompt"></slot>
         </div>
 
         <div class="px-12 pb-[300px]">

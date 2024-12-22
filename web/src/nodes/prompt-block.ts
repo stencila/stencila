@@ -1,8 +1,8 @@
+import { NodeType } from '@stencila/types'
 import { html } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
-// import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import { Executable } from './executable'
 
@@ -24,16 +24,25 @@ export class PromptBlock extends Executable {
   prompt: string
 
   /**
+   * The node type of the parent node
+   */
+  private parentNodeType: NodeType
+
+  /**
    * Toggle show/hide content
    *
    * Defaults to true, and then is toggled off/on by user.
    */
-  @state()
   private showContent?: boolean = true
 
   override connectedCallback(): void {
     super.connectedCallback()
-    this.showContent = !this.ancestors.endsWith('InstructionBlock')
+
+    this.parentNodeType = this.ancestors.split('.').pop() as NodeType
+
+    this.showContent = !(
+      this.parentNodeType == 'Chat' || this.parentNodeType == 'InstructionBlock'
+    )
   }
 
   override render() {
@@ -48,10 +57,13 @@ export class PromptBlock extends Executable {
       `
     }
 
-    if (this.ancestors.endsWith('InstructionBlock')) {
+    if (
+      this.parentNodeType == 'Chat' ||
+      this.parentNodeType == 'InstructionBlock'
+    ) {
       return html`
         <stencila-ui-node-collapsible-details
-          type=${'InstructionBlock'}
+          type=${this.parentNodeType}
           icon-name="compass"
           header-title="Prompt"
           ?expanded=${this.showContent}
@@ -96,7 +108,6 @@ export class PromptBlock extends Executable {
           type="PromptBlock"
           node-id=${this.id}
           mode=${this.executionMode}
-          recursion=${null}
           .tags=${this.executionTags}
           status=${this.executionStatus}
           required=${this.executionRequired}

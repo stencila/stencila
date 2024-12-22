@@ -27,6 +27,7 @@ use super::integer::Integer;
 use super::model_parameters::ModelParameters;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
+use super::prompt_block::PromptBlock;
 use super::property_value_or_string::PropertyValueOrString;
 use super::provenance_count::ProvenanceCount;
 use super::string::String;
@@ -72,17 +73,19 @@ pub struct Chat {
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub execution_recursion: Option<ExecutionMode>,
 
+    /// The prompt selected, rendered and provided to the model
+    #[serde(default)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[dom(elem = "div")]
+    pub prompt: PromptBlock,
+
     /// Model selection and inference parameters.
     #[serde(alias = "model-parameters", alias = "model_parameters", alias = "model-params", alias = "model_params", alias = "model-pars", alias = "model_pars", alias = "model")]
     #[serde(default)]
     #[walk]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[dom(elem = "div")]
-    pub model_parameters: ModelParameters,
-
-    /// The id of the system prompt to prefix chat messages with.
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
-    pub prompt: Option<String>,
+    pub model_parameters: Box<ModelParameters>,
 
     /// The messages, and optionally other content, that make up the conversation.
     #[serde(deserialize_with = "one_or_many")]
@@ -388,8 +391,9 @@ impl Chat {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(model_parameters: ModelParameters, content: Vec<Block>) -> Self {
+    pub fn new(prompt: PromptBlock, model_parameters: Box<ModelParameters>, content: Vec<Block>) -> Self {
         Self {
+            prompt,
             model_parameters,
             content,
             ..Default::default()

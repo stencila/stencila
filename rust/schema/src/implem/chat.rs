@@ -1,7 +1,7 @@
 use common::serde_yaml;
 use node_strip::{StripNode, StripTargets};
 
-use crate::{prelude::*, Chat};
+use crate::{prelude::*, Chat, ExecutionMode};
 
 impl Chat {
     /// Custom implementation of [`PatchNode::apply`].
@@ -62,8 +62,44 @@ impl MarkdownCodec for Chat {
         if !context.is_root() {
             context
                 .enter_node(self.node_type(), self.node_id())
-                .push_str("::: chat\n\n")
-                .exit_node();
+                .push_colons()
+                .push_str(" chat ");
+
+            if let Some(mode) = &self.execution_mode {
+                if !matches!(mode, ExecutionMode::Default) {
+                    context
+                        .push_prop_str(
+                            NodeProperty::ExecutionMode,
+                            &mode.to_string().to_lowercase(),
+                        )
+                        .space();
+                }
+            }
+
+            if let Some(mode) = &self.execution_recursion {
+                if !matches!(mode, ExecutionMode::Default) {
+                    context
+                        .push_prop_str(
+                            NodeProperty::ExecutionRecursion,
+                            &mode.to_string().to_lowercase(),
+                        )
+                        .space();
+                }
+            }
+
+            if !self.prompt.prompt.is_empty() {
+                context
+                    .push_str("@")
+                    .push_prop_str(NodeProperty::Prompt, &self.prompt.prompt)
+                    .space();
+            }
+
+            context.push_prop_fn(NodeProperty::ModelParameters, |context| {
+                self.model_parameters.to_markdown(context);
+            });
+
+            context.trim_end().push_str("\n\n").exit_node();
+
             return;
         }
 

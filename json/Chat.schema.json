@@ -20,6 +20,7 @@
   "required": [
     "type",
     "type",
+    "prompt",
     "modelParameters",
     "content"
   ],
@@ -29,7 +30,6 @@
     "executionMode",
     "executionRecursion",
     "title",
-    "prompt",
     "isEphemeral"
   ],
   "properties": {
@@ -902,6 +902,26 @@
         "$ref": "ExecutionMessage.schema.json"
       }
     },
+    "prompt": {
+      "@id": "stencila:prompt",
+      "description": "The prompt selected, rendered and provided to the model",
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "serde": {
+        "default": true
+      },
+      "dom": {
+        "elem": "div"
+      },
+      "$ref": "PromptBlock.schema.json"
+    },
     "modelParameters": {
       "@id": "stencila:modelParameters",
       "description": "Model selection and inference parameters.",
@@ -931,20 +951,6 @@
         "elem": "div"
       },
       "$ref": "ModelParameters.schema.json"
-    },
-    "prompt": {
-      "@id": "stencila:prompt",
-      "description": "The id of the system prompt to prefix chat messages with.",
-      "patch": {
-        "formats": [
-          "md",
-          "smd",
-          "myst",
-          "ipynb",
-          "qmd"
-        ]
-      },
-      "type": "string"
     },
     "content": {
       "@id": "stencila:content",

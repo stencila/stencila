@@ -781,6 +781,26 @@
       }
     },
     {
+      "@id": "stencila:prompt",
+      "@type": "rdfs:Property",
+      "rdfs:label": "prompt",
+      "rdfs:comment": "The prompt selected, rendered and provided to the model",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:Instruction"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:PromptBlock"
+      }
+    },
+    {
       "@id": "stencila:modelParameters",
       "@type": "rdfs:Property",
       "rdfs:label": "modelParameters",
@@ -795,26 +815,6 @@
       ],
       "schema:rangeIncludes": {
         "@id": "stencila:ModelParameters"
-      }
-    },
-    {
-      "@id": "stencila:prompt",
-      "@type": "rdfs:Property",
-      "rdfs:label": "prompt",
-      "rdfs:comment": "The id of the system prompt to prefix chat messages with.",
-      "schema:domainIncludes": [
-        {
-          "@id": "stencila:Chat"
-        },
-        {
-          "@id": "stencila:Instruction"
-        },
-        {
-          "@id": "stencila:PromptBlock"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
       }
     },
     {

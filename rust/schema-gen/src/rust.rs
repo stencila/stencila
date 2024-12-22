@@ -64,6 +64,7 @@ const BOX_PROPERTIES: &[&str] = &[
     "CallArgument.value",
     "CodeExpression.output",
     "ConstantValidator.value",
+    "Chat.model_parameters",
     "InstructionBlock.model_parameters",
     "InstructionInline.model_parameters",
     "ListItem.item",
