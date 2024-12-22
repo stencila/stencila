@@ -306,34 +306,34 @@ export class ModelParameters extends Entity {
             )}
           </span>
           <sl-range
-            class="${weightsClasses}"
+            class=${weightsClasses}
+            style=${rangeStyle}
             label="Quality"
             min="0"
             max="100"
-            value=${this.qualityWeight ?? 70}
+            value=${this.qualityWeight}
             @sl-change=${(e: InputEvent) =>
               this.onWeightChanged(e, 'qualityWeight')}
-            style=${rangeStyle}
           ></sl-range>
           <sl-range
             class=${weightsClasses}
+            style=${rangeStyle}
             label="Cost"
             min="0"
             max="100"
-            value=${this.costWeight ?? 15}
+            value=${this.costWeight}
             @sl-change=${(e: InputEvent) =>
               this.onWeightChanged(e, 'costWeight')}
-            style=${rangeStyle}
           ></sl-range>
           <sl-range
             class=${weightsClasses}
+            style=${rangeStyle}
             label="Speed"
             min="0"
             max="100"
-            value=${this.speedWeight ?? 15}
+            value=${this.speedWeight}
             @sl-change=${(e: InputEvent) =>
               this.onWeightChanged(e, 'speedWeight')}
-            style=${rangeStyle}
           ></sl-range>
 
           <span class=${headerClasses}>
@@ -348,12 +348,12 @@ export class ModelParameters extends Entity {
           </span>
           <sl-range
             class="w-full"
+            style=${rangeStyle}
             min="0"
             max="100"
             value=${this.minimumScore ?? 100}
             @sl-change=${(e: InputEvent) =>
               this.onPropertyChanged(e, 'minimumScore')}
-            style=${rangeStyle}
           ></sl-range>
 
           <span class=${headerClasses}>
@@ -368,12 +368,12 @@ export class ModelParameters extends Entity {
           </span>
           <sl-range
             class="w-full"
+            style=${rangeStyle}
             min="0"
             max="100"
             value=${this.temperature ?? 50}
             @sl-change=${(e: InputEvent) =>
               this.onPropertyChanged(e, 'temperature')}
-            style=${rangeStyle}
           ></sl-range>
 
           <span class=${headerClasses}>
@@ -386,12 +386,12 @@ export class ModelParameters extends Entity {
           </span>
           <sl-range
             class="w-full"
+            style=${rangeStyle}
             min="1"
             max="10"
             value=${this.replicates ?? 1}
             @sl-change=${(e: InputEvent) =>
               this.onPropertyChanged(e, 'replicates')}
-            style=${rangeStyle}
           ></sl-range>
         </div>
       </div>
