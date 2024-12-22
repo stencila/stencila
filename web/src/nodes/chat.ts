@@ -1,6 +1,6 @@
 import { apply } from '@twind/core'
 import { html } from 'lit'
-import { customElement, property, query } from 'lit/decorators'
+import { customElement, query } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
@@ -17,12 +17,6 @@ import { Executable } from './executable'
 @customElement('stencila-chat')
 @withTwind()
 export class StencilaChat extends Executable {
-  /**
-   * Whether this is the root node of the document
-   */
-  @property({ type: Boolean })
-  root: boolean
-
   @query('slot[name="content"]')
   contentSlot!: HTMLSlotElement
 

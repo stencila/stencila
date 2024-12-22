@@ -1,6 +1,6 @@
 import { provide } from '@lit/context'
 import { LitElement, css, html } from 'lit'
-import { customElement, property } from 'lit/decorators'
+import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 import {
@@ -16,12 +16,6 @@ import { HEADING_VISIBILITY_EVENT, HeadingVisibilityEvent } from './heading'
 @customElement('stencila-article')
 @withTwind()
 export class StencilaArticle extends LitElement {
-  /**
-   * Indicates that this is the root node of the document
-   */
-  @property({ type: Boolean })
-  root: boolean
-
   /**
    * Context provider for the visibility of the article's headings
    *
