@@ -78,7 +78,7 @@ impl MarkdownCodec for InstructionInline {
 
         context
             .push_str("@")
-            .push_prop_str(NodeProperty::Prompt, &self.prompt.prompt)
+            .push_prop_str(NodeProperty::Prompt, &self.prompt.target)
             .push_str(" ");
 
         context.push_prop_fn(NodeProperty::Message, |context| {

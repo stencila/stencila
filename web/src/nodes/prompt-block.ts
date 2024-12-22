@@ -21,7 +21,7 @@ import '../ui/nodes/properties/provenance'
 @withTwind()
 export class PromptBlock extends Executable {
   @property()
-  prompt: string
+  target: string
 
   /**
    * The node type of the parent node
@@ -69,7 +69,7 @@ export class PromptBlock extends Executable {
           ?expanded=${this.showContent}
         >
           <div class="mx-4 font-mono text-xs" slot="header-content">
-            ${this.prompt}
+            ${this.target}
           </div>
           <div class="w-full p-3" style="color: var(--default-text-colour);">
             <slot name="content"></slot>

@@ -33,7 +33,7 @@ impl Executable for InstructionBlock {
             &mut state_digest,
             self.message.to_cbor().unwrap_or_default().as_slice(),
         );
-        add_to_digest(&mut state_digest, self.prompt.prompt.clone().as_bytes());
+        add_to_digest(&mut state_digest, self.prompt.target.clone().as_bytes());
         add_to_digest(
             &mut state_digest,
             self.model_parameters
@@ -149,7 +149,7 @@ impl Executable for InstructionBlock {
         let prompt = match prompts::select(
             &self.instruction_type,
             &self.message,
-            &self.prompt.prompt,
+            &self.prompt.target,
             &Some(node_types),
         )
         .await

@@ -16,7 +16,7 @@
   },
   "required": [
     "type",
-    "prompt"
+    "target"
   ],
   "core": [
     "id",
@@ -314,8 +314,8 @@
         "$ref": "ExecutionMessage.schema.json"
       }
     },
-    "prompt": {
-      "@id": "stencila:prompt",
+    "target": {
+      "@id": "schema:target",
       "description": "An identifier for the prompt to be rendered",
       "patch": {
         "formats": [

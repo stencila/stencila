@@ -724,7 +724,7 @@ fn instruction_block_to_pandoc(
         block.instruction_type.to_string().to_lowercase(),
     )];
 
-    attributes.push(("prompt".into(), block.prompt.prompt.to_string()));
+    attributes.push(("prompt".into(), block.prompt.target.to_string()));
 
     if let Some(MessagePart::Text(Text { value, .. })) = &block.message.parts.first() {
         attributes.push(("message".into(), value.to_string()));

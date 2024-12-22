@@ -42,7 +42,7 @@ impl MarkdownCodec for PromptBlock {
                 |context| {
                     context
                         .push_str(" ")
-                        .push_prop_str(NodeProperty::Prompt, &self.prompt);
+                        .push_prop_str(NodeProperty::Prompt, &self.target);
                 },
                 |_| {},
                 |_| {},
@@ -51,7 +51,7 @@ impl MarkdownCodec for PromptBlock {
             context
                 .push_colons()
                 .push_str(" prompt ")
-                .push_prop_str(NodeProperty::Prompt, &self.prompt);
+                .push_prop_str(NodeProperty::Prompt, &self.target);
         }
 
         context.newline().exit_node().newline();

@@ -646,7 +646,7 @@ fn prompt_block(input: &mut Located<&str>) -> PResult<Block> {
     preceded(("prompt", multispace1), take_while(1.., |_| true))
         .map(|prompt: &str| {
             Block::PromptBlock(PromptBlock {
-                prompt: prompt.trim().to_string(),
+                target: prompt.trim().to_string(),
                 ..Default::default()
             })
         })

@@ -12,12 +12,12 @@ status: experimental
 markdown:
   derive: false
 required:
-  - prompt
+  - target
 core:
   - content
 properties:
-  prompt:
-    '@id': stencila:prompt
+  target:
+    '@id': schema:target
     description: An identifier for the prompt to be rendered
     type: string
     patch:

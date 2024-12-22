@@ -791,9 +791,6 @@
         },
         {
           "@id": "stencila:Instruction"
-        },
-        {
-          "@id": "stencila:PromptBlock"
         }
       ],
       "schema:rangeIncludes": {

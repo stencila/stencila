@@ -76,7 +76,7 @@ impl Executable for PromptBlock {
         executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
 
         // Get the prompt
-        let prompt = match prompts::get(&self.prompt, &InstructionType::Create).await {
+        let prompt = match prompts::get(&self.target, &InstructionType::Create).await {
             Ok(prompt) => prompt,
             Err(error) => {
                 executor.patch(

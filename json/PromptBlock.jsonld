@@ -247,16 +247,19 @@
       }
     },
     {
-      "@id": "stencila:prompt",
+      "@id": "schema:target",
       "@type": "rdfs:Property",
-      "rdfs:label": "prompt",
+      "rdfs:label": "target",
       "rdfs:comment": "An identifier for the prompt to be rendered",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Chat"
+          "@id": "stencila:Cite"
         },
         {
-          "@id": "stencila:Instruction"
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:ModifyOperation"
         },
         {
           "@id": "stencila:PromptBlock"

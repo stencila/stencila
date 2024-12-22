@@ -13,24 +13,24 @@ export class PromptBlock extends Executable {
   /**
    * An identifier for the prompt to be rendered
    */
-  prompt: string;
+  target: string;
 
   /**
    * The executed content of the prompt
    */
   content?: Block[];
 
-  constructor(prompt: string, options?: Partial<PromptBlock>) {
+  constructor(target: string, options?: Partial<PromptBlock>) {
     super();
     this.type = "PromptBlock";
     if (options) Object.assign(this, options);
-    this.prompt = prompt;
+    this.target = target;
   }
 }
 
 /**
 * Create a new `PromptBlock`
 */
-export function promptBlock(prompt: string, options?: Partial<PromptBlock>): PromptBlock {
-  return new PromptBlock(prompt, options);
+export function promptBlock(target: string, options?: Partial<PromptBlock>): PromptBlock {
+  return new PromptBlock(target, options);
 }
