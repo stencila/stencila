@@ -301,10 +301,11 @@ nodeTypes: []
           return;
         }
 
-        await createDocumentViewPanel(
+        await createNodeViewPanel(
           context,
           editor.document.uri,
-          editor,
+          null,
+          nodeType,
           nodeId
         );
       }
@@ -320,10 +321,11 @@ nodeTypes: []
           return;
         }
 
-        await createDocumentViewPanel(
+        await createNodeViewPanel(
           context,
           editor.document.uri,
-          editor,
+          null,
+          nodeType,
           nodeId,
           true
         );
@@ -349,9 +351,10 @@ nodeTypes: []
 
       await createNodeViewPanel(
         context,
-        editor.document.uri.with({ fragment: nodeId }),
+        editor.document.uri,
         editor.selection.active,
-        "Chat"
+        "Chat",
+        nodeId
       );
     })
   );
