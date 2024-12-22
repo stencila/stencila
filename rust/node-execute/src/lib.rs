@@ -482,7 +482,7 @@ impl Executor {
             return Some(ExecutionStatus::Pending);
         }
 
-        if matches!(execution_mode, Some(ExecutionMode::Locked)) {
+        if matches!(execution_mode, Some(ExecutionMode::Lock)) {
             return Some(ExecutionStatus::Locked);
         }
 

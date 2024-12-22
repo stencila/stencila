@@ -8,13 +8,13 @@ use winnow::{
     combinator::{alt, delimited, not, opt, peek, separated, separated_pair, terminated},
     error::{ErrMode, ErrorKind, ParserError},
     stream::Stream,
-    token::{none_of, take_while},
+    token::{none_of, take_until, take_while},
     Located, PResult, Parser,
 };
 
 use codec::schema::{
     Date, DateTime, Duration, ExecutionMode, ImageObject, InstructionMessage, InstructionType,
-    MessagePart, Node, Time, Timestamp,
+    MessagePart, ModelParameters, Node, Time, Timestamp,
 };
 use codec_json5_trait::Json5Codec;
 use codec_text_trait::TextCodec;
@@ -35,20 +35,15 @@ pub(super) fn name<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
 
 /// Parse a execution mode
 pub(super) fn execution_mode(input: &mut Located<&str>) -> PResult<ExecutionMode> {
-    alt((
-        "always", "auto", "lock", "locked", "needed", "never", "safe", "secure",
-    ))
-    .map(|typ| match typ {
-        "always" => ExecutionMode::Always,
-        "auto" => ExecutionMode::Auto,
-        "locked" | "lock" => ExecutionMode::Locked,
-        "needed" => ExecutionMode::Needed,
-        "never" => ExecutionMode::Never,
-        "safe" => ExecutionMode::Safe,
-        "secure" => ExecutionMode::Secure,
-        _ => unreachable!(),
-    })
-    .parse_next(input)
+    alt(("always", "auto", "need", "lock"))
+        .map(|typ| match typ {
+            "always" => ExecutionMode::Always,
+            "auto" => ExecutionMode::Auto,
+            "need" => ExecutionMode::Need,
+            "lock" => ExecutionMode::Lock,
+            _ => unreachable!(),
+        })
+        .parse_next(input)
 }
 
 /// Parse an instruction type
@@ -63,13 +58,58 @@ pub(super) fn instruction_type(input: &mut Located<&str>) -> PResult<Instruction
 }
 
 /// Parse instruction options
-pub(super) fn model_parameters<'s>(input: &mut Located<&'s str>) -> PResult<Vec<&'s str>> {
-    separated(
-        0..,
-        (alt(('x', 'q', 'c', 's', 'm', 't', 'r')), digit1).take(),
-        multispace1,
+pub(super) fn model_parameters<'s>(input: &mut Located<&'s str>) -> PResult<ModelParameters> {
+    (
+        opt(delimited(
+            (multispace0, '['),
+            take_until(0.., ']'),
+            (']', multispace0),
+        )),
+        separated(
+            0..,
+            (alt(('x', 'q', 'c', 's', 'm', 't', 'r')), digit1).take(),
+            multispace1,
+        ),
     )
-    .parse_next(input)
+        .map(|(ids, pars): (Option<&str>, Vec<&'s str>)| {
+            let model_ids = ids.map(|ids| ids.split(",").map(|id| id.trim().to_string()).collect());
+
+            let mut replicates: Option<u64> = None;
+            let mut quality_weight: Option<u64> = None;
+            let mut speed_weight: Option<u64> = None;
+            let mut cost_weight: Option<u64> = None;
+            let mut minimum_score: Option<u64> = None;
+            let mut temperature: Option<u64> = None;
+            let mut random_seed: Option<i64> = None;
+            for par in pars {
+                let mut chars = par.chars();
+                let letter = chars.next().expect("Should be at least one char");
+                let value = chars.collect::<String>().parse().ok();
+                match letter {
+                    'x' => replicates = value,
+                    'q' => quality_weight = value,
+                    'c' => cost_weight = value,
+                    's' => speed_weight = value,
+                    'm' => minimum_score = value,
+                    't' => temperature = value,
+                    'r' => random_seed = value.map(|value| value as i64),
+                    _ => {}
+                };
+            }
+
+            ModelParameters {
+                model_ids,
+                replicates,
+                quality_weight,
+                cost_weight,
+                speed_weight,
+                minimum_score,
+                temperature,
+                random_seed,
+                ..Default::default()
+            }
+        })
+        .parse_next(input)
 }
 
 /// Parse the name of a prompt of an instruction (e.g. `insert-image-object`, `joe@example.org`)

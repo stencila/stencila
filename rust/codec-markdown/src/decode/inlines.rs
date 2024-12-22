@@ -406,7 +406,7 @@ fn code_attrs(input: &mut Located<&str>) -> PResult<Inline> {
         for (name, value) in options {
             if name == "exec" {
                 exec = true
-            } else if matches!(name, "always" | "auto" | "locked" | "lock") && value.is_none() {
+            } else if matches!(name, "always" | "auto" | "need" | "lock") && value.is_none() {
                 execution_mode = name.parse().ok()
             } else if lang.is_none() && value.is_none() {
                 lang = Some(name.to_string());

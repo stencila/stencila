@@ -245,13 +245,10 @@ class ExecutionMode(StrEnum):
     """
 
     Default = "Default"
+    Need = "Need"
     Always = "Always"
     Auto = "Auto"
-    Needed = "Needed"
-    Safe = "Safe"
-    Secure = "Secure"
-    Locked = "Locked"
-    Never = "Never"
+    Lock = "Lock"
 
 
 class ExecutionRequired(StrEnum):
@@ -1194,11 +1191,11 @@ class Chat(CreativeWork, Executable):
 
     type: Literal["Chat"] = "Chat"
 
+    prompt: PromptBlock
+    """The prompt selected, rendered and provided to the model"""
+
     model_parameters: ModelParameters
     """Model selection and inference parameters."""
-
-    prompt: str | None = None
-    """The id of the system prompt to prefix chat messages with."""
 
     content: list[Block]
     """The messages, and optionally other content, that make up the conversation."""

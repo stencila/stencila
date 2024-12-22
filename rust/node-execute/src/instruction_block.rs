@@ -249,7 +249,7 @@ impl Executable for InstructionBlock {
                         [push(NodeProperty::Suggestions, suggestion.clone())],
                     );
 
-                    if !matches!(recursion, ExecutionMode::Never) {
+                    if !matches!(recursion, ExecutionMode::Lock) {
                         let mut fork = executor.fork_for_all();
                         tokio::spawn(async move {
                             if let Err(error) = fork.compile_prepare_execute(&mut suggestion).await

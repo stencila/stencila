@@ -17,12 +17,6 @@ export class UINodeExecutionMode extends UIBaseClass {
   @property()
   value?: ExecutionMode
 
-  @property({ type: Boolean })
-  disabled: boolean
-
-  protected propertyName: 'executionMode' | 'executionRecursion' =
-    'executionMode'
-
   /**
    * On a change to value, send a patch to update it in the document
    */
@@ -34,7 +28,7 @@ export class UINodeExecutionMode extends UIBaseClass {
         command: 'patch-node',
         nodeType: this.type,
         nodeIds: [this.nodeId],
-        nodeProperty: [this.propertyName, value],
+        nodeProperty: ['executionMode', value],
       })
     )
   }
@@ -51,20 +45,14 @@ export class UINodeExecutionMode extends UIBaseClass {
       switch (value) {
         case 'Default':
           return 'bracesAsterisk'
+        case 'Need':
+          return 'playCircle'
         case 'Always':
           return 'fastForwardCircle'
         case 'Auto':
           return 'lightning'
-        case 'Needed':
-          return 'playCircle'
-        case 'Locked':
+        case 'Lock':
           return 'lock'
-        case 'Safe':
-          return 'coneStriped'
-        case 'Secure':
-          return 'shieldCheck'
-        case 'Never':
-          return 'ban'
       }
     }
 
@@ -72,20 +60,14 @@ export class UINodeExecutionMode extends UIBaseClass {
       switch (value) {
         case 'Default':
           return 'Use the configured default'
+        case 'Need':
+          return 'Run when needed (e.g. when stale and document is run), and on demand'
         case 'Always':
           return 'Always run, including on demand'
         case 'Auto':
           return 'Run automatically when stale, and on demand'
-        case 'Needed':
-          return 'Run when needed (e.g. when stale and document is run), and on demand'
-        case 'Locked':
+        case 'Lock':
           return 'Do not run, even on demand'
-        case 'Safe':
-          return 'Only run if considered safe'
-        case 'Secure':
-          return 'Only run within a secure sandbox'
-        case 'Never':
-          return 'Do not run'
       }
     }
 
@@ -96,12 +78,7 @@ export class UINodeExecutionMode extends UIBaseClass {
       }
     `
 
-    const alternatives: ExecutionMode[] =
-      this.propertyName === 'executionMode'
-        ? ['Default', 'Always', 'Auto', 'Needed', 'Locked']
-        : ['Default', 'Always', 'Safe', 'Secure', 'Never']
-
-    const menuItems = alternatives.map(
+    const menuItems = ['Default', 'Need', 'Always', 'Auto', 'Lock'].map(
       (value: ExecutionMode) =>
         html`<sl-menu-item
           class=${menuItemStyles}

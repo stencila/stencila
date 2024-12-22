@@ -9,6 +9,11 @@ anyOf:
     '@id': stencila:Default
     description: |
       Use the mode configured in the document, workspace or user settings.
+  - const: Need
+    '@id': stencila:Need
+    description: |
+      Execute the node when needed (i.e. if it is stale) when the document or ancestor
+      node is executed.
   - const: Always
     '@id': stencila:Always
     description: |
@@ -20,25 +25,7 @@ anyOf:
     description: |
       Automatically execute the node if it is stale and is an upstream dependency of a node
       that is to be executed, or is a downstream dependant of a node that has been executed.
-  - const: Needed
-    '@id': stencila:Needed
-    description: |
-      Execute the node when needed (i.e. if it is stale) when the document or ancestor
-      node is executed.
-  - const: Safe
-    '@id': stencila:Safe
-    description: |
-      Execute the node if is considered safe to do so (e.g. no detected filesystem access),
-      or can be executed in a sandbox, otherwise generate a warning.
-  - const: Secure
-    '@id': stencila:Secure
-    description: |
-      Execute the node in a secure sandbox and generate a warning if that is not possible.
-  - const: Locked
-    '@id': stencila:Locked
+  - const: Lock
+    '@id': stencila:Lock
     description: |
       Do not execute the node. Requires that the node is unlocked first to be executed.
-  - const: Never
-    '@id': stencila:Never
-    description: |
-      Never execute the node. Same a `Locked` but used for `executionRecursion` property.

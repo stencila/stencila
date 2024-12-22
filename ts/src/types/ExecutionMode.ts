@@ -4,12 +4,9 @@
  */
 export type ExecutionMode =
   'Default' |
+  'Need' |
   'Always' |
   'Auto' |
-  'Needed' |
-  'Safe' |
-  'Secure' |
-  'Locked' |
-  'Never';
+  'Lock';
 
 

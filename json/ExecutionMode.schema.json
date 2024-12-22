@@ -133,6 +133,11 @@
       "const": "Default"
     },
     {
+      "@id": "stencila:Need",
+      "description": "Execute the node when needed (i.e. if it is stale) when the document or ancestor\nnode is executed.\n",
+      "const": "Need"
+    },
+    {
       "@id": "stencila:Always",
       "description": "Always execute the node when the document or ancestor node is executed.\nUse this for nodes that you want to always be executed, even if they, or\ntheir upstream dependencies, are not stale.\n",
       "const": "Always"
@@ -143,29 +148,9 @@
       "const": "Auto"
     },
     {
-      "@id": "stencila:Needed",
-      "description": "Execute the node when needed (i.e. if it is stale) when the document or ancestor\nnode is executed.\n",
-      "const": "Needed"
-    },
-    {
-      "@id": "stencila:Safe",
-      "description": "Execute the node if is considered safe to do so (e.g. no detected filesystem access),\nor can be executed in a sandbox, otherwise generate a warning.\n",
-      "const": "Safe"
-    },
-    {
-      "@id": "stencila:Secure",
-      "description": "Execute the node in a secure sandbox and generate a warning if that is not possible.\n",
-      "const": "Secure"
-    },
-    {
-      "@id": "stencila:Locked",
+      "@id": "stencila:Lock",
       "description": "Do not execute the node. Requires that the node is unlocked first to be executed.\n",
-      "const": "Locked"
-    },
-    {
-      "@id": "stencila:Never",
-      "description": "Never execute the node. Same a `Locked` but used for `executionRecursion` property.\n",
-      "const": "Never"
+      "const": "Lock"
     }
   ],
   "default": "Default"
