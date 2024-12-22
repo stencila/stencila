@@ -101,6 +101,7 @@ export class CodeChunk extends CodeExecutable {
       <div slot="body">
         <stencila-ui-node-execution-details
           type="CodeChunk"
+          node-id=${this.id}
           mode=${this.executionMode}
           .tags=${this.executionTags}
           status=${this.executionStatus}

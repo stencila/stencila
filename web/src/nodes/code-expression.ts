@@ -49,6 +49,7 @@ export class CodeExpression extends CodeExecutable {
       <div slot="body">
         <stencila-ui-node-execution-details
           type="CodeExpression"
+          node-id=${this.id}
           mode=${this.executionMode}
           .tags=${this.executionTags}
           status=${this.executionStatus}

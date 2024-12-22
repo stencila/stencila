@@ -25,7 +25,9 @@ export class InstructionInline extends Instruction {
       <div slot="body">
         <stencila-ui-node-execution-details
           type="InstructionInline"
+          node-id=${this.id}
           mode=${this.executionMode}
+          recursion=${this.executionRecursion}
           .tags=${this.executionTags}
           status=${this.executionStatus}
           required=${this.executionRequired}

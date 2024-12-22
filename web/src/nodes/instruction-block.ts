@@ -264,7 +264,9 @@ export class InstructionBlock extends Instruction {
       <div slot="body">
         <stencila-ui-node-execution-details
           type="InstructionBlock"
+          node-id=${this.id}
           mode=${this.executionMode}
+          recursion=${this.executionRecursion}
           .tags=${this.executionTags}
           status=${this.executionStatus}
           required=${this.executionRequired}
@@ -280,15 +282,13 @@ export class InstructionBlock extends Instruction {
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
 
-        ${this.renderProperties()}
-
         <slot name="model-parameters"></slot>
+
+        <slot name="prompt"></slot>
 
         <div class="border-t border-[${borderColour}]">
           <slot name="message"></slot>
         </div>
-
-        <slot name="prompt-provided"></slot>
 
         ${this.renderSuggestionsHeader()}
       </div>
@@ -322,39 +322,6 @@ export class InstructionBlock extends Instruction {
         </div>
       </div>
     </stencila-ui-block-on-demand>`
-  }
-
-  /**
-   * Render a ribbon style container with properties of the instruction
-   */
-  private renderProperties() {
-    const { borderColour, colour } = nodeUi('InstructionBlock')
-
-    const styles = apply(
-      'flex flex-row items-center',
-      'px-3 py-1.5',
-      `bg-[${colour}]`,
-      'text-xs leading-tight font-sans',
-      `border-t border-[${borderColour}]`,
-      'gap-x-3'
-    )
-
-    return html`
-      <div class=${styles}>
-        <span class="flex flex-row items-center grow">
-          <sl-tooltip content="Specified prompt">
-            <stencila-ui-icon class="text-base" name="at"></stencila-ui-icon>
-            <ui-node-text-input
-              class="ml-2 w-full"
-              card-type="InstructionBlock"
-              value=${this.prompt}
-              readonly
-              disabled
-            ></ui-node-text-input>
-          </sl-tooltip>
-        </span>
-      </div>
-    `
   }
 
   private renderSuggestionsHeader() {

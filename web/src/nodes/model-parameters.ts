@@ -263,7 +263,7 @@ export class ModelParameters extends Entity {
                   ></stencila-ui-icon>
                 </sl-tooltip>
               </div>
-              <div>${this.renderDropdown(ui)}</div>
+              ${this.renderDropdown(ui)}
             </sl-dropdown>
           </div>
         </div>
@@ -272,10 +272,12 @@ export class ModelParameters extends Entity {
   }
 
   renderDropdown(ui: NodeTypeUI) {
-    const headerClasses = apply('flex flex-row items-center gap-2 mt-6 mb-2')
+    const headerClasses = apply(
+      'flex flex-row items-center gap-2 mt-6 mb-2 text-xs'
+    )
     const weightsClasses = apply('items-center my-2 w-full')
     const rangeStyle = `
-      --sl-input-label-font-size-medium: 0.85rem;
+      --sl-input-label-font-size-medium: 0.75rem;
       --sl-color-primary-600: ${ui.textColour};
       --sl-color-primary-500: ${ui.borderColour};
       --track-color-active: ${ui.borderColour};
@@ -292,13 +294,13 @@ export class ModelParameters extends Entity {
 
     return html`
       <div class="border rounded border-[${ui.borderColour}] bg-white">
-        <div class="bg-[${ui.colour}]/30 min-w-[300px] p-4">
+        <div class="bg-[${ui.colour}]/20 min-w-[300px] p-4">
           <span class="${headerClasses} mt-0">
             <stencila-ui-icon
               class="text-lg"
               name="speedometer"
             ></stencila-ui-icon>
-            <span class="text-sm">Model selection weights</span>
+            Model selection weights
             ${help(
               'Weights used for selecting a model. Only apply if a model router is used.'
             )}
@@ -339,7 +341,7 @@ export class ModelParameters extends Entity {
               class="text-lg"
               name="arrowBarUp"
             ></stencila-ui-icon>
-            <span class="text-sm">Model selection minimum score</span>
+            Model selection minimum score
             ${help(
               'Minimum weighted score for random model selection. Use 100 to always select the highest scoring model. Only applies if a model router is used.'
             )}
@@ -359,7 +361,7 @@ export class ModelParameters extends Entity {
               class="text-lg"
               name="thermometer"
             ></stencila-ui-icon>
-            <span class="text-sm ml-3">Model inference temperature</span>
+            Model inference temperature
             ${help(
               'Amount of randomness in model suggestions. Use higher values for less analytical, more creative responses.'
             )}
@@ -379,7 +381,7 @@ export class ModelParameters extends Entity {
               class="text-lg"
               name="arrowRepeat"
             ></stencila-ui-icon>
-            <span class="text-sm">Suggestions per model</span>
+            Suggestions per model
             ${help('Number of suggestions made by each model')}
           </span>
           <sl-range

@@ -94,7 +94,9 @@ export class PromptBlock extends Executable {
       <div slot="body">
         <stencila-ui-node-execution-details
           type="PromptBlock"
+          node-id=${this.id}
           mode=${this.executionMode}
+          recursion=${null}
           .tags=${this.executionTags}
           status=${this.executionStatus}
           required=${this.executionRequired}

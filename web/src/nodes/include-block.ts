@@ -90,7 +90,9 @@ export class IncludeBlock extends Executable {
         <div slot="body">
           <stencila-ui-node-execution-details
             type="IncludeBlock"
+            node-id=${this.id}
             mode=${this.executionMode}
+            recursion=${this.executionRecursion}
             .tags=${this.executionTags}
             status=${this.executionStatus}
             required=${this.executionRequired}

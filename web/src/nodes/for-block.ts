@@ -66,7 +66,9 @@ export class ForBlock extends CodeExecutable {
         <div slot="body" class="h-full">
           <stencila-ui-node-execution-details
             type="ForBlock"
+            node-id=${this.id}
             mode=${this.executionMode}
+            recursion=${this.executionRecursion}
             .tags=${this.executionTags}
             status=${this.executionStatus}
             required=${this.executionRequired}

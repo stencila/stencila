@@ -18,6 +18,9 @@ export abstract class Executable extends Entity {
   @property({ attribute: 'execution-mode' })
   executionMode?: ExecutionMode
 
+  @property({ attribute: 'execution-recursion' })
+  executionRecursion?: ExecutionMode
+
   @property({ attribute: 'execution-tags', type: Array })
   executionTags?: ExecutionTag[]
 
