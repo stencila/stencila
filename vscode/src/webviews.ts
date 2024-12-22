@@ -135,19 +135,27 @@ export async function createDocumentViewPanel(
 export async function createNodeViewPanel(
   context: vscode.ExtensionContext,
   documentUri: vscode.Uri,
-  position: vscode.Position,
-  nodeType: string
+  position: vscode.Position | null,
+  nodeType: string,
+  nodeId: string,
+  expandAuthors: boolean = false
 ): Promise<vscode.WebviewPanel> {
-  if (documentViewPanels.has(documentUri)) {
-    const panel = documentViewPanels.get(documentUri) as vscode.WebviewPanel;
+  const uri = documentUri.with({ fragment: nodeId });
+
+  if (documentViewPanels.has(uri)) {
+    const panel = documentViewPanels.get(uri) as vscode.WebviewPanel;
     panel.reveal();
 
     return panel;
   }
 
+  const title = position
+    ? `${nodeType} at ${path.basename(uri.fsPath)}:${position.line + 1}`
+    : `${nodeType} in ${path.basename(uri.fsPath)}`;
+
   const panel = vscode.window.createWebviewPanel(
     "node-view",
-    `${nodeType} at ${path.basename(documentUri.fsPath)}:${position.line + 1}`,
+    title,
     vscode.ViewColumn.Beside,
     {
       enableScripts: true,
@@ -158,7 +166,15 @@ export async function createNodeViewPanel(
     }
   );
 
-  initializeWebViewPanel(context, documentUri, panel);
+  initializeWebViewPanel(context, uri, panel);
+
+  if (expandAuthors) {
+    panel.webview.postMessage({
+      type: "view-node",
+      nodeId,
+      expandAuthors,
+    });
+  }
 
   return panel;
 }
