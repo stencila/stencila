@@ -1,7 +1,7 @@
 use codec_info::{lost_exec_options, lost_options};
 use codec_markdown_trait::to_markdown;
 
-use crate::{prelude::*, CodeChunk, Duration, LabelType, Timestamp};
+use crate::{prelude::*, CodeChunk, Duration, ExecutionMode, LabelType, Timestamp};
 
 use super::utils::caption_to_dom;
 
@@ -196,12 +196,14 @@ impl MarkdownCodec for CodeChunk {
                         );
                     }
 
-                    if let Some(execution_mode) = &self.execution_mode {
-                        context.myst_directive_option(
-                            NodeProperty::ExecutionMode,
-                            Some("mode"),
-                            &execution_mode.to_string().to_lowercase(),
-                        );
+                    if let Some(mode) = &self.execution_mode {
+                        if !matches!(mode, ExecutionMode::Default) {
+                            context.myst_directive_option(
+                                NodeProperty::ExecutionMode,
+                                Some("mode"),
+                                &mode.to_string().to_lowercase(),
+                            );
+                        }
                     }
 
                     if let Some(label_type) = &self.label_type {
@@ -338,10 +340,12 @@ impl MarkdownCodec for CodeChunk {
             }
 
             if let Some(mode) = &self.execution_mode {
-                context.push_str(" ").push_prop_str(
-                    NodeProperty::ExecutionMode,
-                    &mode.to_string().to_lowercase(),
-                );
+                if !matches!(mode, ExecutionMode::Default) {
+                    context.push_str(" ").push_prop_str(
+                        NodeProperty::ExecutionMode,
+                        &mode.to_string().to_lowercase(),
+                    );
+                }
             }
 
             context

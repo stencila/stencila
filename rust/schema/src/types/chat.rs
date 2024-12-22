@@ -60,11 +60,17 @@ pub struct Chat {
     #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,
 
-    /// Under which circumstances the code should be executed.
+    /// Under which circumstances the node should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub execution_mode: Option<ExecutionMode>,
+
+    /// Under which circumstances child nodes should be executed.
+    #[serde(alias = "execution-recursion", alias = "execution_recursion")]
+    #[strip(execution)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    pub execution_recursion: Option<ExecutionMode>,
 
     /// Model selection and inference parameters.
     #[serde(alias = "model-parameters", alias = "model_parameters", alias = "model-params", alias = "model_params", alias = "model-pars", alias = "model_pars", alias = "model")]

@@ -6,10 +6,18 @@ abstract: true
 description: Abstract base type for executable nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
 core:
   - executionMode
+  - executionRecursion
 properties:
   executionMode:
     '@id': stencila:executionMode
-    description: Under which circumstances the code should be executed.
+    description: Under which circumstances the node should be executed.
+    $ref: ExecutionMode
+    strip: [execution]
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+  executionRecursion:
+    '@id': stencila:executionRecursion
+    description: Under which circumstances child nodes should be executed.
     $ref: ExecutionMode
     strip: [execution]
     patch:

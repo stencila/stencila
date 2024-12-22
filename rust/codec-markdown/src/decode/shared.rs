@@ -34,15 +34,21 @@ pub(super) fn name<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
 }
 
 /// Parse a execution mode
-pub(super) fn execution_mode(input: &mut &str) -> PResult<ExecutionMode> {
-    alt(("always", "auto", "locked", "lock"))
-        .map(|typ| match typ {
-            "always" => ExecutionMode::Always,
-            "auto" => ExecutionMode::Auto,
-            "locked" | "lock" => ExecutionMode::Locked,
-            _ => unreachable!(),
-        })
-        .parse_next(input)
+pub(super) fn execution_mode(input: &mut Located<&str>) -> PResult<ExecutionMode> {
+    alt((
+        "always", "auto", "lock", "locked", "needed", "never", "safe", "secure",
+    ))
+    .map(|typ| match typ {
+        "always" => ExecutionMode::Always,
+        "auto" => ExecutionMode::Auto,
+        "locked" | "lock" => ExecutionMode::Locked,
+        "needed" => ExecutionMode::Needed,
+        "never" => ExecutionMode::Never,
+        "safe" => ExecutionMode::Safe,
+        "secure" => ExecutionMode::Secure,
+        _ => unreachable!(),
+    })
+    .parse_next(input)
 }
 
 /// Parse an instruction type

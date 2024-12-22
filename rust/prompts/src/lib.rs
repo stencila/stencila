@@ -386,14 +386,14 @@ async fn update_builtin() -> Result<()> {
 /// Select the most appropriate prompt for an instruction
 pub async fn select(
     instruction_type: &InstructionType,
-    message: &Option<InstructionMessage>,
-    prompt: &Option<String>,
+    message: &InstructionMessage,
+    prompt: &str,
     _node_types: &Option<Vec<String>>,
 ) -> Result<PromptInstance> {
     let prompts = list().await;
 
     // If there is a prompt specified then get it
-    if let Some(prompt) = prompt {
+    if !prompt.is_empty() {
         return get(prompt, instruction_type).await;
     }
 
@@ -403,17 +403,14 @@ pub async fn select(
         .filter(|prompt| prompt.instruction_types.contains(instruction_type));
 
     // Get the text of the message to match prompts against
-    let message_text = match message {
-        Some(message) => message
-            .parts
-            .iter()
-            .filter_map(|part| match part {
-                MessagePart::Text(text) => Some(text.value.string.clone()),
-                _ => None,
-            })
-            .join(""),
-        None => String::new(),
-    };
+    let message_text = message
+        .parts
+        .iter()
+        .filter_map(|part| match part {
+            MessagePart::Text(text) => Some(text.value.string.clone()),
+            _ => None,
+        })
+        .join("");
 
     // Count the number of characters in the instruction message that are matched by
     // each of the patterns in each of the candidates
@@ -450,23 +447,22 @@ pub async fn execute_instruction_block(
     )];
 
     // Add a user message for the instruction
-    if let Some(message) = instruction.message.clone() {
-        let parts = message
-            .parts
-            .into_iter()
-            .map(|part| {
-                // Ensure that any images in the message are fully resolved
-                Ok(match part {
-                    MessagePart::ImageObject(image) => MessagePart::ImageObject(ImageObject {
-                        content_url: ensure_http_or_data_uri(&image.content_url)?,
-                        ..image
-                    }),
-                    _ => part,
-                })
+    let message = instruction.message.clone();
+    let parts = message
+        .parts
+        .into_iter()
+        .map(|part| {
+            // Ensure that any images in the message are fully resolved
+            Ok(match part {
+                MessagePart::ImageObject(image) => MessagePart::ImageObject(ImageObject {
+                    content_url: ensure_http_or_data_uri(&image.content_url)?,
+                    ..image
+                }),
+                _ => part,
             })
-            .collect::<Result<_>>()?;
-        messages.push(InstructionMessage { parts, ..message })
-    }
+        })
+        .collect::<Result<_>>()?;
+    messages.push(InstructionMessage { parts, ..message });
 
     // If the instruction type is `Fix` and the first block in the content
     // (usually there is only one!) has errors or warnings then add a message for those.

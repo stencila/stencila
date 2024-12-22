@@ -149,8 +149,8 @@ impl Select {
     async fn run(self) -> Result<()> {
         let prompt = super::select(
             &self.r#type,
-            &Some(InstructionMessage::from(self.message)),
-            &None,
+            &InstructionMessage::from(self.message),
+            "",
             &None,
         )
         .await?;

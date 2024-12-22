@@ -241,13 +241,17 @@ class ExecutionKind(StrEnum):
 
 class ExecutionMode(StrEnum):
     """
-    Under which circumstances the document node should be executed.
+    Under which circumstances a node should be executed.
     """
 
+    Default = "Default"
     Always = "Always"
     Auto = "Auto"
-    Necessary = "Necessary"
+    Needed = "Needed"
+    Safe = "Safe"
+    Secure = "Secure"
     Locked = "Locked"
+    Never = "Never"
 
 
 class ExecutionRequired(StrEnum):
@@ -588,7 +592,10 @@ class Executable(Entity):
     type: Literal["Executable"] = "Executable"
 
     execution_mode: ExecutionMode | None = None
-    """Under which circumstances the code should be executed."""
+    """Under which circumstances the node should be executed."""
+
+    execution_recursion: ExecutionMode | None = None
+    """Under which circumstances child nodes should be executed."""
 
     compilation_digest: CompilationDigest | None = None
     """A digest of the content, semantics and dependencies of the node."""
@@ -767,20 +774,14 @@ class Instruction(Executable):
     instruction_type: InstructionType
     """The type of instruction describing the operation to be performed."""
 
-    message: InstructionMessage | None = None
-    """The instruction message, possibly including images, audio, or other media."""
+    prompt: PromptBlock
+    """The prompt selected, rendered and provided to the model"""
 
-    prompt: str | None = None
-    """An identifier for the prompt to be used for the instruction"""
+    message: InstructionMessage
+    """The instruction message, possibly including images, audio, or other media."""
 
     model_parameters: ModelParameters
     """Model selection and inference parameters."""
-
-    recursion: str | None = None
-    """A string identifying which operations should, or should not, automatically be applied to generated suggestions."""
-
-    prompt_provided: PromptBlock | None = None
-    """The prompt chosen, rendered and provided to the model"""
 
     active_suggestion: UnsignedInteger | None = None
     """The index of the suggestion that is currently active"""

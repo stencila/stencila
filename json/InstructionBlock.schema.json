@@ -19,15 +19,15 @@
   "required": [
     "type",
     "instructionType",
+    "prompt",
+    "message",
     "modelParameters"
   ],
   "core": [
     "id",
     "executionMode",
-    "message",
-    "prompt",
-    "replicates",
-    "recursion",
+    "executionRecursion",
+    "activeSuggestion",
     "content",
     "suggestions",
     "activeSuggestion"
@@ -53,10 +53,31 @@
     },
     "executionMode": {
       "@id": "stencila:executionMode",
-      "description": "Under which circumstances the code should be executed.",
+      "description": "Under which circumstances the node should be executed.",
       "aliases": [
         "execution-mode",
         "execution_mode"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "$ref": "ExecutionMode.schema.json"
+    },
+    "executionRecursion": {
+      "@id": "stencila:executionRecursion",
+      "description": "Under which circumstances child nodes should be executed.",
+      "aliases": [
+        "execution-recursion",
+        "execution_recursion"
       ],
       "strip": [
         "execution"
@@ -310,6 +331,17 @@
       ],
       "$ref": "InstructionType.schema.json"
     },
+    "prompt": {
+      "@id": "stencila:prompt",
+      "description": "The prompt selected, rendered and provided to the model",
+      "serde": {
+        "default": true
+      },
+      "dom": {
+        "elem": "div"
+      },
+      "$ref": "PromptBlock.schema.json"
+    },
     "message": {
       "@id": "stencila:message",
       "description": "The instruction message, possibly including images, audio, or other media.",
@@ -322,38 +354,13 @@
           "qmd"
         ]
       },
+      "serde": {
+        "default": true
+      },
       "dom": {
         "elem": "div"
       },
       "$ref": "InstructionMessage.schema.json"
-    },
-    "prompt": {
-      "@id": "stencila:prompt",
-      "description": "An identifier for the prompt to be used for the instruction",
-      "patch": {
-        "formats": [
-          "md",
-          "smd",
-          "myst",
-          "ipynb",
-          "qmd"
-        ]
-      },
-      "proptest": {
-        "min": {
-          "description": "No prompt",
-          "value": "None"
-        },
-        "high": {
-          "description": "Generate an arbitrary id using expected characters",
-          "strategy": "option::of(r\"[a-zA-Z][a-zA-Z\\-_/.@]\")"
-        },
-        "max": {
-          "description": "Generate an arbitrary prompt id using any characters",
-          "strategy": "option::of(String::arbitrary())"
-        }
-      },
-      "type": "string"
     },
     "modelParameters": {
       "@id": "stencila:modelParameters",
@@ -383,35 +390,6 @@
         "elem": "div"
       },
       "$ref": "ModelParameters.schema.json"
-    },
-    "recursion": {
-      "@id": "stencila:recursion",
-      "description": "A string identifying which operations should, or should not, automatically be applied to generated suggestions.",
-      "patch": {
-        "formats": [
-          "md",
-          "smd",
-          "myst",
-          "ipynb",
-          "qmd"
-        ]
-      },
-      "$ref": "String.schema.json"
-    },
-    "promptProvided": {
-      "@id": "stencila:promptProvided",
-      "description": "The prompt chosen, rendered and provided to the model",
-      "aliases": [
-        "prompt-provided",
-        "prompt_provided"
-      ],
-      "patch": {
-        "formats": []
-      },
-      "dom": {
-        "elem": "div"
-      },
-      "$ref": "PromptBlock.schema.json"
     },
     "activeSuggestion": {
       "@id": "stencila:activeSuggestion",

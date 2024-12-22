@@ -16,7 +16,8 @@
   ],
   "core": [
     "id",
-    "executionMode"
+    "executionMode",
+    "executionRecursion"
   ],
   "properties": {
     "type": {
@@ -39,10 +40,31 @@
     },
     "executionMode": {
       "@id": "stencila:executionMode",
-      "description": "Under which circumstances the code should be executed.",
+      "description": "Under which circumstances the node should be executed.",
       "aliases": [
         "execution-mode",
         "execution_mode"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "$ref": "ExecutionMode.schema.json"
+    },
+    "executionRecursion": {
+      "@id": "stencila:executionRecursion",
+      "description": "Under which circumstances child nodes should be executed.",
+      "aliases": [
+        "execution-recursion",
+        "execution_recursion"
       ],
       "strip": [
         "execution"

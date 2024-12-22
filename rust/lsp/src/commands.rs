@@ -40,7 +40,7 @@ use node_find::find;
 use schema::{
     replicate, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, InstructionBlock,
     InstructionMessage, InstructionType, MessageRole, ModelParameters, NodeId, NodeProperty,
-    NodeType, Patch, PatchNode, PatchOp, PatchPath, PatchValue, Timestamp,
+    NodeType, Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock, Timestamp,
 };
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
@@ -431,11 +431,14 @@ pub(super) async fn execute_command(
                 .unwrap_or_default();
             let prompt = args
                 .next()
-                .and_then(|value| serde_json::from_value(value).ok());
+                .and_then(|value| serde_json::from_value(value).ok())
+                .map(|prompt| PromptBlock::new(prompt))
+                .unwrap_or_default();
             let message = args
                 .next()
                 .and_then(|value| serde_json::from_value(value).ok())
-                .map(|msg: String| InstructionMessage::from(msg));
+                .map(|msg: String| InstructionMessage::from(msg))
+                .unwrap_or_default();
             let model_parameters = args
                 .next()
                 .and_then(|value| serde_json::from_value(value).ok())
@@ -460,8 +463,8 @@ pub(super) async fn execute_command(
                 NodeType::InstructionBlock => Block::InstructionBlock(InstructionBlock {
                     instruction_type,
                     prompt,
-                    model_parameters,
                     message,
+                    model_parameters,
                     ..Default::default()
                 }),
                 _ => {

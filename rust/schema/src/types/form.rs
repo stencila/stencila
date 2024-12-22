@@ -36,11 +36,17 @@ pub struct Form {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// Under which circumstances the code should be executed.
+    /// Under which circumstances the node should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub execution_mode: Option<ExecutionMode>,
+
+    /// Under which circumstances child nodes should be executed.
+    #[serde(alias = "execution-recursion", alias = "execution_recursion")]
+    #[strip(execution)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    pub execution_recursion: Option<ExecutionMode>,
 
     /// The content within the form, usually containing at least one `Parameter`.
     #[serde(deserialize_with = "one_or_many")]

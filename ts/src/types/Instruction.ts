@@ -20,14 +20,14 @@ export class Instruction extends Executable {
   instructionType: InstructionType;
 
   /**
-   * The instruction message, possibly including images, audio, or other media.
+   * The prompt selected, rendered and provided to the model
    */
-  message?: InstructionMessage;
+  prompt: PromptBlock;
 
   /**
-   * An identifier for the prompt to be used for the instruction
+   * The instruction message, possibly including images, audio, or other media.
    */
-  prompt?: string;
+  message: InstructionMessage;
 
   /**
    * Model selection and inference parameters.
@@ -35,25 +35,17 @@ export class Instruction extends Executable {
   modelParameters: ModelParameters;
 
   /**
-   * A string identifying which operations should, or should not, automatically be applied to generated suggestions.
-   */
-  recursion?: string;
-
-  /**
-   * The prompt chosen, rendered and provided to the model
-   */
-  promptProvided?: PromptBlock;
-
-  /**
    * The index of the suggestion that is currently active
    */
   activeSuggestion?: UnsignedInteger;
 
-  constructor(instructionType: InstructionType, modelParameters: ModelParameters, options?: Partial<Instruction>) {
+  constructor(instructionType: InstructionType, prompt: PromptBlock, message: InstructionMessage, modelParameters: ModelParameters, options?: Partial<Instruction>) {
     super();
     this.type = "Instruction";
     if (options) Object.assign(this, options);
     this.instructionType = instructionType;
+    this.prompt = prompt;
+    this.message = message;
     this.modelParameters = modelParameters;
   }
 }
@@ -61,6 +53,6 @@ export class Instruction extends Executable {
 /**
 * Create a new `Instruction`
 */
-export function instruction(instructionType: InstructionType, modelParameters: ModelParameters, options?: Partial<Instruction>): Instruction {
-  return new Instruction(instructionType, modelParameters, options);
+export function instruction(instructionType: InstructionType, prompt: PromptBlock, message: InstructionMessage, modelParameters: ModelParameters, options?: Partial<Instruction>): Instruction {
+  return new Instruction(instructionType, prompt, message, modelParameters, options);
 }

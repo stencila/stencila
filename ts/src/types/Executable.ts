@@ -23,9 +23,14 @@ export class Executable extends Entity {
   type: "Executable";
 
   /**
-   * Under which circumstances the code should be executed.
+   * Under which circumstances the node should be executed.
    */
   executionMode?: ExecutionMode;
+
+  /**
+   * Under which circumstances child nodes should be executed.
+   */
+  executionRecursion?: ExecutionMode;
 
   /**
    * A digest of the content, semantics and dependencies of the node.

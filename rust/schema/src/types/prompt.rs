@@ -64,11 +64,17 @@ pub struct Prompt {
     #[strip(metadata)]
     pub version: StringOrNumber,
 
-    /// Under which circumstances the code should be executed.
+    /// Under which circumstances the node should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub execution_mode: Option<ExecutionMode>,
+
+    /// Under which circumstances child nodes should be executed.
+    #[serde(alias = "execution-recursion", alias = "execution_recursion")]
+    #[strip(execution)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    pub execution_recursion: Option<ExecutionMode>,
 
     /// The types of instructions that the prompt supports
     #[serde(alias = "instruction-types", alias = "instruction_types", alias = "instructionType", alias = "instruction-type", alias = "instruction_type")]

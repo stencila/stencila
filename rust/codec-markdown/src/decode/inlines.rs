@@ -17,8 +17,8 @@ use codec::{
         DateTimeValidator, DateValidator, DeleteInline, DurationValidator, Emphasis, EnumValidator,
         ImageObject, Inline, InsertInline, InstructionInline, InstructionMessage, IntegerValidator,
         Link, MathInline, ModifyInline, Node, NodeType, Note, NoteType, NumberValidator, Parameter,
-        ParameterOptions, QuoteInline, ReplaceInline, Strikeout, StringValidator, Strong,
-        StyledInline, Subscript, SuggestionInline, Superscript, Text, TimeValidator,
+        ParameterOptions, PromptBlock, QuoteInline, ReplaceInline, Strikeout, StringValidator,
+        Strong, StyledInline, Subscript, SuggestionInline, Superscript, Text, TimeValidator,
         TimestampValidator, Underline, Validator, VideoObject,
     },
 };
@@ -837,14 +837,19 @@ fn instruction_inline(input: &mut Located<&str>) -> PResult<Inline> {
         (opt(delimited('@', prompt, multispace1)), take_until_edit),
     )
         .map(|(instruction_type, (prompt, (text, term)))| {
-            let text = text.trim();
-            let message = (!text.is_empty()).then(|| InstructionMessage::from(text));
+            let prompt = prompt
+                .map(|id| PromptBlock::new(id.into()))
+                .unwrap_or_default();
+
+            let message = (!text.is_empty())
+                .then(|| InstructionMessage::from(text.trim()))
+                .unwrap_or_default();
 
             Inline::InstructionInline(InstructionInline {
                 instruction_type,
+                prompt,
                 message,
                 content: (term == EDIT_WITH).then_some(Vec::new()),
-                prompt: prompt.map(|handle| handle.to_string()),
                 ..Default::default()
             })
         })

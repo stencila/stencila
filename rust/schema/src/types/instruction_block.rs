@@ -43,28 +43,34 @@ pub struct InstructionBlock {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// Under which circumstances the code should be executed.
+    /// Under which circumstances the node should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
+
+    /// Under which circumstances child nodes should be executed.
+    #[serde(alias = "execution-recursion", alias = "execution_recursion")]
+    #[strip(execution)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub execution_recursion: Option<ExecutionMode>,
 
     /// The type of instruction describing the operation to be performed.
     #[serde(alias = "instruction-type", alias = "instruction_type")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub instruction_type: InstructionType,
 
-    /// The instruction message, possibly including images, audio, or other media.
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    /// The prompt selected, rendered and provided to the model
+    #[serde(default)]
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[dom(elem = "div")]
-    pub message: Option<InstructionMessage>,
+    pub prompt: PromptBlock,
 
-    /// An identifier for the prompt to be used for the instruction
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(value = r#"None"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
-    pub prompt: Option<String>,
+    /// The instruction message, possibly including images, audio, or other media.
+    #[serde(default)]
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[dom(elem = "div")]
+    pub message: InstructionMessage,
 
     /// Model selection and inference parameters.
     #[serde(alias = "model-parameters", alias = "model_parameters", alias = "model-params", alias = "model_params", alias = "model-pars", alias = "model_pars", alias = "model")]
@@ -72,10 +78,6 @@ pub struct InstructionBlock {
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[dom(elem = "div")]
     pub model_parameters: Box<ModelParameters>,
-
-    /// A string identifying which operations should, or should not, automatically be applied to generated suggestions.
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub recursion: Option<String>,
 
     /// The index of the suggestion that is currently active
     #[serde(alias = "active-suggestion", alias = "active_suggestion")]
@@ -215,12 +217,6 @@ pub struct InstructionBlockOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
-
-    /// The prompt chosen, rendered and provided to the model
-    #[serde(alias = "prompt-provided", alias = "prompt_provided")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "div")]
-    pub prompt_provided: Option<PromptBlock>,
 }
 
 impl InstructionBlock {
@@ -234,9 +230,11 @@ impl InstructionBlock {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(instruction_type: InstructionType, model_parameters: Box<ModelParameters>) -> Self {
+    pub fn new(instruction_type: InstructionType, prompt: PromptBlock, message: InstructionMessage, model_parameters: Box<ModelParameters>) -> Self {
         Self {
             instruction_type,
+            prompt,
+            message,
             model_parameters,
             ..Default::default()
         }

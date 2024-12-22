@@ -35,6 +35,18 @@
       }
     },
     {
+      "@id": "stencila:executionRecursion",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionRecursion",
+      "rdfs:comment": "Under which circumstances child nodes should be executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionMode"
+      }
+    },
+    {
       "@id": "stencila:compilationDigest",
       "@type": "rdfs:Property",
       "rdfs:label": "compilationDigest",

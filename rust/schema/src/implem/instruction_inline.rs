@@ -70,18 +70,20 @@ impl MarkdownCodec for InstructionInline {
             .merge_losses(lost_options!(self, id, execution_mode))
             .merge_losses(lost_exec_options!(self))
             .push_str("[[")
-            .push_str(self.instruction_type.to_string().to_lowercase().as_str())
+            .push_prop_str(
+                NodeProperty::InstructionType,
+                self.instruction_type.to_string().to_lowercase().as_str(),
+            )
             .push_str(" ");
 
-        if let Some(prompt) = &self.prompt {
-            context.push_str("@").push_str(prompt).push_str(" ");
-        }
+        context
+            .push_str("@")
+            .push_prop_str(NodeProperty::Prompt, &self.prompt.prompt)
+            .push_str(" ");
 
-        if let Some(message) = &self.message {
-            context.push_prop_fn(NodeProperty::Message, |context| {
-                message.to_markdown(context)
-            });
-        }
+        context.push_prop_fn(NodeProperty::Message, |context| {
+            self.message.to_markdown(context)
+        });
 
         if let Some(content) = &self.content {
             context

@@ -21,7 +21,7 @@
       "@id": "stencila:executionMode",
       "@type": "rdfs:Property",
       "rdfs:label": "executionMode",
-      "rdfs:comment": "Under which circumstances the code should be executed.",
+      "rdfs:comment": "Under which circumstances the node should be executed.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:CodeExpression"
@@ -30,6 +30,18 @@
           "@id": "stencila:Executable"
         }
       ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionMode"
+      }
+    },
+    {
+      "@id": "stencila:executionRecursion",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionRecursion",
+      "rdfs:comment": "Under which circumstances child nodes should be executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
       "schema:rangeIncludes": {
         "@id": "stencila:ExecutionMode"
       }

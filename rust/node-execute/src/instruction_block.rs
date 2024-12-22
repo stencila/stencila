@@ -9,8 +9,8 @@ use common::{
     tokio,
 };
 use schema::{
-    Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, CompilationDigest, InstructionBlock,
-    PromptBlock, SoftwareApplication,
+    Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, CompilationDigest, ExecutionMode,
+    InstructionBlock, PromptBlock, SoftwareApplication,
 };
 
 use crate::{interrupt_impl, prelude::*};
@@ -33,10 +33,7 @@ impl Executable for InstructionBlock {
             &mut state_digest,
             self.message.to_cbor().unwrap_or_default().as_slice(),
         );
-        add_to_digest(
-            &mut state_digest,
-            self.prompt.clone().unwrap_or_default().as_bytes(),
-        );
+        add_to_digest(&mut state_digest, self.prompt.prompt.clone().as_bytes());
         add_to_digest(
             &mut state_digest,
             self.model_parameters
@@ -152,7 +149,7 @@ impl Executable for InstructionBlock {
         let prompt = match prompts::select(
             &self.instruction_type,
             &self.message,
-            &self.prompt,
+            &self.prompt.prompt,
             &Some(node_types),
         )
         .await
@@ -178,13 +175,10 @@ impl Executable for InstructionBlock {
         };
         let prompt_id = prompt.id.clone().unwrap_or_default();
 
-        // Create a new `PromptBlock` to render the prompt and patch it to `prompt_provided`
+        // Create a new `PromptBlock` to render the prompt and patch it to `prompt`
         // so that when it is executed it gets patched
         let mut prompt_block = PromptBlock::new(prompt_id);
-        executor.patch(
-            &node_id,
-            [set(NodeProperty::PromptProvided, prompt_block.clone())],
-        );
+        executor.patch(&node_id, [set(NodeProperty::Prompt, prompt_block.clone())]);
 
         // Execute the `PromptBlock`. The instruction context needs to
         // be set for the prompt context to be complete (i.e. include `instruction` variable)
@@ -205,13 +199,11 @@ impl Executable for InstructionBlock {
 
         // Get the authors of the instruction
         let mut instructors = Vec::new();
-        if let Some(message) = &self.message {
-            for author in message.authors.iter().flatten() {
-                instructors.push(AuthorRole {
-                    last_modified: Some(Timestamp::now()),
-                    ..author.clone().into_author_role(AuthorRoleName::Instructor)
-                });
-            }
+        for author in self.message.authors.iter().flatten() {
+            instructors.push(AuthorRole {
+                last_modified: Some(Timestamp::now()),
+                ..author.clone().into_author_role(AuthorRoleName::Instructor)
+            });
         }
 
         // Unless specified, clear existing suggestions
@@ -248,8 +240,7 @@ impl Executable for InstructionBlock {
 
         // Wait for each future, adding the suggestion (or error message) to the instruction
         // as it arrives, and then (optionally) executing the suggestion
-        let recursion = self.recursion.as_deref().unwrap_or_default();
-        let run = recursion.contains("run") && !recursion.contains("!run");
+        let recursion = self.execution_recursion.clone().unwrap_or_default();
         while let Some(result) = futures.next().await {
             match result {
                 Ok(mut suggestion) => {
@@ -258,7 +249,7 @@ impl Executable for InstructionBlock {
                         [push(NodeProperty::Suggestions, suggestion.clone())],
                     );
 
-                    if run {
+                    if !matches!(recursion, ExecutionMode::Never) {
                         let mut fork = executor.fork_for_all();
                         tokio::spawn(async move {
                             if let Err(error) = fork.compile_prepare_execute(&mut suggestion).await

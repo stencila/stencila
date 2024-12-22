@@ -863,46 +863,58 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
             (']', multispace0),
         )),
         delimited(multispace0, model_parameters, multispace0),
+        opt(delimited(multispace0, execution_mode, multispace0)),
+        opt(delimited('/', execution_mode, multispace0)),
         opt(take_while(0.., |_| true)),
     )
-        .map(|(instruction_type, prompt, model_ids, options, message)| {
-            let prompt = prompt.map(String::from);
+        .map(
+            |(
+                instruction_type,
+                prompt,
+                model_ids,
+                model_parameters,
+                execution_mode,
+                execution_recursion,
+                message,
+            )| {
+                let prompt = prompt
+                    .map(|prompt| PromptBlock::new(prompt.into()))
+                    .unwrap_or_default();
 
-            let model_ids =
-                model_ids.map(|ids| ids.split(",").map(|id| id.trim().to_string()).collect());
+                let model_ids =
+                    model_ids.map(|ids| ids.split(",").map(|id| id.trim().to_string()).collect());
 
-            let (message, capacity) = match message {
-                Some(message) => {
-                    let message = message.trim();
-                    let (message, capacity) = if let Some(message) = message.strip_suffix(":::") {
-                        (message.trim_end(), None)
-                    } else if let Some(message) = message.strip_suffix(">>>") {
-                        (message.trim_end(), Some(1))
-                    } else {
-                        (message, Some(2))
-                    };
+                let (message, capacity) = match message {
+                    Some(message) => {
+                        let message = message.trim();
+                        let (message, capacity) = if let Some(message) = message.strip_suffix(":::")
+                        {
+                            (message.trim_end(), None)
+                        } else if let Some(message) = message.strip_suffix(">>>") {
+                            (message.trim_end(), Some(1))
+                        } else {
+                            (message, Some(2))
+                        };
 
-                    ((!message.is_empty()).then_some(message), capacity)
-                }
-                None => (None, Some(2)),
-            };
+                        ((!message.is_empty()).then_some(message), capacity)
+                    }
+                    None => (None, Some(2)),
+                };
 
-            let message = message.map(string_to_instruction_message);
+                let message = message
+                    .map(string_to_instruction_message)
+                    .unwrap_or_default();
 
-            let content = capacity.map(Vec::with_capacity);
+                let content = capacity.map(Vec::with_capacity);
 
-            let mut recursion = Vec::new();
-            let mut replicates: Option<u64> = None;
-            let mut quality_weight: Option<u64> = None;
-            let mut speed_weight: Option<u64> = None;
-            let mut cost_weight: Option<u64> = None;
-            let mut minimum_score: Option<u64> = None;
-            let mut temperature: Option<u64> = None;
-            let mut random_seed: Option<i64> = None;
-            for option in options {
-                if matches!(option, "run" | "!run") {
-                    recursion.push(option);
-                } else {
+                let mut replicates: Option<u64> = None;
+                let mut quality_weight: Option<u64> = None;
+                let mut speed_weight: Option<u64> = None;
+                let mut cost_weight: Option<u64> = None;
+                let mut minimum_score: Option<u64> = None;
+                let mut temperature: Option<u64> = None;
+                let mut random_seed: Option<i64> = None;
+                for option in model_parameters {
                     let mut chars = option.chars();
                     let letter = chars.next().expect("Should be at least one char");
                     let value = chars.collect::<String>().parse().ok();
@@ -917,31 +929,30 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                         _ => {}
                     };
                 }
-            }
-            let recursion = (!recursion.is_empty()).then_some(recursion.join(" "));
+                let model_parameters = Box::new(ModelParameters {
+                    model_ids,
+                    replicates,
+                    quality_weight,
+                    cost_weight,
+                    speed_weight,
+                    minimum_score,
+                    temperature,
+                    random_seed,
+                    ..Default::default()
+                });
 
-            let model_parameters = Box::new(ModelParameters {
-                model_ids,
-                replicates,
-                quality_weight,
-                cost_weight,
-                speed_weight,
-                minimum_score,
-                temperature,
-                random_seed,
-                ..Default::default()
-            });
-
-            Block::InstructionBlock(InstructionBlock {
-                instruction_type,
-                message,
-                content,
-                prompt,
-                recursion,
-                model_parameters,
-                ..Default::default()
-            })
-        })
+                Block::InstructionBlock(InstructionBlock {
+                    instruction_type,
+                    prompt,
+                    message,
+                    model_parameters,
+                    content,
+                    execution_mode,
+                    execution_recursion,
+                    ..Default::default()
+                })
+            },
+        )
         .parse_next(input)
 }
 
@@ -1563,15 +1574,28 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
             ..Default::default()
         }),
         "create" | "edit" | "fix" | "describe" => {
+            let prompt = options
+                .get("prompt")
+                .map(|value| PromptBlock::new(value.to_string()))
+                .unwrap_or_default();
+
             // Use deserialization aliases inherent in schema to permissively
             // parse model_parameters
             let model_parameters = serde_json::from_value(json!(options)).unwrap_or_default();
 
+            let execution_mode = options.get("mode").and_then(|value| value.parse().ok());
+
+            let execution_recursion = options
+                .get("recursion")
+                .and_then(|value| value.parse().ok());
+
             Block::InstructionBlock(InstructionBlock {
                 instruction_type: name.parse().unwrap_or_default(),
-                message: args.map(InstructionMessage::from),
-                prompt: options.get("prompt").map(|value| value.to_string()),
+                prompt,
+                message: args.map(InstructionMessage::from).unwrap_or_default(),
                 model_parameters,
+                execution_mode,
+                execution_recursion,
                 content: if !value.trim().is_empty() {
                     Some(decode_blocks(&value, context))
                 } else {
@@ -1633,15 +1657,15 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
                 .to_string();
             (!lang.is_empty()).then_some(lang)
         });
-        let mut meta = meta.strip_prefix("exec").unwrap_or_default().trim();
+        let meta = meta.strip_prefix("exec").unwrap_or_default().trim();
 
         let (is_invisible, execution_mode) = if meta.contains("invisible") {
             (
                 Some(true),
-                execution_mode(&mut meta.replace("invisible", "").trim()).ok(),
+                execution_mode(&mut Located::new(meta.replace("invisible", "").trim())).ok(),
             )
         } else {
-            (None, execution_mode(&mut meta).ok())
+            (None, execution_mode(&mut Located::new(meta)).ok())
         };
 
         let mut label_automatically = None;

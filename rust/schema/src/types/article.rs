@@ -154,12 +154,19 @@ pub struct Article {
     #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,
 
-    /// Under which circumstances the code should be executed.
+    /// Under which circumstances the node should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
+
+    /// Under which circumstances child nodes should be executed.
+    #[serde(alias = "execution-recursion", alias = "execution_recursion")]
+    #[strip(execution)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub execution_recursion: Option<ExecutionMode>,
 
     /// Configuration options for the document.
     #[strip(metadata)]

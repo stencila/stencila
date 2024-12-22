@@ -49,6 +49,13 @@ pub struct CodeExpression {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
 
+    /// Under which circumstances child nodes should be executed.
+    #[serde(alias = "execution-recursion", alias = "execution_recursion")]
+    #[strip(execution)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub execution_recursion: Option<ExecutionMode>,
+
     /// The code.
     #[strip(code)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]

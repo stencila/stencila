@@ -1,7 +1,7 @@
 use codec_info::{lost_exec_options, lost_options};
 use common::{eyre::Ok, tracing};
 
-use crate::{merge, patch, prelude::*, InstructionBlock, InstructionType, Node};
+use crate::{merge, patch, prelude::*, ExecutionMode, InstructionBlock, InstructionType, Node};
 
 /// Implementation of [`PatchNode`] for [`InstructionBlock`] to customize diffing and
 /// patching from Markdown-based formats
@@ -43,9 +43,8 @@ impl PatchNode for InstructionBlock {
         let mut values = vec![
             compare_property!(instruction_type),
             compare_property!(prompt),
-            compare_property!(model_parameters),
-            compare_property!(recursion),
             compare_property!(message),
+            compare_property!(model_parameters),
         ];
 
         if context
@@ -101,9 +100,8 @@ impl PatchNode for InstructionBlock {
 
         diff_property!(InstructionType, instruction_type);
         diff_property!(Prompt, prompt);
-        diff_property!(ModelParameters, model_parameters);
-        diff_property!(Recursion, recursion);
         diff_property!(Message, message);
+        diff_property!(ModelParameters, model_parameters);
 
         if context
             .format
@@ -173,14 +171,14 @@ impl PatchNode for InstructionBlock {
         patch_properties!(
             // Core
             (ExecutionMode, self.execution_mode),
+            (ExecutionRecursion, self.execution_recursion),
             (InstructionType, self.instruction_type),
-            (Message, self.message),
             (Prompt, self.prompt),
+            (Message, self.message),
             (ModelParameters, self.model_parameters),
-            (Recursion, self.recursion),
+            (ActiveSuggestion, self.active_suggestion),
             (Content, self.content),
             (Suggestions, self.suggestions),
-            (ActiveSuggestion, self.active_suggestion),
             // Options
             (CompilationDigest, self.options.compilation_digest),
             (CompilationMessages, self.options.compilation_messages),
@@ -196,7 +194,6 @@ impl PatchNode for InstructionBlock {
             (ExecutionEnded, self.options.execution_ended),
             (ExecutionDuration, self.options.execution_duration),
             (ExecutionMessages, self.options.execution_messages),
-            (PromptProvided, self.options.prompt_provided),
         );
 
         Ok(false)
@@ -421,11 +418,11 @@ impl PatchNode for InstructionBlock {
         apply_properties!(
             // Core
             (ExecutionMode, self.execution_mode),
+            (ExecutionRecursion, self.execution_recursion),
             (InstructionType, self.instruction_type),
-            (Message, self.message),
             (Prompt, self.prompt),
+            (Message, self.message),
             (ModelParameters, self.model_parameters),
-            (Recursion, self.recursion),
             (Content, self.content),
             (Suggestions, self.suggestions),
             // Options
@@ -443,7 +440,6 @@ impl PatchNode for InstructionBlock {
             (ExecutionEnded, self.options.execution_ended),
             (ExecutionDuration, self.options.execution_duration),
             (ExecutionMessages, self.options.execution_messages),
-            (PromptProvided, self.options.prompt_provided),
         )
     }
 }
@@ -484,21 +480,39 @@ impl MarkdownCodec for InstructionBlock {
                     ':',
                     &instruction_type,
                     |context| {
-                        if let Some(message) = &self.message {
-                            context
-                                .push_str(" ")
-                                .push_prop_fn(NodeProperty::Message, |context| {
-                                    message.to_markdown(context)
-                                });
-                        }
+                        context
+                            .push_str(" ")
+                            .push_prop_fn(NodeProperty::Message, |context| {
+                                self.message.to_markdown(context)
+                            });
                     },
                     |context| {
-                        if let Some(prompt) = &self.prompt {
+                        if !self.prompt.prompt.is_empty() {
                             context.myst_directive_option(
                                 NodeProperty::Prompt,
                                 Some("prompt"),
-                                prompt,
+                                &self.prompt.prompt,
                             );
+                        }
+
+                        if let Some(mode) = &self.execution_mode {
+                            if !matches!(mode, ExecutionMode::Default) {
+                                context.myst_directive_option(
+                                    NodeProperty::ExecutionMode,
+                                    Some("mode"),
+                                    &mode.to_string().to_lowercase(),
+                                );
+                            }
+                        }
+
+                        if let Some(mode) = &self.execution_recursion {
+                            if !matches!(mode, ExecutionMode::Default) {
+                                context.myst_directive_option(
+                                    NodeProperty::ExecutionRecursion,
+                                    Some("recursion"),
+                                    &mode.to_string().to_lowercase(),
+                                );
+                            }
                         }
 
                         context.push_prop_fn(NodeProperty::ModelParameters, |context| {
@@ -539,26 +553,50 @@ impl MarkdownCodec for InstructionBlock {
         context
             .push_colons()
             .push_str(" ")
-            .push_str(&instruction_type)
+            .push_prop_str(NodeProperty::InstructionType, &instruction_type)
             .push_str(" ");
 
-        if let Some(prompt) = &self.prompt {
-            context.push_str("@").push_str(prompt).push_str(" ");
+        if !self.prompt.prompt.is_empty() {
+            context
+                .push_str("@")
+                .push_prop_str(NodeProperty::Prompt, &self.prompt.prompt)
+                .push_str(" ");
         }
 
         context.push_prop_fn(NodeProperty::ModelParameters, |context| {
             self.model_parameters.to_markdown(context);
         });
 
-        if let Some(recursion) = &self.recursion {
-            context.push_str(&recursion.to_string()).push_str(" ");
+        if let Some(mode) = &self.execution_mode {
+            if !matches!(mode, ExecutionMode::Default) {
+                context.push_prop_str(
+                    NodeProperty::ExecutionMode,
+                    &mode.to_string().to_lowercase(),
+                );
+                if matches!(
+                    self.execution_recursion,
+                    None | Some(ExecutionMode::Default)
+                ) {
+                    context.push_str(" ");
+                }
+            }
         }
 
-        if let Some(message) = &self.message {
-            context.push_prop_fn(NodeProperty::Message, |context| {
-                message.to_markdown(context)
-            });
+        if let Some(mode) = &self.execution_recursion {
+            if !matches!(mode, ExecutionMode::Default) {
+                context
+                    .push_str("/")
+                    .push_prop_str(
+                        NodeProperty::ExecutionRecursion,
+                        &mode.to_string().to_lowercase(),
+                    )
+                    .push_str(" ");
+            }
         }
+
+        context.push_prop_fn(NodeProperty::Message, |context| {
+            self.message.to_markdown(context)
+        });
 
         // Show the active suggestion (if any) falling back to content (if any)
         let suggestions_count = self.suggestions.iter().flatten().count() as u64;

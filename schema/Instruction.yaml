@@ -6,41 +6,34 @@ category: edits
 description: Abstract base type for a document editing instruction.
 required:
   - instructionType
+  - prompt
+  - message
   - modelParameters
 core:
-  - message
-  - prompt
-  - replicates
-  - recursion
+  - activeSuggestion
 properties:
   instructionType:
     "@id": stencila:instructionType
     description: The type of instruction describing the operation to be performed.
     $ref: InstructionType
+  prompt:
+    "@id": stencila:prompt
+    description: The prompt selected, rendered and provided to the model
+    $ref: PromptBlock
+    serde:
+      default: true
+    dom:
+      elem: div
   message:
     "@id": stencila:message
     description: The instruction message, possibly including images, audio, or other media.
     $ref: InstructionMessage
     patch:
       formats: [md, smd, myst, ipynb, qmd]
+    serde:
+      default: true
     dom:
       elem: div
-  prompt:
-    "@id": stencila:prompt
-    description: An identifier for the prompt to be used for the instruction
-    type: string
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
-    proptest:
-      min:
-        description: No prompt
-        value: None
-      high:
-        description: Generate an arbitrary id using expected characters
-        strategy: option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")
-      max:
-        description: Generate an arbitrary prompt id using any characters
-        strategy: option::of(String::arbitrary())
   modelParameters:
     "@id": stencila:modelParameters
     description: Model selection and inference parameters.
@@ -57,21 +50,6 @@ properties:
       formats: [md, smd, myst, ipynb, qmd]
     serde:
       default: true
-    dom:
-      elem: div
-  recursion:
-    "@id": stencila:recursion
-    description: A string identifying which operations should, or should not, automatically be applied to generated suggestions.
-    $ref: String
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
-  promptProvided:
-    "@id": stencila:promptProvided
-    description: The prompt chosen, rendered and provided to the model
-    $ref: PromptBlock
-    patch:
-      # Do not patch derived property
-      formats: []
     dom:
       elem: div
   activeSuggestion:

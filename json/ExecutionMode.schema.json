@@ -7,7 +7,7 @@
     "Enumeration"
   ],
   "category": "flow",
-  "description": "Under which circumstances the document node should be executed.",
+  "description": "Under which circumstances a node should be executed.",
   "required": [
     "type"
   ],
@@ -128,6 +128,11 @@
   },
   "anyOf": [
     {
+      "@id": "stencila:Default",
+      "description": "Use the mode configured in the document, workspace or user settings.\n",
+      "const": "Default"
+    },
+    {
       "@id": "stencila:Always",
       "description": "Always execute the node when the document or ancestor node is executed.\nUse this for nodes that you want to always be executed, even if they, or\ntheir upstream dependencies, are not stale.\n",
       "const": "Always"
@@ -138,15 +143,30 @@
       "const": "Auto"
     },
     {
-      "@id": "stencila:Necessary",
-      "description": "Execute the node when necessary (i.e. if it is stale) when the document or ancestor node is executed.",
-      "const": "Necessary"
+      "@id": "stencila:Needed",
+      "description": "Execute the node when needed (i.e. if it is stale) when the document or ancestor\nnode is executed.\n",
+      "const": "Needed"
+    },
+    {
+      "@id": "stencila:Safe",
+      "description": "Execute the node if is considered safe to do so (e.g. no detected filesystem access),\nor can be executed in a sandbox, otherwise generate a warning.\n",
+      "const": "Safe"
+    },
+    {
+      "@id": "stencila:Secure",
+      "description": "Execute the node in a secure sandbox and generate a warning if that is not possible.\n",
+      "const": "Secure"
     },
     {
       "@id": "stencila:Locked",
       "description": "Do not execute the node. Requires that the node is unlocked first to be executed.\n",
       "const": "Locked"
+    },
+    {
+      "@id": "stencila:Never",
+      "description": "Never execute the node. Same a `Locked` but used for `executionRecursion` property.\n",
+      "const": "Never"
     }
   ],
-  "default": "Necessary"
+  "default": "Default"
 }

@@ -723,27 +723,33 @@ fn instruction_block_to_pandoc(
         "type".into(),
         block.instruction_type.to_string().to_lowercase(),
     )];
-    if let Some(message) = &block.message {
-        if let Some(MessagePart::Text(Text { value, .. })) = message.parts.first() {
-            attributes.push(("message".into(), value.to_string()));
-        } else {
-            context.losses.add("InstructionBlock.message.parts")
-        }
+
+    attributes.push(("prompt".into(), block.prompt.prompt.to_string()));
+
+    if let Some(MessagePart::Text(Text { value, .. })) = &block.message.parts.first() {
+        attributes.push(("message".into(), value.to_string()));
+    } else {
+        context.losses.add("InstructionBlock.message.parts")
     }
+
     if let Some(mode) = &block.execution_mode {
-        attributes.push(("mode".into(), mode.to_string()));
+        attributes.push(("execution-mode".into(), mode.to_string()));
     }
-    if let Some(prompt) = &block.prompt {
-        attributes.push(("prompt".into(), prompt.to_string()));
+
+    if let Some(mode) = &block.execution_recursion {
+        attributes.push(("execution-recursion".into(), mode.to_string()));
     }
+
     if let Some(active_suggestion) = &block.active_suggestion {
-        attributes.push(("active_suggestion".into(), active_suggestion.to_string()));
+        attributes.push(("active-suggestion".into(), active_suggestion.to_string()));
     }
+
     let attrs = pandoc::Attr {
         classes: vec!["instruction".into()],
         attributes,
         ..attrs_empty()
     };
+
     let content = &block.content.clone().unwrap_or_default();
 
     pandoc::Block::Div(attrs, blocks_to_pandoc(content, context))
@@ -992,15 +998,6 @@ fn styled_block_from_pandoc(
     }
 
     if attrs.classes.iter().any(|class| class == "instruction") {
-        let execution_mode = attrs.attributes.iter().find_map(|(name, value)| {
-            (name == "mode").then_some(ExecutionMode::from_str(value).unwrap_or_default())
-        });
-        let message = attrs.attributes.iter().find_map(|(name, value)| {
-            (name == "message").then_some(InstructionMessage {
-                parts: vec![MessagePart::Text(value.into())],
-                ..Default::default()
-            })
-        });
         let instruction_type = attrs
             .attributes
             .iter()
@@ -1008,21 +1005,46 @@ fn styled_block_from_pandoc(
                 (name == "type").then_some(InstructionType::from_str(value).unwrap_or_default())
             })
             .unwrap_or_default();
+
         let prompt = attrs
             .attributes
             .iter()
-            .find_map(|(name, value)| (name == "prompt").then_some(value.clone()));
-        let active_suggestion = attrs.attributes.iter().find_map(|(name, value)| {
-            (name == "active_suggestion").then_some(value.clone().parse().unwrap_or_default())
+            .find_map(|(name, value)| (name == "prompt").then_some(PromptBlock::new(value.into())))
+            .unwrap_or_default();
+
+        let message = attrs
+            .attributes
+            .iter()
+            .find_map(|(name, value)| {
+                (name == "message").then_some(InstructionMessage {
+                    parts: vec![MessagePart::Text(value.into())],
+                    ..Default::default()
+                })
+            })
+            .unwrap_or_default();
+
+        let execution_mode = attrs.attributes.iter().find_map(|(name, value)| {
+            (name == "execution-mode").then_some(ExecutionMode::from_str(value).unwrap_or_default())
         });
+
+        let execution_recursion = attrs.attributes.iter().find_map(|(name, value)| {
+            (name == "execution-recursion")
+                .then_some(ExecutionMode::from_str(value).unwrap_or_default())
+        });
+
+        let active_suggestion = attrs.attributes.iter().find_map(|(name, value)| {
+            (name == "active-suggestion").then_some(value.clone().parse().unwrap_or_default())
+        });
+
         let content = (!content.is_empty()).then_some(content);
 
         return Block::InstructionBlock(InstructionBlock {
-            execution_mode,
-            prompt,
             instruction_type,
-            active_suggestion,
+            prompt,
             message,
+            execution_mode,
+            execution_recursion,
+            active_suggestion,
             content,
             ..Default::default()
         });
