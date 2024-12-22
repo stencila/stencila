@@ -114,8 +114,7 @@ pub(super) fn model_parameters<'s>(input: &mut Located<&'s str>) -> PResult<Mode
 
 /// Parse a specified prompt id
 pub(super) fn prompt<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
-    preceded('@', take_while(1.., |c: char| !c.is_whitespace()))
-        .parse_next(input)
+    preceded('@', take_while(1.., |c: char| !c.is_whitespace())).parse_next(input)
 }
 
 /// Take characters until `opening` and `closing` are unbalanced
