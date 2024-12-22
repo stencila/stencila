@@ -718,17 +718,17 @@ fn code_chunk(input: &mut Located<&str>) -> PResult<Block> {
 /// Parse a [`Chat`] node
 fn chat(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
-        (Caseless("chat"), multispace0),
+        "chat",
         (
-            opt(delimited((multispace0, '@'), prompt, multispace0)),
-            opt(delimited(multispace0, model_parameters, multispace0)),
-            opt(delimited(multispace0, execution_mode, multispace0)),
-            opt(delimited('/', execution_mode, multispace0)),
-            opt(take_while(1.., |_| true)),
+            opt(preceded(multispace1, execution_mode)),
+            opt(preceded(multispace1, execution_mode)),
+            opt(preceded(multispace1, prompt)),
+            opt(preceded(multispace1, model_parameters)),
+            opt(preceded(multispace1, take_while(1.., |_| true))),
         ),
     )
     .map(
-        |(prompt, model_parameters, execution_mode, execution_recursion, _rest)| {
+        |(execution_mode, execution_recursion, prompt, model_parameters, _rest)| {
             let prompt = prompt
                 .map(|prompt| PromptBlock::new(prompt.into()))
                 .unwrap_or_default();
@@ -873,20 +873,20 @@ fn if_elif(input: &mut Located<&str>) -> PResult<(bool, IfBlockClause)> {
 /// Start an [`InstructionBlock`]
 fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
     (
-        terminated(instruction_type, multispace0),
-        opt(delimited((multispace0, '@'), prompt, multispace0)),
-        opt(delimited(multispace0, model_parameters, multispace0)),
-        opt(delimited(multispace0, execution_mode, multispace0)),
-        opt(delimited('/', execution_mode, multispace0)),
-        opt(take_while(0.., |_| true)),
+        instruction_type,
+        opt(preceded(multispace1, execution_mode)),
+        opt(preceded(multispace1, execution_mode)),
+        opt(preceded(multispace1, prompt)),
+        opt(preceded(multispace1, model_parameters)),
+        opt(preceded(multispace1, take_while(1.., |_| true))),
     )
         .map(
             |(
                 instruction_type,
-                prompt,
-                model_parameters,
                 execution_mode,
                 execution_recursion,
+                prompt,
+                model_parameters,
                 message,
             )| {
                 let prompt = prompt

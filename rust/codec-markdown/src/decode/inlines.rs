@@ -3,7 +3,7 @@ use std::{collections::HashMap, ops::Range};
 use markdown::{mdast, unist::Position};
 use winnow::{
     ascii::{multispace0, multispace1, space0},
-    combinator::{alt, delimited, not, opt, peek, preceded, repeat, separated},
+    combinator::{alt, delimited, not, opt, peek, preceded, repeat, separated, terminated},
     stream::{Located, Stream},
     token::{take, take_until, take_while},
     PResult, Parser,
@@ -834,7 +834,7 @@ fn underline(input: &mut Located<&str>) -> PResult<Inline> {
 fn instruction_inline(input: &mut Located<&str>) -> PResult<Inline> {
     (
         delimited("[[", instruction_type, multispace0),
-        (opt(delimited('@', prompt, multispace1)), take_until_edit),
+        (opt(terminated(prompt, multispace1)), take_until_edit),
     )
         .map(|(instruction_type, (prompt, (text, term)))| {
             let prompt = prompt

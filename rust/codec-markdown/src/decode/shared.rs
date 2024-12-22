@@ -5,7 +5,7 @@ use std::str::FromStr;
 use markdown::mdast;
 use winnow::{
     ascii::{dec_int, digit1, float, multispace0, multispace1, take_escaped, Caseless},
-    combinator::{alt, delimited, not, opt, peek, separated, separated_pair, terminated},
+    combinator::{alt, delimited, not, opt, peek, preceded, separated, separated_pair, terminated},
     error::{ErrMode, ErrorKind, ParserError},
     stream::Stream,
     token::{none_of, take_until, take_while},
@@ -112,15 +112,9 @@ pub(super) fn model_parameters<'s>(input: &mut Located<&'s str>) -> PResult<Mode
         .parse_next(input)
 }
 
-/// Parse the name of a prompt of an instruction (e.g. `insert-image-object`, `joe@example.org`)
+/// Parse a specified prompt id
 pub(super) fn prompt<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
-    (
-        take_while(1.., |c: char| c.is_ascii_alphabetic()),
-        take_while(0.., |c: char| {
-            c.is_ascii_alphanumeric() || "_-/.@".contains(c)
-        }),
-    )
-        .take()
+    preceded('@', take_while(1.., |c: char| !c.is_whitespace()))
         .parse_next(input)
 }
 
