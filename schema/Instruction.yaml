@@ -16,10 +16,14 @@ properties:
     "@id": stencila:instructionType
     description: The type of instruction describing the operation to be performed.
     $ref: InstructionType
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
   prompt:
     "@id": stencila:prompt
     description: The prompt selected, rendered and provided to the model
     $ref: PromptBlock
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
     serde:
       default: true
     dom:

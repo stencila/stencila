@@ -328,11 +328,29 @@
         "instruction-type",
         "instruction_type"
       ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
       "$ref": "InstructionType.schema.json"
     },
     "prompt": {
       "@id": "stencila:prompt",
       "description": "The prompt selected, rendered and provided to the model",
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
       "serde": {
         "default": true
       },

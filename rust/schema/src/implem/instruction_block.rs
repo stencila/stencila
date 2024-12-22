@@ -34,17 +34,19 @@ impl PatchNode for InstructionBlock {
     }
 
     fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
+        // Compare properties other than content and suggestions
         macro_rules! compare_property {
             ($field:ident) => {
                 self.$field.similarity(&other.$field, context)?
             };
         }
-
         let mut values = vec![
             compare_property!(instruction_type),
             compare_property!(prompt),
             compare_property!(message),
             compare_property!(model_parameters),
+            compare_property!(execution_mode),
+            compare_property!(execution_recursion),
         ];
 
         if context
@@ -90,6 +92,7 @@ impl PatchNode for InstructionBlock {
     }
 
     fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
+        // Diff properties other than content and suggestions
         macro_rules! diff_property {
             ($property:ident, $field:ident) => {
                 context.within_property(NodeProperty::$property, |context| {
@@ -97,11 +100,12 @@ impl PatchNode for InstructionBlock {
                 })?;
             };
         }
-
         diff_property!(InstructionType, instruction_type);
         diff_property!(Prompt, prompt);
         diff_property!(Message, message);
         diff_property!(ModelParameters, model_parameters);
+        diff_property!(ExecutionMode, execution_mode);
+        diff_property!(ExecutionRecursion, execution_recursion);
 
         if context
             .format
@@ -109,7 +113,7 @@ impl PatchNode for InstructionBlock {
             .map(|format| format.is_markdown_flavor())
             .unwrap_or_default()
         {
-            // Other node is from a Markdown based format where the `content`` is either the
+            // Other node is from a Markdown based format where the `content` is either the
             // original or the content of the active active suggestion
             if let Some(other_content) = &other.content {
                 let suggestions_count = self.suggestions.iter().flatten().count() as u64;

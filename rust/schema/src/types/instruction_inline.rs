@@ -60,11 +60,13 @@ pub struct InstructionInline {
 
     /// The type of instruction describing the operation to be performed.
     #[serde(alias = "instruction-type", alias = "instruction_type")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub instruction_type: InstructionType,
 
     /// The prompt selected, rendered and provided to the model
     #[serde(default)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[dom(elem = "div")]
     pub prompt: PromptBlock,
