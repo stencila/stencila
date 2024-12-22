@@ -41,6 +41,9 @@ old:
           characterPercent: 100
     - type: InstructionBlock
       instructionType: Create
+      prompt:
+        type: PromptBlock
+        target: table
       message:
         type: InstructionMessage
         parts:
@@ -64,7 +67,6 @@ old:
             provenanceCategory: Hw
             characterCount: 49
             characterPercent: 100
-      prompt: table
       modelParameters:
         type: ModelParameters
 new:
@@ -77,13 +79,15 @@ new:
             string: "An insert instruction with a prompt:"
     - type: InstructionBlock
       instructionType: Create
+      prompt:
+        type: PromptBlock
+        target: table
       message:
         type: InstructionMessage
         parts:
           - type: Text
             value:
               string: "top five highest mountains, with height in feet"
-      prompt: table
       modelParameters:
         type: ModelParameters
 merged:
@@ -135,6 +139,9 @@ merged:
           characterPercent: 100
     - type: InstructionBlock
       instructionType: Create
+      prompt:
+        type: PromptBlock
+        target: table
       message:
         type: InstructionMessage
         parts:
@@ -176,7 +183,6 @@ merged:
             provenanceCategory: HwHe
             characterCount: 2
             characterPercent: 4
-      prompt: table
       modelParameters:
         type: ModelParameters
 ops:

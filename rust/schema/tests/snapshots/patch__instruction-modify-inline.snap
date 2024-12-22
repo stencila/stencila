@@ -29,6 +29,9 @@ old:
                 - 23
         - type: InstructionInline
           instructionType: Create
+          prompt:
+            type: PromptBlock
+            target: math
           message:
             type: InstructionMessage
             parts:
@@ -52,7 +55,6 @@ old:
                 provenanceCategory: Hw
                 characterCount: 33
                 characterPercent: 100
-          prompt: math
           modelParameters:
             type: ModelParameters
         - type: Text
@@ -95,6 +97,8 @@ new:
             string: "The area of a cube is: "
         - type: InstructionInline
           instructionType: Create
+          prompt:
+            type: PromptBlock
           message:
             type: InstructionMessage
             parts:
@@ -144,6 +148,8 @@ merged:
                 - 23
         - type: InstructionInline
           instructionType: Create
+          prompt:
+            type: PromptBlock
           message:
             type: InstructionMessage
             parts:
@@ -220,6 +226,13 @@ ops:
       - 0
       - content
       - 1
+      - prompt
+      - target
+    - Set: ~
+  - - - content
+      - 0
+      - content
+      - 1
       - message
       - parts
       - 0
@@ -228,9 +241,3 @@ ops:
         - Insert:
             - 0
             - "insert "
-  - - - content
-      - 0
-      - content
-      - 1
-      - prompt
-    - Set: ~

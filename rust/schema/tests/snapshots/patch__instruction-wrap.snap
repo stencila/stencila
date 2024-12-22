@@ -93,6 +93,8 @@ new:
             string: Some okay text.
     - type: InstructionBlock
       instructionType: Edit
+      prompt:
+        type: PromptBlock
       message:
         type: InstructionMessage
         parts:
@@ -157,6 +159,8 @@ merged:
           characterPercent: 100
     - type: InstructionBlock
       instructionType: Edit
+      prompt:
+        type: PromptBlock
       message:
         type: InstructionMessage
         parts:
@@ -233,6 +237,8 @@ ops:
         - - 1
           - type: InstructionBlock
             instructionType: Edit
+            prompt:
+              type: PromptBlock
             message:
               type: InstructionMessage
               parts:

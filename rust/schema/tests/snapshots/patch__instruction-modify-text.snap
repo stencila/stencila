@@ -19,6 +19,8 @@ old:
   content:
     - type: InstructionBlock
       instructionType: Edit
+      prompt:
+        type: PromptBlock
       message:
         type: InstructionMessage
         parts:
@@ -72,6 +74,8 @@ new:
   content:
     - type: InstructionBlock
       instructionType: Edit
+      prompt:
+        type: PromptBlock
       message:
         type: InstructionMessage
         parts:
@@ -109,6 +113,8 @@ merged:
   content:
     - type: InstructionBlock
       instructionType: Edit
+      prompt:
+        type: PromptBlock
       message:
         type: InstructionMessage
         parts:
