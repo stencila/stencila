@@ -28,7 +28,7 @@ export class UINodeExecutionKind extends LitElement {
       }
       case 'Fork': {
         icon = 'arrowRampRight3'
-        tooltip = 'Executed in a forked kernel sandbox'
+        tooltip = 'Executed in a forked kernel'
         break
       }
     }
