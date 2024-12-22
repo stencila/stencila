@@ -724,7 +724,7 @@ fn chat(input: &mut Located<&str>) -> PResult<Block> {
             opt(preceded(multispace1, execution_mode)),
             opt(preceded(multispace1, prompt)),
             opt(preceded(multispace1, model_parameters)),
-            opt(preceded(multispace1, take_while(1.., |_| true))),
+            opt(take_while(0.., |_| true)),
         ),
     )
     .map(
@@ -878,7 +878,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
         opt(preceded(multispace1, execution_mode)),
         opt(preceded(multispace1, prompt)),
         opt(preceded(multispace1, model_parameters)),
-        opt(preceded(multispace1, take_while(1.., |_| true))),
+        opt(take_while(1.., |_| true)),
     )
         .map(
             |(

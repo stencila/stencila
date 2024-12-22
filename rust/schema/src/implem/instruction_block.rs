@@ -628,17 +628,21 @@ impl MarkdownCodec for InstructionBlock {
                 context.push_colons().newline().newline();
             }
         } else if let Some(content) = &self.content {
-            if content.len() == 1 {
-                context.push_str(" >>>");
-            }
-            context.newline().newline();
+            if content.is_empty() {
+                context.push_str(" :::").newline().newline();
+            } else {
+                if content.len() == 1 {
+                    context.push_str(" >>>");
+                }
+                context.newline().newline();
 
-            context.push_prop_fn(NodeProperty::Content, |context| {
-                content.to_markdown(context)
-            });
+                context.push_prop_fn(NodeProperty::Content, |context| {
+                    content.to_markdown(context)
+                });
 
-            if content.len() != 1 {
-                context.push_colons().newline().newline();
+                if content.len() != 1 {
+                    context.push_colons().newline().newline();
+                }
             }
         } else {
             context.push_str(" :::").newline().newline();
