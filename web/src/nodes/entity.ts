@@ -96,10 +96,31 @@ export abstract class Entity extends LitElement {
   }
 
   /**
-   * Whether the parent node is of the specified type 
+   * Whether the parent node is of the specified type
    */
   protected parentNodeIs(nodeType: NodeType): boolean {
     return this.parentNodeType === nodeType
+  }
+
+  /**
+   * Whether the node is within (i.e has an ancestor) of the specified type
+   */
+  protected isWithin(nodeType: NodeType): boolean {
+    return (
+      this.parentNodeType === nodeType ||
+      this.ancestors.includes(`${nodeType}.`)
+    )
+  }
+
+  /**
+   * Whether the node is within a chat message
+   */
+  protected isWithinUserChatMessage() {
+    return (
+      this.isWithin('ChatMessage') &&
+      this.closestGlobally('stencila-chat-message[message-role="User"]') !==
+        null
+    )
   }
 
   /**
@@ -140,23 +161,6 @@ export abstract class Entity extends LitElement {
    */
   protected patchNode(patch: NodePatch) {
     this.dispatchEvent(nodePatchEvent(patch))
-  }
-
-  /**
-   * Whether the node is within a `Chat`
-   */
-  protected withinChat(): boolean {
-    return this.ancestors.includes('Chat')
-  }
-
-  /**
-   * Checks this entity ancestors for a 'User' chat-message node and returns a boolean value
-   */
-  protected isUserChatMessageNode() {
-    return (
-      this.closestGlobally('stencila-chat-message[message-role="User"]') !==
-      null
-    )
   }
 
   override render() {

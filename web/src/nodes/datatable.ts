@@ -18,10 +18,7 @@ import './datatable-column'
 @withTwind()
 export class Datatable extends Entity {
   override render() {
-    if (
-      this.ancestors.includes('StyledBlock') ||
-      this.isUserChatMessageNode()
-    ) {
+    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return this.renderContent()
     }
 

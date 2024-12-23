@@ -16,10 +16,7 @@ import { Styled } from './styled'
 @customElement('stencila-styled-block')
 export class StyledBlock extends Styled {
   override render() {
-    if (
-      this.ancestors.includes('StyledBlock') ||
-      this.isUserChatMessageNode()
-    ) {
+    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return html`<slot name="content"></slot>`
     }
 

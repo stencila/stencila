@@ -22,10 +22,7 @@ export class RawBlock extends Entity {
   contentAuthorship?: string
 
   override render() {
-    if (
-      this.ancestors.includes('StyledBlock') ||
-      this.isUserChatMessageNode()
-    ) {
+    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return html`<slot name="content"></slot>`
     }
 

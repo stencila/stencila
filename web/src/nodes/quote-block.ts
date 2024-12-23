@@ -19,10 +19,7 @@ import '../ui/nodes/properties/provenance'
 @withTwind()
 export class QuoteBlock extends Entity {
   override render() {
-    if (
-      this.ancestors.includes('StyledBlock') ||
-      this.isUserChatMessageNode()
-    ) {
+    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return html`<slot name="content"></slot>`
     }
 

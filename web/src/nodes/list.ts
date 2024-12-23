@@ -18,8 +18,8 @@ export class List extends Entity {
     // Do not render a node card for document headings slot or StyledBlock
     if (
       this.closestGlobally('nav[slot=headings]') ||
-      this.ancestors.includes('StyledBlock') ||
-      this.isUserChatMessageNode()
+      this.isWithin('StyledBlock') ||
+      this.isWithinUserChatMessage()
     ) {
       return html`<slot name="items"></slot>`
     }

@@ -50,10 +50,7 @@ export class CodeChunk extends CodeExecutable {
   }
 
   override render() {
-    if (
-      this.ancestors.includes('StyledBlock') ||
-      this.isUserChatMessageNode()
-    ) {
+    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return this.renderContent()
     }
 
@@ -76,7 +73,7 @@ export class CodeChunk extends CodeExecutable {
         <stencila-ui-node-clone-commands
           type="CodeChunk"
           node-id=${this.id}
-          ?enabled=${this.withinChat()}
+          ?enabled=${this.isWithin('Chat')}
         >
         </stencila-ui-node-clone-commands>
 

@@ -18,10 +18,7 @@ export class CodeBlock extends CodeStatic {
       icon: 'code',
     }
 
-    if (
-      this.ancestors.includes('StyledBlock') ||
-      this.isUserChatMessageNode()
-    ) {
+    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return this.renderContent()
     }
 
