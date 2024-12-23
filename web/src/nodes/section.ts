@@ -67,6 +67,7 @@ export class Section extends Entity {
         type="Section"
         depth=${this.depth}
         ancestors=${this.ancestors}
+        ?isRootNode=${this.root}
       >
         <div slot="body">
           <stencila-ui-node-authors type="Section">

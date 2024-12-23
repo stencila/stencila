@@ -252,11 +252,13 @@ export class InstructionBlock extends Instruction {
       depth=${this.depth}
       ancestors=${this.ancestors}
       ?noVisibleContent=${this.hasContent && !this.hasSuggestions}
+      ?isRootNode=${this.root}
     >
       <span slot="header-right" class="flex">
         <stencila-ui-node-execution-commands
           type="InstructionBlock"
           node-id=${this.id}
+          ?hideDropDown=${this.root}
         >
         </stencila-ui-node-execution-commands>
       </span>

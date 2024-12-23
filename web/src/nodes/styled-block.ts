@@ -28,6 +28,7 @@ export class StyledBlock extends Styled {
       .canAnimate=${false}
       depth=${this.depth}
       ancestors=${this.ancestors}
+      ?isRootNode=${this.root}
     >
       <div slot="body">
         <stencila-ui-node-authors type="StyledBlock">

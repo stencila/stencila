@@ -78,11 +78,13 @@ export class IncludeBlock extends Executable {
         type="IncludeBlock"
         depth=${this.depth}
         ancestors=${this.ancestors}
+        ?isRootNode=${this.root}
       >
         <span slot="header-right">
           <stencila-ui-node-execution-commands
             type="IncludeBlock"
             node-id=${this.id}
+            ?hideDropDown=${this.root}
           >
           </stencila-ui-node-execution-commands>
         </span>

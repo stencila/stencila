@@ -1,6 +1,6 @@
 import { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
-import { css, html, TemplateResult } from 'lit'
+import { css, html, PropertyValues, TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { documentCommandEvent } from '../clients/commands'
@@ -51,6 +51,22 @@ export class ModelParameters extends Entity {
   @property({ attribute: 'random-seed', type: Number })
   randomSeed?: number
 
+  private get ui(): NodeTypeUI {
+    const parentNodeType = this.ancestors.split('.').pop() as NodeType
+    return nodeUi(parentNodeType)
+  }
+
+  /**
+   * provides the total sum of the three weighted categories
+   */
+  private get totalWeightingSum(): number {
+    let sum = 0
+    this.weightFields.forEach((f) => {
+      sum += this[f]
+    })
+    return sum
+  }
+
   /**
    * Model <select> options updated whenever model list is updated
    * rather than in `render()`
@@ -77,24 +93,33 @@ export class ModelParameters extends Entity {
         providers[model.provider] = [model]
       }
     }
+    const ui = this.ui
+
+    const optionStyle = `
+      --sl-spacing-x-small: 0.25rem;
+    `
 
     // Render options
     this.modelOptions = Object.entries(providers).map(
       ([provider, models], index) => {
         return html`
-          ${index !== 0 ? html`<sl-divider></sl-divider>` : ''}
-          <span class="flex flex-row items-center gap-2 px-2 text-gray-500">
+          ${index !== 0 ? html`<sl-divider class="my-1"></sl-divider>` : ''}
+          <div
+            class="flex flex-row items-center gap-2 px-2 py-1 text-[${ui.textColour}]"
+          >
             <stencila-ui-icon
               slot="prefix"
               class="text-base"
               name=${iconMaybe(provider.toLowerCase()) ?? 'company'}
             ></stencila-ui-icon>
             ${provider}
-          </span>
+          </div>
           ${models.map(
             (model) => html`
-              <sl-option value=${model.id}>
-                <span class="text-xs">${model.name} ${model.version}</span>
+              <sl-option value=${model.id} style=${optionStyle}>
+                <span class="text-xs text-[${ui.textColour}]">
+                  ${model.name} ${model.version}
+                </span>
               </sl-option>
             `
           )}
@@ -122,15 +147,24 @@ export class ModelParameters extends Entity {
   }
 
   /**
-   * On a change to a weight, adjust the other weights so that they
-   * all sum to 100 and then send a patch to update each of the weights.
+   * Event handler for cost, quality and speed weighting change
    */
   private onWeightChanged(
     event: InputEvent,
     changedWeight: ModelParametersWeightField
   ) {
     const newValue = parseInt((event.target as HTMLInputElement).value)
+    this[changedWeight] = newValue
+  }
 
+  /**
+   * On a change to a weight, adjust the other weights so that they
+   * all sum to 100 and then send a patch to update each of the weights.
+   */
+  private balanceWeighting(
+    changedWeight: ModelParametersWeightField,
+    newValue: number
+  ) {
     const remainingWeight = 100 - newValue
     const otherWeights = this.weightFields.filter(
       (weight) => weight !== changedWeight
@@ -195,6 +229,19 @@ export class ModelParameters extends Entity {
     data.addEventListener('models', this.onModelsUpdated.bind(this))
   }
 
+  protected override update(changedProperties: PropertyValues): void {
+    super.update(changedProperties)
+
+    // Check if an update to the weighting fields has occured,
+    // rebalance the other weights if the total sum does not = 100
+    for (const f of this.weightFields) {
+      if (changedProperties.has(f) && this.totalWeightingSum !== 100) {
+        this.balanceWeighting(f, this[f])
+        break
+      }
+    }
+  }
+
   override disconnectedCallback() {
     super.disconnectedCallback()
     data.removeEventListener('models', this.onModelsUpdated.bind(this))
@@ -208,16 +255,13 @@ export class ModelParameters extends Entity {
   `
 
   override render() {
-    const parentNodeType = this.ancestors.split('.').pop() as NodeType
-    const ui = nodeUi(parentNodeType)
-    const { borderColour, colour } = ui
-
+    const { colour, textColour, borderColour } = this.ui
     const styles = apply(
       'flex flex-row items-center',
       'w-full',
       'px-3 py-4',
       `bg-[${colour}]`,
-      'text-xs leading-tight font-sans',
+      `text-[${textColour}] text-xs leading-tight font-sans`,
       `border-t border-[${borderColour}]`
     )
 
@@ -263,7 +307,7 @@ export class ModelParameters extends Entity {
                   ></stencila-ui-icon>
                 </sl-tooltip>
               </div>
-              ${this.renderDropdown(ui)}
+              ${this.renderDropdown()}
             </sl-dropdown>
           </div>
         </div>
@@ -271,7 +315,8 @@ export class ModelParameters extends Entity {
     `
   }
 
-  renderDropdown(ui: NodeTypeUI) {
+  renderDropdown() {
+    const ui = this.ui
     const headerClasses = apply(
       'flex flex-row items-center gap-2 mt-6 mb-2 text-xs'
     )
@@ -305,36 +350,42 @@ export class ModelParameters extends Entity {
               'Weights used for selecting a model. Only apply if a model router is used.'
             )}
           </span>
-          <sl-range
-            class=${weightsClasses}
-            style=${rangeStyle}
-            label="Quality"
-            min="0"
-            max="100"
-            value=${this.qualityWeight}
-            @sl-change=${(e: InputEvent) =>
-              this.onWeightChanged(e, 'qualityWeight')}
-          ></sl-range>
-          <sl-range
-            class=${weightsClasses}
-            style=${rangeStyle}
-            label="Cost"
-            min="0"
-            max="100"
-            value=${this.costWeight}
-            @sl-change=${(e: InputEvent) =>
-              this.onWeightChanged(e, 'costWeight')}
-          ></sl-range>
-          <sl-range
-            class=${weightsClasses}
-            style=${rangeStyle}
-            label="Speed"
-            min="0"
-            max="100"
-            value=${this.speedWeight}
-            @sl-change=${(e: InputEvent) =>
-              this.onWeightChanged(e, 'speedWeight')}
-          ></sl-range>
+          <div class="flex items-center gap-2">
+            <span class="text-xs w-[7ch]">Quality</span>
+            <sl-range
+              class=${weightsClasses}
+              style=${rangeStyle}
+              min="0"
+              max="100"
+              value=${this.qualityWeight}
+              @sl-change=${(e: InputEvent) =>
+                this.onWeightChanged(e, 'qualityWeight')}
+            ></sl-range>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs w-[7ch]">Cost</span>
+            <sl-range
+              class=${weightsClasses}
+              style=${rangeStyle}
+              min="0"
+              max="100"
+              value=${this.costWeight}
+              @sl-change=${(e: InputEvent) =>
+                this.onWeightChanged(e, 'costWeight')}
+            ></sl-range>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs w-[7ch]">Speed</span>
+            <sl-range
+              class=${weightsClasses}
+              style=${rangeStyle}
+              min="0"
+              max="100"
+              value=${this.speedWeight}
+              @sl-change=${(e: InputEvent) =>
+                this.onWeightChanged(e, 'speedWeight')}
+            ></sl-range>
+          </div>
 
           <span class=${headerClasses}>
             <stencila-ui-icon

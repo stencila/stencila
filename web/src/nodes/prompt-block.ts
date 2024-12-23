@@ -88,6 +88,7 @@ export class PromptBlock extends Executable {
         <stencila-ui-node-execution-commands
           type="PromptBlock"
           node-id=${this.id}
+          ?hideDropDown=${this.root}
         >
           <sl-tooltip
             content=${this.showContent ? 'Hide content' : 'Show content'}

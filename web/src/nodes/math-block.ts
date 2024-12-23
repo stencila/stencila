@@ -27,6 +27,7 @@ export class MathBlock extends Math {
         type="MathBlock"
         depth=${this.depth}
         ancestors=${this.ancestors}
+        ?isRootNode=${this.root}
       >
         <span slot="header-right">
           <stencila-ui-node-clone-commands

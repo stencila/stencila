@@ -54,11 +54,13 @@ export class ForBlock extends CodeExecutable {
         ancestors=${this.ancestors}
         ?removeContentPadding=${true}
         ?noVisibleContent=${!this.hasIterations}
+        ?isRootNode=${this.root}
       >
         <span slot="header-right">
           <stencila-ui-node-execution-commands
             type="ForBlock"
             node-id=${this.id}
+            ?hideDropDown=${this.root}
           >
           </stencila-ui-node-execution-commands>
         </span>

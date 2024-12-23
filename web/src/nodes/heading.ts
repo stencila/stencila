@@ -69,6 +69,7 @@ export class Heading extends Entity {
         type="Heading"
         node-id=${this.id}
         depth=${this.depth}
+        ?isRootNode=${this.root}
       >
         <div slot="body">
           <stencila-ui-node-authors type="Heading">

@@ -100,7 +100,7 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
      */
     protected expandByDefault() {
       const testMode = getModeParam(window)
-      if (testMode && testMode === 'test-expand-all') {
+      if ((testMode && testMode === 'test-expand-all') || this.isRootNode) {
         // set node cards in 'test-expand-all' mode to expand by default
         return true
       } else {

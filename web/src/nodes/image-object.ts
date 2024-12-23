@@ -290,7 +290,7 @@ export class ImageObject extends Entity {
 
   private renderBlockOnDemand() {
     return html`
-      <stencila-ui-block-on-demand type="ImageObject">
+      <stencila-ui-block-on-demand type="ImageObject" ?isRootNode=${this.root}>
         ${this.renderContent()}
       </stencila-ui-block-on-demand>
     `

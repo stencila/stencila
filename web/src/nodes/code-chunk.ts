@@ -70,6 +70,7 @@ export class CodeChunk extends CodeExecutable {
       header-icon=${icon}
       header-title=${title}
       ?noVisibleContent=${!this.hasOutputs}
+      ?isRootNode=${this.root}
     >
       <span slot="header-right" class="flex flex-row items-center gap-3">
         <stencila-ui-node-clone-commands
@@ -82,6 +83,7 @@ export class CodeChunk extends CodeExecutable {
         <stencila-ui-node-execution-commands
           type="CodeChunk"
           node-id=${this.id}
+          ?hideDropDown=${this.root}
         >
         </stencila-ui-node-execution-commands>
 

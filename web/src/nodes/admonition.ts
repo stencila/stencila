@@ -77,6 +77,7 @@ export class Admonition extends Entity {
         type="Admonition"
         depth=${this.depth}
         ancestors=${this.ancestors}
+        ?isRootNode=${this.root}
       >
         <div slot="body">
           <stencila-ui-node-authors type="Admonition">

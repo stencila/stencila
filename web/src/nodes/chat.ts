@@ -56,7 +56,7 @@ export class StencilaChat extends Executable {
 
     return html`
       <div>
-        <div class="fixed top-0 left-0 z-10 w-full">
+        <div class="fixed top-0 left-0 z-20 w-full">
           <stencila-ui-node-execution-details
             type="Chat"
             node-id=${this.id}

@@ -61,11 +61,11 @@ export class UINodeExecutionDetails extends UIBaseClass {
   duration?: number
 
   override render() {
-    const { colour, borderColour } = this.ui
+    const { colour, borderColour, textColour } = this.ui
 
     const classes = apply([
       'flex flex-row flex-wrap items-center justify-between gap-3',
-      'text-xs leading-tight',
+      `text-[${textColour}] text-xs leading-tight`,
       'min-h-[2.25rem]',
       'py-1.5 px-4',
       `bg-[${colour}]`,
