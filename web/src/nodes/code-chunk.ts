@@ -24,9 +24,6 @@ import { CodeExecutable } from './code-executable'
 @customElement('stencila-code-chunk')
 @withTwind()
 export class CodeChunk extends CodeExecutable {
-  @query('slot[name="outputs"]')
-  outputsSlot!: HTMLSlotElement
-
   @property({ attribute: 'label-type' })
   labelType?: LabelType
 
@@ -41,6 +38,9 @@ export class CodeChunk extends CodeExecutable {
     converter: (attr) => attr == 'true',
   })
   isInvisible: boolean = false
+
+  @query('slot[name="outputs"]')
+  outputsSlot!: HTMLSlotElement
 
   @state()
   hasOutputs: boolean = false
@@ -82,17 +82,7 @@ export class CodeChunk extends CodeExecutable {
         >
         </stencila-ui-node-execution-commands>
 
-        <sl-tooltip content=${this.isInvisible ? 'Show output' : 'Hide output'}>
-          <stencila-ui-icon-button
-            class="text-xl"
-            name=${this.isInvisible ? 'eye' : 'eyeSlash'}
-            @click=${(e: Event) => {
-              // Stop the click behavior of the card header parent element
-              e.stopImmediatePropagation()
-              this.isInvisible = !this.isInvisible
-            }}
-          ></stencila-ui-icon-button>
-        </sl-tooltip>
+        ${this.depth > 0 ? this.renderShowHideOutput() : ''}
       </span>
 
       <div slot="body">
@@ -134,6 +124,22 @@ export class CodeChunk extends CodeExecutable {
 
       <div slot="content">${this.renderContent()}</div>
     </stencila-ui-block-on-demand>`
+  }
+
+  private renderShowHideOutput() {
+    return html`<sl-tooltip
+      content=${this.isInvisible ? 'Show output' : 'Hide output'}
+    >
+      <stencila-ui-icon-button
+        class="text-xl"
+        name=${this.isInvisible ? 'eye' : 'eyeSlash'}
+        @click=${(e: Event) => {
+          // Stop the click behavior of the card header parent element
+          e.stopImmediatePropagation()
+          this.isInvisible = !this.isInvisible
+        }}
+      ></stencila-ui-icon-button>
+    </sl-tooltip>`
   }
 
   private renderContent() {
