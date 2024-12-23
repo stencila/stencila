@@ -1,6 +1,6 @@
 import { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
-import { css, html, PropertyValues, TemplateResult } from 'lit'
+import { css, html, TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { documentCommandEvent } from '../clients/commands'
@@ -51,20 +51,12 @@ export class ModelParameters extends Entity {
   @property({ attribute: 'random-seed', type: Number })
   randomSeed?: number
 
+  /**
+   * Get the UI settings of the parent node type
+   */
   private get ui(): NodeTypeUI {
     const parentNodeType = this.ancestors.split('.').pop() as NodeType
     return nodeUi(parentNodeType)
-  }
-
-  /**
-   * provides the total sum of the three weighted categories
-   */
-  private get totalWeightingSum(): number {
-    let sum = 0
-    this.weightFields.forEach((f) => {
-      sum += this[f]
-    })
-    return sum
   }
 
   /**
@@ -93,11 +85,8 @@ export class ModelParameters extends Entity {
         providers[model.provider] = [model]
       }
     }
-    const ui = this.ui
 
-    const optionStyle = `
-      --sl-spacing-x-small: 0.25rem;
-    `
+    const { textColour } = this.ui
 
     // Render options
     this.modelOptions = Object.entries(providers).map(
@@ -105,19 +94,22 @@ export class ModelParameters extends Entity {
         return html`
           ${index !== 0 ? html`<sl-divider class="my-1"></sl-divider>` : ''}
           <div
-            class="flex flex-row items-center gap-2 px-2 py-1 text-[${ui.textColour}]"
+            class="flex flex-row items-center gap-2 px-2 py-1 text-[${textColour}]"
           >
             <stencila-ui-icon
               slot="prefix"
               class="text-base"
-              name=${iconMaybe(provider.toLowerCase()) ?? 'company'}
+              name=${iconMaybe(provider.toLowerCase()) ?? 'building'}
             ></stencila-ui-icon>
             ${provider}
           </div>
           ${models.map(
             (model) => html`
-              <sl-option value=${model.id} style=${optionStyle}>
-                <span class="text-xs text-[${ui.textColour}]">
+              <sl-option
+                value=${model.id}
+                style="--sl-spacing-x-small: 0.25rem;"
+              >
+                <span class="text-xs text-[${textColour}]">
                   ${model.name} ${model.version}
                 </span>
               </sl-option>
@@ -147,21 +139,61 @@ export class ModelParameters extends Entity {
   }
 
   /**
-   * Event handler for cost, quality and speed weighting change
+   * Event handler for changes quality, cost and speed weight properties
    */
   private onWeightChanged(
     event: InputEvent,
     changedWeight: ModelParametersWeightField
   ) {
     const newValue = parseInt((event.target as HTMLInputElement).value)
-    this[changedWeight] = newValue
+
+    this.balanceWeights(changedWeight, newValue)
+
+    // Send patch for all weights
+    // TODO: create/modify command so can send a patch with multiple operations
+    // rather than send 3 separate patches as done here
+    for (const weight of this.weightFields) {
+      this.dispatchEvent(
+        documentCommandEvent({
+          command: 'patch-node',
+          nodeType: 'ModelParameters',
+          nodeIds: [this.id],
+          nodeProperty: [weight, this[weight]],
+        })
+      )
+    }
+  }
+
+  /**
+   * Intercept the native attributeChangedCallback to detect external (DOM)
+   * changes to weight attributes and balance weights accordingly.
+   *
+   * Equivalent to `onWeightChanged` but for externally trigged changes,
+   * not changes due to interactions with this component.
+   */
+  override attributeChangedCallback(
+    name: string,
+    oldValue: string | null,
+    newValue: string | null
+  ) {
+    super.attributeChangedCallback(name, oldValue, newValue)
+
+    if (name.endsWith('-weight')) {
+      const weightField = name.replace(
+        '-weight',
+        'Weight'
+      ) as ModelParametersWeightField
+      if (newValue !== null)
+        this.balanceWeights(weightField, parseInt(newValue))
+      else this.balanceWeights('qualityWeight', this.qualityWeight)
+    }
   }
 
   /**
    * On a change to a weight, adjust the other weights so that they
    * all sum to 100 and then send a patch to update each of the weights.
    */
-  private balanceWeighting(
+  private balanceWeights(
     changedWeight: ModelParametersWeightField,
     newValue: number
   ) {
@@ -189,20 +221,6 @@ export class ModelParameters extends Entity {
     this[otherWeights[0]] = firstWeight
     this[otherWeights[1]] = secondWeight
     this[changedWeight] = newValue
-
-    // Send patch for all weights
-    // TODO: create/modify command so can send a patch with multiple operations
-    // rather than send 3 separate patches as done here
-    for (const weight of this.weightFields) {
-      this.dispatchEvent(
-        documentCommandEvent({
-          command: 'patch-node',
-          nodeType: 'ModelParameters',
-          nodeIds: [this.id],
-          nodeProperty: [weight, this[weight]],
-        })
-      )
-    }
   }
 
   /**
@@ -229,19 +247,6 @@ export class ModelParameters extends Entity {
     data.addEventListener('models', this.onModelsUpdated.bind(this))
   }
 
-  protected override update(changedProperties: PropertyValues): void {
-    super.update(changedProperties)
-
-    // Check if an update to the weighting fields has occured,
-    // rebalance the other weights if the total sum does not = 100
-    for (const f of this.weightFields) {
-      if (changedProperties.has(f) && this.totalWeightingSum !== 100) {
-        this.balanceWeighting(f, this[f])
-        break
-      }
-    }
-  }
-
   override disconnectedCallback() {
     super.disconnectedCallback()
     data.removeEventListener('models', this.onModelsUpdated.bind(this))
@@ -255,7 +260,9 @@ export class ModelParameters extends Entity {
   `
 
   override render() {
-    const { colour, textColour, borderColour } = this.ui
+    const ui = this.ui
+    const { colour, textColour, borderColour } = ui
+
     const styles = apply(
       'flex flex-row items-center',
       'w-full',
@@ -268,7 +275,7 @@ export class ModelParameters extends Entity {
     // Model id strings written by the user may be partial, so here match them with
     // the id in the model list. This is the same as done in Rust.
     const modelIds: string[] = []
-    for (const modelId of this.modelIds) {
+    for (const modelId of this.modelIds ?? []) {
       for (const model of data.models) {
         if (model.id.includes(modelId)) {
           modelIds.push(model.id)
@@ -307,7 +314,7 @@ export class ModelParameters extends Entity {
                   ></stencila-ui-icon>
                 </sl-tooltip>
               </div>
-              ${this.renderDropdown()}
+              ${this.renderDropdown(ui)}
             </sl-dropdown>
           </div>
         </div>
@@ -315,18 +322,17 @@ export class ModelParameters extends Entity {
     `
   }
 
-  renderDropdown() {
-    const ui = this.ui
+  renderDropdown({ borderColour, textColour, colour }: NodeTypeUI) {
     const headerClasses = apply(
       'flex flex-row items-center gap-2 mt-6 mb-2 text-xs'
     )
-    const weightsClasses = apply('items-center my-2 w-full')
+    const weightsClasses = apply('items-center my-1 w-full')
     const rangeStyle = `
       --sl-input-label-font-size-medium: 0.75rem;
-      --sl-color-primary-600: ${ui.textColour};
-      --sl-color-primary-500: ${ui.borderColour};
-      --track-color-active: ${ui.borderColour};
-      --track-color-inactive: ${ui.colour};
+      --sl-color-primary-600: ${textColour};
+      --sl-color-primary-500: ${borderColour};
+      --track-color-active: ${borderColour};
+      --track-color-inactive: ${colour};
     `
 
     const help = (content: string) =>
@@ -338,8 +344,8 @@ export class ModelParameters extends Entity {
       </sl-tooltip>`
 
     return html`
-      <div class="border rounded border-[${ui.borderColour}] bg-white">
-        <div class="bg-[${ui.colour}]/20 min-w-[300px] p-4">
+      <div class="border rounded border-[${borderColour}] bg-white">
+        <div class="bg-[${colour}]/20 min-w-[300px] p-4">
           <span class="${headerClasses} mt-0">
             <stencila-ui-icon
               class="text-lg"
