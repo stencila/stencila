@@ -35,7 +35,7 @@ export class CallBlock extends IncludeBlock {
           <stencila-ui-node-execution-commands
             type="CallBlock"
             node-id=${this.id}
-            ?hideDropDown=${this.root}
+            depth=${this.depth}
           >
           </stencila-ui-node-execution-commands>
         </span>

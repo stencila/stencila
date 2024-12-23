@@ -253,7 +253,7 @@ export class InstructionBlock extends Instruction {
         <stencila-ui-node-execution-commands
           type="InstructionBlock"
           node-id=${this.id}
-          ?hideDropDown=${this.root}
+          depth=${this.depth}
         >
         </stencila-ui-node-execution-commands>
       </span>

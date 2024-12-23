@@ -55,7 +55,7 @@ export class ForBlock extends CodeExecutable {
           <stencila-ui-node-execution-commands
             type="ForBlock"
             node-id=${this.id}
-            ?hideDropDown=${this.root}
+            depth=${this.depth}
           >
           </stencila-ui-node-execution-commands>
         </span>

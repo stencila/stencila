@@ -78,7 +78,7 @@ export class CodeChunk extends CodeExecutable {
         <stencila-ui-node-execution-commands
           type="CodeChunk"
           node-id=${this.id}
-          ?hideDropDown=${this.root}
+          depth=${this.depth}
         >
         </stencila-ui-node-execution-commands>
 

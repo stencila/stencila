@@ -80,7 +80,7 @@ export class IncludeBlock extends Executable {
           <stencila-ui-node-execution-commands
             type="IncludeBlock"
             node-id=${this.id}
-            ?hideDropDown=${this.root}
+            depth=${this.depth}
           >
           </stencila-ui-node-execution-commands>
         </span>

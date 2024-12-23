@@ -48,7 +48,7 @@ export class IfBlock extends Executable {
           <stencila-ui-node-execution-commands
             type="IfBlock"
             node-id=${this.id}
-            ?hideDropDown=${this.root}
+            depth=${this.depth}
           >
           </stencila-ui-node-execution-commands>
         </span>

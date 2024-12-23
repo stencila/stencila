@@ -1,7 +1,7 @@
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
 import { apply, css } from '@twind/core'
 import { html } from 'lit'
-import { customElement, property } from 'lit/decorators'
+import { customElement } from 'lit/decorators'
 
 import {
   DocumentCommand,
@@ -20,9 +20,6 @@ import '../../buttons/icon'
 @customElement('stencila-ui-node-execution-commands')
 @withTwind()
 export class UINodeExecutionCommands extends UIBaseClass {
-  @property({ type: Boolean })
-  hideDropDown: boolean = false
-
   /**
    * Emit a custom event to execute the document with this
    * node id and command scope
@@ -48,7 +45,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
 
     return html`
       <div class=${classes}>
-        ${!this.hideDropDown ? this.renderDropdown() : ''}
+        ${this.depth > 0 ? this.renderDropdown() : ''}
 
         <sl-tooltip content="Run this node">
           <stencila-ui-icon-button
