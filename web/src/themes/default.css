@@ -6,7 +6,6 @@
 @import url('../fonts/stix-two-math/stix-two-math.css');
 
 :root {
-  padding: 3rem 4rem;
   /* custom properties */
   --default-text-colour: #171817;
 
@@ -40,8 +39,14 @@ body {
   margin: 1cm;
 }
 
+stencila-article[root],
+stencila-prompt[root] {
+  padding: 3rem 4rem;
+}
+
 [root] {
   @apply prose lg:prose-lg;
+
   font-family: 'Source Serif 4', Georgia, 'Times New Roman', Times, serif;
   color: var(--default-text-colour);
 

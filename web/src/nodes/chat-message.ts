@@ -1,3 +1,4 @@
+import { NodeType } from '@stencila/types'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
@@ -27,22 +28,21 @@ export class ChatMessage extends Executable {
   messageRole: 'System' | 'User' | 'Model'
 
   /**
-   * A public list of node cards to expand automatically in a model chat message
+   * A list of node types that are initially expanded within a model chat message
    */
-  public static DEFAULT_EXPANDED_NODE_CARDS = [
-    'CodeExpression',
-    'CodeChunk',
+  public static EXPANDED_NODE_TYPES: NodeType[] = [
     'CodeBlock',
+    'CodeChunk',
+    'Datatable',
     'Figure',
     'ForBlock',
-    'IncludeBlock',
     'IfBlock',
+    'IncludeBlock',
+    'InstructionBlock',
     'MathBlock',
-    'Datatable',
-    'Table',
-    'StyledBlock',
     'RawBlock',
-    'InstructionBlock', // < ?
+    'StyledBlock',
+    'Table',
   ]
 
   /**

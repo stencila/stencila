@@ -144,7 +144,7 @@ export class UIBaseCard extends UIBaseClass {
             <slot name="header-right"></slot>
           </div>
           ${this.canCollapse ? this.renderCollapse() : null}
-          ${this.depth > 1 ? this.renderClose() : ''}
+          ${this.depth > 0 ? this.renderClose() : ''}
         </div>
       </div>
     </div>`

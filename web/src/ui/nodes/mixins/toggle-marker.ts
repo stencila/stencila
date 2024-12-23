@@ -82,28 +82,6 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
       this.dispatchToggleEvent()
     }
 
-    /**
-     * Returns a boolean value signaling whether to the
-     * card should expand upon render
-     */
-    protected expandByDefault() {
-      const testMode = getModeParam(window)
-      if (testMode && testMode === 'test-expand-all') {
-        // set node cards in 'test-expand-all' mode to expand by default
-        return true
-      } else {
-        // If part of a model chat message and included in the list of
-        // chat messages auto expanding node types
-        return (
-          closestGlobally(
-            this,
-            'stencila-chat-message[message-role="Model"]'
-          ) !== null &&
-          ChatMessage.DEFAULT_EXPANDED_NODE_CARDS.includes(this.type)
-        )
-      }
-    }
-
     protected dispatchToggleEvent() {
       this.shadowRoot.dispatchEvent(
         new CustomEvent(`toggle-${this.nodeId}`, {
@@ -114,13 +92,38 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
       )
     }
 
+    /**
+     * Whether the node card should be initially expanded
+     */
+    protected isInitiallyExpanded() {
+      // Expand if the root node
+      if (this.depth === 0) {
+        return true
+      }
+
+      // Expand if in 'test-expand-all' mode for snapshot tests
+      const testMode = getModeParam(window)
+      if (testMode && testMode === 'test-expand-all') {
+        return true
+      }
+
+      // Expand if part of a chat message and included in the list of
+      // chat messages auto expanding node types
+      if (
+        closestGlobally(this, 'stencila-chat-message[message-role="Model"]') !==
+          null &&
+        ChatMessage.EXPANDED_NODE_TYPES.includes(this.type)
+      ) {
+        return true
+      }
+
+      return false
+    }
+
     override connectedCallback(): void {
       super.connectedCallback()
-      // set node cards in 'test-expand-all' mode to expand by default
-      // for regression snapshot testing
-      if (this.expandByDefault()) {
-        this.toggle = true
-      }
+
+      this.toggle = this.isInitiallyExpanded()
     }
 
     protected renderMarker() {
