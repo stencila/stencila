@@ -1,4 +1,5 @@
 import { provide } from '@lit/context'
+import { NodeType } from '@stencila/types'
 import { html, LitElement } from 'lit'
 import { property, state } from 'lit/decorators'
 
@@ -55,6 +56,11 @@ export abstract class Entity extends LitElement {
   ancestors: string
 
   /**
+   * The Stencila Schema node type of the parent node
+   */
+  protected parentNodeType: NodeType
+
+  /**
    * The Id of a child node that is/or contains,
    * a currently selected node in the sourceView
    */
@@ -70,6 +76,8 @@ export abstract class Entity extends LitElement {
 
   override connectedCallback(): void {
     super.connectedCallback()
+
+    this.parentNodeType = this.ancestors.split('.').pop() as NodeType
 
     this.context.nodeId = this.id
 

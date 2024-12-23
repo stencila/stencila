@@ -37,11 +37,6 @@ export class Paragraph extends Entity {
   ]
 
   /**
-   * The node type of the parent node
-   */
-  private parentNodeType: NodeType
-
-  /**
    * A consumer controller for the `EntityContext`,
    * used to subscribe to the parent node's `EntityContext` if needed.
    */
@@ -52,8 +47,6 @@ export class Paragraph extends Entity {
 
   override connectedCallback() {
     super.connectedCallback()
-
-    this.parentNodeType = this.ancestors.split('.').reverse()[0] as NodeType
 
     /*
       If this Paragraph needs to be subscribed to the parent node

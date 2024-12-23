@@ -1,4 +1,3 @@
-import { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
 import { css, html, TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
@@ -52,12 +51,11 @@ export class ModelParameters extends Entity {
   randomSeed?: number
 
   /**
-   * Get the UI settings of the parent node type
+   * UI settings of the parent node type
+   *
+   * Instantiated in `connectedCallback` to avoid getting on each render.
    */
-  private get ui(): NodeTypeUI {
-    const parentNodeType = this.ancestors.split('.').pop() as NodeType
-    return nodeUi(parentNodeType)
-  }
+  private parentNodeUI: NodeTypeUI
 
   /**
    * Model <select> options updated whenever model list is updated
@@ -86,7 +84,7 @@ export class ModelParameters extends Entity {
       }
     }
 
-    const { textColour } = this.ui
+    const { textColour } = this.parentNodeUI
 
     // Render options
     this.modelOptions = Object.entries(providers).map(
@@ -244,6 +242,9 @@ export class ModelParameters extends Entity {
 
   override connectedCallback() {
     super.connectedCallback()
+
+    this.parentNodeUI = nodeUi(this.parentNodeType)
+
     data.addEventListener('models', this.onModelsUpdated.bind(this))
   }
 
@@ -260,8 +261,7 @@ export class ModelParameters extends Entity {
   `
 
   override render() {
-    const ui = this.ui
-    const { colour, textColour, borderColour } = ui
+    const { colour, textColour, borderColour } = this.parentNodeUI
 
     const styles = apply(
       'flex flex-row items-center',
@@ -314,7 +314,7 @@ export class ModelParameters extends Entity {
                   ></stencila-ui-icon>
                 </sl-tooltip>
               </div>
-              ${this.renderDropdown(ui)}
+              ${this.renderDropdown()}
             </sl-dropdown>
           </div>
         </div>
@@ -322,7 +322,9 @@ export class ModelParameters extends Entity {
     `
   }
 
-  renderDropdown({ borderColour, textColour, colour }: NodeTypeUI) {
+  renderDropdown() {
+    const { borderColour, textColour, colour } = this.parentNodeUI
+
     const headerClasses = apply(
       'flex flex-row items-center gap-2 mt-6 mb-2 text-xs'
     )

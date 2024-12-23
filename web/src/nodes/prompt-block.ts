@@ -1,4 +1,3 @@
-import { NodeType } from '@stencila/types'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
@@ -24,11 +23,6 @@ export class PromptBlock extends Executable {
   target: string
 
   /**
-   * The node type of the parent node
-   */
-  private parentNodeType: NodeType
-
-  /**
    * Toggle show/hide content
    *
    * Defaults to true, and then is toggled off/on by user.
@@ -37,8 +31,6 @@ export class PromptBlock extends Executable {
 
   override connectedCallback(): void {
     super.connectedCallback()
-
-    this.parentNodeType = this.ancestors.split('.').pop() as NodeType
 
     this.showContent = !(
       this.parentNodeType == 'Chat' || this.parentNodeType == 'InstructionBlock'
