@@ -40,10 +40,10 @@ impl MarkdownCodec for PromptBlock {
                 '`',
                 "prompt",
                 |context| {
-                    if let Some(prompt) = &self.target {
+                    if let Some(target) = &self.target {
                         context
                             .push_str(" ")
-                            .push_prop_str(NodeProperty::Prompt, prompt);
+                            .push_prop_str(NodeProperty::Target, target);
                     }
                 },
                 |_| {},
@@ -52,8 +52,10 @@ impl MarkdownCodec for PromptBlock {
         } else {
             context.push_colons().push_str(" prompt");
 
-            if let Some(prompt) = &self.target {
-                context.push_prop_str(NodeProperty::Prompt, prompt);
+            if let Some(target) = &self.target {
+                context
+                    .push_str(" @")
+                    .push_prop_str(NodeProperty::Target, target);
             }
         }
 

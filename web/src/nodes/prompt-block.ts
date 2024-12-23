@@ -82,7 +82,11 @@ export class PromptBlock extends Executable {
       type="PromptBlock"
       node-id=${this.id}
     >
-      <span slot="header-right">
+      <span slot="header-right" class="flex flex-row items-center">
+        <span class="text-sm mr-4">
+          ${this.target}
+        </span>
+
         <stencila-ui-node-execution-commands
           type="PromptBlock"
           node-id=${this.id}
@@ -124,7 +128,11 @@ export class PromptBlock extends Executable {
         </stencila-ui-node-execution-messages>
       </div>
 
-      <div slot="content" class="w-full ${this.showContent ? '' : 'hidden'}">
+      <div
+        slot="content"
+        class="w-full ${this.showContent ? '' : 'hidden'}"
+        style="color: var(--default-text-colour);"
+      >
         <slot name="content"></slot>
       </div>
     </stencila-ui-block-in-flow>`

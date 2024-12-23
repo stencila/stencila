@@ -494,11 +494,11 @@ repository:
 
   prompt-block:
     name: meta.stencila.prompt-block
-    match: ^(:{3,})\s*(prompt)\s+(.*)$
+    match: ^(:{3,})\s*(prompt)\s+(@[^\s]+)$
     captures:
       "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # prompt
-      "3": { name: variable.name.stencila } # id
+      "3": { name: variable.name.stencila } # target
 
   ########## IncludeBlock ##########
 
