@@ -98,9 +98,9 @@ impl Executable for PromptBlock {
         let started = Timestamp::now();
         let mut messages = Vec::new();
 
-        // Replicate the content so it has unique ids (given that the
-        // same prompt could be used multiple times in a doc, if we don't
-        // do this there could be clashes)
+        // Replicate the content of the prompt so that the prompt block has different ids.
+        // Given that the same prompt could be used multiple times in a doc, if we don't
+        // do this there could be clashes.
         let content = replicate(&prompt.content).unwrap_or_default();
 
         // Set content here and via patch
@@ -109,13 +109,15 @@ impl Executable for PromptBlock {
             &node_id,
             [
                 // It is important to use `none` and `append` here because
-                // the later retains node ids so they are the same as in `self.content`
+                // the latter retains node ids so they are the same as in `self.content`
+                // TODO: consider doing a merge rather than full replacement. Replacement
+                // seems to cause large, slow diffs in DOMs (do to a whole lot of new ids?)
                 none(NodeProperty::Content),
                 append(NodeProperty::Content, content),
             ],
         );
 
-        // Execute content using fork that
+        // Execute content of prompt
         let home = prompt.home();
         match prompt_executor(&home, executor).await {
             Ok(mut prompt_executor) => {

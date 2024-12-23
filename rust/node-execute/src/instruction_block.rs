@@ -10,7 +10,7 @@ use common::{
 };
 use schema::{
     Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, CompilationDigest, ExecutionMode,
-    InstructionBlock, PromptBlock, SoftwareApplication,
+    InstructionBlock, SoftwareApplication,
 };
 
 use crate::{interrupt_impl, prelude::*};
@@ -175,25 +175,19 @@ impl Executable for InstructionBlock {
                 return WalkControl::Continue;
             }
         };
-        let prompt_id = prompt.id.clone().unwrap_or_default();
 
-        // Create a new `PromptBlock` to render the prompt and patch it to `prompt`
-        // so that when it is executed it gets patched
-        let mut prompt_block = PromptBlock {
-            target: Some(prompt_id),
-            ..Default::default()
-        };
-        executor.patch(&node_id, [set(NodeProperty::Prompt, prompt_block.clone())]);
+        // Set the prompt target property locally for execution
+        self.prompt.target = Some(prompt.id.clone().unwrap_or_default());
 
         // Execute the `PromptBlock`. The instruction context needs to
         // be set for the prompt context to be complete (i.e. include `instruction` variable)
         executor.instruction_context = Some((&*self).into());
-        prompt_block.execute(executor).await;
+        self.prompt.execute(executor).await;
         executor.instruction_context = None;
 
         // Render the `PromptBlock` into a system prompt
         let mut context = MarkdownEncodeContext::new(Some(Format::Markdown), Some(true));
-        prompt_block.content.to_markdown(&mut context);
+        self.prompt.content.to_markdown(&mut context);
         let system_prompt = context.content;
 
         // Create an author role for the prompt
