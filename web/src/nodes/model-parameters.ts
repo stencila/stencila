@@ -1,6 +1,6 @@
 import { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
-import { css, html, TemplateResult } from 'lit'
+import { css, html, PropertyValues, TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { documentCommandEvent } from '../clients/commands'
@@ -54,6 +54,17 @@ export class ModelParameters extends Entity {
   private get ui(): NodeTypeUI {
     const parentNodeType = this.ancestors.split('.').pop() as NodeType
     return nodeUi(parentNodeType)
+  }
+
+  /**
+   * provides the total sum of the three weighted categories
+   */
+  private get totalWeightingSum(): number {
+    let sum = 0
+    this.weightFields.forEach((f) => {
+      sum += this[f]
+    })
+    return sum
   }
 
   /**
@@ -136,15 +147,24 @@ export class ModelParameters extends Entity {
   }
 
   /**
-   * On a change to a weight, adjust the other weights so that they
-   * all sum to 100 and then send a patch to update each of the weights.
+   * Event handler for cost, quality and speed weighting change
    */
   private onWeightChanged(
     event: InputEvent,
     changedWeight: ModelParametersWeightField
   ) {
     const newValue = parseInt((event.target as HTMLInputElement).value)
+    this[changedWeight] = newValue
+  }
 
+  /**
+   * On a change to a weight, adjust the other weights so that they
+   * all sum to 100 and then send a patch to update each of the weights.
+   */
+  private balanceWeighting(
+    changedWeight: ModelParametersWeightField,
+    newValue: number
+  ) {
     const remainingWeight = 100 - newValue
     const otherWeights = this.weightFields.filter(
       (weight) => weight !== changedWeight
@@ -207,6 +227,19 @@ export class ModelParameters extends Entity {
   override connectedCallback() {
     super.connectedCallback()
     data.addEventListener('models', this.onModelsUpdated.bind(this))
+  }
+
+  protected override update(changedProperties: PropertyValues): void {
+    super.update(changedProperties)
+
+    // check if an update to the weighting fields has occured,
+    // rebalance the other weight if the total sum does not == 100
+    for (const f of this.weightFields) {
+      if (changedProperties.has(f) && this.totalWeightingSum !== 100) {
+        this.balanceWeighting(f, this[f])
+        break
+      }
+    }
   }
 
   override disconnectedCallback() {
