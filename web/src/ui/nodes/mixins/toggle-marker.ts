@@ -59,12 +59,6 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
     depth: number
 
     /**
-     * the string of ancestors for the `Node`
-     */
-    @property({ type: String })
-    ancestors: string
-
-    /**
      * Boolean switch property, to handle nodes with empty content/output
      */
     @property({ type: Boolean })

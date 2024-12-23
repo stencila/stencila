@@ -247,7 +247,6 @@ export class InstructionBlock extends Instruction {
       header-title="${this.instructionType} Command"
       node-id=${this.id}
       depth=${this.depth}
-      ancestors=${this.ancestors}
       ?noVisibleContent=${this.hasContent && !this.hasSuggestions}
       ?isRootNode=${this.root}
     >

@@ -24,7 +24,6 @@ export class StyledBlock extends Styled {
       type="StyledBlock"
       .canAnimate=${false}
       depth=${this.depth}
-      ancestors=${this.ancestors}
       ?isRootNode=${this.root}
     >
       <div slot="body">

@@ -30,7 +30,6 @@ export class Figure extends Entity {
       <stencila-ui-block-on-demand
         type="Figure"
         depth=${this.depth}
-        ancestors=${this.ancestors}
         ?isRootNode=${this.root}
       >
         <div slot="body">

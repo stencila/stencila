@@ -35,7 +35,6 @@ export class RawBlock extends Entity {
       <stencila-ui-block-on-demand
         type="RawBlock"
         depth=${this.depth}
-        ancestors=${this.ancestors}
         header-icon=${icon}
         header-title="Raw ${title}"
         ?isRootNode=${this.root}

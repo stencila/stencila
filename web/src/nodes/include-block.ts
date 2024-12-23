@@ -74,7 +74,6 @@ export class IncludeBlock extends Executable {
       <stencila-ui-block-on-demand
         type="IncludeBlock"
         depth=${this.depth}
-        ancestors=${this.ancestors}
         ?isRootNode=${this.root}
       >
         <span slot="header-right">

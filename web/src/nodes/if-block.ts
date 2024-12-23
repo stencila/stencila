@@ -40,7 +40,6 @@ export class IfBlock extends Executable {
       <stencila-ui-block-on-demand
         type="IfBlock"
         depth=${this.depth}
-        ancestors=${this.ancestors}
         node-id=${this.id}
         ?removeContentPadding=${true}
         ?noVisibleContent=${!this.hasClauses}

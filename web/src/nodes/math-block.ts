@@ -23,7 +23,6 @@ export class MathBlock extends Math {
       <stencila-ui-block-on-demand
         type="MathBlock"
         depth=${this.depth}
-        ancestors=${this.ancestors}
         ?isRootNode=${this.root}
       >
         <span slot="header-right">

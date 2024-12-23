@@ -30,7 +30,6 @@ export class Claim extends Entity {
         type="Claim"
         header-title=${this.claimType}
         depth=${this.depth}
-        ancestors=${this.ancestors}
         ?isRootNode=${this.root}
       >
         <div slot="body">

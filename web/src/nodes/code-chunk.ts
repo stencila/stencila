@@ -62,7 +62,6 @@ export class CodeChunk extends CodeExecutable {
     return html`<stencila-ui-block-on-demand
       type="CodeChunk"
       depth=${this.depth}
-      ancestors=${this.ancestors}
       node-id=${this.id}
       header-icon=${icon}
       header-title=${title}

@@ -29,7 +29,6 @@ export class CallBlock extends IncludeBlock {
       <stencila-ui-block-on-demand
         type="CallBlock"
         depth=${this.depth}
-        ancestors=${this.ancestors}
         ?isRootNode=${this.root}
       >
         <span slot="header-right">

@@ -28,7 +28,6 @@ export class List extends Entity {
       <stencila-ui-block-on-demand
         type="List"
         depth=${this.depth}
-        ancestors=${this.ancestors}
         node-id=${this.id}
         ?isRootNode=${this.root}
       >

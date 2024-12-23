@@ -73,7 +73,6 @@ export class Admonition extends Entity {
       <stencila-ui-block-on-demand
         type="Admonition"
         depth=${this.depth}
-        ancestors=${this.ancestors}
         ?isRootNode=${this.root}
       >
         <div slot="body">

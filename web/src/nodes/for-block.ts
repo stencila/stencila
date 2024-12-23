@@ -48,7 +48,6 @@ export class ForBlock extends CodeExecutable {
         type="ForBlock"
         node-id=${this.id}
         depth=${this.depth}
-        ancestors=${this.ancestors}
         ?removeContentPadding=${true}
         ?noVisibleContent=${!this.hasIterations}
         ?isRootNode=${this.root}

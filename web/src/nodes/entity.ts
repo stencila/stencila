@@ -51,9 +51,11 @@ export abstract class Entity extends LitElement {
    * The root node will have an empty string for this property.
    * Other nodes will have a list of ancestor node types e.g. `Article.Paragraph.Emphasis`
    * for `Text` within an emphasis node in a paragraph of an article.
+   *
+   * Made `private` to encourage this use of the `isWithin` method.
    */
   @property()
-  ancestors: string
+  private ancestors: string
 
   /**
    * The Stencila Schema node type of the parent node

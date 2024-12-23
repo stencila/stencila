@@ -101,7 +101,6 @@ export class Paragraph extends Entity {
         type="Paragraph"
         node-id=${this.id}
         depth=${this.depth}
-        ancestors=${this.ancestors}
         ?isRootNode=${this.root}
       >
         <div slot="body">

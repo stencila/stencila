@@ -26,7 +26,6 @@ export class CodeBlock extends CodeStatic {
       <stencila-ui-block-on-demand
         type="CodeBlock"
         depth=${this.depth}
-        ancestors=${this.ancestors}
         header-icon=${icon}
         header-title=${title}
         ?isRootNode=${this.root}
