@@ -43,6 +43,7 @@ export class CodeExpression extends CodeExecutable {
         <stencila-ui-node-execution-commands
           node-id=${this.id}
           type="CodeExpression"
+          ?hideDropDown=${this.root}
         >
         </stencila-ui-node-execution-commands>
       </span>

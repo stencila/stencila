@@ -47,11 +47,13 @@ export class IfBlock extends Executable {
         node-id=${this.id}
         ?removeContentPadding=${true}
         ?noVisibleContent=${!this.hasClauses}
+        ?isRootNode=${this.root}
       >
         <span slot="header-right">
           <stencila-ui-node-execution-commands
             type="IfBlock"
             node-id=${this.id}
+            ?hideDropDown=${this.root}
           >
           </stencila-ui-node-execution-commands>
         </span>

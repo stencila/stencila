@@ -32,6 +32,7 @@ export class CodeBlock extends CodeStatic {
         ancestors=${this.ancestors}
         header-icon=${icon}
         header-title=${title}
+        ?isRootNode=${this.root}
       >
         <div slot="body">
           <stencila-ui-node-authors type="CodeBlock">

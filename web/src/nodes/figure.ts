@@ -34,6 +34,7 @@ export class Figure extends Entity {
         type="Figure"
         depth=${this.depth}
         ancestors=${this.ancestors}
+        ?isRootNode=${this.root}
       >
         <div slot="body">
           <stencila-ui-node-authors type="Figure">

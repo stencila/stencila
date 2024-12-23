@@ -30,6 +30,7 @@ export class List extends Entity {
         depth=${this.depth}
         ancestors=${this.ancestors}
         node-id=${this.id}
+        ?isRootNode=${this.root}
       >
         <div slot="body">
           <stencila-ui-node-authors type="List">

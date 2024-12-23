@@ -30,6 +30,7 @@ export class Datatable extends Entity {
         type="Datatable"
         depth=${this.depth}
         ancestors=${this.ancestors}
+        ?isRootNode=${this.root}
       >
         <div class="content" slot="content">${this.renderContent()}</div>
       </stencila-ui-block-on-demand>
