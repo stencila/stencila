@@ -106,7 +106,7 @@ export class ImageObject extends Entity {
     document.body.appendChild(container)
 
     let codeChunk
-    if (this.ancestors.endsWith('CodeChunk')) {
+    if (this.parentNodeIs('CodeChunk')) {
       codeChunk = this.closestGlobally('stencila-code-chunk')
       this.clearCodeChunkMessages(codeChunk)
     }
@@ -174,7 +174,7 @@ export class ImageObject extends Entity {
     )
 
     let codeChunk
-    if (this.ancestors.endsWith('CodeChunk')) {
+    if (this.parentNodeIs('CodeChunk')) {
       codeChunk = this.closestGlobally('stencila-code-chunk')
       this.clearCodeChunkMessages(codeChunk)
     }
@@ -236,7 +236,7 @@ export class ImageObject extends Entity {
     // clear `CodeChunk` messages
     let codeChunk: HTMLElement
 
-    if (this.ancestors.endsWith('CodeChunk')) {
+    if (this.parentNodeIs('CodeChunk')) {
       codeChunk = this.closestGlobally('stencila-code-chunk')
       this.clearCodeChunkMessages(codeChunk)
     }
@@ -283,7 +283,7 @@ export class ImageObject extends Entity {
       return this.renderContent()
     }
 
-    return this.ancestors.endsWith('CodeChunk')
+    return this.parentNodeIs('CodeChunk')
       ? this.renderBlockOnDemand()
       : this.renderInlineOnDemand()
   }

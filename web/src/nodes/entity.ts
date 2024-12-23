@@ -96,6 +96,13 @@ export abstract class Entity extends LitElement {
   }
 
   /**
+   * Whether the parent node is of the specified type 
+   */
+  protected parentNodeIs(nodeType: NodeType): boolean {
+    return this.parentNodeType === nodeType
+  }
+
+  /**
    * Select the closest element matching a selector
    */
   protected closestGlobally(selector: string): HTMLElement | null {
