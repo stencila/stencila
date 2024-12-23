@@ -22,13 +22,6 @@ import './execution-state'
 
 /**
  * A component for displaying various execution related property of executable nodes
- *
- * Acts as a container for execution details which can be collapsed or expanded.
- * Having this collapsable is important because the user may not always want to
- * see details such as all the dependants of a node.
- *
- * TODO: Render `autoExec`, `executionTags`, `executionDependencies`, and `executionDependants`
- * when then are available in documents (they are not yet re-implemented)
  */
 @customElement('stencila-ui-node-execution-details')
 @withTwind()
