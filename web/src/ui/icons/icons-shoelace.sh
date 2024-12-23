@@ -13,6 +13,7 @@ icons=(
     arrow-right-square
     arrow-up-circle
     arrow-up-circle-fill
+    asterisk
     at
     ban
     box

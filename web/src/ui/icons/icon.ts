@@ -36,6 +36,7 @@ import arrowUpCircleFill from './arrow-up-circle-fill.svg'
 import arrowUpCircle from './arrow-up-circle.svg'
 import arrowsCollapse from './arrows-collapse.svg'
 import arrowsExpand from './arrows-expand.svg'
+import asterisk from './asterisk.svg'
 import at from './at.svg'
 import ban from './ban.svg'
 import bars from './bars.svg'
@@ -162,6 +163,7 @@ const icons = {
   arrowsExpand,
   arrowUpCircle,
   arrowUpCircleFill,
+  asterisk,
   at,
   ban,
   bars,
