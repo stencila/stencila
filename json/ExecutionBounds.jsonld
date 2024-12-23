@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/ExecutionKind",
-  "name": "ExecutionKind",
+  "@id": "https://stencila.org/ExecutionBounds",
+  "name": "ExecutionBounds",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,10 +9,10 @@
   },
   "@graph": [
     {
-      "@id": "stencila:ExecutionKind",
+      "@id": "stencila:ExecutionBounds",
       "@type": "rdfs:Class",
-      "rdfs:label": "ExecutionKind",
-      "rdfs:comment": "The kind of execution of a document node.",
+      "rdfs:label": "ExecutionBounds",
+      "rdfs:comment": "The bounds placed on the execution of a document node.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"
       }

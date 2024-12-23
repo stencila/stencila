@@ -206,6 +206,19 @@ class ClaimType(StrEnum):
     Corollary = "Corollary"
 
 
+class ExecutionBounds(StrEnum):
+    """
+    The bounds placed on the execution of a document node.
+    """
+
+    Default = "Default"
+    Main = "Main"
+    Fork = "Fork"
+    Limit = "Limit"
+    Box = "Box"
+    Skip = "Skip"
+
+
 class ExecutionDependantRelation(StrEnum):
     """
     The relation between a node and its execution dependant.
@@ -228,15 +241,6 @@ class ExecutionDependencyRelation(StrEnum):
     Includes = "Includes"
     Reads = "Reads"
     Uses = "Uses"
-
-
-class ExecutionKind(StrEnum):
-    """
-    The kind of execution of a document node.
-    """
-
-    Main = "Main"
-    Fork = "Fork"
 
 
 class ExecutionMode(StrEnum):
@@ -591,7 +595,7 @@ class Executable(Entity):
     execution_mode: ExecutionMode | None = None
     """Under which circumstances the node should be executed."""
 
-    execution_recursion: ExecutionMode | None = None
+    execution_bounds: ExecutionBounds | None = None
     """Under which circumstances child nodes should be executed."""
 
     compilation_digest: CompilationDigest | None = None
@@ -624,8 +628,8 @@ class Executable(Entity):
     execution_instance: str | None = None
     """The id of the kernel instance that performed the last execution."""
 
-    execution_kind: ExecutionKind | None = None
-    """The kind (e.g. main kernel vs kernel fork) of the last execution."""
+    execution_bounded: ExecutionBounds | None = None
+    """The bounds, if any, on the last execution."""
 
     execution_ended: Timestamp | None = None
     """The timestamp when the last execution ended."""
@@ -3398,9 +3402,9 @@ ThingType = Union[
     Datatable,
     DefinedTerm,
     Enumeration,
+    ExecutionBounds,
     ExecutionDependantRelation,
     ExecutionDependencyRelation,
-    ExecutionKind,
     ExecutionMode,
     ExecutionRequired,
     ExecutionStatus,

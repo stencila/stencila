@@ -13,8 +13,8 @@ use winnow::{
 };
 
 use codec::schema::{
-    Date, DateTime, Duration, ExecutionMode, ImageObject, InstructionMessage, InstructionType,
-    MessagePart, ModelParameters, Node, Time, Timestamp,
+    Date, DateTime, Duration, ExecutionBounds, ExecutionMode, ImageObject, InstructionMessage,
+    InstructionType, MessagePart, ModelParameters, Node, Time, Timestamp,
 };
 use codec_json5_trait::Json5Codec;
 use codec_text_trait::TextCodec;
@@ -33,7 +33,7 @@ pub(super) fn name<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
         .parse_next(input)
 }
 
-/// Parse a execution mode
+/// Parse an execution mode variant
 pub(super) fn execution_mode(input: &mut Located<&str>) -> PResult<ExecutionMode> {
     alt(("always", "auto", "need", "lock"))
         .map(|typ| match typ {
@@ -41,6 +41,19 @@ pub(super) fn execution_mode(input: &mut Located<&str>) -> PResult<ExecutionMode
             "auto" => ExecutionMode::Auto,
             "need" => ExecutionMode::Need,
             "lock" => ExecutionMode::Lock,
+            _ => unreachable!(),
+        })
+        .parse_next(input)
+}
+
+/// Parse an execution bounds variant
+pub(super) fn execution_bounds(input: &mut Located<&str>) -> PResult<ExecutionBounds> {
+    alt(("main", "fork", "box", "skip"))
+        .map(|typ| match typ {
+            "main" => ExecutionBounds::Main,
+            "fork" => ExecutionBounds::Fork,
+            "box" => ExecutionBounds::Box,
+            "skip" => ExecutionBounds::Skip,
             _ => unreachable!(),
         })
         .parse_next(input)

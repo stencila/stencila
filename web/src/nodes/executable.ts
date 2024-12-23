@@ -1,5 +1,5 @@
 import {
-  ExecutionKind,
+  ExecutionBounds,
   ExecutionMode,
   ExecutionRequired,
   ExecutionStatus,
@@ -18,8 +18,8 @@ export abstract class Executable extends Entity {
   @property({ attribute: 'execution-mode' })
   executionMode?: ExecutionMode
 
-  @property({ attribute: 'execution-recursion' })
-  executionRecursion?: ExecutionMode
+  @property({ attribute: 'execution-bounds' })
+  executionBounds?: ExecutionBounds
 
   @property({ attribute: 'execution-tags', type: Array })
   executionTags?: ExecutionTag[]
@@ -33,8 +33,8 @@ export abstract class Executable extends Entity {
   @property({ attribute: 'execution-status' })
   executionStatus?: ExecutionStatus
 
-  @property({ attribute: 'execution-kind' })
-  executionKind?: ExecutionKind
+  @property({ attribute: 'execution-bounded' })
+  executionBounded?: ExecutionBounds
 
   @property({ attribute: 'execution-ended', type: Number })
   executionEnded?: number

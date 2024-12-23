@@ -19,9 +19,9 @@ use super::creative_work::CreativeWork;
 use super::datatable::Datatable;
 use super::defined_term::DefinedTerm;
 use super::enumeration::Enumeration;
+use super::execution_bounds::ExecutionBounds;
 use super::execution_dependant_relation::ExecutionDependantRelation;
 use super::execution_dependency_relation::ExecutionDependencyRelation;
-use super::execution_kind::ExecutionKind;
 use super::execution_mode::ExecutionMode;
 use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
@@ -98,11 +98,11 @@ pub enum ThingType {
 
     Enumeration(Enumeration),
 
+    ExecutionBounds(ExecutionBounds),
+
     ExecutionDependantRelation(ExecutionDependantRelation),
 
     ExecutionDependencyRelation(ExecutionDependencyRelation),
-
-    ExecutionKind(ExecutionKind),
 
     ExecutionMode(ExecutionMode),
 

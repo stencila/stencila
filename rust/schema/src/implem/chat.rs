@@ -1,7 +1,7 @@
 use common::serde_yaml;
 use node_strip::{StripNode, StripTargets};
 
-use crate::{prelude::*, Chat, ExecutionMode};
+use crate::{prelude::*, Chat, ExecutionBounds, ExecutionMode};
 
 impl Chat {
     /// Custom implementation of [`PatchNode::apply`].
@@ -76,12 +76,12 @@ impl MarkdownCodec for Chat {
                 }
             }
 
-            if let Some(mode) = &self.execution_recursion {
-                if !matches!(mode, ExecutionMode::Default) {
+            if let Some(bounds) = &self.execution_bounds {
+                if !matches!(bounds, ExecutionBounds::Default) {
                     context
                         .push_prop_str(
-                            NodeProperty::ExecutionRecursion,
-                            &mode.to_string().to_lowercase(),
+                            NodeProperty::ExecutionBounds,
+                            &bounds.to_string().to_lowercase(),
                         )
                         .space();
                 }

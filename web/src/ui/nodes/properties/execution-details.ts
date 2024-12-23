@@ -1,5 +1,5 @@
 import {
-  ExecutionKind,
+  ExecutionBounds,
   ExecutionMode,
   ExecutionRequired,
   ExecutionStatus,
@@ -12,12 +12,12 @@ import { customElement, property } from 'lit/decorators'
 import { withTwind } from '../../../twind'
 import { UIBaseClass } from '../mixins/ui-base-class'
 
+import './execution-bounded'
+import './execution-bounds'
 import './execution-count'
 import './execution-duration'
 import './execution-ended'
-import './execution-kind'
 import './execution-mode'
-import './execution-recursion'
 import './execution-state'
 
 /**
@@ -37,7 +37,7 @@ export class UINodeExecutionDetails extends UIBaseClass {
   mode?: ExecutionMode
 
   @property()
-  recursion?: ExecutionMode
+  bounds?: ExecutionBounds
 
   @property({ type: Array })
   tags?: ExecutionTag[]
@@ -52,7 +52,7 @@ export class UINodeExecutionDetails extends UIBaseClass {
   status?: ExecutionStatus
 
   @property()
-  kind?: ExecutionKind
+  bounded?: ExecutionBounds
 
   @property({ type: Number })
   ended?: number
@@ -64,7 +64,7 @@ export class UINodeExecutionDetails extends UIBaseClass {
     const { colour, borderColour } = this.ui
 
     const classes = apply([
-      'flex flex-row flex-wrap items-center gap-3',
+      'flex flex-row flex-wrap items-center justify-between gap-3',
       'text-xs leading-tight',
       'min-h-[2.25rem]',
       'py-1.5 px-4',
@@ -83,38 +83,42 @@ export class UINodeExecutionDetails extends UIBaseClass {
   }
 
   protected renderAllDetails() {
-    return html` <stencila-ui-node-execution-mode
-        type=${this.type}
-        node-id=${this.nodeId}
-        value=${this.mode}
-      >
-      </stencila-ui-node-execution-mode>
+    return html`<div class="flex flex-row items-center gap-x-3">
+        <stencila-ui-node-execution-mode
+          type=${this.type}
+          node-id=${this.nodeId}
+          value=${this.mode}
+        >
+        </stencila-ui-node-execution-mode>
 
-      ${this.recursion !== undefined
-        ? html`<stencila-ui-node-execution-recursion
-            type=${this.type}
-            node-id=${this.nodeId}
-            value=${this.recursion}
-          >
-          </stencila-ui-node-execution-recursion>`
-        : ''}
+        ${this.bounds !== undefined
+          ? html`<stencila-ui-node-execution-bounds
+              type=${this.type}
+              node-id=${this.nodeId}
+              value=${this.bounds}
+            >
+            </stencila-ui-node-execution-bounds>`
+          : ''}
+      </div>
 
-      <stencila-ui-node-execution-state
-        status=${this.status}
-        required=${this.required}
-        count=${this.count}
-      >
-      </stencila-ui-node-execution-state>
+      <div class="flex flex-row items-center gap-x-3">
+        <stencila-ui-node-execution-state
+          status=${this.status}
+          required=${this.required}
+          count=${this.count}
+        >
+        </stencila-ui-node-execution-state>
 
-      ${this.count > 0
-        ? html`<stencila-ui-node-execution-count
-              value=${this.count}
-            ></stencila-ui-node-execution-count>
-            ${this.renderTimeAndDuration()}
-            <stencila-ui-node-execution-kind
-              value=${this.kind}
-            ></stencila-ui-node-execution-kind>`
-        : ''}`
+        ${this.count > 0
+          ? html`<stencila-ui-node-execution-count
+                value=${this.count}
+              ></stencila-ui-node-execution-count>
+              ${this.renderTimeAndDuration()}
+              <stencila-ui-node-execution-bounded
+                value=${this.bounded}
+              ></stencila-ui-node-execution-bounded>`
+          : ''}
+      </div>`
   }
 
   protected renderTimeAndDuration() {

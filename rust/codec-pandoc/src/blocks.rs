@@ -738,8 +738,8 @@ fn instruction_block_to_pandoc(
         attributes.push(("execution-mode".into(), mode.to_string()));
     }
 
-    if let Some(mode) = &block.execution_recursion {
-        attributes.push(("execution-recursion".into(), mode.to_string()));
+    if let Some(bounds) = &block.execution_bounds {
+        attributes.push(("execution-bounds".into(), bounds.to_string()));
     }
 
     if let Some(active_suggestion) = &block.active_suggestion {
@@ -1034,9 +1034,9 @@ fn styled_block_from_pandoc(
             (name == "execution-mode").then_some(ExecutionMode::from_str(value).unwrap_or_default())
         });
 
-        let execution_recursion = attrs.attributes.iter().find_map(|(name, value)| {
-            (name == "execution-recursion")
-                .then_some(ExecutionMode::from_str(value).unwrap_or_default())
+        let execution_bounds = attrs.attributes.iter().find_map(|(name, value)| {
+            (name == "execution-bounds")
+                .then_some(ExecutionBounds::from_str(value).unwrap_or_default())
         });
 
         let active_suggestion = attrs.attributes.iter().find_map(|(name, value)| {
@@ -1050,7 +1050,7 @@ fn styled_block_from_pandoc(
             prompt,
             message,
             execution_mode,
-            execution_recursion,
+            execution_bounds,
             active_suggestion,
             content,
             ..Default::default()

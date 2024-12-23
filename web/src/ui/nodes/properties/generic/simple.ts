@@ -24,7 +24,7 @@ export class UINodeSimpleProperty extends LitElement {
       placement="top-start"
       .disabled=${(this.tooltip?.length ?? 0) === 0}
     >
-      <div class="flex flex-row w-full h-full items-center gap-x-1 shrink-0">
+      <div class="flex flex-row w-full h-full items-center gap-x-1">
         <stencila-ui-icon
           name=${this.iconName}
           class="text-base"

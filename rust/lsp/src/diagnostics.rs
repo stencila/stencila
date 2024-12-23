@@ -16,7 +16,7 @@ use common::{
     tracing,
 };
 use schema::{
-    Author, AuthorRoleName, ExecutionKind, ExecutionRequired, ExecutionStatus, MessageLevel,
+    Author, AuthorRoleName, ExecutionBounds, ExecutionRequired, ExecutionStatus, MessageLevel,
     NodeType, StringOrNumber,
 };
 
@@ -270,7 +270,7 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
                 }
             }
 
-            let status = if let Some(ExecutionKind::Fork) = &execution.kind {
+            let status = if let Some(ExecutionBounds::Fork) = &execution.bounded {
                 message.push_str(" in forked kernel");
                 "SucceededFork"
             } else {

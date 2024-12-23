@@ -6,7 +6,7 @@ abstract: true
 description: Abstract base type for executable nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
 core:
   - executionMode
-  - executionRecursion
+  - executionBounds
 properties:
   executionMode:
     '@id': stencila:executionMode
@@ -15,10 +15,10 @@ properties:
     strip: [execution]
     patch:
       formats: [md, smd, myst, ipynb, qmd]
-  executionRecursion:
-    '@id': stencila:executionRecursion
+  executionBounds:
+    '@id': stencila:executionBounds
     description: Under which circumstances child nodes should be executed.
-    $ref: ExecutionMode
+    $ref: ExecutionBounds
     strip: [execution]
     patch:
       formats: [md, smd, myst, ipynb, qmd]
@@ -100,11 +100,11 @@ properties:
       being in a difference instance (e.g. after a kernel restart).
     strip: [execution]
     type: string
-  executionKind:
-    '@id': stencila:executionKind
-    description: The kind (e.g. main kernel vs kernel fork) of the last execution.
+  executionBounded:
+    '@id': stencila:executionBounded
+    description: The bounds, if any, on the last execution.
     strip: [execution]
-    $ref: ExecutionKind
+    $ref: ExecutionBounds
   executionEnded:
     '@id': stencila:executionEnded
     description: The timestamp when the last execution ended.

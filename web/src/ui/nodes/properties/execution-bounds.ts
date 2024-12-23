@@ -1,4 +1,4 @@
-import { ExecutionMode } from '@stencila/types'
+import { ExecutionBounds } from '@stencila/types'
 import { css } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
@@ -9,18 +9,18 @@ import { IconName } from '../../icons/icon'
 import { UIBaseClass } from '../mixins/ui-base-class'
 
 /**
- * A component for displaying/selecting the `executionMode` property of executable nodes
+ * A component for displaying/selecting the `executionBounds` property of executable nodes
  */
-@customElement('stencila-ui-node-execution-mode')
+@customElement('stencila-ui-node-execution-bounds')
 @withTwind()
-export class UINodeExecutionMode extends UIBaseClass {
+export class UINodeExecutionBounds extends UIBaseClass {
   @property()
-  value?: ExecutionMode
+  value?: ExecutionBounds
 
   /**
    * On a change to value, send a patch to update it in the document
    */
-  private onChanged(value: ExecutionMode) {
+  private onChanged(value: ExecutionBounds) {
     this.value = value
 
     this.dispatchEvent(
@@ -28,7 +28,7 @@ export class UINodeExecutionMode extends UIBaseClass {
         command: 'patch-node',
         nodeType: this.type,
         nodeIds: [this.nodeId],
-        nodeProperty: ['executionMode', value],
+        nodeProperty: ['executionBounds', value],
       })
     )
   }
@@ -36,33 +36,37 @@ export class UINodeExecutionMode extends UIBaseClass {
   override render() {
     const { borderColour, textColour } = this.ui
 
-    const icon = (value: ExecutionMode): IconName => {
+    const icon = (value: ExecutionBounds): IconName => {
       switch (value) {
         case 'Default':
           return 'asterisk'
-        case 'Need':
-          return 'playCircle'
-        case 'Always':
-          return 'fastForwardCircle'
-        case 'Auto':
-          return 'lightning'
-        case 'Lock':
-          return 'lock'
+        case 'Main':
+          return 'arrowUpCircle'
+        case 'Fork':
+          return 'arrowRampRight3'
+        case 'Limit':
+          return 'coneStriped'
+        case 'Box':
+          return 'box'
+        case 'Skip':
+          return 'ban'
       }
     }
 
-    const help = (value: ExecutionMode): string => {
+    const help = (value: ExecutionBounds): string => {
       switch (value) {
         case 'Default':
           return 'Use the configured default'
-        case 'Need':
-          return 'Run when needed (e.g. when stale and document is run), and on demand'
-        case 'Always':
-          return 'Always run, including on demand'
-        case 'Auto':
-          return 'Run automatically when stale, and on demand'
-        case 'Lock':
-          return 'Do not run, even on demand'
+        case 'Main':
+          return 'Execute within the main set of kernels'
+        case 'Fork':
+          return 'Execute within a forked set of kernels'
+        case 'Limit':
+          return 'Execute within a forked set of kernels with limited capabilities'
+        case 'Box':
+          return 'Execute within a forked set of kernels within a sandbox'
+        case 'Skip':
+          return 'Skip execution'
       }
     }
 
@@ -73,16 +77,17 @@ export class UINodeExecutionMode extends UIBaseClass {
       }
     `
 
-    const alternatives: ExecutionMode[] = [
+    const alternatives: ExecutionBounds[] = [
       'Default',
-      'Need',
-      'Always',
-      'Auto',
-      'Lock',
+      'Main',
+      'Fork',
+      'Limit',
+      'Box',
+      'Skip',
     ]
 
     const menuItems = alternatives.map(
-      (value: ExecutionMode) =>
+      (value: ExecutionBounds) =>
         html`<sl-menu-item
           class=${menuItemStyles}
           @click=${() => this.onChanged(value)}
@@ -115,7 +120,7 @@ export class UINodeExecutionMode extends UIBaseClass {
           >
         </sl-dropdown>
 
-        <sl-tooltip content="Execution mode for this node">
+        <sl-tooltip content="Execution bounds within this node">
           <div class="flex flex-row gap-1 items-center">
             <stencila-ui-icon
               class="text-base"

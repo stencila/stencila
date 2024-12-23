@@ -54,13 +54,13 @@
       "$ref": "Enumeration.schema.json"
     },
     {
+      "$ref": "ExecutionBounds.schema.json"
+    },
+    {
       "$ref": "ExecutionDependantRelation.schema.json"
     },
     {
       "$ref": "ExecutionDependencyRelation.schema.json"
-    },
-    {
-      "$ref": "ExecutionKind.schema.json"
     },
     {
       "$ref": "ExecutionMode.schema.json"

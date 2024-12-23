@@ -478,7 +478,7 @@ impl Inspect for CodeChunk {
             mode: self.execution_mode.clone(),
             status: self.options.execution_status.clone(),
             required: self.options.execution_required.clone(),
-            kind: self.options.execution_kind.clone(),
+            bounded: self.options.execution_bounded.clone(),
             duration: self.options.execution_duration.clone(),
             ended: self.options.execution_ended.clone(),
             outputs: self.outputs.as_ref().map(|outputs| outputs.len()),

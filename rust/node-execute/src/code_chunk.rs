@@ -1,4 +1,4 @@
-use schema::{CodeChunk, ExecutionKind, LabelType, NodeProperty};
+use schema::{CodeChunk, ExecutionBounds, LabelType, NodeProperty};
 
 use crate::{interrupt_impl, prelude::*};
 
@@ -31,8 +31,8 @@ impl Executable for CodeChunk {
             execution_required_digests(&self.options.execution_digest, &info.compilation_digest);
 
         // Check whether the kernel instance used last time is active in the kernels set (if not forked)
-        if let (Some(ExecutionKind::Main), Some(id)) = (
-            &self.options.execution_kind,
+        if let (Some(ExecutionBounds::Main), Some(id)) = (
+            &self.options.execution_bounded,
             &self.options.execution_instance,
         ) {
             if !executor.kernels().await.has_instance(id).await {
@@ -153,7 +153,7 @@ impl Executable for CodeChunk {
             let ended = Timestamp::now();
 
             let status = execution_status(&messages);
-            let kind = execution_kind(executor);
+            let bounded = execution_bounded(executor);
             let required = execution_required_status(&status);
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
@@ -181,7 +181,7 @@ impl Executable for CodeChunk {
                 [
                     set(NodeProperty::ExecutionStatus, status),
                     set(NodeProperty::ExecutionInstance, instance),
-                    set(NodeProperty::ExecutionKind, kind),
+                    set(NodeProperty::ExecutionBounded, bounded),
                     set(NodeProperty::ExecutionRequired, required),
                     set(NodeProperty::ExecutionMessages, messages),
                     set(NodeProperty::ExecutionDuration, duration),

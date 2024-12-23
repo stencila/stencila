@@ -1,7 +1,10 @@
 use codec_info::{lost_exec_options, lost_options};
 use common::{eyre::Ok, tracing};
 
-use crate::{merge, patch, prelude::*, ExecutionMode, InstructionBlock, InstructionType, Node};
+use crate::{
+    merge, patch, prelude::*, ExecutionBounds, ExecutionMode, InstructionBlock, InstructionType,
+    Node,
+};
 
 /// Implementation of [`PatchNode`] for [`InstructionBlock`] to customize diffing and
 /// patching from Markdown-based formats
@@ -46,7 +49,7 @@ impl PatchNode for InstructionBlock {
             compare_property!(message),
             compare_property!(model_parameters),
             compare_property!(execution_mode),
-            compare_property!(execution_recursion),
+            compare_property!(execution_bounds),
         ];
 
         if context
@@ -105,7 +108,7 @@ impl PatchNode for InstructionBlock {
         diff_property!(Message, message);
         diff_property!(ModelParameters, model_parameters);
         diff_property!(ExecutionMode, execution_mode);
-        diff_property!(ExecutionRecursion, execution_recursion);
+        diff_property!(ExecutionBounds, execution_bounds);
 
         if context
             .format
@@ -175,7 +178,7 @@ impl PatchNode for InstructionBlock {
         patch_properties!(
             // Core
             (ExecutionMode, self.execution_mode),
-            (ExecutionRecursion, self.execution_recursion),
+            (ExecutionBounds, self.execution_bounds),
             (InstructionType, self.instruction_type),
             (Prompt, self.prompt),
             (Message, self.message),
@@ -194,7 +197,7 @@ impl PatchNode for InstructionBlock {
             (ExecutionRequired, self.options.execution_required),
             (ExecutionStatus, self.options.execution_status),
             (ExecutionInstance, self.options.execution_instance),
-            (ExecutionKind, self.options.execution_kind),
+            (ExecutionBounded, self.options.execution_bounded),
             (ExecutionEnded, self.options.execution_ended),
             (ExecutionDuration, self.options.execution_duration),
             (ExecutionMessages, self.options.execution_messages),
@@ -422,7 +425,7 @@ impl PatchNode for InstructionBlock {
         apply_properties!(
             // Core
             (ExecutionMode, self.execution_mode),
-            (ExecutionRecursion, self.execution_recursion),
+            (ExecutionBounds, self.execution_bounds),
             (InstructionType, self.instruction_type),
             (Prompt, self.prompt),
             (Message, self.message),
@@ -440,7 +443,7 @@ impl PatchNode for InstructionBlock {
             (ExecutionRequired, self.options.execution_required),
             (ExecutionStatus, self.options.execution_status),
             (ExecutionInstance, self.options.execution_instance),
-            (ExecutionKind, self.options.execution_kind),
+            (ExecutionBounded, self.options.execution_bounded),
             (ExecutionEnded, self.options.execution_ended),
             (ExecutionDuration, self.options.execution_duration),
             (ExecutionMessages, self.options.execution_messages),
@@ -509,11 +512,11 @@ impl MarkdownCodec for InstructionBlock {
                             }
                         }
 
-                        if let Some(mode) = &self.execution_recursion {
-                            if !matches!(mode, ExecutionMode::Default) {
+                        if let Some(mode) = &self.execution_bounds {
+                            if !matches!(mode, ExecutionBounds::Default) {
                                 context.myst_directive_option(
-                                    NodeProperty::ExecutionRecursion,
-                                    Some("recursion"),
+                                    NodeProperty::ExecutionBounds,
+                                    Some("bounds"),
                                     &mode.to_string().to_lowercase(),
                                 );
                             }
@@ -571,12 +574,12 @@ impl MarkdownCodec for InstructionBlock {
             }
         }
 
-        if let Some(mode) = &self.execution_recursion {
-            if !matches!(mode, ExecutionMode::Default) {
+        if let Some(bounds) = &self.execution_bounds {
+            if !matches!(bounds, ExecutionBounds::Default) {
                 context
                     .push_prop_str(
-                        NodeProperty::ExecutionRecursion,
-                        &mode.to_string().to_lowercase(),
+                        NodeProperty::ExecutionBounds,
+                        &bounds.to_string().to_lowercase(),
                     )
                     .space();
             }

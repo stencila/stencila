@@ -4,9 +4,9 @@ import { CompilationDigest } from "./CompilationDigest.js";
 import { CompilationMessage } from "./CompilationMessage.js";
 import { Duration } from "./Duration.js";
 import { Entity } from "./Entity.js";
+import { ExecutionBounds } from "./ExecutionBounds.js";
 import { ExecutionDependant } from "./ExecutionDependant.js";
 import { ExecutionDependency } from "./ExecutionDependency.js";
-import { ExecutionKind } from "./ExecutionKind.js";
 import { ExecutionMessage } from "./ExecutionMessage.js";
 import { ExecutionMode } from "./ExecutionMode.js";
 import { ExecutionRequired } from "./ExecutionRequired.js";
@@ -30,7 +30,7 @@ export class Executable extends Entity {
   /**
    * Under which circumstances child nodes should be executed.
    */
-  executionRecursion?: ExecutionMode;
+  executionBounds?: ExecutionBounds;
 
   /**
    * A digest of the content, semantics and dependencies of the node.
@@ -83,9 +83,9 @@ export class Executable extends Entity {
   executionInstance?: string;
 
   /**
-   * The kind (e.g. main kernel vs kernel fork) of the last execution.
+   * The bounds, if any, on the last execution.
    */
-  executionKind?: ExecutionKind;
+  executionBounded?: ExecutionBounds;
 
   /**
    * The timestamp when the last execution ended.

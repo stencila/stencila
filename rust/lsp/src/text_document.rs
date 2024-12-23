@@ -28,7 +28,7 @@ use common::{
 };
 use document::{CommandWait, Document, SaveDocumentSidecar, SaveDocumentSource};
 use schema::{
-    Author, AuthorRole, AuthorRoleName, Duration, ExecutionKind, ExecutionMessage, ExecutionMode,
+    Author, AuthorRole, AuthorRoleName, Duration, ExecutionBounds, ExecutionMessage, ExecutionMode,
     ExecutionRequired, ExecutionStatus, Node, NodeId, NodeType, Person, ProvenanceCount, Timestamp,
     Visitor,
 };
@@ -105,7 +105,7 @@ pub(super) struct TextNodeExecution {
     pub mode: Option<ExecutionMode>,
     pub status: Option<ExecutionStatus>,
     pub required: Option<ExecutionRequired>,
-    pub kind: Option<ExecutionKind>,
+    pub bounded: Option<ExecutionBounds>,
     pub duration: Option<Duration>,
     pub ended: Option<Timestamp>,
     pub outputs: Option<usize>,

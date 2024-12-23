@@ -103,11 +103,12 @@ export class CodeChunk extends CodeExecutable {
           type="CodeChunk"
           node-id=${this.id}
           mode=${this.executionMode}
+          bounds=${this.executionBounds}
           .tags=${this.executionTags}
           status=${this.executionStatus}
           required=${this.executionRequired}
           count=${this.executionCount}
-          kind=${this.executionKind}
+          bounded=${this.executionBounded}
           ended=${this.executionEnded}
           duration=${this.executionDuration}
         >

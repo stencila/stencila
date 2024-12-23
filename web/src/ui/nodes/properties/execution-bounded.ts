@@ -1,4 +1,4 @@
-import { ExecutionKind } from '@stencila/types'
+import { ExecutionBounds } from '@stencila/types'
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
@@ -8,17 +8,17 @@ import { IconName } from '../../icons/icon'
 import './generic/simple'
 
 /**
- * A component for displaying the `executionKind` property of executable nodes
+ * A component for displaying the `executionBounded` property of executable nodes
  */
-@customElement('stencila-ui-node-execution-kind')
+@customElement('stencila-ui-node-execution-bounded')
 @withTwind()
-export class UINodeExecutionKind extends LitElement {
+export class UINodeExecutionBounded extends LitElement {
   @property()
-  value?: ExecutionKind
+  value?: ExecutionBounds
 
   override render() {
     let icon: IconName | null = null
-    let tooltip = 'Kind of last execution'
+    let tooltip = 'Bounds on last execution'
 
     switch (this.value) {
       case 'Main': {
@@ -29,6 +29,16 @@ export class UINodeExecutionKind extends LitElement {
       case 'Fork': {
         icon = 'arrowRampRight3'
         tooltip = 'Executed in a forked kernel'
+        break
+      }
+      case 'Limit': {
+        icon = 'coneStriped'
+        tooltip = 'Executed in a forked kernel with limited capabilities'
+        break
+      }
+      case 'Box': {
+        icon = 'box'
+        tooltip = 'Executed in a forked kernel within a sandbox'
         break
       }
     }

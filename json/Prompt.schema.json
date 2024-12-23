@@ -26,7 +26,7 @@
     "id",
     "id",
     "executionMode",
-    "executionRecursion",
+    "executionBounds",
     "instructionPatterns"
   ],
   "properties": {
@@ -649,12 +649,12 @@
       },
       "$ref": "ExecutionMode.schema.json"
     },
-    "executionRecursion": {
-      "@id": "stencila:executionRecursion",
+    "executionBounds": {
+      "@id": "stencila:executionBounds",
       "description": "Under which circumstances child nodes should be executed.",
       "aliases": [
-        "execution-recursion",
-        "execution_recursion"
+        "execution-bounds",
+        "execution_bounds"
       ],
       "strip": [
         "execution"
@@ -668,7 +668,7 @@
           "qmd"
         ]
       },
-      "$ref": "ExecutionMode.schema.json"
+      "$ref": "ExecutionBounds.schema.json"
     },
     "compilationDigest": {
       "@id": "stencila:compilationDigest",
@@ -835,17 +835,17 @@
       ],
       "type": "string"
     },
-    "executionKind": {
-      "@id": "stencila:executionKind",
-      "description": "The kind (e.g. main kernel vs kernel fork) of the last execution.",
+    "executionBounded": {
+      "@id": "stencila:executionBounded",
+      "description": "The bounds, if any, on the last execution.",
       "aliases": [
-        "execution-kind",
-        "execution_kind"
+        "execution-bounded",
+        "execution_bounded"
       ],
       "strip": [
         "execution"
       ],
-      "$ref": "ExecutionKind.schema.json"
+      "$ref": "ExecutionBounds.schema.json"
     },
     "executionEnded": {
       "@id": "stencila:executionEnded",

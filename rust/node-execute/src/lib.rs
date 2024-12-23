@@ -13,7 +13,7 @@ use common::{
 use kernels::Kernels;
 use prompts::prompt::{DocumentContext, InstructionContext};
 use schema::{
-    AuthorRole, AuthorRoleName, Block, CompilationDigest, ExecutionKind, ExecutionMode,
+    AuthorRole, AuthorRoleName, Block, CompilationDigest, ExecutionBounds, ExecutionMode,
     ExecutionStatus, Inline, Link, List, ListItem, ListOrder, Node, NodeId, NodeProperty, NodeType,
     Paragraph, Patch, PatchOp, PatchPath, Timestamp, VisitorAsync, WalkControl, WalkNode,
 };
@@ -155,8 +155,8 @@ pub struct Executor {
     /// to pending.
     execution_status: ExecutionStatus,
 
-    /// The kind of execution
-    execution_kind: ExecutionKind,
+    /// The bounds on execution
+    execution_bounds: ExecutionBounds,
 
     /// The document context for prompts
     document_context: DocumentContext,
@@ -343,7 +343,7 @@ impl Executor {
             node_ids,
             phase: Phase::Prepare,
             execution_status: ExecutionStatus::Pending,
-            execution_kind: ExecutionKind::Main,
+            execution_bounds: ExecutionBounds::Main,
             document_context: DocumentContext::default(),
             instruction_context: None,
             headings: Vec::new(),
@@ -408,7 +408,7 @@ impl Executor {
 
         Ok(Self {
             phase: Phase::Execute,
-            execution_kind: ExecutionKind::Fork,
+            execution_bounds: ExecutionBounds::Fork,
             kernels,
             ..self.clone()
         })

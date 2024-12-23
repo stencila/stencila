@@ -83,9 +83,7 @@ export class PromptBlock extends Executable {
       node-id=${this.id}
     >
       <span slot="header-right" class="flex flex-row items-center">
-        <span class="text-sm mr-4">
-          ${this.target}
-        </span>
+        <span class="text-sm mr-4"> ${this.target} </span>
 
         <stencila-ui-node-execution-commands
           type="PromptBlock"

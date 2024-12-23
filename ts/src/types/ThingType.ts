@@ -16,9 +16,9 @@ import { type CreativeWork } from "./CreativeWork.js";
 import { type Datatable } from "./Datatable.js";
 import { type DefinedTerm } from "./DefinedTerm.js";
 import { type Enumeration } from "./Enumeration.js";
+import { type ExecutionBounds } from "./ExecutionBounds.js";
 import { type ExecutionDependantRelation } from "./ExecutionDependantRelation.js";
 import { type ExecutionDependencyRelation } from "./ExecutionDependencyRelation.js";
-import { type ExecutionKind } from "./ExecutionKind.js";
 import { type ExecutionMode } from "./ExecutionMode.js";
 import { type ExecutionRequired } from "./ExecutionRequired.js";
 import { type ExecutionStatus } from "./ExecutionStatus.js";
@@ -77,9 +77,9 @@ export type ThingType =
   Datatable |
   DefinedTerm |
   Enumeration |
+  ExecutionBounds |
   ExecutionDependantRelation |
   ExecutionDependencyRelation |
-  ExecutionKind |
   ExecutionMode |
   ExecutionRequired |
   ExecutionStatus |

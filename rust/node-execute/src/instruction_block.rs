@@ -9,7 +9,7 @@ use common::{
     tokio,
 };
 use schema::{
-    Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, CompilationDigest, ExecutionMode,
+    Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, CompilationDigest, ExecutionBounds,
     InstructionBlock, SoftwareApplication,
 };
 
@@ -239,7 +239,7 @@ impl Executable for InstructionBlock {
 
         // Wait for each future, adding the suggestion (or error message) to the instruction
         // as it arrives, and then (optionally) executing the suggestion
-        let recursion = self.execution_recursion.clone().unwrap_or_default();
+        let bounds = self.execution_bounds.clone().unwrap_or_default();
         while let Some(result) = futures.next().await {
             match result {
                 Ok(mut suggestion) => {
@@ -248,7 +248,7 @@ impl Executable for InstructionBlock {
                         [push(NodeProperty::Suggestions, suggestion.clone())],
                     );
 
-                    if !matches!(recursion, ExecutionMode::Lock) {
+                    if !matches!(bounds, ExecutionBounds::Skip) {
                         let mut fork = executor.fork_for_all();
                         tokio::spawn(async move {
                             if let Err(error) = fork.compile_prepare_execute(&mut suggestion).await

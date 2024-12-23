@@ -1,13 +1,13 @@
 {
   "$schema": "https://stencila.org/meta.schema.json",
-  "$id": "https://stencila.org/ExecutionKind.schema.json",
-  "@id": "stencila:ExecutionKind",
-  "title": "ExecutionKind",
+  "$id": "https://stencila.org/ExecutionBounds.schema.json",
+  "@id": "stencila:ExecutionBounds",
+  "title": "ExecutionBounds",
   "extends": [
     "Enumeration"
   ],
   "category": "flow",
-  "description": "The kind of execution of a document node.",
+  "description": "The bounds placed on the execution of a document node.",
   "required": [
     "type"
   ],
@@ -128,15 +128,35 @@
   },
   "anyOf": [
     {
+      "@id": "stencila:Default",
+      "description": "Use the bounds configured in the document, workspace or user settings.",
+      "const": "Default"
+    },
+    {
       "@id": "stencila:Main",
-      "description": "The node was executed within the main set of kernels for the document.",
+      "description": "Execute within the main set of kernels.",
       "const": "Main"
     },
     {
       "@id": "stencila:Fork",
-      "description": "The node was executed within a forked set of kernels.",
+      "description": "Execute within a forked set of kernels.",
       "const": "Fork"
+    },
+    {
+      "@id": "stencila:Limit",
+      "description": "Execute within a forked set of kernels with limited capabilities.",
+      "const": "Limit"
+    },
+    {
+      "@id": "stencila:Box",
+      "description": "Execute within a forked set of kernels within a sandbox.",
+      "const": "Box"
+    },
+    {
+      "@id": "stencila:Skip",
+      "description": "Skip execution.",
+      "const": "Skip"
     }
   ],
-  "default": "Main"
+  "default": "Default"
 }

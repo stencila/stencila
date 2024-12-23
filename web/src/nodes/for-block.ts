@@ -68,7 +68,7 @@ export class ForBlock extends CodeExecutable {
             type="ForBlock"
             node-id=${this.id}
             mode=${this.executionMode}
-            recursion=${this.executionRecursion}
+            bounds=${this.executionBounds}
             .tags=${this.executionTags}
             status=${this.executionStatus}
             required=${this.executionRequired}

@@ -31,8 +31,8 @@ use super::{
     decode_blocks, decode_inlines,
     inlines::{inlines, mds_to_inlines, mds_to_string},
     shared::{
-        attrs, attrs_list, execution_mode, instruction_type, model_parameters, name,
-        node_to_string, primitive_node, prompt, string_to_instruction_message,
+        attrs, attrs_list, execution_bounds, execution_mode, instruction_type, model_parameters,
+        name, node_to_string, primitive_node, prompt, string_to_instruction_message,
     },
     Context,
 };
@@ -721,14 +721,14 @@ fn chat(input: &mut Located<&str>) -> PResult<Block> {
         "chat",
         (
             opt(preceded(multispace1, execution_mode)),
-            opt(preceded(multispace1, execution_mode)),
+            opt(preceded(multispace1, execution_bounds)),
             opt(preceded(multispace1, prompt)),
             opt(preceded(multispace1, model_parameters)),
             opt(take_while(0.., |_| true)),
         ),
     )
     .map(
-        |(execution_mode, execution_recursion, prompt, model_parameters, _rest)| {
+        |(execution_mode, execution_bounds, prompt, model_parameters, _rest)| {
             let prompt = prompt
                 .map(|prompt| PromptBlock {
                     target: Some(prompt.into()),
@@ -742,7 +742,7 @@ fn chat(input: &mut Located<&str>) -> PResult<Block> {
                 prompt,
                 model_parameters,
                 execution_mode,
-                execution_recursion,
+                execution_bounds,
                 is_ephemeral: Some(false),
                 ..Default::default()
             })
@@ -878,7 +878,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
     (
         instruction_type,
         opt(preceded(multispace1, execution_mode)),
-        opt(preceded(multispace1, execution_mode)),
+        opt(preceded(multispace1, execution_bounds)),
         opt(preceded(multispace1, prompt)),
         opt(preceded(multispace1, model_parameters)),
         opt(take_while(1.., |_| true)),
@@ -887,7 +887,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
             |(
                 instruction_type,
                 execution_mode,
-                execution_recursion,
+                execution_bounds,
                 prompt,
                 model_parameters,
                 message,
@@ -931,7 +931,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                     model_parameters,
                     content,
                     execution_mode,
-                    execution_recursion,
+                    execution_bounds,
                     ..Default::default()
                 })
             },
@@ -1146,6 +1146,7 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
                 let node_id = inner.node_id();
                 chunk.programming_language = inner.programming_language;
                 chunk.execution_mode = inner.execution_mode;
+                chunk.execution_bounds = inner.execution_bounds;
                 chunk.code = inner.code;
 
                 // Remove the inner code chunk from the mapping
@@ -1570,10 +1571,7 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
             let model_parameters = serde_json::from_value(json!(options)).unwrap_or_default();
 
             let execution_mode = options.get("mode").and_then(|value| value.parse().ok());
-
-            let execution_recursion = options
-                .get("recursion")
-                .and_then(|value| value.parse().ok());
+            let execution_bounds = options.get("bounds").and_then(|value| value.parse().ok());
 
             Block::InstructionBlock(InstructionBlock {
                 instruction_type: name.parse().unwrap_or_default(),
@@ -1581,7 +1579,7 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
                 message: args.map(InstructionMessage::from).unwrap_or_default(),
                 model_parameters,
                 execution_mode,
-                execution_recursion,
+                execution_bounds,
                 content: if !value.trim().is_empty() {
                     Some(decode_blocks(&value, context))
                 } else {
@@ -1643,16 +1641,15 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
                 .to_string();
             (!lang.is_empty()).then_some(lang)
         });
-        let meta = meta.strip_prefix("exec").unwrap_or_default().trim();
 
-        let (is_invisible, execution_mode) = if meta.contains("invisible") {
-            (
-                Some(true),
-                execution_mode(&mut Located::new(meta.replace("invisible", "").trim())).ok(),
-            )
-        } else {
-            (None, execution_mode(&mut Located::new(meta)).ok())
-        };
+        let meta = meta.strip_prefix("exec").unwrap_or_default().trim_end();
+
+        let (execution_mode, execution_bounds) = (
+            opt(preceded(multispace1, execution_mode)),
+            opt(preceded(multispace1, execution_bounds)),
+        )
+            .parse_next(&mut Located::new(meta))
+            .unwrap_or_default();
 
         let mut label_automatically = None;
         let mut label_type = None;
@@ -1694,7 +1691,7 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
                 lang
             },
             execution_mode,
-            is_invisible,
+            execution_bounds,
             label_automatically,
             label_type,
             label,
