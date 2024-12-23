@@ -232,8 +232,8 @@ export class ModelParameters extends Entity {
   protected override update(changedProperties: PropertyValues): void {
     super.update(changedProperties)
 
-    // check if an update to the weighting fields has occured,
-    // rebalance the other weight if the total sum does not == 100
+    // Check if an update to the weighting fields has occured,
+    // rebalance the other weights if the total sum does not = 100
     for (const f of this.weightFields) {
       if (changedProperties.has(f) && this.totalWeightingSum !== 100) {
         this.balanceWeighting(f, this[f])
@@ -350,36 +350,42 @@ export class ModelParameters extends Entity {
               'Weights used for selecting a model. Only apply if a model router is used.'
             )}
           </span>
-          <sl-range
-            class=${weightsClasses}
-            style=${rangeStyle}
-            label="Quality"
-            min="0"
-            max="100"
-            value=${this.qualityWeight}
-            @sl-change=${(e: InputEvent) =>
-              this.onWeightChanged(e, 'qualityWeight')}
-          ></sl-range>
-          <sl-range
-            class=${weightsClasses}
-            style=${rangeStyle}
-            label="Cost"
-            min="0"
-            max="100"
-            value=${this.costWeight}
-            @sl-change=${(e: InputEvent) =>
-              this.onWeightChanged(e, 'costWeight')}
-          ></sl-range>
-          <sl-range
-            class=${weightsClasses}
-            style=${rangeStyle}
-            label="Speed"
-            min="0"
-            max="100"
-            value=${this.speedWeight}
-            @sl-change=${(e: InputEvent) =>
-              this.onWeightChanged(e, 'speedWeight')}
-          ></sl-range>
+          <div class="flex items-center gap-2">
+            <span class="text-xs w-[7ch]">Quality</span>
+            <sl-range
+              class=${weightsClasses}
+              style=${rangeStyle}
+              min="0"
+              max="100"
+              value=${this.qualityWeight}
+              @sl-change=${(e: InputEvent) =>
+                this.onWeightChanged(e, 'qualityWeight')}
+            ></sl-range>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs w-[7ch]">Cost</span>
+            <sl-range
+              class=${weightsClasses}
+              style=${rangeStyle}
+              min="0"
+              max="100"
+              value=${this.costWeight}
+              @sl-change=${(e: InputEvent) =>
+                this.onWeightChanged(e, 'costWeight')}
+            ></sl-range>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs w-[7ch]">Speed</span>
+            <sl-range
+              class=${weightsClasses}
+              style=${rangeStyle}
+              min="0"
+              max="100"
+              value=${this.speedWeight}
+              @sl-change=${(e: InputEvent) =>
+                this.onWeightChanged(e, 'speedWeight')}
+            ></sl-range>
+          </div>
 
           <span class=${headerClasses}>
             <stencila-ui-icon
