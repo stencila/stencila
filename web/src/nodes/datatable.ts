@@ -25,8 +25,8 @@ export class Datatable extends Entity {
     return html`
       <stencila-ui-block-on-demand
         type="Datatable"
+        node-id=${this.id}
         depth=${this.depth}
-        ?isRootNode=${this.root}
       >
         <div class="content" slot="content">${this.renderContent()}</div>
       </stencila-ui-block-on-demand>

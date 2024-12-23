@@ -25,10 +25,10 @@ export class CodeBlock extends CodeStatic {
     return html`
       <stencila-ui-block-on-demand
         type="CodeBlock"
+        node-id=${this.id}
         depth=${this.depth}
         header-icon=${icon}
         header-title=${title}
-        ?isRootNode=${this.root}
       >
         <div slot="body">
           <stencila-ui-node-authors type="CodeBlock">

@@ -61,12 +61,11 @@ export class CodeChunk extends CodeExecutable {
 
     return html`<stencila-ui-block-on-demand
       type="CodeChunk"
-      depth=${this.depth}
       node-id=${this.id}
+      depth=${this.depth}
       header-icon=${icon}
       header-title=${title}
       ?noVisibleContent=${!this.hasOutputs}
-      ?isRootNode=${this.root}
     >
       <span slot="header-right" class="flex flex-row items-center gap-3">
         <stencila-ui-node-clone-commands

@@ -34,10 +34,10 @@ export class RawBlock extends Entity {
     return html`
       <stencila-ui-block-on-demand
         type="RawBlock"
+        node-id=${this.id}
         depth=${this.depth}
         header-icon=${icon}
         header-title="Raw ${title}"
-        ?isRootNode=${this.root}
       >
         <div slot="body">
           <stencila-ui-node-authors type="RawBlock">

@@ -27,9 +27,8 @@ export class Table extends Entity {
     return html`
       <stencila-ui-block-on-demand
         type="Table"
-        depth=${this.depth}
         node-id=${this.id}
-        ?isRootNode=${this.root}
+        depth=${this.depth}
       >
         <div slot="body">
           <stencila-ui-node-authors type="Table">

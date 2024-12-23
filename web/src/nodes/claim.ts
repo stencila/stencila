@@ -28,9 +28,9 @@ export class Claim extends Entity {
     return html`
       <stencila-ui-block-on-demand
         type="Claim"
-        header-title=${this.claimType}
+        node-id=${this.id}
         depth=${this.depth}
-        ?isRootNode=${this.root}
+        header-title=${this.claimType}
       >
         <div slot="body">
           <stencila-ui-node-authors type="Claim">

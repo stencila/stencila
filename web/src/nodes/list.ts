@@ -27,9 +27,8 @@ export class List extends Entity {
     return html`
       <stencila-ui-block-on-demand
         type="List"
-        depth=${this.depth}
         node-id=${this.id}
-        ?isRootNode=${this.root}
+        depth=${this.depth}
       >
         <div slot="body">
           <stencila-ui-node-authors type="List">

@@ -28,8 +28,8 @@ export class CallBlock extends IncludeBlock {
     return html`
       <stencila-ui-block-on-demand
         type="CallBlock"
+        node-id=${this.id}
         depth=${this.depth}
-        ?isRootNode=${this.root}
       >
         <span slot="header-right">
           <stencila-ui-node-execution-commands

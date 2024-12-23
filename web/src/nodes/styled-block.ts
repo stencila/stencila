@@ -22,9 +22,9 @@ export class StyledBlock extends Styled {
 
     return html`<stencila-ui-block-on-demand
       type="StyledBlock"
-      .canAnimate=${false}
+      node-id=${this.id}
       depth=${this.depth}
-      ?isRootNode=${this.root}
+      .canAnimate=${false}
     >
       <div slot="body">
         <stencila-ui-node-authors type="StyledBlock">

@@ -73,8 +73,8 @@ export class IncludeBlock extends Executable {
     return html`
       <stencila-ui-block-on-demand
         type="IncludeBlock"
+        node-id=${this.id}
         depth=${this.depth}
-        ?isRootNode=${this.root}
       >
         <span slot="header-right">
           <stencila-ui-node-execution-commands

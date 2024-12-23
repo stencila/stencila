@@ -48,12 +48,6 @@ export class UIBaseCard extends UIBaseClass {
   canCollapse?: boolean = false
 
   /**
-   * If the node reporesented is the root nodes of the currnet stencila doc
-   */
-  @property({ type: Boolean })
-  isRootNode: boolean = false
-
-  /**
    * Indicates whether we need to have border separating header items and the
    * expand/collapse button.
    */
@@ -150,7 +144,7 @@ export class UIBaseCard extends UIBaseClass {
             <slot name="header-right"></slot>
           </div>
           ${this.canCollapse ? this.renderCollapse() : null}
-          ${!this.isRootNode ? this.renderClose() : ''}
+          ${this.depth > 1 ? this.renderClose() : ''}
         </div>
       </div>
     </div>`

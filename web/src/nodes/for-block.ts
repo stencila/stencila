@@ -50,7 +50,6 @@ export class ForBlock extends CodeExecutable {
         depth=${this.depth}
         ?removeContentPadding=${true}
         ?noVisibleContent=${!this.hasIterations}
-        ?isRootNode=${this.root}
       >
         <span slot="header-right">
           <stencila-ui-node-execution-commands

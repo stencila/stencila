@@ -29,8 +29,8 @@ export class Figure extends Entity {
     return html`
       <stencila-ui-block-on-demand
         type="Figure"
+        node-id=${this.id}
         depth=${this.depth}
-        ?isRootNode=${this.root}
       >
         <div slot="body">
           <stencila-ui-node-authors type="Figure">

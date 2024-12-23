@@ -39,11 +39,10 @@ export class IfBlock extends Executable {
     return html`
       <stencila-ui-block-on-demand
         type="IfBlock"
-        depth=${this.depth}
         node-id=${this.id}
+        depth=${this.depth}
         ?removeContentPadding=${true}
         ?noVisibleContent=${!this.hasClauses}
-        ?isRootNode=${this.root}
       >
         <span slot="header-right">
           <stencila-ui-node-execution-commands

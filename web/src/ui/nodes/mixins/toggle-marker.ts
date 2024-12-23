@@ -53,12 +53,6 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
     protected toggle: boolean = false
 
     /**
-     * the depth of the current `Node`
-     */
-    @property({ type: Number })
-    depth: number
-
-    /**
      * Boolean switch property, to handle nodes with empty content/output
      */
     @property({ type: Boolean })
@@ -94,7 +88,7 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
      */
     protected expandByDefault() {
       const testMode = getModeParam(window)
-      if ((testMode && testMode === 'test-expand-all') || this.isRootNode) {
+      if (testMode && testMode === 'test-expand-all') {
         // set node cards in 'test-expand-all' mode to expand by default
         return true
       } else {

@@ -22,8 +22,8 @@ export class MathBlock extends Math {
     return html`
       <stencila-ui-block-on-demand
         type="MathBlock"
+        node-id=${this.id}
         depth=${this.depth}
-        ?isRootNode=${this.root}
       >
         <span slot="header-right">
           <stencila-ui-node-clone-commands
