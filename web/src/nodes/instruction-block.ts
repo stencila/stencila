@@ -290,7 +290,7 @@ export class InstructionBlock extends Instruction {
         ${this.renderSuggestionsHeader()}
       </div>
 
-      <div slot="content" class="w-full">
+      <div slot="content" class="max-w-prose mx-auto">
         <div
           class="content-container ${!(
             this.activeSuggestion === null ||

@@ -1,5 +1,5 @@
-import { apply } from '@twind/core'
-import { css, html, TemplateResult } from 'lit'
+import { apply, css } from '@twind/core'
+import { html, TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { documentCommandEvent } from '../clients/commands'
@@ -107,9 +107,7 @@ export class ModelParameters extends Entity {
                 value=${model.id}
                 style="--sl-spacing-x-small: 0.25rem;"
               >
-                <span class="text-xs text-[${textColour}]">
-                  ${model.name} ${model.version}
-                </span>
+                <span class="text-xs text-[${textColour}]">${model.id}</span>
               </sl-option>
             `
           )}
@@ -253,25 +251,7 @@ export class ModelParameters extends Entity {
     data.removeEventListener('models', this.onModelsUpdated.bind(this))
   }
 
-  static override styles = css`
-    sl-divider {
-      border-top: solid var(--width) var(--color);
-      margin: 0.5rem 0;
-    }
-  `
-
   override render() {
-    const { colour, textColour, borderColour } = this.parentNodeUI
-
-    const styles = apply(
-      'flex flex-row items-center',
-      'w-full',
-      'px-3 py-4',
-      `bg-[${colour}]`,
-      `text-[${textColour}] text-xs leading-tight font-sans`,
-      `border-t border-[${borderColour}]`
-    )
-
     // Model id strings written by the user may be partial, so here match them with
     // the id in the model list. This is the same as done in Rust.
     const modelIds: string[] = []
@@ -284,40 +264,56 @@ export class ModelParameters extends Entity {
       }
     }
 
+    const { colour, textColour, borderColour } = this.parentNodeUI
+
+    const styles = apply(
+      'flex flex-row items-center gap-x-2',
+      'w-full',
+      'px-3 py-1',
+      `bg-[${colour}]`,
+      `text-[${textColour}] text-xs leading-tight font-sans`,
+      `border-t border-[${borderColour}]`
+    )
+
+    const selectStyles = css`
+      &::part(tag__base) {
+        background-color: white;
+        border-color: ${borderColour};
+        color: ${textColour};
+      }
+      &::part(clear-button) {
+        color: ${textColour};
+      }
+    `
+
     return html`
       <div class=${styles}>
-        <div class="flex flex-row items-center justify-between w-full">
-          <div class="flex flex-row items-center w-11/12">
-            <span class="pr-2">Model</span>
-            <sl-select
-              class="w-full"
-              multiple
-              clearable
-              max-options-visible="2"
-              size="small"
-              value=${modelIds.join(' ')}
-              @sl-change=${(e: InputEvent) => this.onModelIdsChanged(e)}
+        Model
+        <sl-select
+          class="w-full ${selectStyles}"
+          multiple
+          clearable
+          max-options-visible="2"
+          size="small"
+          value=${modelIds.join(' ')}
+          @sl-change=${(e: InputEvent) => this.onModelIdsChanged(e)}
+        >
+          ${this.modelOptions}
+        </sl-select>
+        <sl-dropdown placement="bottom-end" distance="20">
+          <div slot="trigger" class="cursor-pointer">
+            <sl-tooltip
+              content="Model settings"
+              style="--show-delay: 500ms; --hide-delay: 100ms"
             >
-              ${this.modelOptions}
-            </sl-select>
+              <stencila-ui-icon
+                name="sliders"
+                class="text-base"
+              ></stencila-ui-icon>
+            </sl-tooltip>
           </div>
-          <div>
-            <sl-dropdown placement="bottom-end" distance="20">
-              <div slot="trigger" class="ml-4 cursor-pointer">
-                <sl-tooltip
-                  content="Model settings"
-                  style="--show-delay: 500ms; --hide-delay: 100ms"
-                >
-                  <stencila-ui-icon
-                    name="sliders"
-                    class="text-base"
-                  ></stencila-ui-icon>
-                </sl-tooltip>
-              </div>
-              ${this.renderDropdown()}
-            </sl-dropdown>
-          </div>
-        </div>
+          ${this.renderDropdown()}
+        </sl-dropdown>
       </div>
     `
   }
