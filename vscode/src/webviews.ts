@@ -24,12 +24,17 @@ const documentViewPanels = new Map<string, vscode.WebviewPanel>();
  */
 const documentViewHandlers = new Map<string, vscode.Disposable[]>();
 
+export interface DomPatch {
+  // Indicated that the node, or document, has been deleted
+  // and that the panel should be closed
+  deleted: boolean;
+}
+
 /**
  * A map of patch handler function for each subscription to a
  * document's DOM HTML
  */
-export const documentPatchHandlers: Record<string, (patch: unknown) => void> =
-  {};
+export const documentPatchHandlers: Record<string, (patch: DomPatch) => void> = {};
 
 /**
  * Register a handler for "stencila/publishDom" notifications that forwards
@@ -41,7 +46,7 @@ export function registerSubscriptionNotifications(
 ) {
   const handler = client.onNotification(
     "stencila/publishDom",
-    ({ subscriptionId, patch }: { subscriptionId: string; patch: unknown }) => {
+    ({ subscriptionId, patch }: { subscriptionId: string; patch: DomPatch }) => {
       const handler = documentPatchHandlers[subscriptionId];
       if (!handler) {
         console.error(`No handler for subscription ${subscriptionId}`);
@@ -210,7 +215,13 @@ export async function initializeWebViewPanel(
   // Subscribe to updates of DOM HTML for document
   const [subscriptionId, themeName, viewHtml] = await subscribeToDom(
     uri,
-    (patch: unknown) => {
+    (patch) => {
+      // Dispose of the panel if the document or node has been deleted
+      if (patch.deleted) {
+        return panel.dispose();
+      }
+
+      // Otherwise, forward the patch to the panel
       panel.webview.postMessage({
         type: "dom-patch",
         patch,

@@ -19,6 +19,7 @@ import { registerStatusBar } from "./status-bar";
 import {
   closeDocumentViewPanels,
   documentPatchHandlers,
+  DomPatch,
   registerSubscriptionNotifications,
 } from "./webviews";
 import { cliPath } from "./cli";
@@ -207,7 +208,7 @@ export function deactivate() {
  */
 export async function subscribeToDom(
   documentUri: vscode.Uri,
-  callback: (patch: unknown) => void
+  callback: (patch: DomPatch) => void
 ): Promise<[string, string, string]> {
   if (!client) {
     throw new Error("No Stencila LSP client");

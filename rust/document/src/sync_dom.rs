@@ -36,6 +36,12 @@ pub struct DomPatch {
     /// The version of the patch
     version: u32,
 
+    /// Whether the document, or node within it, has been deleted
+    ///
+    /// Used to signal to clients that they should finish listening
+    /// for further patches.
+    deleted: bool,
+
     /// The operations in the patch
     ops: Vec<DomOperation>,
 }
@@ -49,7 +55,7 @@ impl DomPatch {
     pub fn reset_request() -> Self {
         Self {
             version: 0,
-            ops: Vec::new(),
+            ..Default::default()
         }
     }
 }
@@ -214,6 +220,7 @@ impl Document {
                     let reset = DomPatch {
                         version: current_version,
                         ops: vec![DomOperation::reset_content(&*current_content)],
+                        ..Default::default()
                     };
                     if let Err(error) = patch_sender_clone.send(reset).await {
                         tracing::error!("While sending content reset patch: {error}");
@@ -232,6 +239,7 @@ impl Document {
             let init = DomPatch {
                 version: version.load(Ordering::SeqCst),
                 ops: vec![DomOperation::reset_content(reset_content)],
+                ..Default::default()
             };
             if let Err(error) = patch_sender.send(init).await {
                 tracing::error!("While sending initial string patch: {error}");
@@ -249,8 +257,17 @@ impl Document {
                         let Some(node) = find(&root, node_id.clone()) else {
                             // If node has been removed from the document, end the task
                             tracing::debug!(
-                                "Unable to find node `{node_id}`, stopping `sync_dom` task"
+                                "Unable to find node `{node_id}`: sending 'deleted' patch and stopping `sync_dom` task"
                             );
+                            if let Err(error) = patch_sender
+                                .send(DomPatch {
+                                    deleted: true,
+                                    ..Default::default()
+                                })
+                                .await
+                            {
+                                tracing::debug!("When sending 'deleted' patch: {error}")
+                            }
                             return;
                         };
                         codecs::to_string(&node, encode_options.clone()).await
@@ -318,7 +335,11 @@ impl Document {
                 if !ops.is_empty() {
                     // Create and send a patch for the content
                     let version = version.load(Ordering::SeqCst);
-                    let patch = DomPatch { version, ops };
+                    let patch = DomPatch {
+                        version,
+                        ops,
+                        ..Default::default()
+                    };
                     if patch_sender.send(patch).await.is_err() {
                         // Most likely receiver has dropped so just finish this task
                         break;
