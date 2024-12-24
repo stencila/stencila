@@ -10,14 +10,19 @@ import { statusBar } from "./status-bar";
 /**
  * A map of document view panels used to ensure that only one
  * view of a document exists at a time
+ *
+ * Previously used `vscode.Uri` as keys but that ignored
+ * the 'fragment' part used for node ids and thus caused
+ * multiple panels to be opened for the same node. Therefore
+ * this now used the stringified URL.
  */
-const documentViewPanels = new Map<vscode.Uri, vscode.WebviewPanel>();
+const documentViewPanels = new Map<string, vscode.WebviewPanel>();
 
 /**
  * A map of the "disposables" for each document that can be disposed of when
  * the view is closed
  */
-const documentViewHandlers = new Map<vscode.Uri, vscode.Disposable[]>();
+const documentViewHandlers = new Map<string, vscode.Disposable[]>();
 
 /**
  * A map of patch handler function for each subscription to a
@@ -84,9 +89,11 @@ export async function createDocumentViewPanel(
   nodeId?: string,
   expandAuthors?: boolean
 ): Promise<vscode.WebviewPanel> {
-  if (documentViewPanels.has(documentUri)) {
+  const uriString = documentUri.toString();
+
+  if (documentViewPanels.has(uriString)) {
     // If there is already a panel open for this document, reveal it
-    const panel = documentViewPanels.get(documentUri) as vscode.WebviewPanel;
+    const panel = documentViewPanels.get(uriString) as vscode.WebviewPanel;
     panel.reveal();
 
     // If `nodeId` param is defined, scroll webview to target node.
@@ -142,8 +149,10 @@ export async function createNodeViewPanel(
 ): Promise<vscode.WebviewPanel> {
   const uri = documentUri.with({ fragment: nodeId });
 
-  if (documentViewPanels.has(uri)) {
-    const panel = documentViewPanels.get(uri) as vscode.WebviewPanel;
+  const uriKey = uri.toString();
+
+  if (documentViewPanels.has(uriKey)) {
+    const panel = documentViewPanels.get(uriKey) as vscode.WebviewPanel;
     panel.reveal();
 
     return panel;
@@ -184,10 +193,12 @@ export async function createNodeViewPanel(
  */
 export async function initializeWebViewPanel(
   context: vscode.ExtensionContext,
-  documentUri: vscode.Uri,
+  uri: vscode.Uri,
   panel: vscode.WebviewPanel,
   editor?: vscode.TextEditor
 ) {
+  const uriString = uri.toString();
+
   // Set the icon of the panel
   // TODO: use a different icon for articles, prompts and chats
   panel.iconPath = vscode.Uri.joinPath(
@@ -198,7 +209,7 @@ export async function initializeWebViewPanel(
 
   // Subscribe to updates of DOM HTML for document
   const [subscriptionId, themeName, viewHtml] = await subscribeToDom(
-    documentUri,
+    uri,
     (patch: unknown) => {
       panel.webview.postMessage({
         type: "dom-patch",
@@ -276,13 +287,13 @@ export async function initializeWebViewPanel(
       unsubscribeFromDom(subscriptionId);
 
       // Remove from list of panels
-      documentViewPanels.delete(documentUri);
+      documentViewPanels.delete(uriString);
 
       // Dispose handlers and remove from lists
       documentViewHandlers
-        .get(documentUri)
+        .get(uriString)
         ?.forEach((handler) => handler.dispose());
-      documentViewHandlers.delete(documentUri);
+      documentViewHandlers.delete(uriString);
     },
     null,
     disposables
@@ -291,7 +302,7 @@ export async function initializeWebViewPanel(
   // Handle messages from the webview
   // It is necessary to translate the names of the Stencila document
   // command to the command and argument convention that the LSP uses
-  const uri = documentUri.with({ fragment: "" }).toString();
+  const documentUri = uri.with({ fragment: "" }).toString();
   panel.webview.onDidReceiveMessage(
     (message: ReceivedMessage) => {
       if (message.type === "dom-reset") {
@@ -329,15 +340,19 @@ export async function initializeWebViewPanel(
         command = "invoke.clone-node";
       }
 
-      vscode.commands.executeCommand(`stencila.${command}`, uri, ...args);
+      vscode.commands.executeCommand(
+        `stencila.${command}`,
+        documentUri,
+        ...args
+      );
     },
     null,
     disposables
   );
 
   // Track the webview by adding it to the map
-  documentViewPanels.set(documentUri, panel);
-  documentViewHandlers.set(documentUri, disposables);
+  documentViewPanels.set(uriString, panel);
+  documentViewHandlers.set(uriString, disposables);
 
   return panel;
 }
