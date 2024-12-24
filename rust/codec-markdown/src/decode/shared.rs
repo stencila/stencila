@@ -48,10 +48,11 @@ pub(super) fn execution_mode(input: &mut Located<&str>) -> PResult<ExecutionMode
 
 /// Parse an execution bounds variant
 pub(super) fn execution_bounds(input: &mut Located<&str>) -> PResult<ExecutionBounds> {
-    alt(("main", "fork", "box", "skip"))
+    alt(("main", "fork", "limit", "box", "skip"))
         .map(|typ| match typ {
             "main" => ExecutionBounds::Main,
             "fork" => ExecutionBounds::Fork,
+            "limit" => ExecutionBounds::Limit,
             "box" => ExecutionBounds::Box,
             "skip" => ExecutionBounds::Skip,
             _ => unreachable!(),
