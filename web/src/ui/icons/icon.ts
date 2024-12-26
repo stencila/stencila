@@ -109,6 +109,7 @@ import mistral from './mistral.svg'
 import nodejs from './nodejs.svg'
 import ollama from './ollama.svg'
 import openai from './openai.svg'
+import paperclip from './paperclip.svg'
 import paragraph from './paragraph.svg'
 import person from './person.svg'
 import playCircle from './play-circle.svg'
@@ -238,6 +239,7 @@ const icons = {
   'node.js': nodejs,
   ollama,
   openai,
+  paperclip,
   paragraph,
   person,
   play,

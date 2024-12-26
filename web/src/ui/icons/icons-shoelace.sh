@@ -62,6 +62,7 @@ icons=(
     lightbulb
     lightning
     lock
+    paperclip
     person
     play
     play-circle

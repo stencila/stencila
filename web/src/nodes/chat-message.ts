@@ -6,7 +6,7 @@ import { withTwind } from '../twind'
 
 import { Executable } from './executable'
 
-import '../ui/chat/message-inputs'
+import '../ui/nodes/chat-message-inputs'
 import '../ui/animation/logo'
 
 /**
@@ -28,7 +28,8 @@ export class ChatMessage extends Executable {
   messageRole: 'System' | 'User' | 'Model'
 
   /**
-   * A list of node types that are initially expanded within a model chat message
+   * A list of node types that are initially expanded within a
+   * model chat message
    */
   public static EXPANDED_NODE_TYPES: NodeType[] = [
     'CodeBlock',
