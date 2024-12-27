@@ -90,7 +90,7 @@ stencila-prompt[root] {
   }
 
   p {
-    @apply mt-5 mb-0 pr-0 align-baseline leading-snug;
+    @apply mt-4 mb-0 pr-0 align-baseline leading-snug;
   }
 
   figure {
@@ -343,11 +343,19 @@ stencila-prompt[root] {
     }
   }
 
-  /* ----------------- */
-
   stencila-admonition {
     p {
       @apply mt-0;
+    }
+  }
+
+  stencila-chat-message[message-role='User'] {
+    [slot='content'] {
+      stencila-paragraph:first-child {
+        p {
+          @apply mt-0;
+        }
+      }
     }
   }
 
