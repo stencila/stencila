@@ -11,10 +11,6 @@ import { Entity } from './entity'
 /**
  * Web component representing a Stencila Schema `AuthorRole` node
  *
- * To unify an `AuthorRole` with other types that can be an author (e.g `Person`)
- * into a `<stencila-ui-node-author>` it is necessary to reach into the default slot
- * of this component and extract `name` etc from it.
- *
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/author-role.md
  */
 @customElement('stencila-author-role')
