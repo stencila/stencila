@@ -1047,7 +1047,7 @@ where
 
     fn from_value(value: PatchValue) -> Result<Self> {
         match value {
-            PatchValue::None => Ok(None),
+            PatchValue::None | PatchValue::Json(serde_json::Value::Null) => Ok(None),
             _ => T::from_value(value).map(Some),
         }
     }
