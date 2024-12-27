@@ -123,13 +123,13 @@ pub enum Command {
     PatchExecuteNodes((Patch, CommandNodes, ExecuteOptions)),
 
     /// Patch and then execute a chat
-    /// 
+    ///
     /// Adds a new user [`ChatMessage`] to the chat and then executes the
     /// chat thereby creating a new model message.
     PatchExecuteChat {
         chat_id: NodeId,
         text: String,
-        files: Vec<File>,
+        files: Option<Vec<File>>,
     },
 }
 

@@ -1,6 +1,7 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
+import { UnsignedInteger } from "./UnsignedInteger.js";
 
 /**
  * A file on the file system.
@@ -23,6 +24,16 @@ export class File extends Entity {
    * IANA media type (MIME type).
    */
   mediaType?: string;
+
+  /**
+   * The encoding used for the context (e.g. base64, gz)
+   */
+  transferEncoding?: string;
+
+  /**
+   * The size of the content in bytes
+   */
+  size?: UnsignedInteger;
 
   /**
    * The content of the file.

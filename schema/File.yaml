@@ -12,6 +12,7 @@ required:
   - path
 core:
   - mediaType
+  - size
   - content
 properties:
   name:
@@ -33,9 +34,22 @@ properties:
       as listed at http://www.iana.org/assignments/media-types/media-types.xhtml.
     type: string
     pattern: '^\w+/[-+.\w]+$'
+  transferEncoding:
+    '@id': stencila:transferEncoding
+    description: The encoding used for the context (e.g. base64, gz)
+    $comment: |
+      Similar to the HTTP Transfer-Encoding header (https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding).
+      Mostly used to indicates whether the content of the file is Base64 encoded.
+    type: string
+  size:
+    '@id': schema:size
+    description: The size of the content in bytes
+    $ref: UnsignedInteger
   content:
     '@id': schema:content
     description: The content of the file.
     $comment: |
-      For binary formats, such as images, the content should be base64 encoded.
+      For binary formats, such as images, the content should be Base64 encoded.
     type: string
+    dom:
+      skip: true

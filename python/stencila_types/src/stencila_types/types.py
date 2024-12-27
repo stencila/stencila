@@ -1216,6 +1216,9 @@ class ChatMessage(Executable):
 
     type: Literal["ChatMessage"] = "ChatMessage"
 
+    author: Author | None = None
+    """The author of the message"""
+
     role: MessageRole
     """The role of the message in the conversation."""
 
@@ -1827,6 +1830,12 @@ class File(Entity):
 
     media_type: str | None = None
     """IANA media type (MIME type)."""
+
+    transfer_encoding: str | None = None
+    """The encoding used for the context (e.g. base64, gz)"""
+
+    size: UnsignedInteger | None = None
+    """The size of the content in bytes"""
 
     content: str | None = None
     """The content of the file."""

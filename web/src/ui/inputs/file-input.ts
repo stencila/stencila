@@ -73,18 +73,28 @@ export class UIFileInput extends LitElement {
 export async function fileToStencilaFile(file: File): Promise<StencilaFile> {
   const name = file.name
   const mediaType = file.type
-  let content: string | undefined
+  const size = file.size
 
-  if (
-    mediaType.startsWith('application/json') ||
-    mediaType.startsWith('text')
-  ) {
-    content = await readFileAsText(file)
-  } else {
-    content = await readFileAsBase64(file)
+  let content: string | undefined
+  let transferEncoding: string | undefined
+  if (size > 0) {
+    if (
+      mediaType.startsWith('application/json') ||
+      mediaType.startsWith('text')
+    ) {
+      content = await readFileAsText(file)
+    } else {
+      content = await readFileAsBase64(file)
+      transferEncoding = 'base64'
+    }
   }
 
-  return new StencilaFile(name, '', { mediaType, content })
+  return new StencilaFile(name, '', {
+    mediaType,
+    transferEncoding,
+    size,
+    content,
+  })
 }
 
 function readFileAsBase64(file: File): Promise<string> {

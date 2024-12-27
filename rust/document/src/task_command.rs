@@ -10,8 +10,7 @@ use common::{
 use format::Format;
 use node_execute::{compile, execute, interrupt, ExecuteOptions};
 use schema::{
-    transforms::blocks_to_inlines, Article, Block, ChatMessage, Node, NodeId, NodeProperty, Patch,
-    PatchNode, PatchOp, PatchPath,
+    transforms::blocks_to_inlines, Article, Block, ChatMessage, File, Node, NodeId, NodeProperty, Patch, PatchNode, PatchOp, PatchPath
 };
 
 use crate::{
@@ -233,8 +232,12 @@ impl Document {
                         PatchExecuteNodes((patch, nodes, options)) => {
                             (Some(patch), nodes.node_ids, options)
                         }
-                        PatchExecuteChat { chat_id, text, .. } => {
-                            let patch = match chat_patch(&chat_id, text).await {
+                        PatchExecuteChat {
+                            chat_id,
+                            text,
+                            files,
+                        } => {
+                            let patch = match chat_patch(&chat_id, text, files).await {
                                 Ok(message) => message,
                                 Err(error) => {
                                     send_status(
@@ -376,7 +379,7 @@ impl Document {
 }
 
 /// Create a patch for a chat from the fields of a [`Command::PatchExecuteChat`]
-async fn chat_patch(chat_id: &NodeId, text: String) -> Result<Patch> {
+async fn chat_patch(chat_id: &NodeId, text: String, files: Option<Vec<File>>) -> Result<Patch> {
     let Ok(Node::Article(Article { content, .. })) = codecs::from_str(
         &text,
         Some(DecodeOptions {
@@ -391,6 +394,7 @@ async fn chat_patch(chat_id: &NodeId, text: String) -> Result<Patch> {
 
     let chat_message = Block::ChatMessage(ChatMessage {
         content,
+        files,
         ..Default::default()
     });
 

@@ -599,13 +599,14 @@ pub(super) async fn execute_command(
                 .next()
                 .and_then(|arg| arg.as_str().map(String::from))
                 .unwrap_or_default();
+            let files = args.next().and_then(|arg| serde_json::from_value(arg).ok());
 
             (
                 "Adding chat message".to_string(),
                 Command::PatchExecuteChat {
                     chat_id,
                     text,
-                    files: vec![],
+                    files,
                 },
                 false,
                 false,

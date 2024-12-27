@@ -71,6 +71,7 @@ export class ChatMessage extends Executable {
       <div class="flex justify-end">
         <div class="my-3 p-3 bg-blue-50 rounded w-content">
           <slot name="content"></slot>
+          <slot name="files"></slot>
         </div>
       </div>
     `

@@ -99,6 +99,30 @@
       }
     },
     {
+      "@id": "stencila:transferEncoding",
+      "@type": "rdfs:Property",
+      "rdfs:label": "transferEncoding",
+      "rdfs:comment": "The encoding used for the context (e.g. base64, gz)",
+      "schema:domainIncludes": {
+        "@id": "stencila:File"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:size",
+      "@type": "rdfs:Property",
+      "rdfs:label": "size",
+      "rdfs:comment": "The size of the content in bytes",
+      "schema:domainIncludes": {
+        "@id": "stencila:File"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
+    },
+    {
       "@id": "schema:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
