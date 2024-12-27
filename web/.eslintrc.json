@@ -32,6 +32,20 @@
       { "avoidEscape": true, "allowTemplateLiterals": true }
     ],
     "@typescript-eslint/ban-types": "off",
+    // Emulate the TypeScript style of exempting names starting with _
+    // https://typescript-eslint.io/rules/no-unused-vars/#benefits-over-typescript
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "args": "all",
+        "argsIgnorePattern": "^_",
+        "caughtErrors": "all",
+        "caughtErrorsIgnorePattern": "^_",
+        "destructuredArrayIgnorePattern": "^_",
+        "varsIgnorePattern": "^_",
+        "ignoreRestSiblings": true
+      }
+    ],
     "import/order": [
       "error",
       {
