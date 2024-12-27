@@ -5,7 +5,7 @@ import { customElement, property, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 import { IconName } from '../ui/icons/icon'
-import { EntityContext, entityContext } from '../ui/nodes/context'
+import { EntityContext, entityContext } from '../ui/nodes/entity-context'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import '../ui/animation/collapsible'

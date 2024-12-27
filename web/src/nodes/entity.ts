@@ -5,7 +5,7 @@ import { property, state } from 'lit/decorators'
 
 import { nodePatchEvent, NodePatch } from '../clients/nodes'
 import { DocumentAccess, DocumentView, NodeId } from '../types'
-import { EntityContext, entityContext } from '../ui/nodes/context'
+import { EntityContext, entityContext } from '../ui/nodes/entity-context'
 import { closestGlobally } from '../utilities/closestGlobally'
 
 /**

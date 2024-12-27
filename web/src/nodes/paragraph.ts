@@ -4,7 +4,7 @@ import { PropertyValueMap, html } from 'lit'
 import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../twind'
-import { EntityContext, entityContext } from '../ui/nodes/context'
+import { EntityContext, entityContext } from '../ui/nodes/entity-context'
 
 import { Entity } from './entity'
 

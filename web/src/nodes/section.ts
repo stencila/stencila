@@ -3,7 +3,7 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
-import { entityContext, EntityContext } from '../ui/nodes/context'
+import { entityContext, EntityContext } from '../ui/nodes/entity-context'
 
 import '../ui/nodes/for-block-iteration'
 import '../ui/nodes/cards/block-on-demand'
