@@ -1,7 +1,6 @@
 #![recursion_limit = "256"]
 
 use std::{
-    fs::File,
     io,
     path::{Path, PathBuf},
     sync::{atomic::AtomicU64, Arc},
@@ -25,7 +24,9 @@ use common::{
 use format::Format;
 use kernels::Kernels;
 use node_execute::ExecuteOptions;
-use schema::{Article, AuthorRole, Node, NodeId, NodeProperty, NodeType, Null, Patch, Prompt};
+use schema::{
+    Article, AuthorRole, File, Node, NodeId, NodeProperty, NodeType, Null, Patch, Prompt,
+};
 
 mod config;
 mod sync_directory;
@@ -114,12 +115,22 @@ pub enum Command {
         content_type: ContentType,
     },
 
-    /// Patch and the document and then execute nodes within it
+    /// Patch the document and then execute nodes within it
     ///
     /// This command should be used when it is necessary to patch and then
     /// immediately execute as it avoid race conditions associated with
     /// sending separate patch and execute commands.
     PatchExecuteNodes((Patch, CommandNodes, ExecuteOptions)),
+
+    /// Patch and then execute a chat
+    /// 
+    /// Adds a new user [`ChatMessage`] to the chat and then executes the
+    /// chat thereby creating a new model message.
+    PatchExecuteChat {
+        chat_id: NodeId,
+        text: String,
+        files: Vec<File>,
+    },
 }
 
 /// Whether the document source file should be saved
@@ -528,7 +539,7 @@ impl Document {
         let sidecar = Self::sidecar_path(path);
         if sidecar.exists() {
             fn modification_time(path: &Path) -> io::Result<SystemTime> {
-                let metadata = File::open(path)?.metadata()?;
+                let metadata = std::fs::File::open(path)?.metadata()?;
                 metadata.modified()
             }
 

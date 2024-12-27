@@ -2,13 +2,17 @@ use std::path::PathBuf;
 
 use codecs::{to_path, DecodeOptions, EncodeOptions, LossesResponse};
 use common::{
-    eyre::{bail, Report},
+    eyre::{bail, Report, Result},
     itertools::Itertools,
     tokio::{self, task::JoinHandle},
     tracing,
 };
+use format::Format;
 use node_execute::{compile, execute, interrupt, ExecuteOptions};
-use schema::{transforms::blocks_to_inlines, Article, Node, Patch, PatchNode, PatchOp, PatchPath};
+use schema::{
+    transforms::blocks_to_inlines, Article, Block, ChatMessage, Node, NodeId, NodeProperty, Patch,
+    PatchNode, PatchOp, PatchPath,
+};
 
 use crate::{
     Command, CommandNodes, CommandStatus, ContentType, Document, DocumentCommandReceiver,
@@ -221,29 +225,66 @@ impl Document {
                     });
                     current_command_details = Some((command, command_id, task));
                 }
-                ExecuteNodes((nodes, options)) | PatchExecuteNodes((.., nodes, options)) => {
-                    if let PatchExecuteNodes((patch, ..)) = command {
+
+                ExecuteNodes(..) | PatchExecuteNodes(..) | PatchExecuteChat { .. } => {
+                    // Extract or generate the patch if necessary
+                    let (patch, node_ids, options) = match command {
+                        ExecuteNodes((nodes, options)) => (None, nodes.node_ids, options),
+                        PatchExecuteNodes((patch, nodes, options)) => {
+                            (Some(patch), nodes.node_ids, options)
+                        }
+                        PatchExecuteChat { chat_id, text, .. } => {
+                            let patch = match chat_patch(&chat_id, text).await {
+                                Ok(message) => message,
+                                Err(error) => {
+                                    send_status(
+                                        &status_sender,
+                                        command_id,
+                                        CommandStatus::Failed(format!(
+                                            "While creating chat patch: {error}"
+                                        )),
+                                    );
+                                    continue;
+                                }
+                            };
+
+                            (Some(patch), vec![chat_id], ExecuteOptions::default())
+                        }
+                        _ => unreachable!(),
+                    };
+
+                    // Apply the patch if appropriate
+                    if let Some(patch) = patch {
                         let root = &mut *root.write().await;
                         if let Err(error) = schema::patch(root, patch) {
-                            CommandStatus::Failed(format!("While applying patch to root: {error}"));
+                            send_status(
+                                &status_sender,
+                                command_id,
+                                CommandStatus::Failed(format!(
+                                    "While applying patch to root: {error}"
+                                )),
+                            );
+                            continue;
                         }
                     }
 
+                    // Execute the node/s
                     let status_sender = status_sender.clone();
                     let task = tokio::spawn(async move {
-                        let status = if let Err(error) = execute(
+                        let status = match execute(
                             home,
                             root,
                             kernels,
                             Some(patch_sender),
-                            Some(nodes.node_ids),
+                            Some(node_ids),
                             Some(options),
                         )
                         .await
                         {
-                            CommandStatus::Failed(format!("While executing nodes: {error}"))
-                        } else {
-                            CommandStatus::Succeeded
+                            Ok(..) => CommandStatus::Succeeded,
+                            Err(error) => {
+                                CommandStatus::Failed(format!("While executing nodes: {error}"))
+                            }
                         };
                         send_status(&status_sender, command_id, status);
                     });
@@ -253,6 +294,7 @@ impl Document {
                         task,
                     ));
                 }
+
                 InterruptDocument | InterruptNodes(..) => {
                     // If these have fallen down to here it means that no execution was happening at the time
                     // so just ignore them
@@ -331,4 +373,33 @@ impl Document {
 
         tracing::debug!("Document command task stopped");
     }
+}
+
+/// Create a patch for a chat from the fields of a [`Command::PatchExecuteChat`]
+async fn chat_patch(chat_id: &NodeId, text: String) -> Result<Patch> {
+    let Ok(Node::Article(Article { content, .. })) = codecs::from_str(
+        &text,
+        Some(DecodeOptions {
+            format: Some(Format::Markdown),
+            ..Default::default()
+        }),
+    )
+    .await
+    else {
+        bail!("Error or unexpected node type when decoding")
+    };
+
+    let chat_message = Block::ChatMessage(ChatMessage {
+        content,
+        ..Default::default()
+    });
+
+    Ok(Patch {
+        node_id: Some(chat_id.clone()),
+        ops: vec![(
+            PatchPath::from(NodeProperty::Content),
+            PatchOp::Push(chat_message.to_value()?),
+        )],
+        ..Default::default()
+    })
 }

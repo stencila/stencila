@@ -105,7 +105,7 @@ export class UIChatMessageInputs extends UIBaseClass {
 
     this.dispatchEvent(
       documentCommandEvent({
-        command: 'chat-message',
+        command: 'patch-execute-chat',
         args: [this.nodeId, text, files],
       })
     )

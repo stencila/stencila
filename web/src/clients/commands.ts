@@ -22,6 +22,7 @@ export interface DocumentCommand {
     | 'interrupt-nodes'
     | 'patch-node'
     | 'patch-node-format'
+    | 'patch-execute-chat'
     | 'accept-node'
     | 'reject-node'
     | 'revise-node'
@@ -33,7 +34,7 @@ export interface DocumentCommand {
    *
    * If present, takes precedence over the other properties below.
    */
-  args?: (string | number | boolean)[]
+  args?: (string | number | boolean| object)[]
 
   /**
    * The type of the node that the command is being executed on.

@@ -76,6 +76,8 @@ pub(super) const CLONE_NODE: &str = "stencila.clone-node";
 pub(super) const SAVE_DOC: &str = "stencila.save-doc";
 pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
 
+pub(super) const PATCH_EXECUTE_CHAT: &str = "stencila.patch-execute-chat";
+
 /// Get the list of commands that the language server supports
 pub(super) fn commands() -> Vec<String> {
     [
@@ -103,6 +105,7 @@ pub(super) fn commands() -> Vec<String> {
         CLONE_NODE,
         SAVE_DOC,
         EXPORT_DOC,
+        PATCH_EXECUTE_CHAT,
     ]
     .into_iter()
     .map(String::from)
@@ -586,6 +589,24 @@ pub(super) async fn execute_command(
             (
                 "Exporting document".to_string(),
                 Command::ExportDocument((path, EncodeOptions::default())),
+                false,
+                false,
+            )
+        }
+        PATCH_EXECUTE_CHAT => {
+            let chat_id = node_id_arg(args.next())?;
+            let text = args
+                .next()
+                .and_then(|arg| arg.as_str().map(String::from))
+                .unwrap_or_default();
+
+            (
+                "Adding chat message".to_string(),
+                Command::PatchExecuteChat {
+                    chat_id,
+                    text,
+                    files: vec![],
+                },
                 false,
                 false,
             )
