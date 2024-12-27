@@ -21,6 +21,7 @@
     "id",
     "executionMode",
     "executionBounds",
+    "instructionType",
     "target",
     "content"
   ],
@@ -313,6 +314,22 @@
       "items": {
         "$ref": "ExecutionMessage.schema.json"
       }
+    },
+    "instructionType": {
+      "@id": "stencila:instructionType",
+      "description": "The type of instruction type of the prompt",
+      "aliases": [
+        "instruction-type",
+        "instruction_type"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "qmd"
+        ]
+      },
+      "$ref": "InstructionType.schema.json"
     },
     "target": {
       "@id": "schema:target",

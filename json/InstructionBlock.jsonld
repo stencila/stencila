@@ -251,9 +251,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "instructionType",
       "rdfs:comment": "The type of instruction describing the operation to be performed.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Instruction"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Instruction"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "stencila:InstructionType"
       }

@@ -1,5 +1,5 @@
 title: PromptBlock
-'@id': stencila:PromptBlock
+"@id": stencila:PromptBlock
 nick: prb
 extends: Executable
 category: edits
@@ -12,11 +12,18 @@ status: experimental
 markdown:
   derive: false
 core:
+  - instructionType
   - target
   - content
 properties:
+  instructionType:
+    "@id": stencila:instructionType
+    description: The type of instruction type of the prompt
+    $ref: InstructionType
+    patch:
+      formats: [md, smd, qmd]
   target:
-    '@id': schema:target
+    "@id": schema:target
     description: An identifier for the prompt to be rendered
     type: string
     patch:
@@ -32,7 +39,7 @@ properties:
         description: Generate an arbitrary prompt id using any characters
         strategy: option::of(String::arbitrary())
   content:
-    '@id': stencila:content
+    "@id": stencila:content
     description: The executed content of the prompt
     type: array
     items:

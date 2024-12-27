@@ -41,9 +41,7 @@ impl MarkdownCodec for PromptBlock {
                 "prompt",
                 |context| {
                     if let Some(target) = &self.target {
-                        context
-                            .push_str(" ")
-                            .push_prop_str(NodeProperty::Target, target);
+                        context.space().push_prop_str(NodeProperty::Target, target);
                     }
                 },
                 |_| {},
@@ -51,6 +49,13 @@ impl MarkdownCodec for PromptBlock {
             );
         } else {
             context.push_colons().push_str(" prompt");
+
+            if let Some(instruction_type) = &self.instruction_type {
+                context.space().push_prop_str(
+                    NodeProperty::InstructionType,
+                    &instruction_type.to_string().to_lowercase(),
+                );
+            }
 
             if let Some(target) = &self.target {
                 context

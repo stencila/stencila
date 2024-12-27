@@ -7,7 +7,7 @@ use common::{
 };
 use kernels::Kernels;
 use prompts::prompt::{KernelsContext, PromptContext};
-use schema::{replicate, CompilationDigest, InstructionType, PromptBlock};
+use schema::{replicate, CompilationDigest, PromptBlock};
 
 use crate::prelude::*;
 
@@ -78,7 +78,8 @@ impl Executable for PromptBlock {
         // Get the prompt
         // TODO: separate error if target is None
         let target = self.target.clone().unwrap_or_default();
-        let prompt = match prompts::get(&target, &InstructionType::Create).await {
+        let instruction_type = self.instruction_type.clone().unwrap_or_default();
+        let prompt = match prompts::get(&target, &instruction_type).await {
             Ok(prompt) => prompt,
             Err(error) => {
                 executor.patch(

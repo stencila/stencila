@@ -1,5 +1,6 @@
+import { InstructionType } from '@stencila/types'
 import { apply, css } from '@twind/core'
-import { html, TemplateResult } from 'lit'
+import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import { documentCommandEvent } from '../clients/commands'
@@ -25,7 +26,10 @@ import '../ui/nodes/properties/provenance'
 @withTwind()
 export class PromptBlock extends Executable {
   @property()
-  target: string
+  target?: string
+
+  @property({ attribute: 'instruction-type' })
+  instructionType?: InstructionType
 
   /**
    * UI settings to use when rendering
@@ -33,12 +37,6 @@ export class PromptBlock extends Executable {
    * Instantiated in `connectedCallback` to avoid getting on each render.
    */
   private ui: NodeTypeUI
-
-  /**
-   * Prompt <select> options updated whenever prompt list is updated
-   * rather than in `render()`
-   */
-  private promptOptions: TemplateResult[] = []
 
   /**
    * Toggle show/hide content
@@ -60,46 +58,6 @@ export class PromptBlock extends Executable {
    * update (re-render) of this component
    */
   private onPromptsUpdated() {
-    // Group prompts by instruction type
-    const types: Record<string, Prompt[]> = {}
-    for (const prompt of data.prompts) {
-      const type = prompt.instructionTypes[0] ?? 'Create'
-      if (type in types) {
-        types[type].push(prompt)
-      } else {
-        types[type] = [prompt]
-      }
-    }
-
-    const { textColour } = this.ui
-
-    // Pre-render options
-    this.promptOptions = Object.entries(types).map(([type, prompts], index) => {
-      return html`
-        ${index !== 0 ? html`<sl-divider class="my-1"></sl-divider>` : ''}
-        <div
-          class="flex flex-row items-center gap-2 px-2 py-1 text-[${textColour}]"
-        >
-          <stencila-ui-icon
-            slot="prefix"
-            class="text-base"
-            name=${iconMaybe(type.toLowerCase()) ?? 'box'}
-          ></stencila-ui-icon>
-          ${type}
-        </div>
-        ${prompts.map(
-          (prompt) => html`
-            <sl-option
-              value=${prompt.id}
-              style="--sl-spacing-x-small: 0.25rem;"
-            >
-              <span class="text-xs text-[${textColour}]"> ${prompt.id} </span>
-            </sl-option>
-          `
-        )}
-      `
-    })
-
     this.requestUpdate()
   }
 
@@ -137,6 +95,7 @@ export class PromptBlock extends Executable {
 
   override disconnectedCallback() {
     super.disconnectedCallback()
+
     data.removeEventListener('prompts', this.onPromptsUpdated.bind(this))
   }
 
@@ -217,6 +176,48 @@ export class PromptBlock extends Executable {
   }
 
   private renderPromptSelect(textColour: string) {
+    const promptOption = (prompt: Prompt) => html`
+      <sl-option value=${prompt.id} style="--sl-spacing-x-small: 0.25rem;">
+        <div class="text-sm text-[${textColour}]">${prompt.id}</div>
+        <div class="mt-0 text-xs text-[${textColour}]/70 max-w-72 truncate">${prompt.description}</div>
+      </sl-option>
+    `
+
+    let options
+    if (this.instructionType) {
+      // Only show prompts for the instruction type
+      options = data.prompts
+        .filter((prompt) => prompt.instructionTypes[0] === this.instructionType)
+        .map(promptOption)
+    } else {
+      // Group prompts by instruction type
+      const types: Record<string, Prompt[]> = {}
+      for (const prompt of data.prompts) {
+        const type = prompt.instructionTypes[0] ?? 'Create'
+        if (type in types) {
+          types[type].push(prompt)
+        } else {
+          types[type] = [prompt]
+        }
+      }
+      options = Object.entries(types).map(([type, prompts], index) => {
+        return html`
+          ${index !== 0 ? html`<sl-divider class="my-1"></sl-divider>` : ''}
+          <div
+            class="flex flex-row items-center gap-2 px-2 py-1 text-[${textColour}]"
+          >
+            <stencila-ui-icon
+              slot="prefix"
+              class="text-base"
+              name=${iconMaybe(type.toLowerCase()) ?? 'circle'}
+            ></stencila-ui-icon>
+            ${type}
+          </div>
+          ${prompts.map(promptOption)}
+        `
+      })
+    }
+
     const style = css`
       &::part(display-input) {
         font-size: 0.75rem;
@@ -234,7 +235,7 @@ export class PromptBlock extends Executable {
       value=${this.target}
       @sl-change=${(e: InputEvent) => this.onPromptChanged(e)}
     >
-      ${this.promptOptions}
+      ${options}
     </sl-select>`
   }
 

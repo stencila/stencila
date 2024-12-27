@@ -247,6 +247,23 @@
       }
     },
     {
+      "@id": "stencila:instructionType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "instructionType",
+      "rdfs:comment": "The type of instruction type of the prompt",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Instruction"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:InstructionType"
+      }
+    },
+    {
       "@id": "schema:target",
       "@type": "rdfs:Property",
       "rdfs:label": "target",

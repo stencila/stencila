@@ -2437,6 +2437,9 @@ class PromptBlock(Executable):
 
     type: Literal["PromptBlock"] = "PromptBlock"
 
+    instruction_type: InstructionType | None = None
+    """The type of instruction type of the prompt"""
+
     target: str | None = None
     """An identifier for the prompt to be rendered"""
 

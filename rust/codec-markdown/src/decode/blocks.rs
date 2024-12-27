@@ -643,14 +643,21 @@ fn include_block(input: &mut Located<&str>) -> PResult<Block> {
 
 /// Parse a [`PromptBlock`] node
 fn prompt_block(input: &mut Located<&str>) -> PResult<Block> {
-    preceded("prompt", opt(preceded(multispace1, prompt)))
-        .map(|target| {
-            Block::PromptBlock(PromptBlock {
-                target: target.map(String::from),
-                ..Default::default()
-            })
+    preceded(
+        "prompt",
+        (
+            opt(preceded(multispace1, instruction_type)),
+            opt(preceded(multispace1, prompt)),
+        ),
+    )
+    .map(|(instruction_type, target)| {
+        Block::PromptBlock(PromptBlock {
+            instruction_type,
+            target: target.map(String::from),
+            ..Default::default()
         })
-        .parse_next(input)
+    })
+    .parse_next(input)
 }
 
 /// Parse a [`Claim`] node

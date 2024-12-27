@@ -14,6 +14,7 @@ use super::execution_mode::ExecutionMode;
 use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
+use super::instruction_type::InstructionType;
 use super::integer::Integer;
 use super::string::String;
 use super::timestamp::Timestamp;
@@ -45,6 +46,11 @@ pub struct PromptBlock {
     #[strip(execution)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub execution_bounds: Option<ExecutionBounds>,
+
+    /// The type of instruction type of the prompt
+    #[serde(alias = "instruction-type", alias = "instruction_type")]
+    #[patch(format = "md", format = "smd", format = "qmd")]
+    pub instruction_type: Option<InstructionType>,
 
     /// An identifier for the prompt to be rendered
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]

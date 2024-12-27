@@ -2,6 +2,7 @@
 
 import { Block } from "./Block.js";
 import { Executable } from "./Executable.js";
+import { InstructionType } from "./InstructionType.js";
 
 /**
  * A preview of how a prompt will be rendered at a location in the document
@@ -9,6 +10,11 @@ import { Executable } from "./Executable.js";
 export class PromptBlock extends Executable {
   // @ts-expect-error 'not assignable to the same property in base type'
   type: "PromptBlock";
+
+  /**
+   * The type of instruction type of the prompt
+   */
+  instructionType?: InstructionType;
 
   /**
    * An identifier for the prompt to be rendered
