@@ -11,8 +11,15 @@ required:
   - role
   - content
 core:
+  - author
   - files
 properties:
+  author:
+    '@id': schema:author
+    description: The author of the message
+    $ref: Author
+    dom:
+      elem: div
   role:
     '@id': stencila:role
     description: The role of the message in the conversation.

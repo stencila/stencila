@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::author::Author;
 use super::block::Block;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
@@ -47,6 +48,10 @@ pub struct ChatMessage {
     #[strip(execution)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub execution_bounds: Option<ExecutionBounds>,
+
+    /// The author of the message
+    #[dom(elem = "div")]
+    pub author: Option<Author>,
 
     /// The role of the message in the conversation.
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]

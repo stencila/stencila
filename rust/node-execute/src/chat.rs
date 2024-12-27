@@ -1,7 +1,7 @@
 use common::tokio;
 use schema::{
     shortcuts::{cc, mb, p, t},
-    Block, Chat, ChatMessage, ChatMessageOptions, MessageRole,
+    Author, Block, Chat, ChatMessage, ChatMessageOptions, MessageRole, SoftwareApplication,
 };
 
 use crate::{interrupt_impl, prelude::*};
@@ -95,8 +95,15 @@ impl Executable for Chat {
 
         // Add a new model message to the chat, with no content, so the user
         // can see it as running
+
         let model_message = ChatMessage {
             role: MessageRole::Model,
+            author: Some(Author::SoftwareApplication(SoftwareApplication {
+                // TODO: use the actual model
+                id: Some("anthropic/claude".into()),
+                name: "Claude".into(),
+                ..Default::default()
+            })),
             options: Box::new(ChatMessageOptions {
                 execution_status: Some(ExecutionStatus::Running),
                 ..Default::default()
@@ -161,13 +168,6 @@ impl Executable for Chat {
         executor.patch(
             &node_id,
             [
-                push(
-                    NodeProperty::Content,
-                    Block::ChatMessage(ChatMessage {
-                        role: MessageRole::User,
-                        ..Default::default()
-                    }),
-                ),
                 set(NodeProperty::ExecutionStatus, status),
                 set(NodeProperty::ExecutionRequired, required),
                 set(NodeProperty::ExecutionMessages, messages),

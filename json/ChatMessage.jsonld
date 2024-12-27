@@ -247,6 +247,23 @@
       }
     },
     {
+      "@id": "schema:author",
+      "@type": "rdfs:Property",
+      "rdfs:label": "author",
+      "rdfs:comment": "The author of the message",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:AuthorRole"
+        },
+        {
+          "@id": "stencila:ChatMessage"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Author"
+      }
+    },
+    {
       "@id": "stencila:role",
       "@type": "rdfs:Property",
       "rdfs:label": "role",

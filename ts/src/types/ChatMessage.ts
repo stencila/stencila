@@ -1,5 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
+import { Author } from "./Author.js";
 import { Block } from "./Block.js";
 import { Executable } from "./Executable.js";
 import { File } from "./File.js";
@@ -11,6 +12,11 @@ import { MessageRole } from "./MessageRole.js";
 export class ChatMessage extends Executable {
   // @ts-expect-error 'not assignable to the same property in base type'
   type: "ChatMessage";
+
+  /**
+   * The author of the message
+   */
+  author?: Author;
 
   /**
    * The role of the message in the conversation.

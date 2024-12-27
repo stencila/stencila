@@ -22,6 +22,7 @@
     "id",
     "executionMode",
     "executionBounds",
+    "author",
     "files"
   ],
   "properties": {
@@ -313,6 +314,14 @@
       "items": {
         "$ref": "ExecutionMessage.schema.json"
       }
+    },
+    "author": {
+      "@id": "schema:author",
+      "description": "The author of the message",
+      "dom": {
+        "elem": "div"
+      },
+      "$ref": "Author.schema.json"
     },
     "role": {
       "@id": "stencila:role",

@@ -1,4 +1,5 @@
 import { NodeType } from '@stencila/types'
+import { apply } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
@@ -46,17 +47,6 @@ export class ChatMessage extends Executable {
     'Table',
   ]
 
-  /**
-   * Whether the message has any content
-   *
-   * Used to determine whether to render inputs for user messages
-   * and placeholder text for model messages while running.
-   */
-  private hasContent(): boolean {
-    // The `<div slot=content>` is the only present if content is not empty
-    return this.querySelector('div[slot=content]') !== null
-  }
-
   override render() {
     switch (this.messageRole) {
       case 'System':
@@ -70,43 +60,41 @@ export class ChatMessage extends Executable {
 
   renderSystemMessage() {
     return html`
-      <div class="my-3 p-3 bg-blue-100/50 rounded">
+      <div class="my-3 p-3 bg-indigo-100 rounded">
         <slot name="content"></slot>
       </div>
     `
   }
 
   renderUserMessage() {
-    return this.hasContent()
-      ? this.renderUserMessageInactive()
-      : this.renderUserMessageActive()
-  }
-
-  renderUserMessageInactive() {
     return html`
       <div class="flex justify-end">
-        <div class="my-3 p-3 bg-green-100/50 rounded w-content">
+        <div class="my-3 p-3 bg-blue-50 rounded w-content">
           <slot name="content"></slot>
         </div>
       </div>
     `
   }
 
-  renderUserMessageActive() {
-    return html``
+  renderModelMessage() {
+    return html`<div class="my-3 p-3">
+      <slot name="author" class="text-blue-900"></slot>
+      ${this.executionStatus === 'Running'
+        ? this.renderRunningIndicator()
+        : html`<slot name="content"></slot>`}
+    </div>`
   }
 
-  renderModelMessage() {
+  renderRunningIndicator() {
+    const dotClasses = apply('h-2 w-2 bg-gray-500 rounded-full animate-bounce')
+
     return html`
-      <div class="my-3 p-3">
-        ${this.hasContent()
-          ? ''
-          : html`
-              <div class="text-4xl flex justify-center items-center">
-                <stencila-animated-logo></stencila-animated-logo>
-              </div>
-            `}
-        <slot name="content"></slot>
+      <div
+        class="flex justify-center items-center gap-x-1 mt-3 p-5 rounded bg-gray-100"
+      >
+        <div class=${dotClasses} style="animation-delay: 0ms"></div>
+        <div class=${dotClasses} style="animation-delay: 250ms"></div>
+        <div class=${dotClasses} style="animation-delay: 500ms"></div>
       </div>
     `
   }
