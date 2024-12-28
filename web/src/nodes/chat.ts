@@ -27,7 +27,10 @@ export class StencilaChat extends Executable {
    * the chat according to its properties.
    */
   @provide({ context: chatContext })
-  private chatContext?: ChatContext
+  private chatContext?: ChatContext = {
+    instructionType: undefined,
+    source: undefined,
+  }
 
   /**
    * A mutation controller used to update the instruction type of the chat
@@ -189,7 +192,7 @@ export class StencilaChat extends Executable {
 
   private renderContent() {
     return this.depth === 0
-      ? html`<div slot="content" class="max-w-prose mx-auto pb-20">
+      ? html`<div slot="content" class="pb-20">
           <slot name="content" @slotchange=${this.onContentSlotChange}></slot>
           ${this.renderInputPanel()}
         </div>`
