@@ -4,6 +4,7 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
+import { closestGlobally } from '../utilities/closestGlobally'
 
 import { Executable } from './executable'
 
@@ -29,23 +30,30 @@ export class ChatMessage extends Executable {
   messageRole: 'System' | 'User' | 'Model'
 
   /**
-   * A list of node types that are initially expanded within a
-   * model chat message
+   * Should the node card for an element possibly within a chat message be expanded?
    */
-  public static EXPANDED_NODE_TYPES: NodeType[] = [
-    'CodeBlock',
-    'CodeChunk',
-    'Datatable',
-    'Figure',
-    'ForBlock',
-    'IfBlock',
-    'IncludeBlock',
-    'InstructionBlock',
-    'MathBlock',
-    'RawBlock',
-    'StyledBlock',
-    'Table',
-  ]
+  public static shouldExpand(card: HTMLElement, nodeType: NodeType): boolean {
+    const types: NodeType[] = [
+      'CodeBlock',
+      'CodeChunk',
+      'Datatable',
+      'Figure',
+      'ForBlock',
+      'IfBlock',
+      'IncludeBlock',
+      'InstructionBlock',
+      'MathBlock',
+      'RawBlock',
+      'StyledBlock',
+      'Table',
+    ]
+
+    return (
+      types.includes(nodeType) &&
+      closestGlobally(card, 'stencila-chat-message[message-role="Model"]') !==
+        null
+    )
+  }
 
   override render() {
     const style = apply('min-w-[45ch] max-w-prose mx-auto')
@@ -60,7 +68,7 @@ export class ChatMessage extends Executable {
     }
   }
 
-  renderSystemMessage(style: string) {
+  private renderSystemMessage(style: string) {
     return html`
       <div class="${style} my-3 p-3 bg-indigo-100 rounded">
         <slot name="content"></slot>
@@ -68,7 +76,7 @@ export class ChatMessage extends Executable {
     `
   }
 
-  renderUserMessage(style: string) {
+  private renderUserMessage(style: string) {
     return html`
       <div class="${style} flex justify-end">
         <div class="my-3 p-3 bg-blue-50 rounded w-content">
@@ -79,7 +87,7 @@ export class ChatMessage extends Executable {
     `
   }
 
-  renderModelMessage(style: string) {
+  private renderModelMessage(style: string) {
     return html`<div class="${style} my-3 p-3">
       <slot name="author" class="text-blue-900"></slot>
       ${this.executionStatus === 'Running'
@@ -88,7 +96,7 @@ export class ChatMessage extends Executable {
     </div>`
   }
 
-  renderRunningIndicator() {
+  private renderRunningIndicator() {
     const dotClasses = apply('h-2 w-2 bg-gray-500 rounded-full animate-bounce')
 
     return html`

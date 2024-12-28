@@ -7,6 +7,7 @@ import { IconName } from '../../icons/icon'
 import { UIBaseClass } from '../mixins/ui-base-class'
 import '../../animation/collapsible'
 import '../../buttons/chevron'
+import { ChatMessage } from '../../../nodes/chat-message'
 
 /**
  * UI Base Card
@@ -68,26 +69,6 @@ export class UIBaseCard extends UIBaseClass {
   protected restrictTitleWidth: boolean = false
 
   /**
-   * Render the collapse card icon on the right hand side of the header.
-   */
-  private renderCollapse() {
-    const classes = apply([
-      'flex items-center',
-      'ml-3',
-      `border-[${this.ui.borderColour}] brightness-75`,
-      this.hasHeaderContent && 'pl-3 border-l-2',
-    ])
-
-    return html`<div class=${classes}>
-      <stencila-ui-chevron-button
-        default-pos=${this.collapsed ? 'left' : 'down'}
-        .disableEvents=${true}
-        class="inline-flex"
-      ></stencila-ui-chevron-button>
-    </div>`
-  }
-
-  /**
    * Renders the header element of the card
    * @param {string[]} extraTwindClasses additional `twind` classes for the header container
    * @returns
@@ -115,6 +96,9 @@ export class UIBaseCard extends UIBaseClass {
       this.canCollapse && `cursor-pointer hover:bg-[${borderColour}]/90`,
       ...additionalStyles,
     ])
+
+    const canClose =
+      this.depth > 0 && !ChatMessage.shouldExpand(this, this.type)
 
     const icon = this.headerIcon ?? this.ui.icon
 
@@ -144,10 +128,34 @@ export class UIBaseCard extends UIBaseClass {
             <slot name="header-right"></slot>
           </div>
           ${this.canCollapse ? this.renderCollapse() : null}
-          ${this.depth > 0 ? this.renderClose() : ''}
+          ${canClose ? this.renderClose() : ''}
         </div>
       </div>
     </div>`
+  }
+
+  /**
+   * Render the collapse card icon on the right hand side of the header.
+   */
+  private renderCollapse() {
+    const classes = apply([
+      'flex items-center',
+      'ml-3',
+      `border-[${this.ui.borderColour}] brightness-75`,
+      this.hasHeaderContent && 'pl-3 border-l-2',
+    ])
+
+    return html`<div class=${classes}>
+      <stencila-ui-chevron-button
+        default-pos=${this.collapsed ? 'left' : 'down'}
+        .disableEvents=${true}
+        class="inline-flex"
+      ></stencila-ui-chevron-button>
+    </div>`
+  }
+
+  protected renderClose() {
+    return html``
   }
 
   protected renderBody() {
@@ -155,10 +163,6 @@ export class UIBaseCard extends UIBaseClass {
   }
 
   protected renderContent() {
-    return html``
-  }
-
-  protected renderClose() {
     return html``
   }
 

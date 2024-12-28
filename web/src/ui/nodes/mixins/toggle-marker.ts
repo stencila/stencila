@@ -5,7 +5,6 @@ import { html } from 'lit'
 import { state, property } from 'lit/decorators'
 
 import { ChatMessage } from '../../../nodes/chat-message'
-import { closestGlobally } from '../../../utilities/closestGlobally'
 import { getModeParam } from '../../../utilities/getModeParam'
 import { DocumentContext, documentContext } from '../../document/context'
 import { UIBaseCard } from '../cards/base-card'
@@ -107,13 +106,8 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
         return true
       }
 
-      // Expand if part of a chat message and included in the list of
-      // chat messages auto expanding node types
-      if (
-        closestGlobally(this, 'stencila-chat-message[message-role="Model"]') !==
-          null &&
-        ChatMessage.EXPANDED_NODE_TYPES.includes(this.type)
-      ) {
+      // Expand certain nodes types in certain chat messages
+      if (ChatMessage.shouldExpand(this, this.type)) {
         return true
       }
 
