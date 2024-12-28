@@ -8,7 +8,9 @@ import {
   documentCommandEvent,
 } from '../../../clients/commands'
 import { withTwind } from '../../../twind'
+import { closestGlobally } from '../../../utilities/closestGlobally'
 import { UIBaseClass } from '../mixins/ui-base-class'
+
 import '../../buttons/icon'
 
 // TODO - disable all buttons when execution is running / pending.
@@ -43,9 +45,12 @@ export class UINodeExecutionCommands extends UIBaseClass {
       `text-${this.ui.textColour}`,
     ])
 
+    const showDropdown =
+      this.depth > 0 && closestGlobally(this, 'stencila-chat-message') === null
+
     return html`
       <div class=${classes}>
-        ${this.depth > 0 ? this.renderDropdown() : ''}
+        ${showDropdown ? this.renderDropdown() : ''}
 
         <sl-tooltip content="Run this node">
           <stencila-ui-icon-button
@@ -60,7 +65,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
     `
   }
 
-  renderDropdown() {
+  private renderDropdown() {
     const { borderColour, textColour } = this.ui
 
     const containerStyles = css`
