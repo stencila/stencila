@@ -16,6 +16,7 @@ import { type CallArgument } from "./CallArgument.js";
 import { type CallBlock } from "./CallBlock.js";
 import { type Chat } from "./Chat.js";
 import { type ChatMessage } from "./ChatMessage.js";
+import { type ChatMessageGroup } from "./ChatMessageGroup.js";
 import { type Cite } from "./Cite.js";
 import { type CiteGroup } from "./CiteGroup.js";
 import { type Claim } from "./Claim.js";
@@ -165,6 +166,7 @@ export type Node =
   CallBlock |
   Chat |
   ChatMessage |
+  ChatMessageGroup |
   Cite |
   CiteGroup |
   Claim |
@@ -307,6 +309,7 @@ export function node(other: Node): Node {
     case "CallBlock":
     case "Chat":
     case "ChatMessage":
+    case "ChatMessageGroup":
     case "Cite":
     case "CiteGroup":
     case "Claim":

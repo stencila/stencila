@@ -4,17 +4,7 @@ use codec_text_trait::TextCodec;
 use codecs::{Mapping, PoshMap};
 use common::tracing;
 use schema::{
-    Admonition, Article, AudioObject, Block, Button, CallBlock, Chat, ChatMessage, Cite, CiteGroup,
-    Claim, CodeBlock, CodeChunk, CodeExpression, CodeInline, Date, DateTime, DeleteBlock,
-    DeleteInline, Duration, Emphasis, ExecutionStatus, Figure, ForBlock, Form, Heading, IfBlock,
-    IfBlockClause, ImageObject, IncludeBlock, Inline, InsertBlock, InsertInline, InstructionBlock,
-    InstructionInline, LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject,
-    ModifyBlock, ModifyInline, Node, NodeId, NodeProperty, NodeType, Note, Paragraph, Parameter,
-    Prompt, PromptBlock, ProvenanceCount, QuoteBlock, QuoteInline, RawBlock, ReplaceBlock,
-    ReplaceInline, Section, Strikeout, Strong, StyledBlock, StyledInline, Subscript,
-    SuggestionBlock, SuggestionInline, Superscript, Table, TableCell, TableRow, Text,
-    ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl, Walkthrough,
-    WalkthroughStep,
+    Admonition, Article, AudioObject, Block, Button, CallBlock, Chat, ChatMessage, ChatMessageGroup, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeExpression, CodeInline, Date, DateTime, DeleteBlock, DeleteInline, Duration, Emphasis, ExecutionStatus, Figure, ForBlock, Form, Heading, IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline, InsertBlock, InsertInline, InstructionBlock, InstructionInline, LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject, ModifyBlock, ModifyInline, Node, NodeId, NodeProperty, NodeType, Note, Paragraph, Parameter, Prompt, PromptBlock, ProvenanceCount, QuoteBlock, QuoteInline, RawBlock, ReplaceBlock, ReplaceInline, Section, Strikeout, Strong, StyledBlock, StyledInline, Subscript, SuggestionBlock, SuggestionInline, Superscript, Table, TableCell, TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl, Walkthrough, WalkthroughStep
 };
 
 use crate::{
@@ -187,6 +177,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             CallBlock,
             Chat,
             ChatMessage,
+            ChatMessageGroup,
             Claim,
             CodeBlock,
             CodeChunk,
@@ -769,6 +760,7 @@ default!(
     Chat,
     // Blocks
     Admonition,
+    ChatMessageGroup,
     Claim,
     CodeBlock,
     DeleteBlock,

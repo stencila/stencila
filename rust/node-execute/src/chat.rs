@@ -1,7 +1,8 @@
-use common::tokio;
+use common::{itertools::Itertools, tokio};
 use schema::{
     shortcuts::{cc, mb, p, t},
-    Author, Block, Chat, ChatMessage, ChatMessageOptions, MessageRole, SoftwareApplication,
+    Author, Block, Chat, ChatMessage, ChatMessageGroup, ChatMessageOptions, MessageRole,
+    SoftwareApplication,
 };
 
 use crate::{interrupt_impl, prelude::*};
@@ -96,39 +97,62 @@ impl Executable for Chat {
         // Add a new model message to the chat, with no content, so the user
         // can see it as running
 
-        let model_message = ChatMessage {
-            role: MessageRole::Model,
-            author: Some(Author::SoftwareApplication(SoftwareApplication {
-                // TODO: use the actual model
-                id: Some("anthropic/claude".into()),
-                name: "Claude".into(),
+        let model_ids = self
+            .model_parameters
+            .model_ids
+            .clone()
+            .unwrap_or_else(|| vec!["stencila/router".to_string()]);
+        let replicates = self.model_parameters.replicates.unwrap_or(1) as usize;
+
+        let model_ids = model_ids
+            .into_iter()
+            .flat_map(|x| vec![x; replicates])
+            .collect_vec();
+
+        let mut messages = model_ids
+            .into_iter()
+            .map(|model_id| ChatMessage {
+                role: MessageRole::Model,
+                author: Some(Author::SoftwareApplication(SoftwareApplication {
+                    id: Some(model_id),
+                    name: "Model".into(), // TODO
+                    ..Default::default()
+                })),
+                options: Box::new(ChatMessageOptions {
+                    execution_status: Some(ExecutionStatus::Running),
+                    ..Default::default()
+                }),
                 ..Default::default()
-            })),
-            options: Box::new(ChatMessageOptions {
-                execution_status: Some(ExecutionStatus::Running),
+            })
+            .collect_vec();
+
+        let message_ids = messages
+            .iter()
+            .map(|message| message.node_id())
+            .collect_vec();
+
+        let block = if messages.len() == 1 {
+            Block::ChatMessage(messages.swap_remove(0))
+        } else {
+            Block::ChatMessageGroup(ChatMessageGroup {
+                messages,
                 ..Default::default()
-            }),
-            ..Default::default()
+            })
         };
-        let model_message_id = model_message.node_id();
-        executor.patch(
-            &node_id,
-            [push(
-                NodeProperty::Content,
-                Block::ChatMessage(model_message),
-            )],
-        );
+        executor.patch(&node_id, [push(NodeProperty::Content, block)]);
 
         // TODO: replace this simulation with actual model generated content
         tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
         let messages = None;
-        let content = vec![
-            p([t("This is placeholder content for model response. Laborum duis ut cillum ex incididunt officia ex aliquip. Here is some executable code:")]),
-            cc("plot(1)", Some("r")),
-            p([t("Here is some math:")]),
-            mb("E = mc ^ 2 * \\pi", Some("tex")),
-            p([t("Last paragraph of the model response. Enim pariatur in voluptate reprehenderit Lorem quis esse cupidatat minim. Anim ipsum exercitation eiusmod laboris nostrud ullamco commodo amet nisi sit. Aute sunt quis ad tempor consectetur eiusmod non est. Laborum ea et esse irure nostrud labore irure. Officia labore velit cillum id cupidatat aliquip aute fugiat ea deserunt esse aliqua in. Non amet est eu enim mollit velit fugiat et ullamco cillum. Reprehenderit reprehenderit adipisicing laboris veniam in aute aute aliqua..")]),
-        ];
+        let contents = message_ids.iter().map(|_| {
+            vec![
+                p([t("This is placeholder content for model response. Laborum duis ut cillum ex incididunt officia ex aliquip. Here is some executable code:")]),
+                cc("plot(1)", Some("r")),
+                p([t("Here is some math:")]),
+                mb("E = mc ^ 2 * \\pi", Some("tex")),
+                p([t("Last paragraph of the model response. Enim pariatur in voluptate reprehenderit Lorem quis esse cupidatat minim. Anim ipsum exercitation eiusmod laboris nostrud ullamco commodo amet nisi sit. Aute sunt quis ad tempor consectetur eiusmod non est. Laborum ea et esse irure nostrud labore irure. Officia labore velit cillum id cupidatat aliquip aute fugiat ea deserunt esse aliqua in. Non amet est eu enim mollit velit fugiat et ullamco cillum. Reprehenderit reprehenderit adipisicing laboris veniam in aute aute aliqua..")]),
+            ]
+        });
 
         // Set the status of each message
         for block in self.content.iter_mut() {
@@ -155,14 +179,16 @@ impl Executable for Chat {
         let duration = execution_duration(&started, &ended);
         let count = self.options.execution_count.unwrap_or_default() + 1;
 
-        // Patch the status and content of the model message
-        executor.patch(
-            &model_message_id,
-            [
-                set(NodeProperty::ExecutionStatus, status.clone()),
-                append(NodeProperty::Content, content),
-            ],
-        );
+        // Patch the status and content of the model messages
+        for (message_id, content) in message_ids.iter().zip(contents) {
+            executor.patch(
+                &message_id,
+                [
+                    set(NodeProperty::ExecutionStatus, status.clone()),
+                    append(NodeProperty::Content, content),
+                ],
+            );
+        }
 
         // Patch the chat, including appending a new, empty user message
         executor.patch(

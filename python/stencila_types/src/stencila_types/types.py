@@ -1230,6 +1230,18 @@ class ChatMessage(Executable):
 
 
 @dataclass(kw_only=True, repr=False)
+class ChatMessageGroup(Entity):
+    """
+    A group of messages, usually alternative model messages, within a `Chat`.
+    """
+
+    type: Literal["ChatMessageGroup"] = "ChatMessageGroup"
+
+    messages: list[ChatMessage]
+    """The messages within the group."""
+
+
+@dataclass(kw_only=True, repr=False)
 class Cite(Entity):
     """
     A reference to a `CreativeWork` that is cited in another `CreativeWork`.
@@ -3088,6 +3100,7 @@ Block = Union[
     CallBlock,
     Chat,
     ChatMessage,
+    ChatMessageGroup,
     Claim,
     CodeBlock,
     CodeChunk,
@@ -3270,6 +3283,7 @@ Node = Union[
     CallBlock,
     Chat,
     ChatMessage,
+    ChatMessageGroup,
     Cite,
     CiteGroup,
     Claim,
@@ -3513,6 +3527,7 @@ TYPES = [
     CallBlock,
     Chat,
     ChatMessage,
+    ChatMessageGroup,
     Cite,
     CiteGroup,
     Claim,

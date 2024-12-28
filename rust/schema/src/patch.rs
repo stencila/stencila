@@ -17,8 +17,7 @@ use node_id::NodeId;
 use node_type::NodeProperty;
 
 use crate::{
-    prelude::AuthorType, replicate, Author, AuthorRole, AuthorRoleName, Block, CordOp, Inline,
-    Node, PromptBlock, ProvenanceCount, SuggestionBlock, Timestamp,
+    prelude::AuthorType, replicate, Author, AuthorRole, AuthorRoleName, Block, ChatMessage, CordOp, Inline, Node, PromptBlock, ProvenanceCount, SuggestionBlock, Timestamp
 };
 
 /// Assign authorship to a node
@@ -661,6 +660,7 @@ pub enum PatchValue {
     Node(Node),
     PromptBlock(PromptBlock),
     SuggestionBlock(SuggestionBlock),
+    ChatMessage(ChatMessage),
     String(String),
     Json(JsonValue),
     None,

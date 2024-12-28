@@ -22,6 +22,7 @@ export type NodeType =
   | "CallBlock"
   | "Chat"
   | "ChatMessage"
+  | "ChatMessageGroup"
   | "Cite"
   | "CiteGroup"
   | "Claim"
@@ -165,6 +166,7 @@ export const NodeTypeList = [
   "CallBlock",
   "Chat",
   "ChatMessage",
+  "ChatMessageGroup",
   "Cite",
   "CiteGroup",
   "Claim",

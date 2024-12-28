@@ -162,6 +162,7 @@ pub enum NodeProperty {
     MemberOf,
     Members,
     Message,
+    Messages,
     MinItems,
     MinLength,
     Minimum,

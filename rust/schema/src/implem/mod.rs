@@ -11,6 +11,7 @@ mod call_argument;
 mod call_block;
 mod chat;
 mod chat_message;
+mod chat_message_group;
 mod claim;
 mod code_block;
 mod code_chunk;

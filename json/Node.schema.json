@@ -66,6 +66,9 @@
       "$ref": "ChatMessage.schema.json"
     },
     {
+      "$ref": "ChatMessageGroup.schema.json"
+    },
+    {
       "$ref": "Cite.schema.json"
     },
     {

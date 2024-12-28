@@ -5,6 +5,7 @@ export type BlockType =
   | "CallBlock"
   | "Chat"
   | "ChatMessage"
+  | "ChatMessageGroup"
   | "Claim"
   | "CodeBlock"
   | "CodeChunk"
@@ -37,6 +38,7 @@ export const BlockTypeList = [
   "CallBlock",
   "Chat",
   "ChatMessage",
+  "ChatMessageGroup",
   "Claim",
   "CodeBlock",
   "CodeChunk",

@@ -48,27 +48,29 @@ export class ChatMessage extends Executable {
   ]
 
   override render() {
+    const style = apply('min-w-[45ch] max-w-prose mx-auto')
+
     switch (this.messageRole) {
       case 'System':
-        return this.renderSystemMessage()
+        return this.renderSystemMessage(style)
       case 'User':
-        return this.renderUserMessage()
+        return this.renderUserMessage(style)
       case 'Model':
-        return this.renderModelMessage()
+        return this.renderModelMessage(style)
     }
   }
 
-  renderSystemMessage() {
+  renderSystemMessage(style: string) {
     return html`
-      <div class="my-3 p-3 bg-indigo-100 rounded">
+      <div class="${style} my-3 p-3 bg-indigo-100 rounded">
         <slot name="content"></slot>
       </div>
     `
   }
 
-  renderUserMessage() {
+  renderUserMessage(style: string) {
     return html`
-      <div class="flex justify-end">
+      <div class="${style} flex justify-end">
         <div class="my-3 p-3 bg-blue-50 rounded w-content">
           <slot name="content"></slot>
           <slot name="files"></slot>
@@ -77,8 +79,8 @@ export class ChatMessage extends Executable {
     `
   }
 
-  renderModelMessage() {
-    return html`<div class="my-3 p-3">
+  renderModelMessage(style: string) {
+    return html`<div class="${style} my-3 p-3">
       <slot name="author" class="text-blue-900"></slot>
       ${this.executionStatus === 'Running'
         ? this.renderRunningIndicator()
@@ -91,7 +93,7 @@ export class ChatMessage extends Executable {
 
     return html`
       <div
-        class="flex justify-center items-center gap-x-1 mt-3 p-5 rounded bg-gray-100"
+        class="flex justify-center items-center gap-x-1 mt-3 p-5 rounded bg-gray-100 w-full"
       >
         <div class=${dotClasses} style="animation-delay: 0ms"></div>
         <div class=${dotClasses} style="animation-delay: 250ms"></div>

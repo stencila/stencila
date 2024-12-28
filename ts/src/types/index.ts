@@ -19,6 +19,7 @@ export * from "./CallArgument.js";
 export * from "./CallBlock.js";
 export * from "./Chat.js";
 export * from "./ChatMessage.js";
+export * from "./ChatMessageGroup.js";
 export * from "./CitationIntent.js";
 export * from "./CitationMode.js";
 export * from "./Cite.js";

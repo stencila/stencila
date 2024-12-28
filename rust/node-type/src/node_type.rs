@@ -30,6 +30,7 @@ pub enum NodeType {
     CallBlock,
     Chat,
     ChatMessage,
+    ChatMessageGroup,
     Cite,
     CiteGroup,
     Claim,
