@@ -71,7 +71,7 @@ export class CodeChunk extends CodeExecutable {
         <stencila-ui-node-chat-commands
           type="CodeChunk"
           node-id=${this.id}
-          ?enabled=${this.isWithin('Chat')}
+          depth=${this.depth}
         >
         </stencila-ui-node-chat-commands>
 
@@ -81,8 +81,6 @@ export class CodeChunk extends CodeExecutable {
           depth=${this.depth}
         >
         </stencila-ui-node-execution-commands>
-
-        ${this.depth > 0 ? this.renderShowHideOutput() : ''}
       </span>
 
       <div slot="body">

@@ -39,6 +39,15 @@ export class RawBlock extends Entity {
         header-icon=${icon}
         header-title="Raw ${title}"
       >
+        <div slot="header-right">
+          <stencila-ui-node-chat-commands
+            type="RawBlock"
+            node-id=${this.id}
+            depth=${this.depth}
+          >
+          </stencila-ui-node-chat-commands>
+        </div>
+
         <div slot="body">
           <stencila-ui-node-authors type="RawBlock">
             <stencila-ui-node-provenance slot="provenance">

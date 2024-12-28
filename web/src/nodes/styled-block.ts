@@ -26,6 +26,15 @@ export class StyledBlock extends Styled {
       depth=${this.depth}
       .canAnimate=${false}
     >
+      <div slot="header-right">
+        <stencila-ui-node-chat-commands
+          type="StyledBlock"
+          node-id=${this.id}
+          depth=${this.depth}
+        >
+        </stencila-ui-node-chat-commands>
+      </div>
+
       <div slot="body">
         <stencila-ui-node-authors type="StyledBlock">
           <stencila-ui-node-provenance slot="provenance">

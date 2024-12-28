@@ -25,14 +25,14 @@ export class MathBlock extends Math {
         node-id=${this.id}
         depth=${this.depth}
       >
-        <span slot="header-right">
+        <div slot="header-right">
           <stencila-ui-node-chat-commands
             type="MathBlock"
             node-id=${this.id}
-            ?enabled=${this.isWithin('Chat')}
+            depth=${this.depth}
           >
           </stencila-ui-node-chat-commands>
-        </span>
+        </div>
 
         <div slot="body">
           <stencila-ui-node-authors type="MathBlock">

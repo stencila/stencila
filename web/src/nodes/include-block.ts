@@ -76,14 +76,21 @@ export class IncludeBlock extends Executable {
         node-id=${this.id}
         depth=${this.depth}
       >
-        <span slot="header-right">
+        <div slot="header-right">
+          <stencila-ui-node-chat-commands
+            type="IncludeBlock"
+            node-id=${this.id}
+            depth=${this.depth}
+          >
+          </stencila-ui-node-chat-commands>
+
           <stencila-ui-node-execution-commands
             type="IncludeBlock"
             node-id=${this.id}
             depth=${this.depth}
           >
           </stencila-ui-node-execution-commands>
-        </span>
+        </div>
 
         <div slot="body">
           <stencila-ui-node-execution-details

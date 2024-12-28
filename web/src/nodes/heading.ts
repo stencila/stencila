@@ -67,6 +67,15 @@ export class Heading extends Entity {
         node-id=${this.id}
         depth=${this.depth}
       >
+        <div slot="header-right">
+          <stencila-ui-node-chat-commands
+            type="Heading"
+            node-id=${this.id}
+            depth=${this.depth}
+          >
+          </stencila-ui-node-chat-commands>
+        </div>
+
         <div slot="body">
           <stencila-ui-node-authors type="Heading">
             <stencila-ui-node-provenance slot="provenance">
@@ -75,6 +84,7 @@ export class Heading extends Entity {
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
+
         <slot name="content" slot="content"></slot>
       </stencila-ui-block-on-demand>
     `

@@ -29,6 +29,15 @@ export class QuoteBlock extends Entity {
         node-id=${this.id}
         depth=${this.depth}
       >
+        <div slot="header-right">
+          <stencila-ui-node-chat-commands
+            type="QuoteBlock"
+            node-id=${this.id}
+            depth=${this.depth}
+          >
+          </stencila-ui-node-chat-commands>
+        </div>
+
         <div slot="body">
           <stencila-ui-node-authors type="QuoteBlock">
             <stencila-ui-node-provenance slot="provenance">
@@ -37,6 +46,7 @@ export class QuoteBlock extends Entity {
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
+
         <div slot="content">
           <slot name="content"></slot>
         </div>
