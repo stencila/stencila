@@ -18,7 +18,7 @@ use common::serde_json;
 
 use crate::{
     code_lens,
-    commands::{self, CLONE_NODE},
+    commands::{self, INSERT_CLONE, INSERT_INSTRUCTION},
     completion, content, dom, formatting, hover, kernels_, lifecycle, logging, models_, node_ids,
     prompts_, symbols, text_document, ServerState, ServerStatus,
 };
@@ -124,7 +124,8 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
                         })
                     });
 
-                let source_doc = if params.command == CLONE_NODE {
+                let source_doc = if matches!(params.command.as_str(), INSERT_CLONE | INSERT_INSTRUCTION)
+                {
                     params
                         .arguments
                         .get(2)

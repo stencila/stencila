@@ -162,10 +162,10 @@ nodeTypes: []
     )
   );
 
-  // Clone node
+  // Insert a clone of a node
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "stencila.invoke.clone-node",
+      "stencila.invoke.insert-clone",
       async (docUri, nodeType, nodeId) => {
         const editor = vscode.window.activeTextEditor ?? lastTextEditor;
         if (!editor) {
@@ -174,14 +174,42 @@ nodeTypes: []
         }
 
         vscode.commands.executeCommand(
-          `stencila.clone-node`,
+          `stencila.insert-clone`,
           // For consistency, first args are destination document and position
           editor.document.uri.toString(),
           editor.selection.active,
-          // Remaining args are the source document and node
+          // Source document and node
           docUri,
           nodeType,
           nodeId
+        );
+      }
+    )
+  );
+
+  // Insert a clone of a node with an instruction to edit, fix or update it
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "stencila.invoke.insert-instruction",
+      async (docUri, nodeType, nodeId, instructionType, executionMode) => {
+        const editor = vscode.window.activeTextEditor ?? lastTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
+        }
+
+        vscode.commands.executeCommand(
+          `stencila.insert-instruction`,
+          // For consistency, first args are destination document and position
+          editor.document.uri.toString(),
+          editor.selection.active,
+          // Source document and node
+          docUri,
+          nodeType,
+          nodeId,
+          // Instruction properties
+          instructionType,
+          executionMode
         );
       }
     )
@@ -388,7 +416,6 @@ nodeTypes: []
 
         const items: { model: { id: string } }[] =
           await vscode.commands.executeCommand("stencila.models.picker");
-        console.log(items);
         if (items && items.length > 0) {
           models = items.map((item) => item.model.id);
         }

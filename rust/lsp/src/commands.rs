@@ -71,7 +71,8 @@ pub(super) const ARCHIVE_NODE: &str = "stencila.archive-node";
 pub(super) const REVISE_NODE: &str = "stencila.revise-node";
 
 pub(super) const INSERT_NODE: &str = "stencila.insert-node";
-pub(super) const CLONE_NODE: &str = "stencila.clone-node";
+pub(super) const INSERT_CLONE: &str = "stencila.insert-clone";
+pub(super) const INSERT_INSTRUCTION: &str = "stencila.insert-instruction";
 
 pub(super) const SAVE_DOC: &str = "stencila.save-doc";
 pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
@@ -102,7 +103,8 @@ pub(super) fn commands() -> Vec<String> {
         ARCHIVE_NODE,
         REVISE_NODE,
         INSERT_NODE,
-        CLONE_NODE,
+        INSERT_CLONE,
+        INSERT_INSTRUCTION,
         SAVE_DOC,
         EXPORT_DOC,
         PATCH_EXECUTE_CHAT,
@@ -156,12 +158,10 @@ pub(super) async fn execute_command(
             };
 
             let property = node_property_arg(args.next())?;
-            let value = args.next();
-
-            let value = match value {
-                Some(value) => PatchValue::Json(value),
-                None => PatchValue::None,
-            };
+            let value = args
+                .next()
+                .map(PatchValue::Json)
+                .unwrap_or(PatchValue::None);
 
             (
                 "Patching node".to_string(),
@@ -526,11 +526,18 @@ pub(super) async fn execute_command(
                 true,
             )
         }
-        CLONE_NODE => {
+        INSERT_CLONE | INSERT_INSTRUCTION => {
             let position = position_arg(args.next())?;
             args.next(); // Skip the argument for the URI of the source document (already used)
             let node_type = node_type_arg(args.next())?;
             let node_id = node_id_arg(args.next())?;
+            let instruction_type = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok())
+                .unwrap_or_default();
+            let execution_mode = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok());
 
             // Get the node from the source document
             let source_doc = source_doc.ok_or_else(|| {
@@ -549,9 +556,26 @@ pub(super) async fn execute_command(
             })?;
 
             // Convert the node into a block, replicate it (to avoid having duplicate ids)
-            // and convert to a patch value
-            let value = Block::try_from(source_node)
+            let block = Block::try_from(source_node)
                 .and_then(|block| replicate(&block))
+                .map_err(|error| {
+                    ResponseError::new(ErrorCode::INVALID_REQUEST, error.to_string())
+                })?;
+
+            // If appropriate, wrap in a command
+            let block = if matches!(command.as_str(), INSERT_INSTRUCTION) {
+                Block::InstructionBlock(InstructionBlock {
+                    instruction_type,
+                    execution_mode,
+                    content: Some(vec![block]),
+                    ..Default::default()
+                })
+            } else {
+                block
+            };
+
+            // and convert to a patch value
+            let value = replicate(&block)
                 .and_then(|block| block.to_value())
                 .map_err(|error| {
                     ResponseError::new(ErrorCode::INVALID_REQUEST, error.to_string())

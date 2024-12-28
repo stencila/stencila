@@ -4,7 +4,7 @@ import { customElement } from 'lit/decorators'
 import { withTwind } from '../twind'
 
 import '../ui/nodes/cards/block-on-demand'
-import '../ui/nodes/commands/clone-commands'
+import '../ui/nodes/commands/chat-commands'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/provenance'
@@ -26,12 +26,12 @@ export class MathBlock extends Math {
         depth=${this.depth}
       >
         <span slot="header-right">
-          <stencila-ui-node-clone-commands
+          <stencila-ui-node-chat-commands
             type="MathBlock"
             node-id=${this.id}
             ?enabled=${this.isWithin('Chat')}
           >
-          </stencila-ui-node-clone-commands>
+          </stencila-ui-node-chat-commands>
         </span>
 
         <div slot="body">

@@ -347,8 +347,8 @@ export async function initializeWebViewPanel(
         } else {
           command = "run-node";
         }
-      } else if (command === "clone-node") {
-        command = "invoke.clone-node";
+      } else if (command.startsWith("insert-")) {
+        command = "invoke." + command;
       }
 
       vscode.commands.executeCommand(
