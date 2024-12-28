@@ -7,7 +7,7 @@ use std::{
 
 use common::{
     derive_more::{Deref, DerefMut, IntoIterator},
-    eyre::{bail, Report, Result},
+    eyre::{bail, OptionExt, Report, Result},
     itertools::Itertools,
     serde::{de::DeserializeOwned, Deserialize, Serialize},
     serde_json::{self, Value as JsonValue},
@@ -693,6 +693,22 @@ impl From<usize> for PatchSlot {
     }
 }
 
+impl TryFrom<serde_json::Value> for PatchSlot {
+    type Error = Report;
+
+    fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
+        use serde_json::Value::*;
+        match value {
+            String(name) => Ok(Self::from(NodeProperty::try_from(name.as_str())?)),
+            Number(index) => index
+                .as_u64()
+                .ok_or_eyre("Expected u64")
+                .map(|value| Self::from(value as usize)),
+            _ => bail!("Unhandled JSON value for `PatchSlot`"),
+        }
+    }
+}
+
 /// A path to reach a node from the root: a vector of [`PatchSlot`]s
 ///
 /// A [`VecDeque`], rather than a [`Vec`] so that when applying operations in
@@ -722,13 +738,43 @@ impl PatchPath {
 
 impl From<NodeProperty> for PatchPath {
     fn from(value: NodeProperty) -> Self {
-        Self(VecDeque::from([PatchSlot::Property(value)]))
+        Self::from(PatchSlot::from(value))
+    }
+}
+
+impl From<usize> for PatchPath {
+    fn from(value: usize) -> Self {
+        Self::from(PatchSlot::from(value))
+    }
+}
+
+impl From<PatchSlot> for PatchPath {
+    fn from(value: PatchSlot) -> Self {
+        Self(VecDeque::from([value]))
     }
 }
 
 impl<const N: usize> From<[PatchSlot; N]> for PatchPath {
     fn from(value: [PatchSlot; N]) -> Self {
         Self(value.into())
+    }
+}
+
+impl TryFrom<serde_json::Value> for PatchPath {
+    type Error = Report;
+
+    fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
+        use serde_json::Value::*;
+        match value {
+            Number(..) | String(..) => Ok(Self::from(PatchSlot::try_from(value)?)),
+            Array(array) => Ok(Self(VecDeque::from(
+                array
+                    .into_iter()
+                    .map(PatchSlot::try_from)
+                    .collect::<Result<Vec<_>>>()?,
+            ))),
+            _ => bail!("Unhandled JSON value for `PatchPath`"),
+        }
     }
 }
 
