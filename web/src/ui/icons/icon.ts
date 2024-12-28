@@ -65,6 +65,7 @@ import codeSlash from './code-slash.svg'
 import code from './code.svg'
 import compass from './compass.svg'
 import coneStriped from './cone-striped.svg'
+import crosshair from './crosshair.svg'
 import currencyDollar from './currency-dollar.svg'
 import cursor from './cursor.svg'
 import dashCircle from './dash-circle.svg'
@@ -193,6 +194,7 @@ const icons = {
   codeSlash,
   compass,
   coneStriped,
+  crosshair,
   cursor,
   currencyDollar,
   dashCircle,

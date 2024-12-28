@@ -37,6 +37,7 @@ icons=(
     code
     code-slash
     cone-striped
+    crosshair
     currency-dollar
     dash-circle
     exclamation-circle
