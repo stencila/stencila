@@ -179,7 +179,9 @@ export class PromptBlock extends Executable {
     const promptOption = (prompt: Prompt) => html`
       <sl-option value=${prompt.id} style="--sl-spacing-x-small: 0.25rem;">
         <div class="text-sm text-[${textColour}]">${prompt.id}</div>
-        <div class="mt-0 text-xs text-[${textColour}]/70 max-w-72 truncate">${prompt.description}</div>
+        <div class="mt-0 text-xs text-[${textColour}]/70 max-w-72 truncate">
+          ${prompt.description}
+        </div>
       </sl-option>
     `
 

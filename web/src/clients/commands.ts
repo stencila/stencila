@@ -36,7 +36,7 @@ export interface DocumentCommand {
    *
    * If present, takes precedence over the other properties below.
    */
-  args?: (string | number | boolean| object)[]
+  args?: (string | number | boolean | object)[]
 
   /**
    * The type of the node that the command is being executed on.
@@ -86,8 +86,7 @@ export class CommandsClient extends RestClient {
    * @param docId The id of the document that will be sent commands
    * @param elem The HTML element from which events will be forwarded
    */
-  // @ts-expect-error because access is not used yet
-  constructor(docId: DocumentId, access: DocumentAccess, elem: HTMLElement) {
+  constructor(docId: DocumentId, _access: DocumentAccess, elem: HTMLElement) {
     super()
 
     elem.addEventListener(
