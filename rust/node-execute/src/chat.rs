@@ -182,7 +182,7 @@ impl Executable for Chat {
         // Patch the status and content of the model messages
         for (message_id, content) in message_ids.iter().zip(contents) {
             executor.patch(
-                &message_id,
+                message_id,
                 [
                     set(NodeProperty::ExecutionStatus, status.clone()),
                     append(NodeProperty::Content, content),

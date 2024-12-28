@@ -10,7 +10,8 @@ use common::{
 use format::Format;
 use node_execute::{compile, execute, interrupt, ExecuteOptions};
 use schema::{
-    transforms::blocks_to_inlines, Article, Block, ChatMessage, File, Node, NodeId, NodeProperty, Patch, PatchNode, PatchOp, PatchPath
+    transforms::blocks_to_inlines, Article, Block, ChatMessage, File, Node, NodeId, NodeProperty,
+    Patch, PatchNode, PatchOp, PatchPath,
 };
 
 use crate::{

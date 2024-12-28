@@ -124,21 +124,21 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
                         })
                     });
 
-                let source_doc = if matches!(params.command.as_str(), INSERT_CLONE | INSERT_INSTRUCTION)
-                {
-                    params
-                        .arguments
-                        .get(2)
-                        .and_then(|value| serde_json::from_value(value.clone()).ok())
-                        .and_then(|uri| {
-                            state
-                                .documents
-                                .get(&uri)
-                                .map(|text_doc| text_doc.doc.clone())
-                        })
-                } else {
-                    None
-                };
+                let source_doc =
+                    if matches!(params.command.as_str(), INSERT_CLONE | INSERT_INSTRUCTION) {
+                        params
+                            .arguments
+                            .get(2)
+                            .and_then(|value| serde_json::from_value(value.clone()).ok())
+                            .and_then(|uri| {
+                                state
+                                    .documents
+                                    .get(&uri)
+                                    .map(|text_doc| text_doc.doc.clone())
+                            })
+                    } else {
+                        None
+                    };
 
                 let client = state.client.clone();
                 async move {
