@@ -33,6 +33,11 @@ export class ChatMessage extends Executable {
    */
   files?: File[];
 
+  /**
+   * Whether this message is the selected message in the parent `ChatMessageGroup`
+   */
+  isSelected?: boolean;
+
   constructor(role: MessageRole, content: Block[], options?: Partial<ChatMessage>) {
     super();
     this.type = "ChatMessage";

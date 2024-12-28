@@ -1228,6 +1228,9 @@ class ChatMessage(Executable):
     files: list[File] | None = None
     """The content of the message."""
 
+    is_selected: bool | None = None
+    """Whether this message is the selected message in the parent `ChatMessageGroup`"""
+
 
 @dataclass(kw_only=True, repr=False)
 class ChatMessageGroup(Entity):

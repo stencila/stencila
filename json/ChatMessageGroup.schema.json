@@ -10,6 +10,9 @@
   "category": "works",
   "description": "A group of messages, usually alternative model messages, within a `Chat`.",
   "status": "under-development",
+  "patch": {
+    "applyWith": "ChatMessageGroup::apply_patch_op"
+  },
   "markdown": {
     "derive": false
   },

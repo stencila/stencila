@@ -130,6 +130,7 @@ pub enum NodeProperty {
     IsGlobal,
     IsInvisible,
     IsPartOf,
+    IsSelected,
     Issns,
     IssueNumber,
     Item,

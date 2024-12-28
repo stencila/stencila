@@ -398,6 +398,18 @@
       "schema:rangeIncludes": {
         "@id": "stencila:File"
       }
+    },
+    {
+      "@id": "stencila:isSelected",
+      "@type": "rdfs:Property",
+      "rdfs:label": "isSelected",
+      "rdfs:comment": "Whether this message is the selected message in the parent `ChatMessageGroup`",
+      "schema:domainIncludes": {
+        "@id": "stencila:ChatMessage"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
     }
   ]
 }

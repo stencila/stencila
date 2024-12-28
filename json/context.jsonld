@@ -319,6 +319,7 @@
     "isGlobal": "stencila:isGlobal",
     "isInvisible": "stencila:isInvisible",
     "isPartOf": "schema:isPartOf",
+    "isSelected": "stencila:isSelected",
     "issns": "schema:issn",
     "issueNumber": "schema:issueNumber",
     "item": "schema:item",

@@ -12,6 +12,7 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "ChatMessageGroup")]
+#[patch(apply_with = "ChatMessageGroup::apply_patch_op")]
 pub struct ChatMessageGroup {
     /// The type of this item.
     pub r#type: MustBe!("ChatMessageGroup"),

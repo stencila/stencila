@@ -23,7 +23,8 @@
     "executionMode",
     "executionBounds",
     "author",
-    "files"
+    "files",
+    "isSelected"
   ],
   "properties": {
     "type": {
@@ -364,6 +365,15 @@
       "items": {
         "$ref": "File.schema.json"
       }
+    },
+    "isSelected": {
+      "@id": "stencila:isSelected",
+      "description": "Whether this message is the selected message in the parent `ChatMessageGroup`",
+      "aliases": [
+        "is-selected",
+        "is_selected"
+      ],
+      "type": "boolean"
     }
   }
 }

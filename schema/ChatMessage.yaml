@@ -13,6 +13,7 @@ required:
 core:
   - author
   - files
+  - isSelected
 properties:
   author:
     '@id': schema:author
@@ -45,3 +46,7 @@ properties:
       $ref: File
     dom:
       elem: div
+  isSelected:
+    '@id': stencila:isSelected
+    description: Whether this message is the selected message in the parent `ChatMessageGroup`
+    type: boolean

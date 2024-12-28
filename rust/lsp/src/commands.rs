@@ -22,7 +22,7 @@ use async_lsp::{
 
 use codecs::{EncodeOptions, Format};
 use common::{
-    eyre::Result,
+    eyre::{OptionExt, Result},
     once_cell::sync::Lazy,
     serde_json::{self, Value},
     tokio::{
@@ -140,6 +140,12 @@ pub(super) async fn execute_command(
         ..author
     };
 
+    macro_rules! invalid_request {
+        ($reason:expr) => {
+            ResponseError::new(ErrorCode::INVALID_REQUEST, $reason)
+        };
+    }
+
     let (title, command, cancellable, update_after) = match command.as_str() {
         PATCH_NODE | PATCH_CURR => {
             let node_type = node_type_arg(args.next())?;
@@ -157,7 +163,12 @@ pub(super) async fn execute_command(
                 }
             };
 
-            let property = node_property_arg(args.next())?;
+            let path = args
+                .next()
+                .ok_or_eyre("missing")
+                .and_then(PatchPath::try_from)
+                .map_err(|error| invalid_request!(format!("Invalid patch path: {error}")))?;
+
             let value = args
                 .next()
                 .map(PatchValue::Json)
@@ -167,7 +178,7 @@ pub(super) async fn execute_command(
                 "Patching node".to_string(),
                 Command::PatchNode(Patch {
                     node_id: Some(node_id),
-                    ops: vec![(PatchPath::from(property), PatchOp::Set(value))],
+                    ops: vec![(path, PatchOp::Set(value))],
                     authors: Some(vec![author]),
                     ..Default::default()
                 }),

@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::author::Author;
 use super::block::Block;
+use super::boolean::Boolean;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
 use super::duration::Duration;
@@ -70,6 +71,10 @@ pub struct ChatMessage {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[dom(elem = "div")]
     pub files: Option<Vec<File>>,
+
+    /// Whether this message is the selected message in the parent `ChatMessageGroup`
+    #[serde(alias = "is-selected", alias = "is_selected")]
+    pub is_selected: Option<Boolean>,
 
     /// Non-core optional fields
     #[serde(flatten)]
