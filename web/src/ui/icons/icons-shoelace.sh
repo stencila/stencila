@@ -32,6 +32,8 @@ icons=(
     check-circle
     check-circle-fill
     chevron-down
+    chevron-left
+    chevron-right
     circle
     clock
     code

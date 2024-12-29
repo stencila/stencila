@@ -57,6 +57,8 @@ import checkCircleFill from './check-circle-fill.svg'
 import checkCircle from './check-circle.svg'
 import check from './check.svg'
 import chevronDown from './chevron-down.svg'
+import chevronLeft from './chevron-left.svg'
+import chevronRight from './chevron-right.svg'
 import circle from './circle.svg'
 import clock from './clock.svg'
 import cloudflare from './cloudflare.svg'
@@ -186,6 +188,8 @@ const icons = {
   checkCircle,
   checkCircleFill,
   chevronDown,
+  chevronLeft,
+  chevronRight,
   circle,
   clock,
   cloudflare,
