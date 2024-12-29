@@ -1,15 +1,9 @@
-import { SuggestionStatus } from '@stencila/types'
-import { apply } from '@twind/core'
-import { css, html } from 'lit'
+import { NodeType, SuggestionStatus } from '@stencila/types'
+import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
-
-import '../ui/nodes/commands/suggestion-commands'
-import '../ui/nodes/cards/block-in-flow'
-import '../ui/nodes/properties/authors'
-import '../ui/nodes/properties/execution-details'
-import '../ui/nodes/properties/provenance'
+import { closestGlobally } from '../utilities/closestGlobally'
 
 import { Entity } from './entity'
 
@@ -34,6 +28,31 @@ export class SuggestionBlock extends Entity {
   feedback?: string
 
   /**
+   * Should a node card, possibly within a suggestion, be expanded?
+   */
+  public static shouldExpand(card: HTMLElement, nodeType: NodeType): boolean {
+    const types: NodeType[] = [
+      'CodeBlock',
+      'CodeChunk',
+      'Datatable',
+      'Figure',
+      'ForBlock',
+      'IfBlock',
+      'IncludeBlock',
+      'InstructionBlock',
+      'MathBlock',
+      'RawBlock',
+      'StyledBlock',
+      'Table',
+    ]
+
+    return (
+      types.includes(nodeType) &&
+      closestGlobally(card, 'stencila-suggestion-block') !== null
+    )
+  }
+
+  /**
    * Toggle the visibility of this suggestion so it can
    * not be seen or interacted with when inactive.
    *
@@ -42,22 +61,27 @@ export class SuggestionBlock extends Entity {
   @state()
   public isActive: boolean = true
 
+  /*
   static override styles = css`
     :host {
       flex: 0 0 100%;
       width: 100%;
     }
   `
-
+  */
   override render() {
+    /*
     const styles = apply([
       'transition-opacity duration-300',
       this.isActive
         ? 'ease-out-quart opacity-1 pointer-events-auto'
         : 'ease-in-quart opacity-0 pointer-events-none',
     ])
+    */
 
-    return html`<div class=${styles}>
+    return html`<div>
+      <div>${this.suggestionStatus}</div>
+      <slot name="authors"></slot>
       <slot name="content"></slot>
     </div>`
   }

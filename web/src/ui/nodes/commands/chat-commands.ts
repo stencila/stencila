@@ -6,6 +6,7 @@ import { customElement, property, state } from 'lit/decorators'
 
 import { documentCommandEvent } from '../../../clients/commands'
 import { withTwind } from '../../../twind'
+import { closestGlobally } from '../../../utilities/closestGlobally'
 import { IconName } from '../../icons/icon'
 import { ChatContext, chatContext } from '../chat-context'
 import { UIBaseClass } from '../mixins/ui-base-class'
@@ -82,14 +83,16 @@ export class UINodeChatCommands extends UIBaseClass {
     )
   }
 
-  private onMakeTarget() {
+  private onAddSuggestion() {
     this.dispatchEvent(
-      new CustomEvent('stencila-chat-target', { detail: this.nodeId })
+      new CustomEvent('stencila-chat-suggestion', { detail: this.nodeId })
     )
   }
 
   override render() {
-    if (!this.chatContext) {
+    // Do not show these commands for nodes not in a chat, or within a chat
+    // but inside a suggestion block
+    if (!this.chatContext || closestGlobally(this, 'stencila-suggestion-block')) {
       return ''
     }
 
@@ -160,17 +163,19 @@ export class UINodeChatCommands extends UIBaseClass {
     const [icon, _label, help, handler] = useCommands[0]
     const useButton = html`<sl-tooltip content=${help}>
       <stencila-ui-icon-button
-        class="text-2xl ml-1"
+        class="text-xl ml-1"
         name=${icon}
         @click=${handler}
       ></stencila-ui-icon-button>
     </sl-tooltip>`
 
-    const targetButton = html`<sl-tooltip content=${help}>
+    const targetButton = html`<sl-tooltip
+      content="Focus the chat on this ${name}"
+    >
       <stencila-ui-icon-button
-        class="text-2xl ml-2"
+        class="text-xl ml-2"
         name="crosshair"
-        @click=${this.onMakeTarget}
+        @click=${this.onAddSuggestion}
       ></stencila-ui-icon-button>
     </sl-tooltip>`
 

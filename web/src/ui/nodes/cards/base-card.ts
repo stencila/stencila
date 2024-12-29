@@ -2,12 +2,14 @@ import { apply } from '@twind/core'
 import { html, PropertyValueMap } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
+import { ChatMessage } from '../../../nodes/chat-message'
+import { SuggestionBlock } from '../../../nodes/suggestion-block'
 import { withTwind } from '../../../twind'
 import { IconName } from '../../icons/icon'
 import { UIBaseClass } from '../mixins/ui-base-class'
+
 import '../../animation/collapsible'
 import '../../buttons/chevron'
-import { ChatMessage } from '../../../nodes/chat-message'
 
 /**
  * UI Base Card
@@ -98,7 +100,11 @@ export class UIBaseCard extends UIBaseClass {
     ])
 
     const canClose =
-      this.depth > 0 && !ChatMessage.shouldExpand(this, this.type)
+      this.depth > 0 &&
+      !(
+        ChatMessage.shouldExpand(this, this.type) ||
+        SuggestionBlock.shouldExpand(this, this.type)
+      )
 
     const icon = this.headerIcon ?? this.ui.icon
 

@@ -5,6 +5,7 @@ import { html } from 'lit'
 import { state, property } from 'lit/decorators'
 
 import { ChatMessage } from '../../../nodes/chat-message'
+import { SuggestionBlock } from '../../../nodes/suggestion-block'
 import { getModeParam } from '../../../utilities/getModeParam'
 import { DocumentContext, documentContext } from '../../document/context'
 import { UIBaseCard } from '../cards/base-card'
@@ -107,7 +108,10 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
       }
 
       // Expand certain nodes types in certain chat messages
-      if (ChatMessage.shouldExpand(this, this.type)) {
+      if (
+        ChatMessage.shouldExpand(this, this.type) ||
+        SuggestionBlock.shouldExpand(this, this.type)
+      ) {
         return true
       }
 

@@ -77,7 +77,7 @@ export class ChatMessage extends Executable {
   }
 
   /**
-   * Should the node card for an element possibly within a chat message be expanded?
+   * Should a node card, possibly within a chat message, be expanded?
    */
   public static shouldExpand(card: HTMLElement, nodeType: NodeType): boolean {
     const types: NodeType[] = [
