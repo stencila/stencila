@@ -3,7 +3,7 @@ import { css } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { documentCommandEvent } from '../../../clients/commands'
+import { patchValue } from '../../../clients/commands'
 import { withTwind } from '../../../twind'
 import { IconName } from '../../icons/icon'
 import { UIBaseClass } from '../mixins/ui-base-class'
@@ -24,12 +24,7 @@ export class UINodeExecutionMode extends UIBaseClass {
     this.value = value
 
     this.dispatchEvent(
-      documentCommandEvent({
-        command: 'patch-node',
-        nodeType: this.type,
-        nodeIds: [this.nodeId],
-        nodeProperty: ['executionMode', value],
-      })
+      patchValue(this.type, this.nodeId, 'executionMode', value)
     )
   }
 

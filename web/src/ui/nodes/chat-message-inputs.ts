@@ -3,7 +3,7 @@ import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { createRef, ref, Ref } from 'lit/directives/ref'
 
-import { documentCommandEvent } from '../../clients/commands'
+import { runChat } from '../../clients/commands'
 import { withTwind } from '../../twind'
 import { fileToStencilaFile } from '../inputs/file-input'
 
@@ -103,12 +103,7 @@ export class UIChatMessageInputs extends UIBaseClass {
     const text = this.textRef.value.value
     const files = this.files
 
-    this.dispatchEvent(
-      documentCommandEvent({
-        command: 'patch-execute-chat',
-        args: [this.nodeId, text, files],
-      })
-    )
+    this.dispatchEvent(runChat(this.nodeId, text, files))
 
     // Clear the text area and files list
     const textarea = this.textRef.value

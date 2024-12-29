@@ -46,12 +46,14 @@ use schema::{
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
 
-pub(super) const PATCH_NODE: &str = "stencila.patch-node";
+pub(super) const PATCH_VALUE: &str = "stencila.patch-value";
+pub(super) const PATCH_CLONE: &str = "stencila.patch-clone";
 pub(super) const PATCH_NODE_FORMAT: &str = "stencila.patch-node-format";
 pub(super) const VERIFY_NODE: &str = "stencila.verify-node";
 
 pub(super) const RUN_NODE: &str = "stencila.run-node";
 pub(super) const RUN_CURR: &str = "stencila.run-curr";
+pub(super) const RUN_CHAT: &str = "stencila.run-chat";
 pub(super) const RUN_DOC: &str = "stencila.run-doc";
 pub(super) const RUN_CODE: &str = "stencila.run-code";
 pub(super) const RUN_INSTRUCT: &str = "stencila.run-instruct";
@@ -77,16 +79,16 @@ pub(super) const INSERT_INSTRUCTION: &str = "stencila.insert-instruction";
 pub(super) const SAVE_DOC: &str = "stencila.save-doc";
 pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
 
-pub(super) const PATCH_EXECUTE_CHAT: &str = "stencila.patch-execute-chat";
-
 /// Get the list of commands that the language server supports
 pub(super) fn commands() -> Vec<String> {
     [
-        PATCH_NODE,
+        PATCH_VALUE,
+        PATCH_CLONE,
         PATCH_NODE_FORMAT,
         VERIFY_NODE,
         RUN_NODE,
         RUN_CURR,
+        RUN_CHAT,
         RUN_DOC,
         RUN_CODE,
         RUN_INSTRUCT,
@@ -106,7 +108,6 @@ pub(super) fn commands() -> Vec<String> {
         INSERT_INSTRUCTION,
         SAVE_DOC,
         EXPORT_DOC,
-        PATCH_EXECUTE_CHAT,
     ]
     .into_iter()
     .map(String::from)
@@ -140,7 +141,7 @@ pub(super) async fn execute_command(
     };
 
     let (title, command, cancellable, update_after) = match command.as_str() {
-        PATCH_NODE => {
+        PATCH_VALUE | PATCH_CLONE => {
             let node_type = node_type_arg(args.next())?;
 
             let node_position_or_id = args
@@ -163,10 +164,18 @@ pub(super) async fn execute_command(
                 .and_then(PatchPath::try_from)
                 .map_err(invalid_request)?;
 
-            let value = args
-                .next()
-                .map(PatchValue::Json)
-                .unwrap_or(PatchValue::None);
+            let value = if command == PATCH_CLONE {
+                let node_id = node_id_arg(args.next())?;
+                let doc = doc.read().await;
+                let root = doc.root_read().await;
+                let clone = find(&*root, node_id)
+                    .ok_or_else(|| invalid_request("Node not found in source document"))?;
+                clone.to_value().map_err(invalid_request)?
+            } else {
+                args.next()
+                    .map(PatchValue::Json)
+                    .unwrap_or(PatchValue::None)
+            };
 
             (
                 "Patching node".to_string(),
@@ -234,6 +243,10 @@ pub(super) async fn execute_command(
         RUN_NODE => {
             let node_type = node_type_arg(args.next())?;
             let node_id = node_id_arg(args.next())?;
+            let scope = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok())
+                .unwrap_or_default();
 
             // Only update if running an instruction or chat message (since these update
             // the content of the document)
@@ -245,7 +258,7 @@ pub(super) async fn execute_command(
             (
                 format!("Running node {node_type}"),
                 Command::ExecuteNodes((
-                    CommandNodes::new(vec![node_id], CommandScope::Only),
+                    CommandNodes::new(vec![node_id], scope),
                     ExecuteOptions::default(),
                 )),
                 true,
@@ -272,6 +285,27 @@ pub(super) async fn execute_command(
                 tracing::error!("No node to run at current position");
                 return Ok(None);
             }
+        }
+        RUN_CHAT => {
+            let chat_id = node_id_arg(args.next())?;
+
+            let text = args
+                .next()
+                .and_then(|arg| arg.as_str().map(String::from))
+                .unwrap_or_default();
+
+            let files = args.next().and_then(|arg| serde_json::from_value(arg).ok());
+
+            (
+                "Adding chat message".to_string(),
+                Command::PatchExecuteChat {
+                    chat_id,
+                    text,
+                    files,
+                },
+                false,
+                false,
+            )
         }
         RUN_DOC => (
             format!("Running {file_name}"),
@@ -598,25 +632,6 @@ pub(super) async fn execute_command(
             (
                 "Exporting document".to_string(),
                 Command::ExportDocument((path, EncodeOptions::default())),
-                false,
-                false,
-            )
-        }
-        PATCH_EXECUTE_CHAT => {
-            let chat_id = node_id_arg(args.next())?;
-            let text = args
-                .next()
-                .and_then(|arg| arg.as_str().map(String::from))
-                .unwrap_or_default();
-            let files = args.next().and_then(|arg| serde_json::from_value(arg).ok());
-
-            (
-                "Adding chat message".to_string(),
-                Command::PatchExecuteChat {
-                    chat_id,
-                    text,
-                    files,
-                },
                 false,
                 false,
             )

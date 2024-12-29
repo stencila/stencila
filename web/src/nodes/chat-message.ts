@@ -3,7 +3,7 @@ import { apply } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
-import { documentCommandEvent } from '../clients/commands'
+import { patchValue } from '../clients/commands'
 import { withTwind } from '../twind'
 import { closestGlobally } from '../utilities/closestGlobally'
 
@@ -64,15 +64,12 @@ export class ChatMessage extends Executable {
     )
 
     this.dispatchEvent(
-      documentCommandEvent({
-        command: 'patch-node',
-        args: [
-          'ChatMessageGroup',
-          group.id,
-          ['messages', thisIndex, 'isSelected'],
-          true,
-        ],
-      })
+      patchValue(
+        'ChatMessageGroup',
+        group.id,
+        ['messages', thisIndex, 'isSelected'],
+        true
+      )
     )
   }
 

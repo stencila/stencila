@@ -124,6 +124,7 @@ export class CodeChunk extends CodeExecutable {
     </stencila-ui-block-on-demand>`
   }
 
+  /*
   private renderShowHideOutput() {
     return html`<sl-tooltip
       content=${this.isInvisible ? 'Show output' : 'Hide output'}
@@ -139,6 +140,7 @@ export class CodeChunk extends CodeExecutable {
       ></stencila-ui-icon-button>
     </sl-tooltip>`
   }
+  */
 
   private renderContent() {
     return this.isInvisible

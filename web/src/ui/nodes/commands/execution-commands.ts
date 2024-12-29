@@ -3,10 +3,7 @@ import { apply, css } from '@twind/core'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
-import {
-  DocumentCommand,
-  documentCommandEvent,
-} from '../../../clients/commands'
+import { runNode } from '../../../clients/commands'
 import { withTwind } from '../../../twind'
 import { closestGlobally } from '../../../utilities/closestGlobally'
 import { UIBaseClass } from '../mixins/ui-base-class'
@@ -22,21 +19,22 @@ import '../../buttons/icon'
 @customElement('stencila-ui-node-execution-commands')
 @withTwind()
 export class UINodeExecutionCommands extends UIBaseClass {
-  /**
-   * Emit a custom event to execute the document with this
-   * node id and command scope
-   */
-  private emitEvent(e: Event, scope: DocumentCommand['scope']) {
-    e.stopImmediatePropagation()
+  private onRun(event: Event) {
+    event.stopImmediatePropagation()
 
-    this.dispatchEvent(
-      documentCommandEvent({
-        command: 'execute-nodes',
-        nodeType: this.type,
-        nodeIds: [this.nodeId],
-        scope,
-      })
-    )
+    this.dispatchEvent(runNode(this.type, this.nodeId))
+  }
+
+  private onRunAbove(event: Event) {
+    event.stopImmediatePropagation()
+
+    this.dispatchEvent(runNode(this.type, this.nodeId, 'plus-before'))
+  }
+
+  private onRunBelow(event: Event) {
+    event.stopImmediatePropagation()
+
+    this.dispatchEvent(runNode(this.type, this.nodeId, 'plus-after'))
   }
 
   override render() {
@@ -56,7 +54,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
           <stencila-ui-icon-button
             name="play"
             class="text-2xl"
-            @click=${(e: Event) => this.emitEvent(e, 'only')}
+            @click=${this.onRun}
           ></stencila-ui-icon-button>
         </sl-tooltip>
 
@@ -115,7 +113,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
     return html`
       <sl-dropdown
         class=${containerStyles}
-        @click=${(e: Event) => e.stopImmediatePropagation()}
+        @click=${(event: Event) => event.stopImmediatePropagation()}
         placement="bottom-end"
         hoist
       >
@@ -128,7 +126,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
         <sl-menu class="rounded border border-[${borderColour}] z-50">
           <sl-menu-item
             class="${itemStyles} ${itemPartStyles}"
-            @click=${(e: Event) => this.emitEvent(e, 'plus-before')}
+            @click=${this.onRunAbove}
           >
             <div class="flex items-center gap-1 text-[${textColour}]">
               <stencila-ui-icon name="skipStart"></stencila-ui-icon>
@@ -137,7 +135,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
           </sl-menu-item>
           <sl-menu-item
             class="${itemStyles} ${itemPartStyles}"
-            @click=${(e: Event) => this.emitEvent(e, 'plus-after')}
+            @click=${this.onRunBelow}
           >
             <div class="flex items-center text-[${textColour}]">
               <stencila-ui-icon name="skipEnd"></stencila-ui-icon>

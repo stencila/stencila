@@ -2,7 +2,7 @@ import { apply, css } from '@twind/core'
 import { html, TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
-import { documentCommandEvent } from '../clients/commands'
+import { patchValue } from '../clients/commands'
 import { data, Model } from '../system'
 import { withTwind } from '../twind'
 import { iconMaybe } from '../ui/icons/icon'
@@ -125,12 +125,7 @@ export class ModelParameters extends Entity {
     const value = (event.target as HTMLInputElement).value
 
     this.dispatchEvent(
-      documentCommandEvent({
-        command: 'patch-node',
-        nodeType: 'ModelParameters',
-        nodeIds: [this.id],
-        nodeProperty: ['modelIds', value],
-      })
+      patchValue('ModelParameters', this.id, 'modelIds', value)
     )
   }
 
@@ -150,12 +145,7 @@ export class ModelParameters extends Entity {
     // rather than send 3 separate patches as done here
     for (const weight of this.weightFields) {
       this.dispatchEvent(
-        documentCommandEvent({
-          command: 'patch-node',
-          nodeType: 'ModelParameters',
-          nodeIds: [this.id],
-          nodeProperty: [weight, this[weight]],
-        })
+        patchValue('ModelParameters', this.id, weight, this[weight])
       )
     }
   }
@@ -229,12 +219,7 @@ export class ModelParameters extends Entity {
     this[property] = parseInt((event.target as HTMLInputElement).value)
 
     this.dispatchEvent(
-      documentCommandEvent({
-        command: 'patch-node',
-        nodeType: 'ModelParameters',
-        nodeIds: [this.id],
-        nodeProperty: [property, this[property]],
-      })
+      patchValue('ModelParameters', this.id, property, this[property])
     )
   }
 

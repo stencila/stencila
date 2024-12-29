@@ -3,7 +3,7 @@ import { css, html, PropertyValues } from 'lit'
 import { customElement, query, state } from 'lit/decorators.js'
 import { createRef, ref, Ref } from 'lit/directives/ref'
 
-import { documentCommandEvent } from '../clients/commands'
+import { archiveNode, patchValue, reviseNode } from '../clients/commands'
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
 
@@ -135,12 +135,12 @@ export class InstructionBlock extends Instruction {
     }
 
     this.dispatchEvent(
-      documentCommandEvent({
-        command: 'patch-node',
-        nodeType: 'InstructionBlock',
-        nodeIds: [this.id],
-        nodeProperty: ['activeSuggestion', this.activeSuggestion],
-      })
+      patchValue(
+        'InstructionBlock',
+        this.id,
+        'activeSuggestion',
+        this.activeSuggestion
+      )
     )
   }
 
@@ -175,12 +175,12 @@ export class InstructionBlock extends Instruction {
     }
 
     this.dispatchEvent(
-      documentCommandEvent({
-        command: 'patch-node',
-        nodeType: 'InstructionBlock',
-        nodeIds: [this.id],
-        nodeProperty: ['activeSuggestion', this.activeSuggestion],
-      })
+      patchValue(
+        'InstructionBlock',
+        this.id,
+        'activeSuggestion',
+        this.activeSuggestion
+      )
     )
   }
 
@@ -190,13 +190,7 @@ export class InstructionBlock extends Instruction {
   private archive(e: Event) {
     e.stopImmediatePropagation()
 
-    this.dispatchEvent(
-      documentCommandEvent({
-        command: 'archive-node',
-        nodeType: 'InstructionBlock',
-        nodeIds: [this.id],
-      })
-    )
+    this.dispatchEvent(archiveNode('InstructionBlock', this.id))
   }
 
   /**
@@ -205,19 +199,12 @@ export class InstructionBlock extends Instruction {
   private revise(e: Event) {
     e.stopImmediatePropagation()
 
-    const args = ['InstructionBlock', this.id]
-
-    const feedback = this.feedbackRef.value.value
-
-    if (feedback) {
-      args.push(feedback)
-    }
-
     this.dispatchEvent(
-      documentCommandEvent({
-        command: 'revise-node',
-        args,
-      })
+      reviseNode(
+        'InstructionBlock',
+        this.id,
+        this.feedbackRef.value.value ? this.feedbackRef.value.value : undefined
+      )
     )
   }
 

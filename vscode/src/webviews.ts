@@ -34,7 +34,8 @@ export interface DomPatch {
  * A map of patch handler function for each subscription to a
  * document's DOM HTML
  */
-export const documentPatchHandlers: Record<string, (patch: DomPatch) => void> = {};
+export const documentPatchHandlers: Record<string, (patch: DomPatch) => void> =
+  {};
 
 /**
  * Register a handler for "stencila/publishDom" notifications that forwards
@@ -46,7 +47,13 @@ export function registerSubscriptionNotifications(
 ) {
   const handler = client.onNotification(
     "stencila/publishDom",
-    ({ subscriptionId, patch }: { subscriptionId: string; patch: DomPatch }) => {
+    ({
+      subscriptionId,
+      patch,
+    }: {
+      subscriptionId: string;
+      patch: DomPatch;
+    }) => {
       const handler = documentPatchHandlers[subscriptionId];
       if (!handler) {
         console.error(`No handler for subscription ${subscriptionId}`);
@@ -68,10 +75,6 @@ interface CommandMessage {
   type: "command";
   command: string;
   args?: string[];
-  nodeType?: string;
-  nodeIds?: string[];
-  nodeProperty?: [string, unknown];
-  scope?: string;
 }
 
 interface ScrollSyncMessage {
@@ -326,35 +329,10 @@ export async function initializeWebViewPanel(
         return;
       }
 
-      let command = message.command;
-
-      let args;
-      if (message.args) {
-        args = message.args;
-      } else {
-        args = [
-          message.nodeType,
-          ...(message.nodeIds ? message.nodeIds : []),
-          ...(message.nodeProperty ? message.nodeProperty : []),
-        ];
-      }
-
-      if (command === "execute-nodes") {
-        if (message.scope === "plus-before") {
-          command = "run-before";
-        } else if (message.scope === "plus-after") {
-          command = "run-after";
-        } else {
-          command = "run-node";
-        }
-      } else if (command.startsWith("insert-")) {
-        command = "invoke." + command;
-      }
-
       vscode.commands.executeCommand(
-        `stencila.${command}`,
+        `stencila.${message.command}`,
         documentUri,
-        ...args
+        ...(message.args ?? [])
       );
     },
     null,

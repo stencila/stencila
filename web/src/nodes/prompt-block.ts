@@ -3,7 +3,7 @@ import { apply, css } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
-import { documentCommandEvent } from '../clients/commands'
+import { patchValue } from '../clients/commands'
 import { data, Prompt } from '../system'
 import { withTwind } from '../twind'
 import { iconMaybe } from '../ui/icons/icon'
@@ -71,14 +71,7 @@ export class PromptBlock extends Executable {
       value = null
     }
 
-    this.dispatchEvent(
-      documentCommandEvent({
-        command: 'patch-node',
-        nodeType: 'PromptBlock',
-        nodeIds: [this.id],
-        nodeProperty: ['target', value],
-      })
-    )
+    this.dispatchEvent(patchValue('PromptBlock', this.id, 'target', value))
   }
 
   override connectedCallback(): void {

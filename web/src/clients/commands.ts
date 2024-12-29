@@ -1,66 +1,12 @@
-import { NodeType } from '@stencila/types'
+import { ExecutionMode, File, InstructionType, NodeType } from '@stencila/types'
 
 import type { DocumentAccess, DocumentId, NodeId } from '../types'
 
 import { RestClient } from './rest'
 
-/**
- * A command to send to a document
- *
- * Note that this must be consistent with the Rust enum
- * named `Command` in `rust/document/src/lib.rs`.
- */
 export interface DocumentCommand {
-  /**
-   * The name of the command
-   */
-  command:
-    | 'save-document'
-    | 'execute-document'
-    | 'execute-nodes'
-    | 'interrupt-document'
-    | 'interrupt-nodes'
-    | 'patch-node'
-    | 'patch-node-format'
-    | 'patch-execute-chat'
-    | 'accept-node'
-    | 'reject-node'
-    | 'revise-node'
-    | 'archive-node'
-    | 'insert-clone'
-    | 'insert-instruction'
-    | 'merge-clone'
-
-  /**
-   * The arguments of the command
-   *
-   * If present, takes precedence over the other properties below.
-   */
-  args?: (string | number | boolean | object)[]
-
-  /**
-   * The type of the node that the command is being executed on.
-   *
-   * This is not of the Rust `Command` enum but is required for
-   * compatibility with the LSP which uses the convention of prefixing
-   * most command args with the document URI and the node type.
-   */
-  nodeType?: NodeType
-
-  /**
-   * Node ids, where applicable
-   */
-  nodeIds?: NodeId[]
-
-  /**
-   * Node property name and value (for `patch-node`)
-   */
-  nodeProperty?: [string, unknown]
-
-  /**
-   * The scope for the command
-   */
-  scope?: 'only' | 'plus-before' | 'plus-after' | 'plus-upstream-downstream'
+  command: string
+  args: Array<null | boolean | number | string | object>
 }
 
 /**
@@ -71,13 +17,116 @@ const DOCUMENT_COMMAND_EVENT = 'stencila-document-command'
 /**
  * Create a `CustomEvent` containing a `DocumentCommand`
  */
-export function documentCommandEvent(command: DocumentCommand): CustomEvent {
-  return new CustomEvent(DOCUMENT_COMMAND_EVENT, {
+const documentCommandEvent = (command: DocumentCommand): CustomEvent =>
+  new CustomEvent(DOCUMENT_COMMAND_EVENT, {
     detail: command,
     bubbles: true,
     composed: true,
   })
-}
+
+/**
+ * Create a `patch-value` command event
+ */
+export const patchValue = (
+  nodeType: NodeType,
+  nodeId: NodeId,
+  patchPath: string | number | Array<string | number>,
+  value: null | boolean | number | string
+) =>
+  documentCommandEvent({
+    command: 'patch-value',
+    args: [nodeType, nodeId, patchPath, value],
+  })
+
+/**
+ * Create a `patch-clone` command event
+ */
+export const patchClone = (
+  nodeType: NodeType,
+  nodeId: NodeId,
+  patchPath: string | number | Array<string | number>,
+  cloneId: NodeId
+) =>
+  documentCommandEvent({
+    command: 'patch-clone',
+    args: [nodeType, nodeId, patchPath, cloneId],
+  })
+
+/**
+ * Create a `patch-chat-suggestions` command event
+ */
+export const patchChatSuggestions = (chatId: NodeId, cloneId: NodeId) =>
+  documentCommandEvent({
+    command: 'patch-clone-chat-suggestions',
+    args: ['Chat', chatId, ['suggestions'], cloneId],
+  })
+
+/**
+ * Create an `invoke.insert-clone` command event
+ */
+export const insertClone = (nodeType: NodeType, nodeId: NodeId) =>
+  documentCommandEvent({
+    command: 'invoke.insert-clone',
+    args: [nodeType, nodeId],
+  })
+
+/**
+ * Create an `invoke.insert-instruction` command event
+ */
+export const insertInstruction = (
+  nodeType: NodeType,
+  nodeId: NodeId,
+  instructionType: InstructionType,
+  executionMode: ExecutionMode
+) =>
+  documentCommandEvent({
+    command: 'invoke.insert-instruction',
+    args: [nodeType, nodeId, instructionType, executionMode],
+  })
+
+/**
+ * Create a `run-node` command event
+ */
+export const runNode = (
+  nodeType: NodeType,
+  nodeId: NodeId,
+  scope?: 'plus-before' | 'plus-after'
+) =>
+  documentCommandEvent({
+    command: 'run-node',
+    args: [nodeType, nodeId, scope],
+  })
+
+/**
+ * Create a `run-chat` command event
+ */
+export const runChat = (nodeId: NodeId, text: string, files: Array<File>) =>
+  documentCommandEvent({
+    command: 'run-chat',
+    args: [nodeId, text, files],
+  })
+
+/**
+ * Create an `archive-node` command event
+ */
+export const archiveNode = (nodeType: NodeType, nodeId: NodeId) =>
+  documentCommandEvent({
+    command: 'archive-node',
+    args: [nodeType, nodeId],
+  })
+
+/**
+ * Create a `revise-node` command event
+ */
+export const reviseNode = (
+  nodeType: NodeType,
+  nodeId: NodeId,
+  feedback?: string
+) =>
+  documentCommandEvent({
+    command: 'revise-node',
+    args: [nodeType, nodeId, feedback],
+  })
 
 export class CommandsClient extends RestClient {
   /**

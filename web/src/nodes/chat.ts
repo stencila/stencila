@@ -3,6 +3,7 @@ import { MutationController } from '@lit-labs/observers/mutation-controller'
 import SlCarousel from '@shoelace-style/shoelace/dist/components/carousel/carousel'
 import SlCarouselItem from '@shoelace-style/shoelace/dist/components/carousel-item/carousel-item'
 import { css } from '@twind/core'
+import { Idiomorph } from 'idiomorph/dist/idiomorph.esm.js'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 import { createRef, ref, Ref } from 'lit/directives/ref'
@@ -15,7 +16,6 @@ import { ChatMessage } from './chat-message'
 import { Executable } from './executable'
 import { PromptBlock } from './prompt-block'
 import { SuggestionBlock } from './suggestion-block'
-import { Idiomorph } from 'idiomorph/dist/idiomorph.esm.js'
 
 /**
  * Web component representing a Stencila `Chat` node

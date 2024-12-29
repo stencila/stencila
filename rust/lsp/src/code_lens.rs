@@ -13,7 +13,7 @@ use schema::{ExecutionStatus, NodeType};
 
 use crate::{
     commands::{
-        ARCHIVE_NODE, CANCEL_NODE, NEXT_NODE, PATCH_NODE, PREV_NODE, REVISE_NODE, RUN_NODE,
+        ARCHIVE_NODE, CANCEL_NODE, NEXT_NODE, PATCH_VALUE, PREV_NODE, REVISE_NODE, RUN_NODE,
         VERIFY_NODE,
     },
     text_document::TextNode,
@@ -294,7 +294,7 @@ pub(crate) async fn resolve(
         ),
         WALKTHROUGH_CONTINUE => Command::new(
             "$(arrow-right) Next".to_string(),
-            PATCH_NODE.to_string(),
+            PATCH_VALUE.to_string(),
             Some(vec![
                 json!(uri),
                 json!(node_type),
@@ -305,7 +305,7 @@ pub(crate) async fn resolve(
         ),
         WALKTHROUGH_EXPAND => Command::new(
             "$(chevron-down) Expand all".to_string(),
-            PATCH_NODE.to_string(),
+            PATCH_VALUE.to_string(),
             Some(vec![
                 json!(uri),
                 json!(node_type),

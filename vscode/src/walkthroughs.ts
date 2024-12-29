@@ -73,7 +73,7 @@ export function registerWalkthroughCommands(context: vscode.ExtensionContext) {
 
       // Collapse the walkthrough
       await vscode.commands.executeCommand(
-        "stencila.patch-node",
+        "stencila.patch-value",
         editor.document.uri.toString(),
         "Walkthrough",
         walkthroughStart,
@@ -98,7 +98,7 @@ export function registerWalkthroughCommands(context: vscode.ExtensionContext) {
       }
 
       vscode.commands.executeCommand(
-        "stencila.patch-node",
+        "stencila.patch-value",
         editor.document.uri.toString(),
         "Walkthrough",
         editor.selection.active,
@@ -119,7 +119,7 @@ export function registerWalkthroughCommands(context: vscode.ExtensionContext) {
       }
 
       vscode.commands.executeCommand(
-        "stencila.patch-node",
+        "stencila.patch-value",
         editor.document.uri.toString(),
         "Walkthrough",
         editor.selection.active,

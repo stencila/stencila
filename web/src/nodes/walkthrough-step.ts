@@ -2,7 +2,7 @@ import { apply } from '@twind/core'
 import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
-import { documentCommandEvent } from '../clients/commands'
+import { patchValue } from '../clients/commands'
 import { withTwind } from '../twind'
 
 import { Entity } from './entity'
@@ -33,10 +33,7 @@ export class WalkthroughStep extends Entity {
     e.stopImmediatePropagation()
 
     this.dispatchEvent(
-      documentCommandEvent({
-        command: 'patch-node',
-        args: ['WalkthroughStep', this.id, 'isCollapsed', false],
-      })
+      patchValue('WalkthroughStep', this.id, 'isCollapsed', false)
     )
   }
 
@@ -47,15 +44,12 @@ export class WalkthroughStep extends Entity {
     e.stopImmediatePropagation()
 
     this.dispatchEvent(
-      documentCommandEvent({
-        command: 'patch-node',
-        args: [
-          'Walkthrough',
-          this.closestGlobally('stencila-walkthrough')?.id,
-          'isCollapsed',
-          false,
-        ],
-      })
+      patchValue(
+        'Walkthrough',
+        this.closestGlobally('stencila-walkthrough')?.id,
+        'isCollapsed',
+        false
+      )
     )
   }
 

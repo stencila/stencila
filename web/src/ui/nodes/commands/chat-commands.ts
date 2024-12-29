@@ -4,7 +4,7 @@ import { css } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
-import { documentCommandEvent } from '../../../clients/commands'
+import { insertClone, insertInstruction } from '../../../clients/commands'
 import { withTwind } from '../../../twind'
 import { closestGlobally } from '../../../utilities/closestGlobally'
 import { IconName } from '../../icons/icon'
@@ -34,12 +34,7 @@ export class UINodeChatCommands extends UIBaseClass {
    * Insert a clone of the node into the active document
    */
   private onInsertClone() {
-    this.dispatchEvent(
-      documentCommandEvent({
-        command: 'insert-clone',
-        args: [this.type, this.nodeId],
-      })
-    )
+    this.dispatchEvent(insertClone(this.type, this.nodeId))
   }
 
   /**
@@ -47,12 +42,7 @@ export class UINodeChatCommands extends UIBaseClass {
    * the active document
    */
   private onInsertInstruction(type: InstructionType) {
-    this.dispatchEvent(
-      documentCommandEvent({
-        command: 'insert-instruction',
-        args: [this.type, this.nodeId, type, 'Auto'],
-      })
-    )
+    this.dispatchEvent(insertInstruction(this.type, this.nodeId, type, 'Auto'))
   }
 
   /**
@@ -75,24 +65,20 @@ export class UINodeChatCommands extends UIBaseClass {
    * Merge a clone of the node back into the source node of the active document
    */
   private onMergeClone() {
-    this.dispatchEvent(
-      documentCommandEvent({
-        command: 'merge-clone',
-        args: [this.type, this.nodeId, this.chatContext.source],
-      })
-    )
+    // TODO
   }
 
   private onAddSuggestion() {
-    this.dispatchEvent(
-      new CustomEvent('stencila-chat-suggestion', { detail: this.nodeId })
-    )
+    // TODO
   }
 
   override render() {
     // Do not show these commands for nodes not in a chat, or within a chat
     // but inside a suggestion block
-    if (!this.chatContext || closestGlobally(this, 'stencila-suggestion-block')) {
+    if (
+      !this.chatContext ||
+      closestGlobally(this, 'stencila-suggestion-block')
+    ) {
       return ''
     }
 
