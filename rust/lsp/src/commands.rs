@@ -1,4 +1,5 @@
 use std::{
+    fmt::Display,
     ops::ControlFlow,
     path::PathBuf,
     str::FromStr,
@@ -38,9 +39,9 @@ use document::{
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
-    replicate, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, InstructionBlock,
-    InstructionMessage, InstructionType, MessageRole, ModelParameters, NodeId, NodeProperty,
-    NodeType, Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock, Timestamp,
+    replicate, AuthorRole, AuthorRoleName, Block, Chat, InstructionBlock, InstructionMessage,
+    InstructionType, ModelParameters, NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp,
+    PatchPath, PatchValue, PromptBlock, Timestamp,
 };
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
@@ -140,12 +141,6 @@ pub(super) async fn execute_command(
         ..author
     };
 
-    macro_rules! invalid_request {
-        ($reason:expr) => {
-            ResponseError::new(ErrorCode::INVALID_REQUEST, $reason)
-        };
-    }
-
     let (title, command, cancellable, update_after) = match command.as_str() {
         PATCH_NODE | PATCH_CURR => {
             let node_type = node_type_arg(args.next())?;
@@ -167,7 +162,7 @@ pub(super) async fn execute_command(
                 .next()
                 .ok_or_eyre("missing")
                 .and_then(PatchPath::try_from)
-                .map_err(|error| invalid_request!(format!("Invalid patch path: {error}")))?;
+                .map_err(invalid_request)?;
 
             let value = args
                 .next()
@@ -471,10 +466,7 @@ pub(super) async fn execute_command(
             let block = match node_type {
                 NodeType::Chat => Block::Chat(Chat {
                     is_ephemeral: Some(true),
-                    content: vec![Block::ChatMessage(ChatMessage::new(
-                        MessageRole::User,
-                        vec![],
-                    ))],
+                    content: Vec::new(),
                     ..Default::default()
                 }),
                 NodeType::InstructionBlock => Block::InstructionBlock(InstructionBlock {
@@ -484,12 +476,7 @@ pub(super) async fn execute_command(
                     model_parameters,
                     ..Default::default()
                 }),
-                _ => {
-                    return Err(ResponseError::new(
-                        ErrorCode::INVALID_REQUEST,
-                        format!("Unhandled node type: {node_type}"),
-                    ))
-                }
+                _ => return Err(invalid_request(format!("Unhandled node type: {node_type}"))),
             };
 
             // Return the node's id so that the client can subscribe to its DOM
@@ -551,27 +538,17 @@ pub(super) async fn execute_command(
                 .and_then(|value| serde_json::from_value(value).ok());
 
             // Get the node from the source document
-            let source_doc = source_doc.ok_or_else(|| {
-                ResponseError::new(
-                    ErrorCode::INVALID_REQUEST,
-                    "Source document URI missing or invalid".to_string(),
-                )
-            })?;
+            let source_doc = source_doc
+                .ok_or_else(|| invalid_request("Source document URI missing or invalid"))?;
             let source_doc = source_doc.read().await;
             let source_root = source_doc.root_read().await;
-            let source_node = find(&*source_root, node_id).ok_or_else(|| {
-                ResponseError::new(
-                    ErrorCode::INVALID_REQUEST,
-                    "Node not found in source document".to_string(),
-                )
-            })?;
+            let source_node = find(&*source_root, node_id)
+                .ok_or_else(|| invalid_request("Node not found in source document"))?;
 
             // Convert the node into a block, replicate it (to avoid having duplicate ids)
             let block = Block::try_from(source_node)
                 .and_then(|block| replicate(&block))
-                .map_err(|error| {
-                    ResponseError::new(ErrorCode::INVALID_REQUEST, error.to_string())
-                })?;
+                .map_err(invalid_request)?;
 
             // If appropriate, wrap in a command
             let block = if matches!(command.as_str(), INSERT_INSTRUCTION) {
@@ -588,9 +565,7 @@ pub(super) async fn execute_command(
             // and convert to a patch value
             let value = replicate(&block)
                 .and_then(|block| block.to_value())
-                .map_err(|error| {
-                    ResponseError::new(ErrorCode::INVALID_REQUEST, error.to_string())
-                })?;
+                .map_err(invalid_request)?;
 
             // Find where to insert the block based on the position in the text document
             // falling back to appending to the end of the document's root node's content.
@@ -647,12 +622,7 @@ pub(super) async fn execute_command(
                 false,
             )
         }
-        command => {
-            return Err(ResponseError::new(
-                ErrorCode::INVALID_REQUEST,
-                format!("Unknown command `{command}`"),
-            ))
-        }
+        command => return Err(invalid_request(format!("Unknown command `{command}`"))),
     };
 
     // Send the command to the document with a subscription to receive status updates
@@ -744,73 +714,48 @@ pub(super) async fn execute_command(
     Ok(return_value)
 }
 
+/// Create an invalid request error
+fn invalid_request<T: Display>(value: T) -> ResponseError {
+    ResponseError::new(ErrorCode::INVALID_REQUEST, value.to_string())
+}
+
 /// Extract a document URI from a command arg
 pub(super) fn uri_arg(arg: Option<Value>) -> Result<Url, ResponseError> {
     arg.and_then(|value| serde_json::from_value(value).ok())
-        .ok_or_else(|| {
-            ResponseError::new(
-                ErrorCode::INVALID_REQUEST,
-                "Document URI argument missing or invalid".to_string(),
-            )
-        })
+        .ok_or_else(|| invalid_request("Document URI argument missing or invalid"))
 }
 
 /// Extract a Stencila [`NodeType`] from a command arg
 fn node_type_arg(arg: Option<Value>) -> Result<NodeType, ResponseError> {
     arg.and_then(|value| value.as_str().map(String::from))
         .and_then(|node_id| NodeType::from_str(&node_id).ok())
-        .ok_or_else(|| {
-            ResponseError::new(
-                ErrorCode::INVALID_REQUEST,
-                "Node type argument missing or invalid".to_string(),
-            )
-        })
+        .ok_or_else(|| invalid_request("Node type argument missing or invalid"))
 }
 
 /// Extract a Stencila [`NodeId`] from a command arg
 fn node_id_arg(arg: Option<Value>) -> Result<NodeId, ResponseError> {
     arg.and_then(|value| value.as_str().map(String::from))
         .and_then(|node_id| NodeId::from_str(&node_id).ok())
-        .ok_or_else(|| {
-            ResponseError::new(
-                ErrorCode::INVALID_REQUEST,
-                "Node id argument missing or invalid".to_string(),
-            )
-        })
+        .ok_or_else(|| invalid_request("Node id argument missing or invalid"))
 }
 
 /// Extract a Stencila [`NodeProperty`] from a command arg
 fn node_property_arg(arg: Option<Value>) -> Result<NodeProperty, ResponseError> {
     arg.and_then(|value| value.as_str().map(String::from))
         .and_then(|node_id| NodeProperty::from_str(&node_id).ok())
-        .ok_or_else(|| {
-            ResponseError::new(
-                ErrorCode::INVALID_REQUEST,
-                "Node property argument missing or invalid".to_string(),
-            )
-        })
+        .ok_or_else(|| invalid_request("Node property argument missing or invalid"))
 }
 
 /// Extract a position from a command arg
 fn position_arg(arg: Option<Value>) -> Result<Position, ResponseError> {
     arg.and_then(|value| serde_json::from_value(value).ok())
-        .ok_or_else(|| {
-            ResponseError::new(
-                ErrorCode::INVALID_REQUEST,
-                "Position argument missing or invalid".to_string(),
-            )
-        })
+        .ok_or_else(|| invalid_request("Position argument missing or invalid"))
 }
 
 /// Extract a `PathBuf` from a command arg
 fn path_buf_arg(arg: Option<Value>) -> Result<PathBuf, ResponseError> {
     arg.and_then(|value| serde_json::from_value(value).ok())
-        .ok_or_else(|| {
-            ResponseError::new(
-                ErrorCode::INVALID_REQUEST,
-                "Path argument missing or invalid".to_string(),
-            )
-        })
+        .ok_or_else(|| invalid_request("Path argument missing or invalid"))
 }
 
 static PROGRESS_TOKEN: Lazy<AtomicI32> = Lazy::new(AtomicI32::default);
