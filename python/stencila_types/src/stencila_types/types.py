@@ -417,6 +417,7 @@ class SuggestionStatus(StrEnum):
     The status of an instruction.
     """
 
+    Original = "Original"
     Accepted = "Accepted"
     Rejected = "Rejected"
 
@@ -650,7 +651,7 @@ class Suggestion(Entity):
     type: Literal["Suggestion"] = "Suggestion"
 
     suggestion_status: SuggestionStatus | None = None
-    """The status of the suggestion including whether it is proposed, accepted, or rejected."""
+    """The status of the suggestion including whether it is the original, or is accepted, or rejected."""
 
     authors: list[Author] | None = None
     """The authors of the suggestion"""
@@ -1202,7 +1203,10 @@ class Chat(CreativeWork, Executable):
     """Model selection and inference parameters."""
 
     content: list[Block]
-    """The messages, and optionally other content, that make up the conversation."""
+    """The messages, and optionally other content, that make up the chat."""
+
+    suggestions: list[SuggestionBlock] | None = None
+    """Suggestions of content that is the focus of the chat."""
 
     is_ephemeral: bool | None = None
     """Whether a chat that is nested within another node is ephemeral or not."""

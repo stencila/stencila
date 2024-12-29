@@ -7,8 +7,11 @@ use crate::prelude::*;
 #[serde(crate = "common::serde")]
 #[strum(ascii_case_insensitive, crate = "common::strum")]
 pub enum SuggestionStatus {
-    /// The suggestion has been accepted.
+    /// The suggestion is the original content.
     #[default]
+    Original,
+
+    /// The suggestion has been accepted.
     Accepted,
 
     /// The suggestion has been rejected.

@@ -32,6 +32,7 @@ use super::property_value_or_string::PropertyValueOrString;
 use super::provenance_count::ProvenanceCount;
 use super::string::String;
 use super::string_or_number::StringOrNumber;
+use super::suggestion_block::SuggestionBlock;
 use super::text::Text;
 use super::thing_type::ThingType;
 use super::timestamp::Timestamp;
@@ -87,12 +88,19 @@ pub struct Chat {
     #[dom(elem = "div")]
     pub model_parameters: Box<ModelParameters>,
 
-    /// The messages, and optionally other content, that make up the conversation.
+    /// The messages, and optionally other content, that make up the chat.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
     #[patch(format = "all")]
     #[dom(elem = "div")]
     pub content: Vec<Block>,
+
+    /// Suggestions of content that is the focus of the chat.
+    #[serde(alias = "suggestion")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[walk]
+    #[dom(elem = "div")]
+    pub suggestions: Option<Vec<SuggestionBlock>>,
 
     /// Whether a chat that is nested within another node is ephemeral or not.
     #[serde(alias = "is-ephemeral", alias = "is_ephemeral")]

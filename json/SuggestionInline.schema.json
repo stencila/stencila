@@ -46,7 +46,7 @@
     },
     "suggestionStatus": {
       "@id": "stencila:suggestionStatus",
-      "description": "The status of the suggestion including whether it is proposed, accepted, or rejected.",
+      "description": "The status of the suggestion including whether it is the original, or is accepted, or rejected.",
       "aliases": [
         "suggestion-status",
         "suggestion_status"

@@ -30,6 +30,7 @@
     "executionMode",
     "executionBounds",
     "title",
+    "suggestions",
     "isEphemeral"
   ],
   "properties": {
@@ -954,7 +955,7 @@
     },
     "content": {
       "@id": "stencila:content",
-      "description": "The messages, and optionally other content, that make up the conversation.",
+      "description": "The messages, and optionally other content, that make up the chat.",
       "$comment": "Usually, a chat will only contain `ChatMessage`s that alternate\nbetween user and model roles. However, other types of block content\nare permitted.\n",
       "dom": {
         "elem": "div"
@@ -962,6 +963,21 @@
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"
+      }
+    },
+    "suggestions": {
+      "@id": "stencila:suggestions",
+      "description": "Suggestions of content that is the focus of the chat.",
+      "aliases": [
+        "suggestion"
+      ],
+      "walk": true,
+      "dom": {
+        "elem": "div"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "SuggestionBlock.schema.json"
       }
     },
     "isEphemeral": {

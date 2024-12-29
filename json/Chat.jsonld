@@ -818,7 +818,7 @@
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
-      "rdfs:comment": "The messages, and optionally other content, that make up the conversation.",
+      "rdfs:comment": "The messages, and optionally other content, that make up the chat.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Article"
@@ -919,6 +919,26 @@
       ],
       "schema:rangeIncludes": {
         "@id": "stencila:Block"
+      }
+    },
+    {
+      "@id": "stencila:suggestions",
+      "@type": "rdfs:Property",
+      "rdfs:label": "suggestions",
+      "rdfs:comment": "Suggestions of content that is the focus of the chat.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:InstructionBlock"
+        },
+        {
+          "@id": "stencila:InstructionInline"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:SuggestionBlock"
       }
     },
     {

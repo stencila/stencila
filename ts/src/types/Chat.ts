@@ -4,6 +4,7 @@ import { Block } from "./Block.js";
 import { CreativeWork } from "./CreativeWork.js";
 import { ModelParameters } from "./ModelParameters.js";
 import { PromptBlock } from "./PromptBlock.js";
+import { SuggestionBlock } from "./SuggestionBlock.js";
 
 /**
  * A chat conversation, usually with a generative AI model.
@@ -23,9 +24,14 @@ export class Chat extends CreativeWork {
   modelParameters: ModelParameters;
 
   /**
-   * The messages, and optionally other content, that make up the conversation.
+   * The messages, and optionally other content, that make up the chat.
    */
   content: Block[];
+
+  /**
+   * Suggestions of content that is the focus of the chat.
+   */
+  suggestions?: SuggestionBlock[];
 
   /**
    * Whether a chat that is nested within another node is ephemeral or not.

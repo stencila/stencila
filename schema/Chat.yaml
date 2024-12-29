@@ -15,6 +15,7 @@ required:
   - content
 core:
   - title
+  - suggestions
   - isEphemeral
 properties:
   prompt:
@@ -48,7 +49,7 @@ properties:
       elem: div
   content:
     "@id": stencila:content
-    description: The messages, and optionally other content, that make up the conversation.
+    description: The messages, and optionally other content, that make up the chat.
     $comment: |
       Usually, a chat will only contain `ChatMessage`s that alternate
       between user and model roles. However, other types of block content
@@ -56,6 +57,15 @@ properties:
     type: array
     items:
       $ref: Block
+    dom:
+      elem: div
+  suggestions:
+    "@id": stencila:suggestions
+    description: Suggestions of content that is the focus of the chat.
+    type: array
+    items:
+      $ref: SuggestionBlock
+    walk: true
     dom:
       elem: div
   isEphemeral:

@@ -32,7 +32,7 @@ pub struct InsertInline {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// The status of the suggestion including whether it is proposed, accepted, or rejected.
+    /// The status of the suggestion including whether it is the original, or is accepted, or rejected.
     #[serde(alias = "suggestion-status", alias = "suggestion_status")]
     #[strip(metadata)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]

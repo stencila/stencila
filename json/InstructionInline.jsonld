@@ -443,6 +443,9 @@
       "rdfs:comment": "Suggestions for the instruction",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:Chat"
+        },
+        {
           "@id": "stencila:InstructionBlock"
         },
         {

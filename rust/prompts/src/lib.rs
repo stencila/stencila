@@ -528,6 +528,7 @@ pub async fn execute_instruction_block(
             feedback
         } else if let Some(status) = &suggestion.suggestion_status {
             match status {
+                SuggestionStatus::Original => "This is the original.",
                 SuggestionStatus::Accepted => {
                     "This is suggestion is acceptable, but please try again."
                 }

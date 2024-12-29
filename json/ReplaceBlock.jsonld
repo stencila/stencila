@@ -21,7 +21,7 @@
       "@id": "stencila:suggestionStatus",
       "@type": "rdfs:Property",
       "rdfs:label": "suggestionStatus",
-      "rdfs:comment": "The status of the suggestion including whether it is proposed, accepted, or rejected.",
+      "rdfs:comment": "The status of the suggestion including whether it is the original, or is accepted, or rejected.",
       "schema:domainIncludes": {
         "@id": "stencila:Suggestion"
       },
