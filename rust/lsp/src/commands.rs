@@ -48,7 +48,6 @@ use crate::{formatting::format_doc, text_document::TextNode, ServerState};
 
 pub(super) const PATCH_NODE: &str = "stencila.patch-node";
 pub(super) const PATCH_NODE_FORMAT: &str = "stencila.patch-node-format";
-pub(super) const PATCH_CURR: &str = "stencila.patch-curr";
 pub(super) const VERIFY_NODE: &str = "stencila.verify-node";
 
 pub(super) const RUN_NODE: &str = "stencila.run-node";
@@ -85,7 +84,6 @@ pub(super) fn commands() -> Vec<String> {
     [
         PATCH_NODE,
         PATCH_NODE_FORMAT,
-        PATCH_CURR,
         VERIFY_NODE,
         RUN_NODE,
         RUN_CURR,
@@ -142,25 +140,26 @@ pub(super) async fn execute_command(
     };
 
     let (title, command, cancellable, update_after) = match command.as_str() {
-        PATCH_NODE | PATCH_CURR => {
+        PATCH_NODE => {
             let node_type = node_type_arg(args.next())?;
 
-            let node_id = if command == PATCH_NODE {
-                node_id_arg(args.next())?
-            } else {
-                let position = position_arg(args.next())?;
-                match root.read().await.node_type_ancestor(node_type, position) {
+            let node_position_or_id = args
+                .next()
+                .ok_or_else(|| invalid_request("Node position or id arg missing"))?;
+            let node_id = match position_arg(Some(node_position_or_id.clone())) {
+                Ok(position) => match root.read().await.node_type_ancestor(node_type, position) {
                     Some(id) => id,
                     None => {
                         tracing::error!("No node of type {node_type} at current position");
                         return Ok(None);
                     }
-                }
+                },
+                Err(..) => node_id_arg(Some(node_position_or_id))?,
             };
 
             let path = args
                 .next()
-                .ok_or_eyre("missing")
+                .ok_or_eyre("Patch path arg missing")
                 .and_then(PatchPath::try_from)
                 .map_err(invalid_request)?;
 
