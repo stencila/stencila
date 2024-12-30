@@ -14,7 +14,7 @@ impl ChatMessageGroup {
             Some(PatchSlot::Index(which)),
             Some(PatchSlot::Property(NodeProperty::IsSelected)),
             PatchOp::Set(value),
-        ) = (path.get(0), path.get(1), path.get(2), op)
+        ) = (path.front(), path.get(1), path.get(2), op)
         {
             if let Ok(true) = bool::from_value(value.clone()) {
                 for (index, message) in self.messages.iter_mut().enumerate() {
