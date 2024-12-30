@@ -4,7 +4,11 @@ import { css } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 
-import { insertClone, insertInstruction } from '../../../clients/commands'
+import {
+  insertClone,
+  insertInstruction,
+  patchChatFocus,
+} from '../../../clients/commands'
 import { withTwind } from '../../../twind'
 import { closestGlobally } from '../../../utilities/closestGlobally'
 import { IconName } from '../../icons/icon'
@@ -17,6 +21,9 @@ import { UIBaseClass } from '../mixins/ui-base-class'
 @customElement('stencila-ui-node-chat-commands')
 @withTwind()
 export class UINodeChatCommands extends UIBaseClass {
+  /**
+   * The current chat context
+   */
   @consume({ context: chatContext, subscribe: true })
   @state()
   private chatContext?: ChatContext
@@ -62,14 +69,11 @@ export class UINodeChatCommands extends UIBaseClass {
   }
 
   /**
-   * Merge a clone of the node back into the source node of the active document
+   * Make the current node the focus of the chat
    */
-  private onMergeClone() {
-    // TODO
-  }
-
-  private onAddSuggestion() {
-    // TODO
+  private onFocus() {
+    const chatId = closestGlobally(this, 'stencila-chat')?.id
+    this.dispatchEvent(patchChatFocus(chatId, this.nodeId))
   }
 
   override render() {
@@ -101,17 +105,6 @@ export class UINodeChatCommands extends UIBaseClass {
         this.onInsertClone,
       ],
     ]
-
-    if (this.chatContext.source) {
-      const operation =
-        this.chatContext.instructionType?.toLowerCase() ?? 'change'
-      useCommands.push([
-        'circle',
-        'Apply',
-        `Apply this ${operation} to the source ${name} in the doc.`,
-        this.onMergeClone,
-      ])
-    }
 
     if (['Paragraph'].includes(this.type)) {
       useCommands.push([
@@ -161,7 +154,7 @@ export class UINodeChatCommands extends UIBaseClass {
       <stencila-ui-icon-button
         class="text-xl ml-2"
         name="crosshair"
-        @click=${this.onAddSuggestion}
+        @click=${this.onFocus}
       ></stencila-ui-icon-button>
     </sl-tooltip>`
 

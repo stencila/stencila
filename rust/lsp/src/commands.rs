@@ -41,13 +41,14 @@ use node_find::find;
 use schema::{
     replicate, AuthorRole, AuthorRoleName, Block, Chat, InstructionBlock, InstructionMessage,
     InstructionType, ModelParameters, NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp,
-    PatchPath, PatchValue, PromptBlock, Timestamp,
+    PatchPath, PatchValue, PromptBlock, SuggestionBlock, Timestamp,
 };
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
 
 pub(super) const PATCH_VALUE: &str = "stencila.patch-value";
 pub(super) const PATCH_CLONE: &str = "stencila.patch-clone";
+pub(super) const PATCH_CHAT_FOCUS: &str = "stencila.patch-chat-focus";
 pub(super) const PATCH_NODE_FORMAT: &str = "stencila.patch-node-format";
 pub(super) const VERIFY_NODE: &str = "stencila.verify-node";
 
@@ -84,6 +85,7 @@ pub(super) fn commands() -> Vec<String> {
     [
         PATCH_VALUE,
         PATCH_CLONE,
+        PATCH_CHAT_FOCUS,
         PATCH_NODE_FORMAT,
         VERIFY_NODE,
         RUN_NODE,
@@ -126,9 +128,9 @@ pub(super) async fn execute_command(
     source_doc: Option<Arc<RwLock<Document>>>,
     mut client: ClientSocket,
 ) -> Result<Option<Value>, ResponseError> {
-    let mut return_value = None;
-
+    let command = command.as_str();
     let mut args = arguments.into_iter();
+
     let uri = uri_arg(args.next())?;
 
     let file_name = PathBuf::from(&uri.to_string())
@@ -140,8 +142,10 @@ pub(super) async fn execute_command(
         ..author
     };
 
-    let (title, command, cancellable, update_after) = match command.as_str() {
-        PATCH_VALUE | PATCH_CLONE => {
+    let mut return_value = None;
+
+    let (title, command, cancellable, update_after) = match command {
+        PATCH_VALUE | PATCH_CLONE | PATCH_CHAT_FOCUS => {
             let node_type = node_type_arg(args.next())?;
 
             let node_position_or_id = args
@@ -164,24 +168,44 @@ pub(super) async fn execute_command(
                 .and_then(PatchPath::try_from)
                 .map_err(invalid_request)?;
 
-            let value = if command == PATCH_CLONE {
-                let node_id = node_id_arg(args.next())?;
-                let doc = doc.read().await;
-                let root = doc.root_read().await;
-                let clone = find(&*root, node_id)
-                    .ok_or_else(|| invalid_request("Node not found in source document"))?;
-                clone.to_value().map_err(invalid_request)?
-            } else {
-                args.next()
+            let value = match command {
+                PATCH_CLONE | PATCH_CHAT_FOCUS => {
+                    let node_id = node_id_arg(args.next())?;
+                    let doc = doc.read().await;
+                    let root = doc.root_read().await;
+                    let clone = find(&*root, node_id)
+                        .ok_or_eyre("Node not found in source document")
+                        .and_then(|node| replicate(&node))
+                        .map_err(invalid_request)?;
+
+                    match command {
+                        PATCH_CHAT_FOCUS => Block::try_from(clone).and_then(|block| {
+                            SuggestionBlock {
+                                content: vec![block],
+                                ..Default::default()
+                            }
+                            .to_value()
+                        }),
+                        _ => clone.to_value(),
+                    }
+                    .map_err(invalid_request)?
+                }
+                _ => args
+                    .next()
                     .map(PatchValue::Json)
-                    .unwrap_or(PatchValue::None)
+                    .unwrap_or(PatchValue::None),
+            };
+
+            let op = match command {
+                PATCH_CHAT_FOCUS => PatchOp::Push(value),
+                _ => PatchOp::Set(value),
             };
 
             (
                 "Patching node".to_string(),
                 Command::PatchNode(Patch {
                     node_id: Some(node_id),
-                    ops: vec![(path, PatchOp::Set(value))],
+                    ops: vec![(path, op)],
                     authors: Some(vec![author]),
                     ..Default::default()
                 }),
@@ -385,7 +409,7 @@ pub(super) async fn execute_command(
                 Err(..) => node_id_arg(args.next())?,
             };
 
-            let (title, path, op) = match command.as_str() {
+            let (title, path, op) = match command {
                 PREV_NODE => (
                     "Previous suggestion".to_string(),
                     PatchPath::from(NodeProperty::ActiveSuggestion),
@@ -584,7 +608,7 @@ pub(super) async fn execute_command(
                 .map_err(invalid_request)?;
 
             // If appropriate, wrap in a command
-            let block = if matches!(command.as_str(), INSERT_INSTRUCTION) {
+            let block = if matches!(command, INSERT_INSTRUCTION) {
                 Block::InstructionBlock(InstructionBlock {
                     instruction_type,
                     execution_mode,

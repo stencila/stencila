@@ -53,11 +53,11 @@ export const patchClone = (
   })
 
 /**
- * Create a `patch-chat-suggestions` command event
+ * Create a `patch-chat-focus` command event
  */
-export const patchChatSuggestions = (chatId: NodeId, cloneId: NodeId) =>
+export const patchChatFocus = (chatId: NodeId, cloneId: NodeId) =>
   documentCommandEvent({
-    command: 'patch-clone-chat-suggestions',
+    command: 'patch-chat-focus',
     args: ['Chat', chatId, ['suggestions'], cloneId],
   })
 
