@@ -1,5 +1,5 @@
 import { NodeType, SuggestionStatus } from '@stencila/types'
-import { html } from 'lit'
+import { css, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
@@ -61,28 +61,22 @@ export class SuggestionBlock extends Entity {
   @state()
   public isActive: boolean = true
 
-  /*
   static override styles = css`
     :host {
-      flex: 0 0 100%;
-      width: 100%;
+      height: 100%;
+      min-width: 45ch;
+      max-width: 65ch;
+      margin: 0 auto;
+      padding: 5px;
+      overflow: scroll;
     }
   `
-  */
-  override render() {
-    /*
-    const styles = apply([
-      'transition-opacity duration-300',
-      this.isActive
-        ? 'ease-out-quart opacity-1 pointer-events-auto'
-        : 'ease-in-quart opacity-0 pointer-events-none',
-    ])
-    */
 
-    return html`<div>
+  override render() {
+    return html`
       <div>${this.suggestionStatus}</div>
       <slot name="authors"></slot>
       <slot name="content"></slot>
-    </div>`
+    `
   }
 }
