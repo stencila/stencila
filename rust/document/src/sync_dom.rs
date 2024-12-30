@@ -186,7 +186,7 @@ impl Document {
             Some(node_id) => {
                 let root = self.root.read().await;
                 let Some(node) = find(&*root, node_id.clone()) else {
-                    bail!("Unable to find node `{node_id}` in document")
+                    bail!("Unable to find node in document: {node_id}")
                 };
                 codecs::to_string(&node, encode_options.clone()).await?
             }
