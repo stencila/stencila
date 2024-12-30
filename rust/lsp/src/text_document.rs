@@ -765,19 +765,9 @@ pub(super) fn did_open(
     let format = params.text_document.language_id;
     let mut source = params.text_document.text;
 
-    // Ensure if the document is a new chat document, that is it well formed, including
-    // having an initial user message to be typed into
+    // Ensure if the document is a new chat document, that is it well formed
     if uri.path().ends_with(".chat") && source.is_empty() {
-        source.push_str(
-            "---
-type: Chat
----
-
-::: user
-
-:::
-",
-        );
+        source.push_str("---\ntype: Chat\n---");
     }
 
     let client = state.client.clone();
