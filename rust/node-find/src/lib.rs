@@ -20,7 +20,29 @@ struct Finder {
     node: Option<Node>,
 }
 
+impl Finder {
+    /// Break walk if node has been found
+    fn walk_control(&self) -> WalkControl {
+        match self.node {
+            Some(..) => WalkControl::Break,
+            None => WalkControl::Continue,
+        }
+    }
+}
+
 impl Visitor for Finder {
+    fn enter_struct(&mut self, node_type: schema::NodeType, node_id: NodeId) -> WalkControl {
+        self.walk_control()
+    }
+
+    fn enter_property(&mut self, property: schema::NodeProperty) -> WalkControl {
+        self.walk_control()
+    }
+
+    fn enter_index(&mut self, index: usize) -> WalkControl {
+        self.walk_control()
+    }
+
     fn visit_node(&mut self, node: &Node) -> WalkControl {
         if let Some(node_id) = node.node_id() {
             if node_id == self.node_id {

@@ -104,19 +104,25 @@ pub trait Visitor: Sized {
     }
 
     /// Enter a struct
-    fn enter_struct(&mut self, node_type: NodeType, node_id: NodeId) {}
+    fn enter_struct(&mut self, node_type: NodeType, node_id: NodeId) -> WalkControl {
+        WalkControl::Continue
+    }
 
     /// Exit a struct
     fn exit_struct(&mut self) {}
 
     /// Enter a property
-    fn enter_property(&mut self, property: NodeProperty) {}
+    fn enter_property(&mut self, property: NodeProperty) -> WalkControl {
+        WalkControl::Continue
+    }
 
     /// Exit a property
     fn exit_property(&mut self) {}
 
     /// Enter a node at an index
-    fn enter_index(&mut self, index: usize) {}
+    fn enter_index(&mut self, index: usize) -> WalkControl {
+        WalkControl::Continue
+    }
 
     /// Exit a node at an index
     fn exit_index(&mut self) {}
@@ -189,19 +195,25 @@ pub trait VisitorMut: Sized {
     }
 
     /// Enter a struct
-    fn enter_struct(&mut self, node_type: NodeType, node_id: NodeId) {}
+    fn enter_struct(&mut self, node_type: NodeType, node_id: NodeId) -> WalkControl {
+        WalkControl::Continue
+    }
 
     /// Exit a struct
     fn exit_struct(&mut self) {}
 
     /// Enter a property
-    fn enter_property(&mut self, property: NodeProperty) {}
+    fn enter_property(&mut self, property: NodeProperty) -> WalkControl {
+        WalkControl::Continue
+    }
 
     /// Exit a property
     fn exit_property(&mut self) {}
 
     /// Enter a node at an index
-    fn enter_index(&mut self, index: usize) {}
+    fn enter_index(&mut self, index: usize) -> WalkControl {
+        WalkControl::Continue
+    }
 
     /// Exit a node at an index
     fn exit_index(&mut self) {}
@@ -298,19 +310,25 @@ pub trait VisitorAsync: Send + Sync {
     }
 
     /// Enter a struct
-    fn enter_struct(&mut self, node_type: NodeType, node_id: NodeId) {}
+    fn enter_struct(&mut self, node_type: NodeType, node_id: NodeId) -> WalkControl {
+        WalkControl::Continue
+    }
 
     /// Exit a struct
     fn exit_struct(&mut self) {}
 
     /// Enter a property
-    fn enter_property(&mut self, property: NodeProperty) {}
+    fn enter_property(&mut self, property: NodeProperty) -> WalkControl {
+        WalkControl::Continue
+    }
 
     /// Exit a property
     fn exit_property(&mut self) {}
 
     /// Enter a node at an index
-    fn enter_index(&mut self, index: usize) {}
+    fn enter_index(&mut self, index: usize) -> WalkControl {
+        WalkControl::Continue
+    }
 
     /// Exit a node at an index
     fn exit_index(&mut self) {}
@@ -403,16 +421,24 @@ where
 {
     fn walk<V: Visitor>(&self, visitor: &mut V) {
         for (index, node) in self.iter().enumerate() {
-            visitor.enter_index(index);
+            if visitor.enter_index(index).is_break() {
+                break;
+            };
+
             node.walk(visitor);
+
             visitor.exit_index();
         }
     }
 
     fn walk_mut<V: VisitorMut>(&mut self, visitor: &mut V) {
         for (index, node) in self.iter_mut().enumerate() {
-            visitor.enter_index(index);
+            if visitor.enter_index(index).is_break() {
+                break;
+            };
+
             node.walk_mut(visitor);
+
             visitor.exit_index();
         }
     }
@@ -423,8 +449,12 @@ where
         V: VisitorAsync,
     {
         for (index, node) in self.iter_mut().enumerate() {
-            visitor.enter_index(index);
+            if visitor.enter_index(index).is_break() {
+                break;
+            };
+
             node.walk_async(visitor).await?;
+
             visitor.exit_index();
         }
 
