@@ -473,6 +473,7 @@ pub enum StripScopes {
     Metadata,
     Content,
     Archive,
+    Temporary,
     Code,
     Execution,
     Output,

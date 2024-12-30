@@ -37,6 +37,9 @@ struct FieldAttr {
     archive: bool,
 
     #[darling(default)]
+    temporary: bool,
+
+    #[darling(default)]
     code: bool,
 
     #[darling(default)]
@@ -146,6 +149,14 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             if field.archive {
                 fields.extend(quote! {
                     if targets.scopes.contains(&StripScope::Archive) {
+                        self.#field_name #strip;
+                    }
+                })
+            }
+
+            if field.temporary {
+                fields.extend(quote! {
+                    if targets.scopes.contains(&StripScope::Temporary) {
                         self.#field_name #strip;
                     }
                 })
