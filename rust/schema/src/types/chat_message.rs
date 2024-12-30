@@ -50,10 +50,6 @@ pub struct ChatMessage {
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub execution_bounds: Option<ExecutionBounds>,
 
-    /// The author of the message
-    #[dom(elem = "div")]
-    pub author: Option<Author>,
-
     /// The role of the message in the conversation.
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[dom(attr = "message-role")]
@@ -65,16 +61,6 @@ pub struct ChatMessage {
     #[patch(format = "all")]
     #[dom(elem = "div")]
     pub content: Vec<Block>,
-
-    /// The content of the message.
-    #[serde(alias = "file")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    #[dom(elem = "div")]
-    pub files: Option<Vec<File>>,
-
-    /// Whether this message is the selected message in the parent `ChatMessageGroup`
-    #[serde(alias = "is-selected", alias = "is_selected")]
-    pub is_selected: Option<Boolean>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -176,6 +162,20 @@ pub struct ChatMessageOptions {
     #[strip(execution)]
     #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
+
+    /// The author of the message
+    #[dom(elem = "div")]
+    pub author: Option<Author>,
+
+    /// The content of the message.
+    #[serde(alias = "file")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[dom(elem = "div")]
+    pub files: Option<Vec<File>>,
+
+    /// Whether this message is the selected message in the parent `ChatMessageGroup`
+    #[serde(alias = "is-selected", alias = "is_selected")]
+    pub is_selected: Option<Boolean>,
 }
 
 impl ChatMessage {

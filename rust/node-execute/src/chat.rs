@@ -113,12 +113,12 @@ impl Executable for Chat {
             .into_iter()
             .map(|model_id| ChatMessage {
                 role: MessageRole::Model,
-                author: Some(Author::SoftwareApplication(SoftwareApplication {
-                    id: Some(model_id),
-                    name: "Model".into(), // TODO
-                    ..Default::default()
-                })),
                 options: Box::new(ChatMessageOptions {
+                    author: Some(Author::SoftwareApplication(SoftwareApplication {
+                        id: Some(model_id),
+                        name: "Model".into(), // TODO
+                        ..Default::default()
+                    })),
                     execution_status: Some(ExecutionStatus::Running),
                     ..Default::default()
                 }),

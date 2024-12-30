@@ -10,8 +10,8 @@ use common::{
 use format::Format;
 use node_execute::{compile, execute, interrupt, ExecuteOptions};
 use schema::{
-    transforms::blocks_to_inlines, Article, Block, ChatMessage, File, Node, NodeId, NodeProperty,
-    Patch, PatchNode, PatchOp, PatchPath,
+    transforms::blocks_to_inlines, Article, Block, ChatMessage, ChatMessageOptions, File, Node,
+    NodeId, NodeProperty, Patch, PatchNode, PatchOp, PatchPath,
 };
 
 use crate::{
@@ -395,7 +395,10 @@ async fn chat_patch(chat_id: &NodeId, text: String, files: Option<Vec<File>>) ->
 
     let chat_message = Block::ChatMessage(ChatMessage {
         content,
-        files,
+        options: Box::new(ChatMessageOptions {
+            files,
+            ..Default::default()
+        }),
         ..Default::default()
     });
 

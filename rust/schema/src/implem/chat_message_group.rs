@@ -18,7 +18,7 @@ impl ChatMessageGroup {
         {
             if let Ok(true) = bool::from_value(value.clone()) {
                 for (index, message) in self.messages.iter_mut().enumerate() {
-                    message.is_selected = (index == *which).then_some(true);
+                    message.options.is_selected = (index == *which).then_some(true);
                 }
                 return Ok(true);
             }

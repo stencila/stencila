@@ -10,10 +10,6 @@ markdown:
 required:
   - role
   - content
-core:
-  - author
-  - files
-  - isSelected
 properties:
   author:
     '@id': schema:author

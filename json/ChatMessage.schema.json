@@ -21,10 +21,7 @@
   "core": [
     "id",
     "executionMode",
-    "executionBounds",
-    "author",
-    "files",
-    "isSelected"
+    "executionBounds"
   ],
   "properties": {
     "type": {
