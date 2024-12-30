@@ -99,7 +99,7 @@ pub struct Chat {
     #[serde(alias = "suggestion")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[walk]
-    #[dom(elem = "div")]
+    #[dom(with = "Chat::suggestions_to_dom_elem")]
     pub suggestions: Option<Vec<SuggestionBlock>>,
 
     /// Whether a chat that is nested within another node is ephemeral or not.

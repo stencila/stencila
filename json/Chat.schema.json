@@ -973,7 +973,7 @@
       ],
       "walk": true,
       "dom": {
-        "elem": "div"
+        "with": "Chat::suggestions_to_dom_elem"
       },
       "type": "array",
       "items": {

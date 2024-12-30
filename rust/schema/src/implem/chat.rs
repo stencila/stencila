@@ -1,7 +1,7 @@
 use common::serde_yaml;
-use node_strip::{StripNode, StripTargets};
+use codec_dom_trait::DomCodec;
 
-use crate::{prelude::*, Chat, ExecutionBounds, ExecutionMode};
+use crate::{prelude::*, Chat, ExecutionBounds, ExecutionMode, SuggestionBlock};
 
 impl Chat {
     /// Custom implementation of [`PatchNode::apply`].
@@ -51,6 +51,22 @@ impl Chat {
         }
 
         Ok(false)
+    }
+
+    /// Custom implementation of `to_dom` for the `suggestions` property to use
+    /// custom carousel components which can not have slots between parent and items.
+    pub fn suggestions_to_dom_elem(
+        name: &str,
+        suggestions: &Vec<SuggestionBlock>,
+        context: &mut DomEncodeContext,
+    ) {
+        context.enter_elem_attrs("stencila-chat-suggestions", [("slot", name)]);
+        for suggestion in suggestions {
+            context.enter_elem("stencila-chat-suggestions-item");
+            suggestion.to_dom(context);
+            context.exit_elem();
+        }
+        context.exit_elem();
     }
 }
 
