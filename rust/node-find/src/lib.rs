@@ -31,15 +31,15 @@ impl Finder {
 }
 
 impl Visitor for Finder {
-    fn enter_struct(&mut self, node_type: schema::NodeType, node_id: NodeId) -> WalkControl {
+    fn enter_struct(&mut self, _node_type: schema::NodeType, _node_id: NodeId) -> WalkControl {
         self.walk_control()
     }
 
-    fn enter_property(&mut self, property: schema::NodeProperty) -> WalkControl {
+    fn enter_property(&mut self, _property: schema::NodeProperty) -> WalkControl {
         self.walk_control()
     }
 
-    fn enter_index(&mut self, index: usize) -> WalkControl {
+    fn enter_index(&mut self, _index: usize) -> WalkControl {
         self.walk_control()
     }
 
