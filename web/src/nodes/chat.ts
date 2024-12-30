@@ -207,7 +207,7 @@ export class StencilaChat extends Executable {
     if (suggestions) {
       // TODO: `h-[75vh]` is temporary fix related to having a fixed footer; probably better to add a footer slot
       // to the card and making the whole card `h-screen`
-      content = html`<sl-split-panel class="h-[70vh] pb-6">
+      content = html`<sl-split-panel class="h-[75vh] pb-6">
         <div slot="start" class="px-3 overflow-scroll">${content}</div>
         <div slot="end" class="px-1">
           <slot name="suggestions"></slot>
@@ -276,6 +276,20 @@ export class ChatSuggestions extends SlCarousel {
       node instanceof Element &&
       node.tagName.toLowerCase() === 'stencila-chat-suggestions-item'
     )
+  }
+
+  /**
+   * Override to go to a new suggestion when it has been appended
+   */
+  override appendChild<T extends Node>(node: T): T {
+    const appended = super.appendChild(node)
+
+    const index =
+      this.querySelectorAll('stencila-chat-suggestions-item').length - 1
+
+    requestAnimationFrame(() => this.goToSlide(index, 'smooth'))
+
+    return appended
   }
 }
 
