@@ -109,7 +109,7 @@ export class IncludeBlock extends Executable {
             <slot name="execution-dependants"></slot>
           </stencila-ui-node-execution-details>
 
-          <stencila-ui-node-execution-messages type=${'IncludeBlock'}>
+          <stencila-ui-node-execution-messages type="IncludeBlock">
             <slot name="execution-messages"></slot>
           </stencila-ui-node-execution-messages>
 

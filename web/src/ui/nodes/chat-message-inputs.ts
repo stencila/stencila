@@ -149,7 +149,7 @@ export class UIChatMessageInputs extends UIBaseClass {
 
         <div class="flex flex-row items-start justify-between">
           <div>
-            <sl-tooltip content=${'Add file'}>
+            <sl-tooltip content="Add file">
               <stencila-ui-file-input
                 class="text-xl text-[${textColour}]"
                 multiple
