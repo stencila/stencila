@@ -94,38 +94,7 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
             _ => node_type.to_string(),
         });
 
-        use NodeType::*;
-        let is_block = !is_root
-            && matches!(
-                node_type,
-                Admonition
-                    | CallBlock
-                    | Chat
-                    | ChatMessage
-                    | Claim
-                    | CodeBlock
-                    | CodeChunk
-                    | DeleteBlock
-                    | Figure
-                    | ForBlock
-                    | Form
-                    | Heading
-                    | IfBlock
-                    | IncludeBlock
-                    | InsertBlock
-                    | InstructionBlock
-                    | List
-                    | MathBlock
-                    | ModifyBlock
-                    | Paragraph
-                    | QuoteBlock
-                    | ReplaceBlock
-                    | Section
-                    | StyledBlock
-                    | SuggestionBlock
-                    | Table
-                    | ThematicBreak
-            );
+        let is_block = !is_root && node_type.is_block();
 
         self.stack.push(TextNode {
             range,
