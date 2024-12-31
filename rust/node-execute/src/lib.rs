@@ -663,9 +663,8 @@ impl VisitorAsync for Executor {
                     execute.push(index);
                 }
             }
-
             for (shift, index) in execute.iter().enumerate() {
-                let (.., mut node) = self.temporaries.remove(shift + index);
+                let (.., mut node) = self.temporaries.remove(index - shift);
                 self.visit_node(&mut node).await?;
             }
         }
