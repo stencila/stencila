@@ -24,6 +24,7 @@ use async_lsp::{
 use codecs::{EncodeOptions, Format};
 use common::{
     eyre::{OptionExt, Result},
+    itertools::Itertools,
     once_cell::sync::Lazy,
     serde_json::{self, Value},
     tokio::{
@@ -41,7 +42,8 @@ use node_find::find;
 use schema::{
     replicate, AuthorRole, AuthorRoleName, Block, Chat, ChatOptions, InstructionBlock,
     InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodeProperty, NodeType,
-    Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock, SuggestionBlock, Timestamp,
+    Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock, SuggestionBlock,
+    SuggestionStatus, Timestamp,
 };
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
@@ -546,10 +548,7 @@ pub(super) async fn execute_command(
 
             // Create a patch to add to chat to the document's `content`
             let value = block.to_value().map_err(|error| {
-                ResponseError::new(
-                    ErrorCode::INTERNAL_ERROR,
-                    format!("While converting block to patch value: {error}"),
-                )
+                internal_error(format!("While converting block to patch value: {error}"))
             })?;
 
             // Find where to insert the block based on the position in the text document
@@ -650,10 +649,41 @@ pub(super) async fn execute_command(
         }
         CREATE_CHAT => {
             let range = range_arg(args.next())?;
-            let (previous_block, next_block) = root.read().await.previous_next_block_ids(range);
+
+            let root = root.read().await;
+
+            // If the range spans one or more blocks, then add them to the suggestions
+            // as the original
+            let blocks = root.block_ids_spanning(range);
+            let suggestions = if !blocks.is_empty() {
+                // Get clones of the blocks
+                let doc = doc.read().await;
+                let root = &*doc.root_read().await;
+                let content = blocks
+                    .into_iter()
+                    .filter_map(|node_id| find(root, node_id))
+                    .filter_map(|node| Block::try_from(node).ok())
+                    .collect_vec();
+
+                // Replicate to avoid duplicate ids
+                let content = replicate(&content).map_err(internal_error)?;
+
+                Some(vec![SuggestionBlock {
+                    suggestion_status: Some(SuggestionStatus::Original),
+                    content,
+                    ..Default::default()
+                }])
+            } else {
+                None
+            };
+
+            // Get the ids of any previous or next blocks so that the chat, despite being temporary,
+            // can be executed with the correct document context.
+            let (previous_block, next_block) = root.block_ids_previous_next(range);
 
             let chat = Chat {
                 is_temporary: Some(true),
+                suggestions,
                 options: Box::new(ChatOptions {
                     previous_block: previous_block.map(|id| id.to_string()),
                     next_block: next_block.map(|id| id.to_string()),
@@ -789,6 +819,11 @@ pub(super) async fn execute_command(
 /// Create an invalid request error
 fn invalid_request<T: Display>(value: T) -> ResponseError {
     ResponseError::new(ErrorCode::INVALID_REQUEST, value.to_string())
+}
+
+/// Create an internal error
+fn internal_error<T: Display>(value: T) -> ResponseError {
+    ResponseError::new(ErrorCode::INTERNAL_ERROR, value.to_string())
 }
 
 /// Extract a document URI from a command arg

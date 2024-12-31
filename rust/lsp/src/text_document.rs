@@ -248,8 +248,26 @@ impl TextNode {
         None
     }
 
+    /// Get th [`NodeId`]s of the blocks that span a range
+    ///
+    /// Note that this is only intended to be called on the root text node
+    /// to identify top level blocks within the selected range.
+    pub fn block_ids_spanning(&self, range: Range) -> Vec<NodeId> {
+        self.children
+            .iter()
+            .filter(|child| {
+                child.node_type.is_block()
+                    && !((child.range.start.line < range.start.line
+                        && child.range.end.line < range.end.line)
+                        || (child.range.start.line > range.end.line
+                            && child.range.end.line > range.end.line))
+            })
+            .map(|child_node| child_node.node_id.clone())
+            .collect()
+    }
+
     /// Get the [`NodeId`]s of the previous and next blocks relative to a range
-    pub fn previous_next_block_ids(&self, range: Range) -> (Option<NodeId>, Option<NodeId>) {
+    pub fn block_ids_previous_next(&self, range: Range) -> (Option<NodeId>, Option<NodeId>) {
         // Search for previous block
         let start_block = self.block_id_at(range.start);
         let mut line = range.start.line;
