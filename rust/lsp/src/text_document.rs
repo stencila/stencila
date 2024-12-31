@@ -230,6 +230,71 @@ impl TextNode {
         None
     }
 
+    /// Get the [`NodeId`] of a block at a position
+    pub fn block_id_at(&self, position: Position) -> Option<NodeId> {
+        // Search through children (and thus recursively through all
+        // descendants so that the deepest (most narrow range) node is selected
+        for child in &self.children {
+            if let Some(node_id) = child.block_id_at(position) {
+                return Some(node_id);
+            }
+        }
+
+        // If no descendants in range then check if this is
+        if self.node_type.is_block() && position >= self.range.start && position < self.range.end {
+            return Some(self.node_id.clone());
+        }
+
+        None
+    }
+
+    /// Get the [`NodeId`]s of the previous and next blocks relative to a range
+    pub fn previous_next_block_ids(&self, range: Range) -> (Option<NodeId>, Option<NodeId>) {
+        // Search for previous block
+        let start_block = self.block_id_at(range.start);
+        let mut line = range.start.line;
+        let mut previous = None;
+        loop {
+            let block = self.block_id_at(Position { line, character: 0 });
+            if block.is_some() && block != start_block {
+                previous = block;
+                break;
+            }
+
+            if line == 0 {
+                break;
+            } else {
+                line -= 1;
+            }
+        }
+
+        // Search for next block
+        let end_block = self.block_id_at(range.end);
+        let mut line = range.end.line;
+        let mut next = None;
+        loop {
+            let block = self.block_id_at(Position { line, character: 0 });
+            if block.is_some() && block != end_block {
+                next = block;
+                break;
+            }
+
+            let mut end = self.range.end.line;
+            if end <= range.end.line {
+                // self.range is not reliably populated: if it looks like
+                // it isn't then just move forward a large number of lines
+                end = range.end.line + 100;
+            }
+            if line > end {
+                break;
+            } else {
+                line += 1;
+            }
+        }
+
+        (previous, next)
+    }
+
     /// Get the [`NodeId`] of the [`NodeType::InstructionBlock`] or [`NodeType::InstructionInline`]
     /// at a position if any
     ///
@@ -737,7 +802,6 @@ impl TextDocument {
 
             // Publish diagnostics and update the root TextNode
             if let Some(text_node) = inspector.root() {
-                //eprintln!("ROOT: {text_node:#?}");
                 diagnostics::publish(&uri, &text_node, &mut client);
                 node_info::publish(&uri, &text_node, &mut client);
                 *root.write().await = text_node;

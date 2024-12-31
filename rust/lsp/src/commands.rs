@@ -14,7 +14,7 @@ use async_lsp::{
     lsp_types::{
         ApplyWorkspaceEditParams, DocumentChanges, ExecuteCommandParams, MessageType,
         NumberOrString, OneOf, OptionalVersionedTextDocumentIdentifier, Position, ProgressParams,
-        ProgressParamsValue, ShowMessageParams, TextDocumentEdit, Url, WorkDoneProgress,
+        ProgressParamsValue, Range, ShowMessageParams, TextDocumentEdit, Url, WorkDoneProgress,
         WorkDoneProgressBegin, WorkDoneProgressCancelParams, WorkDoneProgressCreateParams,
         WorkDoneProgressEnd, WorkDoneProgressReport, WorkspaceEdit,
     },
@@ -39,9 +39,9 @@ use document::{
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
-    replicate, AuthorRole, AuthorRoleName, Block, Chat, InstructionBlock, InstructionMessage,
-    InstructionType, ModelParameters, NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp,
-    PatchPath, PatchValue, PromptBlock, SuggestionBlock, Timestamp,
+    replicate, AuthorRole, AuthorRoleName, Block, Chat, ChatOptions, InstructionBlock,
+    InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodeProperty, NodeType,
+    Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock, SuggestionBlock, Timestamp,
 };
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
@@ -77,6 +77,8 @@ pub(super) const INSERT_NODE: &str = "stencila.insert-node";
 pub(super) const INSERT_CLONE: &str = "stencila.insert-clone";
 pub(super) const INSERT_INSTRUCTION: &str = "stencila.insert-instruction";
 
+pub(super) const CREATE_CHAT: &str = "stencila.create-chat";
+
 pub(super) const SAVE_DOC: &str = "stencila.save-doc";
 pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
 
@@ -108,6 +110,7 @@ pub(super) fn commands() -> Vec<String> {
         INSERT_NODE,
         INSERT_CLONE,
         INSERT_INSTRUCTION,
+        CREATE_CHAT,
         SAVE_DOC,
         EXPORT_DOC,
     ]
@@ -522,7 +525,7 @@ pub(super) async fn execute_command(
             // Create the new node
             let block = match node_type {
                 NodeType::Chat => Block::Chat(Chat {
-                    is_ephemeral: Some(true),
+                    is_temporary: Some(true),
                     content: Vec::new(),
                     ..Default::default()
                 }),
@@ -643,6 +646,37 @@ pub(super) async fn execute_command(
                 Command::PatchNode(patch),
                 false,
                 true,
+            )
+        }
+        CREATE_CHAT => {
+            let range = range_arg(args.next())?;
+            let (previous_block, next_block) = root.read().await.previous_next_block_ids(range);
+
+            let chat = Chat {
+                is_temporary: Some(true),
+                options: Box::new(ChatOptions {
+                    previous_block: previous_block.map(|id| id.to_string()),
+                    next_block: next_block.map(|id| id.to_string()),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            };
+
+            return_value = Some(serde_json::Value::String(chat.node_id().to_string()));
+
+            let patch = Patch {
+                ops: vec![(
+                    PatchPath::from(NodeProperty::Temporary),
+                    PatchOp::Push(PatchValue::Node(Node::Chat(chat))),
+                )],
+                ..Default::default()
+            };
+
+            (
+                "Creating new chat".to_string(),
+                Command::PatchNode(patch),
+                false,
+                false,
             )
         }
         SAVE_DOC => (
@@ -788,6 +822,12 @@ fn node_property_arg(arg: Option<Value>) -> Result<NodeProperty, ResponseError> 
 fn position_arg(arg: Option<Value>) -> Result<Position, ResponseError> {
     arg.and_then(|value| serde_json::from_value(value).ok())
         .ok_or_else(|| invalid_request("Position argument missing or invalid"))
+}
+
+/// Extract a range from a command arg
+fn range_arg(arg: Option<Value>) -> Result<Range, ResponseError> {
+    arg.and_then(|value| serde_json::from_value(value).ok())
+        .ok_or_else(|| invalid_request("Range argument missing or invalid"))
 }
 
 /// Extract a `PathBuf` from a command arg

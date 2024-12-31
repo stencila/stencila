@@ -853,6 +853,7 @@
         "metadata",
         "content",
         "archive",
+        "temporary",
         "code",
         "execution",
         "output",

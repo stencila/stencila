@@ -750,7 +750,7 @@ fn chat(input: &mut Located<&str>) -> PResult<Block> {
                 model_parameters,
                 execution_mode,
                 execution_bounds,
-                is_ephemeral: Some(false),
+                is_temporary: Some(false),
                 ..Default::default()
             })
         },

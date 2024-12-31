@@ -108,7 +108,7 @@ trait Executable {
 
     /// Execute the node
     ///
-    /// Note that this method is intentionally infallible because we want
+    /// Note that this method is required to be infallible because we want
     /// executable nodes to handle any errors associated with their execution
     /// and record them in `execution_messages` so that they are visible
     /// to the user.
@@ -175,6 +175,13 @@ pub struct Executor {
 
     /// The count of `MathBlock`s
     equation_count: u32,
+
+    /// The id of the last [`Block`] visited
+    last_block: Option<NodeId>,
+
+    /// Temporary nodes to be executed that are outside of the main tree
+    /// but which should be executed as though between other nodes
+    temporaries: Vec<(Option<NodeId>, Option<NodeId>, Node)>,
 
     /// Whether the current node is the last in a set
     ///
@@ -350,6 +357,8 @@ impl Executor {
             table_count: 0,
             figure_count: 0,
             equation_count: 0,
+            last_block: None,
+            temporaries: Vec::new(),
             is_last: false,
             options: options.unwrap_or_default(),
         }
@@ -436,8 +445,18 @@ impl Executor {
 
     /// Run [`Phase::Execute`]
     async fn execute(&mut self, root: &mut Node) -> Result<()> {
+        // Clear outside nodes before executing
+        self.temporaries.clear();
+
         self.phase = Phase::Execute;
-        root.walk_async(self).await
+        root.walk_async(self).await?;
+
+        // Execute any un-executed outside nodes
+        for (.., mut node) in self.temporaries.drain(..).collect_vec() {
+            self.visit_node(&mut node).await?;
+        }
+
+        Ok(())
     }
 
     /// Run [`Phase::Interrupt`]
@@ -634,8 +653,25 @@ impl VisitorAsync for Executor {
     }
 
     async fn visit_block(&mut self, block: &mut Block) -> Result<WalkControl> {
+        let current_block = block.node_id();
+
+        if !self.temporaries.is_empty() {
+            // Execute those where last block is same as previous (including no previous)
+            let mut execute = Vec::new();
+            for (index, (previous, next, ..)) in self.temporaries.iter().enumerate() {
+                if &self.last_block == previous || &current_block == next {
+                    execute.push(index);
+                }
+            }
+
+            for (shift, index) in execute.iter().enumerate() {
+                let (.., mut node) = self.temporaries.remove(shift + index);
+                self.visit_node(&mut node).await?;
+            }
+        }
+
         use Block::*;
-        Ok(match block {
+        let walk_control = match block {
             CallBlock(node) => self.visit_executable(node).await,
             Chat(node) => self.visit_executable(node).await,
             CodeChunk(node) => self.visit_executable(node).await,
@@ -654,7 +690,11 @@ impl VisitorAsync for Executor {
             SuggestionBlock(node) => self.visit_executable(node).await,
             Table(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
-        })
+        };
+
+        self.last_block = current_block;
+
+        Ok(walk_control)
     }
 
     async fn visit_inline(&mut self, inline: &mut Inline) -> Result<WalkControl> {

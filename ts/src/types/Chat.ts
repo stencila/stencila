@@ -34,9 +34,19 @@ export class Chat extends CreativeWork {
   suggestions?: SuggestionBlock[];
 
   /**
-   * Whether a chat that is nested within another node is ephemeral or not.
+   * Whether a chat within another node (i.e. is not standalone) is temporary.
    */
-  isEphemeral?: boolean;
+  isTemporary?: boolean;
+
+  /**
+   * The id of the block immediately before the chat (only applies to temporary chats).
+   */
+  previousBlock?: string;
+
+  /**
+   * The id of the block immediately after the chat (only applies to temporary chats).
+   */
+  nextBlock?: string;
 
   constructor(prompt: PromptBlock, modelParameters: ModelParameters, content: Block[], options?: Partial<Chat>) {
     super();

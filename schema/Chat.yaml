@@ -16,7 +16,7 @@ required:
 core:
   - title
   - suggestions
-  - isEphemeral
+  - isTemporary
 properties:
   prompt:
     "@id": stencila:prompt
@@ -68,10 +68,18 @@ properties:
     walk: true
     dom:
       with: Chat::suggestions_to_dom_elem
-  isEphemeral:
-    "@id": stencila:isEphemeral
-    description: Whether a chat that is nested within another node is ephemeral or not.
+  isTemporary:
+    "@id": stencila:isTemporary
+    description: Whether a chat within another node (i.e. is not standalone) is temporary.
     $comment: |
-      This property should be set to `true` or `false` for `Chat`s that are nested so that
-      the messages are not patched by formats that do not support them
+      This property should be set to `false` for `Chat`s that are not standalone but not
+      temporary so that the messages are not patched by formats that do not support them.
     type: boolean
+  previousBlock:
+    "@id": stencila:previousBlock
+    description: The id of the block immediately before the chat (only applies to temporary chats).
+    type: string
+  nextBlock:
+    "@id": stencila:nextBlock
+    description: The id of the block immediately after the chat (only applies to temporary chats).
+    type: string

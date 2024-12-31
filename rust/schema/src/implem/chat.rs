@@ -1,12 +1,10 @@
-use common::serde_yaml;
 use codec_dom_trait::DomCodec;
+use common::serde_yaml;
 
 use crate::{prelude::*, Chat, ExecutionBounds, ExecutionMode, SuggestionBlock};
 
 impl Chat {
-    /// Custom implementation of [`PatchNode::apply`].
-    ///
-    /// Only allow operations on the `content` vector if the chat is not nested.
+    /// Custom implementation of [`PatchNode::apply`]
     pub fn apply_with(
         &mut self,
         path: &mut PatchPath,
@@ -30,7 +28,8 @@ impl Chat {
         }
 
         if let Some(PatchSlot::Property(NodeProperty::Content)) = path.front() {
-            // Only apply patches to the content of the chat if the patch is
+            // To allow for placeholder `::: chat` blocks in Markdown formats,
+            // only apply patches to the content of the chat if the patch is
             // associated with no, or a lossless, format, or if it is a root
             // node (not nested)
             let lossless_format = context
@@ -38,15 +37,17 @@ impl Chat {
                 .as_ref()
                 .map(|format| format.is_lossless())
                 .unwrap_or(true);
-            let is_root = self.is_ephemeral.is_none();
+            let is_root = self.is_temporary.is_none();
 
             if lossless_format || is_root {
+                // Apply the patch
                 path.pop_front();
                 context.within_property(NodeProperty::Content, |context| {
                     self.content.apply(path, op.clone(), context)
                 })?;
             }
 
+            // Return true, if if not applied so as to ignore
             return Ok(true);
         }
 

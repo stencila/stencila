@@ -942,15 +942,39 @@
       }
     },
     {
-      "@id": "stencila:isEphemeral",
+      "@id": "stencila:isTemporary",
       "@type": "rdfs:Property",
-      "rdfs:label": "isEphemeral",
-      "rdfs:comment": "Whether a chat that is nested within another node is ephemeral or not.",
+      "rdfs:label": "isTemporary",
+      "rdfs:comment": "Whether a chat within another node (i.e. is not standalone) is temporary.",
       "schema:domainIncludes": {
         "@id": "stencila:Chat"
       },
       "schema:rangeIncludes": {
         "@id": "schema:Boolean"
+      }
+    },
+    {
+      "@id": "stencila:previousBlock",
+      "@type": "rdfs:Property",
+      "rdfs:label": "previousBlock",
+      "rdfs:comment": "The id of the block immediately before the chat (only applies to temporary chats).",
+      "schema:domainIncludes": {
+        "@id": "stencila:Chat"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:nextBlock",
+      "@type": "rdfs:Property",
+      "rdfs:label": "nextBlock",
+      "rdfs:comment": "The id of the block immediately after the chat (only applies to temporary chats).",
+      "schema:domainIncludes": {
+        "@id": "stencila:Chat"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
       }
     }
   ]

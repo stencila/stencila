@@ -361,28 +361,27 @@ nodeTypes: []
     )
   );
 
-  // Insert a `Chat` command
+  // Create a new temporary `Chat`
   context.subscriptions.push(
-    vscode.commands.registerCommand(`stencila.insert-chat`, async () => {
+    vscode.commands.registerCommand(`stencila.invoke.create-chat`, async () => {
       const editor = vscode.window.activeTextEditor;
       if (!editor) {
         vscode.window.showErrorMessage("No active editor");
         return;
       }
 
-      const nodeId = await vscode.commands.executeCommand<string>(
-        "stencila.insert-node",
+      const chatId = await vscode.commands.executeCommand<string>(
+        "stencila.create-chat",
         editor.document.uri.toString(),
-        editor.selection.active,
-        "Chat"
+        editor.selection,
       );
 
       await createNodeViewPanel(
         context,
         editor.document.uri,
         editor.selection.active,
-        "Chat",
-        nodeId
+        "Temporary chat",
+        chatId
       );
     })
   );

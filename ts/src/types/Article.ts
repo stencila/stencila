@@ -49,6 +49,11 @@ export class Article extends CreativeWork {
    */
   archive?: Node[];
 
+  /**
+   * Temporary nodes on document
+   */
+  temporary?: Node[];
+
   constructor(content: Block[], options?: Partial<Article>) {
     super();
     this.type = "Article";

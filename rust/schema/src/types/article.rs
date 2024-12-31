@@ -176,7 +176,7 @@ pub struct Article {
     pub config: Option<Config>,
 
     /// A list of links to headings, including implied section headings, within the document
-    #[strip(content)]
+    #[strip(content, temporary)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "nav")]
     pub headings: Option<List>,
@@ -195,10 +195,18 @@ pub struct Article {
 
     /// Nodes, usually from within `content` of the article, that have been archived.
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[strip(archive)]
+    #[strip(content, archive)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(skip)]
     pub archive: Option<Vec<Node>>,
+
+    /// Temporary nodes on document
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(content, temporary)]
+    #[walk]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(skip)]
+    pub temporary: Option<Vec<Node>>,
 
     /// Non-core optional fields
     #[serde(flatten)]

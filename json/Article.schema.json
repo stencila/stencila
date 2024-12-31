@@ -46,6 +46,7 @@
     "references",
     "config",
     "headings",
+    "temporary",
     "archive"
   ],
   "properties": {
@@ -989,7 +990,8 @@
       "description": "A list of links to headings, including implied section headings, within the document",
       "$comment": "This list is automatically populated when the document is compiled.\nEach item in the list has (1) a `Link` to the heading, and (2) a nested list of subheadings.\n",
       "strip": [
-        "content"
+        "content",
+        "temporary"
       ],
       "dom": {
         "elem": "nav"
@@ -1032,8 +1034,25 @@
       "@id": "stencila:archive",
       "description": "Nodes, usually from within `content` of the article, that have been archived.",
       "strip": [
+        "content",
         "archive"
       ],
+      "dom": {
+        "skip": true
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Node.schema.json"
+      }
+    },
+    "temporary": {
+      "@id": "stencila:temporary",
+      "description": "Temporary nodes on document",
+      "strip": [
+        "content",
+        "temporary"
+      ],
+      "walk": true,
       "dom": {
         "skip": true
       },

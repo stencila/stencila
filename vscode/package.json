@@ -196,7 +196,7 @@
         "icon": "$(comment-discussion)"
       },
       {
-        "command": "stencila.insert-chat",
+        "command": "stencila.invoke.create-chat",
         "category": "Stencila",
         "title": "Start a chat here",
         "icon": "$(comment-discussion)"
@@ -481,6 +481,12 @@
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
       },
       {
+        "command": "stencila.invoke.create-chat",
+        "key": "ctrl+/",
+        "mac": "cmd+/",
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
+      },
+      {
         "command": "stencila.invoke.export-doc",
         "key": "ctrl+shift+e",
         "mac": "cmd+shift+e",
@@ -678,7 +684,7 @@
       ],
       "editor/context": [
         {
-          "command": "stencila.insert-chat",
+          "command": "stencila.invoke.create-chat",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@1"
         },

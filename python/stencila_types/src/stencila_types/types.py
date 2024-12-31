@@ -1079,6 +1079,9 @@ class Article(CreativeWork, Executable):
     archive: list[Node] | None = None
     """Nodes, usually from within `content` of the article, that have been archived."""
 
+    temporary: list[Node] | None = None
+    """Temporary nodes on document"""
+
 
 @dataclass(kw_only=True, repr=False)
 class AudioObject(MediaObject):
@@ -1208,8 +1211,14 @@ class Chat(CreativeWork, Executable):
     suggestions: list[SuggestionBlock] | None = None
     """Suggestions of content that is the focus of the chat."""
 
-    is_ephemeral: bool | None = None
-    """Whether a chat that is nested within another node is ephemeral or not."""
+    is_temporary: bool | None = None
+    """Whether a chat within another node (i.e. is not standalone) is temporary."""
+
+    previous_block: str | None = None
+    """The id of the block immediately before the chat (only applies to temporary chats)."""
+
+    next_block: str | None = None
+    """The id of the block immediately after the chat (only applies to temporary chats)."""
 
 
 @dataclass(kw_only=True, repr=False)

@@ -22,17 +22,13 @@ impl Executable for Chat {
         let node_id = self.node_id();
         tracing::debug!("Preparing Chat {node_id}");
 
-        // Check if this chat is to be executed: no node ids specified
-        // or node ids contain this chat or any chat messages.
-        let prepare_self = executor.node_ids.is_none()
-            || executor
-                .node_ids
-                .iter()
-                .flatten()
-                .any(|node_id| matches!(node_id.nick(), "cht" | "chm"));
+        // Check if this chat is to be executed: node ids contain this chat.
+        // This is more restrictive than other nodes types: a chat is only executed
+        // explicitly.
+        let prepare_self = executor.node_ids.iter().flatten().any(|id| id == &node_id);
 
-        // If not to be execute, then return early and continue walking document
-        // to prepare nodes in `content`
+        // If not to be executed, then return early and continue walking document
+        // to prepare nodes in the chat's `content`
         if !prepare_self {
             return WalkControl::Continue;
         }
@@ -57,7 +53,7 @@ impl Executable for Chat {
             self.options.execution_status,
             Some(ExecutionStatus::Pending)
         ) {
-            // Continue to execute nodes in `content`
+            // Chat itself not marked as pending so continue to execute nodes in `content`
             return WalkControl::Continue;
         }
 
@@ -72,9 +68,6 @@ impl Executable for Chat {
         );
 
         let started = Timestamp::now();
-
-        // TODO: if the chat is associated with a document then
-        // execute within the associated document's kernels.
 
         // TODO: construct a model task from all the messages in this chat
         for block in self.content.iter_mut() {
