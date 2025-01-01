@@ -5,12 +5,12 @@ import { customElement, property } from 'lit/decorators.js'
 
 import { patchValue } from '../clients/commands'
 import { withTwind } from '../twind'
+import { booleanConverter } from '../utilities/booleanConverter'
 import { closestGlobally } from '../utilities/closestGlobally'
 
 import { Executable } from './executable'
 
 import '../ui/nodes/chat-message-inputs'
-import '../ui/animation/logo'
 
 /**
  * Web component representing a Stencila `ChatMessage` node
@@ -32,12 +32,9 @@ export class ChatMessage extends Executable {
 
   @property({
     attribute: 'is-selected',
-    type: Boolean,
-    // Converter needed because encoded not a boolean attribute (present or absent)
-    // but as a stringified boolean
-    converter: (attr) => attr == 'true',
+    converter: booleanConverter,
   })
-  isSelected: boolean = false
+  isSelected?: boolean
 
   /**
    * When the message is selected send a patch to the message group.

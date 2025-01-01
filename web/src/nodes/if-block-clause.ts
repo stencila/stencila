@@ -7,6 +7,7 @@ import { withTwind } from '../twind'
 import { IconName } from '../ui/icons/icon'
 import { EntityContext, entityContext } from '../ui/nodes/entity-context'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
+import { booleanConverter } from '../utilities/booleanConverter'
 
 import '../ui/animation/collapsible'
 import '../ui/nodes/properties/code/code'
@@ -25,12 +26,9 @@ import { CodeExecutable } from './code-executable'
 export class IfBlockClause extends CodeExecutable {
   /**
    * Whether the clause is the active branch of the parent `IfBlock`
-   *
-   * Note: this is not a boolean property, it is a string that looks
-   * like a boolean :)
    */
-  @property({ attribute: 'is-active' })
-  isActive?: 'true' | 'false'
+  @property({ attribute: 'is-active', converter: booleanConverter })
+  isActive?: boolean
 
   /**
    * Consumer for the parent `IfBlock` node's entity context
@@ -96,15 +94,12 @@ export class IfBlockClause extends CodeExecutable {
       if (!this.ifBlockConsumer.cardOpen) {
         // TODO: consider al alternative to disabling this lint error
         // eslint-disable-next-line lit/no-property-change-update
-        this.isFolded = this.isActive === 'false'
+        this.isFolded = this.isActive === false
       }
     }
-    if (
-      changedProperties.has(this.isActive) &&
-      !this.ifBlockConsumer.cardOpen
-    ) {
+    if (changedProperties.has('isActive') && !this.ifBlockConsumer.cardOpen) {
       // eslint-disable-next-line lit/no-property-change-update
-      this.isFolded = this.isActive === 'false'
+      this.isFolded = this.isActive === false
     }
   }
 
@@ -147,7 +142,7 @@ export class IfBlockClause extends CodeExecutable {
 
     const iconStyles = apply([
       `text-xl text-${textColour}`,
-      this.isActive === 'true'
+      this.isActive
         ? `rounded ring-2 ring-[${textColour}] ring-offset-4 ring-offset-[${colour}]`
         : '',
     ])

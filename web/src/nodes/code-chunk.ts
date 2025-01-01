@@ -4,6 +4,7 @@ import { customElement, property, query, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 import { getTitleIcon } from '../ui/nodes/properties/programming-language'
+import { booleanConverter } from '../utilities/booleanConverter'
 
 import '../ui/nodes/commands/execution-commands'
 import '../ui/nodes/cards/block-on-demand'
@@ -32,12 +33,9 @@ export class CodeChunk extends CodeExecutable {
 
   @property({
     attribute: 'is-invisible',
-    type: Boolean,
-    // Converter needed because encoded not a boolean attribute (present or absent)
-    // but as a stringified boolean
-    converter: (attr) => attr == 'true',
+    converter: booleanConverter,
   })
-  isInvisible: boolean = false
+  isInvisible?: boolean
 
   @query('slot[name="outputs"]')
   outputsSlot!: HTMLSlotElement
