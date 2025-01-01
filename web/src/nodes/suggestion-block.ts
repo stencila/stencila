@@ -68,7 +68,6 @@ export class SuggestionBlock extends Entity {
       max-width: 65ch;
       margin: 0 auto;
       padding: 5px;
-      overflow: scroll;
     }
   `
 

@@ -2,8 +2,10 @@ import { provide } from '@lit/context'
 import { MutationController } from '@lit-labs/observers/mutation-controller'
 import SlCarousel from '@shoelace-style/shoelace/dist/components/carousel/carousel'
 import SlCarouselItem from '@shoelace-style/shoelace/dist/components/carousel-item/carousel-item'
+import SlSplitPanel from '@shoelace-style/shoelace/dist/components/split-panel/split-panel'
+import { apply } from '@twind/core'
 import { css, html, PropertyValues } from 'lit'
-import { customElement } from 'lit/decorators'
+import { customElement, state } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 import { ChatContext, chatContext } from '../ui/nodes/chat-context'
@@ -50,10 +52,54 @@ export class StencilaChat extends Executable {
   private contentMutationController: MutationController
 
   /**
+   * A mutation controller used to expand the suggestions
+   * slider open when a suggestion is added
+   *
+   * @see onSuggestionSlotChange
+   */
+  // @ts-expect-error is never read
+  private suggestionsMutationController: MutationController
+
+  /**
+   * The number of suggestions
+   *
+   * Currently only used for changing the position of
+   * the split panel when a suggestion is first added.
+   *
+   * In the future, an indicator could be provided to the
+   * user to show the number of suggestions, when that panel is closed.
+   *
+   * @see onSuggestionSlotChange
+   */
+  @state()
+  private suggestionsCount: number = 0
+
+  /**
+   * The position of the split panel
+   *
+   * Used for changing the position of the split panel when a suggestion
+   * is first added and keeping track of position selected by user.
+   *
+   * Not a @state to avoid reactive loop.
+   */
+  private splitPosition: number = 100
+
+  /**
+   * When user changes the split position record the position so that
+   * it can be used on the next `render()`.
+   */
+  onSplitPositionChange(event: Event) {
+    const panel = event.target as SlSplitPanel
+    if (panel.position) {
+      this.splitPosition = panel.position
+    }
+  }
+
+  /**
    * On a change to the prompt slot update the instruction
    * type of the chat
    */
-  onPromptSlotChange({ target: slot }: Event) {
+  private onPromptSlotChange({ target: slot }: Event) {
     const promptElem = (slot as HTMLSlotElement).assignedElements()[0]
     if (!(promptElem instanceof PromptBlock)) {
       return
@@ -89,7 +135,7 @@ export class StencilaChat extends Executable {
    *
    * Only applied for top level chats.
    */
-  onContentSlotChange({ target: slot }: Event) {
+  private onContentSlotChange({ target: slot }: Event) {
     if (this.depth > 0) {
       return
     }
@@ -148,7 +194,111 @@ export class StencilaChat extends Executable {
     })
   }
 
+  /**
+   * On a change to the suggestions slot initialize the
+   * mutation controller to open the slider.
+   *
+   * Only applied for top level chats.
+   */
+  private onSuggestionsSlotChange({ target: slot }: Event) {
+    if (this.depth > 0) {
+      return
+    }
+
+    const suggestionsElem = (slot as HTMLSlotElement).assignedElements()[0]
+    if (!suggestionsElem) {
+      return
+    }
+
+    const update = () => {
+      const count = suggestionsElem.querySelectorAll(
+        'stencila-suggestion-block'
+      ).length
+
+      // If the first suggestion has been added and the suggestions panel
+      // is currently hidden then make the split 50%
+      if (this.suggestionsCount === 0 && count > 0 && this.splitPosition > 95) {
+        this.splitPosition = 50
+      }
+
+      if (count != this.suggestionsCount) {
+        this.suggestionsCount = count
+      }
+    }
+    update()
+
+    this.suggestionsMutationController = new MutationController(this, {
+      target: suggestionsElem,
+      config: { childList: true, subtree: true },
+      callback: update,
+    })
+  }
+
   override render() {
+    return this.depth == 0 ? this.renderFullscreen() : this.renderCard()
+  }
+
+  private renderFullscreen() {
+    const { borderColour, colour, textColour } = nodeUi('Chat')
+
+    const headerClasses = apply([
+      `bg-[${colour}] border-b border-[${borderColour}]`,
+      'px-3 py-1',
+      `font-sans font-semibold text-sm text-[${textColour}]`,
+    ])
+
+    const footerClasses = apply([
+      `bg-[${colour}] border-t border-[${borderColour}]`,
+    ])
+
+    return html`
+      <div class="h-screen w-screen flex flex-col">
+        <div class=${headerClasses}>Chat</div>
+
+        <div class="flex-grow overflow-y-hidden">
+          <sl-split-panel
+            class="h-full"
+            position=${this.splitPosition}
+            @sl-reposition=${this.onSplitPositionChange}
+          >
+            <div slot="start" class="px-3 overflow-y-auto">
+              <slot
+                name="content"
+                @slotchange=${this.onContentSlotChange}
+              ></slot>
+            </div>
+            <div slot="end" class="px-1 py-2">
+              <slot
+                name="suggestions"
+                @slotchange=${this.onSuggestionsSlotChange}
+              ></slot>
+            </div>
+          </sl-split-panel>
+        </div>
+
+        <div class=${footerClasses}>
+          <div class="p-1">
+            <div class="max-w-prose mx-auto">
+              <stencila-ui-chat-message-inputs
+                type="Chat"
+                node-id=${this.id}
+              ></stencila-ui-chat-message-inputs>
+            </div>
+          </div>
+
+          <stencila-ui-node-execution-messages type="Chat">
+            <slot name="execution-messages"></slot>
+          </stencila-ui-node-execution-messages>
+
+          <slot name="model-parameters"></slot>
+
+          <slot name="prompt"></slot>
+        </div>
+      </div>
+    `
+  }
+
+  private renderCard() {
     return html`<stencila-ui-block-on-demand
       type="Chat"
       node-id=${this.id}
@@ -186,54 +336,7 @@ export class StencilaChat extends Executable {
 
         <slot name="prompt"></slot>
       </div>
-
-      ${this.depth === 0
-        ? html`<div slot="content" class="flex flex-col">
-            ${this.renderContent()}
-          </div>`
-        : ''}
     </stencila-ui-block-on-demand>`
-  }
-
-  private renderContent() {
-    let content = html`<slot
-      name="content"
-      @slotchange=${this.onContentSlotChange}
-    ></slot>`
-
-    const suggestions = this.querySelector(
-      '[slot=suggestions]'
-    ) as SlCarousel | null
-    if (suggestions) {
-      // TODO: `h-[75vh]` is temporary fix related to having a fixed footer; probably better to add a footer slot
-      // to the card and making the whole card `h-screen`
-      content = html`<sl-split-panel class="h-[75vh] pb-6">
-        <div slot="start" class="px-3 overflow-scroll">${content}</div>
-        <div slot="end" class="px-1">
-          <slot name="suggestions"></slot>
-        </div>
-      </sl-split-panel>`
-    }
-
-    return html`${content} ${this.renderInputPanel()}`
-  }
-
-  private renderInputPanel() {
-    const { borderColour, colour } = nodeUi('Chat')
-
-    return html` <div
-      class="fixed bottom-0 left-0 z-10 w-full
-      border border-t-[${borderColour}]
-      bg-[${colour}] opacity-95
-      p-1"
-    >
-      <div class="max-w-prose mx-auto">
-        <stencila-ui-chat-message-inputs
-          type="Chat"
-          node-id=${this.id}
-        ></stencila-ui-chat-message-inputs>
-      </div>
-    </div>`
   }
 }
 
@@ -301,6 +404,7 @@ export class ChatSuggestionsItem extends SlCarouselItem {
     css`
       :host {
         height: 100%;
+        overflow-y: auto;
       }
     `,
   ]
