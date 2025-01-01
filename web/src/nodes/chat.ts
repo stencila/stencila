@@ -12,6 +12,7 @@ import { ChatContext, chatContext } from '../ui/nodes/chat-context'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import { ChatMessage } from './chat-message'
+import { ChatMessageGroup } from './chat-message-group'
 import { Executable } from './executable'
 import { PromptBlock } from './prompt-block'
 
@@ -159,15 +160,24 @@ export class StencilaChat extends Executable {
     // Scroll to the appropriate place based on new messages
     const scroll = (mutations: MutationRecord[]) => {
       // Get the first and last messages added
-      let first: ChatMessage | undefined
-      let last: ChatMessage | undefined
+      let first: ChatMessage | ChatMessageGroup | undefined
+      let last: ChatMessage | ChatMessageGroup | undefined
       for (const mutation of mutations) {
         let elem
-        if (mutation.target instanceof ChatMessage) {
+        if (
+          mutation.target instanceof ChatMessage ||
+          mutation.target instanceof ChatMessageGroup
+        ) {
           elem = mutation.target
-        } else if (mutation.target.parentElement instanceof ChatMessage) {
+        } else if (
+          mutation.target.parentElement instanceof ChatMessage ||
+          mutation.target.parentElement instanceof ChatMessageGroup
+        ) {
           elem = mutation.target.parentElement
-        } else if (mutation.addedNodes[0] instanceof ChatMessage) {
+        } else if (
+          mutation.addedNodes[0] instanceof ChatMessage ||
+          mutation.addedNodes[0] instanceof ChatMessageGroup
+        ) {
           elem = mutation.addedNodes[0]
         }
 
