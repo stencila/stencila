@@ -15,7 +15,7 @@ use common::{
     strum::{Display, EnumString},
     tokio::{
         self,
-        sync::{broadcast, mpsc, watch, RwLock, RwLockReadGuard},
+        sync::{broadcast, mpsc, watch, RwLock, RwLockReadGuard, RwLockWriteGuard},
         time::sleep,
     },
     tracing,
@@ -578,6 +578,11 @@ impl Document {
     /// Get a read guard to the document's root node
     pub async fn root_read(&self) -> RwLockReadGuard<Node> {
         self.root.read().await
+    }
+
+    /// Get a write guard to the document's root node
+    pub async fn root_write(&self) -> RwLockWriteGuard<Node> {
+        self.root.write().await
     }
 
     /// Import a file into a new, or existing, document

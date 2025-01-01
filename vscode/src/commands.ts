@@ -373,16 +373,24 @@ nodeTypes: []
       const chatId = await vscode.commands.executeCommand<string>(
         "stencila.create-chat",
         editor.document.uri.toString(),
-        editor.selection,
+        editor.selection
       );
 
-      await createNodeViewPanel(
+      const panel = await createNodeViewPanel(
         context,
         editor.document.uri,
         editor.selection.active,
         "Temporary chat",
         chatId
       );
+
+      panel.onDidDispose(async () => {
+        await vscode.commands.executeCommand<string>(
+          "stencila.delete-chat",
+          editor.document.uri.toString(),
+          chatId
+        );
+      });
     })
   );
 

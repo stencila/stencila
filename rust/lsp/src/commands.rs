@@ -40,7 +40,7 @@ use document::{
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
-    replicate, AuthorRole, AuthorRoleName, Block, Chat, ChatOptions, InstructionBlock,
+    replicate, Article, AuthorRole, AuthorRoleName, Block, Chat, ChatOptions, InstructionBlock,
     InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodeProperty, NodeType,
     Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock, SuggestionBlock,
     SuggestionStatus, Timestamp,
@@ -80,6 +80,7 @@ pub(super) const INSERT_CLONE: &str = "stencila.insert-clone";
 pub(super) const INSERT_INSTRUCTION: &str = "stencila.insert-instruction";
 
 pub(super) const CREATE_CHAT: &str = "stencila.create-chat";
+pub(super) const DELETE_CHAT: &str = "stencila.delete-chat";
 
 pub(super) const SAVE_DOC: &str = "stencila.save-doc";
 pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
@@ -113,6 +114,7 @@ pub(super) fn commands() -> Vec<String> {
         INSERT_CLONE,
         INSERT_INSTRUCTION,
         CREATE_CHAT,
+        DELETE_CHAT,
         SAVE_DOC,
         EXPORT_DOC,
     ]
@@ -703,11 +705,43 @@ pub(super) async fn execute_command(
             };
 
             (
-                "Creating new chat".to_string(),
+                "Creating temporary chat".to_string(),
                 Command::PatchNode(patch),
                 false,
                 false,
             )
+        }
+        DELETE_CHAT => {
+            let node_id = node_id_arg(args.next())?;
+
+            // Remove temporary chat based on its id. There is no command
+            // for doing this yet but in the future this may be better
+            // factored out into a command or patch op.
+
+            let doc = doc.write().await;
+            let root = &mut *doc.root_write().await;
+
+            if let Node::Article(Article {
+                temporary: Some(temporary),
+                ..
+            }) = root
+            {
+                tracing::debug!("Deleting temporary chat {node_id}");
+
+                let len_before = temporary.len();
+                let node_id = Some(node_id);
+                temporary.retain(|node| node.node_id() != node_id);
+
+                return if temporary.len() == len_before {
+                    Err(invalid_request(format!(
+                        "Chat with id not found in temporaries: {node_id:?}"
+                    )))
+                } else {
+                    Ok(None)
+                };
+            } else {
+                return Err(invalid_request("Root node is not an article"));
+            }
         }
         SAVE_DOC => (
             "Saving document with sidecar".to_string(),
