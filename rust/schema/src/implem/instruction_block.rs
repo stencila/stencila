@@ -52,12 +52,7 @@ impl PatchNode for InstructionBlock {
             compare_property!(execution_bounds),
         ];
 
-        if context
-            .format
-            .as_ref()
-            .map(|format| format.is_markdown_flavor())
-            .unwrap_or_default()
-        {
+        if context.format_is_markdown_flavor() {
             if let Some(other_content) = &other.content {
                 // The `other` instruction is from a Markdown-based format so compare its `content` to the active suggestion
                 // if there is any, or to the `content` if no suggestions
@@ -110,12 +105,7 @@ impl PatchNode for InstructionBlock {
         diff_property!(ExecutionMode, execution_mode);
         diff_property!(ExecutionBounds, execution_bounds);
 
-        if context
-            .format
-            .as_ref()
-            .map(|format| format.is_markdown_flavor())
-            .unwrap_or_default()
-        {
+        if context.format_is_markdown_flavor() {
             // Other node is from a Markdown based format where the `content` is either the
             // original or the content of the active active suggestion
             if let Some(other_content) = &other.content {

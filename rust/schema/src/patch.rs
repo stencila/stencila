@@ -151,6 +151,30 @@ pub struct PatchContext {
 }
 
 impl PatchContext {
+    /// Whether the format associated with the patch is lossy
+    pub fn format_is_lossy(&self) -> bool {
+        self.format
+            .as_ref()
+            .map(|format| format.is_lossy())
+            .unwrap_or(false)
+    }
+
+    /// Whether the format associated with the patch is lossless
+    pub fn format_is_lossless(&self) -> bool {
+        self.format
+            .as_ref()
+            .map(|format| format.is_lossless())
+            .unwrap_or(true)
+    }
+
+    /// Whether the format associated with the patch is a Markdown flavour
+    pub fn format_is_markdown_flavor(&self) -> bool {
+        self.format
+            .as_ref()
+            .map(|format| format.is_markdown_flavor())
+            .unwrap_or(false)
+    }
+
     /// Calculate the mean similarity
     ///
     /// A convenience function used in derive macros.
@@ -545,6 +569,9 @@ pub struct Patch {
 
     /// The authors of the patch
     pub authors: Option<Vec<AuthorRole>>,
+
+    /// Whether to compile the document after applying the patch
+    pub compile: bool,
 }
 
 impl Patch {

@@ -32,14 +32,7 @@ impl Chat {
             // only apply patches to the content of the chat if the patch is
             // associated with no, or a lossless, format, or if it is a root
             // node (not nested)
-            let lossless_format = context
-                .format
-                .as_ref()
-                .map(|format| format.is_lossless())
-                .unwrap_or(true);
-            let is_root = self.is_temporary.is_none();
-
-            if lossless_format || is_root {
+            if context.format_is_lossless() || self.is_temporary.is_none() {
                 // Apply the patch
                 path.pop_front();
                 context.within_property(NodeProperty::Content, |context| {
