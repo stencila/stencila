@@ -145,6 +145,63 @@ export class StencilaChat extends Executable {
       return
     }
 
+    // Get the visible height of the content element
+    const visibleHeight = () => {
+      const rect = contentElem.getBoundingClientRect()
+      const viewportHeight = window.innerHeight
+
+      const visibleTop = Math.max(rect.top, 0)
+      const visibleBottom = Math.min(rect.bottom, viewportHeight)
+
+      return Math.max(0, visibleBottom - visibleTop)
+    }
+
+    // Scroll to the appropriate place based on new messages
+    const scroll = (mutations: MutationRecord[]) => {
+      // Get the first and last messages added
+      let first: ChatMessage | undefined
+      let last: ChatMessage | undefined
+      for (const mutation of mutations) {
+        let elem
+        if (mutation.target instanceof ChatMessage) {
+          elem = mutation.target
+        } else if (mutation.target.parentElement instanceof ChatMessage) {
+          elem = mutation.target.parentElement
+        } else if (mutation.addedNodes[0] instanceof ChatMessage) {
+          elem = mutation.addedNodes[0]
+        }
+
+        if (!first) {
+          first = elem
+          last = elem
+        } else {
+          last = elem
+        }
+      }
+
+      if (first) {
+        requestAnimationFrame(() => {
+          // After fully rendered, get combined height of added content
+          const height =
+            last.getBoundingClientRect().bottom -
+            first.getBoundingClientRect().top
+
+          // If taller than visible content, scroll to top of first, otherwise to end of last
+          if (height > visibleHeight()) {
+            first.scrollIntoView({
+              block: 'start',
+              behavior: 'smooth',
+            })
+          } else {
+            last.scrollIntoView({
+              block: 'end',
+              behavior: 'smooth',
+            })
+          }
+        })
+      }
+    }
+
     this.contentMutationController = new MutationController(this, {
       target: contentElem,
       config: {
@@ -152,45 +209,7 @@ export class StencilaChat extends Executable {
         childList: true,
         subtree: true,
       },
-      callback: (mutations) => {
-        // Find the first chat message that we may need to scroll to:
-        // was added, or had content added to it.
-        let elem: ChatMessage | undefined
-        for (const mutation of mutations) {
-          if (mutation.target instanceof ChatMessage) {
-            elem = mutation.target
-            break
-          } else if (mutation.target.parentElement instanceof ChatMessage) {
-            elem = mutation.target.parentElement
-            break
-          } else if (mutation.addedNodes[0] instanceof ChatMessage) {
-            elem = mutation.addedNodes[0]
-            break
-          }
-        }
-
-        if (elem) {
-          requestAnimationFrame(() => {
-            const elemRect = elem.getBoundingClientRect()
-            const top = elemRect.top + window.scrollY
-
-            if (elemRect.height > window.innerHeight) {
-              // For tall elements, scroll to their top
-              window.scrollTo({
-                top,
-                behavior: 'smooth',
-              })
-            } else {
-              // For shorter elements, scroll to their bottom + padding
-              // (for fixed message input box)
-              window.scrollTo({
-                top: top + elemRect.height + 150,
-                behavior: 'smooth',
-              })
-            }
-          })
-        }
-      },
+      callback: scroll,
     })
   }
 
