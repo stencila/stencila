@@ -809,12 +809,34 @@
       "@type": "rdfs:Property",
       "rdfs:label": "nodeTypes",
       "rdfs:comment": "The types of nodes that the prompt supports",
-      "schema:domainIncludes": {
-        "@id": "stencila:Prompt"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Prompt"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
+    },
+    {
+      "@id": "stencila:nodeCount",
+      "@type": "rdfs:Property",
+      "rdfs:label": "nodeCount",
+      "rdfs:comment": "The number of nodes that the prompt supports",
+      "schema:domainIncludes": {
+        "@id": "stencila:Prompt"
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "stencila:UnsignedInteger"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
     },
     {
       "@id": "stencila:content",

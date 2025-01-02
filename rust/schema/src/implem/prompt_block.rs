@@ -101,6 +101,14 @@ impl MarkdownCodec for PromptBlock {
                 );
             }
 
+            if let Some(node_types) = &self.node_types {
+                context
+                    .space()
+                    .push_str("(")
+                    .push_prop_str(NodeProperty::NodeTypes, &node_types.join(","))
+                    .push_str(")");
+            }
+
             if let Some(target) = &self.target {
                 if !target.ends_with("?") {
                     context

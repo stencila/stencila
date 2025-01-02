@@ -655,9 +655,18 @@ pub(super) async fn execute_command(
 
             let root = root.read().await;
 
-            // If the range spans one or more blocks, then add them to the suggestions
-            // as the original
+            // Get any blocks spanning the range
             let blocks = root.block_ids_spanning(range);
+
+            // Get the node types of the blocks to use to infer prompt
+            let node_types: Vec<String> = blocks
+                .iter()
+                .map(|node_id| NodeType::try_from(node_id).map(|node_type| node_type.to_string()))
+                .try_collect()
+                .map_err(internal_error)?;
+            let node_types = (!node_types.is_empty()).then_some(node_types);
+
+            // If any, add them to the suggestions as the original
             let suggestions = if !blocks.is_empty() {
                 // Get clones of the blocks
                 let doc = doc.read().await;
@@ -685,6 +694,10 @@ pub(super) async fn execute_command(
             let (previous_block, next_block) = root.block_ids_previous_next(range);
 
             let chat = Chat {
+                prompt: PromptBlock {
+                    node_types,
+                    ..Default::default()
+                },
                 is_temporary: Some(true),
                 suggestions,
                 options: Box::new(ChatOptions {

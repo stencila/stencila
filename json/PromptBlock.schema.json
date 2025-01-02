@@ -25,6 +25,7 @@
     "executionMode",
     "executionBounds",
     "instructionType",
+    "nodeTypes",
     "hint",
     "target",
     "content"
@@ -321,7 +322,8 @@
     },
     "instructionType": {
       "@id": "stencila:instructionType",
-      "description": "The type of instruction type of the prompt",
+      "description": "The type of instruction the  being used for",
+      "$comment": "Used to filter and select the `target` prompt.",
       "aliases": [
         "instruction-type",
         "instruction_type"
@@ -334,6 +336,29 @@
         ]
       },
       "$ref": "InstructionType.schema.json"
+    },
+    "nodeTypes": {
+      "@id": "stencila:nodeTypes",
+      "description": "The type of nodes the prompt is being used for",
+      "$comment": "Used to filter and select the `target` prompt.",
+      "aliases": [
+        "node-types",
+        "node_types",
+        "nodeType",
+        "node-type",
+        "node_type"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "qmd"
+        ]
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "hint": {
       "@id": "stencila:hint",

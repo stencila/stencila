@@ -250,7 +250,7 @@
       "@id": "stencila:instructionType",
       "@type": "rdfs:Property",
       "rdfs:label": "instructionType",
-      "rdfs:comment": "The type of instruction type of the prompt",
+      "rdfs:comment": "The type of instruction the  being used for",
       "schema:domainIncludes": [
         {
           "@id": "stencila:Instruction"
@@ -261,6 +261,23 @@
       ],
       "schema:rangeIncludes": {
         "@id": "stencila:InstructionType"
+      }
+    },
+    {
+      "@id": "stencila:nodeTypes",
+      "@type": "rdfs:Property",
+      "rdfs:label": "nodeTypes",
+      "rdfs:comment": "The type of nodes the prompt is being used for",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Prompt"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
       }
     },
     {

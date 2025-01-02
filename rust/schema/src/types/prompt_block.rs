@@ -48,10 +48,16 @@ pub struct PromptBlock {
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub execution_bounds: Option<ExecutionBounds>,
 
-    /// The type of instruction type of the prompt
+    /// The type of instruction the  being used for
     #[serde(alias = "instruction-type", alias = "instruction_type")]
     #[patch(format = "md", format = "smd", format = "qmd")]
     pub instruction_type: Option<InstructionType>,
+
+    /// The type of nodes the prompt is being used for
+    #[serde(alias = "node-types", alias = "node_types", alias = "nodeType", alias = "node-type", alias = "node_type")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[patch(format = "md", format = "smd", format = "qmd")]
+    pub node_types: Option<Vec<String>>,
 
     /// A text hint used to infer the `target` prompt
     #[patch(format = "md", format = "smd", format = "qmd")]

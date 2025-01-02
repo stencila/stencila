@@ -12,6 +12,7 @@ use winnow::{
 use codec::{
     common::{
         indexmap::IndexMap,
+        itertools::Itertools,
         serde_json::{self, json},
         tracing,
     },
@@ -647,20 +648,32 @@ fn prompt_block(input: &mut Located<&str>) -> PResult<Block> {
         "prompt",
         (
             opt(preceded(multispace1, instruction_type)),
+            opt(preceded(
+                multispace1,
+                delimited('(', take_until(0.., ')'), ')'),
+            )),
             opt(preceded(multispace1, prompt)),
             opt(take_while(1.., |_| true)),
         ),
     )
-    .map(|(instruction_type, target, hint)| {
+    .map(|(instruction_type, node_types, target, hint)| {
+        let node_types = node_types.map(|node_types| {
+            node_types
+                .split(',')
+                .map(|node_type| node_type.trim().to_string())
+                .collect_vec()
+        });
+
         let hint = hint.and_then(|hint| {
             let hint = hint.trim();
-            (!hint.is_empty()).then_some(hint)
+            (!hint.is_empty()).then_some(hint.to_string())
         });
 
         Block::PromptBlock(PromptBlock {
             instruction_type,
+            node_types,
             target: target.map(String::from),
-            hint: hint.map(String::from),
+            hint,
             ..Default::default()
         })
     })

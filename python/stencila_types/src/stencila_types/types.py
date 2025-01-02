@@ -2450,8 +2450,11 @@ class Prompt(CreativeWork, Executable):
     instruction_patterns: list[str] | None = None
     """Regular expressions used to match the prompt with a user instruction"""
 
-    node_types: list[str]
+    node_types: list[str] | None = None
     """The types of nodes that the prompt supports"""
+
+    node_count: UnsignedInteger | str | None = None
+    """The number of nodes that the prompt supports"""
 
     content: list[Block]
     """The content of the prompt."""
@@ -2466,7 +2469,10 @@ class PromptBlock(Executable):
     type: Literal["PromptBlock"] = "PromptBlock"
 
     instruction_type: InstructionType | None = None
-    """The type of instruction type of the prompt"""
+    """The type of instruction the  being used for"""
+
+    node_types: list[str] | None = None
+    """The type of nodes the prompt is being used for"""
 
     hint: str | None = None
     """A text hint used to infer the `target` prompt"""
@@ -3686,6 +3692,7 @@ ANON_UNIONS = [
     PropertyValue | str,
     SoftwareSourceCode | SoftwareApplication | str,
     StringPatch | Primitive,
+    UnsignedInteger | str,
     int | str,
     str | float,
 ]

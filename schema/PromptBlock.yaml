@@ -15,14 +15,25 @@ markdown:
   derive: false
 core:
   - instructionType
+  - nodeTypes
   - hint
   - target
   - content
 properties:
   instructionType:
     "@id": stencila:instructionType
-    description: The type of instruction type of the prompt
+    description: The type of instruction the  being used for
+    $comment: Used to filter and select the `target` prompt.
     $ref: InstructionType
+    patch:
+      formats: [md, smd, qmd]
+  nodeTypes:
+    "@id": stencila:nodeTypes
+    description: The type of nodes the prompt is being used for
+    $comment: Used to filter and select the `target` prompt.
+    type: array
+    items:
+      type: string
     patch:
       formats: [md, smd, qmd]
   hint:

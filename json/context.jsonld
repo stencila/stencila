@@ -364,6 +364,7 @@
     "nativeHint": "stencila:nativeHint",
     "nativeType": "stencila:nativeType",
     "nextBlock": "stencila:nextBlock",
+    "nodeCount": "stencila:nodeCount",
     "nodeType": "stencila:nodeType",
     "nodeTypes": "stencila:nodeTypes",
     "noteType": "stencila:noteType",

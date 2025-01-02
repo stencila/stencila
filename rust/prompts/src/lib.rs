@@ -3,7 +3,9 @@
 use std::{
     cmp::Ordering,
     io::Cursor,
+    ops::RangeInclusive,
     path::{Path, PathBuf},
+    str::FromStr,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -33,7 +35,7 @@ use model::{
         authorship, shortcuts::p, Article, AudioObject, Author, AuthorRole, Block,
         CompilationMessage, ExecutionMessage, ImageObject, Inline, InstructionBlock,
         InstructionMessage, InstructionType, Link, MessageLevel, MessagePart, Node, Prompt,
-        SuggestionBlock, SuggestionStatus, Timestamp, VideoObject,
+        SuggestionBlock, SuggestionStatus, Timestamp, UnsignedIntegerOrString, VideoObject,
     },
     ModelOutput, ModelOutputKind, ModelTask,
 };
@@ -69,6 +71,10 @@ pub struct PromptInstance {
     #[serde(skip)]
     home: PathBuf,
 
+    /// The `node_count` of the prompt parsed from a number or string into a [`RangeInclusive`]
+    #[serde(skip)]
+    node_count_range: Option<RangeInclusive<usize>>,
+
     /// Compiled regexes for the prompt's instruction regexes
     #[serde(skip)]
     instruction_regexes: Vec<Regex>,
@@ -102,6 +108,30 @@ impl PromptInstance {
             .ok_or_eyre("prompt not in a dir")?
             .to_path_buf();
 
+        let node_count_range = if let Some(node_count) = &inner.node_count {
+            let range = match node_count {
+                UnsignedIntegerOrString::UnsignedInteger(count) => {
+                    let count = *count as usize;
+                    count..=count
+                }
+                UnsignedIntegerOrString::String(range) => {
+                    let mut parts = range.split(['+', '-']);
+                    let lower = match parts.next() {
+                        Some(lower) => usize::from_str(lower)?,
+                        None => 0,
+                    };
+                    let upper = match parts.next() {
+                        Some(upper) => usize::from_str(upper)?,
+                        None => usize::MAX,
+                    };
+                    lower..=upper
+                }
+            };
+            Some(range)
+        } else {
+            None
+        };
+
         let instruction_regexes = inner
             .instruction_patterns
             .iter()
@@ -113,6 +143,7 @@ impl PromptInstance {
             inner,
             path,
             home,
+            node_count_range,
             instruction_regexes,
         })
     }
@@ -181,19 +212,32 @@ pub async fn get(id: &str, instruction_type: &InstructionType) -> Result<PromptI
         .ok_or_else(|| eyre!("Unable to find prompt with id `{id}`"))
 }
 
-/// Infer which prompt to use based on instruction type, node types and/or hint
+/// Infer which prompt to use based on instruction type, node types, node count and/or hint
 pub async fn infer(
     instruction_type: &Option<InstructionType>,
+    node_types: &Option<Vec<String>>,
     hint: &Option<&str>,
 ) -> Option<PromptInstance> {
-    let prompts = list().await;
+    let prompts = list().await.into_iter();
 
-    // Filter the prompts to those that support the instruction type (if any supplied)
-    let mut prompts = prompts.into_iter().filter(|prompt| {
-        instruction_type
-            .as_ref()
-            .map(|instruction_type| prompt.instruction_types.contains(instruction_type))
-            .unwrap_or(true)
+    // Filter the prompts by instruction type
+    let prompts = prompts.filter(|prompt| match instruction_type {
+        Some(instruction_type) => prompt.instruction_types.contains(instruction_type),
+        None => true,
+    });
+
+    // Filter the prompts by node types: all node types must be in the prompts node types
+    let prompts = prompts.filter(|prompt| match (node_types, &prompt.node_types) {
+        (Some(node_types), Some(prompt_node_types)) => node_types
+            .iter()
+            .all(|node_type| prompt_node_types.contains(node_type)),
+        _ => true,
+    });
+
+    // Filter the prompts by the number of nodes: the count must be in the prompts node count range
+    let mut prompts = prompts.filter(|prompt| match (node_types, &prompt.node_count_range) {
+        (Some(node_types), Some(range)) => range.contains(&node_types.len()),
+        _ => true,
     });
 
     if let Some(hint) = hint {

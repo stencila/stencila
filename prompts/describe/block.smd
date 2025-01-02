@@ -8,7 +8,6 @@ description: Describe a block.
 keywords: describe
 
 instruction-type: Describe
-node-types: Block
 ---
 
 # Instructions

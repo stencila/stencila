@@ -26,12 +26,9 @@ impl Executable for PromptBlock {
         if let Some(value) = &self.instruction_type {
             value.to_string().hash(&mut hash);
         }
-        if let Some(value) = &self.hint {
-            value.hash(&mut hash);
-        }
-        if let Some(value) = &self.target {
-            value.hash(&mut hash);
-        }
+        self.node_types.hash(&mut hash);
+        self.hint.hash(&mut hash);
+        self.target.hash(&mut hash);
         let state_digest = hash.finish();
 
         let compilation_digest = CompilationDigest::new(state_digest);
@@ -44,8 +41,12 @@ impl Executable for PromptBlock {
                 .unwrap_or_default()
                 && Some(&compilation_digest) != self.options.compilation_digest.as_ref())
         {
-            if let Some(prompt) =
-                prompts::infer(&self.instruction_type, &self.hint.as_deref()).await
+            if let Some(prompt) = prompts::infer(
+                &self.instruction_type,
+                &self.node_types,
+                &self.hint.as_deref(),
+            )
+            .await
             {
                 let id = prompt
                     .id

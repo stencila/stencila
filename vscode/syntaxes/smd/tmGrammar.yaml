@@ -505,13 +505,32 @@ repository:
 
   prompt-block:
     name: meta.stencila.prompt-block
-    match: ^(:{3,})\s*(prompt)(?:\s+(create|edit|fix|describe))?(?:\s+(@[^\s]+))?(.*)$
+    match: >
+      (?x)
+      ^
+        (:{3,})\s*
+        (prompt)
+        (?:
+          \s+
+          (create|edit|fix|describe)
+        )?
+        (?:
+          \s+
+          (\([^)]*\))
+        )?
+        (?:
+          \s+
+          (@[^\s]+)
+        )?
+        (.*)
+      $
     captures:
       "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # prompt
       "3": { name: keyword.control.stencila } # instruction type
-      "4": { name: support.function } # target
-      "5": { name: comment.stencila.instruction } # hint
+      "4": { name: string.quoted } # node types
+      "5": { name: support.function } # target
+      "6": { name: comment.stencila.instruction } # hint
 
   ########## IncludeBlock ##########
 

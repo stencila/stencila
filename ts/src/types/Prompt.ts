@@ -4,6 +4,7 @@ import { Block } from "./Block.js";
 import { CreativeWork } from "./CreativeWork.js";
 import { InstructionType } from "./InstructionType.js";
 import { StringOrNumber } from "./StringOrNumber.js";
+import { UnsignedIntegerOrString } from "./UnsignedIntegerOrString.js";
 
 /**
  * A prompt for creating or editing document content.
@@ -40,14 +41,19 @@ export class Prompt extends CreativeWork {
   /**
    * The types of nodes that the prompt supports
    */
-  nodeTypes: string[];
+  nodeTypes?: string[];
+
+  /**
+   * The number of nodes that the prompt supports
+   */
+  nodeCount?: UnsignedIntegerOrString;
 
   /**
    * The content of the prompt.
    */
   content: Block[];
 
-  constructor(description: string, name: string, version: StringOrNumber, instructionTypes: InstructionType[], nodeTypes: string[], content: Block[], options?: Partial<Prompt>) {
+  constructor(description: string, name: string, version: StringOrNumber, instructionTypes: InstructionType[], content: Block[], options?: Partial<Prompt>) {
     super();
     this.type = "Prompt";
     if (options) Object.assign(this, options);
@@ -55,7 +61,6 @@ export class Prompt extends CreativeWork {
     this.name = name;
     this.version = version;
     this.instructionTypes = instructionTypes;
-    this.nodeTypes = nodeTypes;
     this.content = content;
   }
 }
@@ -63,6 +68,6 @@ export class Prompt extends CreativeWork {
 /**
 * Create a new `Prompt`
 */
-export function prompt(description: string, name: string, version: StringOrNumber, instructionTypes: InstructionType[], nodeTypes: string[], content: Block[], options?: Partial<Prompt>): Prompt {
-  return new Prompt(description, name, version, instructionTypes, nodeTypes, content, options);
+export function prompt(description: string, name: string, version: StringOrNumber, instructionTypes: InstructionType[], content: Block[], options?: Partial<Prompt>): Prompt {
+  return new Prompt(description, name, version, instructionTypes, content, options);
 }

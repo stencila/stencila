@@ -12,9 +12,14 @@ export class PromptBlock extends Executable {
   type: "PromptBlock";
 
   /**
-   * The type of instruction type of the prompt
+   * The type of instruction the  being used for
    */
   instructionType?: InstructionType;
+
+  /**
+   * The type of nodes the prompt is being used for
+   */
+  nodeTypes?: string[];
 
   /**
    * A text hint used to infer the `target` prompt

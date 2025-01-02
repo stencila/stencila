@@ -191,6 +191,7 @@ export * from "./TupleValidator.js";
 export * from "./Underline.js";
 export * from "./Unknown.js";
 export * from "./UnsignedInteger.js";
+export * from "./UnsignedIntegerOrString.js";
 export * from "./Validator.js";
 export * from "./Variable.js";
 export * from "./VideoObject.js";

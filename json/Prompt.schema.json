@@ -19,7 +19,6 @@
     "version",
     "description",
     "instructionTypes",
-    "nodeTypes",
     "content"
   ],
   "core": [
@@ -27,6 +26,8 @@
     "id",
     "executionMode",
     "executionBounds",
+    "nodeTypes",
+    "nodeCount",
     "instructionPatterns"
   ],
   "properties": {
@@ -943,6 +944,23 @@
       "items": {
         "type": "string"
       }
+    },
+    "nodeCount": {
+      "@id": "stencila:nodeCount",
+      "description": "The number of nodes that the prompt supports",
+      "$comment": "Use a string to indicate a range of possible node counts e.g. \"1+\" for one\nor more nodes, \"1-5\" for one to five nodes.\n",
+      "aliases": [
+        "node-count",
+        "node_count"
+      ],
+      "anyOf": [
+        {
+          "$ref": "UnsignedInteger.schema.json"
+        },
+        {
+          "type": "string"
+        }
+      ]
     },
     "content": {
       "@id": "stencila:content",

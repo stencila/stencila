@@ -10,9 +10,10 @@ required:
   - version
   - description
   - instructionTypes
-  - nodeTypes
   - content
 core:
+  - nodeTypes
+  - nodeCount
   - instructionPatterns
 properties:
   instructionTypes:
@@ -33,6 +34,15 @@ properties:
     type: array
     items:
       type: string
+  nodeCount:
+    "@id": stencila:nodeCount
+    description: The number of nodes that the prompt supports
+    $comment: |
+      Use a string to indicate a range of possible node counts e.g. "1+" for one
+      or more nodes, "1-5" for one to five nodes.
+    anyOf:
+      - $ref: UnsignedInteger
+      - type: string
   content:
     "@id": stencila:content
     description: The content of the prompt.

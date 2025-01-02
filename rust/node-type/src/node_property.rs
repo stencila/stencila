@@ -175,6 +175,7 @@ pub enum NodeProperty {
     NativeHint,
     NativeType,
     NextBlock,
+    NodeCount,
     NodeType,
     NodeTypes,
     NoteType,

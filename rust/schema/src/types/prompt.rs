@@ -33,6 +33,7 @@ use super::string_or_number::StringOrNumber;
 use super::text::Text;
 use super::thing_type::ThingType;
 use super::timestamp::Timestamp;
+use super::unsigned_integer_or_string::UnsignedIntegerOrString;
 
 /// A prompt for creating or editing document content.
 #[skip_serializing_none]
@@ -88,8 +89,12 @@ pub struct Prompt {
 
     /// The types of nodes that the prompt supports
     #[serde(alias = "node-types", alias = "node_types", alias = "nodeType", alias = "node-type", alias = "node_type")]
-    #[serde(deserialize_with = "one_or_many")]
-    pub node_types: Vec<String>,
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub node_types: Option<Vec<String>>,
+
+    /// The number of nodes that the prompt supports
+    #[serde(alias = "node-count", alias = "node_count")]
+    pub node_count: Option<UnsignedIntegerOrString>,
 
     /// The content of the prompt.
     #[serde(deserialize_with = "one_or_many")]
