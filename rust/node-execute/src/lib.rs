@@ -606,6 +606,7 @@ impl Executor {
             format: None,
             authors,
             ops,
+            ..Default::default()
         };
 
         if let Err(error) = sender.send(patch) {

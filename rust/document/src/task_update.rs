@@ -48,6 +48,7 @@ impl Document {
                 Some(mut patch) = patch_receiver.recv() => {
                     tracing::trace!("Document root node patch received");
 
+                    let compile = patch.compile;
                     let root = &mut *root.write().await;
                     if matches!(root, Node::Null(..)) && patch.node_id.is_none() && matches!(patch.ops.first().map(|(path, op)| (path.is_empty(), op)), Some((true,PatchOp::Set(..)))){
                         // If the root is null and the patch want to set it then do so
@@ -65,7 +66,7 @@ impl Document {
                         tracing::error!("While applying patch to root: {error}");
                     }
 
-                    false
+                    compile
                 },
                 else => {
                     tracing::debug!("Both update and patch channels closed");
@@ -82,12 +83,6 @@ impl Document {
                 }
             }
 
-            // Recompile the document
-            // TODO: consider recompiling on patches as well but with care taken
-            // to ignore patches that are from the compilation of execution already
-            // (will require an additional patch field to indicate this).
-            // TODO: consider throttling or debouncing this (although note that if the document is already
-            // compiling or executing then the command will be ignored anyway)
             if compile {
                 if let Err(error) = command_sender.send((Command::CompileDocument, 0)).await {
                     tracing::error!("While sending command to document: {error}");

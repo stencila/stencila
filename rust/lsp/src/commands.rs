@@ -214,6 +214,7 @@ pub(super) async fn execute_command(
                     node_id: Some(node_id),
                     ops: vec![(path, op)],
                     authors: Some(vec![author]),
+                    compile: true,
                     ..Default::default()
                 }),
                 false,
