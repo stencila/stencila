@@ -10,19 +10,35 @@ impl PromptBlock {
         op: &PatchOp,
         context: &mut PatchContext,
     ) -> Result<bool> {
-        if let (Some(PatchSlot::Property(NodeProperty::Target)), PatchOp::Set(value)) =
-            (path.front(), op)
-        {
-            if context.format_is_lossy()
-                && matches!(value, PatchValue::None)
-                && self
+        if context.format_is_lossy() {
+            if let (
+                Some(PatchSlot::Property(NodeProperty::Target)),
+                PatchOp::Set(PatchValue::None),
+            ) = (path.front(), op)
+            {
+                // Ignore attempt to clear inferred target
+                if self
                     .target
                     .as_ref()
                     .map(|target| target.ends_with("?"))
                     .unwrap_or_default()
+                {
+                    return Ok(true);
+                }
+            } else if let (
+                Some(PatchSlot::Property(NodeProperty::Hint)),
+                PatchOp::Set(PatchValue::None),
+            ) = (path.front(), op)
             {
-                // Ignore attempt to clear inferred target
-                return Ok(true);
+                // Ignore attempt to clear implied hint
+                if self
+                    .hint
+                    .as_ref()
+                    .map(|hint| hint.ends_with("   "))
+                    .unwrap_or_default()
+                {
+                    return Ok(true);
+                }
             }
         }
 

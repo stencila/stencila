@@ -229,6 +229,7 @@ pub fn shorten(id: &str, instruction_type: &Option<InstructionType>) -> String {
                 return rest.into();
             }
         }
+        return rest.into();
     }
 
     id.into()

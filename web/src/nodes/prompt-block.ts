@@ -25,11 +25,14 @@ import '../ui/nodes/properties/provenance'
 @customElement('stencila-prompt-block')
 @withTwind()
 export class PromptBlock extends Executable {
-  @property()
-  target?: string
-
   @property({ attribute: 'instruction-type' })
   instructionType?: InstructionType
+
+  @property()
+  hint?: string
+
+  @property()
+  target?: string
 
   /**
    * UI settings to use when rendering
@@ -65,13 +68,73 @@ export class PromptBlock extends Executable {
    * On a change to the `target` prompt property, send a patch to update it
    */
   private onPromptChanged(event: InputEvent) {
-    let value = (event.target as HTMLInputElement).value
+    let id = (event.target as HTMLInputElement).value
 
-    if (value.trim().length === 0) {
-      value = null
+    if (id.trim().length === 0) {
+      id = null
+    } else {
+      id = this.shortenPromptId(id)
     }
 
-    this.dispatchEvent(patchValue('PromptBlock', this.id, 'target', value))
+    this.dispatchEvent(patchValue('PromptBlock', this.id, 'target', id))
+  }
+
+  /**
+   * Shorten a prompt id if possible
+   *
+   * Equivalent to the Rust `prompts::shorten` function.
+   */
+  private shortenPromptId(id: string): string {
+    if (id.startsWith('stencila/')) {
+      id = id.slice(9)
+    }
+
+    if (this.instructionType) {
+      const prefix = `${this.instructionType.toLowerCase()}/`
+      if (id.startsWith(prefix)) {
+        id = id.slice(prefix.length)
+      }
+    }
+
+    return id
+  }
+
+  /**
+   * Expand a prompt id to a 'full' id
+   *
+   * Removes `?` suffix for inferred prompts.
+   */
+  private expandPromptId(id: string): string {
+    if (id.endsWith('?')) {
+      id = id.slice(0, -1)
+    }
+
+    const parts = id.split('/').length
+
+    if (parts === 1) {
+      return this.instructionType
+        ? `stencila/${this.instructionType.toLowerCase()}/${id}`
+        : `stencila/create/${id}`
+    } else if (parts === 2) {
+      return `stencila/${id}`
+    } else {
+      return id
+    }
+  }
+
+  /**
+   * On a change to the implied hint, patch the hint if it is null or
+   * implied (ends in three spaces) and the target is null or inferred (ends with ?)
+   */
+  public onHintImplied(hint: string) {
+    if (
+      (!this.hint || this.hint.endsWith('   ')) &&
+      (!this.target || this.target.endsWith('?'))
+    ) {
+      this.dispatchEvent(
+        patchValue('PromptBlock', this.id, 'hint', hint + '   ')
+      )
+    }
   }
 
   override connectedCallback(): void {
@@ -169,6 +232,14 @@ export class PromptBlock extends Executable {
   }
 
   private renderPromptSelect(textColour: string) {
+    // Filter prompts if necessary
+    const prompts = this.instructionType
+      ? data.prompts.filter(
+          (prompt) => prompt.instructionTypes[0] === this.instructionType
+        )
+      : data.prompts
+
+    // Render the prompt options
     const promptOption = (prompt: Prompt) => html`
       <sl-option value=${prompt.id} style="--sl-spacing-x-small: 0.25rem;">
         <div class="text-sm text-[${textColour}]">${prompt.id}</div>
@@ -181,9 +252,7 @@ export class PromptBlock extends Executable {
     let options
     if (this.instructionType) {
       // Only show prompts for the instruction type
-      options = data.prompts
-        .filter((prompt) => prompt.instructionTypes[0] === this.instructionType)
-        .map(promptOption)
+      options = prompts.map(promptOption)
     } else {
       // Group prompts by instruction type
       const types: Record<string, Prompt[]> = {}
@@ -213,6 +282,30 @@ export class PromptBlock extends Executable {
       })
     }
 
+    // Expand target prompt id so that is matches prompts
+    let target = this.target ? this.expandPromptId(this.target) : null
+
+    // If target is not in options, add one for it
+    if (target) {
+      const matched = prompts.find((prompt) => prompt.id == target)
+      if (!matched) {
+        // Use original, since not matched
+        target = this.target
+
+        options.unshift(
+          promptOption({
+            id: target,
+            name: '',
+            description: '',
+            version: '',
+            instructionTypes: [],
+            nodeTypes: [],
+            instructionPatterns: [],
+          })
+        )
+      }
+    }
+
     const style = css`
       &::part(display-input) {
         font-size: 0.75rem;
@@ -227,7 +320,7 @@ export class PromptBlock extends Executable {
       class="w-full ${style}"
       clearable
       size="small"
-      value=${this.target}
+      value=${target}
       @sl-change=${(e: InputEvent) => this.onPromptChanged(e)}
     >
       ${options}

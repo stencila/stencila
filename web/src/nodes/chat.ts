@@ -4,7 +4,7 @@ import SlCarouselItem from '@shoelace-style/shoelace/dist/components/carousel-it
 import SlSplitPanel from '@shoelace-style/shoelace/dist/components/split-panel/split-panel'
 import { apply } from '@twind/core'
 import { css, html, PropertyValues } from 'lit'
-import { customElement, query, state } from 'lit/decorators'
+import { customElement, state } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
@@ -25,9 +25,6 @@ import { PromptBlock } from './prompt-block'
 @customElement('stencila-chat')
 @withTwind()
 export class Chat extends Executable {
-  @query('stencila-prompt-block')
-  prompt!: PromptBlock
-
   /**
    * A mutation controller used to update the instruction type of the chat
    *
@@ -225,6 +222,15 @@ export class Chat extends Executable {
     })
   }
 
+  /**
+   * On message input, forward the input value to the prompt component
+   * for potential use as an implied hint for prompt target
+   */
+  private onMessageInput({ detail: value }: CustomEvent) {
+    const prompt = this.querySelector('stencila-prompt-block') as PromptBlock
+    prompt.onHintImplied(value)
+  }
+
   override render() {
     return this.depth == 0 ? this.renderFullscreen() : this.renderCard()
   }
@@ -273,6 +279,7 @@ export class Chat extends Executable {
               <stencila-ui-chat-message-inputs
                 type="Chat"
                 node-id=${this.id}
+                @stencila-message-input=${this.onMessageInput}
               ></stencila-ui-chat-message-inputs>
             </div>
           </div>

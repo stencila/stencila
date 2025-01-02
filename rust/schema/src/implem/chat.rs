@@ -86,6 +86,7 @@ impl MarkdownCodec for Chat {
             }
 
             if let Some(target) = &self.prompt.target {
+                // Do not encode inferred target
                 if !target.ends_with("?") {
                     context
                         .push_str(" @")
@@ -98,7 +99,10 @@ impl MarkdownCodec for Chat {
             });
 
             if let Some(hint) = &self.prompt.hint {
-                context.space().push_prop_str(NodeProperty::Prompt, hint);
+                // Do not encode implied hint
+                if !hint.ends_with("   ") {
+                    context.space().push_prop_str(NodeProperty::Prompt, hint);
+                }
             }
 
             context.push_str("\n\n").exit_node();

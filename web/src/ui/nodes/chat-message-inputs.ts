@@ -5,6 +5,7 @@ import { createRef, ref, Ref } from 'lit/directives/ref'
 
 import { runChat } from '../../clients/commands'
 import { withTwind } from '../../twind'
+import { debounce } from '../../utilities/debounce'
 import { fileToStencilaFile } from '../inputs/file-input'
 
 import { UIBaseClass } from './mixins/ui-base-class'
@@ -34,6 +35,14 @@ export class UIChatMessageInputs extends UIBaseClass {
   private textRef: Ref<HTMLTextAreaElement> = createRef()
 
   /**
+   * Debounced event emitter for text input
+   *
+   * Used to bubble up text input events to chat component but
+   * not on every keypress.
+   */
+  private debouncedTextInput: (value: string) => void
+
+  /**
    * On <textarea> input adjust the height if necessary and
    * update whether this has non-empty text
    */
@@ -44,6 +53,8 @@ export class UIChatMessageInputs extends UIBaseClass {
     textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`
 
     this.hasText = textarea.value.trim().length > 0
+
+    this.debouncedTextInput(textarea.value)
   }
 
   /**
@@ -114,7 +125,19 @@ export class UIChatMessageInputs extends UIBaseClass {
     this.files = []
   }
 
-  override firstUpdated(): void {
+  override connectedCallback() {
+    super.connectedCallback()
+
+    this.debouncedTextInput = debounce(
+      (value: string) =>
+        this.dispatchEvent(
+          new CustomEvent('stencila-message-input', { detail: value })
+        ),
+      300
+    )
+  }
+
+  override firstUpdated() {
     this.textRef.value.focus()
   }
 
