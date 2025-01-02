@@ -42,7 +42,7 @@ pub(super) async fn request(
     let source = source.read().await;
     let position = position_to_position16(params.text_document_position.position);
     let positions = Positions::new(&source);
-    let Some(end) = positions.index_at_position16(position.clone()) else {
+    let Some(end) = positions.index_at_position16(position) else {
         // Early return if the cursor position can not be resolve in current source
         return Ok(None);
     };
