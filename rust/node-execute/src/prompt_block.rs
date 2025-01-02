@@ -50,7 +50,7 @@ impl Executable for PromptBlock {
                 let id = prompt
                     .id
                     .as_ref()
-                    .map(|id| prompts::shorten(&id, &self.instruction_type))
+                    .map(|id| prompts::shorten(id, &self.instruction_type))
                     .map(|id| [&id, "?"].concat());
 
                 self.target = id.clone();

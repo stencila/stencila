@@ -192,7 +192,7 @@ pub async fn infer(
     let mut prompts = prompts.into_iter().filter(|prompt| {
         instruction_type
             .as_ref()
-            .map(|instruction_type| prompt.instruction_types.contains(&instruction_type))
+            .map(|instruction_type| prompt.instruction_types.contains(instruction_type))
             .unwrap_or(true)
     });
 
