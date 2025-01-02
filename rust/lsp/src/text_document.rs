@@ -624,8 +624,9 @@ impl TextDocument {
                     // Received nothing: sender has dropped so stop
                     break;
                 }
-                Ok(Some((source, delay))) => {
-                    // Received new source
+                Ok(Some((new_source, delay))) => {
+                    // Always update source for accuracy of code completions etc
+                    *source.write().await = new_source.clone();
 
                     // Notify watchers that document is out of sync
                     if let Err(error) = sync_state_sender.send(SyncState::Stale) {
@@ -634,11 +635,11 @@ impl TextDocument {
 
                     // Update the latest source or continue
                     if matches!(delay, UpdateDelay::Yes) {
-                        latest_source = Some(source);
+                        latest_source = Some(new_source);
                         continue;
                     } else {
                         latest_source = None;
-                        source
+                        new_source
                     }
                 }
                 Err(..) => {
@@ -651,9 +652,6 @@ impl TextDocument {
                     source
                 }
             };
-
-            // Update the source
-            *source.write().await = new_source.clone();
 
             // Decode the source into a node
             let (node, DecodeInfo { messages, .. }) = match codecs::from_str_with_info(
