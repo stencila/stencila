@@ -648,12 +648,19 @@ fn prompt_block(input: &mut Located<&str>) -> PResult<Block> {
         (
             opt(preceded(multispace1, instruction_type)),
             opt(preceded(multispace1, prompt)),
+            opt(take_while(1.., |_| true)),
         ),
     )
-    .map(|(instruction_type, target)| {
+    .map(|(instruction_type, target, hint)| {
+        let hint = hint.and_then(|hint| {
+            let hint = hint.trim();
+            (!hint.is_empty()).then_some(hint)
+        });
+
         Block::PromptBlock(PromptBlock {
             instruction_type,
             target: target.map(String::from),
+            hint: hint.map(String::from),
             ..Default::default()
         })
     })
@@ -727,34 +734,36 @@ fn chat(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
         "chat",
         (
-            opt(preceded(multispace1, execution_mode)),
-            opt(preceded(multispace1, execution_bounds)),
+            opt(preceded(multispace1, instruction_type)),
             opt(preceded(multispace1, prompt)),
             opt(preceded(multispace1, model_parameters)),
-            opt(take_while(0.., |_| true)),
+            opt(take_while(1.., |_| true)),
         ),
     )
-    .map(
-        |(execution_mode, execution_bounds, prompt, model_parameters, _rest)| {
-            let prompt = prompt
-                .map(|prompt| PromptBlock {
-                    target: Some(prompt.into()),
-                    ..Default::default()
-                })
-                .unwrap_or_default();
+    .map(|(instruction_type, prompt, model_parameters, hint)| {
+        let hint = hint.and_then(|hint| {
+            let hint = hint.trim();
+            (!hint.is_empty()).then_some(hint)
+        });
 
-            let model_parameters = model_parameters.map(Box::new).unwrap_or_default();
-
-            Block::Chat(Chat {
-                prompt,
-                model_parameters,
-                execution_mode,
-                execution_bounds,
-                is_temporary: Some(false),
+        let prompt = prompt
+            .map(|prompt| PromptBlock {
+                instruction_type,
+                target: Some(prompt.into()),
+                hint: hint.map(String::from),
                 ..Default::default()
             })
-        },
-    )
+            .unwrap_or_default();
+
+        let model_parameters = model_parameters.map(Box::new).unwrap_or_default();
+
+        Block::Chat(Chat {
+            prompt,
+            model_parameters,
+            is_temporary: Some(false),
+            ..Default::default()
+        })
+    })
     .parse_next(input)
 }
 

@@ -86,68 +86,61 @@ impl MarkdownCodec for ModelParameters {
             if let Some(model_ids) = &self.model_ids {
                 if !model_ids.is_empty() {
                     context
-                        .push_str("[")
+                        .push_str(" [")
                         .push_prop_str(NodeProperty::ModelIds, &model_ids.join(", "))
-                        .push_str("] ");
+                        .push_str("]");
                 }
             }
 
             if let Some(value) = self.quality_weight {
                 if value != 0 {
                     context
-                        .push_str("q")
-                        .push_prop_str(NodeProperty::QualityWeight, &value.to_string())
-                        .push_str(" ");
+                        .push_str(" q")
+                        .push_prop_str(NodeProperty::QualityWeight, &value.to_string());
                 }
             }
 
             if let Some(value) = self.cost_weight {
                 if value != 0 {
                     context
-                        .push_str("c")
-                        .push_prop_str(NodeProperty::CostWeight, &value.to_string())
-                        .push_str(" ");
+                        .push_str(" c")
+                        .push_prop_str(NodeProperty::CostWeight, &value.to_string());
                 }
             }
 
             if let Some(value) = self.speed_weight {
                 if value != 0 {
                     context
-                        .push_str("s")
-                        .push_prop_str(NodeProperty::SpeedWeight, &value.to_string())
-                        .push_str(" ");
+                        .push_str(" s")
+                        .push_prop_str(NodeProperty::SpeedWeight, &value.to_string());
                 }
             }
 
             if let Some(value) = self.minimum_score {
                 if value != 100 {
                     context
-                        .push_str("m")
-                        .push_prop_str(NodeProperty::MinimumScore, &value.to_string())
-                        .push_str(" ");
+                        .push_str(" m")
+                        .push_prop_str(NodeProperty::MinimumScore, &value.to_string());
                 }
             }
 
             if let Some(value) = &self.temperature {
                 context
-                    .push_str("t")
-                    .push_prop_str(NodeProperty::Temperature, &value.to_string())
-                    .push_str(" ");
+                    .push_str(" t")
+                    .push_prop_str(NodeProperty::Temperature, &value.to_string());
             }
 
             if let Some(value) = &self.random_seed {
                 context
-                    .push_str("r")
-                    .push_prop_str(NodeProperty::RandomSeed, &value.to_string())
-                    .push_str(" ");
+                    .push_str(" r")
+                    .push_prop_str(NodeProperty::RandomSeed, &value.to_string());
             }
 
             if let Some(value) = self.replicates {
                 if value != 1 {
                     context
-                        .push_str("x")
-                        .push_prop_str(NodeProperty::Replicates, &value.to_string())
-                        .push_str(" ");
+                        .push_str(" x")
+                        .push_prop_str(NodeProperty::Replicates, &value.to_string());
                 }
             }
         }

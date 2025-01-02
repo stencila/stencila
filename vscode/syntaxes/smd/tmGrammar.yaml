@@ -262,7 +262,16 @@ repository:
       (?x)
       ^
         (:{3,})\s*
-        (chat|create|edit|fix|describe)
+        (?:
+          (?:
+            (chat)
+            (?:
+              \s+
+              (create|edit|fix|describe)\b
+            )?
+          )|
+          (create|edit|fix|describe)\b
+        )
         (?:
           \s+
           (always|auto|need|lock)\b
@@ -293,14 +302,16 @@ repository:
       $
     captures:
       "1": { name: markup.heading.stencila } # semicolons
-      "2": { name: keyword.control.stencila } # chat or instruction type
-      "3": { name: keyword.control.stencila } # mode
-      "4": { name: keyword.control.stencila } # bounds
-      "5": { name: support.function } # prompt
-      "6": { name: string.quoted } # model ids
-      "7": { name: variable.parameter.stencila } # model parameters
-      "8": { name: comment.stencila.instruction } # message
-      "9": { name: markup.heading.stencila } # ::: or >>>
+      "2": { name: keyword.control.stencila } # chat
+      "3": { name: keyword.control.stencila } # chat instruction type
+      "4": { name: keyword.control.stencila } # command instruction type
+      "5": { name: keyword.control.stencila } # mode
+      "6": { name: keyword.control.stencila } # bounds
+      "7": { name: support.function } # prompt
+      "8": { name: string.quoted } # model ids
+      "9": { name: variable.parameter.stencila } # model parameters
+      "10": { name: comment.stencila.instruction } # message
+      "11": { name: markup.heading.stencila } # ::: or >>>
 
   instruction-inline:
     name: meta.stencila.instruction-inline
@@ -499,7 +510,8 @@ repository:
       "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # prompt
       "3": { name: keyword.control.stencila } # instruction type
-      "4": { name: variable.name.stencila } # target
+      "4": { name: support.function } # target
+      "5": { name: comment.stencila.instruction } # hint
 
   ########## IncludeBlock ##########
 

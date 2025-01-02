@@ -1,7 +1,7 @@
 use codec_dom_trait::DomCodec;
 use common::serde_yaml;
 
-use crate::{prelude::*, Chat, ExecutionBounds, ExecutionMode, SuggestionBlock};
+use crate::{prelude::*, Chat, SuggestionBlock};
 
 impl Chat {
     /// Custom implementation of [`PatchNode::apply`]
@@ -27,8 +27,11 @@ impl Chat {
             return Ok(true);
         }
 
-        if let Some(PatchSlot::Property(NodeProperty::Content)) = path.front() {
-            // To allow for placeholder `::: chat` blocks in Markdown formats,
+        if matches!(
+            path.front(),
+            Some(PatchSlot::Property(NodeProperty::Content))
+        ) {
+            // To allow for placeholder `::: chat` blocks with no content in Markdown formats,
             // only apply patches to the content of the chat if the patch is
             // associated with no, or a lossless, format, or if it is a root
             // node (not nested)
@@ -40,7 +43,7 @@ impl Chat {
                 })?;
             }
 
-            // Return true, if if not applied so as to ignore
+            // Return true, even if not applied, so as to ignore op
             return Ok(true);
         }
 
@@ -73,42 +76,30 @@ impl MarkdownCodec for Chat {
             context
                 .enter_node(self.node_type(), self.node_id())
                 .push_colons()
-                .push_str(" chat ");
+                .push_str(" chat");
 
-            if let Some(mode) = &self.execution_mode {
-                if !matches!(mode, ExecutionMode::Default) {
-                    context
-                        .push_prop_str(
-                            NodeProperty::ExecutionMode,
-                            &mode.to_string().to_lowercase(),
-                        )
-                        .space();
-                }
-            }
-
-            if let Some(bounds) = &self.execution_bounds {
-                if !matches!(bounds, ExecutionBounds::Default) {
-                    context
-                        .push_prop_str(
-                            NodeProperty::ExecutionBounds,
-                            &bounds.to_string().to_lowercase(),
-                        )
-                        .space();
-                }
+            if let Some(instruction_type) = &self.prompt.instruction_type {
+                context.space().push_prop_str(
+                    NodeProperty::Prompt,
+                    &instruction_type.to_string().to_lowercase(),
+                );
             }
 
             if let Some(target) = &self.prompt.target {
                 context
-                    .push_str("@")
-                    .push_prop_str(NodeProperty::Prompt, target)
-                    .space();
+                    .push_str(" @")
+                    .push_prop_str(NodeProperty::Prompt, target);
             }
 
             context.push_prop_fn(NodeProperty::ModelParameters, |context| {
                 self.model_parameters.to_markdown(context);
             });
 
-            context.trim_end().push_str("\n\n").exit_node();
+            if let Some(hint) = &self.prompt.hint {
+                context.space().push_prop_str(NodeProperty::Prompt, hint);
+            }
+
+            context.push_str("\n\n").exit_node();
 
             return;
         }
