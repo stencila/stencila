@@ -550,36 +550,32 @@ impl MarkdownCodec for InstructionBlock {
         context
             .push_colons()
             .space()
-            .push_prop_str(NodeProperty::InstructionType, &instruction_type)
-            .space();
+            .push_prop_str(NodeProperty::InstructionType, &instruction_type);
 
         if let Some(mode) = &self.execution_mode {
             if !matches!(mode, ExecutionMode::Default) {
-                context
-                    .push_prop_str(
-                        NodeProperty::ExecutionMode,
-                        &mode.to_string().to_lowercase(),
-                    )
-                    .space();
+                context.space().push_prop_str(
+                    NodeProperty::ExecutionMode,
+                    &mode.to_string().to_lowercase(),
+                );
             }
         }
 
         if let Some(bounds) = &self.execution_bounds {
             if !matches!(bounds, ExecutionBounds::Default) {
-                context
-                    .push_prop_str(
-                        NodeProperty::ExecutionBounds,
-                        &bounds.to_string().to_lowercase(),
-                    )
-                    .space();
+                context.space().push_prop_str(
+                    NodeProperty::ExecutionBounds,
+                    &bounds.to_string().to_lowercase(),
+                );
             }
         }
 
         if let Some(prompt) = &self.prompt.target {
-            context
-                .push_str("@")
-                .push_prop_str(NodeProperty::Prompt, prompt)
-                .space();
+            if !prompt.ends_with("?") {
+                context
+                    .push_str(" @")
+                    .push_prop_str(NodeProperty::Prompt, prompt);
+            }
         }
 
         context.push_prop_fn(NodeProperty::ModelParameters, |context| {
@@ -587,7 +583,9 @@ impl MarkdownCodec for InstructionBlock {
         });
 
         context.push_prop_fn(NodeProperty::Message, |context| {
-            self.message.to_markdown(context)
+            context.space();
+            self.message.to_markdown(context);
+            context.trim_end();
         });
 
         // Show the active suggestion (if any) falling back to content (if any)

@@ -2,6 +2,34 @@ use codec_info::{lost_exec_options, lost_options};
 
 use crate::{prelude::*, PromptBlock};
 
+impl PromptBlock {
+    /// Custom implementation of [`PatchNode::apply`]
+    pub fn apply_patch_op(
+        &mut self,
+        path: &mut PatchPath,
+        op: &PatchOp,
+        context: &mut PatchContext,
+    ) -> Result<bool> {
+        if let (Some(PatchSlot::Property(NodeProperty::Target)), PatchOp::Set(value)) =
+            (path.front(), op)
+        {
+            if context.format_is_lossy()
+                && matches!(value, PatchValue::None)
+                && self
+                    .target
+                    .as_ref()
+                    .map(|target| target.ends_with("?"))
+                    .unwrap_or_default()
+            {
+                // Ignore attempt to clear inferred target
+                return Ok(true);
+            }
+        }
+
+        Ok(false)
+    }
+}
+
 impl MarkdownCodec for PromptBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         if matches!(context.format, Format::Llmd) {
@@ -58,9 +86,15 @@ impl MarkdownCodec for PromptBlock {
             }
 
             if let Some(target) = &self.target {
-                context
-                    .push_str(" @")
-                    .push_prop_str(NodeProperty::Target, target);
+                if !target.ends_with("?") {
+                    context
+                        .push_str(" @")
+                        .push_prop_str(NodeProperty::Target, target);
+                }
+            }
+
+            if let Some(hint) = &self.hint {
+                context.space().push_prop_str(NodeProperty::Hint, hint);
             }
         }
 

@@ -2468,6 +2468,9 @@ class PromptBlock(Executable):
     instruction_type: InstructionType | None = None
     """The type of instruction type of the prompt"""
 
+    hint: str | None = None
+    """A text hint used to infer the `target` prompt"""
+
     target: str | None = None
     """An identifier for the prompt to be rendered"""
 

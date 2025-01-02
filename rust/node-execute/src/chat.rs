@@ -9,18 +9,22 @@ use crate::{interrupt_impl, prelude::*};
 
 impl Executable for Chat {
     #[tracing::instrument(skip_all)]
-    async fn compile(&mut self, _executor: &mut Executor) -> WalkControl {
+    async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
         tracing::trace!("Compiling Chat {node_id}");
 
-        // Continue walk to compile nodes in `content` and `title`
+        // Call `prompt.compile` directly because a `PromptBlock` that
+        // is not a `Block::PromptBlock` variant is not walked over
+        self.prompt.compile(executor).await;
+
+        // Continue walk to compile other properties
         WalkControl::Continue
     }
 
     #[tracing::instrument(skip_all)]
     async fn prepare(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::debug!("Preparing Chat {node_id}");
+        tracing::trace!("Preparing Chat {node_id}");
 
         // Check if this chat is to be executed: node ids contain this chat.
         // This is more restrictive than other nodes types: a chat is only executed

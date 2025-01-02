@@ -740,20 +740,18 @@ fn chat(input: &mut Located<&str>) -> PResult<Block> {
             opt(take_while(1.., |_| true)),
         ),
     )
-    .map(|(instruction_type, prompt, model_parameters, hint)| {
+    .map(|(instruction_type, target, model_parameters, hint)| {
         let hint = hint.and_then(|hint| {
             let hint = hint.trim();
             (!hint.is_empty()).then_some(hint)
         });
 
-        let prompt = prompt
-            .map(|prompt| PromptBlock {
-                instruction_type,
-                target: Some(prompt.into()),
-                hint: hint.map(String::from),
-                ..Default::default()
-            })
-            .unwrap_or_default();
+        let prompt = PromptBlock {
+            instruction_type,
+            target: target.map(String::from),
+            hint: hint.map(String::from),
+            ..Default::default()
+        };
 
         let model_parameters = model_parameters.map(Box::new).unwrap_or_default();
 
@@ -908,18 +906,19 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                 model_parameters,
                 message,
             )| {
-                let prompt = prompt
-                    .map(|prompt| PromptBlock {
-                        target: Some(prompt.into()),
-                        ..Default::default()
-                    })
-                    .unwrap_or_default();
+                let mut prompt = PromptBlock {
+                    instruction_type: Some(instruction_type.clone()),
+                    target: prompt.map(String::from),
+                    hint: message.map(String::from),
+                    ..Default::default()
+                };
 
                 let model_parameters = model_parameters.map(Box::new).unwrap_or_default();
 
                 let (message, capacity) = match message {
                     Some(message) => {
                         let message = message.trim();
+
                         let (message, capacity) = if let Some(message) = message.strip_suffix(":::")
                         {
                             (message.trim_end(), None)
@@ -929,7 +928,12 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                             (message, Some(2))
                         };
 
-                        ((!message.is_empty()).then_some(message), capacity)
+                        let message = (!message.is_empty()).then_some(message);
+
+                        // Use the message as the hint for the target prompt
+                        prompt.hint = message.map(String::from);
+
+                        (message, capacity)
                     }
                     None => (None, Some(2)),
                 };

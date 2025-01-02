@@ -17,6 +17,11 @@ export class PromptBlock extends Executable {
   instructionType?: InstructionType;
 
   /**
+   * A text hint used to infer the `target` prompt
+   */
+  hint?: string;
+
+  /**
    * An identifier for the prompt to be rendered
    */
   target?: string;

@@ -55,6 +55,10 @@ impl Executable for InstructionBlock {
             ],
         );
 
+        // Call `prompt.compile` directly because a `PromptBlock` that
+        // is not a `Block::PromptBlock` variant is not walked over
+        self.prompt.compile(executor).await;
+
         WalkControl::Continue
     }
 

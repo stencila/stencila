@@ -26,6 +26,7 @@ use super::timestamp::Timestamp;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "PromptBlock")]
+#[patch(apply_with = "PromptBlock::apply_patch_op")]
 pub struct PromptBlock {
     /// The type of this item.
     pub r#type: MustBe!("PromptBlock"),
@@ -51,6 +52,10 @@ pub struct PromptBlock {
     #[serde(alias = "instruction-type", alias = "instruction_type")]
     #[patch(format = "md", format = "smd", format = "qmd")]
     pub instruction_type: Option<InstructionType>,
+
+    /// A text hint used to infer the `target` prompt
+    #[patch(format = "md", format = "smd", format = "qmd")]
+    pub hint: Option<String>,
 
     /// An identifier for the prompt to be rendered
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]

@@ -169,9 +169,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "hint",
       "rdfs:comment": "A hint to the value and/or structure of the variable.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Variable"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:PromptBlock"
+        },
+        {
+          "@id": "stencila:Variable"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "stencila:Hint"
       }

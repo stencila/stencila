@@ -264,6 +264,23 @@
       }
     },
     {
+      "@id": "stencila:hint",
+      "@type": "rdfs:Property",
+      "rdfs:label": "hint",
+      "rdfs:comment": "A text hint used to infer the `target` prompt",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:PromptBlock"
+        },
+        {
+          "@id": "stencila:Variable"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "schema:target",
       "@type": "rdfs:Property",
       "rdfs:label": "target",

@@ -1,8 +1,13 @@
-use std::{ops::Deref, path::Path, sync::Arc};
+use std::{
+    hash::{Hash, Hasher},
+    ops::Deref,
+    path::Path,
+    sync::Arc,
+};
 
 use common::{
     eyre::{OptionExt, Result},
-    rand::{self, Rng},
+    seahash::SeaHasher,
     tokio::sync::RwLock,
 };
 use kernels::Kernels;
@@ -17,12 +22,41 @@ impl Executable for PromptBlock {
         let node_id = self.node_id();
         tracing::trace!("Compiling PromptBlock {node_id}");
 
-        // Always change compile digest because if this has been
-        // called then likely document has changed and prompt should
-        // be considered stale
-        let mut rng = rand::thread_rng();
-        let state_digest = rng.gen();
+        let mut hash = SeaHasher::new();
+        if let Some(value) = &self.instruction_type {
+            value.to_string().hash(&mut hash);
+        }
+        if let Some(value) = &self.hint {
+            value.hash(&mut hash);
+        }
+        if let Some(value) = &self.target {
+            value.hash(&mut hash);
+        }
+        let state_digest = hash.finish();
+
         let compilation_digest = CompilationDigest::new(state_digest);
+
+        if self.target.is_none()
+            || (self
+                .target
+                .as_ref()
+                .map(|target| target.ends_with("?"))
+                .unwrap_or_default()
+                && Some(&compilation_digest) != self.options.compilation_digest.as_ref())
+        {
+            if let Some(prompt) =
+                prompts::infer(&self.instruction_type, &self.hint.as_deref()).await
+            {
+                let id = prompt
+                    .id
+                    .as_ref()
+                    .map(|id| prompts::shorten(&id, &self.instruction_type))
+                    .map(|id| [&id, "?"].concat());
+
+                self.target = id.clone();
+                executor.patch(&node_id, [set(NodeProperty::Target, id)]);
+            }
+        }
 
         let execution_required =
             execution_required_digests(&self.options.execution_digest, &compilation_digest);

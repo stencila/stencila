@@ -9,10 +9,13 @@ $comment: |
   Can also be used standalone to preview how a prompt is rendered at a particular
   position in a document.
 status: experimental
+patch:
+  applyWith: PromptBlock::apply_patch_op
 markdown:
   derive: false
 core:
   - instructionType
+  - hint
   - target
   - content
 properties:
@@ -20,6 +23,12 @@ properties:
     "@id": stencila:instructionType
     description: The type of instruction type of the prompt
     $ref: InstructionType
+    patch:
+      formats: [md, smd, qmd]
+  hint:
+    "@id": stencila:hint
+    description: A text hint used to infer the `target` prompt
+    type: string
     patch:
       formats: [md, smd, qmd]
   target:

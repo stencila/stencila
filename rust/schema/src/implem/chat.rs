@@ -86,9 +86,11 @@ impl MarkdownCodec for Chat {
             }
 
             if let Some(target) = &self.prompt.target {
-                context
-                    .push_str(" @")
-                    .push_prop_str(NodeProperty::Prompt, target);
+                if !target.ends_with("?") {
+                    context
+                        .push_str(" @")
+                        .push_prop_str(NodeProperty::Prompt, target);
+                }
             }
 
             context.push_prop_fn(NodeProperty::ModelParameters, |context| {
