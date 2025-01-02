@@ -43,6 +43,8 @@ old:
       instructionType: Create
       prompt:
         type: PromptBlock
+        instructionType: Create
+        hint: "top five highest mountains, with height in metres"
         target: table
       message:
         type: InstructionMessage
@@ -81,6 +83,8 @@ new:
       instructionType: Create
       prompt:
         type: PromptBlock
+        instructionType: Create
+        hint: "top five highest mountains, with height in feet"
         target: table
       message:
         type: InstructionMessage
@@ -141,6 +145,8 @@ merged:
       instructionType: Create
       prompt:
         type: PromptBlock
+        instructionType: Create
+        hint: "top five highest mountains, with height in feet"
         target: table
       message:
         type: InstructionMessage
@@ -186,6 +192,11 @@ merged:
       modelParameters:
         type: ModelParameters
 ops:
+  - - - content
+      - 1
+      - prompt
+      - hint
+    - Set: "top five highest mountains, with height in feet"
   - - - content
       - 1
       - message

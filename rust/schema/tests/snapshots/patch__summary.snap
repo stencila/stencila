@@ -18,7 +18,7 @@ ops_count:
   footnote-add-text: 1
   insert-code-and-heading: 1
   insert-one-paragraph: 1
-  instruction-modify-command: 1
+  instruction-modify-command: 2
   instruction-modify-inline: 2
   instruction-modify-text: 1
   instruction-with-footnode: 1
@@ -41,4 +41,4 @@ ops_count:
   unwrap-figure: 2
   wrap-emphasis: 2
   wrap-figure: 2
-ops_total: 60
+ops_total: 61

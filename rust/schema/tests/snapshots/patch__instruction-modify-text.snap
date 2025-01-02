@@ -21,6 +21,8 @@ old:
       instructionType: Edit
       prompt:
         type: PromptBlock
+        instructionType: Edit
+        hint: more succinct
       message:
         type: InstructionMessage
         parts:
@@ -76,6 +78,8 @@ new:
       instructionType: Edit
       prompt:
         type: PromptBlock
+        instructionType: Edit
+        hint: more succinct
       message:
         type: InstructionMessage
         parts:
@@ -115,6 +119,8 @@ merged:
       instructionType: Edit
       prompt:
         type: PromptBlock
+        instructionType: Edit
+        hint: more succinct
       message:
         type: InstructionMessage
         parts:
