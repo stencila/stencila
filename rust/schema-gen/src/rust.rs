@@ -164,17 +164,6 @@ impl Schemas {
             .join("\n");
 
         // Export all types from one file
-        let nodes = self
-            .schemas
-            .get("Node")
-            .and_then(|schema| schema.any_of.as_ref())
-            .expect("should always exist");
-        let node_types = nodes
-            .iter()
-            .filter_map(|schema| schema.r#ref.as_ref())
-            .map(|title| format!("    {title}"))
-            .join(",\n");
-
         write(
             dest.join("types.rs"),
             format!(
@@ -188,21 +177,68 @@ impl Schemas {
         .await?;
 
         //  Create an enum with unit variants for each node type
+        let nodes = self
+            .schemas
+            .get("Node")
+            .and_then(|schema| schema.any_of.as_ref())
+            .expect("should always exist");
+
+        let node_types = nodes
+            .iter()
+            .filter_map(|schema| schema.r#ref.as_ref())
+            .map(|title| format!("    {title},"))
+            .join("\n");
+
+        let nodes = nodes
+            .iter()
+            .filter_map(|schema| schema.r#ref.clone())
+            .collect_vec();
+        let nicks_to_types = self
+            .schemas
+            .iter()
+            .filter_map(|(title, schema)| {
+                if !nodes.contains(title) {
+                    return None;
+                }
+                let nick = match &schema.nick {
+                    Some(nick) => nick.to_string(),
+                    None => title.to_lowercase().chars().take(3).collect(),
+                };
+                Some(format!(r#"            "{nick}" => {title},"#))
+            })
+            .join("\n");
+
         write(
             PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../node-type/src/node_type.rs"),
             format!(
                 r#"{GENERATED_COMMENT}
 
 use common::{{
+    eyre::{{bail, Report}},
     serde::Serialize,
     strum::{{Display, EnumIter, EnumString}},
 }};
+
+use node_id::NodeId;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Display, EnumString, EnumIter)]
 #[serde(crate = "common::serde")]
 #[strum(crate = "common::strum")]
 pub enum NodeType {{
-{node_types},
+{node_types}
+}}
+
+
+impl TryFrom<&NodeId> for NodeType {{
+    type Error = Report;
+
+    fn try_from(value: &NodeId) -> Result<Self, Self::Error> {{
+        use NodeType::*;
+        Ok(match value.nick() {{
+{nicks_to_types}
+            nick => bail!("Unknown node nick `{{nick}}`")
+        }})
+    }}
 }}
 "#
             ),

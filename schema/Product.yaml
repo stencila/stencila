@@ -1,5 +1,6 @@
 title: Product
 '@id': schema:Product
+nick: prd
 extends: Thing
 category: other
 description: |

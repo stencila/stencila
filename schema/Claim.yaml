@@ -1,5 +1,6 @@
 title: Claim
 '@id': schema:Claim
+nick: clm
 extends: CreativeWork
 category: works
 description: A claim represents specific reviewable facts or statements.
