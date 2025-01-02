@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/Claim.schema.json",
   "@id": "schema:Claim",
   "title": "Claim",
+  "nick": "clm",
   "extends": [
     "CreativeWork"
   ],

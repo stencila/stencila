@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/PropertyValue.schema.json",
   "@id": "schema:PropertyValue",
   "title": "PropertyValue",
+  "nick": "prv",
   "extends": [
     "Thing"
   ],

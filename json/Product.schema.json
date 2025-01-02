@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/Product.schema.json",
   "@id": "schema:Product",
   "title": "Product",
+  "nick": "prd",
   "extends": [
     "Thing"
   ],
