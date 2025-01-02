@@ -1,14 +1,12 @@
-import { provide } from '@lit/context'
 import { MutationController } from '@lit-labs/observers/mutation-controller'
 import SlCarousel from '@shoelace-style/shoelace/dist/components/carousel/carousel'
 import SlCarouselItem from '@shoelace-style/shoelace/dist/components/carousel-item/carousel-item'
 import SlSplitPanel from '@shoelace-style/shoelace/dist/components/split-panel/split-panel'
 import { apply } from '@twind/core'
 import { css, html, PropertyValues } from 'lit'
-import { customElement, state } from 'lit/decorators'
+import { customElement, query, state } from 'lit/decorators'
 
 import { withTwind } from '../twind'
-import { ChatContext, chatContext } from '../ui/nodes/chat-context'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import { ChatMessage } from './chat-message'
@@ -26,15 +24,9 @@ import { PromptBlock } from './prompt-block'
  */
 @customElement('stencila-chat')
 @withTwind()
-export class StencilaChat extends Executable {
-  /**
-   * The chat context, used to update the UI of nodes within
-   * the chat according to its properties.
-   */
-  @provide({ context: chatContext })
-  private chatContext?: ChatContext = {
-    instructionType: undefined,
-  }
+export class Chat extends Executable {
+  @query('stencila-prompt-block')
+  prompt!: PromptBlock
 
   /**
    * A mutation controller used to update the instruction type of the chat
@@ -94,36 +86,6 @@ export class StencilaChat extends Executable {
     if (panel.position) {
       this.splitPosition = panel.position
     }
-  }
-
-  /**
-   * On a change to the prompt slot update the instruction
-   * type of the chat
-   */
-  private onPromptSlotChange({ target: slot }: Event) {
-    const promptElem = (slot as HTMLSlotElement).assignedElements()[0]
-    if (!(promptElem instanceof PromptBlock)) {
-      return
-    }
-
-    this.chatContext.instructionType = promptElem.instructionType
-
-    this.promptMutationController = new MutationController(this, {
-      target: promptElem,
-      config: {
-        attributes: true,
-      },
-      callback: (mutations) => {
-        for (const mutation of mutations) {
-          if (
-            mutation.target instanceof PromptBlock &&
-            mutation.attributeName === 'instruction-type'
-          ) {
-            this.chatContext.instructionType = mutation.target.instructionType
-          }
-        }
-      },
-    })
   }
 
   /**

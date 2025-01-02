@@ -1,8 +1,7 @@
-import { consume } from '@lit/context'
 import { InstructionType } from '@stencila/types'
 import { css } from '@twind/core'
 import { html } from 'lit'
-import { customElement, property, state } from 'lit/decorators'
+import { customElement, property } from 'lit/decorators'
 
 import {
   insertClone,
@@ -12,7 +11,6 @@ import {
 import { withTwind } from '../../../twind'
 import { closestGlobally } from '../../../utilities/closestGlobally'
 import { IconName } from '../../icons/icon'
-import { ChatContext, chatContext } from '../chat-context'
 import { UIBaseClass } from '../mixins/ui-base-class'
 
 /**
@@ -21,13 +19,6 @@ import { UIBaseClass } from '../mixins/ui-base-class'
 @customElement('stencila-ui-node-chat-commands')
 @withTwind()
 export class UINodeChatCommands extends UIBaseClass {
-  /**
-   * The current chat context
-   */
-  @consume({ context: chatContext, subscribe: true })
-  @state()
-  private chatContext?: ChatContext
-
   /**
    * The instruction type associated with the chat
    *
@@ -80,7 +71,7 @@ export class UINodeChatCommands extends UIBaseClass {
     // Do not show these commands for nodes not in a chat, or within a chat
     // but inside a suggestion block
     if (
-      !this.chatContext ||
+      !closestGlobally(this, 'stencila-chat') ||
       closestGlobally(this, 'stencila-suggestion-block')
     ) {
       return ''
