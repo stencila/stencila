@@ -181,6 +181,55 @@ pub async fn get(id: &str, instruction_type: &InstructionType) -> Result<PromptI
         .ok_or_else(|| eyre!("Unable to find prompt with id `{id}`"))
 }
 
+/// Infer a prompt
+pub async fn infer(
+    hint: &str,
+    instruction_type: &Option<InstructionType>,
+) -> Option<PromptInstance> {
+    let prompts = list().await;
+
+    // Filter the prompts to those that support the instruction type (if any supplied)
+    let prompts = prompts.into_iter().filter(|prompt| {
+        instruction_type
+            .as_ref()
+            .map(|instruction_type| prompt.instruction_types.contains(&instruction_type))
+            .unwrap_or(true)
+    });
+
+    // Count the number of characters in the instruction message that are matched by
+    // each of the patterns in each of the candidates
+    let counts = prompts
+        .filter_map(|prompt| {
+            let matches = prompt
+                .instruction_regexes
+                .iter()
+                .flat_map(|regex| regex.find_iter(hint).map(|found| found.len()))
+                .sum::<usize>();
+            // Let through those with any matches or that have no regexes (i.e. defaults)
+            (matches > 0 || prompt.instruction_regexes.is_empty()).then_some((prompt, matches))
+        })
+        .sorted_by(|(.., a), (.., b)| a.cmp(b).reverse());
+
+    // Get the prompt with the highest matches (or no regexes)
+    counts.map(|(prompt, ..)| prompt).next().take()
+}
+
+/// Attempt to shorten a prompt id, by removing "stencila/" and instruction type prefixes if possible
+pub fn shorten(id: &str, instruction_type: &Option<InstructionType>) -> String {
+    if let Some(rest) = id.strip_prefix("stencila/") {
+        if let Some(instruction_type) = instruction_type {
+            let prefix = [&instruction_type.to_string().to_lowercase(), "/"].concat();
+            if let Some(name) = rest.strip_prefix(&prefix) {
+                return name.into();
+            } else {
+                return rest.into();
+            }
+        }
+    }
+
+    id.into()
+}
+
 /// Builtin prompts
 ///
 /// During development these are loaded directly from the `prompts`

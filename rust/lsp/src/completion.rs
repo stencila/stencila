@@ -38,23 +38,23 @@ pub(super) async fn request(
         return Ok(None);
     };
 
-    // Get the source before the cursor
+    // Get the source before the cursor (up to start of line)
     let source = source.read().await;
-    let cursor = params.text_document_position.position;
+    let position = position_to_position16(params.text_document_position.position);
     let positions = Positions::new(&source);
-    let end = positions
-        .index_at_position16(position_to_position16(cursor))
-        .unwrap_or_else(|| source.chars().count());
-    let start = end.saturating_sub(16);
+    let Some(end) = positions.index_at_position16(position.clone()) else {
+        // Early return if the cursor position can not be resolve in current source
+        return Ok(None);
+    };
+    let start = source[..end].rfind('\n').map(|i| i + 1).unwrap_or(0);
     let take = end - start;
-    let source_before: String = source.chars().skip(start).take(take).collect();
+    let before: String = source.chars().skip(start).take(take).collect();
 
     // Dispatch based on source before cursor
-    if source_before.ends_with("::: prompt ")
-        || source_before.ends_with('@')
+    if before.starts_with(":::") && before.ends_with('@')
         || (trigger_kind == CompletionTriggerKind::TRIGGER_CHARACTER && trigger_character == "@")
     {
-        return prompt_completion(&source_before).await;
+        return prompt_completion(&before).await;
     }
 
     Ok(None)
@@ -62,18 +62,16 @@ pub(super) async fn request(
 
 /// Provide completion list for prompts of an instruction
 async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, ResponseError> {
-    let itype = if before.contains("::: create") {
+    let instruction_type = if before.contains("create ") {
         Some(InstructionType::Create)
-    } else if before.contains("::: edit") {
+    } else if before.contains("edit ") {
         Some(InstructionType::Edit)
-    } else if before.contains("::: fix") {
+    } else if before.contains("fix ") {
         Some(InstructionType::Fix)
-    } else if before.contains("::: describe") {
+    } else if before.contains("describe ") {
         Some(InstructionType::Describe)
-    } else if before.contains("::: prompt") {
-        None
     } else {
-        return Ok(None);
+        None
     };
 
     let items = prompts::list()
@@ -92,8 +90,8 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
                 return None;
             };
 
-            if let Some(itype) = &itype {
-                if !instruction_types.contains(itype) {
+            if let Some(instruction_type) = &instruction_type {
+                if !instruction_types.contains(instruction_type) {
                     return None;
                 }
             }
@@ -114,18 +112,7 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
                 CompletionItemKind::INTERFACE
             };
 
-            // If this is a Stencila prompt then strip the redundant prefix
-            let label = if let Some(itype) = &itype {
-                let stencila_prefix =
-                    ["stencila/", &itype.to_string().to_lowercase(), "/"].concat();
-                if let Some(id) = id.strip_prefix(&stencila_prefix) {
-                    id.to_string()
-                } else {
-                    id.to_string()
-                }
-            } else {
-                id.to_string()
-            };
+            let label = prompts::shorten(id, &instruction_type);
 
             let version = match version {
                 StringOrNumber::String(version) => version.to_string(),
