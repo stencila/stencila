@@ -662,15 +662,27 @@ pub(super) async fn execute_command(
 
             let root = root.read().await;
 
-            // Get any blocks spanning the range
-            let node_ids = root.block_ids_spanning(range);
+            eprintln!("{instruction_type:?}");
 
-            // Get the node types of the blocks to use to infer prompt
-            let node_types: Vec<NodeType> = node_ids
-                .iter()
-                .map(|node_id| NodeType::try_from(node_id))
-                .try_collect()
-                .map_err(internal_error)?;
+            // Get the ids and types of any blocks spanning the range to infer prompt
+            let (node_ids, node_types) =
+                if matches!(instruction_type, Some(InstructionType::Create)) {
+                    // If an explicit create instruction, then ignore nodes spanning
+                    // range (likely that cursor accidentally on boundary and user does not
+                    // want to use them as suggestions etc)
+                    (Vec::new(), Vec::new())
+                } else {
+                    // Get any blocks spanning the range
+                    let node_ids = root.block_ids_spanning(range);
+
+                    let node_types: Vec<NodeType> = node_ids
+                        .iter()
+                        .map(|node_id| NodeType::try_from(node_id))
+                        .try_collect()
+                        .map_err(internal_error)?;
+
+                    (node_ids, node_types)
+                };
 
             // Infer the instruction type based on the number of blocks selected
             // and whether they have andy errors
