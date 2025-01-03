@@ -361,90 +361,125 @@ nodeTypes: []
     )
   );
 
-  // Create a new temporary `Chat`
+  // Create a temporary chat
+  // If the instruction type is not supplied it is inferred from the selected node
+  // types (if any)
   context.subscriptions.push(
-    vscode.commands.registerCommand(`stencila.invoke.create-chat`, async () => {
-      const editor = vscode.window.activeTextEditor;
-      if (!editor) {
-        vscode.window.showErrorMessage("No active editor");
-        return;
-      }
+    vscode.commands.registerCommand(
+      `stencila.insert-chat`,
+      async (instructionType) => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
+        }
 
-      const chatId = await vscode.commands.executeCommand<string>(
-        "stencila.create-chat",
-        editor.document.uri.toString(),
-        editor.selection
-      );
-
-      const panel = await createNodeViewPanel(
-        context,
-        editor.document.uri,
-        editor.selection.active,
-        "Temporary chat",
-        chatId
-      );
-
-      panel.onDidDispose(async () => {
-        await vscode.commands.executeCommand<string>(
-          "stencila.delete-chat",
+        const chatId = await vscode.commands.executeCommand<string>(
+          "stencila.create-chat",
           editor.document.uri.toString(),
-          chatId
+          editor.selection,
+          instructionType
         );
-      });
+
+        const panel = await createNodeViewPanel(
+          context,
+          editor.document.uri,
+          editor.selection.active,
+          "Temporary chat",
+          chatId,
+          false,
+          vscode.ViewColumn.Active
+        );
+
+        panel.onDidDispose(async () => {
+          await vscode.commands.executeCommand(
+            "stencila.delete-chat",
+            editor.document.uri.toString(),
+            chatId
+          );
+        });
+      }
+    )
+  );
+
+  // Create a temporary `Create` chat
+  context.subscriptions.push(
+    vscode.commands.registerCommand(`stencila.insert-chat-create`, async () => {
+      await vscode.commands.executeCommand("stencila.insert-chat", "Create");
+    })
+  );
+
+  // Create a temporary `Edit` chat
+  context.subscriptions.push(
+    vscode.commands.registerCommand(`stencila.insert-chat-edit`, async () => {
+      await vscode.commands.executeCommand("stencila.insert-chat", "Edit");
+    })
+  );
+
+  // Create a temporary `Fix` chat
+  context.subscriptions.push(
+    vscode.commands.registerCommand(`stencila.insert-chat-fix`, async () => {
+      await vscode.commands.executeCommand("stencila.insert-chat", "Fix");
     })
   );
 
   // Insert a `create` command
   context.subscriptions.push(
-    vscode.commands.registerCommand(`stencila.insert-create`, async () => {
-      const editor = vscode.window.activeTextEditor;
-      if (!editor) {
-        vscode.window.showErrorMessage("No active editor");
-        return;
-      }
-
-      let prompt = null;
-      const item: { prompt: { id: string } } =
-        await vscode.commands.executeCommand("stencila.prompts.menu", "Create");
-      if (item) {
-        prompt = item.prompt.id;
-      }
-
-      let message = await vscode.window.showInputBox({
-        title: "Instructions",
-        placeHolder:
-          "Describe what you want created (end with '...' for more options)",
-        ignoreFocusOut: true,
-      });
-
-      let models = null;
-      if (message?.endsWith("...")) {
-        message = message.slice(0, -3);
-
-        const items: { model: { id: string } }[] =
-          await vscode.commands.executeCommand("stencila.models.picker");
-        if (items && items.length > 0) {
-          models = items.map((item) => item.model.id);
+    vscode.commands.registerCommand(
+      `stencila.insert-command-create`,
+      async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
         }
+
+        let prompt = null;
+        const item: { prompt: { id: string } } =
+          await vscode.commands.executeCommand(
+            "stencila.prompts.menu",
+            "Create"
+          );
+        if (item) {
+          prompt = item.prompt.id;
+        }
+
+        let message = await vscode.window.showInputBox({
+          title: "Instructions",
+          placeHolder:
+            "Describe what you want created (end with '...' for more options)",
+          ignoreFocusOut: true,
+        });
+
+        let models = null;
+        if (message?.endsWith("...")) {
+          message = message.slice(0, -3);
+
+          const items: { model: { id: string } }[] =
+            await vscode.commands.executeCommand("stencila.models.picker");
+          if (items && items.length > 0) {
+            models = items.map((item) => item.model.id);
+          }
+        }
+
+        const nodeId = await vscode.commands.executeCommand<string>(
+          "stencila.insert-node",
+          editor.document.uri.toString(),
+          editor.selection.active,
+          "InstructionBlock",
+          "Create",
+          prompt,
+          message,
+          models
+        );
+
+        await vscode.commands.executeCommand(
+          "stencila.run-node",
+          editor.document.uri.toString(),
+          "InstructionBlock",
+          nodeId
+        );
       }
-
-      const nodeId = await vscode.commands.executeCommand<string>(
-        "stencila.insert-node",
-        editor.document.uri.toString(),
-        editor.selection.active,
-        "InstructionBlock",
-        "Create",
-        prompt,
-        message,
-        models
-      );
-
-      await vscode.commands.executeCommand(
-        "stencila.run-node",
-        editor.document.uri.toString(),
-        "InstructionBlock",
-        nodeId
-      );
-    })
+    )
   );
 }

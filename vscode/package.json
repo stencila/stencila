@@ -196,27 +196,42 @@
         "icon": "$(comment-discussion)"
       },
       {
-        "command": "stencila.invoke.create-chat",
+        "command": "stencila.insert-chat",
         "category": "Stencila",
-        "title": "Start a chat here",
+        "title": "Start a chat",
         "icon": "$(comment-discussion)"
       },
       {
-        "command": "stencila.insert-create",
+        "command": "stencila.insert-chat-create",
         "category": "Stencila",
-        "title": "Create a block here",
+        "title": "Chat to create"
+      },
+      {
+        "command": "stencila.insert-chat-edit",
+        "category": "Stencila",
+        "title": "Chat to edit"
+      },
+      {
+        "command": "stencila.insert-chat-fix",
+        "category": "Stencila",
+        "title": "Chat to fix"
+      },
+      {
+        "command": "stencila.insert-command-create",
+        "category": "Stencila",
+        "title": "Command to create",
         "icon": "$(sparkle)"
       },
       {
-        "command": "stencila.insert-edit",
+        "command": "stencila.insert-command-edit",
         "category": "Stencila",
-        "title": "Edit this block",
+        "title": "Command to edit",
         "icon": "$(pencil)"
       },
       {
-        "command": "stencila.insert-fix",
+        "command": "stencila.insert-command-fix",
         "category": "Stencila",
-        "title": "Fix this block",
+        "title": "Command to fix",
         "icon": "$(wrench)"
       },
       {
@@ -481,7 +496,7 @@
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
       },
       {
-        "command": "stencila.invoke.create-chat",
+        "command": "stencila.insert-chat",
         "key": "ctrl+/",
         "mac": "cmd+/",
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
@@ -684,22 +699,22 @@
       ],
       "editor/context": [
         {
-          "command": "stencila.invoke.create-chat",
+          "command": "stencila.insert-chat",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@1"
         },
         {
-          "command": "stencila.insert-create",
+          "command": "stencila.insert-chat-create",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@2"
         },
         {
-          "command": "stencila.insert-edit",
+          "command": "stencila.insert-chat-edit",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@3"
         },
         {
-          "command": "stencila.insert-fix",
+          "command": "stencila.insert-chat-fix",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@4"
         },

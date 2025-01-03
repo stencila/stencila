@@ -652,26 +652,66 @@ pub(super) async fn execute_command(
         }
         CREATE_CHAT => {
             let range = range_arg(args.next())?;
+            let instruction_type = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok());
 
             let root = root.read().await;
 
             // Get any blocks spanning the range
-            let blocks = root.block_ids_spanning(range);
+            let node_ids = root.block_ids_spanning(range);
 
             // Get the node types of the blocks to use to infer prompt
-            let node_types: Vec<String> = blocks
+            let node_types: Vec<NodeType> = node_ids
                 .iter()
-                .map(|node_id| NodeType::try_from(node_id).map(|node_type| node_type.to_string()))
+                .map(|node_id| NodeType::try_from(node_id))
                 .try_collect()
                 .map_err(internal_error)?;
-            let node_types = (!node_types.is_empty()).then_some(node_types);
+
+            // Infer the instruction type based on the number of blocks selected
+            // and whether they have andy errors
+            let instruction_type = if instruction_type.is_some() {
+                instruction_type
+            } else if node_types.is_empty() {
+                Some(InstructionType::Create)
+            } else if let (1, Some(NodeType::CodeChunk | NodeType::MathBlock)) =
+                (node_types.len(), node_types.first())
+            {
+                // Check if the executable has errors
+                let doc = doc.read().await;
+                let root = doc.root_read().await;
+                let node_id = node_ids.first().cloned().unwrap();
+                let node = find(&*root, node_id).unwrap();
+
+                let messages = match node {
+                    Node::CodeChunk(node) => {
+                        node.options.execution_messages.iter().flatten().count()
+                    }
+                    _ => 0,
+                };
+
+                if messages > 0 {
+                    Some(InstructionType::Fix)
+                } else {
+                    Some(InstructionType::Edit)
+                }
+            } else {
+                Some(InstructionType::Edit)
+            };
+
+            let node_types = (!node_types.is_empty()).then_some(
+                node_types
+                    .iter()
+                    .map(|node_type| node_type.to_string())
+                    .collect_vec(),
+            );
 
             // If any, add them to the suggestions as the original
-            let suggestions = if !blocks.is_empty() {
+            let suggestions = if !node_ids.is_empty() {
                 // Get clones of the blocks
                 let doc = doc.read().await;
                 let root = &*doc.root_read().await;
-                let content = blocks
+                let content = node_ids
                     .into_iter()
                     .filter_map(|node_id| find(root, node_id))
                     .filter_map(|node| Block::try_from(node).ok())
@@ -695,6 +735,7 @@ pub(super) async fn execute_command(
 
             let chat = Chat {
                 prompt: PromptBlock {
+                    instruction_type,
                     node_types,
                     ..Default::default()
                 },
@@ -715,6 +756,9 @@ pub(super) async fn execute_command(
                     PatchPath::from(NodeProperty::Temporary),
                     PatchOp::Push(PatchValue::Node(Node::Chat(chat))),
                 )],
+                // Run compile so that that chat's prompt block is compiled
+                // to infer the target prompt
+                compile: true,
                 ..Default::default()
             };
 
