@@ -1,4 +1,8 @@
-use std::{ops::Deref, path::Path, sync::Arc};
+use std::{
+    ops::Deref,
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
 use common::{
     eyre::{OptionExt, Result},
@@ -25,6 +29,7 @@ impl Executable for PromptBlock {
 
         let compilation_digest = CompilationDigest::new(state_digest);
 
+        // Infer prompt if appropriate
         if self.target.is_none()
             || (self
                 .target
@@ -51,6 +56,38 @@ impl Executable for PromptBlock {
             }
         }
 
+        // Populate prompt content so it is preview-able to the user
+        let messages = if let Some(target) = &self.target {
+            let target = prompts::expand(&target, &self.instruction_type);
+            match prompts::get(&target).await {
+                Ok(prompt) => {
+                    // Replicate the content of the prompt so that the prompt block has different ids.
+                    // Given that the same prompt could be used multiple times in a doc, if we don't
+                    // do this there could be clashes.
+                    let content = replicate(&prompt.content).unwrap_or_default();
+
+                    // Set content here and via patch
+                    self.content = Some(content.clone());
+                    executor.patch(
+                        &node_id,
+                        [
+                            // It is important to use `none` and `append` here because
+                            // the latter retains node ids so they are the same as in `self.content`
+                            // TODO: consider doing a merge rather than full replacement. Replacement
+                            // seems to cause large, slow diffs in DOMs (do to a whole lot of new ids?)
+                            none(NodeProperty::Content),
+                            append(NodeProperty::Content, content),
+                        ],
+                    );
+
+                    None
+                }
+                Err(error) => Some(vec![error_to_compilation_message(error)]),
+            }
+        } else {
+            None
+        };
+
         let execution_required =
             execution_required_digests(&self.options.execution_digest, &compilation_digest);
 
@@ -60,6 +97,7 @@ impl Executable for PromptBlock {
             &node_id,
             [
                 set(NodeProperty::CompilationDigest, compilation_digest),
+                set(NodeProperty::CompilationMessages, messages),
                 set(NodeProperty::ExecutionRequired, execution_required),
             ],
         );
@@ -102,51 +140,12 @@ impl Executable for PromptBlock {
         self.options.execution_status = Some(status.clone());
         executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
 
-        // Get the prompt
-        // TODO: separate error if target is None
-        let target = self.target.clone().unwrap_or_default();
-        let instruction_type = self.instruction_type.clone().unwrap_or_default();
-        let prompt = match prompts::get(&target, &instruction_type).await {
-            Ok(prompt) => prompt,
-            Err(error) => {
-                executor.patch(
-                    &node_id,
-                    [
-                        set(NodeProperty::ExecutionStatus, ExecutionStatus::Exceptions),
-                        set(
-                            NodeProperty::ExecutionMessages,
-                            vec![error_to_execution_message("While getting prompt", error)],
-                        ),
-                    ],
-                );
-                return WalkControl::Break;
-            }
-        };
-
         let started = Timestamp::now();
         let mut messages = Vec::new();
 
-        // Replicate the content of the prompt so that the prompt block has different ids.
-        // Given that the same prompt could be used multiple times in a doc, if we don't
-        // do this there could be clashes.
-        let content = replicate(&prompt.content).unwrap_or_default();
-
-        // Set content here and via patch
-        self.content = Some(content.clone());
-        executor.patch(
-            &node_id,
-            [
-                // It is important to use `none` and `append` here because
-                // the latter retains node ids so they are the same as in `self.content`
-                // TODO: consider doing a merge rather than full replacement. Replacement
-                // seems to cause large, slow diffs in DOMs (do to a whole lot of new ids?)
-                none(NodeProperty::Content),
-                append(NodeProperty::Content, content),
-            ],
-        );
-
         // Execute content of prompt
-        let home = prompt.home();
+        // TODO: store prompt home between compile and execute
+        let home = PathBuf::new(); //prompt.home();
         match prompt_executor(&home, executor).await {
             Ok(mut prompt_executor) => {
                 prompt_executor.directory_stack.push(home);

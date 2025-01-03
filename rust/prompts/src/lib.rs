@@ -212,22 +212,11 @@ pub async fn list() -> Vec<PromptInstance> {
 }
 
 /// Get a prompt by id
-pub async fn get(id: &str, instruction_type: &InstructionType) -> Result<PromptInstance> {
-    let id = if id.contains('/') {
-        id.to_string()
-    } else {
-        let instruction_type = [&instruction_type.to_string().to_lowercase(), "/"].concat();
-        if !id.starts_with(&instruction_type) {
-            ["stencila/", &instruction_type, id].concat()
-        } else {
-            ["stencila/", id].concat()
-        }
-    };
-
+pub async fn get(id: &str) -> Result<PromptInstance> {
     list()
         .await
         .into_iter()
-        .find(|prompt| prompt.id.as_ref() == Some(&id))
+        .find(|prompt| prompt.id.as_deref() == Some(id))
         .ok_or_else(|| eyre!("Unable to find prompt with id `{id}`"))
 }
 
@@ -287,6 +276,31 @@ pub async fn infer(
             .sorted_by(|prompt_a, prompt_b| prompt_a.generality.cmp(&prompt_b.generality))
             .next()
             .take()
+    }
+}
+
+/// Expand a prompt id by removing any "?"" suffix (used to indicate inferred prompt)
+/// and instruction type and "stencila/" prefixes if appropriate
+pub fn expand(id: &str, instruction_type: &Option<InstructionType>) -> String {
+    let id = id.strip_suffix("?").unwrap_or(id).to_string();
+
+    let parts = id.split('/').count();
+    match parts {
+        1 => {
+            if let Some(instruction_type) = instruction_type {
+                [
+                    "stencila/",
+                    &instruction_type.to_string().to_lowercase(),
+                    "/",
+                    &id,
+                ]
+                .concat()
+            } else {
+                ["stencila/create/", &id].concat()
+            }
+        }
+        2 => ["stencila/", &id].concat(),
+        _ => id,
     }
 }
 
@@ -507,55 +521,6 @@ async fn update_builtin() -> Result<()> {
     .await?;
 
     Ok(())
-}
-
-/// Select the most appropriate prompt for an instruction
-pub async fn select(
-    instruction_type: &InstructionType,
-    message: &InstructionMessage,
-    prompt: &Option<String>,
-    _node_types: &Option<Vec<String>>,
-) -> Result<PromptInstance> {
-    let prompts = list().await;
-
-    // If there is a prompt specified then get it
-    if let Some(prompt) = prompt {
-        return get(prompt, instruction_type).await;
-    }
-
-    // Filter the prompts to those that support the instruction type
-    let prompts = prompts
-        .into_iter()
-        .filter(|prompt| prompt.instruction_types.contains(instruction_type));
-
-    // Get the text of the message to match prompts against
-    let message_text = message
-        .parts
-        .iter()
-        .filter_map(|part| match part {
-            MessagePart::Text(text) => Some(text.value.string.clone()),
-            _ => None,
-        })
-        .join("");
-
-    // Count the number of characters in the instruction message that are matched by
-    // each of the patterns in each of the candidates
-    let counts = prompts
-        .filter_map(|prompt| {
-            let matches = prompt
-                .instruction_regexes
-                .iter()
-                .flat_map(|regex| regex.find_iter(&message_text).map(|found| found.len()))
-                .sum::<usize>();
-            // Let through those with any matches or that have no regexes (i.e. defaults)
-            (matches > 0 || prompt.instruction_regexes.is_empty()).then_some((prompt, matches))
-        })
-        .sorted_by(|(.., a), (.., b)| a.cmp(b).reverse());
-
-    // Get the prompt with the highest matches (or no regexes)
-    let prompt = counts.map(|(prompt, ..)| prompt).next().take();
-
-    prompt.ok_or_eyre("No prompts found for instruction")
 }
 
 /// Execute an [`InstructionBlock`]

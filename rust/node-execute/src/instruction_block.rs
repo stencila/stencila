@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 use codec_cbor::r#trait::CborCodec;
 use codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
 use codecs::Format;
@@ -134,44 +132,13 @@ impl Executable for InstructionBlock {
         let mut messages = Vec::new();
 
         // Determine the types of nodes in the content of the instruction
-        let node_types = self
+        // TODO: reinstate use of node_types
+        let _ = self
             .content
             .iter()
             .flatten()
             .map(|block| block.node_type().to_string())
             .collect_vec();
-
-        // Select the best prompt for the instruction
-        let prompt = match prompts::select(
-            &self.instruction_type,
-            &self.message,
-            &self.prompt.target,
-            &Some(node_types),
-        )
-        .await
-        {
-            Ok(prompt) => prompt,
-            Err(error) => {
-                messages.push(error_to_execution_message("While selecting prompt", error));
-
-                executor.patch(
-                    &node_id,
-                    [
-                        set(NodeProperty::ExecutionStatus, ExecutionStatus::Errors),
-                        set(
-                            NodeProperty::ExecutionRequired,
-                            ExecutionRequired::ExecutionFailed,
-                        ),
-                        set(NodeProperty::ExecutionMessages, messages),
-                    ],
-                );
-
-                return WalkControl::Continue;
-            }
-        };
-
-        // Set the prompt target property locally for execution
-        self.prompt.target = Some(prompt.id.clone().unwrap_or_default());
 
         // Execute the `PromptBlock`. The instruction context needs to
         // be set for the prompt context to be complete (i.e. include `instruction` variable)
@@ -187,7 +154,8 @@ impl Executable for InstructionBlock {
         // Create an author role for the prompt
         let prompter = AuthorRole {
             last_modified: Some(Timestamp::now()),
-            ..prompt.deref().clone().into()
+            ..Default::default() // TODO: reinstate getting the author role for the prompt
+                                 //..prompt.deref().clone().into()
         };
 
         // Get the authors of the instruction

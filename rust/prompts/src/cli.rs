@@ -3,12 +3,13 @@ use cli_utils::{
     AsFormat, Code, ToStdout,
 };
 use codecs::{EncodeOptions, Format};
+use common::itertools::Itertools;
 use model::{
     common::{
         clap::{self, Args, Parser, Subcommand},
         eyre::Result,
     },
-    schema::{InstructionMessage, InstructionType, Node, Prompt, StringOrNumber},
+    schema::{InstructionType, Node, Prompt, StringOrNumber},
 };
 
 /// Manage prompts
@@ -22,7 +23,7 @@ pub struct Cli {
 enum Command {
     List(List),
     Show(Show),
-    Select(Select),
+    Infer(Infer),
     Update(Update),
     Reset(Reset),
 }
@@ -37,7 +38,7 @@ impl Cli {
         match command {
             Command::List(list) => list.run().await?,
             Command::Show(show) => show.run().await?,
-            Command::Select(select) => select.run().await?,
+            Command::Infer(infer) => infer.run().await?,
             Command::Update(update) => update.run().await?,
             Command::Reset(update) => update.run().await?,
         }
@@ -116,7 +117,7 @@ struct Show {
 
 impl Show {
     async fn run(self) -> Result<()> {
-        let prompt = super::get(&self.id, &InstructionType::Create).await?;
+        let prompt = super::get(&self.id).await?;
 
         let content = codecs::to_string(
             &Node::Prompt(prompt.inner),
@@ -133,29 +134,34 @@ impl Show {
     }
 }
 
-/// Select a prompt
+/// Infer a prompt from a hint
 ///
-/// Useful for checking which prompt will be matched to a given instruction
+/// Useful for checking which prompt will be matched to a given
+/// instruction type, node types, and/or hint
 #[derive(Debug, Args)]
-struct Select {
-    /// The type of instruction
-    r#type: InstructionType,
+struct Infer {
+    /// The instruction type
+    #[arg(short, long)]
+    instruction_type: Option<InstructionType>,
 
-    /// The instruction message
-    message: String,
+    /// The node types
+    #[arg(short, long)]
+    node_types: Option<String>,
+
+    /// The hint
+    hint: Option<String>,
 }
 
-impl Select {
+impl Infer {
     async fn run(self) -> Result<()> {
-        let prompt = super::select(
-            &self.r#type,
-            &InstructionMessage::from(self.message),
-            &None,
-            &None,
-        )
-        .await?;
+        let node_types = self
+            .node_types
+            .map(|value| value.split(",").map(String::from).collect_vec());
 
-        println!("{}", prompt.id.clone().unwrap_or_default());
+        match super::infer(&self.instruction_type, &node_types, &self.hint.as_deref()).await {
+            Some(prompt) => println!("{}", prompt.id.clone().unwrap_or_default()),
+            None => println!("Unable to infer prompt"),
+        };
 
         Ok(())
     }
