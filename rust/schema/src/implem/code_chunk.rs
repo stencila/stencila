@@ -2,10 +2,37 @@ use codec_info::{lost_exec_options, lost_options};
 use codec_markdown_trait::to_markdown;
 
 use crate::{
-    prelude::*, CodeChunk, Duration, ExecutionBounds, ExecutionMode, LabelType, Timestamp,
+    prelude::*, CodeChunk, Duration, ExecutionBounds, ExecutionMode, LabelType, MessageLevel,
+    Timestamp,
 };
 
 use super::utils::caption_to_dom;
+
+impl CodeChunk {
+    pub fn has_warnings_errors_or_exceptions(&self) -> bool {
+        self.options
+            .compilation_messages
+            .iter()
+            .flatten()
+            .any(|message| {
+                matches!(
+                    message.level,
+                    MessageLevel::Warning | MessageLevel::Error | MessageLevel::Exception
+                )
+            })
+            || self
+                .options
+                .execution_messages
+                .iter()
+                .flatten()
+                .any(|message| {
+                    matches!(
+                        message.level,
+                        MessageLevel::Warning | MessageLevel::Error | MessageLevel::Exception
+                    )
+                })
+    }
+}
 
 impl DomCodec for CodeChunk {
     fn to_dom(&self, context: &mut DomEncodeContext) {

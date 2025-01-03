@@ -655,6 +655,10 @@ pub(super) async fn execute_command(
             let instruction_type = args
                 .next()
                 .and_then(|value| serde_json::from_value(value).ok());
+            let execute_chat: bool = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok())
+                .unwrap_or_default();
 
             let root = root.read().await;
 
@@ -677,21 +681,19 @@ pub(super) async fn execute_command(
             } else if let (1, Some(NodeType::CodeChunk | NodeType::MathBlock)) =
                 (node_types.len(), node_types.first())
             {
-                // Check if the executable has errors
-                let doc = doc.read().await;
-                let root = doc.root_read().await;
-                let node_id = node_ids.first().cloned().unwrap();
-                let node = find(&*root, node_id).unwrap();
-
-                let messages = match node {
-                    Node::CodeChunk(node) => {
-                        node.options.execution_messages.iter().flatten().count()
+                // Check if the node has warnings or errors and
+                if let Some(node_id) = node_ids.first() {
+                    let doc = doc.read().await;
+                    let root = doc.root_read().await;
+                    if match find(&*root, node_id.clone()) {
+                        Some(Node::CodeChunk(node)) => node.has_warnings_errors_or_exceptions(),
+                        Some(Node::MathBlock(node)) => node.has_warnings_errors_or_exceptions(),
+                        _ => false,
+                    } {
+                        Some(InstructionType::Fix)
+                    } else {
+                        Some(InstructionType::Edit)
                     }
-                    _ => 0,
-                };
-
-                if messages > 0 {
-                    Some(InstructionType::Fix)
                 } else {
                     Some(InstructionType::Edit)
                 }
@@ -748,8 +750,9 @@ pub(super) async fn execute_command(
                 }),
                 ..Default::default()
             };
+            let chat_id = chat.node_id();
 
-            return_value = Some(serde_json::Value::String(chat.node_id().to_string()));
+            return_value = Some(serde_json::Value::String(chat_id.to_string()));
 
             let patch = Patch {
                 ops: vec![(
@@ -759,6 +762,8 @@ pub(super) async fn execute_command(
                 // Run compile so that that chat's prompt block is compiled
                 // to infer the target prompt
                 compile: true,
+                // Execute if specified
+                execute: execute_chat.then_some(vec![chat_id]),
                 ..Default::default()
             };
 

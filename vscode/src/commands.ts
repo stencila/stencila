@@ -362,12 +362,13 @@ nodeTypes: []
   );
 
   // Create a temporary chat
+  //
   // If the instruction type is not supplied it is inferred from the selected node
-  // types (if any)
+  // types (if any). Defaults to running the chat straightaway.
   context.subscriptions.push(
     vscode.commands.registerCommand(
       `stencila.insert-chat`,
-      async (instructionType) => {
+      async (instructionType, executeChat) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
           vscode.window.showErrorMessage("No active editor");
@@ -378,7 +379,8 @@ nodeTypes: []
           "stencila.create-chat",
           editor.document.uri.toString(),
           editor.selection,
-          instructionType
+          instructionType,
+          executeChat ?? true
         );
 
         const panel = await createNodeViewPanel(
@@ -402,24 +404,36 @@ nodeTypes: []
     )
   );
 
-  // Create a temporary `Create` chat
+  // Create a `Create` chat but do not run it straightaway
   context.subscriptions.push(
     vscode.commands.registerCommand(`stencila.insert-chat-create`, async () => {
-      await vscode.commands.executeCommand("stencila.insert-chat", "Create");
+      await vscode.commands.executeCommand(
+        "stencila.insert-chat",
+        "Create",
+        false
+      );
     })
   );
 
-  // Create a temporary `Edit` chat
+  // Create a `Edit` chat but do not run it straightaway
   context.subscriptions.push(
     vscode.commands.registerCommand(`stencila.insert-chat-edit`, async () => {
-      await vscode.commands.executeCommand("stencila.insert-chat", "Edit");
+      await vscode.commands.executeCommand(
+        "stencila.insert-chat",
+        "Edit",
+        false
+      );
     })
   );
 
-  // Create a temporary `Fix` chat
+  // Create a `Fix` chat but do not run it straightaway
   context.subscriptions.push(
     vscode.commands.registerCommand(`stencila.insert-chat-fix`, async () => {
-      await vscode.commands.executeCommand("stencila.insert-chat", "Fix");
+      await vscode.commands.executeCommand(
+        "stencila.insert-chat",
+        "Fix",
+        false
+      );
     })
   );
 
