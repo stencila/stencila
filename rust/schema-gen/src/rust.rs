@@ -1157,6 +1157,10 @@ impl {title} {{
             derives.push("Eq, PartialOrd, Ord");
         }
 
+        if unit_variants {
+            derives.push("Hash");
+        }
+
         if !NO_READ_NODE.contains(&title) {
             derives.push("ReadNode");
         }
