@@ -97,6 +97,9 @@ export class ChatMessage extends Executable {
   }
 
   override render() {
+    // These styles are applied here, rather than any container in
+    // a chat because in a chat message group the messages within
+    // each group need to be limited in width
     const style = apply('min-w-[45ch] max-w-prose mx-auto')
 
     switch (this.messageRole) {

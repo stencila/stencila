@@ -73,7 +73,9 @@ export class SuggestionBlock extends Entity {
 
   override render() {
     return html`
-      <div>${this.suggestionStatus}</div>
+      ${this.suggestionStatus
+        ? html`<sl-tag class="font-sans">${this.suggestionStatus}</sl-tag>`
+        : ''}
       <slot name="authors"></slot>
       <slot name="content"></slot>
     `

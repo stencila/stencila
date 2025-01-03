@@ -75,10 +75,21 @@ export class Chat extends Executable {
   private splitPosition: number = 100
 
   /**
+   * The initial position of the split panel when suggestions
+   * are present
+   */
+  private static splitPositionInitial = 50.001
+
+  /**
    * When user changes the split position record the position so that
    * it can be used on the next `render()`.
    */
   onSplitPositionChange(event: Event) {
+    // Avoid overwrite of the initial split position
+    if (this.splitPosition === Chat.splitPositionInitial) {
+      return
+    }
+
     const panel = event.target as SlSplitPanel
     if (panel.position) {
       this.splitPosition = panel.position
@@ -200,13 +211,13 @@ export class Chat extends Executable {
 
     const update = () => {
       const count = suggestionsElem.querySelectorAll(
-        'stencila-suggestion-block'
+        'stencila-chat-suggestions-item'
       ).length
 
       // If the first suggestion has been added and the suggestions panel
       // is currently hidden then make the split 50%
       if (this.suggestionsCount === 0 && count > 0 && this.splitPosition > 95) {
-        this.splitPosition = 50
+        this.splitPosition = Chat.splitPositionInitial
       }
 
       if (count != this.suggestionsCount) {
@@ -244,10 +255,6 @@ export class Chat extends Executable {
       `font-sans font-semibold text-sm text-[${textColour}]`,
     ])
 
-    const footerClasses = apply([
-      `bg-[${colour}] border-t border-[${borderColour}]`,
-    ])
-
     return html`
       <div class="h-screen w-screen flex flex-col">
         <div class=${headerClasses}>Chat</div>
@@ -258,39 +265,46 @@ export class Chat extends Executable {
             position=${this.splitPosition}
             @sl-reposition=${this.onSplitPositionChange}
           >
-            <div slot="start" class="px-3 overflow-y-auto">
-              <slot
-                name="content"
-                @slotchange=${this.onContentSlotChange}
-              ></slot>
+            <div slot="start" class="h-full overflow-y-hidden flex flex-col">
+              <div class="flex-grow overflow-y-hidden">
+                <div class="h-full overflow-scroll">
+                  <div class="px-3 pb-6">
+                    <slot
+                      name="content"
+                      @slotchange=${this.onContentSlotChange}
+                    ></slot>
+                  </div>
+                </div>
+              </div>
+
+              <div class="bg-[${colour}] border-t border-[${borderColour}]">
+                <div class="p-1">
+                  <div class="max-w-prose mx-auto">
+                    <stencila-ui-chat-message-inputs
+                      type="Chat"
+                      node-id=${this.id}
+                      @stencila-message-input=${this.onMessageInput}
+                    ></stencila-ui-chat-message-inputs>
+                  </div>
+                </div>
+
+                <stencila-ui-node-execution-messages type="Chat">
+                  <slot name="execution-messages"></slot>
+                </stencila-ui-node-execution-messages>
+
+                <slot name="model-parameters"></slot>
+
+                <slot name="prompt"></slot>
+              </div>
             </div>
-            <div slot="end" class="px-1 py-2">
+
+            <div slot="end" class="h-full overflow-scroll px-1 py-2">
               <slot
                 name="suggestions"
                 @slotchange=${this.onSuggestionsSlotChange}
               ></slot>
             </div>
           </sl-split-panel>
-        </div>
-
-        <div class=${footerClasses}>
-          <div class="p-1">
-            <div class="max-w-prose mx-auto">
-              <stencila-ui-chat-message-inputs
-                type="Chat"
-                node-id=${this.id}
-                @stencila-message-input=${this.onMessageInput}
-              ></stencila-ui-chat-message-inputs>
-            </div>
-          </div>
-
-          <stencila-ui-node-execution-messages type="Chat">
-            <slot name="execution-messages"></slot>
-          </stencila-ui-node-execution-messages>
-
-          <slot name="model-parameters"></slot>
-
-          <slot name="prompt"></slot>
         </div>
       </div>
     `
