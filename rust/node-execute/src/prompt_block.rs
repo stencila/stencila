@@ -1,20 +1,14 @@
-use std::{
-    hash::{Hash, Hasher},
-    ops::Deref,
-    path::Path,
-    sync::Arc,
-};
+use std::{ops::Deref, path::Path, sync::Arc};
 
 use common::{
     eyre::{OptionExt, Result},
-    seahash::SeaHasher,
     tokio::sync::RwLock,
 };
 use kernels::Kernels;
 use prompts::prompt::{KernelsContext, PromptContext};
 use schema::{replicate, CompilationDigest, PromptBlock};
 
-use crate::prelude::*;
+use crate::{prelude::*, state_digest};
 
 impl Executable for PromptBlock {
     #[tracing::instrument(skip_all)]
@@ -22,14 +16,12 @@ impl Executable for PromptBlock {
         let node_id = self.node_id();
         tracing::trace!("Compiling PromptBlock {node_id}");
 
-        let mut hash = SeaHasher::new();
-        if let Some(value) = &self.instruction_type {
-            value.to_string().hash(&mut hash);
-        }
-        self.node_types.hash(&mut hash);
-        self.hint.hash(&mut hash);
-        self.target.hash(&mut hash);
-        let state_digest = hash.finish();
+        let state_digest = state_digest!(
+            self.instruction_type,
+            self.node_types,
+            self.hint,
+            self.target
+        );
 
         let compilation_digest = CompilationDigest::new(state_digest);
 

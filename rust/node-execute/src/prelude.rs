@@ -20,6 +20,21 @@ pub fn add_to_digest(digest: &mut u64, bytes: &[u8]) {
     *digest = hash.finish()
 }
 
+/// A macro for generating a digest from properties of a node
+#[macro_export]
+macro_rules! state_digest {
+    ($($x:expr),*) => {
+        {
+            use std::hash::{Hash, Hasher};
+            let mut hasher = common::seahash::SeaHasher::new();
+            $(
+                $x.hash(&mut hasher);
+            )*
+            hasher.finish()
+        }
+    };
+}
+
 /// Create an `CompilationMessage` from an `eyre::Report`
 pub fn error_to_compilation_message(error: Report) -> CompilationMessage {
     CompilationMessage {

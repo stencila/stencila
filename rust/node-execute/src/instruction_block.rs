@@ -13,7 +13,7 @@ use schema::{
     InstructionBlock, SoftwareApplication,
 };
 
-use crate::{interrupt_impl, prelude::*};
+use crate::{interrupt_impl, prelude::*, state_digest};
 
 impl Executable for InstructionBlock {
     #[tracing::instrument(skip_all)]
@@ -24,24 +24,14 @@ impl Executable for InstructionBlock {
         // Generate a compilation digest that captures the state of properties that
         // determine if a re-execution is required. The feedback on suggestions is
         // ignored because that would change the digest when a suggestion is deleted.
-        let mut state_digest = 0u64;
-        add_to_digest(
-            &mut state_digest,
-            self.instruction_type.to_string().as_bytes(),
-        );
-        add_to_digest(
-            &mut state_digest,
+        let state_digest = state_digest!(
+            self.instruction_type,
             self.message.to_cbor().unwrap_or_default().as_slice(),
-        );
-        if let Some(prompt) = &self.prompt.target {
-            add_to_digest(&mut state_digest, prompt.to_string().as_bytes());
-        }
-        add_to_digest(
-            &mut state_digest,
+            self.prompt.target,
             self.model_parameters
                 .to_cbor()
                 .unwrap_or_default()
-                .as_slice(),
+                .as_slice()
         );
 
         let compilation_digest = CompilationDigest::new(state_digest);
