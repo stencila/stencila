@@ -572,6 +572,9 @@ pub struct Patch {
 
     /// Whether to compile the document after applying the patch
     pub compile: bool,
+
+    /// Whether to execute the document after applying the patch
+    pub execute: Option<Vec<NodeId>>,
 }
 
 impl Patch {

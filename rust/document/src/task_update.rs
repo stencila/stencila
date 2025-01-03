@@ -2,11 +2,12 @@ use common::{
     tokio::{self},
     tracing,
 };
+use node_execute::ExecuteOptions;
 use schema::{Node, PatchNode, PatchOp};
 
 use crate::{
-    Command, Document, DocumentCommandSender, DocumentPatchReceiver, DocumentRoot,
-    DocumentUpdateReceiver, DocumentWatchSender,
+    Command, CommandNodes, CommandScope, Document, DocumentCommandSender, DocumentPatchReceiver,
+    DocumentRoot, DocumentUpdateReceiver, DocumentWatchSender,
 };
 
 impl Document {
@@ -31,7 +32,7 @@ impl Document {
         tracing::debug!("Document update task started");
 
         loop {
-            let compile = tokio::select! {
+            let (compile, execute) = tokio::select! {
                 Some(update) = update_receiver.recv() => {
                     tracing::trace!("Document root node update received");
 
@@ -43,12 +44,14 @@ impl Document {
                         tracing::error!("While merging update into root: {error}");
                     }
 
-                    true
+                    (true, None)
                 },
                 Some(mut patch) = patch_receiver.recv() => {
                     tracing::trace!("Document root node patch received");
 
                     let compile = patch.compile;
+                    let execute = patch.execute.clone();
+
                     let root = &mut *root.write().await;
                     if matches!(root, Node::Null(..)) && patch.node_id.is_none() && matches!(patch.ops.first().map(|(path, op)| (path.is_empty(), op)), Some((true,PatchOp::Set(..)))){
                         // If the root is null and the patch want to set it then do so
@@ -66,7 +69,7 @@ impl Document {
                         tracing::error!("While applying patch to root: {error}");
                     }
 
-                    compile
+                    (compile, execute)
                 },
                 else => {
                     tracing::debug!("Both update and patch channels closed");
@@ -83,8 +86,24 @@ impl Document {
                 }
             }
 
+            // Compile if requested
             if compile {
                 if let Err(error) = command_sender.send((Command::CompileDocument, 0)).await {
+                    tracing::error!("While sending command to document: {error}");
+                    continue;
+                }
+            }
+
+            // Execute if requested
+            if let Some(node_ids) = execute {
+                let command = Command::ExecuteNodes((
+                    CommandNodes {
+                        node_ids,
+                        scope: CommandScope::Only,
+                    },
+                    ExecuteOptions::default(),
+                ));
+                if let Err(error) = command_sender.send((command, 0)).await {
                     tracing::error!("While sending command to document: {error}");
                 }
             }
