@@ -18,7 +18,6 @@ impl Executable for PromptBlock {
     #[tracing::instrument(skip_all)]
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
-        tracing::trace!("Compiling PromptBlock {node_id}");
 
         let state_digest = state_digest!(
             self.instruction_type,
@@ -29,14 +28,21 @@ impl Executable for PromptBlock {
 
         let compilation_digest = CompilationDigest::new(state_digest);
 
+        if Some(&compilation_digest) == self.options.compilation_digest.as_ref() {
+            tracing::trace!("Skipping compiling PromptBlock {node_id}");
+
+            return WalkControl::Break;
+        }
+
+        tracing::trace!("Compiling PromptBlock {node_id}");
+
         // Infer prompt if appropriate
         if self.target.is_none()
-            || (self
+            || self
                 .target
                 .as_ref()
                 .map(|target| target.ends_with("?"))
                 .unwrap_or_default()
-                && Some(&compilation_digest) != self.options.compilation_digest.as_ref())
         {
             if let Some(prompt) = prompts::infer(
                 &self.instruction_type,
