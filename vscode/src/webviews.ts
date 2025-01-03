@@ -153,7 +153,8 @@ export async function createNodeViewPanel(
   position: vscode.Position | null,
   nodeType: string,
   nodeId: string,
-  expandAuthors: boolean = false
+  expandAuthors: boolean = false,
+  viewColumn: vscode.ViewColumn = vscode.ViewColumn.Beside
 ): Promise<vscode.WebviewPanel> {
   const uri = documentUri.with({ fragment: nodeId });
 
@@ -173,7 +174,7 @@ export async function createNodeViewPanel(
   const panel = vscode.window.createWebviewPanel(
     "node-view",
     title,
-    vscode.ViewColumn.Beside,
+    viewColumn,
     {
       enableScripts: true,
       retainContextWhenHidden: true,
