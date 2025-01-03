@@ -78,6 +78,14 @@ pub struct PromptInstance {
     /// Compiled regexes for the prompt's instruction regexes
     #[serde(skip)]
     instruction_regexes: Vec<Regex>,
+
+    /// The generality of the prompt
+    ///
+    /// Based on the number of instruction types and node types the prompt supports.
+    /// Used to rank prompts with higher specificity (i.e. lower generality) when
+    /// inferring which prompts to use for chats and commands.                         
+    #[serde(skip)]
+    generality: usize,
 }
 
 /// Custom serialization to flatten and avoid unnecessarily serializing content of prompt
@@ -139,12 +147,20 @@ impl PromptInstance {
             .map(|pattern| Regex::new(pattern))
             .try_collect()?;
 
+        let generality = inner.instruction_types.len().min(1)
+            * inner
+                .node_types
+                .as_ref()
+                .map(|node_types| node_types.len())
+                .unwrap_or(10);
+
         Ok(Self {
             inner,
             path,
             home,
             node_count_range,
             instruction_regexes,
+            generality,
         })
     }
 
@@ -185,7 +201,10 @@ pub async fn list() -> Vec<PromptInstance> {
                 .first()
                 .cmp(&b.instruction_types.first())
             {
-                Ordering::Equal => a.id.cmp(&b.id),
+                Ordering::Equal => match a.generality.cmp(&b.generality) {
+                    Ordering::Equal => a.id.cmp(&b.id),
+                    cmp => cmp,
+                },
                 cmp => cmp,
             }
         })
@@ -235,30 +254,39 @@ pub async fn infer(
     });
 
     // Filter the prompts by the number of nodes: the count must be in the prompts node count range
-    let mut prompts = prompts.filter(|prompt| match (node_types, &prompt.node_count_range) {
+    let prompts = prompts.filter(|prompt| match (node_types, &prompt.node_count_range) {
         (Some(node_types), Some(range)) => range.contains(&node_types.len()),
         _ => true,
     });
 
     if let Some(hint) = hint {
-        // Count the number of characters in the instruction message that are matched by
-        // each of the patterns in each of the candidates
+        // If there is a hint, count the number of characters in the instruction message that
+        // are matched by each of the patterns in each of the candidates
         let counts = prompts
-            .filter_map(|prompt| {
+            .map(|prompt| {
                 let matches = prompt
                     .instruction_regexes
                     .iter()
                     .flat_map(|regex| regex.find_iter(hint).map(|found| found.len()))
                     .sum::<usize>();
-                // Let through those with any matches or that have no regexes (i.e. defaults)
-                (matches > 0 || prompt.instruction_regexes.is_empty()).then_some((prompt, matches))
+                (prompt, matches)
             })
-            .sorted_by(|(.., a), (.., b)| a.cmp(b).reverse());
+            .sorted_by(|(prompt_a, matches_a), (prompt_b, matches_b)| {
+                // Sort by descending matches, and ascending generality
+                match matches_a.cmp(matches_b).reverse() {
+                    Ordering::Equal => prompt_a.generality.cmp(&prompt_b.generality),
+                    order => order,
+                }
+            });
 
-        // Get the prompt with the highest matches (or no regexes)
+        // Get the prompt with the highest matches / lowest generality
         counts.map(|(prompt, ..)| prompt).next().take()
     } else {
-        prompts.next().take()
+        // Get the prompt with the lowest generality
+        prompts
+            .sorted_by(|prompt_a, prompt_b| prompt_a.generality.cmp(&prompt_b.generality))
+            .next()
+            .take()
     }
 }
 
