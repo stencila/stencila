@@ -2,19 +2,19 @@
 
 use std::{cmp::Ordering, sync::Arc};
 
-use model::{
-    common::{
-        eyre::{bail, Result},
-        futures::future::join_all,
-        itertools::Itertools,
-        rand::{self, Rng},
-        regex::Regex,
-        tracing,
-    },
-    Model, ModelOutput, ModelTask,
+use model::common::{
+    eyre::{bail, Result},
+    futures::future::join_all,
+    itertools::Itertools,
+    rand::{self, Rng},
+    regex::Regex,
+    tracing,
 };
 
-pub use model::{ModelAvailability, ModelSpecification, ModelType};
+pub use model::{
+    Model, ModelAvailability, ModelOutput, ModelOutputKind, ModelSpecification, ModelTask,
+    ModelType,
+};
 
 pub mod cli;
 
@@ -193,7 +193,10 @@ pub async fn select(task: &ModelTask) -> Result<Arc<dyn Model>> {
 }
 
 /// Perform a model task
+#[tracing::instrument(skip_all)]
 pub async fn perform_task(task: ModelTask) -> Result<ModelOutput> {
+    tracing::debug!("Performing model task");
+
     let model = select(&task).await?;
     model.perform_task(&task).await
 }

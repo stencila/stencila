@@ -36,6 +36,7 @@ mod instruction_block;
 mod instruction_inline;
 mod math_block;
 mod math_inline;
+mod model_utils;
 mod paragraph;
 mod parameter;
 mod prompt_block;

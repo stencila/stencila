@@ -3959,6 +3959,7 @@ dependencies = [
  "codecs",
  "common",
  "kernels",
+ "models",
  "parsers",
  "prompts",
  "schema",
