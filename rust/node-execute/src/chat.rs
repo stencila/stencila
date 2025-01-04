@@ -73,6 +73,37 @@ impl Executable for Chat {
 
         let started = Timestamp::now();
 
+        // If there are no messages yet, and the prompt block contains a query
+        // then use it as the first message
+        if let (true, Some(query)) = (self.content.is_empty(), &self.prompt.query) {
+            let mut parts = Vec::new();
+
+            if let Some(instruction_type) = &self.prompt.instruction_type {
+                parts.push(instruction_type.to_string());
+            }
+
+            if let Some(relative_position) = &self.prompt.relative_position {
+                parts.push(relative_position.to_string().to_lowercase());
+            }
+
+            if let Some(node_type) = &self.prompt.node_types.iter().flatten().next() {
+                parts.push(node_type.to_string());
+            }
+
+            parts.push(query.to_string());
+
+            let text = parts.join(" ");
+
+            let message = Block::ChatMessage(ChatMessage {
+                role: MessageRole::User,
+                content: vec![p([t(text)])],
+                ..Default::default()
+            });
+
+            self.content.push(message.clone());
+            executor.patch(&node_id, [push(NodeProperty::Content, message)])
+        }
+
         // TODO: construct a model task from all the messages in this chat
         for block in self.content.iter_mut() {
             if let Block::ChatMessage(msg) = block {

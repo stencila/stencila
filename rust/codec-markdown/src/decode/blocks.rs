@@ -12,7 +12,6 @@ use winnow::{
 use codec::{
     common::{
         indexmap::IndexMap,
-        itertools::Itertools,
         serde_json::{self, json},
         tracing,
     },
@@ -33,7 +32,8 @@ use super::{
     inlines::{inlines, mds_to_inlines, mds_to_string},
     shared::{
         attrs, attrs_list, execution_bounds, execution_mode, instruction_type, model_parameters,
-        name, node_to_string, primitive_node, prompt, string_to_instruction_message,
+        name, node_to_string, node_type, primitive_node, prompt, relative_position,
+        string_to_instruction_message,
     },
     Context,
 };
@@ -71,9 +71,13 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
         }
 
         // Handle colon fences (paragraphs starting with `:::`)
-        if let Some((true, children, position)) =
-            para.map(|(children, position, text)| (text.starts_with(":::"), children, position))
-        {
+        if let Some((true, children, position)) = para.map(|(children, position, text)| {
+            (
+                text.starts_with(":::") || text.starts_with("/"),
+                children,
+                position,
+            )
+        }) {
             // Serialize MDAST nodes to text so that fragments such as
             // URLS (for `::: include`), and `$`s for styles with interpolated variables
             // which are otherwise consumed into non text nodes are included in parse value
@@ -501,32 +505,34 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 
 /// Parse a "div": a paragraph starting with at least three semicolons
 fn block(input: &mut Located<&str>) -> PResult<Block> {
-    preceded(
-        (take_while(3.., ':'), space0),
-        alt((
-            admonition_qmd,
-            call_block,
-            include_block,
-            prompt_block,
-            code_chunk,
-            figure,
-            table,
-            for_block,
-            instruction_block,
-            suggestion_block,
-            chat,
-            chat_message,
-            delete_block,
-            insert_block,
-            replace_block,
-            modify_block,
-            claim,
-            styled_block,
-            // Section parser is permissive of label so needs to
-            // come last to avoid prematurely matching others above
-            section,
-        )),
-    )
+    alt((
+        chat,
+        preceded(
+            (take_while(3.., ':'), space0),
+            alt((
+                admonition_qmd,
+                call_block,
+                include_block,
+                prompt_block,
+                code_chunk,
+                figure,
+                table,
+                for_block,
+                instruction_block,
+                suggestion_block,
+                chat_message,
+                delete_block,
+                insert_block,
+                replace_block,
+                modify_block,
+                claim,
+                styled_block,
+                // Section parser is permissive of label so needs to
+                // come last to avoid prematurely matching others above
+                section,
+            )),
+        ),
+    ))
     .parse_next(input)
 }
 
@@ -648,35 +654,31 @@ fn prompt_block(input: &mut Located<&str>) -> PResult<Block> {
         "prompt",
         (
             opt(preceded(multispace1, instruction_type)),
-            opt(preceded(
-                multispace1,
-                delimited('(', take_until(0.., ')'), ')'),
-            )),
+            opt(preceded(multispace1, relative_position)),
+            opt(preceded(multispace1, node_type)),
             opt(preceded(multispace1, prompt)),
             opt(take_while(1.., |_| true)),
         ),
     )
-    .map(|(instruction_type, node_types, target, hint)| {
-        let node_types = node_types.map(|node_types| {
-            node_types
-                .split(',')
-                .map(|node_type| node_type.trim().to_string())
-                .collect_vec()
-        });
+    .map(
+        |(instruction_type, relative_position, node_type, target, query)| {
+            let node_types = node_type.map(|node_type| vec![node_type.to_string()]);
 
-        let hint = hint.and_then(|hint| {
-            let hint = hint.trim();
-            (!hint.is_empty()).then_some(hint.to_string())
-        });
+            let query = query.and_then(|query| {
+                let query = query.trim();
+                (!query.is_empty()).then_some(query.to_string())
+            });
 
-        Block::PromptBlock(PromptBlock {
-            instruction_type,
-            node_types,
-            target: target.map(String::from),
-            hint,
-            ..Default::default()
-        })
-    })
+            Block::PromptBlock(PromptBlock {
+                instruction_type,
+                relative_position,
+                node_types,
+                target: target.map(String::from),
+                query,
+                ..Default::default()
+            })
+        },
+    )
     .parse_next(input)
 }
 
@@ -745,36 +747,44 @@ fn code_chunk(input: &mut Located<&str>) -> PResult<Block> {
 /// Parse a [`Chat`] node
 fn chat(input: &mut Located<&str>) -> PResult<Block> {
     preceded(
-        "chat",
+        "/",
         (
-            opt(preceded(multispace1, instruction_type)),
+            opt(preceded(multispace0, instruction_type)),
+            opt(preceded(multispace1, relative_position)),
+            opt(preceded(multispace1, node_type)),
             opt(preceded(multispace1, prompt)),
             opt(preceded(multispace1, model_parameters)),
             opt(take_while(1.., |_| true)),
         ),
     )
-    .map(|(instruction_type, target, model_parameters, hint)| {
-        let hint = hint.and_then(|hint| {
-            let hint = hint.trim();
-            (!hint.is_empty()).then_some(hint)
-        });
+    .map(
+        |(instruction_type, relative_position, node_type, target, model_parameters, query)| {
+            let node_types = node_type.map(|node_type| vec![node_type.to_string()]);
 
-        let prompt = PromptBlock {
-            instruction_type,
-            target: target.map(String::from),
-            hint: hint.map(String::from),
-            ..Default::default()
-        };
+            let query = query.and_then(|query| {
+                let query = query.trim();
+                (!query.is_empty()).then_some(query)
+            });
 
-        let model_parameters = model_parameters.map(Box::new).unwrap_or_default();
+            let prompt = PromptBlock {
+                instruction_type,
+                relative_position,
+                node_types,
+                target: target.map(String::from),
+                query: query.map(String::from),
+                ..Default::default()
+            };
 
-        Block::Chat(Chat {
-            prompt,
-            model_parameters,
-            is_temporary: Some(false),
-            ..Default::default()
-        })
-    })
+            let model_parameters = model_parameters.map(Box::new).unwrap_or_default();
+
+            Block::Chat(Chat {
+                prompt,
+                model_parameters,
+                is_temporary: Some(false),
+                ..Default::default()
+            })
+        },
+    )
     .parse_next(input)
 }
 
@@ -906,6 +916,8 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
         instruction_type,
         opt(preceded(multispace1, execution_mode)),
         opt(preceded(multispace1, execution_bounds)),
+        opt(preceded(multispace1, relative_position)),
+        opt(preceded(multispace1, node_type)),
         opt(preceded(multispace1, prompt)),
         opt(preceded(multispace1, model_parameters)),
         opt(take_while(1.., |_| true)),
@@ -915,20 +927,26 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
                 instruction_type,
                 execution_mode,
                 execution_bounds,
+                relative_position,
+                node_type,
                 prompt,
                 model_parameters,
-                message,
+                query,
             )| {
+                let node_types = node_type.map(|node_type| vec![node_type.to_string()]);
+
                 let mut prompt = PromptBlock {
                     instruction_type: Some(instruction_type.clone()),
+                    relative_position,
+                    node_types,
                     target: prompt.map(String::from),
-                    hint: message.map(String::from),
+                    query: query.map(String::from),
                     ..Default::default()
                 };
 
                 let model_parameters = model_parameters.map(Box::new).unwrap_or_default();
 
-                let (message, capacity) = match message {
+                let (message, capacity) = match query {
                     Some(message) => {
                         let message = message.trim();
 
@@ -943,8 +961,8 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
 
                         let message = (!message.is_empty()).then_some(message);
 
-                        // Use the message as the hint for the target prompt
-                        prompt.hint = message.map(String::from);
+                        // Use the message as the query for the target prompt
+                        prompt.query = message.map(String::from);
 
                         (message, capacity)
                     }

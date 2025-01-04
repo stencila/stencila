@@ -26,15 +26,15 @@ impl PromptBlock {
                     return Ok(true);
                 }
             } else if let (
-                Some(PatchSlot::Property(NodeProperty::Hint)),
+                Some(PatchSlot::Property(NodeProperty::Query)),
                 PatchOp::Set(PatchValue::None),
             ) = (path.front(), op)
             {
-                // Ignore attempt to clear implied hint
+                // Ignore attempt to clear implied query
                 if self
-                    .hint
+                    .query
                     .as_ref()
-                    .map(|hint| hint.ends_with("   "))
+                    .map(|query| query.ends_with("   "))
                     .unwrap_or_default()
                 {
                     return Ok(true);
@@ -101,12 +101,17 @@ impl MarkdownCodec for PromptBlock {
                 );
             }
 
-            if let Some(node_types) = &self.node_types {
+            if let Some(value) = &self.relative_position {
+                context.space().push_prop_str(
+                    NodeProperty::RelativePosition,
+                    &value.to_string().to_lowercase(),
+                );
+            }
+
+            if let Some(value) = self.node_types.iter().flatten().next() {
                 context
                     .space()
-                    .push_str("(")
-                    .push_prop_str(NodeProperty::NodeTypes, &node_types.join(","))
-                    .push_str(")");
+                    .push_prop_str(NodeProperty::NodeTypes, &value.to_string().to_lowercase());
             }
 
             if let Some(target) = &self.target {
@@ -117,8 +122,8 @@ impl MarkdownCodec for PromptBlock {
                 }
             }
 
-            if let Some(hint) = &self.hint {
-                context.space().push_prop_str(NodeProperty::Hint, hint);
+            if let Some(query) = &self.query {
+                context.space().push_prop_str(NodeProperty::Query, query);
             }
         }
 

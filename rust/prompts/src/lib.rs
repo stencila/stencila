@@ -220,11 +220,11 @@ pub async fn get(id: &str) -> Result<PromptInstance> {
         .ok_or_else(|| eyre!("Unable to find prompt with id `{id}`"))
 }
 
-/// Infer which prompt to use based on instruction type, node types, node count and/or hint
+/// Infer which prompt to use based on instruction type, node types, node count and/or query
 pub async fn infer(
     instruction_type: &Option<InstructionType>,
     node_types: &Option<Vec<String>>,
-    hint: &Option<&str>,
+    query: &Option<&str>,
 ) -> Option<PromptInstance> {
     let prompts = list().await.into_iter();
 
@@ -248,15 +248,15 @@ pub async fn infer(
         _ => true,
     });
 
-    if let Some(hint) = hint {
-        // If there is a hint, count the number of characters in the instruction message that
+    if let Some(query) = query {
+        // If there is a query, count the number of characters in the instruction message that
         // are matched by each of the patterns in each of the candidates
         let counts = prompts
             .map(|prompt| {
                 let matches = prompt
                     .instruction_regexes
                     .iter()
-                    .flat_map(|regex| regex.find_iter(hint).map(|found| found.len()))
+                    .flat_map(|regex| regex.find_iter(query).map(|found| found.len()))
                     .sum::<usize>();
                 (prompt, matches)
             })

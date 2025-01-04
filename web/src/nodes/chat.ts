@@ -235,11 +235,11 @@ export class Chat extends Executable {
 
   /**
    * On message input, forward the input value to the prompt component
-   * for potential use as an implied hint for prompt target
+   * for potential use as an implied query for prompt target
    */
   private onMessageInput({ detail: value }: CustomEvent) {
     const prompt = this.querySelector('stencila-prompt-block') as PromptBlock
-    prompt.onHintImplied(value)
+    prompt.onQueryImplied(value)
   }
 
   override render() {

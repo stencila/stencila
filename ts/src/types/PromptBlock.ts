@@ -3,6 +3,7 @@
 import { Block } from "./Block.js";
 import { Executable } from "./Executable.js";
 import { InstructionType } from "./InstructionType.js";
+import { RelativePosition } from "./RelativePosition.js";
 
 /**
  * A preview of how a prompt will be rendered at a location in the document
@@ -22,9 +23,14 @@ export class PromptBlock extends Executable {
   nodeTypes?: string[];
 
   /**
-   * A text hint used to infer the `target` prompt
+   * The relative position of the node being edited, described etc.
    */
-  hint?: string;
+  relativePosition?: RelativePosition;
+
+  /**
+   * A user text query used to infer the `target` prompt
+   */
+  query?: string;
 
   /**
    * An identifier for the prompt to be rendered

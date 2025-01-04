@@ -45,6 +45,7 @@ import { type PropertyValue } from "./PropertyValue.js";
 import { type ProvenanceCategory } from "./ProvenanceCategory.js";
 import { type PublicationIssue } from "./PublicationIssue.js";
 import { type PublicationVolume } from "./PublicationVolume.js";
+import { type RelativePosition } from "./RelativePosition.js";
 import { type Review } from "./Review.js";
 import { type SectionType } from "./SectionType.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
@@ -106,6 +107,7 @@ export type ThingType =
   ProvenanceCategory |
   PublicationIssue |
   PublicationVolume |
+  RelativePosition |
   Review |
   SectionType |
   SoftwareApplication |

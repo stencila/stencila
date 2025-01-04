@@ -48,6 +48,7 @@ use super::property_value::PropertyValue;
 use super::provenance_category::ProvenanceCategory;
 use super::publication_issue::PublicationIssue;
 use super::publication_volume::PublicationVolume;
+use super::relative_position::RelativePosition;
 use super::review::Review;
 use super::section_type::SectionType;
 use super::software_application::SoftwareApplication;
@@ -155,6 +156,8 @@ pub enum ThingType {
     PublicationIssue(PublicationIssue),
 
     PublicationVolume(PublicationVolume),
+
+    RelativePosition(RelativePosition),
 
     Review(Review),
 

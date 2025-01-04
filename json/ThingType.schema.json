@@ -141,6 +141,9 @@
       "$ref": "PublicationVolume.schema.json"
     },
     {
+      "$ref": "RelativePosition.schema.json"
+    },
+    {
       "$ref": "Review.schema.json"
     },
     {

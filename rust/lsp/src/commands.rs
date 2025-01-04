@@ -662,8 +662,6 @@ pub(super) async fn execute_command(
 
             let root = root.read().await;
 
-            eprintln!("{instruction_type:?}");
-
             // Get the ids and types of any blocks spanning the range to infer prompt
             let (node_ids, node_types) =
                 if matches!(instruction_type, Some(InstructionType::Create)) {
@@ -677,113 +675,132 @@ pub(super) async fn execute_command(
 
                     let node_types: Vec<NodeType> = node_ids
                         .iter()
-                        .map(|node_id| NodeType::try_from(node_id))
+                        .map(NodeType::try_from)
                         .try_collect()
                         .map_err(internal_error)?;
 
                     (node_ids, node_types)
                 };
 
-            // Infer the instruction type based on the number of blocks selected
-            // and whether they have andy errors
-            let instruction_type = if instruction_type.is_some() {
-                instruction_type
-            } else if node_types.is_empty() {
-                Some(InstructionType::Create)
-            } else if let (1, Some(NodeType::CodeChunk | NodeType::MathBlock)) =
-                (node_types.len(), node_types.first())
+            // If there is a single chat on the range then "temporize" it (move it to temporary)
+            let (chat_id, patch, update_after) = if let (1, Some(NodeType::Chat), Some(chat_id)) =
+                (node_types.len(), node_types.first(), node_ids.first())
             {
-                // Check if the node has warnings or errors and
-                if let Some(node_id) = node_ids.first() {
-                    let doc = doc.read().await;
-                    let root = doc.root_read().await;
-                    if match find(&*root, node_id.clone()) {
-                        Some(Node::CodeChunk(node)) => node.has_warnings_errors_or_exceptions(),
-                        Some(Node::MathBlock(node)) => node.has_warnings_errors_or_exceptions(),
-                        _ => false,
-                    } {
-                        Some(InstructionType::Fix)
+                let patch = Patch {
+                    node_id: Some(chat_id.clone()),
+                    ops: vec![(PatchPath::new(), PatchOp::Temporize)],
+                    ..Default::default()
+                };
+
+                (chat_id.clone(), patch, true)
+            } else {
+                // Infer the instruction type based on the number of blocks selected
+                // and whether they have any errors
+                let instruction_type = if instruction_type.is_some() {
+                    instruction_type
+                } else if node_types.is_empty() {
+                    Some(InstructionType::Create)
+                } else if let (1, Some(NodeType::CodeChunk | NodeType::MathBlock)) =
+                    (node_types.len(), node_types.first())
+                {
+                    // Check if the node has warnings or errors and
+                    if let Some(node_id) = node_ids.first() {
+                        let doc = doc.read().await;
+                        let root = doc.root_read().await;
+                        if match find(&*root, node_id.clone()) {
+                            Some(Node::CodeChunk(node)) => node.has_warnings_errors_or_exceptions(),
+                            Some(Node::MathBlock(node)) => node.has_warnings_errors_or_exceptions(),
+                            _ => false,
+                        } {
+                            Some(InstructionType::Fix)
+                        } else {
+                            Some(InstructionType::Edit)
+                        }
                     } else {
                         Some(InstructionType::Edit)
                     }
                 } else {
                     Some(InstructionType::Edit)
-                }
-            } else {
-                Some(InstructionType::Edit)
-            };
+                };
 
-            let node_types = (!node_types.is_empty()).then_some(
-                node_types
-                    .iter()
-                    .map(|node_type| node_type.to_string())
-                    .collect_vec(),
-            );
+                let node_types = (!node_types.is_empty()).then_some(
+                    node_types
+                        .iter()
+                        .map(|node_type| node_type.to_string())
+                        .collect_vec(),
+                );
 
-            // If any, add them to the suggestions as the original
-            let suggestions = if !node_ids.is_empty() {
-                // Get clones of the blocks
-                let doc = doc.read().await;
-                let root = &*doc.root_read().await;
-                let content = node_ids
-                    .into_iter()
-                    .filter_map(|node_id| find(root, node_id))
-                    .filter_map(|node| Block::try_from(node).ok())
-                    .collect_vec();
+                // If any, add them to the suggestions as the original
+                let suggestions = if !node_ids.is_empty() {
+                    // Get clones of the blocks
+                    let doc = doc.read().await;
+                    let root = &*doc.root_read().await;
+                    let content = node_ids
+                        .into_iter()
+                        .filter_map(|node_id| find(root, node_id))
+                        .filter_map(|node| Block::try_from(node).ok())
+                        .collect_vec();
 
-                // Replicate to avoid duplicate ids
-                let content = replicate(&content).map_err(internal_error)?;
+                    // Replicate to avoid duplicate ids
+                    let content = replicate(&content).map_err(internal_error)?;
 
-                Some(vec![SuggestionBlock {
-                    suggestion_status: Some(SuggestionStatus::Original),
-                    content,
+                    Some(vec![SuggestionBlock {
+                        suggestion_status: Some(SuggestionStatus::Original),
+                        content,
+                        ..Default::default()
+                    }])
+                } else {
+                    None
+                };
+
+                // Get the ids of any previous or next blocks so that the chat, despite being temporary,
+                // can be executed with the correct document context.
+                let (previous_block, next_block) = root.block_ids_previous_next(range);
+
+                let chat = Chat {
+                    prompt: PromptBlock {
+                        instruction_type,
+                        node_types,
+                        ..Default::default()
+                    },
+                    is_temporary: Some(true),
+                    suggestions,
+                    options: Box::new(ChatOptions {
+                        previous_block: previous_block.map(|id| id.to_string()),
+                        next_block: next_block.map(|id| id.to_string()),
+                        ..Default::default()
+                    }),
                     ..Default::default()
-                }])
-            } else {
-                None
-            };
+                };
+                let chat_id = chat.node_id().clone();
 
-            // Get the ids of any previous or next blocks so that the chat, despite being temporary,
-            // can be executed with the correct document context.
-            let (previous_block, next_block) = root.block_ids_previous_next(range);
+                let patch = Patch {
+                    ops: vec![(
+                        PatchPath::from(NodeProperty::Temporary),
+                        PatchOp::Push(PatchValue::Node(Node::Chat(chat))),
+                    )],
+                    ..Default::default()
+                };
 
-            let chat = Chat {
-                prompt: PromptBlock {
-                    instruction_type,
-                    node_types,
-                    ..Default::default()
-                },
-                is_temporary: Some(true),
-                suggestions,
-                options: Box::new(ChatOptions {
-                    previous_block: previous_block.map(|id| id.to_string()),
-                    next_block: next_block.map(|id| id.to_string()),
-                    ..Default::default()
-                }),
-                ..Default::default()
+                (chat_id, patch, false)
             };
-            let chat_id = chat.node_id();
 
             return_value = Some(serde_json::Value::String(chat_id.to_string()));
 
             let patch = Patch {
-                ops: vec![(
-                    PatchPath::from(NodeProperty::Temporary),
-                    PatchOp::Push(PatchValue::Node(Node::Chat(chat))),
-                )],
                 // Run compile so that that chat's prompt block is compiled
                 // to infer the target prompt
                 compile: true,
                 // Execute if specified
                 execute: execute_chat.then_some(vec![chat_id]),
-                ..Default::default()
+                ..patch
             };
 
             (
                 "Creating temporary chat".to_string(),
                 Command::PatchNode(patch),
                 false,
-                false,
+                update_after,
             )
         }
         DELETE_CHAT => {

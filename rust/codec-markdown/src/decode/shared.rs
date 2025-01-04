@@ -12,9 +12,12 @@ use winnow::{
     Located, PResult, Parser,
 };
 
-use codec::schema::{
-    Date, DateTime, Duration, ExecutionBounds, ExecutionMode, ImageObject, InstructionMessage,
-    InstructionType, MessagePart, ModelParameters, Node, Time, Timestamp,
+use codec::{
+    schema::{
+        Date, DateTime, Duration, ExecutionBounds, ExecutionMode, ImageObject, InstructionMessage,
+        InstructionType, MessagePart, ModelParameters, Node, RelativePosition, Time, Timestamp,
+    },
+    NodeType,
 };
 use codec_json5_trait::Json5Codec;
 use codec_text_trait::TextCodec;
@@ -67,6 +70,31 @@ pub(super) fn instruction_type(input: &mut Located<&str>) -> PResult<Instruction
         "edit".value(InstructionType::Edit),
         "fix".value(InstructionType::Fix),
         "describe".value(InstructionType::Describe),
+    ))
+    .parse_next(input)
+}
+
+/// Parse a relative position
+pub(super) fn relative_position(input: &mut Located<&str>) -> PResult<RelativePosition> {
+    alt((
+        alt(("above", "previous", "prev")).value(RelativePosition::Previous),
+        alt(("below", "next")).value(RelativePosition::Next),
+    ))
+    .parse_next(input)
+}
+
+/// Parse a node type
+pub(super) fn node_type(input: &mut Located<&str>) -> PResult<NodeType> {
+    alt((
+        "heading".value(NodeType::Heading),
+        alt(("paragraph", "para")).value(NodeType::Paragraph),
+        "table".value(NodeType::Table),
+        alt(("figure", "fig")).value(NodeType::Figure),
+        alt(("code", "cell")).value(NodeType::CodeChunk),
+        "list".value(NodeType::List),
+        "math".value(NodeType::MathBlock),
+        "quote".value(NodeType::QuoteBlock),
+        "section".value(NodeType::Section),
     ))
     .parse_next(input)
 }

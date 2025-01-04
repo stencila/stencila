@@ -29,7 +29,7 @@ export class PromptBlock extends Executable {
   instructionType?: InstructionType
 
   @property()
-  hint?: string
+  query?: string
 
   @property()
   target?: string
@@ -123,16 +123,16 @@ export class PromptBlock extends Executable {
   }
 
   /**
-   * On a change to the implied hint, patch the hint if it is null or
+   * On a change to the implied query, patch the query if it is null or
    * implied (ends in three spaces) and the target is null or inferred (ends with ?)
    */
-  public onHintImplied(hint: string) {
+  public onQueryImplied(query: string) {
     if (
-      (!this.hint || this.hint.endsWith('   ')) &&
+      (!this.query || this.query.endsWith('   ')) &&
       (!this.target || this.target.endsWith('?'))
     ) {
       this.dispatchEvent(
-        patchValue('PromptBlock', this.id, 'hint', hint + '   ')
+        patchValue('PromptBlock', this.id, 'query', query + '   ')
       )
     }
   }

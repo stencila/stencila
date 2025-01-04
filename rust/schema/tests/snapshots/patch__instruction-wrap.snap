@@ -96,7 +96,7 @@ new:
       prompt:
         type: PromptBlock
         instructionType: Edit
-        hint: more succinct
+        query: more succinct
       message:
         type: InstructionMessage
         parts:
@@ -164,7 +164,7 @@ merged:
       prompt:
         type: PromptBlock
         instructionType: Edit
-        hint: more succinct
+        query: more succinct
       message:
         type: InstructionMessage
         parts:
@@ -244,7 +244,7 @@ ops:
             prompt:
               type: PromptBlock
               instructionType: Edit
-              hint: more succinct
+              query: more succinct
             message:
               type: InstructionMessage
               parts:

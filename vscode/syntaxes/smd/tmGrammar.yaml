@@ -25,6 +25,7 @@ repository:
       - include: "#code-block"
       - include: "#include-block"
       - include: "#call-block"
+      - include: "#chat"
       - include: "#instruction-block"
       - include: "#suggestion-block"
       - include: "#prompt-block"
@@ -254,7 +255,7 @@ repository:
     endCaptures:
       "1": { name: markup.heading.stencila } # backticks
 
-  ########## Chat, InstructionBlock & InstructionInline ##########
+  ########## InstructionBlock & InstructionInline ##########
 
   instruction-block:
     name: meta.stencila.instruction-block
@@ -263,13 +264,6 @@ repository:
       ^
         (:{3,})\s*
         (?:
-          (?:
-            (chat)
-            (?:
-              \s+
-              (create|edit|fix|describe)\b
-            )?
-          )|
           (create|edit|fix|describe)\b
         )
         (?:
@@ -279,6 +273,14 @@ repository:
         (?:
           \s+
           (fork|limit|box|skip)\b
+        )?
+        (?:
+          \s+
+          ((?:prev(?:ious)?)|above|next|below)\b
+        )?
+        (?:
+          \s+
+          (heading|(?:para(?:graph)?)|table|(?:fig(?:ure)?)|code|cell|list|math|quote|section)\b
         )?
         (?:
           \s+
@@ -302,11 +304,11 @@ repository:
       $
     captures:
       "1": { name: markup.heading.stencila } # semicolons
-      "2": { name: keyword.control.stencila } # chat
-      "3": { name: keyword.control.stencila } # chat instruction type
-      "4": { name: keyword.control.stencila } # command instruction type
-      "5": { name: keyword.control.stencila } # mode
-      "6": { name: keyword.control.stencila } # bounds
+      "2": { name: keyword.control.stencila } # instruction type
+      "3": { name: keyword.control.stencila } # mode
+      "4": { name: keyword.control.stencila } # bounds
+      "5": { name: keyword.control.stencila } # relative position
+      "6": { name: keyword.control.stencila } # node type
       "7": { name: support.function } # prompt
       "8": { name: string.quoted } # model ids
       "9": { name: variable.parameter.stencila } # model parameters
@@ -337,6 +339,33 @@ repository:
       "3": { name: decorator.keyword.stencila } # prompt
       "4": { name: comment.stencila.instruction } # message
       "5": { name: keyword.control.stencila } # >>
+
+
+  ##########  Chat ##########
+
+  chat:
+    name: meta.stencila.chat
+    match: >
+      (?x)
+      ^
+        (/)\s*
+        (create|edit|fix|describe)\b
+        (?:
+          \s+
+          ((?:prev(?:ious)?)|above|next|below)\b
+        )?
+        (?:
+          \s+
+          (heading|(?:para(?:graph)?)|table|(?:fig(?:ure)?)|code|cell|list|math|quote|section)\b
+        )?
+        (.*?)
+      $
+    captures:
+      "1": { name: markup.heading.stencila } # slash
+      "2": { name: keyword.control.stencila } # instruction type
+      "3": { name: keyword.control.stencila } # relative position
+      "4": { name: keyword.control.stencila } # node type
+      "5": { name: comment.stencila.instruction } # message
 
   ########## ChatMessage ##########
 
@@ -516,7 +545,11 @@ repository:
         )?
         (?:
           \s+
-          (\([^)]*\))
+          ((?:prev(?:ious)?)|above|next|below)\b
+        )?
+        (?:
+          \s+
+          (heading|(?:para(?:graph)?)|table|(?:fig(?:ure)?)|code|cell|list|math|quote|section)\b
         )?
         (?:
           \s+
@@ -528,9 +561,10 @@ repository:
       "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # prompt
       "3": { name: keyword.control.stencila } # instruction type
-      "4": { name: string.quoted } # node types
-      "5": { name: support.function } # target
-      "6": { name: comment.stencila.instruction } # hint
+      "4": { name: keyword.control.stencila } # relative position
+      "5": { name: keyword.control.stencila } # node type
+      "6": { name: support.function } # target
+      "7": { name: comment.stencila.instruction } # hint
 
   ########## IncludeBlock ##########
 

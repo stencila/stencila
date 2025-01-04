@@ -16,6 +16,7 @@ use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
 use super::instruction_type::InstructionType;
 use super::integer::Integer;
+use super::relative_position::RelativePosition;
 use super::string::String;
 use super::timestamp::Timestamp;
 
@@ -59,9 +60,14 @@ pub struct PromptBlock {
     #[patch(format = "md", format = "smd", format = "qmd")]
     pub node_types: Option<Vec<String>>,
 
-    /// A text hint used to infer the `target` prompt
+    /// The relative position of the node being edited, described etc.
+    #[serde(alias = "relative-position", alias = "relative_position")]
     #[patch(format = "md", format = "smd", format = "qmd")]
-    pub hint: Option<String>,
+    pub relative_position: Option<RelativePosition>,
+
+    /// A user text query used to infer the `target` prompt
+    #[patch(format = "md", format = "smd", format = "qmd")]
+    pub query: Option<String>,
 
     /// An identifier for the prompt to be rendered
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]

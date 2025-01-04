@@ -389,8 +389,7 @@ nodeTypes: []
           editor.selection.active,
           "Temporary chat",
           chatId,
-          false,
-          vscode.ViewColumn.Active
+          false
         );
 
         panel.onDidDispose(async () => {

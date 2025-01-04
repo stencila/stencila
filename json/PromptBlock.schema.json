@@ -26,7 +26,8 @@
     "executionBounds",
     "instructionType",
     "nodeTypes",
-    "hint",
+    "relativePosition",
+    "query",
     "target",
     "content"
   ],
@@ -360,9 +361,25 @@
         "type": "string"
       }
     },
-    "hint": {
-      "@id": "stencila:hint",
-      "description": "A text hint used to infer the `target` prompt",
+    "relativePosition": {
+      "@id": "stencila:relativePosition",
+      "description": "The relative position of the node being edited, described etc.",
+      "aliases": [
+        "relative-position",
+        "relative_position"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "qmd"
+        ]
+      },
+      "$ref": "RelativePosition.schema.json"
+    },
+    "query": {
+      "@id": "stencila:query",
+      "description": "A user text query used to infer the `target` prompt",
       "patch": {
         "formats": [
           "md",

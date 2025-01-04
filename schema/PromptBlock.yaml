@@ -16,7 +16,8 @@ markdown:
 core:
   - instructionType
   - nodeTypes
-  - hint
+  - relativePosition
+  - query
   - target
   - content
 properties:
@@ -36,9 +37,15 @@ properties:
       type: string
     patch:
       formats: [md, smd, qmd]
-  hint:
-    "@id": stencila:hint
-    description: A text hint used to infer the `target` prompt
+  relativePosition:
+    "@id": stencila:relativePosition
+    description: The relative position of the node being edited, described etc.
+    $ref: RelativePosition
+    patch:
+      formats: [md, smd, qmd]
+  query:
+    "@id": stencila:query
+    description: A user text query used to infer the `target` prompt
     type: string
     patch:
       formats: [md, smd, qmd]

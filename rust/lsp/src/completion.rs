@@ -7,8 +7,8 @@ use std::{ops::Deref, sync::Arc};
 use async_lsp::{
     lsp_types::{
         CompletionItem, CompletionItemKind, CompletionItemLabelDetails, CompletionParams,
-        CompletionResponse, CompletionTriggerKind, Documentation, InsertTextFormat, MarkupContent,
-        MarkupKind,
+        CompletionResponse, CompletionTextEdit, Documentation, InsertTextFormat, MarkupContent,
+        MarkupKind, Position, Range, TextEdit,
     },
     ResponseError,
 };
@@ -23,47 +23,29 @@ pub(super) async fn request(
     params: CompletionParams,
     source: Option<Arc<RwLock<String>>>,
 ) -> Result<Option<CompletionResponse>, ResponseError> {
-    eprintln!("COMPLETION: {params:?}");
-
-    // Get the trigger for the completion
-    let trigger_kind = params
-        .context
-        .as_ref()
-        .map(|context| context.trigger_kind)
-        .unwrap_or(CompletionTriggerKind::INVOKED);
-    let trigger_character = params
-        .context
-        .and_then(|context| context.trigger_character)
-        .unwrap_or_default();
-
     // Unable to proceed if no source available
     let Some(source) = source else {
         return Ok(None);
     };
     let source = source.read().await;
 
-    eprintln!("SOURCE: '{source}'");
-
     // Get the source before the cursor (up to start of line)
-    let position = position_to_position16(params.text_document_position.position);
+    let position = params.text_document_position.position;
     let positions = Positions::new(&source);
     let end = positions
-        .index_at_position16(position)
+        .index_at_position16(position_to_position16(position))
         .unwrap_or(source.len());
     let start = source[..end].rfind('\n').map(|i| i + 1).unwrap_or(0);
     let take = end - start;
     let line: String = source.chars().skip(start).take(take).collect();
 
-    eprintln!("LINE: '{line}'");
-
     // Prompt completions
-    if line.starts_with(":::") && line.ends_with('@')
-        || (trigger_kind == CompletionTriggerKind::TRIGGER_CHARACTER && trigger_character == "@")
-    {
+    if line.starts_with(":::") && line.ends_with('@') {
         return prompt_completion(&line).await;
     }
 
-    smd_snippets(&line)
+    // Snippet completions
+    smd_snippets(&line, position.line)
 }
 
 /// Provide completion list for prompts of an instruction
@@ -154,7 +136,7 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
 /// 2. Can trigger on non-alphanumeric chars (e.g. ':')
 /// 3. Can suggest snippet only if at start of line
 /// 4. Can provide better, richer documentation
-fn smd_snippets(line: &str) -> Result<Option<CompletionResponse>, ResponseError> {
+fn smd_snippets(line: &str, line_num: u32) -> Result<Option<CompletionResponse>, ResponseError> {
     const ITEMS: &[(&str, &str, &str, &str, &str)] = &[
         (
             "::: figure ",
@@ -206,6 +188,20 @@ A caption for the table.
 "
         ),
         (
+            "/create ",
+            "/create ${0}",
+            "AI chat to create new content",
+            "AI Chat: Create",
+            "Start an AI chat to create new content, e.g.
+            
+```smd
+/create code to summarize data
+
+/create list of highest mountains
+```          
+",
+        ),
+        (
             "::: create ",
             "::: create ${0} :::",
             "AI command to create new content",
@@ -214,6 +210,20 @@ A caption for the table.
             
 ```smd
 ::: create code to summarize data
+```          
+",
+        ),
+        (
+            "/edit ",
+            "/edit ${0}",
+            "AI chat to edit exiting content",
+            "AI Chat: Edit",
+            "Start an AI chat to edit existing content, e.g.
+            
+```smd
+/edit more concise
+
+An existing paragraph.
 ```          
 ",
         ),
@@ -227,8 +237,24 @@ A caption for the table.
 ```smd
 ::: edit more concise >>>
 
-An existing paragraph
+An existing paragraph.
 ```
+",
+        ),
+        (
+            "/fix ",
+            "/fix ${0}",
+            "AI chat to fix code or math",
+            "AI Chat: Fix",
+            "Start an AI command to fix code or math that has an error, e.g.
+            
+````smd
+/fix
+
+```python exec
+err!
+```
+````
 ",
         ),
         (
@@ -245,6 +271,18 @@ An existing paragraph
 err!
 ```
 ````
+",
+        ),
+        (
+            "/describe ",
+            "/describe ${0}",
+            "AI chat to describe other content",
+            "AI Chat: Describe",
+            "Start an AI chat to describe other content, e.g.
+            
+```smd
+/describe next table
+```
 ",
         ),
         (
@@ -305,11 +343,24 @@ Content to be conditionally activated.
                 detail: Some(heading.into()),
                 documentation: Some(Documentation::MarkupContent(MarkupContent {
                     kind: MarkupKind::Markdown,
-                    value: ["**", desc, "**\n\n", docs].concat(),
+                    value: docs.into(),
                 })),
                 kind: Some(CompletionItemKind::SNIPPET),
                 insert_text_format: Some(InsertTextFormat::SNIPPET),
-                insert_text: body.strip_prefix(line).map(String::from),
+                text_edit: Some(CompletionTextEdit::Edit(TextEdit {
+                    // Replace the whole line with the snippet
+                    range: Range {
+                        start: Position {
+                            line: line_num,
+                            character: 0,
+                        },
+                        end: Position {
+                            line: line_num,
+                            character: u32::MAX,
+                        },
+                    },
+                    new_text: body.into(),
+                })),
                 ..Default::default()
             })
         })

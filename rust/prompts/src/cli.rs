@@ -134,10 +134,10 @@ impl Show {
     }
 }
 
-/// Infer a prompt from a hint
+/// Infer a prompt from a query
 ///
 /// Useful for checking which prompt will be matched to a given
-/// instruction type, node types, and/or hint
+/// instruction type, node types, and/or query
 #[derive(Debug, Args)]
 struct Infer {
     /// The instruction type
@@ -148,8 +148,8 @@ struct Infer {
     #[arg(short, long)]
     node_types: Option<String>,
 
-    /// The hint
-    hint: Option<String>,
+    /// The query
+    query: Option<String>,
 }
 
 impl Infer {
@@ -158,7 +158,7 @@ impl Infer {
             .node_types
             .map(|value| value.split(",").map(String::from).collect_vec());
 
-        match super::infer(&self.instruction_type, &node_types, &self.hint.as_deref()).await {
+        match super::infer(&self.instruction_type, &node_types, &self.query.as_deref()).await {
             Some(prompt) => println!("{}", prompt.id.clone().unwrap_or_default()),
             None => println!("Unable to infer prompt"),
         };

@@ -660,8 +660,11 @@ pub enum PatchOp {
     /// Accept a suggestion within an instruction
     Accept(NodeId),
 
-    /// Archive a node
+    /// Archive a node (move it to the root node's archive)
     Archive,
+
+    /// Temporize a node (move it to the root node's `temporary` set)
+    Temporize,
 
     /// Do no operation
     /// Used to be able to apply patches which only update

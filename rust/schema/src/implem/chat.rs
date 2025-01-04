@@ -1,7 +1,7 @@
 use codec_dom_trait::DomCodec;
 use common::serde_yaml;
 
-use crate::{prelude::*, Chat, SuggestionBlock};
+use crate::{prelude::*, Chat, Node, SuggestionBlock};
 
 impl Chat {
     /// Custom implementation of [`PatchNode::apply`]
@@ -11,11 +11,15 @@ impl Chat {
         op: &PatchOp,
         context: &mut PatchContext,
     ) -> Result<bool> {
-        if path.is_empty() && matches!(op, PatchOp::Archive) {
-            // Add this instruction to the root's archive
+        if path.is_empty() && matches!(op, PatchOp::Archive | PatchOp::Temporize) {
+            // Add this instruction to the root's archive or temporary set
+            let property = match op {
+                PatchOp::Archive => NodeProperty::Archive,
+                _ => NodeProperty::Temporary,
+            };
             context.op_additional(
-                PatchPath::from(NodeProperty::Archive),
-                PatchOp::Push(self.to_value()?),
+                PatchPath::from(property),
+                PatchOp::Push(PatchValue::Node(Node::Chat(self.clone()))),
             );
 
             // Remove this from the containing vector, if any
@@ -75,14 +79,29 @@ impl MarkdownCodec for Chat {
         if !context.is_root() {
             context
                 .enter_node(self.node_type(), self.node_id())
-                .push_colons()
-                .push_str(" chat");
-
-            if let Some(instruction_type) = &self.prompt.instruction_type {
-                context.space().push_prop_str(
-                    NodeProperty::Prompt,
-                    &instruction_type.to_string().to_lowercase(),
+                .push_str("/")
+                .push_prop_str(
+                    NodeProperty::InstructionType,
+                    &self
+                        .prompt
+                        .instruction_type
+                        .clone()
+                        .unwrap_or_default()
+                        .to_string()
+                        .to_lowercase(),
                 );
+
+            if let Some(value) = &self.prompt.relative_position {
+                context.space().push_prop_str(
+                    NodeProperty::RelativePosition,
+                    &value.to_string().to_lowercase(),
+                );
+            }
+
+            if let Some(value) = self.prompt.node_types.iter().flatten().next() {
+                context
+                    .space()
+                    .push_prop_str(NodeProperty::NodeTypes, &value.to_string().to_lowercase());
             }
 
             if let Some(target) = &self.prompt.target {
@@ -98,10 +117,10 @@ impl MarkdownCodec for Chat {
                 self.model_parameters.to_markdown(context);
             });
 
-            if let Some(hint) = &self.prompt.hint {
-                // Do not encode implied hint
-                if !hint.ends_with("   ") {
-                    context.space().push_prop_str(NodeProperty::Prompt, hint);
+            if let Some(query) = &self.prompt.query {
+                // Do not encode implied query
+                if !query.ends_with("   ") {
+                    context.space().push_prop_str(NodeProperty::Prompt, query);
                 }
             }
 

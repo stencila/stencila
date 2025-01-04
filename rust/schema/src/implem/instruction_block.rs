@@ -570,6 +570,19 @@ impl MarkdownCodec for InstructionBlock {
             }
         }
 
+        if let Some(value) = &self.prompt.relative_position {
+            context.space().push_prop_str(
+                NodeProperty::RelativePosition,
+                &value.to_string().to_lowercase(),
+            );
+        }
+
+        if let Some(value) = self.prompt.node_types.iter().flatten().next() {
+            context
+                .space()
+                .push_prop_str(NodeProperty::NodeTypes, &value.to_string().to_lowercase());
+        }
+
         if let Some(prompt) = &self.prompt.target {
             if !prompt.ends_with("?") {
                 context

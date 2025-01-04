@@ -391,6 +391,15 @@ class ProvenanceCategory(StrEnum):
     MwMeMv = "MwMeMv"
 
 
+class RelativePosition(StrEnum):
+    """
+    The relative position of a node to another.
+    """
+
+    Previous = "Previous"
+    Next = "Next"
+
+
 class SectionType(StrEnum):
     """
     The type of a `Section`.
@@ -2474,8 +2483,11 @@ class PromptBlock(Executable):
     node_types: list[str] | None = None
     """The type of nodes the prompt is being used for"""
 
-    hint: str | None = None
-    """A text hint used to infer the `target` prompt"""
+    relative_position: RelativePosition | None = None
+    """The relative position of the node being edited, described etc."""
+
+    query: str | None = None
+    """A user text query used to infer the `target` prompt"""
 
     target: str | None = None
     """An identifier for the prompt to be rendered"""
@@ -3482,6 +3494,7 @@ ThingType = Union[
     ProvenanceCategory,
     PublicationIssue,
     PublicationVolume,
+    RelativePosition,
     Review,
     SectionType,
     SoftwareApplication,

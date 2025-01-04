@@ -22,7 +22,7 @@ impl Executable for PromptBlock {
         let state_digest = state_digest!(
             self.instruction_type,
             self.node_types,
-            self.hint,
+            self.query,
             self.target
         );
 
@@ -47,7 +47,7 @@ impl Executable for PromptBlock {
             if let Some(prompt) = prompts::infer(
                 &self.instruction_type,
                 &self.node_types,
-                &self.hint.as_deref(),
+                &self.query.as_deref(),
             )
             .await
             {
@@ -64,7 +64,7 @@ impl Executable for PromptBlock {
 
         // Populate prompt content so it is preview-able to the user
         let messages = if let Some(target) = &self.target {
-            let target = prompts::expand(&target, &self.instruction_type);
+            let target = prompts::expand(target, &self.instruction_type);
             match prompts::get(&target).await {
                 Ok(prompt) => {
                     // Replicate the content of the prompt so that the prompt block has different ids.

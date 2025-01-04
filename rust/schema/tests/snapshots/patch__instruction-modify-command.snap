@@ -44,7 +44,7 @@ old:
       prompt:
         type: PromptBlock
         instructionType: Create
-        hint: "top five highest mountains, with height in metres"
+        query: "top five highest mountains, with height in metres"
         target: table
       message:
         type: InstructionMessage
@@ -84,7 +84,7 @@ new:
       prompt:
         type: PromptBlock
         instructionType: Create
-        hint: "top five highest mountains, with height in feet"
+        query: "top five highest mountains, with height in feet"
         target: table
       message:
         type: InstructionMessage
@@ -146,7 +146,7 @@ merged:
       prompt:
         type: PromptBlock
         instructionType: Create
-        hint: "top five highest mountains, with height in feet"
+        query: "top five highest mountains, with height in feet"
         target: table
       message:
         type: InstructionMessage
@@ -195,7 +195,7 @@ ops:
   - - - content
       - 1
       - prompt
-      - hint
+      - query
     - Set: "top five highest mountains, with height in feet"
   - - - content
       - 1
