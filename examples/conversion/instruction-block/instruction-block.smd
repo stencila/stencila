@@ -8,7 +8,7 @@ An insert instruction with a prompt:
 
 An insert instruction with a prompt but a blank instruction
 
-::: create @code-chunk  :::
+::: create @code-chunk :::
 
 An edit instruction (has content) with no prompt:
 

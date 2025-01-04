@@ -28,7 +28,9 @@
       "type": "InstructionBlock",
       "instructionType": "Create",
       "prompt": {
-        "type": "PromptBlock"
+        "type": "PromptBlock",
+        "instructionType": "Create",
+        "query": "message"
       },
       "message": {
         "type": "InstructionMessage",
@@ -49,7 +51,9 @@
       "type": "InstructionBlock",
       "instructionType": "Create",
       "prompt": {
-        "type": "PromptBlock"
+        "type": "PromptBlock",
+        "instructionType": "Create",
+        "query": "message"
       },
       "message": {
         "type": "InstructionMessage",
@@ -93,7 +97,9 @@
       "type": "InstructionBlock",
       "instructionType": "Edit",
       "prompt": {
-        "type": "PromptBlock"
+        "type": "PromptBlock",
+        "instructionType": "Edit",
+        "query": "message"
       },
       "message": {
         "type": "InstructionMessage",
@@ -127,7 +133,9 @@
       "type": "InstructionBlock",
       "instructionType": "Edit",
       "prompt": {
-        "type": "PromptBlock"
+        "type": "PromptBlock",
+        "instructionType": "Edit",
+        "query": "message"
       },
       "message": {
         "type": "InstructionMessage",
@@ -172,7 +180,9 @@
       "type": "InstructionBlock",
       "instructionType": "Edit",
       "prompt": {
-        "type": "PromptBlock"
+        "type": "PromptBlock",
+        "instructionType": "Edit",
+        "query": "improve this"
       },
       "message": {
         "type": "InstructionMessage",
@@ -202,7 +212,9 @@
       "type": "InstructionBlock",
       "instructionType": "Create",
       "prompt": {
-        "type": "PromptBlock"
+        "type": "PromptBlock",
+        "instructionType": "Create",
+        "query": "admonition"
       },
       "message": {
         "type": "InstructionMessage",
@@ -265,7 +277,8 @@
       "type": "InstructionBlock",
       "instructionType": "Edit",
       "prompt": {
-        "type": "PromptBlock"
+        "type": "PromptBlock",
+        "instructionType": "Edit"
       },
       "message": {
         "type": "InstructionMessage",

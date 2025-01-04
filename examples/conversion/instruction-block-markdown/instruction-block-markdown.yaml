@@ -15,6 +15,8 @@ content:
   instructionType: Create
   prompt:
     type: PromptBlock
+    instructionType: Create
+    query: message
   message:
     type: InstructionMessage
     parts:
@@ -27,6 +29,8 @@ content:
   instructionType: Create
   prompt:
     type: PromptBlock
+    instructionType: Create
+    query: message
   message:
     type: InstructionMessage
     parts:
@@ -50,6 +54,8 @@ content:
   instructionType: Edit
   prompt:
     type: PromptBlock
+    instructionType: Edit
+    query: message
   message:
     type: InstructionMessage
     parts:
@@ -68,6 +74,8 @@ content:
   instructionType: Edit
   prompt:
     type: PromptBlock
+    instructionType: Edit
+    query: message
   message:
     type: InstructionMessage
     parts:
@@ -91,6 +99,8 @@ content:
   instructionType: Edit
   prompt:
     type: PromptBlock
+    instructionType: Edit
+    query: improve this
   message:
     type: InstructionMessage
     parts:
@@ -108,6 +118,8 @@ content:
   instructionType: Create
   prompt:
     type: PromptBlock
+    instructionType: Create
+    query: admonition
   message:
     type: InstructionMessage
     parts:
@@ -140,6 +152,7 @@ content:
   instructionType: Edit
   prompt:
     type: PromptBlock
+    instructionType: Edit
   message:
     type: InstructionMessage
     parts: []
