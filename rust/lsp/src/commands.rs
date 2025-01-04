@@ -130,6 +130,7 @@ pub(super) async fn execute_command(
     }: ExecuteCommandParams,
     author: AuthorRole,
     format: Format,
+    source: Arc<RwLock<String>>,
     root: Arc<RwLock<TextNode>>,
     doc: Arc<RwLock<Document>>,
     source_doc: Option<Arc<RwLock<Document>>>,
@@ -883,15 +884,18 @@ pub(super) async fn execute_command(
                     // Wait an arbitrary amount of time for any patches to be applied (see note above)
                     tokio::time::sleep(Duration::from_millis(100)).await;
 
-                    // Currently this applies a whole document formatting.
-                    // TODO: In the future this should be refined to only update the specific node.
-                    let edit = match format_doc(doc.clone(), format.clone()).await {
-                        Ok(edit) => edit,
+                    // Format the doc and apply any edits
+                    let edits = match format_doc(doc.clone(), format.clone(), source.clone()).await
+                    {
+                        Ok(Some(edits)) => edits,
+                        Ok(None) => continue,
                         Err(error) => {
                             tracing::error!("While formatting doc after command: {error}");
                             continue;
                         }
                     };
+
+                    let edits = edits.into_iter().map(|edit| OneOf::Left(edit)).collect();
                     client
                         .apply_edit(ApplyWorkspaceEditParams {
                             edit: WorkspaceEdit {
@@ -901,7 +905,7 @@ pub(super) async fn execute_command(
                                             uri,
                                             version: None,
                                         },
-                                        edits: vec![OneOf::Left(edit)],
+                                        edits,
                                     },
                                 ])),
                                 ..Default::default()
@@ -910,7 +914,9 @@ pub(super) async fn execute_command(
                         })
                         .await
                         .ok();
+
                     client.code_lens_refresh(()).await.ok();
+
                     break;
                 }
             }

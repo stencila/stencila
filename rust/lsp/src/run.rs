@@ -118,6 +118,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
                             (
                                 text_doc.author.clone(),
                                 text_doc.format.clone(),
+                                text_doc.source.clone(),
                                 text_doc.root.clone(),
                                 text_doc.doc.clone(),
                             )
@@ -143,9 +144,9 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
                 let client = state.client.clone();
                 async move {
                     match doc_props {
-                        Some((author, format, root, doc)) => {
+                        Some((author, format, source, root, doc)) => {
                             commands::execute_command(
-                                params, author, format, root, doc, source_doc, client,
+                                params, author, format, source, root, doc, source_doc, client,
                             )
                             .await
                         }
@@ -160,13 +161,16 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
 
         router.request::<request::Formatting, _>(|state, params| {
             let uri = params.text_document.uri;
-            let doc_format = state
-                .documents
-                .get(&uri)
-                .map(|text_doc| (text_doc.doc.clone(), text_doc.format.clone()));
+            let doc_format = state.documents.get(&uri).map(|text_doc| {
+                (
+                    text_doc.doc.clone(),
+                    text_doc.format.clone(),
+                    text_doc.source.clone(),
+                )
+            });
             async move {
                 match doc_format {
-                    Some((doc, format)) => formatting::request(doc, format).await,
+                    Some((doc, format, source)) => formatting::request(doc, format, source).await,
                     None => Ok(None),
                 }
             }
