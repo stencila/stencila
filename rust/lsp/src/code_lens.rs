@@ -95,9 +95,6 @@ pub(crate) async fn request(
                 };
 
                 let mut lenses = match node_type {
-                    NodeType::Chat => {
-                        vec![lens(ARCHIVE_NODE), lens(VIEW_NODE)]
-                    }
                     NodeType::CallBlock
                     | NodeType::CodeChunk
                     | NodeType::ForBlock
