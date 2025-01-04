@@ -28,7 +28,7 @@
     "executionBounds",
     "nodeTypes",
     "nodeCount",
-    "instructionPatterns"
+    "queryPatterns"
   ],
   "properties": {
     "type": {
@@ -915,21 +915,6 @@
         "$ref": "InstructionType.schema.json"
       }
     },
-    "instructionPatterns": {
-      "@id": "stencila:instructionPatterns",
-      "description": "Regular expressions used to match the prompt with a user instruction",
-      "aliases": [
-        "instruction-patterns",
-        "instruction_patterns",
-        "instructionPattern",
-        "instruction-pattern",
-        "instruction_pattern"
-      ],
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
     "nodeTypes": {
       "@id": "stencila:nodeTypes",
       "description": "The types of nodes that the prompt supports",
@@ -961,6 +946,21 @@
           "type": "string"
         }
       ]
+    },
+    "queryPatterns": {
+      "@id": "stencila:queryPatterns",
+      "description": "Regular expressions used to match the prompt with a user query",
+      "aliases": [
+        "query-patterns",
+        "query_patterns",
+        "queryPattern",
+        "query-pattern",
+        "query_pattern"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     },
     "content": {
       "@id": "stencila:content",

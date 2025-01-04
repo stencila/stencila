@@ -82,11 +82,6 @@ pub struct Prompt {
     #[serde(deserialize_with = "one_or_many")]
     pub instruction_types: Vec<InstructionType>,
 
-    /// Regular expressions used to match the prompt with a user instruction
-    #[serde(alias = "instruction-patterns", alias = "instruction_patterns", alias = "instructionPattern", alias = "instruction-pattern", alias = "instruction_pattern")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    pub instruction_patterns: Option<Vec<String>>,
-
     /// The types of nodes that the prompt supports
     #[serde(alias = "node-types", alias = "node_types", alias = "nodeType", alias = "node-type", alias = "node_type")]
     #[serde(default, deserialize_with = "option_one_or_many")]
@@ -95,6 +90,11 @@ pub struct Prompt {
     /// The number of nodes that the prompt supports
     #[serde(alias = "node-count", alias = "node_count")]
     pub node_count: Option<UnsignedIntegerOrString>,
+
+    /// Regular expressions used to match the prompt with a user query
+    #[serde(alias = "query-patterns", alias = "query_patterns", alias = "queryPattern", alias = "query-pattern", alias = "query_pattern")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub query_patterns: Option<Vec<String>>,
 
     /// The content of the prompt.
     #[serde(deserialize_with = "one_or_many")]

@@ -2456,14 +2456,14 @@ class Prompt(CreativeWork, Executable):
     instruction_types: list[InstructionType]
     """The types of instructions that the prompt supports"""
 
-    instruction_patterns: list[str] | None = None
-    """Regular expressions used to match the prompt with a user instruction"""
-
     node_types: list[str] | None = None
     """The types of nodes that the prompt supports"""
 
     node_count: UnsignedInteger | str | None = None
     """The number of nodes that the prompt supports"""
+
+    query_patterns: list[str] | None = None
+    """Regular expressions used to match the prompt with a user query"""
 
     content: list[Block]
     """The content of the prompt."""

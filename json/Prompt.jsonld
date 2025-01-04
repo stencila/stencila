@@ -793,18 +793,6 @@
       }
     },
     {
-      "@id": "stencila:instructionPatterns",
-      "@type": "rdfs:Property",
-      "rdfs:label": "instructionPatterns",
-      "rdfs:comment": "Regular expressions used to match the prompt with a user instruction",
-      "schema:domainIncludes": {
-        "@id": "stencila:Prompt"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
       "@id": "stencila:nodeTypes",
       "@type": "rdfs:Property",
       "rdfs:label": "nodeTypes",
@@ -837,6 +825,18 @@
           "@id": "schema:Text"
         }
       ]
+    },
+    {
+      "@id": "stencila:queryPatterns",
+      "@type": "rdfs:Property",
+      "rdfs:label": "queryPatterns",
+      "rdfs:comment": "Regular expressions used to match the prompt with a user query",
+      "schema:domainIncludes": {
+        "@id": "stencila:Prompt"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
     },
     {
       "@id": "stencila:content",

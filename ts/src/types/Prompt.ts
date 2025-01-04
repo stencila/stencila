@@ -34,11 +34,6 @@ export class Prompt extends CreativeWork {
   instructionTypes: InstructionType[];
 
   /**
-   * Regular expressions used to match the prompt with a user instruction
-   */
-  instructionPatterns?: string[];
-
-  /**
    * The types of nodes that the prompt supports
    */
   nodeTypes?: string[];
@@ -47,6 +42,11 @@ export class Prompt extends CreativeWork {
    * The number of nodes that the prompt supports
    */
   nodeCount?: UnsignedIntegerOrString;
+
+  /**
+   * Regular expressions used to match the prompt with a user query
+   */
+  queryPatterns?: string[];
 
   /**
    * The content of the prompt.

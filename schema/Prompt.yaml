@@ -14,7 +14,7 @@ required:
 core:
   - nodeTypes
   - nodeCount
-  - instructionPatterns
+  - queryPatterns
 properties:
   instructionTypes:
     "@id": stencila:instructionTypes
@@ -22,12 +22,6 @@ properties:
     type: array
     items:
       $ref: InstructionType
-  instructionPatterns:
-    "@id": stencila:instructionPatterns
-    description: Regular expressions used to match the prompt with a user instruction
-    type: array
-    items:
-      type: string
   nodeTypes:
     "@id": stencila:nodeTypes
     description: The types of nodes that the prompt supports
@@ -43,6 +37,12 @@ properties:
     anyOf:
       - $ref: UnsignedInteger
       - type: string
+  queryPatterns:
+    "@id": stencila:queryPatterns
+    description: Regular expressions used to match the prompt with a user query
+    type: array
+    items:
+      type: string
   content:
     "@id": stencila:content
     description: The content of the prompt.

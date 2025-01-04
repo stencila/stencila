@@ -75,9 +75,9 @@ pub struct PromptInstance {
     #[serde(skip)]
     node_count_range: Option<RangeInclusive<usize>>,
 
-    /// Compiled regexes for the prompt's instruction regexes
+    /// Compiled regexes for the prompt's query patterns
     #[serde(skip)]
-    instruction_regexes: Vec<Regex>,
+    query_patterns_regexes: Vec<Regex>,
 
     /// The generality of the prompt
     ///
@@ -100,8 +100,9 @@ impl Serialize for PromptInstance {
         state.serialize_field("name", &self.inner.name)?;
         state.serialize_field("description", &self.inner.description)?;
         state.serialize_field("instructionTypes", &self.inner.instruction_types)?;
-        state.serialize_field("instructionPatterns", &self.inner.instruction_patterns)?;
         state.serialize_field("nodeTypes", &self.inner.node_types)?;
+        state.serialize_field("nodeCount", &self.inner.node_count)?;
+        state.serialize_field("queryPatterns", &self.inner.query_patterns)?;
         state.serialize_field("path", &self.path)?;
         state.end()
     }
@@ -140,8 +141,8 @@ impl PromptInstance {
             None
         };
 
-        let instruction_regexes = inner
-            .instruction_patterns
+        let query_patterns_regexes = inner
+            .query_patterns
             .iter()
             .flatten()
             .map(|pattern| Regex::new(pattern))
@@ -159,7 +160,7 @@ impl PromptInstance {
             path,
             home,
             node_count_range,
-            instruction_regexes,
+            query_patterns_regexes,
             generality,
         })
     }
@@ -249,12 +250,12 @@ pub async fn infer(
     });
 
     if let Some(query) = query {
-        // If there is a query, count the number of characters in the instruction message that
-        // are matched by each of the patterns in each of the candidates
+        // If there is a query, count the number of characters in the query that
+        // are matched by each of the patterns in each of the candidate prompts
         let counts = prompts
             .map(|prompt| {
                 let matches = prompt
-                    .instruction_regexes
+                    .query_patterns_regexes
                     .iter()
                     .flat_map(|regex| regex.find_iter(query).map(|found| found.len()))
                     .sum::<usize>();
