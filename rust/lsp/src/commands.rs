@@ -301,9 +301,16 @@ pub(super) async fn execute_command(
         RUN_CURR => {
             let position = position_arg(args.next())?;
             if let Some(node_id) = root.read().await.node_id_closest(position) {
+                let node_type = NodeType::try_from(&node_id).map_err(internal_error)?;
+
                 // Only update if running an instruction or chat message (since these update
                 // the content of the document)
-                let update = matches!(node_id.nick(), "isb" | "isi" | "chm");
+                let update = matches!(
+                    node_type,
+                    NodeType::InstructionBlock
+                        | NodeType::InstructionInline
+                        | NodeType::ChatMessage
+                );
 
                 (
                     "Running current node".to_string(),
