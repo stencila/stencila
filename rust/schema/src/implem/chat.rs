@@ -13,13 +13,17 @@ impl Chat {
     ) -> Result<bool> {
         if path.is_empty() && matches!(op, PatchOp::Archive | PatchOp::Temporize) {
             // Add this instruction to the root's archive or temporary set
-            let property = match op {
-                PatchOp::Archive => NodeProperty::Archive,
-                _ => NodeProperty::Temporary,
+            let (property, is_temporary) = match op {
+                PatchOp::Archive => (NodeProperty::Archive, false),
+                _ => (NodeProperty::Temporary, true),
+            };
+            let chat = Chat {
+                is_temporary: Some(is_temporary),
+                ..self.clone()
             };
             context.op_additional(
                 PatchPath::from(property),
-                PatchOp::Push(PatchValue::Node(Node::Chat(self.clone()))),
+                PatchOp::Push(PatchValue::Node(Node::Chat(chat))),
             );
 
             // Remove this from the containing vector, if any
