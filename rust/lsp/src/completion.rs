@@ -6,8 +6,9 @@ use std::{ops::Deref, sync::Arc};
 
 use async_lsp::{
     lsp_types::{
-        CompletionItem, CompletionItemKind, CompletionParams, CompletionResponse,
-        CompletionTriggerKind, Documentation, MarkupContent, MarkupKind,
+        CompletionItem, CompletionItemKind, CompletionItemLabelDetails, CompletionParams,
+        CompletionResponse, CompletionTriggerKind, Documentation, InsertTextFormat, MarkupContent,
+        MarkupKind,
     },
     ResponseError,
 };
@@ -22,6 +23,8 @@ pub(super) async fn request(
     params: CompletionParams,
     source: Option<Arc<RwLock<String>>>,
 ) -> Result<Option<CompletionResponse>, ResponseError> {
+    eprintln!("COMPLETION: {params:?}");
+
     // Get the trigger for the completion
     let trigger_kind = params
         .context
@@ -37,27 +40,30 @@ pub(super) async fn request(
     let Some(source) = source else {
         return Ok(None);
     };
+    let source = source.read().await;
+
+    eprintln!("SOURCE: '{source}'");
 
     // Get the source before the cursor (up to start of line)
-    let source = source.read().await;
     let position = position_to_position16(params.text_document_position.position);
     let positions = Positions::new(&source);
-    let Some(end) = positions.index_at_position16(position) else {
-        // Early return if the cursor position can not be resolve in current source
-        return Ok(None);
-    };
+    let end = positions
+        .index_at_position16(position)
+        .unwrap_or(source.len());
     let start = source[..end].rfind('\n').map(|i| i + 1).unwrap_or(0);
     let take = end - start;
-    let before: String = source.chars().skip(start).take(take).collect();
+    let line: String = source.chars().skip(start).take(take).collect();
 
-    // Dispatch based on source before cursor
-    if before.starts_with(":::") && before.ends_with('@')
+    eprintln!("LINE: '{line}'");
+
+    // Prompt completions
+    if line.starts_with(":::") && line.ends_with('@')
         || (trigger_kind == CompletionTriggerKind::TRIGGER_CHARACTER && trigger_character == "@")
     {
-        return prompt_completion(&before).await;
+        return prompt_completion(&line).await;
     }
 
-    Ok(None)
+    smd_snippets(&line)
 }
 
 /// Provide completion list for prompts of an instruction
@@ -131,6 +137,179 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
                 label,
                 detail,
                 documentation,
+                ..Default::default()
+            })
+        })
+        .collect();
+
+    Ok(Some(CompletionResponse::Array(items)))
+}
+
+/// Provide list of snippets
+///
+/// This is a better alternative to providing a `snippets.json` file with VSCode
+/// extension because:
+///
+/// 1. Available to other LSP clients
+/// 2. Can trigger on non-alphanumeric chars (e.g. ':')
+/// 3. Can suggest snippet only if at start of line
+/// 4. Can provide better, richer documentation
+fn smd_snippets(line: &str) -> Result<Option<CompletionResponse>, ResponseError> {
+    const ITEMS: &[(&str, &str, &str, &str, &str)] = &[
+        (
+            "::: figure ",
+            "::: figure ${1:label}\n\n${2:caption}\n\n$0\n\n:::",
+            "Figure with a label and/or caption",
+            "Figure",
+            "Insert a `Figure` block, optionally with a label and caption,
+
+```smd
+::: figure 1
+
+A caption for the image.
+
+![](./image.png)
+
+:::
+```
+",
+        ),
+        (
+            "::: table ",
+            "::: table ${1:label}\n\n${2:caption}\n\n$0\n\n:::",
+            "Table with a label and/or caption",
+            "Table",
+            "Insert a `Table` block, optionally with a label and caption, e.g.
+
+```smd
+::: table 1
+
+A caption for the table.
+
+| Year | Count |
+...
+
+:::
+```
+",
+        ),
+        (
+            "::: include ",
+            "::: include ${1:source}",
+            "Include content from another document",
+            "Include",
+            "Insert an `IncludeBlock` to include content from another file, e.g.
+
+```smd
+::: include some/other/file.md
+```
+"
+        ),
+        (
+            "::: create ",
+            "::: create ${0} :::",
+            "AI command to create new content",
+            "AI Command: Create",
+            "Insert an AI command to create new content, e.g.
+            
+```smd
+::: create code to summarize data
+```          
+",
+        ),
+        (
+            "::: edit ",
+            "::: edit ${0} >>>",
+            "AI command to edit existing content",
+            "AI Command: Edit",
+            "Insert an AI command to edit existing content, e.g.
+            
+```smd
+::: edit more concise >>>
+
+An existing paragraph
+```
+",
+        ),
+        (
+            "::: fix ",
+            "::: fix ${0} >>>",
+            "AI command to fix code or math",
+            "AI Command: Fix",
+            "Insert an AI command to fix code or math that has an error, e.g.
+            
+````smd
+::: fix >>>
+
+```python exec
+err!
+```
+````
+",
+        ),
+        (
+            "::: describe ",
+            "::: describe ${0} :::",
+            "AI command to describe other content",
+            "AI Command: Describe",
+            "Insert an AI command to describe other content, e.g.
+            
+```smd
+::: describe next table :::
+```
+",
+        ),
+        (
+            "::: for ",
+            "::: for ${1:var} in ${2:expr}\n\n$0\n\n:::",
+            "Repeat a block of content",
+            "For Block",
+            "Content will be repeated for each value of variable in the expression, e.g.
+
+```smd
+::: for var in expr
+
+Content to be repeated.
+
+:::
+```
+",
+        ),
+        (
+            "::: if ",
+            "::: if ${1:expr}\n\n$0\n\n:::",
+            "Conditionally activate content",
+            "If Block",
+            "Content will only be shown (and executed) if the expression evaluates to a truthy value,
+
+```smd
+::: if expr
+
+Content to be conditionally activated.
+
+:::
+```
+",
+        ),
+    ];
+
+    let items = ITEMS
+        .iter()
+        .filter_map(|&(prefix, body, desc, heading, docs)| {
+            (line.is_empty() || prefix.starts_with(line)).then_some(CompletionItem {
+                label: prefix.into(),
+                label_details: Some(CompletionItemLabelDetails {
+                    description: Some(desc.into()),
+                    ..Default::default()
+                }),
+                detail: Some(heading.into()),
+                documentation: Some(Documentation::MarkupContent(MarkupContent {
+                    kind: MarkupKind::Markdown,
+                    value: ["**", desc, "**\n\n", docs].concat(),
+                })),
+                kind: Some(CompletionItemKind::SNIPPET),
+                insert_text_format: Some(InsertTextFormat::SNIPPET),
+                insert_text: body.strip_prefix(line).map(String::from),
                 ..Default::default()
             })
         })

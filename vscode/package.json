@@ -996,10 +996,6 @@
     ],
     "snippets": [
       {
-        "language": "smd",
-        "path": "./syntaxes/smd/snippets.json"
-      },
-      {
         "language": "myst",
         "path": "./syntaxes/myst/snippets.jsonc"
       },
