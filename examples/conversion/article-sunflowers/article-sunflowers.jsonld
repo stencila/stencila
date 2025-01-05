@@ -4,6 +4,3718 @@
     "stencila": "https://stencila.org/"
   },
   "@type": "Article",
+  "author": [
+    {
+      "@type": "Person",
+      "familyName": [
+        "Marshall"
+      ],
+      "givenName": [
+        "Carine M."
+      ]
+    },
+    {
+      "@type": "Person",
+      "familyName": [
+        "Thompson"
+      ],
+      "givenName": [
+        "Veronica L."
+      ],
+      "identifier": [
+        "http://orcid.org/0000-0003-0500-5639"
+      ]
+    },
+    {
+      "@type": "Person",
+      "familyName": [
+        "Creux"
+      ],
+      "givenName": [
+        "Nicky M."
+      ],
+      "identifier": [
+        "http://orcid.org/0000-0002-4179-6995"
+      ]
+    },
+    {
+      "@type": "Person",
+      "familyName": [
+        "Harmer"
+      ],
+      "givenName": [
+        "Stacey L."
+      ],
+      "identifier": [
+        "http://orcid.org/0000-0001-6813-6682"
+      ]
+    }
+  ],
+  "datePublished": {
+    "@type": "Date",
+    "value": "2022"
+  },
+  "citation": [
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Agostinelli"
+          ],
+          "givenName": [
+            "C."
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Lund"
+          ],
+          "givenName": [
+            "U."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "R package “circular”"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Circular Statistics (version 0.4-94)"
+      }
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Amorim"
+          ],
+          "givenName": [
+            "MD"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "da S"
+          ],
+          "givenName": [
+            "Costa D"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Krahl"
+          ],
+          "givenName": [
+            "DRP"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Fischer"
+          ],
+          "givenName": [
+            "E"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Rech"
+          ],
+          "givenName": [
+            "AR"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Gongylolepis martiana, an Asteraceae pollinated by bats in the Amazon"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1111/plb.13283"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Plant Biol"
+      },
+      "version": 23.0,
+      "pageStart": 728,
+      "pageEnd": 734
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Atamian"
+          ],
+          "givenName": [
+            "HS"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Creux"
+          ],
+          "givenName": [
+            "NM"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Brown"
+          ],
+          "givenName": [
+            "EA"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Garner"
+          ],
+          "givenName": [
+            "AG"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Blackman"
+          ],
+          "givenName": [
+            "BK"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Harmer"
+          ],
+          "givenName": [
+            "SL"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Circadian regulation of sunflower heliotropism, floral orientation, and pollinator visits"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1126/science.aaf9793"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Science"
+      },
+      "version": 353.0,
+      "pageStart": 587,
+      "pageEnd": 590
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Baroncelli"
+          ],
+          "givenName": [
+            "S"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Lercari"
+          ],
+          "givenName": [
+            "B"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Cecconi"
+          ],
+          "givenName": [
+            "F"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Pugliesi"
+          ],
+          "givenName": [
+            "C."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Light control of elongation of filament in sunflower (Helianthus annuus L"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Photochem Photobiol"
+      },
+      "version": 52.0,
+      "pageStart": 229,
+      "pageEnd": 231
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Bloch"
+          ],
+          "givenName": [
+            "G"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Bar-Shai"
+          ],
+          "givenName": [
+            "N"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Cytter"
+          ],
+          "givenName": [
+            "Y"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Green"
+          ],
+          "givenName": [
+            "R."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Time is honey: circadian clocks of bees and flowers and how their interactions may influence ecological communities"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1098/rstb.2016.0256"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Philos Trans R Soc B Biol Sci"
+      },
+      "version": 372.0,
+      "pageStart": 20160256
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Brady"
+          ],
+          "givenName": [
+            "D"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Saviane"
+          ],
+          "givenName": [
+            "A"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Cappellozza"
+          ],
+          "givenName": [
+            "S"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Sandrelli"
+          ],
+          "givenName": [
+            "F."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "The Circadian Clock in Lepidoptera"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.3389/fphys.2021.776826"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Front Physiol"
+      },
+      "version": 12.0,
+      "pageStart": 776826
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Budumajji"
+          ],
+          "givenName": [
+            "U"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Raju"
+          ],
+          "givenName": [
+            "AJS"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Pollination ecology of Bidens pilosa L. (Asteraceae)"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Taiwania"
+      },
+      "version": 63.0,
+      "pageStart": 89,
+      "pageEnd": 100
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Bünsow"
+          ],
+          "givenName": [
+            "R."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Endogene Tagesrhythmik und Photoperiodismus bei Kalanchoë blössfedliana"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Planta"
+      },
+      "version": 42.0,
+      "pageStart": 220,
+      "pageEnd": 252
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Chandler"
+          ],
+          "givenName": [
+            "JW"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "The Hormonal Regulation of Flower Development"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1007/s00344-010-9180-x"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "J Plant Growth Regul"
+      },
+      "version": 30.0,
+      "pageStart": 242,
+      "pageEnd": 254
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Creux"
+          ],
+          "givenName": [
+            "NM"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Brown"
+          ],
+          "givenName": [
+            "EA"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Garner"
+          ],
+          "givenName": [
+            "AG"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Saeed"
+          ],
+          "givenName": [
+            "S"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Scher"
+          ],
+          "givenName": [
+            "CL"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Holalu"
+          ],
+          "givenName": [
+            "SV"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Yang"
+          ],
+          "givenName": [
+            "D"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Maloof"
+          ],
+          "givenName": [
+            "JN"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Blackman"
+          ],
+          "givenName": [
+            "BK"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Harmer"
+          ],
+          "givenName": [
+            "SL"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Flower orientation influences floral temperature, pollinator visits and plant fitness"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1111/nph.17627"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "New Phytol"
+      },
+      "version": 232.0,
+      "pageStart": 868,
+      "pageEnd": 879
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "DeGrandi-Hoffman"
+          ],
+          "givenName": [
+            "G"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Watkins"
+          ],
+          "givenName": [
+            "JC"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "The foraging activity of honey bees Apis mellifera and non-Apis bees on hybrid sunflowers (Helianthus annuus) and its influence on cross-pollination and seed set"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1080/00218839.2000.11101019"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "J Apic Res"
+      },
+      "version": 39.0,
+      "pageStart": 37,
+      "pageEnd": 45
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Dodd"
+          ],
+          "givenName": [
+            "AN"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Salathia"
+          ],
+          "givenName": [
+            "N"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Hall"
+          ],
+          "givenName": [
+            "A"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Kévei"
+          ],
+          "givenName": [
+            "E"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Tóth"
+          ],
+          "givenName": [
+            "R"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Nagy"
+          ],
+          "givenName": [
+            "F"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Hibberd"
+          ],
+          "givenName": [
+            "JM"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Millar"
+          ],
+          "givenName": [
+            "AJ"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Webb"
+          ],
+          "givenName": [
+            "A a R."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Plant circadian clocks increase photosynthesis, growth, survival, and competitive advantage"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1126/science.1115581"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Science"
+      },
+      "version": 309.0,
+      "pageStart": 630,
+      "pageEnd": 633
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Emerson"
+          ],
+          "givenName": [
+            "KJ"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Bradshaw"
+          ],
+          "givenName": [
+            "WE"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Holzapfel"
+          ],
+          "givenName": [
+            "CM"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Concordance of the circadian clock with the environment is necessary to maximize fitness in natural populations"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1111/j.1558-5646.2008.00324.x"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Evolution"
+      },
+      "version": 62.0,
+      "pageStart": 979,
+      "pageEnd": 83
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Funk"
+          ],
+          "givenName": [
+            "VA"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Susanna"
+          ],
+          "givenName": [
+            "A"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Stuessy"
+          ],
+          "givenName": [
+            "TF"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Robinson"
+          ],
+          "givenName": [
+            "H."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Classification of Compositae"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Systematics, Evolution and Biogeography of the Compositae"
+      },
+      "pageStart": 171,
+      "pageEnd": 189
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Greenham"
+          ],
+          "givenName": [
+            "K"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "McClung"
+          ],
+          "givenName": [
+            "CR"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Integrating circadian dynamics with physiological processes in plants"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1038/nrg3976"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Nat Rev Genet"
+      },
+      "version": 16.0,
+      "pageStart": 598,
+      "pageEnd": 610
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Hipólito"
+          ],
+          "givenName": [
+            "J"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Roque"
+          ],
+          "givenName": [
+            "N"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Galetto"
+          ],
+          "givenName": [
+            "L"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Viana"
+          ],
+          "givenName": [
+            "BF"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Kevan"
+          ],
+          "givenName": [
+            "PG"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "The pollination biology of Pseudostifftia kingii H.Rob. (Asteraceae), a rare endemic Brazilian species with uniflorous capitula"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1007/s40415-013-0023-4"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Braz J Bot"
+      },
+      "version": 36.0,
+      "pageStart": 247,
+      "pageEnd": 254
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Ikegami"
+          ],
+          "givenName": [
+            "K"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Yoshimura"
+          ],
+          "givenName": [
+            "T."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Circadian clocks and the measurement of daylength in seasonal reproduction"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1016/j.mce.2011.06.040"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Mol Cell Endocrinol"
+      },
+      "version": 349.0,
+      "pageStart": 76,
+      "pageEnd": 81
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Imaizumi"
+          ],
+          "givenName": [
+            "T"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Kay"
+          ],
+          "givenName": [
+            "SA"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Photoperiodic control of flowering: not only by coincidence"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1016/j.tplants.2006.09.004"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Trends Plant Sci"
+      },
+      "version": 11.0,
+      "pageStart": 550,
+      "pageEnd": 558
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Inoue"
+          ],
+          "givenName": [
+            "K"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Araki"
+          ],
+          "givenName": [
+            "T"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Endo"
+          ],
+          "givenName": [
+            "M."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Circadian clock during plant development"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1007/s10265-017-0991-8"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "J Plant Res"
+      },
+      "version": 131.0,
+      "pageStart": 59,
+      "pageEnd": 66
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Izawa"
+          ],
+          "givenName": [
+            "T"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Oikawa"
+          ],
+          "givenName": [
+            "T"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Sugiyama"
+          ],
+          "givenName": [
+            "N"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Tanisaka"
+          ],
+          "givenName": [
+            "T"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Yano"
+          ],
+          "givenName": [
+            "M"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Shimamoto"
+          ],
+          "givenName": [
+            "K."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Phytochrome mediates the external light signal to repress FT orthologs in photoperiodic flowering of rice"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1101/gad.999202"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Genes Dev"
+      },
+      "version": 16.0,
+      "pageStart": 2006,
+      "pageEnd": 2020
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Jeffrey"
+          ],
+          "givenName": [
+            "C."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Evolution of Compositae Flowers"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Systematics, Evolution and Biogeography of the Compositae"
+      },
+      "pageStart": 131,
+      "pageEnd": 138
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Koritala"
+          ],
+          "givenName": [
+            "BSC"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Wager"
+          ],
+          "givenName": [
+            "C"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Waters"
+          ],
+          "givenName": [
+            "JC"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Pachucki"
+          ],
+          "givenName": [
+            "R"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Piccoli"
+          ],
+          "givenName": [
+            "B"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Feng"
+          ],
+          "givenName": [
+            "Y"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Scheinfeldt"
+          ],
+          "givenName": [
+            "LB"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Shende"
+          ],
+          "givenName": [
+            "SM"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Park"
+          ],
+          "givenName": [
+            "S"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Hozier"
+          ],
+          "givenName": [
+            "JI"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Lalakia"
+          ],
+          "givenName": [
+            "P"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Kumar"
+          ],
+          "givenName": [
+            "D"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Lee"
+          ],
+          "givenName": [
+            "K."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Habitat-Specific Clock Variation and Its Consequence on Reproductive Fitness"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1177/0748730419896486"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "J Biol Rhythms"
+      },
+      "version": 35.0,
+      "pageStart": 134,
+      "pageEnd": 144
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Larrondo"
+          ],
+          "givenName": [
+            "LF"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Canessa"
+          ],
+          "givenName": [
+            "P."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "The Clock Keeps on Ticking: Emerging Roles for Circadian Regulation in the Control of Fungal Physiology and Pathogenesis"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1007/82_2018_143"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Fungal Physiology and Immunopathogenesis, Current Topics in Microbiology and Immunology"
+      },
+      "pageStart": 121,
+      "pageEnd": 156
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Lindström"
+          ],
+          "givenName": [
+            "LI"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Hernández"
+          ],
+          "givenName": [
+            "LF"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Developmental morphology and anatomy of the reproductive structures in sunflower (Helianthus annuus): a unified temporal scale"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1139/cjb-2014-0245"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Botany"
+      },
+      "version": 93.0,
+      "pageStart": 307,
+      "pageEnd": 316
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Lindström"
+          ],
+          "givenName": [
+            "LI"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Pellegrini"
+          ],
+          "givenName": [
+            "CN"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Hernández"
+          ],
+          "givenName": [
+            "LF"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Histological development of the sunflower fruit pericarp as affected by pre- and early post-anthesis canopy shading"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1016/j.fcr.2007.06.005"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Field Crops Res"
+      },
+      "version": 103.0,
+      "pageStart": 229,
+      "pageEnd": 238
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Lobello"
+          ],
+          "givenName": [
+            "G"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Fambrini"
+          ],
+          "givenName": [
+            "M"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Baraldi"
+          ],
+          "givenName": [
+            "R"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Lercari"
+          ],
+          "givenName": [
+            "B"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Pugliesi"
+          ],
+          "givenName": [
+            "C."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Hormonal influence on photocontrol of the protandry in the genus Helianthus"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1093/jxb/51.349.1403"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "J Exp Bot"
+      }
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Mandel"
+          ],
+          "givenName": [
+            "JR"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Dikow"
+          ],
+          "givenName": [
+            "RB"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Siniscalchi"
+          ],
+          "givenName": [
+            "CM"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Thapa"
+          ],
+          "givenName": [
+            "R"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Watson"
+          ],
+          "givenName": [
+            "LE"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Funk"
+          ],
+          "givenName": [
+            "VA"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "A fully resolved backbone phylogeny reveals numerous dispersals and explosive diversifications throughout the history of Asteraceae"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1073/pnas.1903871116"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Proc Natl Acad Sci"
+      },
+      "version": 116.0,
+      "pageStart": 14083,
+      "pageEnd": 14088
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Marc"
+          ],
+          "givenName": [
+            "J"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Palmer"
+          ],
+          "givenName": [
+            "JH"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Photoperiodic sensitivity of inflorescence initiation and development in sunflower"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1016/0378-4290(81)90065-4"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Field Crops Res"
+      },
+      "version": 4.0,
+      "pageStart": 155,
+      "pageEnd": 164
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Marciniak"
+          ],
+          "givenName": [
+            "Przedniczek"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Comprehensive Insight into Gibberellin- and Jasmonate-Mediated Stamen Development"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.3390/genes10100811"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Genes"
+      },
+      "version": 10.0,
+      "pageStart": 811
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "McClung"
+          ],
+          "givenName": [
+            "CR"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "The Plant Circadian Oscillator"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.3390/biology8010014"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Biol Basel"
+      },
+      "version": 8.0
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Michael"
+          ],
+          "givenName": [
+            "TP"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Mockler"
+          ],
+          "givenName": [
+            "TC"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Breton"
+          ],
+          "givenName": [
+            "G"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "McEntee"
+          ],
+          "givenName": [
+            "C"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Byer"
+          ],
+          "givenName": [
+            "A"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Trout"
+          ],
+          "givenName": [
+            "JD"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Hazen"
+          ],
+          "givenName": [
+            "SP"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Shen"
+          ],
+          "givenName": [
+            "R"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Priest"
+          ],
+          "givenName": [
+            "HD"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Sullivan"
+          ],
+          "givenName": [
+            "CM"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Givan"
+          ],
+          "givenName": [
+            "SA"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Yanovsky"
+          ],
+          "givenName": [
+            "M"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Hong"
+          ],
+          "givenName": [
+            "F"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Kay"
+          ],
+          "givenName": [
+            "SA"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Chory"
+          ],
+          "givenName": [
+            "J."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Network Discovery Pipeline Elucidates Conserved Time-of-Day–Specific cis-Regulatory Modules"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1371/journal.pgen.0040014"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "PLoS Genet"
+      },
+      "version": 4.0,
+      "pageStart": "e14"
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Michael"
+          ],
+          "givenName": [
+            "TP"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Salomé"
+          ],
+          "givenName": [
+            "PA"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Yu"
+          ],
+          "givenName": [
+            "HJ"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Spencer"
+          ],
+          "givenName": [
+            "TR"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Sharp"
+          ],
+          "givenName": [
+            "EL"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "McPeek"
+          ],
+          "givenName": [
+            "MA"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Alonso"
+          ],
+          "givenName": [
+            "JM"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Ecker"
+          ],
+          "givenName": [
+            "JR"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "McClung"
+          ],
+          "givenName": [
+            "CR"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Enhanced Fitness Conferred by Naturally Occurring Variation in the Circadian Clock"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1126/science.1082971"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Science"
+      },
+      "version": 302.0,
+      "pageStart": 1049,
+      "pageEnd": 1053
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Miller"
+          ],
+          "givenName": [
+            "BH"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Olson"
+          ],
+          "givenName": [
+            "SL"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Turek"
+          ],
+          "givenName": [
+            "FW"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Levine"
+          ],
+          "givenName": [
+            "JE"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Horton"
+          ],
+          "givenName": [
+            "TH"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Takahashi"
+          ],
+          "givenName": [
+            "JS"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Circadian Clock Mutation Disrupts Estrous Cyclicity and Maintenance of Pregnancy"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1016/j.cub.2004.07.055"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Curr Biol"
+      },
+      "version": 14.0,
+      "pageStart": 1367,
+      "pageEnd": 1373
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Mosier"
+          ],
+          "givenName": [
+            "AE"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Hurley"
+          ],
+          "givenName": [
+            "JM"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Circadian Interactomics: How Research Into Protein-Protein Interactions Beyond the Core Clock Has Influenced the Model of Circadian Timekeeping"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1177/07487304211014622"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "J Biol Rhythms"
+      },
+      "version": 36.0,
+      "pageStart": 315,
+      "pageEnd": 328
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Muroya"
+          ],
+          "givenName": [
+            "M"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Oshima"
+          ],
+          "givenName": [
+            "H"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Kobayashi"
+          ],
+          "givenName": [
+            "S"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Miura"
+          ],
+          "givenName": [
+            "A"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Miyamura"
+          ],
+          "givenName": [
+            "Y"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Shiota"
+          ],
+          "givenName": [
+            "H"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Onai"
+          ],
+          "givenName": [
+            "K"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Ishiura"
+          ],
+          "givenName": [
+            "M"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Manabe"
+          ],
+          "givenName": [
+            "K"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Kutsuna"
+          ],
+          "givenName": [
+            "S."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Circadian Clock in Arabidopsis thaliana Determines Flower Opening Time Early in the Morning and Dominantly Closes Early in the Afternoon"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1093/pcp/pcab048"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Plant Cell Physiol"
+      },
+      "version": 62.0,
+      "pageStart": 883,
+      "pageEnd": 893
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Neff"
+          ],
+          "givenName": [
+            "JL"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Simpson"
+          ],
+          "givenName": [
+            "BB"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "The Roles of Phenology and Reward Structure in the Pollination Biology of Wild Sunflower (Helianthus annuus L., Asteraceae)"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Isr J Bot"
+      },
+      "version": 39.0,
+      "pageStart": 197,
+      "pageEnd": 216
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Ouyang"
+          ],
+          "givenName": [
+            "Y"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Andersson"
+          ],
+          "givenName": [
+            "CR"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Kondo"
+          ],
+          "givenName": [
+            "T"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Golden"
+          ],
+          "givenName": [
+            "SS"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Johnson"
+          ],
+          "givenName": [
+            "CH"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Resonating circadian clocks enhance fitness in cyanobacteria"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1073/pnas.95.15.8660"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Proc Natl Acad Sci U A"
+      },
+      "version": 95.0,
+      "pageStart": 8660,
+      "pageEnd": 4
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Palmer"
+          ],
+          "givenName": [
+            "JH"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Steer"
+          ],
+          "givenName": [
+            "BT"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "The generative area as the site of floret initiation in the sunflower capitulum and its integration to predict floret number"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1016/0378-4290(85)90088-7"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Field Crops Res"
+      },
+      "version": 11.0,
+      "pageStart": 1,
+      "pageEnd": 12
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Patterson"
+          ],
+          "givenName": [
+            "B."
+          ]
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.3120/0024-9637-56.3.209"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Systematics, Evolution, and Biogeography of Compositae, Madroño"
+      }
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Pittendrigh"
+          ],
+          "givenName": [
+            "CS"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Minis"
+          ],
+          "givenName": [
+            "DH"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "The Entrainment of Circadian Oscillations by Light and Their Role as Photoperiodic Clocks"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1086/282327"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Am Nat"
+      },
+      "version": 98.0,
+      "pageStart": 261,
+      "pageEnd": 294
+    },
+    {
+      "@type": "Article",
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Observations on Morphological Characters and Flowering Processes in the Sunflower (Helianthus annuus L"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Sci Agric"
+      },
+      "version": 21.0,
+      "pageStart": 167,
+      "pageEnd": 179
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Rensing"
+          ],
+          "givenName": [
+            "L"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Ruoff"
+          ],
+          "givenName": [
+            "P."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Temperature effect on entrainment, phase shifting, and amplitude of circadian clocks and its molecular bases"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1081/CBI-120014569"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Chronobiol Int"
+      },
+      "version": 19.0,
+      "pageStart": 807,
+      "pageEnd": 864
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Richmond"
+          ],
+          "givenName": [
+            "DL"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Oates"
+          ],
+          "givenName": [
+            "AC"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "The segmentation clock: inherited trait or universal design principle?"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1016/j.gde.2012.10.003"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Curr Opin Genet Dev"
+      },
+      "version": 22.0,
+      "pageStart": 600,
+      "pageEnd": 606
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Roenneberg"
+          ],
+          "givenName": [
+            "T"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Dragovic"
+          ],
+          "givenName": [
+            "Z"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Merrow"
+          ],
+          "givenName": [
+            "M."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Demasking biological oscillators: properties and principles of entrainment exemplified by the Neurospora circadian clock"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1073/pnas.0501884102"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Proc Natl Acad Sci U S A"
+      },
+      "version": 102.0,
+      "pageStart": 7742,
+      "pageEnd": 7
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Ruan"
+          ],
+          "givenName": [
+            "W"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Yuan"
+          ],
+          "givenName": [
+            "X"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Eltzschig"
+          ],
+          "givenName": [
+            "HK"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Circadian rhythm as a therapeutic target"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1038/s41573-020-00109-w"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Nat Rev Drug Discov"
+      },
+      "version": 20.0,
+      "pageStart": 287,
+      "pageEnd": 307
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Sargent"
+          ],
+          "givenName": [
+            "ML"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Briggs"
+          ],
+          "givenName": [
+            "WR"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Woodward"
+          ],
+          "givenName": [
+            "DO"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Circadian Nature of a Rhythm Expressed by an Invertaseless Strain of Neurospora crassa"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1104/pp.41.8.1343"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Plant Physiol"
+      },
+      "version": 41.0,
+      "pageStart": 1343,
+      "pageEnd": 1349
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Schneider"
+          ],
+          "givenName": [
+            "CA"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Rasband"
+          ],
+          "givenName": [
+            "WS"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Eliceiri"
+          ],
+          "givenName": [
+            "KW"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "NIH Image to ImageJ: 25 years of image analysis"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Nat Methods"
+      },
+      "version": 9.0,
+      "pageStart": 671,
+      "pageEnd": 5
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Seiler"
+          ],
+          "givenName": [
+            "GJ"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Anatomy and Morphology of Sunflower"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.2134/agronmonogr35.c3"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Agronomy Monographs"
+      },
+      "pageStart": 67,
+      "pageEnd": 111
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Spoelstra"
+          ],
+          "givenName": [
+            "K"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Wikelski"
+          ],
+          "givenName": [
+            "M"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Daan"
+          ],
+          "givenName": [
+            "S"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Loudon"
+          ],
+          "givenName": [
+            "ASI"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Hau"
+          ],
+          "givenName": [
+            "M."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Natural selection against a circadian clock gene mutation in mice"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1073/pnas.1516442113"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Proc Natl Acad Sci"
+      },
+      "version": 113.0,
+      "pageStart": 686,
+      "pageEnd": 691
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Valentin-Silva"
+          ],
+          "givenName": [
+            "A"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Godinho"
+          ],
+          "givenName": [
+            "M"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Cruz"
+          ],
+          "givenName": [
+            "K"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Lelis"
+          ],
+          "givenName": [
+            "S"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Vieira"
+          ],
+          "givenName": [
+            "M."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Three psychophilous Asteraceae species with distinct reproductive mechanisms in southeastern Brazil"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1080/0028825X.2016.1236735"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "N Z J Bot"
+      },
+      "version": 54.0,
+      "pageStart": 498,
+      "pageEnd": 510
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Visscher"
+          ],
+          "givenName": [
+            "PK"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Seeley"
+          ],
+          "givenName": [
+            "TD"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Foraging Strategy of Honeybee Colonies in a Temperate Deciduous Forest"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.2307/1940121"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Ecology"
+      },
+      "version": 63.0,
+      "pageStart": 1790
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Wenden"
+          ],
+          "givenName": [
+            "B"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Kozma-Bognár"
+          ],
+          "givenName": [
+            "L"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Edwards"
+          ],
+          "givenName": [
+            "KD"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Hall"
+          ],
+          "givenName": [
+            "AJW"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Locke"
+          ],
+          "givenName": [
+            "JCW"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Millar"
+          ],
+          "givenName": [
+            "AJ"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Light inputs shape the Arabidopsis circadian system"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1111/j.1365-313X.2011.04505.x"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Plant J"
+      },
+      "version": 66.0,
+      "pageStart": 480,
+      "pageEnd": 491
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Wickham"
+          ],
+          "givenName": [
+            "H"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Averick"
+          ],
+          "givenName": [
+            "M"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Bryan"
+          ],
+          "givenName": [
+            "J"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Chang"
+          ],
+          "givenName": [
+            "W"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "McGowan"
+          ],
+          "givenName": [
+            "L"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "François"
+          ],
+          "givenName": [
+            "R"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Grolemund"
+          ],
+          "givenName": [
+            "G"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Hayes"
+          ],
+          "givenName": [
+            "A"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Henry"
+          ],
+          "givenName": [
+            "L"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Hester"
+          ],
+          "givenName": [
+            "J"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Kuhn"
+          ],
+          "givenName": [
+            "M"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Pedersen"
+          ],
+          "givenName": [
+            "T"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Miller"
+          ],
+          "givenName": [
+            "E"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Bache"
+          ],
+          "givenName": [
+            "S"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Müller"
+          ],
+          "givenName": [
+            "K"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Ooms"
+          ],
+          "givenName": [
+            "J"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Robinson"
+          ],
+          "givenName": [
+            "D"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Seidel"
+          ],
+          "givenName": [
+            "D"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Spinu"
+          ],
+          "givenName": [
+            "V"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Takahashi"
+          ],
+          "givenName": [
+            "K"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Vaughan"
+          ],
+          "givenName": [
+            "D"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Wilke"
+          ],
+          "givenName": [
+            "C"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Woo"
+          ],
+          "givenName": [
+            "K"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Yutani"
+          ],
+          "givenName": [
+            "H."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Welcome to the Tidyverse"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.21105/joss.01686"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "J Open Source Softw"
+      },
+      "version": 4.0,
+      "pageStart": 1686
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Xuan"
+          ],
+          "givenName": [
+            "W"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "De Gernier"
+          ],
+          "givenName": [
+            "H"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Beeckman"
+          ],
+          "givenName": [
+            "T."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "The dynamic nature and regulation of the root clock"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1242/dev.181446"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Development"
+      },
+      "version": 147.0,
+      "pageStart": "dev181446"
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Yanovsky"
+          ],
+          "givenName": [
+            "MJ"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Kay"
+          ],
+          "givenName": [
+            "SA"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Living by the calendar: how plants know when to flower"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1038/nrm1077"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Nat Rev Mol Cell Biol"
+      },
+      "version": 4.0,
+      "pageStart": 265,
+      "pageEnd": 276
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Yon"
+          ],
+          "givenName": [
+            "F"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Joo"
+          ],
+          "givenName": [
+            "Y"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Cortés Llorca"
+          ],
+          "givenName": [
+            "L"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Rothe"
+          ],
+          "givenName": [
+            "E"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Baldwin"
+          ],
+          "givenName": [
+            "IT"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Kim"
+          ],
+          "givenName": [
+            "S-G."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Silencing Nicotiana attenuata LHY and ZTL alters circadian rhythms in flowers"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1111/nph.13681"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "New Phytol"
+      },
+      "version": 209.0,
+      "pageStart": 1058,
+      "pageEnd": 1066
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Yon"
+          ],
+          "givenName": [
+            "F"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Kessler"
+          ],
+          "givenName": [
+            "D"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Joo"
+          ],
+          "givenName": [
+            "Y"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Cortés Llorca"
+          ],
+          "givenName": [
+            "L"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Kim"
+          ],
+          "givenName": [
+            "SG"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Baldwin"
+          ],
+          "givenName": [
+            "IT"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Fitness consequences of altering floral circadian oscillations for Nicotiana attenuata"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1111/jipb.12511"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "J Integr Plant Biol"
+      },
+      "version": 59.0,
+      "pageStart": 180,
+      "pageEnd": 189
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Zhang"
+          ],
+          "givenName": [
+            "T"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Cieslak"
+          ],
+          "givenName": [
+            "M"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Owens"
+          ],
+          "givenName": [
+            "A"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Wang"
+          ],
+          "givenName": [
+            "F"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Broholm"
+          ],
+          "givenName": [
+            "SK"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Teeri"
+          ],
+          "givenName": [
+            "TH"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Elomaa"
+          ],
+          "givenName": [
+            "P"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Prusinkiewicz"
+          ],
+          "givenName": [
+            "P."
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Phyllotactic patterning of gerbera flower heads"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1073/pnas.2016304118"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "Proc Natl Acad Sci"
+      },
+      "version": 118.0,
+      "pageStart": "e2016304118"
+    },
+    {
+      "@type": "Article",
+      "author": [
+        {
+          "@type": "Person",
+          "familyName": [
+            "Zielinski"
+          ],
+          "givenName": [
+            "T"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Moore"
+          ],
+          "givenName": [
+            "AM"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Troup"
+          ],
+          "givenName": [
+            "E"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Halliday"
+          ],
+          "givenName": [
+            "KJ"
+          ]
+        },
+        {
+          "@type": "Person",
+          "familyName": [
+            "Millar"
+          ],
+          "givenName": [
+            "AJ"
+          ]
+        }
+      ],
+      "headline": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "Strengths and limitations of period estimation methods for circadian data"
+          }
+        }
+      ],
+      "stencila:content": [],
+      "identifier": [
+        "10.1371/journal.pone.0096462"
+      ],
+      "publisher": {
+        "@type": "Organization",
+        "name": "PLoS ONE"
+      },
+      "version": 9.0,
+      "pageStart": "e96462"
+    }
+  ],
   "stencila:content": [
     {
       "@type": "stencila:Section",
@@ -4063,5 +7775,9 @@
       "value": "Plant Biology"
     }
   ],
+  "publisher": {
+    "@type": "Organization",
+    "name": "Cold Spring Harbor Laboratory"
+  },
   "version": "1.1"
 }

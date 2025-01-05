@@ -1,5 +1,2455 @@
 {
   type: "Article",
+  authors: [
+    {
+      type: "Person",
+      familyNames: [ "Marshall" ],
+      givenNames: [ "Carine M." ]
+    },
+    {
+      type: "Person",
+      familyNames: [ "Thompson" ],
+      givenNames: [ "Veronica L." ],
+      identifiers: [ "http:\/\/orcid.org\/0000-0003-0500-5639" ]
+    },
+    {
+      type: "Person",
+      familyNames: [ "Creux" ],
+      givenNames: [ "Nicky M." ],
+      identifiers: [ "http:\/\/orcid.org\/0000-0002-4179-6995" ]
+    },
+    {
+      type: "Person",
+      familyNames: [ "Harmer" ],
+      givenNames: [ "Stacey L." ],
+      identifiers: [ "http:\/\/orcid.org\/0000-0001-6813-6682" ]
+    }
+  ],
+  datePublished: {
+    type: "Date",
+    value: "2022"
+  },
+  references: [
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Agostinelli" ],
+          givenNames: [ "C." ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Lund" ],
+          givenNames: [ "U." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "R package “circular”" }
+        }
+      ],
+      content: [],
+      publisher: {
+        type: "Organization",
+        name: "Circular Statistics (version 0.4-94)"
+      }
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Amorim" ],
+          givenNames: [ "MD" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "da S" ],
+          givenNames: [ "Costa D" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Krahl" ],
+          givenNames: [ "DRP" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Fischer" ],
+          givenNames: [ "E" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Rech" ],
+          givenNames: [ "AR" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Gongylolepis martiana, an Asteraceae pollinated by bats in the Amazon" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1111\/plb.13283" ],
+      publisher: {
+        type: "Organization",
+        name: "Plant Biol"
+      },
+      version: 23,
+      pageStart: 728,
+      pageEnd: 734
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Atamian" ],
+          givenNames: [ "HS" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Creux" ],
+          givenNames: [ "NM" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Brown" ],
+          givenNames: [ "EA" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Garner" ],
+          givenNames: [ "AG" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Blackman" ],
+          givenNames: [ "BK" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Harmer" ],
+          givenNames: [ "SL" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Circadian regulation of sunflower heliotropism, floral orientation, and pollinator visits" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1126\/science.aaf9793" ],
+      publisher: {
+        type: "Organization",
+        name: "Science"
+      },
+      version: 353,
+      pageStart: 587,
+      pageEnd: 590
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Baroncelli" ],
+          givenNames: [ "S" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Lercari" ],
+          givenNames: [ "B" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Cecconi" ],
+          givenNames: [ "F" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Pugliesi" ],
+          givenNames: [ "C." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Light control of elongation of filament in sunflower (Helianthus annuus L" }
+        }
+      ],
+      content: [],
+      publisher: {
+        type: "Organization",
+        name: "Photochem Photobiol"
+      },
+      version: 52,
+      pageStart: 229,
+      pageEnd: 231
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Bloch" ],
+          givenNames: [ "G" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Bar-Shai" ],
+          givenNames: [ "N" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Cytter" ],
+          givenNames: [ "Y" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Green" ],
+          givenNames: [ "R." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Time is honey: circadian clocks of bees and flowers and how their interactions may influence ecological communities" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1098\/rstb.2016.0256" ],
+      publisher: {
+        type: "Organization",
+        name: "Philos Trans R Soc B Biol Sci"
+      },
+      version: 372,
+      pageStart: 20160256
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Brady" ],
+          givenNames: [ "D" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Saviane" ],
+          givenNames: [ "A" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Cappellozza" ],
+          givenNames: [ "S" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Sandrelli" ],
+          givenNames: [ "F." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "The Circadian Clock in Lepidoptera" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.3389\/fphys.2021.776826" ],
+      publisher: {
+        type: "Organization",
+        name: "Front Physiol"
+      },
+      version: 12,
+      pageStart: 776826
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Budumajji" ],
+          givenNames: [ "U" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Raju" ],
+          givenNames: [ "AJS" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Pollination ecology of Bidens pilosa L. (Asteraceae)" }
+        }
+      ],
+      content: [],
+      publisher: {
+        type: "Organization",
+        name: "Taiwania"
+      },
+      version: 63,
+      pageStart: 89,
+      pageEnd: 100
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Bünsow" ],
+          givenNames: [ "R." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Endogene Tagesrhythmik und Photoperiodismus bei Kalanchoë blössfedliana" }
+        }
+      ],
+      content: [],
+      publisher: {
+        type: "Organization",
+        name: "Planta"
+      },
+      version: 42,
+      pageStart: 220,
+      pageEnd: 252
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Chandler" ],
+          givenNames: [ "JW" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "The Hormonal Regulation of Flower Development" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1007\/s00344-010-9180-x" ],
+      publisher: {
+        type: "Organization",
+        name: "J Plant Growth Regul"
+      },
+      version: 30,
+      pageStart: 242,
+      pageEnd: 254
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Creux" ],
+          givenNames: [ "NM" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Brown" ],
+          givenNames: [ "EA" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Garner" ],
+          givenNames: [ "AG" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Saeed" ],
+          givenNames: [ "S" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Scher" ],
+          givenNames: [ "CL" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Holalu" ],
+          givenNames: [ "SV" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Yang" ],
+          givenNames: [ "D" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Maloof" ],
+          givenNames: [ "JN" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Blackman" ],
+          givenNames: [ "BK" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Harmer" ],
+          givenNames: [ "SL" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Flower orientation influences floral temperature, pollinator visits and plant fitness" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1111\/nph.17627" ],
+      publisher: {
+        type: "Organization",
+        name: "New Phytol"
+      },
+      version: 232,
+      pageStart: 868,
+      pageEnd: 879
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "DeGrandi-Hoffman" ],
+          givenNames: [ "G" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Watkins" ],
+          givenNames: [ "JC" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "The foraging activity of honey bees Apis mellifera and non-Apis bees on hybrid sunflowers (Helianthus annuus) and its influence on cross-pollination and seed set" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1080\/00218839.2000.11101019" ],
+      publisher: {
+        type: "Organization",
+        name: "J Apic Res"
+      },
+      version: 39,
+      pageStart: 37,
+      pageEnd: 45
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Dodd" ],
+          givenNames: [ "AN" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Salathia" ],
+          givenNames: [ "N" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Hall" ],
+          givenNames: [ "A" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Kévei" ],
+          givenNames: [ "E" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Tóth" ],
+          givenNames: [ "R" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Nagy" ],
+          givenNames: [ "F" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Hibberd" ],
+          givenNames: [ "JM" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Millar" ],
+          givenNames: [ "AJ" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Webb" ],
+          givenNames: [ "A a R." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Plant circadian clocks increase photosynthesis, growth, survival, and competitive advantage" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1126\/science.1115581" ],
+      publisher: {
+        type: "Organization",
+        name: "Science"
+      },
+      version: 309,
+      pageStart: 630,
+      pageEnd: 633
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Emerson" ],
+          givenNames: [ "KJ" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Bradshaw" ],
+          givenNames: [ "WE" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Holzapfel" ],
+          givenNames: [ "CM" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Concordance of the circadian clock with the environment is necessary to maximize fitness in natural populations" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1111\/j.1558-5646.2008.00324.x" ],
+      publisher: {
+        type: "Organization",
+        name: "Evolution"
+      },
+      version: 62,
+      pageStart: 979,
+      pageEnd: 83
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Funk" ],
+          givenNames: [ "VA" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Susanna" ],
+          givenNames: [ "A" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Stuessy" ],
+          givenNames: [ "TF" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Robinson" ],
+          givenNames: [ "H." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Classification of Compositae" }
+        }
+      ],
+      content: [],
+      publisher: {
+        type: "Organization",
+        name: "Systematics, Evolution and Biogeography of the Compositae"
+      },
+      pageStart: 171,
+      pageEnd: 189
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Greenham" ],
+          givenNames: [ "K" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "McClung" ],
+          givenNames: [ "CR" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Integrating circadian dynamics with physiological processes in plants" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1038\/nrg3976" ],
+      publisher: {
+        type: "Organization",
+        name: "Nat Rev Genet"
+      },
+      version: 16,
+      pageStart: 598,
+      pageEnd: 610
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Hipólito" ],
+          givenNames: [ "J" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Roque" ],
+          givenNames: [ "N" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Galetto" ],
+          givenNames: [ "L" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Viana" ],
+          givenNames: [ "BF" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Kevan" ],
+          givenNames: [ "PG" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "The pollination biology of Pseudostifftia kingii H.Rob. (Asteraceae), a rare endemic Brazilian species with uniflorous capitula" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1007\/s40415-013-0023-4" ],
+      publisher: {
+        type: "Organization",
+        name: "Braz J Bot"
+      },
+      version: 36,
+      pageStart: 247,
+      pageEnd: 254
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Ikegami" ],
+          givenNames: [ "K" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Yoshimura" ],
+          givenNames: [ "T." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Circadian clocks and the measurement of daylength in seasonal reproduction" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1016\/j.mce.2011.06.040" ],
+      publisher: {
+        type: "Organization",
+        name: "Mol Cell Endocrinol"
+      },
+      version: 349,
+      pageStart: 76,
+      pageEnd: 81
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Imaizumi" ],
+          givenNames: [ "T" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Kay" ],
+          givenNames: [ "SA" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Photoperiodic control of flowering: not only by coincidence" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1016\/j.tplants.2006.09.004" ],
+      publisher: {
+        type: "Organization",
+        name: "Trends Plant Sci"
+      },
+      version: 11,
+      pageStart: 550,
+      pageEnd: 558
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Inoue" ],
+          givenNames: [ "K" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Araki" ],
+          givenNames: [ "T" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Endo" ],
+          givenNames: [ "M." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Circadian clock during plant development" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1007\/s10265-017-0991-8" ],
+      publisher: {
+        type: "Organization",
+        name: "J Plant Res"
+      },
+      version: 131,
+      pageStart: 59,
+      pageEnd: 66
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Izawa" ],
+          givenNames: [ "T" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Oikawa" ],
+          givenNames: [ "T" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Sugiyama" ],
+          givenNames: [ "N" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Tanisaka" ],
+          givenNames: [ "T" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Yano" ],
+          givenNames: [ "M" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Shimamoto" ],
+          givenNames: [ "K." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Phytochrome mediates the external light signal to repress FT orthologs in photoperiodic flowering of rice" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1101\/gad.999202" ],
+      publisher: {
+        type: "Organization",
+        name: "Genes Dev"
+      },
+      version: 16,
+      pageStart: 2006,
+      pageEnd: 2020
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Jeffrey" ],
+          givenNames: [ "C." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Evolution of Compositae Flowers" }
+        }
+      ],
+      content: [],
+      publisher: {
+        type: "Organization",
+        name: "Systematics, Evolution and Biogeography of the Compositae"
+      },
+      pageStart: 131,
+      pageEnd: 138
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Koritala" ],
+          givenNames: [ "BSC" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Wager" ],
+          givenNames: [ "C" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Waters" ],
+          givenNames: [ "JC" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Pachucki" ],
+          givenNames: [ "R" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Piccoli" ],
+          givenNames: [ "B" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Feng" ],
+          givenNames: [ "Y" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Scheinfeldt" ],
+          givenNames: [ "LB" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Shende" ],
+          givenNames: [ "SM" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Park" ],
+          givenNames: [ "S" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Hozier" ],
+          givenNames: [ "JI" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Lalakia" ],
+          givenNames: [ "P" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Kumar" ],
+          givenNames: [ "D" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Lee" ],
+          givenNames: [ "K." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Habitat-Specific Clock Variation and Its Consequence on Reproductive Fitness" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1177\/0748730419896486" ],
+      publisher: {
+        type: "Organization",
+        name: "J Biol Rhythms"
+      },
+      version: 35,
+      pageStart: 134,
+      pageEnd: 144
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Larrondo" ],
+          givenNames: [ "LF" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Canessa" ],
+          givenNames: [ "P." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "The Clock Keeps on Ticking: Emerging Roles for Circadian Regulation in the Control of Fungal Physiology and Pathogenesis" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1007\/82_2018_143" ],
+      publisher: {
+        type: "Organization",
+        name: "Fungal Physiology and Immunopathogenesis, Current Topics in Microbiology and Immunology"
+      },
+      pageStart: 121,
+      pageEnd: 156
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Lindström" ],
+          givenNames: [ "LI" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Hernández" ],
+          givenNames: [ "LF" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Developmental morphology and anatomy of the reproductive structures in sunflower (Helianthus annuus): a unified temporal scale" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1139\/cjb-2014-0245" ],
+      publisher: {
+        type: "Organization",
+        name: "Botany"
+      },
+      version: 93,
+      pageStart: 307,
+      pageEnd: 316
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Lindström" ],
+          givenNames: [ "LI" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Pellegrini" ],
+          givenNames: [ "CN" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Hernández" ],
+          givenNames: [ "LF" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Histological development of the sunflower fruit pericarp as affected by pre- and early post-anthesis canopy shading" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1016\/j.fcr.2007.06.005" ],
+      publisher: {
+        type: "Organization",
+        name: "Field Crops Res"
+      },
+      version: 103,
+      pageStart: 229,
+      pageEnd: 238
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Lobello" ],
+          givenNames: [ "G" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Fambrini" ],
+          givenNames: [ "M" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Baraldi" ],
+          givenNames: [ "R" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Lercari" ],
+          givenNames: [ "B" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Pugliesi" ],
+          givenNames: [ "C." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Hormonal influence on photocontrol of the protandry in the genus Helianthus" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1093\/jxb\/51.349.1403" ],
+      publisher: {
+        type: "Organization",
+        name: "J Exp Bot"
+      }
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Mandel" ],
+          givenNames: [ "JR" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Dikow" ],
+          givenNames: [ "RB" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Siniscalchi" ],
+          givenNames: [ "CM" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Thapa" ],
+          givenNames: [ "R" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Watson" ],
+          givenNames: [ "LE" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Funk" ],
+          givenNames: [ "VA" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "A fully resolved backbone phylogeny reveals numerous dispersals and explosive diversifications throughout the history of Asteraceae" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1073\/pnas.1903871116" ],
+      publisher: {
+        type: "Organization",
+        name: "Proc Natl Acad Sci"
+      },
+      version: 116,
+      pageStart: 14083,
+      pageEnd: 14088
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Marc" ],
+          givenNames: [ "J" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Palmer" ],
+          givenNames: [ "JH" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Photoperiodic sensitivity of inflorescence initiation and development in sunflower" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1016\/0378-4290(81)90065-4" ],
+      publisher: {
+        type: "Organization",
+        name: "Field Crops Res"
+      },
+      version: 4,
+      pageStart: 155,
+      pageEnd: 164
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Marciniak" ],
+          givenNames: [ "Przedniczek" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Comprehensive Insight into Gibberellin- and Jasmonate-Mediated Stamen Development" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.3390\/genes10100811" ],
+      publisher: {
+        type: "Organization",
+        name: "Genes"
+      },
+      version: 10,
+      pageStart: 811
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "McClung" ],
+          givenNames: [ "CR" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "The Plant Circadian Oscillator" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.3390\/biology8010014" ],
+      publisher: {
+        type: "Organization",
+        name: "Biol Basel"
+      },
+      version: 8
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Michael" ],
+          givenNames: [ "TP" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Mockler" ],
+          givenNames: [ "TC" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Breton" ],
+          givenNames: [ "G" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "McEntee" ],
+          givenNames: [ "C" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Byer" ],
+          givenNames: [ "A" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Trout" ],
+          givenNames: [ "JD" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Hazen" ],
+          givenNames: [ "SP" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Shen" ],
+          givenNames: [ "R" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Priest" ],
+          givenNames: [ "HD" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Sullivan" ],
+          givenNames: [ "CM" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Givan" ],
+          givenNames: [ "SA" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Yanovsky" ],
+          givenNames: [ "M" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Hong" ],
+          givenNames: [ "F" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Kay" ],
+          givenNames: [ "SA" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Chory" ],
+          givenNames: [ "J." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Network Discovery Pipeline Elucidates Conserved Time-of-Day–Specific cis-Regulatory Modules" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1371\/journal.pgen.0040014" ],
+      publisher: {
+        type: "Organization",
+        name: "PLoS Genet"
+      },
+      version: 4,
+      pageStart: "e14"
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Michael" ],
+          givenNames: [ "TP" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Salomé" ],
+          givenNames: [ "PA" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Yu" ],
+          givenNames: [ "HJ" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Spencer" ],
+          givenNames: [ "TR" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Sharp" ],
+          givenNames: [ "EL" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "McPeek" ],
+          givenNames: [ "MA" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Alonso" ],
+          givenNames: [ "JM" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Ecker" ],
+          givenNames: [ "JR" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "McClung" ],
+          givenNames: [ "CR" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Enhanced Fitness Conferred by Naturally Occurring Variation in the Circadian Clock" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1126\/science.1082971" ],
+      publisher: {
+        type: "Organization",
+        name: "Science"
+      },
+      version: 302,
+      pageStart: 1049,
+      pageEnd: 1053
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Miller" ],
+          givenNames: [ "BH" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Olson" ],
+          givenNames: [ "SL" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Turek" ],
+          givenNames: [ "FW" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Levine" ],
+          givenNames: [ "JE" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Horton" ],
+          givenNames: [ "TH" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Takahashi" ],
+          givenNames: [ "JS" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Circadian Clock Mutation Disrupts Estrous Cyclicity and Maintenance of Pregnancy" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1016\/j.cub.2004.07.055" ],
+      publisher: {
+        type: "Organization",
+        name: "Curr Biol"
+      },
+      version: 14,
+      pageStart: 1367,
+      pageEnd: 1373
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Mosier" ],
+          givenNames: [ "AE" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Hurley" ],
+          givenNames: [ "JM" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Circadian Interactomics: How Research Into Protein-Protein Interactions Beyond the Core Clock Has Influenced the Model of Circadian Timekeeping" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1177\/07487304211014622" ],
+      publisher: {
+        type: "Organization",
+        name: "J Biol Rhythms"
+      },
+      version: 36,
+      pageStart: 315,
+      pageEnd: 328
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Muroya" ],
+          givenNames: [ "M" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Oshima" ],
+          givenNames: [ "H" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Kobayashi" ],
+          givenNames: [ "S" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Miura" ],
+          givenNames: [ "A" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Miyamura" ],
+          givenNames: [ "Y" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Shiota" ],
+          givenNames: [ "H" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Onai" ],
+          givenNames: [ "K" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Ishiura" ],
+          givenNames: [ "M" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Manabe" ],
+          givenNames: [ "K" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Kutsuna" ],
+          givenNames: [ "S." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Circadian Clock in Arabidopsis thaliana Determines Flower Opening Time Early in the Morning and Dominantly Closes Early in the Afternoon" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1093\/pcp\/pcab048" ],
+      publisher: {
+        type: "Organization",
+        name: "Plant Cell Physiol"
+      },
+      version: 62,
+      pageStart: 883,
+      pageEnd: 893
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Neff" ],
+          givenNames: [ "JL" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Simpson" ],
+          givenNames: [ "BB" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "The Roles of Phenology and Reward Structure in the Pollination Biology of Wild Sunflower (Helianthus annuus L., Asteraceae)" }
+        }
+      ],
+      content: [],
+      publisher: {
+        type: "Organization",
+        name: "Isr J Bot"
+      },
+      version: 39,
+      pageStart: 197,
+      pageEnd: 216
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Ouyang" ],
+          givenNames: [ "Y" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Andersson" ],
+          givenNames: [ "CR" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Kondo" ],
+          givenNames: [ "T" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Golden" ],
+          givenNames: [ "SS" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Johnson" ],
+          givenNames: [ "CH" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Resonating circadian clocks enhance fitness in cyanobacteria" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1073\/pnas.95.15.8660" ],
+      publisher: {
+        type: "Organization",
+        name: "Proc Natl Acad Sci U A"
+      },
+      version: 95,
+      pageStart: 8660,
+      pageEnd: 4
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Palmer" ],
+          givenNames: [ "JH" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Steer" ],
+          givenNames: [ "BT" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "The generative area as the site of floret initiation in the sunflower capitulum and its integration to predict floret number" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1016\/0378-4290(85)90088-7" ],
+      publisher: {
+        type: "Organization",
+        name: "Field Crops Res"
+      },
+      version: 11,
+      pageStart: 1,
+      pageEnd: 12
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Patterson" ],
+          givenNames: [ "B." ]
+        }
+      ],
+      content: [],
+      identifiers: [ "10.3120\/0024-9637-56.3.209" ],
+      publisher: {
+        type: "Organization",
+        name: "Systematics, Evolution, and Biogeography of Compositae, Madroño"
+      }
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Pittendrigh" ],
+          givenNames: [ "CS" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Minis" ],
+          givenNames: [ "DH" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "The Entrainment of Circadian Oscillations by Light and Their Role as Photoperiodic Clocks" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1086\/282327" ],
+      publisher: {
+        type: "Organization",
+        name: "Am Nat"
+      },
+      version: 98,
+      pageStart: 261,
+      pageEnd: 294
+    },
+    {
+      type: "Article",
+      title: [
+        {
+          type: "Text",
+          value: { string: "Observations on Morphological Characters and Flowering Processes in the Sunflower (Helianthus annuus L" }
+        }
+      ],
+      content: [],
+      publisher: {
+        type: "Organization",
+        name: "Sci Agric"
+      },
+      version: 21,
+      pageStart: 167,
+      pageEnd: 179
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Rensing" ],
+          givenNames: [ "L" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Ruoff" ],
+          givenNames: [ "P." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Temperature effect on entrainment, phase shifting, and amplitude of circadian clocks and its molecular bases" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1081\/CBI-120014569" ],
+      publisher: {
+        type: "Organization",
+        name: "Chronobiol Int"
+      },
+      version: 19,
+      pageStart: 807,
+      pageEnd: 864
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Richmond" ],
+          givenNames: [ "DL" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Oates" ],
+          givenNames: [ "AC" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "The segmentation clock: inherited trait or universal design principle?" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1016\/j.gde.2012.10.003" ],
+      publisher: {
+        type: "Organization",
+        name: "Curr Opin Genet Dev"
+      },
+      version: 22,
+      pageStart: 600,
+      pageEnd: 606
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Roenneberg" ],
+          givenNames: [ "T" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Dragovic" ],
+          givenNames: [ "Z" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Merrow" ],
+          givenNames: [ "M." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Demasking biological oscillators: properties and principles of entrainment exemplified by the Neurospora circadian clock" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1073\/pnas.0501884102" ],
+      publisher: {
+        type: "Organization",
+        name: "Proc Natl Acad Sci U S A"
+      },
+      version: 102,
+      pageStart: 7742,
+      pageEnd: 7
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Ruan" ],
+          givenNames: [ "W" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Yuan" ],
+          givenNames: [ "X" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Eltzschig" ],
+          givenNames: [ "HK" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Circadian rhythm as a therapeutic target" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1038\/s41573-020-00109-w" ],
+      publisher: {
+        type: "Organization",
+        name: "Nat Rev Drug Discov"
+      },
+      version: 20,
+      pageStart: 287,
+      pageEnd: 307
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Sargent" ],
+          givenNames: [ "ML" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Briggs" ],
+          givenNames: [ "WR" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Woodward" ],
+          givenNames: [ "DO" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Circadian Nature of a Rhythm Expressed by an Invertaseless Strain of Neurospora crassa" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1104\/pp.41.8.1343" ],
+      publisher: {
+        type: "Organization",
+        name: "Plant Physiol"
+      },
+      version: 41,
+      pageStart: 1343,
+      pageEnd: 1349
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Schneider" ],
+          givenNames: [ "CA" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Rasband" ],
+          givenNames: [ "WS" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Eliceiri" ],
+          givenNames: [ "KW" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "NIH Image to ImageJ: 25 years of image analysis" }
+        }
+      ],
+      content: [],
+      publisher: {
+        type: "Organization",
+        name: "Nat Methods"
+      },
+      version: 9,
+      pageStart: 671,
+      pageEnd: 5
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Seiler" ],
+          givenNames: [ "GJ" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Anatomy and Morphology of Sunflower" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.2134\/agronmonogr35.c3" ],
+      publisher: {
+        type: "Organization",
+        name: "Agronomy Monographs"
+      },
+      pageStart: 67,
+      pageEnd: 111
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Spoelstra" ],
+          givenNames: [ "K" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Wikelski" ],
+          givenNames: [ "M" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Daan" ],
+          givenNames: [ "S" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Loudon" ],
+          givenNames: [ "ASI" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Hau" ],
+          givenNames: [ "M." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Natural selection against a circadian clock gene mutation in mice" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1073\/pnas.1516442113" ],
+      publisher: {
+        type: "Organization",
+        name: "Proc Natl Acad Sci"
+      },
+      version: 113,
+      pageStart: 686,
+      pageEnd: 691
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Valentin-Silva" ],
+          givenNames: [ "A" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Godinho" ],
+          givenNames: [ "M" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Cruz" ],
+          givenNames: [ "K" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Lelis" ],
+          givenNames: [ "S" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Vieira" ],
+          givenNames: [ "M." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Three psychophilous Asteraceae species with distinct reproductive mechanisms in southeastern Brazil" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1080\/0028825X.2016.1236735" ],
+      publisher: {
+        type: "Organization",
+        name: "N Z J Bot"
+      },
+      version: 54,
+      pageStart: 498,
+      pageEnd: 510
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Visscher" ],
+          givenNames: [ "PK" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Seeley" ],
+          givenNames: [ "TD" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Foraging Strategy of Honeybee Colonies in a Temperate Deciduous Forest" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.2307\/1940121" ],
+      publisher: {
+        type: "Organization",
+        name: "Ecology"
+      },
+      version: 63,
+      pageStart: 1790
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Wenden" ],
+          givenNames: [ "B" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Kozma-Bognár" ],
+          givenNames: [ "L" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Edwards" ],
+          givenNames: [ "KD" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Hall" ],
+          givenNames: [ "AJW" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Locke" ],
+          givenNames: [ "JCW" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Millar" ],
+          givenNames: [ "AJ" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Light inputs shape the Arabidopsis circadian system" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1111\/j.1365-313X.2011.04505.x" ],
+      publisher: {
+        type: "Organization",
+        name: "Plant J"
+      },
+      version: 66,
+      pageStart: 480,
+      pageEnd: 491
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Wickham" ],
+          givenNames: [ "H" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Averick" ],
+          givenNames: [ "M" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Bryan" ],
+          givenNames: [ "J" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Chang" ],
+          givenNames: [ "W" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "McGowan" ],
+          givenNames: [ "L" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "François" ],
+          givenNames: [ "R" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Grolemund" ],
+          givenNames: [ "G" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Hayes" ],
+          givenNames: [ "A" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Henry" ],
+          givenNames: [ "L" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Hester" ],
+          givenNames: [ "J" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Kuhn" ],
+          givenNames: [ "M" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Pedersen" ],
+          givenNames: [ "T" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Miller" ],
+          givenNames: [ "E" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Bache" ],
+          givenNames: [ "S" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Müller" ],
+          givenNames: [ "K" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Ooms" ],
+          givenNames: [ "J" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Robinson" ],
+          givenNames: [ "D" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Seidel" ],
+          givenNames: [ "D" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Spinu" ],
+          givenNames: [ "V" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Takahashi" ],
+          givenNames: [ "K" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Vaughan" ],
+          givenNames: [ "D" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Wilke" ],
+          givenNames: [ "C" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Woo" ],
+          givenNames: [ "K" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Yutani" ],
+          givenNames: [ "H." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Welcome to the Tidyverse" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.21105\/joss.01686" ],
+      publisher: {
+        type: "Organization",
+        name: "J Open Source Softw"
+      },
+      version: 4,
+      pageStart: 1686
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Xuan" ],
+          givenNames: [ "W" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "De Gernier" ],
+          givenNames: [ "H" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Beeckman" ],
+          givenNames: [ "T." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "The dynamic nature and regulation of the root clock" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1242\/dev.181446" ],
+      publisher: {
+        type: "Organization",
+        name: "Development"
+      },
+      version: 147,
+      pageStart: "dev181446"
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Yanovsky" ],
+          givenNames: [ "MJ" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Kay" ],
+          givenNames: [ "SA" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Living by the calendar: how plants know when to flower" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1038\/nrm1077" ],
+      publisher: {
+        type: "Organization",
+        name: "Nat Rev Mol Cell Biol"
+      },
+      version: 4,
+      pageStart: 265,
+      pageEnd: 276
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Yon" ],
+          givenNames: [ "F" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Joo" ],
+          givenNames: [ "Y" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Cortés Llorca" ],
+          givenNames: [ "L" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Rothe" ],
+          givenNames: [ "E" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Baldwin" ],
+          givenNames: [ "IT" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Kim" ],
+          givenNames: [ "S-G." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Silencing Nicotiana attenuata LHY and ZTL alters circadian rhythms in flowers" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1111\/nph.13681" ],
+      publisher: {
+        type: "Organization",
+        name: "New Phytol"
+      },
+      version: 209,
+      pageStart: 1058,
+      pageEnd: 1066
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Yon" ],
+          givenNames: [ "F" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Kessler" ],
+          givenNames: [ "D" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Joo" ],
+          givenNames: [ "Y" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Cortés Llorca" ],
+          givenNames: [ "L" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Kim" ],
+          givenNames: [ "SG" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Baldwin" ],
+          givenNames: [ "IT" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Fitness consequences of altering floral circadian oscillations for Nicotiana attenuata" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1111\/jipb.12511" ],
+      publisher: {
+        type: "Organization",
+        name: "J Integr Plant Biol"
+      },
+      version: 59,
+      pageStart: 180,
+      pageEnd: 189
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Zhang" ],
+          givenNames: [ "T" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Cieslak" ],
+          givenNames: [ "M" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Owens" ],
+          givenNames: [ "A" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Wang" ],
+          givenNames: [ "F" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Broholm" ],
+          givenNames: [ "SK" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Teeri" ],
+          givenNames: [ "TH" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Elomaa" ],
+          givenNames: [ "P" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Prusinkiewicz" ],
+          givenNames: [ "P." ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Phyllotactic patterning of gerbera flower heads" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1073\/pnas.2016304118" ],
+      publisher: {
+        type: "Organization",
+        name: "Proc Natl Acad Sci"
+      },
+      version: 118,
+      pageStart: "e2016304118"
+    },
+    {
+      type: "Article",
+      authors: [
+        {
+          type: "Person",
+          familyNames: [ "Zielinski" ],
+          givenNames: [ "T" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Moore" ],
+          givenNames: [ "AM" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Troup" ],
+          givenNames: [ "E" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Halliday" ],
+          givenNames: [ "KJ" ]
+        },
+        {
+          type: "Person",
+          familyNames: [ "Millar" ],
+          givenNames: [ "AJ" ]
+        }
+      ],
+      title: [
+        {
+          type: "Text",
+          value: { string: "Strengths and limitations of period estimation methods for circadian data" }
+        }
+      ],
+      content: [],
+      identifiers: [ "10.1371\/journal.pone.0096462" ],
+      publisher: {
+        type: "Organization",
+        name: "PLoS ONE"
+      },
+      version: 9,
+      pageStart: "e96462"
+    }
+  ],
   content: [
     {
       type: "Section",
@@ -3169,5 +5619,9 @@
       value: "Plant Biology"
     }
   ],
+  publisher: {
+    type: "Organization",
+    name: "Cold Spring Harbor Laboratory"
+  },
   version: "1.1"
 }
