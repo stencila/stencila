@@ -1,6 +1,6 @@
 #![recursion_limit = "256"]
 
-use std::{cmp::Ordering, sync::Arc};
+use std::{cmp::Ordering, collections::HashMap, sync::Arc};
 
 use model::common::{
     eyre::{bail, Result},
@@ -41,10 +41,26 @@ pub async fn list() -> Vec<Arc<dyn Model>> {
         }
     });
 
-    join_all(futures)
-        .await
-        .into_iter()
-        .flatten()
+    let list = join_all(futures).await.into_iter().flatten();
+
+    // Ensure that ids are unique, taking those with lower rank (higher
+    // preference) type: Local < Remote < Proxied. This avoids having
+    // proxied models clashing with remote models when user has both
+    // Stencila API key and other provider API keys set
+    let mut unique = HashMap::new();
+    for model in list {
+        unique
+            .entry(model.id())
+            .and_modify(|existing: &mut Arc<dyn Model>| {
+                if existing.r#type() > model.r#type() {
+                    *existing = model.clone();
+                }
+            })
+            .or_insert(model);
+    }
+
+    unique
+        .into_values()
         .sorted_by(|a, b| match a.r#type().cmp(&b.r#type()) {
             Ordering::Equal => a.id().cmp(&b.id()),
             order => order,
