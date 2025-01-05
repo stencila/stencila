@@ -17,6 +17,7 @@ use common::{
     eyre::{bail, eyre, OptionExt, Result},
     futures::future::{join_all, try_join_all},
     glob::glob,
+    inflector::Inflector,
     itertools::Itertools,
     regex::Regex,
     reqwest::Client,
@@ -271,6 +272,33 @@ pub async fn infer(
 
         // Get the prompt with the highest matches / lowest generality
         counts.map(|(prompt, ..)| prompt).next().take()
+    } else if let Some(node_types) = node_types {
+        // Sort nodes by whether any of the lower case node types occur in the id of the prompt
+        prompts
+            .sorted_by(|prompt_a, prompt_b| {
+                let mut node_types = node_types.iter().map(|node_type| node_type.to_kebab_case());
+                let a_id_has_node_type = node_types.clone().any(|node_type| {
+                    prompt_a
+                        .id
+                        .as_ref()
+                        .map(|id| id.contains(&node_type))
+                        .unwrap_or_default()
+                });
+                let b_id_has_node_type = node_types.any(|node_type| {
+                    prompt_b
+                        .id
+                        .as_ref()
+                        .map(|id| id.contains(&node_type))
+                        .unwrap_or_default()
+                });
+                match (a_id_has_node_type, b_id_has_node_type) {
+                    (true, false) => Ordering::Less,
+                    (false, true) => Ordering::Greater,
+                    _ => prompt_a.generality.cmp(&prompt_b.generality),
+                }
+            })
+            .next()
+            .take()
     } else {
         // Get the prompt with the lowest generality
         prompts
