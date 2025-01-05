@@ -365,6 +365,24 @@ Content to be conditionally activated.
 ```
 ",
         ),
+        (
+            "::: prompt ",
+            "::: prompt ",
+            "Preview a prompt",
+            "Prompt Preview",
+            "Mainly for prompt authors to preview when a prompt is selected (based on keywords and query) and how it is rendered.
+
+```smd
+::: prompt plot of data
+
+::: prompt create figure svg
+
+::: prompt @create/figure-svg
+
+::: prompt edit above table
+```
+",
+        ),
     ];
 
     let items = ITEMS
