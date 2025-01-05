@@ -358,6 +358,22 @@ repository:
           \s+
           (heading|(?:para(?:graph)?)|table|(?:fig(?:ure)?)|code|cell|list|math|quote|section)\b
         )?
+        (?:
+          \s+
+          (@[^\s]+)
+        )?
+        (?:
+          \s+
+          (\[[^]]*\])
+        )?
+        (?:
+          \s+
+          (
+            (?:
+              (?:(?:x|q|c|s|m|t|r)\d+)\s+
+            )*
+          )
+        )?
         (.*?)
       $
     captures:
@@ -365,7 +381,10 @@ repository:
       "2": { name: keyword.control.stencila } # instruction type
       "3": { name: keyword.control.stencila } # relative position
       "4": { name: keyword.control.stencila } # node type
-      "5": { name: comment.stencila.instruction } # message
+      "5": { name: support.function } # target
+      "6": { name: string.quoted } # model ids
+      "7": { name: variable.parameter.stencila } # model parameters
+      "8": { name: comment.stencila.instruction } # message
 
   ########## ChatMessage ##########
 
