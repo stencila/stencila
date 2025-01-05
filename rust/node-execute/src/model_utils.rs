@@ -1,3 +1,4 @@
+use codec_markdown_trait::to_markdown;
 use codecs::{DecodeOptions, Format};
 use common::{
     eyre::{bail, Result},
@@ -78,6 +79,12 @@ pub(super) async fn model_task_to_blocks_and_authors(
     };
 
     Ok((blocks, authors))
+}
+
+/// Convert Stencila [`Block`] nodes to a [`MessagePart`]
+pub(super) fn blocks_to_message_part(blocks: &Vec<Block>) -> Option<MessagePart> {
+    let md = to_markdown(blocks);
+    (!md.trim().is_empty()).then_some(MessagePart::Text(md.into()))
 }
 
 /// Convert a Stencila [`File`] to a [`MessagePart`]

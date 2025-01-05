@@ -1,4 +1,3 @@
-use codec_markdown_trait::to_markdown;
 use common::{
     futures::{stream::FuturesUnordered, StreamExt},
     itertools::Itertools,
@@ -15,7 +14,7 @@ use schema::{
 
 use crate::{
     interrupt_impl,
-    model_utils::{file_to_message_part, model_task_to_blocks_and_authors},
+    model_utils::{blocks_to_message_part, file_to_message_part, model_task_to_blocks_and_authors},
     prelude::*,
 };
 
@@ -324,10 +323,9 @@ impl Executable for Chat {
 
 fn msg_to_instr_msg(msg: &ChatMessage) -> Option<InstructionMessage> {
     // Begin parts with content of message converted to Markdown
-    let mut parts: Vec<MessagePart> = msg
-        .content
+    let mut parts: Vec<MessagePart> = blocks_to_message_part(&msg.content)
         .iter()
-        .map(|block| MessagePart::Text(to_markdown(block).into()))
+        .cloned()
         .collect();
 
     // Add any attached files
@@ -339,6 +337,12 @@ fn msg_to_instr_msg(msg: &ChatMessage) -> Option<InstructionMessage> {
         .filter_map(file_to_message_part)
         .collect();
     parts.append(&mut files);
+
+    // Some models do not like empty message parts, or no message parts so ensure that
+    // does not happen.
+    if parts.is_empty() {
+        parts.push(MessagePart::Text("Hello".into()));
+    }
 
     Some(InstructionMessage {
         role: Some(msg.role.clone()),
