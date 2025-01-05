@@ -14,7 +14,10 @@ use schema::{
 
 use crate::{
     interrupt_impl,
-    model_utils::{blocks_to_message_part, file_to_message_part, model_task_to_blocks_and_authors},
+    model_utils::{
+        blocks_to_message_part, blocks_to_system_message, file_to_message_part,
+        model_task_to_blocks_and_authors,
+    },
     prelude::*,
 };
 
@@ -86,7 +89,13 @@ impl Executable for Chat {
 
         let started = Timestamp::now();
 
-        // TODO: execute the prompt and add as system message
+        let mut instruction_messages: Vec<InstructionMessage> = Vec::new();
+
+        // Execute the prompt and render to a system message
+        self.prompt.execute(executor).await;
+        if let Some(content) = &self.prompt.content {
+            instruction_messages.push(blocks_to_system_message(&content));
+        }
 
         // If there are no messages yet, and the prompt block contains a query
         // then use it as the first message
@@ -120,15 +129,17 @@ impl Executable for Chat {
         }
 
         // Construct a model task from all the messages in this chat
-        let instruction_messages: Vec<InstructionMessage> = self
-            .content
-            .iter()
-            .filter_map(|block| match block {
-                Block::ChatMessage(msg) => msg_to_instr_msg(msg),
-                Block::ChatMessageGroup(group) => group_to_instr_msg(group),
-                _ => None,
-            })
-            .collect();
+        instruction_messages.append(
+            &mut self
+                .content
+                .iter()
+                .filter_map(|block| match block {
+                    Block::ChatMessage(msg) => msg_to_instr_msg(msg),
+                    Block::ChatMessageGroup(group) => group_to_instr_msg(group),
+                    _ => None,
+                })
+                .collect(),
+        );
 
         // Create an author role for the author (if any) of the last user message
         let user_author_role = self.content.iter().rev().find_map(|message| match message {

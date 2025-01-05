@@ -1,4 +1,4 @@
-use codec_markdown_trait::to_markdown;
+use codec_markdown_trait::{to_markdown, MarkdownCodec, MarkdownEncodeContext};
 use codecs::{DecodeOptions, Format};
 use common::{
     eyre::{bail, Result},
@@ -6,9 +6,87 @@ use common::{
 };
 use models::{ModelOutput, ModelOutputKind, ModelTask};
 use schema::{
-    shortcuts::p, Article, AudioObject, AuthorRole, Block, File, ImageObject, Inline, Link,
-    MessagePart, Node, Text, VideoObject,
+    shortcuts::p, Article, AudioObject, AuthorRole, Block, File, ImageObject, Inline,
+    InstructionMessage, Link, MessagePart, MessageRole, Node, Text, VideoObject,
 };
+
+/// Render Stencila [`Block`] nodes to a "system prompt"
+///
+/// Uses a [`MarkdownEncodeContext`] with the render option set to true.
+/// Used for generating Markdown from an executed prompt.
+pub(super) fn blocks_to_system_message(blocks: &Vec<Block>) -> InstructionMessage {
+    let mut context = MarkdownEncodeContext::new(Some(Format::Markdown), Some(true));
+    blocks.to_markdown(&mut context);
+    let md = context.content;
+
+    InstructionMessage {
+        role: Some(MessageRole::System),
+        parts: vec![MessagePart::from(md)],
+        ..Default::default()
+    }
+}
+
+/// Convert Stencila [`Block`] nodes to a [`MessagePart`]
+pub(super) fn blocks_to_message_part(blocks: &Vec<Block>) -> Option<MessagePart> {
+    let md = to_markdown(blocks);
+    (!md.trim().is_empty()).then_some(MessagePart::Text(md.into()))
+}
+
+/// Convert a Stencila [`File`] to a [`MessagePart`]
+pub(super) fn file_to_message_part(file: &File) -> Option<MessagePart> {
+    let format = file
+        .media_type
+        .as_ref()
+        .and_then(|media_type| Format::from_media_type(media_type).ok())
+        .unwrap_or_else(|| Format::from_name(&file.name));
+
+    if format.is_image() || format.is_audio() || format.is_video() {
+        let Some(content) = file
+            .content
+            .as_ref()
+            .and_then(|content| (!content.trim().is_empty()).then_some(content))
+        else {
+            return None;
+        };
+
+        let mut content_url = content.clone();
+        let media_type = file.media_type.clone();
+
+        if file.options.transfer_encoding.as_deref() == Some("base64")
+            && !content_url.starts_with("data:")
+        {
+            let media_type = media_type.clone().unwrap_or_else(|| format.media_type());
+            content_url.insert_str(0, &["data:", &media_type, ";base64,"].concat());
+        }
+
+        let object = if format.is_audio() {
+            MessagePart::AudioObject(AudioObject {
+                media_type,
+                content_url,
+                ..Default::default()
+            })
+        } else if format.is_video() {
+            MessagePart::VideoObject(VideoObject {
+                media_type,
+                content_url,
+                ..Default::default()
+            })
+        } else {
+            MessagePart::ImageObject(ImageObject {
+                media_type,
+                content_url,
+                ..Default::default()
+            })
+        };
+
+        Some(object)
+    } else {
+        file.content
+            .as_ref()
+            .and_then(|content| (!content.trim().is_empty()).then_some(content))
+            .map(|content| MessagePart::Text(Text::from(content)))
+    }
+}
 
 /// Performs a model task and converts the output to blocks
 ///
@@ -79,66 +157,4 @@ pub(super) async fn model_task_to_blocks_and_authors(
     };
 
     Ok((blocks, authors))
-}
-
-/// Convert Stencila [`Block`] nodes to a [`MessagePart`]
-pub(super) fn blocks_to_message_part(blocks: &Vec<Block>) -> Option<MessagePart> {
-    let md = to_markdown(blocks);
-    (!md.trim().is_empty()).then_some(MessagePart::Text(md.into()))
-}
-
-/// Convert a Stencila [`File`] to a [`MessagePart`]
-pub(super) fn file_to_message_part(file: &File) -> Option<MessagePart> {
-    let format = file
-        .media_type
-        .as_ref()
-        .and_then(|media_type| Format::from_media_type(media_type).ok())
-        .unwrap_or_else(|| Format::from_name(&file.name));
-
-    if format.is_image() || format.is_audio() || format.is_video() {
-        let Some(content) = file
-            .content
-            .as_ref()
-            .and_then(|content| (!content.trim().is_empty()).then_some(content))
-        else {
-            return None;
-        };
-
-        let mut content_url = content.clone();
-        let media_type = file.media_type.clone();
-
-        if file.options.transfer_encoding.as_deref() == Some("base64")
-            && !content_url.starts_with("data:")
-        {
-            let media_type = media_type.clone().unwrap_or_else(|| format.media_type());
-            content_url.insert_str(0, &["data:", &media_type, ";base64,"].concat());
-        }
-
-        let object = if format.is_audio() {
-            MessagePart::AudioObject(AudioObject {
-                media_type,
-                content_url,
-                ..Default::default()
-            })
-        } else if format.is_video() {
-            MessagePart::VideoObject(VideoObject {
-                media_type,
-                content_url,
-                ..Default::default()
-            })
-        } else {
-            MessagePart::ImageObject(ImageObject {
-                media_type,
-                content_url,
-                ..Default::default()
-            })
-        };
-
-        Some(object)
-    } else {
-        file.content
-            .as_ref()
-            .and_then(|content| (!content.trim().is_empty()).then_some(content))
-            .map(|content| MessagePart::Text(Text::from(content)))
-    }
 }
