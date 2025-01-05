@@ -61,17 +61,17 @@ new:
   type: Article
   content:
     - type: Figure
-      content:
-        - type: Paragraph
-          content:
-            - type: ImageObject
-              contentUrl: "https://example.org/cat.jpg"
       caption:
         - type: Paragraph
           content:
             - type: Text
               value:
                 string: Caption.
+      content:
+        - type: Paragraph
+          content:
+            - type: ImageObject
+              contentUrl: "https://example.org/cat.jpg"
 merged:
   type: Article
   authors:
@@ -106,25 +106,6 @@ merged:
           provenanceCategory: Hw
           characterCount: 8
           characterPercent: 100
-      content:
-        - type: Paragraph
-          content:
-            - type: ImageObject
-              contentUrl: "https://example.org/cat.jpg"
-              authors:
-                - type: AuthorRole
-                  author:
-                    type: Person
-                    givenNames:
-                      - Bob
-                  roleName: Writer
-          authors:
-            - type: AuthorRole
-              author:
-                type: Person
-                givenNames:
-                  - Bob
-              roleName: Writer
       caption:
         - type: Paragraph
           content:
@@ -148,6 +129,25 @@ merged:
               provenanceCategory: Hw
               characterCount: 8
               characterPercent: 100
+      content:
+        - type: Paragraph
+          content:
+            - type: ImageObject
+              contentUrl: "https://example.org/cat.jpg"
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Bob
+                  roleName: Writer
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Bob
+              roleName: Writer
 ops:
   - - - content
     - Remove:
@@ -156,14 +156,14 @@ ops:
     - Replace:
         - - 0
           - type: Figure
-            content:
-              - type: Paragraph
-                content:
-                  - type: ImageObject
-                    contentUrl: "https://example.org/cat.jpg"
             caption:
               - type: Paragraph
                 content:
                   - type: Text
                     value:
                       string: Caption.
+            content:
+              - type: Paragraph
+                content:
+                  - type: ImageObject
+                    contentUrl: "https://example.org/cat.jpg"
