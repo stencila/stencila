@@ -659,7 +659,9 @@ pub(super) async fn execute_command(
             )
         }
         CREATE_CHAT => {
-            let range = range_arg(args.next())?;
+            let range = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok());
             let instruction_type = args
                 .next()
                 .and_then(|value| serde_json::from_value(value).ok());
@@ -677,7 +679,7 @@ pub(super) async fn execute_command(
                     // range (likely that cursor accidentally on boundary and user does not
                     // want to use them as suggestions etc)
                     (Vec::new(), Vec::new())
-                } else {
+                } else if let Some(range) = range {
                     // Get any blocks spanning the range
                     let node_ids = root.block_ids_spanning(range);
 
@@ -688,6 +690,8 @@ pub(super) async fn execute_command(
                         .map_err(internal_error)?;
 
                     (node_ids, node_types)
+                } else {
+                    (Vec::new(), Vec::new())
                 };
 
             // If there is a single chat on the range then "temporize" it (move it to temporary)
@@ -763,7 +767,10 @@ pub(super) async fn execute_command(
 
                 // Get the ids of any previous or next blocks so that the chat, despite being temporary,
                 // can be executed with the correct document context.
-                let (previous_block, next_block) = root.block_ids_previous_next(range);
+                let (previous_block, next_block) = match range {
+                    Some(range) => root.block_ids_previous_next(range),
+                    None => (None, None),
+                };
 
                 let chat = Chat {
                     prompt: PromptBlock {

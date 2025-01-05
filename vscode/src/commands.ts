@@ -361,6 +361,40 @@ nodeTypes: []
     )
   );
 
+  // Create a temporary document chat
+  //
+  // The new chat will be anchored at the end of the document
+  context.subscriptions.push(
+    vscode.commands.registerCommand(`stencila.chat-doc`, async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showErrorMessage("No active editor");
+        return;
+      }
+
+      const chatId = await vscode.commands.executeCommand<string>(
+        "stencila.create-chat",
+        editor.document.uri.toString()
+      );
+
+      const panel = await createNodeViewPanel(
+        context,
+        editor.document.uri,
+        null,
+        "Temporary document chat",
+        chatId
+      );
+
+      panel.onDidDispose(async () => {
+        await vscode.commands.executeCommand(
+          "stencila.delete-chat",
+          editor.document.uri.toString(),
+          chatId
+        );
+      });
+    })
+  );
+
   // Create a temporary chat
   //
   // If the instruction type is not supplied it is inferred from the selected node
@@ -388,8 +422,7 @@ nodeTypes: []
           editor.document.uri,
           editor.selection.active,
           "Temporary chat",
-          chatId,
-          false
+          chatId
         );
 
         panel.onDidDispose(async () => {
