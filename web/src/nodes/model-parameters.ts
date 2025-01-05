@@ -74,9 +74,14 @@ export class ModelParameters extends Entity {
    * update (re-render) of this component
    */
   private onModelsUpdated() {
+    // Filter to those available
+    const models = data.models.filter(
+      (model) => model.availability == 'Available'
+    )
+
     // Group models by provider
     const providers: Record<string, Model[]> = {}
-    for (const model of data.models) {
+    for (const model of models) {
       if (model.provider in providers) {
         providers[model.provider].push(model)
       } else {

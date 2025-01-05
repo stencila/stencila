@@ -36,6 +36,12 @@ export interface Model {
   provider: string
   name: string
   version: string
+  availability:
+    | 'Available'
+    | 'RequiresKey'
+    | 'Installable'
+    | 'Unavailable'
+    | 'Disabled'
 }
 
 /**
