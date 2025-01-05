@@ -1063,8 +1063,8 @@
     ]
   },
   "scripts": {
-    "fix": "eslint src --ext ts --fix",
-    "lint": "eslint src --ext ts",
+    "fix": "eslint 'src/**/*.ts' --fix",
+    "lint": "eslint 'src/**/*.ts'",
     "compile:web": "cd ../web/ && npm run build:vscode",
     "fetch:myst": "node syntaxes/myst/fetch.js",
     "fetch:qmd": "node syntaxes/qmd/fetch.js",
@@ -1081,16 +1081,16 @@
     "vscode-languageclient": "9.0.1"
   },
   "devDependencies": {
+    "@eslint/js": "^9.17.0",
     "@types/mocha": "10.0.10",
     "@types/node": "20.x",
     "@types/vscode": "1.84.0",
-    "@typescript-eslint/eslint-plugin": "8.17.0",
-    "@typescript-eslint/parser": "8.17.0",
     "@vscode/test-cli": "0.0.10",
     "@vscode/test-electron": "2.4.1",
     "@vscode/vsce": "3.2.1",
-    "eslint": "8.57.1",
+    "eslint": "9.17.0",
     "js-yaml": "4.1.0",
-    "ovsx": "0.10.1"
+    "ovsx": "0.10.1",
+    "typescript-eslint": "^8.19.0"
   }
 }
