@@ -65,6 +65,13 @@ properties:
       max:
         description: Generate an arbitrary prompt id using any characters
         strategy: option::of(String::arbitrary())
+  directory:
+    "@id": stencila:directory
+    description: The home directory of the prompt
+    type: string
+    patch:
+      # Do not merge content because it is derived
+      formats: []
   content:
     "@id": stencila:content
     description: The executed content of the prompt

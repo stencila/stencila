@@ -38,6 +38,11 @@ export class PromptBlock extends Executable {
   target?: string;
 
   /**
+   * The home directory of the prompt
+   */
+  directory?: string;
+
+  /**
    * The executed content of the prompt
    */
   content?: Block[];

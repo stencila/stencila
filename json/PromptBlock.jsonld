@@ -328,6 +328,18 @@
       }
     },
     {
+      "@id": "stencila:directory",
+      "@type": "rdfs:Property",
+      "rdfs:label": "directory",
+      "rdfs:comment": "The home directory of the prompt",
+      "schema:domainIncludes": {
+        "@id": "stencila:PromptBlock"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",

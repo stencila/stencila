@@ -2492,6 +2492,9 @@ class PromptBlock(Executable):
     target: str | None = None
     """An identifier for the prompt to be rendered"""
 
+    directory: str | None = None
+    """The home directory of the prompt"""
+
     content: list[Block] | None = None
     """The executed content of the prompt"""
 

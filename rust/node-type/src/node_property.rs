@@ -78,6 +78,7 @@ pub enum NodeProperty {
     DeriveItem,
     DerivedFrom,
     Description,
+    Directory,
     Editors,
     Emails,
     EmbedUrl,

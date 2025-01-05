@@ -269,6 +269,7 @@
     "deriveItem": "stencila:deriveItem",
     "derivedFrom": "stencila:derivedFrom",
     "description": "schema:description",
+    "directory": "stencila:directory",
     "editors": "schema:editor",
     "emails": "schema:email",
     "embedUrl": "schema:embedUrl",

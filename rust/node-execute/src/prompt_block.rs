@@ -1,8 +1,4 @@
-use std::{
-    ops::Deref,
-    path::{Path, PathBuf},
-    sync::Arc,
-};
+use std::{ops::Deref, path::PathBuf, sync::Arc};
 
 use common::{
     eyre::{OptionExt, Result},
@@ -67,16 +63,21 @@ impl Executable for PromptBlock {
             let target = prompts::expand(target, &self.instruction_type);
             match prompts::get(&target).await {
                 Ok(prompt) => {
+                    // Get the home directory of the prompt, needed at execution times
+                    let dir = prompt.home().to_string_lossy().to_string();
+
                     // Replicate the content of the prompt so that the prompt block has different ids.
                     // Given that the same prompt could be used multiple times in a doc, if we don't
                     // do this there could be clashes.
                     let content = replicate(&prompt.content).unwrap_or_default();
 
-                    // Set content here and via patch
+                    // Set both here and via patch
+                    self.options.directory = Some(dir.clone());
                     self.content = Some(content.clone());
                     executor.patch(
                         &node_id,
                         [
+                            set(NodeProperty::Directory, dir),
                             // It is important to use `none` and `append` here because
                             // the latter retains node ids so they are the same as in `self.content`
                             // TODO: consider doing a merge rather than full replacement. Replacement
@@ -150,18 +151,21 @@ impl Executable for PromptBlock {
         let mut messages = Vec::new();
 
         // Execute content of prompt
-        // TODO: store prompt home between compile and execute
-        let home = PathBuf::new(); //prompt.home();
-        match prompt_executor(&home, executor).await {
+        let home = PathBuf::from(
+            self.options
+                .directory
+                .as_ref()
+                .map(String::as_str)
+                .unwrap_or_default(),
+        );
+        match prompt_executor(executor, home).await {
             Ok(mut prompt_executor) => {
-                prompt_executor.directory_stack.push(home);
                 if let Err(error) = prompt_executor
                     .compile_prepare_execute(&mut self.content)
                     .await
                 {
                     messages.push(error_to_execution_message("While executing prompt", error));
                 }
-                prompt_executor.directory_stack.pop();
             }
             Err(error) => {
                 messages.push(error_to_execution_message(
@@ -199,7 +203,7 @@ impl Executable for PromptBlock {
 }
 
 /// Create a new executor to execute a prompt
-async fn prompt_executor(home: &Path, executor: &Executor) -> Result<Executor> {
+async fn prompt_executor(executor: &Executor, home: PathBuf) -> Result<Executor> {
     // Create a prompt context
     // TODO: allow prompts to specify whether they need various parts of context
     // as an optimization, particularly to avoid getting kernel contexts unnecessarily.
@@ -216,19 +220,23 @@ async fn prompt_executor(home: &Path, executor: &Executor) -> Result<Executor> {
     let kernel_instance = context.into_kernel().await?;
 
     // Create a set of kernels to execute the prompt and add the kernel instance to it
-    let mut kernels = Kernels::new(home);
+    let mut kernels = Kernels::new(&home);
     kernels
         .add_instance(Arc::new(kernel), kernel_instance)
         .await?;
 
     // Create the new executor using the set of kernels
-    let executor = Executor::new(
-        home.to_path_buf(),
+    let mut executor = Executor::new(
+        home.clone(),
         Arc::new(RwLock::new(kernels)),
         executor.patch_sender.clone(),
         None,
         None,
     );
+
+    // Push the home directory onto the stack
+    // TODO: consider pushing the executor's home on the the stack in Executor::new?
+    executor.directory_stack.push(home);
 
     Ok(executor)
 }

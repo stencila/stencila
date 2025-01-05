@@ -181,6 +181,10 @@ pub struct PromptBlockOptions {
     #[strip(execution)]
     #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
+
+    /// The home directory of the prompt
+    #[patch()]
+    pub directory: Option<String>,
 }
 
 impl PromptBlock {
