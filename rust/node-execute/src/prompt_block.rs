@@ -151,13 +151,7 @@ impl Executable for PromptBlock {
         let mut messages = Vec::new();
 
         // Execute content of prompt
-        let home = PathBuf::from(
-            self.options
-                .directory
-                .as_ref()
-                .map(String::as_str)
-                .unwrap_or_default(),
-        );
+        let home = PathBuf::from(self.options.directory.as_deref().unwrap_or_default());
         match prompt_executor(executor, home).await {
             Ok(mut prompt_executor) => {
                 if let Err(error) = prompt_executor

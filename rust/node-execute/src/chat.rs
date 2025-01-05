@@ -94,7 +94,7 @@ impl Executable for Chat {
         // Execute the prompt and render to a system message
         self.prompt.execute(executor).await;
         if let Some(content) = &self.prompt.content {
-            instruction_messages.push(blocks_to_system_message(&content));
+            instruction_messages.push(blocks_to_system_message(content));
         }
 
         // If there are no messages yet, and the prompt block contains a query
