@@ -30,25 +30,6 @@ old:
           provenanceCategory: Hw
           characterCount: 8
           characterPercent: 100
-      content:
-        - type: Paragraph
-          content:
-            - type: ImageObject
-              contentUrl: "https://example.org/cat.jpg"
-              authors:
-                - type: AuthorRole
-                  author:
-                    type: Person
-                    givenNames:
-                      - Alice
-                  roleName: Importer
-          authors:
-            - type: AuthorRole
-              author:
-                type: Person
-                givenNames:
-                  - Alice
-              roleName: Importer
       caption:
         - type: Paragraph
           content:
@@ -72,6 +53,25 @@ old:
               provenanceCategory: Hw
               characterCount: 8
               characterPercent: 100
+      content:
+        - type: Paragraph
+          content:
+            - type: ImageObject
+              contentUrl: "https://example.org/cat.jpg"
+              authors:
+                - type: AuthorRole
+                  author:
+                    type: Person
+                    givenNames:
+                      - Alice
+                  roleName: Importer
+          authors:
+            - type: AuthorRole
+              author:
+                type: Person
+                givenNames:
+                  - Alice
+              roleName: Importer
 new:
   type: Article
   content:
