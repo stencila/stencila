@@ -555,7 +555,7 @@
       "@id": "stencila:executionMode",
       "@type": "rdfs:Property",
       "rdfs:label": "executionMode",
-      "rdfs:comment": "Under which circumstances the code should be executed.",
+      "rdfs:comment": "Under which circumstances the node should be executed.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:CodeExpression"
@@ -566,6 +566,18 @@
       ],
       "schema:rangeIncludes": {
         "@id": "stencila:ExecutionMode"
+      }
+    },
+    {
+      "@id": "stencila:executionBounds",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionBounds",
+      "rdfs:comment": "Under which circumstances child nodes should be executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionBounds"
       }
     },
     {
@@ -711,15 +723,15 @@
       }
     },
     {
-      "@id": "stencila:executionKind",
+      "@id": "stencila:executionBounded",
       "@type": "rdfs:Property",
-      "rdfs:label": "executionKind",
-      "rdfs:comment": "The kind (e.g. main kernel vs kernel fork) of the last execution.",
+      "rdfs:label": "executionBounded",
+      "rdfs:comment": "The bounds, if any, on the last execution.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:ExecutionKind"
+        "@id": "stencila:ExecutionBounds"
       }
     },
     {
@@ -781,22 +793,44 @@
       }
     },
     {
-      "@id": "stencila:instructionPatterns",
+      "@id": "stencila:nodeTypes",
       "@type": "rdfs:Property",
-      "rdfs:label": "instructionPatterns",
-      "rdfs:comment": "Regular expressions used to match the prompt with a user instruction",
-      "schema:domainIncludes": {
-        "@id": "stencila:Prompt"
-      },
+      "rdfs:label": "nodeTypes",
+      "rdfs:comment": "The types of nodes that the prompt supports",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Prompt"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
     },
     {
-      "@id": "stencila:nodeTypes",
+      "@id": "stencila:nodeCount",
       "@type": "rdfs:Property",
-      "rdfs:label": "nodeTypes",
-      "rdfs:comment": "The types of nodes that the prompt supports",
+      "rdfs:label": "nodeCount",
+      "rdfs:comment": "The number of nodes that the prompt supports",
+      "schema:domainIncludes": {
+        "@id": "stencila:Prompt"
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "stencila:UnsignedInteger"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
+    },
+    {
+      "@id": "stencila:queryPatterns",
+      "@type": "rdfs:Property",
+      "rdfs:label": "queryPatterns",
+      "rdfs:comment": "Regular expressions used to match the prompt with a user query",
       "schema:domainIncludes": {
         "@id": "stencila:Prompt"
       },
@@ -826,10 +860,19 @@
           "@id": "stencila:Admonition"
         },
         {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:ChatMessage"
+        },
+        {
           "@id": "stencila:Cite"
         },
         {
           "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:File"
         },
         {
           "@id": "stencila:ForBlock"

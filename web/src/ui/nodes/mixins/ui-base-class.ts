@@ -3,34 +3,43 @@ import { LitElement } from 'lit'
 import { property } from 'lit/decorators'
 
 import { NodeId } from '../../../types'
-import { nodeUi } from '../icons-and-colours'
+import { NodeTypeUI, nodeUi } from '../icons-and-colours'
 
 /**
- * A Base class for UI elements. Provides access to ui theming.
+ * A base class for UI elements representing Stencila document nodes
  */
 export class UIBaseClass extends LitElement {
   /**
-   * The type of node that this card is for
+   * The type of node that this UI element is representing
    *
-   * Used to determine the title, icon and colors of the card.
+   * Used for getting the UI settings for the node type (see below)
+   * and when emitting command events.
    */
   @property()
   type: NodeType
 
   /**
-   * The `id` of the cards parent node element
+   * The id of node that this UI element is representing
+   *
+   * Mainly used when emitting command events.
    */
   @property({ attribute: 'node-id' })
   nodeId: NodeId
 
   /**
-   * Internal copy of the ui attributes.
+   * The depth of node that this UI element is representing
+   *
+   * Mainly used to alter UI (e.g. node markers) based on
+   * the depth of the node
    */
-  protected ui: ReturnType<typeof nodeUi> | undefined = undefined
+  @property({ type: Number })
+  depth: number
 
   /**
-   * Provide ui options based on the node type.
+   * Internal copy of the UI attributes for the node type.
    */
+  protected ui: NodeTypeUI | undefined = undefined
+
   override connectedCallback() {
     super.connectedCallback()
 

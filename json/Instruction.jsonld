@@ -21,7 +21,7 @@
       "@id": "stencila:executionMode",
       "@type": "rdfs:Property",
       "rdfs:label": "executionMode",
-      "rdfs:comment": "Under which circumstances the code should be executed.",
+      "rdfs:comment": "Under which circumstances the node should be executed.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:CodeExpression"
@@ -32,6 +32,18 @@
       ],
       "schema:rangeIncludes": {
         "@id": "stencila:ExecutionMode"
+      }
+    },
+    {
+      "@id": "stencila:executionBounds",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionBounds",
+      "rdfs:comment": "Under which circumstances child nodes should be executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionBounds"
       }
     },
     {
@@ -177,15 +189,15 @@
       }
     },
     {
-      "@id": "stencila:executionKind",
+      "@id": "stencila:executionBounded",
       "@type": "rdfs:Property",
-      "rdfs:label": "executionKind",
-      "rdfs:comment": "The kind (e.g. main kernel vs kernel fork) of the last execution.",
+      "rdfs:label": "executionBounded",
+      "rdfs:comment": "The bounds, if any, on the last execution.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:ExecutionKind"
+        "@id": "stencila:ExecutionBounds"
       }
     },
     {
@@ -239,11 +251,33 @@
       "@type": "rdfs:Property",
       "rdfs:label": "instructionType",
       "rdfs:comment": "The type of instruction describing the operation to be performed.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Instruction"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Instruction"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "stencila:InstructionType"
+      }
+    },
+    {
+      "@id": "stencila:prompt",
+      "@type": "rdfs:Property",
+      "rdfs:label": "prompt",
+      "rdfs:comment": "The prompt selected, rendered and provided to the model",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:Instruction"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:PromptBlock"
       }
     },
     {
@@ -267,68 +301,20 @@
       }
     },
     {
-      "@id": "stencila:prompt",
+      "@id": "stencila:modelParameters",
       "@type": "rdfs:Property",
-      "rdfs:label": "prompt",
-      "rdfs:comment": "An identifier for the prompt to be used for the instruction",
+      "rdfs:label": "modelParameters",
+      "rdfs:comment": "Model selection and inference parameters.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Instruction"
+          "@id": "stencila:Chat"
         },
         {
-          "@id": "stencila:PromptBlock"
+          "@id": "stencila:Instruction"
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "stencila:model",
-      "@type": "rdfs:Property",
-      "rdfs:label": "model",
-      "rdfs:comment": "The name, and other options, for the model that the assistant should use to generate suggestions.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Instruction"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:InstructionModel"
-      }
-    },
-    {
-      "@id": "stencila:replicates",
-      "@type": "rdfs:Property",
-      "rdfs:label": "replicates",
-      "rdfs:comment": "The number of suggestions to generate for the instruction",
-      "schema:domainIncludes": {
-        "@id": "stencila:Instruction"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:UnsignedInteger"
-      }
-    },
-    {
-      "@id": "stencila:recursion",
-      "@type": "rdfs:Property",
-      "rdfs:label": "recursion",
-      "rdfs:comment": "A string identifying which operations should, or should not, automatically be applied to generated suggestions.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Instruction"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "stencila:promptProvided",
-      "@type": "rdfs:Property",
-      "rdfs:label": "promptProvided",
-      "rdfs:comment": "The prompt chosen, rendered and provided to the model",
-      "schema:domainIncludes": {
-        "@id": "stencila:Instruction"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:PromptBlock"
+        "@id": "stencila:ModelParameters"
       }
     },
     {

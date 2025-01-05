@@ -7,6 +7,44 @@ pub use crate::node_type::NodeType;
 pub use node_property::NodeProperty;
 
 impl NodeType {
+    /// Is the node type a block?
+    pub fn is_block(&self) -> bool {
+        use NodeType::*;
+        matches!(
+            self,
+            Admonition
+                | CallBlock
+                | Chat
+                | ChatMessage
+                | ChatMessageGroup
+                | Claim
+                | CodeBlock
+                | CodeChunk
+                | DeleteBlock
+                | Figure
+                | ForBlock
+                | Form
+                | Heading
+                | IfBlock
+                | IncludeBlock
+                | InsertBlock
+                | InstructionBlock
+                | List
+                | MathBlock
+                | ModifyBlock
+                | Paragraph
+                | PromptBlock
+                | QuoteBlock
+                | ReplaceBlock
+                | Section
+                | StyledBlock
+                | SuggestionBlock
+                | Table
+                | ThematicBreak
+                | Walkthrough
+        )
+    }
+
     /// Can the node type be executed?
     ///
     /// Should only include node types which can be executed "manually"

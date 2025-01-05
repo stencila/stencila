@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
 use async_lsp::{
     client_monitor::ClientProcessMonitorLayer,
@@ -10,14 +10,17 @@ use async_lsp::{
     tracing::TracingLayer,
     ErrorCode, MainLoop, ResponseError,
 };
+use schema::NodeId;
 use tower::ServiceBuilder;
 use tracing_subscriber::filter::LevelFilter;
 
 use common::serde_json;
 
 use crate::{
-    code_lens, commands, completion, content, dom, formatting, hover, kernels_, lifecycle, logging,
-    models_, node_ids, prompts_, symbols, text_document, ServerState, ServerStatus,
+    code_lens,
+    commands::{self, INSERT_CLONE, INSERT_INSTRUCTION},
+    completion, content, dom, formatting, hover, kernels_, lifecycle, logging, models_, node_ids,
+    prompts_, symbols, text_document, ServerState, ServerStatus,
 };
 
 /// Run the language server
@@ -115,19 +118,42 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
                             (
                                 text_doc.author.clone(),
                                 text_doc.format.clone(),
+                                text_doc.source.clone(),
                                 text_doc.root.clone(),
                                 text_doc.doc.clone(),
                             )
                         })
                     });
+
+                let source_doc =
+                    if matches!(params.command.as_str(), INSERT_CLONE | INSERT_INSTRUCTION) {
+                        params
+                            .arguments
+                            .get(2)
+                            .and_then(|value| serde_json::from_value(value.clone()).ok())
+                            .and_then(|uri| {
+                                state
+                                    .documents
+                                    .get(&uri)
+                                    .map(|text_doc| text_doc.doc.clone())
+                            })
+                    } else {
+                        None
+                    };
+
                 let client = state.client.clone();
                 async move {
                     match doc_props {
-                        Some((author, format, root, doc)) => {
-                            commands::execute_command(params, author, format, root, doc, client)
-                                .await
+                        Some((author, format, source, root, doc)) => {
+                            commands::execute_command(
+                                params, author, format, source, root, doc, source_doc, client,
+                            )
+                            .await
                         }
-                        None => Ok(None),
+                        None => Err(ResponseError::new(
+                            ErrorCode::INVALID_PARAMS,
+                            "Invalid document URI",
+                        )),
                     }
                 }
             })
@@ -135,13 +161,16 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
 
         router.request::<request::Formatting, _>(|state, params| {
             let uri = params.text_document.uri;
-            let doc_format = state
-                .documents
-                .get(&uri)
-                .map(|text_doc| (text_doc.doc.clone(), text_doc.format.clone()));
+            let doc_format = state.documents.get(&uri).map(|text_doc| {
+                (
+                    text_doc.doc.clone(),
+                    text_doc.format.clone(),
+                    text_doc.source.clone(),
+                )
+            });
             async move {
                 match doc_format {
-                    Some((doc, format)) => formatting::request(doc, format).await,
+                    Some((doc, format, source)) => formatting::request(doc, format, source).await,
                     None => Ok(None),
                 }
             }
@@ -149,15 +178,22 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
 
         router
             .request::<dom::SubscribeDom, _>(|state, params| {
-                let uri = &params.uri;
+                let (uri, node_id) = match params.uri.fragment() {
+                    Some(fragment) => {
+                        let mut uri = params.uri.clone();
+                        uri.set_fragment(None);
+                        (uri, NodeId::from_str(fragment).ok())
+                    }
+                    None => (params.uri.clone(), None),
+                };
                 let doc = state
                     .documents
-                    .get(uri)
+                    .get(&uri)
                     .map(|text_doc| text_doc.doc.clone());
                 let client = state.client.clone();
                 async move {
                     match doc {
-                        Some(doc) => dom::subscribe(doc, client).await,
+                        Some(doc) => dom::subscribe(doc, node_id, client).await,
                         None => Err(ResponseError::new(
                             ErrorCode::INVALID_PARAMS,
                             "Unknown document",

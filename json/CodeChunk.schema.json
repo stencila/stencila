@@ -29,6 +29,7 @@
   "core": [
     "id",
     "executionMode",
+    "executionBounds",
     "programmingLanguage",
     "authors",
     "provenance",
@@ -60,7 +61,7 @@
     },
     "executionMode": {
       "@id": "stencila:executionMode",
-      "description": "Under which circumstances the code should be executed.",
+      "description": "Under which circumstances the node should be executed.",
       "aliases": [
         "execution-mode",
         "execution_mode"
@@ -78,6 +79,27 @@
         ]
       },
       "$ref": "ExecutionMode.schema.json"
+    },
+    "executionBounds": {
+      "@id": "stencila:executionBounds",
+      "description": "Under which circumstances child nodes should be executed.",
+      "aliases": [
+        "execution-bounds",
+        "execution_bounds"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "$ref": "ExecutionBounds.schema.json"
     },
     "compilationDigest": {
       "@id": "stencila:compilationDigest",
@@ -244,17 +266,17 @@
       ],
       "type": "string"
     },
-    "executionKind": {
-      "@id": "stencila:executionKind",
-      "description": "The kind (e.g. main kernel vs kernel fork) of the last execution.",
+    "executionBounded": {
+      "@id": "stencila:executionBounded",
+      "description": "The bounds, if any, on the last execution.",
       "aliases": [
-        "execution-kind",
-        "execution_kind"
+        "execution-bounded",
+        "execution_bounded"
       ],
       "strip": [
         "execution"
       ],
-      "$ref": "ExecutionKind.schema.json"
+      "$ref": "ExecutionBounds.schema.json"
     },
     "executionEnded": {
       "@id": "stencila:executionEnded",
@@ -398,6 +420,7 @@
         "authors"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -557,6 +580,7 @@
         ]
       },
       "serde": {
+        "default": false,
         "deserializeWith": "none"
       },
       "dom": {

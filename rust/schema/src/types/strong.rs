@@ -46,7 +46,7 @@ pub struct Strong {
 }
 
 impl Strong {
-    const NICK: [u8; 3] = [115, 116, 114];
+    const NICK: [u8; 3] = [115, 116, 103];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Strong

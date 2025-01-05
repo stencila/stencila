@@ -18,6 +18,9 @@
       "$ref": "Brand.schema.json"
     },
     {
+      "$ref": "Chat.schema.json"
+    },
+    {
       "$ref": "CitationIntent.schema.json"
     },
     {
@@ -51,13 +54,13 @@
       "$ref": "Enumeration.schema.json"
     },
     {
+      "$ref": "ExecutionBounds.schema.json"
+    },
+    {
       "$ref": "ExecutionDependantRelation.schema.json"
     },
     {
       "$ref": "ExecutionDependencyRelation.schema.json"
-    },
-    {
-      "$ref": "ExecutionKind.schema.json"
     },
     {
       "$ref": "ExecutionMode.schema.json"
@@ -139,6 +142,9 @@
     },
     {
       "$ref": "PublicationVolume.schema.json"
+    },
+    {
+      "$ref": "RelativePosition.schema.json"
     },
     {
       "$ref": "Review.schema.json"

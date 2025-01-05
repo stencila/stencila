@@ -193,6 +193,11 @@ impl Format {
         matches!(self, Cbor | CborZst | Json | Json5 | JsonLd | Yaml)
     }
 
+    /// Is this a lossy format for Stencila nodes?
+    pub fn is_lossy(&self) -> bool {
+        !self.is_lossless()
+    }
+
     /// Is this an image format?
     pub fn is_image(&self) -> bool {
         use Format::*;

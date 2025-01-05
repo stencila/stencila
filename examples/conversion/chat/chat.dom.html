@@ -1,0 +1,39 @@
+<stencila-chat id=xxx depth=0 ancestors='' root>
+  <div slot=prompt>
+    <stencila-prompt-block id=xxx depth=1 ancestors=Chat>
+    </stencila-prompt-block>
+  </div>
+  <div slot=model-parameters>
+    <stencila-model-parameters id=xxx depth=1 ancestors=Chat>
+    </stencila-model-parameters>
+  </div>
+  <div slot=content>
+    <stencila-chat-message id=xxx depth=1 ancestors=Chat message-role=System>
+      <div slot=content>
+        <stencila-paragraph id=xxx depth=2 ancestors=Chat.ChatMessage>
+          <p slot=content>
+            <stencila-text id=xxx depth=3 ancestors=Chat.ChatMessage.Paragraph>You are a friendly, enthusiastic, but terse, assistant.</stencila-text>
+          </p>
+        </stencila-paragraph>
+      </div>
+    </stencila-chat-message>
+    <stencila-chat-message id=xxx depth=1 ancestors=Chat message-role=User>
+      <div slot=content>
+        <stencila-paragraph id=xxx depth=2 ancestors=Chat.ChatMessage>
+          <p slot=content>
+            <stencila-text id=xxx depth=3 ancestors=Chat.ChatMessage.Paragraph>Hello</stencila-text>
+          </p>
+        </stencila-paragraph>
+      </div>
+    </stencila-chat-message>
+    <stencila-chat-message id=xxx depth=1 ancestors=Chat message-role=Model>
+      <div slot=content>
+        <stencila-paragraph id=xxx depth=2 ancestors=Chat.ChatMessage>
+          <p slot=content>
+            <stencila-text id=xxx depth=3 ancestors=Chat.ChatMessage.Paragraph>Hi there!</stencila-text>
+          </p>
+        </stencila-paragraph>
+      </div>
+    </stencila-chat-message>
+  </div>
+</stencila-chat>

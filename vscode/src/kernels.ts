@@ -11,6 +11,16 @@ export function registerKernelsView(
     treeDataProvider,
   });
 
+  const list = vscode.commands.registerCommand(
+    "stencila.kernels.list",
+    async () => {
+      if (treeDataProvider.list.length === 0) {
+        await treeDataProvider.refresh();
+      }
+      return treeDataProvider.list;
+    }
+  );
+
   const refresh = vscode.commands.registerCommand(
     "stencila.kernels.refresh",
     () => treeDataProvider.refresh()
@@ -40,7 +50,7 @@ export function registerKernelsView(
     }
   );
 
-  context.subscriptions.push(treeView, refresh, use);
+  context.subscriptions.push(treeView, list, refresh, use);
 
   return treeDataProvider;
 }

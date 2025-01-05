@@ -6,15 +6,17 @@ use super::block::Block;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
 use super::duration::Duration;
+use super::execution_bounds::ExecutionBounds;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
-use super::execution_kind::ExecutionKind;
 use super::execution_message::ExecutionMessage;
 use super::execution_mode::ExecutionMode;
 use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
+use super::instruction_type::InstructionType;
 use super::integer::Integer;
+use super::relative_position::RelativePosition;
 use super::string::String;
 use super::timestamp::Timestamp;
 
@@ -25,6 +27,7 @@ use super::timestamp::Timestamp;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display(fmt = "PromptBlock")]
+#[patch(apply_with = "PromptBlock::apply_patch_op")]
 pub struct PromptBlock {
     /// The type of this item.
     pub r#type: MustBe!("PromptBlock"),
@@ -34,15 +37,41 @@ pub struct PromptBlock {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// Under which circumstances the code should be executed.
+    /// Under which circumstances the node should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub execution_mode: Option<ExecutionMode>,
 
+    /// Under which circumstances child nodes should be executed.
+    #[serde(alias = "execution-bounds", alias = "execution_bounds")]
+    #[strip(execution)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    pub execution_bounds: Option<ExecutionBounds>,
+
+    /// The type of instruction the  being used for
+    #[serde(alias = "instruction-type", alias = "instruction_type")]
+    #[patch(format = "md", format = "smd", format = "qmd")]
+    pub instruction_type: Option<InstructionType>,
+
+    /// The type of nodes the prompt is being used for
+    #[serde(alias = "node-types", alias = "node_types", alias = "nodeType", alias = "node-type", alias = "node_type")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[patch(format = "md", format = "smd", format = "qmd")]
+    pub node_types: Option<Vec<String>>,
+
+    /// The relative position of the node being edited, described etc.
+    #[serde(alias = "relative-position", alias = "relative_position")]
+    #[patch(format = "md", format = "smd", format = "qmd")]
+    pub relative_position: Option<RelativePosition>,
+
+    /// A user text query used to infer the `target` prompt
+    #[patch(format = "md", format = "smd", format = "qmd")]
+    pub query: Option<String>,
+
     /// An identifier for the prompt to be rendered
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
-    pub prompt: String,
+    pub target: Option<String>,
 
     /// The executed content of the prompt
     #[serde(default, deserialize_with = "option_one_or_many")]
@@ -129,10 +158,10 @@ pub struct PromptBlockOptions {
     #[strip(execution)]
     pub execution_instance: Option<String>,
 
-    /// The kind (e.g. main kernel vs kernel fork) of the last execution.
-    #[serde(alias = "execution-kind", alias = "execution_kind")]
+    /// The bounds, if any, on the last execution.
+    #[serde(alias = "execution-bounded", alias = "execution_bounded")]
     #[strip(execution)]
-    pub execution_kind: Option<ExecutionKind>,
+    pub execution_bounded: Option<ExecutionBounds>,
 
     /// The timestamp when the last execution ended.
     #[serde(alias = "execution-ended", alias = "execution_ended")]
@@ -152,6 +181,10 @@ pub struct PromptBlockOptions {
     #[strip(execution)]
     #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
+
+    /// The home directory of the prompt
+    #[patch()]
+    pub directory: Option<String>,
 }
 
 impl PromptBlock {
@@ -165,9 +198,8 @@ impl PromptBlock {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(prompt: String) -> Self {
+    pub fn new() -> Self {
         Self {
-            prompt,
             ..Default::default()
         }
     }

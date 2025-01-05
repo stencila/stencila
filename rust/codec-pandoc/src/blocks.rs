@@ -57,6 +57,7 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
         Block::Admonition(block) => admonition_to_pandoc(block, context),
         Block::Claim(block) => claim_to_pandoc(block, context),
         Block::CallBlock(block) => call_block_to_pandoc(block, context),
+        Block::ChatMessage(block) => chat_message_to_pandoc(block, context),
         Block::IfBlock(block) => if_block_to_pandoc(block, context),
         Block::IncludeBlock(block) => include_block_to_pandoc(block, context),
         Block::InstructionBlock(block) => instruction_block_to_pandoc(block, context),
@@ -67,7 +68,9 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
 
         // Block types currently ignored create an empty div and record loss
         // TODO: implement these
-        Block::DeleteBlock(..)
+        Block::Chat(..)
+        | Block::ChatMessageGroup(..)
+        | Block::DeleteBlock(..)
         | Block::Form(..)
         | Block::InsertBlock(..)
         | Block::ModifyBlock(..)
@@ -620,6 +623,20 @@ fn call_block_to_pandoc(block: &CallBlock, context: &mut PandocEncodeContext) ->
     pandoc::Block::Div(attrs, blocks_to_pandoc(content, context))
 }
 
+fn chat_message_to_pandoc(
+    message: &ChatMessage,
+    context: &mut PandocEncodeContext,
+) -> pandoc::Block {
+    let attrs = pandoc::Attr {
+        classes: vec!["chat-message".into()],
+        ..attrs_empty()
+    };
+
+    let blocks = blocks_to_pandoc(&message.content, context);
+
+    pandoc::Block::Div(attrs, blocks)
+}
+
 fn admonition_to_pandoc(admon: &Admonition, context: &mut PandocEncodeContext) -> pandoc::Block {
     let class = [
         "callout-",
@@ -707,27 +724,35 @@ fn instruction_block_to_pandoc(
         "type".into(),
         block.instruction_type.to_string().to_lowercase(),
     )];
-    if let Some(message) = &block.message {
-        if let Some(MessagePart::Text(Text { value, .. })) = message.parts.first() {
-            attributes.push(("message".into(), value.to_string()));
-        } else {
-            context.losses.add("InstructionBlock.message.parts")
-        }
-    }
-    if let Some(mode) = &block.execution_mode {
-        attributes.push(("mode".into(), mode.to_string()));
-    }
-    if let Some(prompt) = &block.prompt {
+
+    if let Some(prompt) = &block.prompt.target {
         attributes.push(("prompt".into(), prompt.to_string()));
     }
-    if let Some(active_suggestion) = &block.active_suggestion {
-        attributes.push(("active_suggestion".into(), active_suggestion.to_string()));
+
+    if let Some(MessagePart::Text(Text { value, .. })) = &block.message.parts.first() {
+        attributes.push(("message".into(), value.to_string()));
+    } else {
+        context.losses.add("InstructionBlock.message.parts")
     }
+
+    if let Some(mode) = &block.execution_mode {
+        attributes.push(("execution-mode".into(), mode.to_string()));
+    }
+
+    if let Some(bounds) = &block.execution_bounds {
+        attributes.push(("execution-bounds".into(), bounds.to_string()));
+    }
+
+    if let Some(active_suggestion) = &block.active_suggestion {
+        attributes.push(("active-suggestion".into(), active_suggestion.to_string()));
+    }
+
     let attrs = pandoc::Attr {
         classes: vec!["instruction".into()],
         attributes,
         ..attrs_empty()
     };
+
     let content = &block.content.clone().unwrap_or_default();
 
     pandoc::Block::Div(attrs, blocks_to_pandoc(content, context))
@@ -909,6 +934,13 @@ fn styled_block_from_pandoc(
         });
     }
 
+    if attrs.classes.iter().any(|class| class == "chat-message") {
+        return Block::ChatMessage(ChatMessage {
+            content,
+            ..Default::default()
+        });
+    }
+
     if attrs.classes.iter().any(|class| class == "if") {
         let mut clauses = Vec::new();
         for block in content {
@@ -969,15 +1001,6 @@ fn styled_block_from_pandoc(
     }
 
     if attrs.classes.iter().any(|class| class == "instruction") {
-        let execution_mode = attrs.attributes.iter().find_map(|(name, value)| {
-            (name == "mode").then_some(ExecutionMode::from_str(value).unwrap_or_default())
-        });
-        let message = attrs.attributes.iter().find_map(|(name, value)| {
-            (name == "message").then_some(InstructionMessage {
-                parts: vec![MessagePart::Text(value.into())],
-                ..Default::default()
-            })
-        });
         let instruction_type = attrs
             .attributes
             .iter()
@@ -985,21 +1008,51 @@ fn styled_block_from_pandoc(
                 (name == "type").then_some(InstructionType::from_str(value).unwrap_or_default())
             })
             .unwrap_or_default();
+
         let prompt = attrs
             .attributes
             .iter()
-            .find_map(|(name, value)| (name == "prompt").then_some(value.clone()));
-        let active_suggestion = attrs.attributes.iter().find_map(|(name, value)| {
-            (name == "active_suggestion").then_some(value.clone().parse().unwrap_or_default())
+            .find_map(|(name, value)| {
+                (name == "prompt").then_some(PromptBlock {
+                    target: Some(value.into()),
+                    ..Default::default()
+                })
+            })
+            .unwrap_or_default();
+
+        let message = attrs
+            .attributes
+            .iter()
+            .find_map(|(name, value)| {
+                (name == "message").then_some(InstructionMessage {
+                    parts: vec![MessagePart::Text(value.into())],
+                    ..Default::default()
+                })
+            })
+            .unwrap_or_default();
+
+        let execution_mode = attrs.attributes.iter().find_map(|(name, value)| {
+            (name == "execution-mode").then_some(ExecutionMode::from_str(value).unwrap_or_default())
         });
+
+        let execution_bounds = attrs.attributes.iter().find_map(|(name, value)| {
+            (name == "execution-bounds")
+                .then_some(ExecutionBounds::from_str(value).unwrap_or_default())
+        });
+
+        let active_suggestion = attrs.attributes.iter().find_map(|(name, value)| {
+            (name == "active-suggestion").then_some(value.clone().parse().unwrap_or_default())
+        });
+
         let content = (!content.is_empty()).then_some(content);
 
         return Block::InstructionBlock(InstructionBlock {
-            execution_mode,
-            prompt,
             instruction_type,
-            active_suggestion,
+            prompt,
             message,
+            execution_mode,
+            execution_bounds,
+            active_suggestion,
             content,
             ..Default::default()
         });

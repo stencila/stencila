@@ -21,7 +21,7 @@
       "@id": "stencila:executionMode",
       "@type": "rdfs:Property",
       "rdfs:label": "executionMode",
-      "rdfs:comment": "Under which circumstances the code should be executed.",
+      "rdfs:comment": "Under which circumstances the node should be executed.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:CodeExpression"
@@ -32,6 +32,18 @@
       ],
       "schema:rangeIncludes": {
         "@id": "stencila:ExecutionMode"
+      }
+    },
+    {
+      "@id": "stencila:executionBounds",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionBounds",
+      "rdfs:comment": "Under which circumstances child nodes should be executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionBounds"
       }
     },
     {
@@ -177,15 +189,15 @@
       }
     },
     {
-      "@id": "stencila:executionKind",
+      "@id": "stencila:executionBounded",
       "@type": "rdfs:Property",
-      "rdfs:label": "executionKind",
-      "rdfs:comment": "The kind (e.g. main kernel vs kernel fork) of the last execution.",
+      "rdfs:label": "executionBounded",
+      "rdfs:comment": "The bounds, if any, on the last execution.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:ExecutionKind"
+        "@id": "stencila:ExecutionBounds"
       }
     },
     {

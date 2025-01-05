@@ -73,6 +73,11 @@ impl MarkdownEncodeContext {
         self.content.chars().count()
     }
 
+    /// Is the node currently being encoded the root node?
+    pub fn is_root(&self) -> bool {
+        self.node_stack.is_empty()
+    }
+
     /// Enter a node
     ///
     /// Pushes the node id and start position onto the stack.
@@ -344,7 +349,13 @@ impl MarkdownEncodeContext {
         self
     }
 
-    /// A a single newline to the end of the content
+    /// Add a single space to the end of the content
+    pub fn space(&mut self) -> &mut Self {
+        self.content.push(' ');
+        self
+    }
+
+    /// Add a single newline to the end of the content
     pub fn newline(&mut self) -> &mut Self {
         self.content.push('\n');
         self

@@ -1,8 +1,14 @@
-use cli_utils::table::{self, Attribute, Cell};
-use codec::common::{
-    clap::{self, Args, Parser, Subcommand},
-    eyre::Result,
-    itertools::Itertools,
+use cli_utils::{
+    table::{self, Attribute, Cell},
+    AsFormat, Code, ToStdout,
+};
+use codec::{
+    common::{
+        clap::{self, Args, Parser, Subcommand},
+        eyre::Result,
+        itertools::Itertools,
+    },
+    CodecSpecification,
 };
 
 /// Manage format conversion codecs
@@ -20,7 +26,7 @@ enum Command {
 impl Cli {
     pub async fn run(self) -> Result<()> {
         let Some(command) = self.command else {
-            List {}.run().await?;
+            List::default().run().await?;
             return Ok(());
         };
 
@@ -33,15 +39,32 @@ impl Cli {
 }
 
 /// List the codecs available
-#[derive(Debug, Args)]
-struct List;
+#[derive(Default, Debug, Args)]
+struct List {
+    /// Output the list as JSON or YAML
+    #[arg(long, short)]
+    r#as: Option<AsFormat>,
+}
 
 impl List {
     async fn run(self) -> Result<()> {
+        let list = super::list();
+
+        if let Some(format) = self.r#as {
+            let list = list
+                .into_iter()
+                .map(|codec| CodecSpecification::from(codec.as_ref()))
+                .collect_vec();
+
+            Code::new_from(format.into(), &list)?.to_stdout();
+
+            return Ok(());
+        }
+
         let mut table = table::new();
         table.set_header(["Name", "From", "To"]);
 
-        for codec in super::list() {
+        for codec in list {
             let from = codec
                 .supports_from_formats()
                 .keys()

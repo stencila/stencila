@@ -157,7 +157,7 @@
         "command": "stencila.new-myst",
         "category": "Create",
         "title": "New MyST Markdown document",
-        "shortTitle": "MyST",
+        "shortTitle": "MyST Markdown",
         "icon": "$(new-file)"
       },
       {
@@ -168,11 +168,71 @@
         "icon": "$(new-file)"
       },
       {
+        "command": "stencila.new-chat",
+        "category": "Create",
+        "title": "New Stencila AI Chat",
+        "shortTitle": "Chat",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "stencila.new-prompt",
+        "category": "Create",
+        "title": "New Stencila AI Prompt",
+        "shortTitle": "Prompt",
+        "icon": "$(comment)"
+      },
+      {
         "command": "stencila.view-doc",
         "category": "Stencila",
         "title": "Preview document",
         "shortTitle": "Preview doc",
         "icon": "$(preview)"
+      },
+      {
+        "command": "stencila.chat-doc",
+        "category": "Stencila",
+        "title": "Chat about document",
+        "shortTitle": "Document chat",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "stencila.insert-chat",
+        "category": "Stencila",
+        "title": "Start a chat",
+        "icon": "$(comment-discussion)"
+      },
+      {
+        "command": "stencila.insert-chat-create",
+        "category": "Stencila",
+        "title": "Chat to create"
+      },
+      {
+        "command": "stencila.insert-chat-edit",
+        "category": "Stencila",
+        "title": "Chat to edit"
+      },
+      {
+        "command": "stencila.insert-chat-fix",
+        "category": "Stencila",
+        "title": "Chat to fix"
+      },
+      {
+        "command": "stencila.insert-command-create",
+        "category": "Stencila",
+        "title": "Command to create",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "stencila.insert-command-edit",
+        "category": "Stencila",
+        "title": "Command to edit",
+        "icon": "$(pencil)"
+      },
+      {
+        "command": "stencila.insert-command-fix",
+        "category": "Stencila",
+        "title": "Command to fix",
+        "icon": "$(wrench)"
       },
       {
         "command": "stencila.invoke.run-curr",
@@ -430,6 +490,18 @@
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
       },
       {
+        "command": "stencila.chat-doc",
+        "key": "ctrl+shift+c",
+        "mac": "cmd+shift+c",
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
+      },
+      {
+        "command": "stencila.insert-chat",
+        "key": "ctrl+/",
+        "mac": "cmd+/",
+        "when": "editorTextFocus && editorLangId =~ /^(md|smd|myst|qmd)$/"
+      },
+      {
         "command": "stencila.invoke.export-doc",
         "key": "ctrl+shift+e",
         "mac": "cmd+shift+e",
@@ -509,6 +581,14 @@
         {
           "command": "stencila.new-qmd",
           "group": "Document"
+        },
+        {
+          "command": "stencila.new-chat",
+          "group": "AI"
+        },
+        {
+          "command": "stencila.new-prompt",
+          "group": "AI"
         }
       ],
       "commandPalette": [
@@ -525,7 +605,17 @@
           "command": "stencila.new-qmd"
         },
         {
+          "command": "stencila.new-chat"
+        },
+        {
+          "command": "stencila.new-prompt"
+        },
+        {
           "command": "stencila.view-doc",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
+        },
+        {
+          "command": "stencila.chat-doc",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/"
         },
         {
@@ -600,23 +690,48 @@
           "command": "stencila.invoke.export-doc",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@3"
+        },
+        {
+          "command": "stencila.chat-doc",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
+          "group": "000-Stencila@4"
         }
       ],
       "editor/context": [
         {
-          "command": "stencila.invoke.run-curr",
+          "command": "stencila.insert-chat",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@1"
         },
         {
-          "command": "stencila.invoke.lock-curr",
+          "command": "stencila.insert-chat-create",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@2"
         },
         {
-          "command": "stencila.invoke.unlock-curr",
+          "command": "stencila.insert-chat-edit",
           "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
           "group": "000-Stencila@3"
+        },
+        {
+          "command": "stencila.insert-chat-fix",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
+          "group": "000-Stencila@4"
+        },
+        {
+          "command": "stencila.invoke.run-curr",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
+          "group": "001-Stencila@1"
+        },
+        {
+          "command": "stencila.invoke.lock-curr",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
+          "group": "001-Stencila@2"
+        },
+        {
+          "command": "stencila.invoke.unlock-curr",
+          "when": "editorLangId =~ /^(md|smd|myst|qmd)$/",
+          "group": "001-Stencila@3"
         }
       ],
       "view/title": [
@@ -706,7 +821,8 @@
           "Stencila Markdown"
         ],
         "extensions": [
-          ".smd"
+          ".smd",
+          ".chat"
         ],
         "configuration": "./syntaxes/smd/configuration.json",
         "icon": {
@@ -880,10 +996,6 @@
     ],
     "snippets": [
       {
-        "language": "smd",
-        "path": "./syntaxes/smd/snippets.json"
-      },
-      {
         "language": "myst",
         "path": "./syntaxes/myst/snippets.jsonc"
       },
@@ -900,6 +1012,18 @@
         "path": "./themes/stencila-light-color-theme.json"
       }
     ],
+    "customEditors": [
+      {
+        "viewType": "stencila.chat-editor",
+        "displayName": "Chat Editor",
+        "selector": [
+          {
+            "filenamePattern": "*.chat"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
     "viewsContainers": {
       "activitybar": [
         {
@@ -912,22 +1036,22 @@
     "views": {
       "stencila-sidebar": [
         {
-          "id": "stencila-setup",
-          "name": "Setup"
-        },
-        {
           "id": "stencila-prompts",
           "name": "Prompts"
         },
         {
           "id": "stencila-models",
           "name": "Models",
-          "collapsed": true
+          "visibility": "collapsed"
         },
         {
           "id": "stencila-kernels",
           "name": "Kernels",
-          "collapsed": true
+          "visibility": "collapsed"
+        },
+        {
+          "id": "stencila-setup",
+          "name": "Setup"
         }
       ]
     },

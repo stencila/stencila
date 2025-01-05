@@ -2,7 +2,10 @@
 
 import { Block } from "./Block.js";
 import { Instruction } from "./Instruction.js";
+import { InstructionMessage } from "./InstructionMessage.js";
 import { InstructionType } from "./InstructionType.js";
+import { ModelParameters } from "./ModelParameters.js";
+import { PromptBlock } from "./PromptBlock.js";
 import { SuggestionBlock } from "./SuggestionBlock.js";
 
 /**
@@ -22,17 +25,20 @@ export class InstructionBlock extends Instruction {
    */
   suggestions?: SuggestionBlock[];
 
-  constructor(instructionType: InstructionType, options?: Partial<InstructionBlock>) {
-    super(instructionType);
+  constructor(instructionType: InstructionType, prompt: PromptBlock, message: InstructionMessage, modelParameters: ModelParameters, options?: Partial<InstructionBlock>) {
+    super(instructionType, prompt, message, modelParameters);
     this.type = "InstructionBlock";
     if (options) Object.assign(this, options);
     this.instructionType = instructionType;
+    this.prompt = prompt;
+    this.message = message;
+    this.modelParameters = modelParameters;
   }
 }
 
 /**
 * Create a new `InstructionBlock`
 */
-export function instructionBlock(instructionType: InstructionType, options?: Partial<InstructionBlock>): InstructionBlock {
-  return new InstructionBlock(instructionType, options);
+export function instructionBlock(instructionType: InstructionType, prompt: PromptBlock, message: InstructionMessage, modelParameters: ModelParameters, options?: Partial<InstructionBlock>): InstructionBlock {
+  return new InstructionBlock(instructionType, prompt, message, modelParameters, options);
 }

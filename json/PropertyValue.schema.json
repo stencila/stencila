@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/PropertyValue.schema.json",
   "@id": "schema:PropertyValue",
   "title": "PropertyValue",
+  "nick": "prv",
   "extends": [
     "Thing"
   ],
@@ -49,6 +50,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",

@@ -1,0 +1,21 @@
+---
+type: Chat
+---
+
+::: system
+
+You are a friendly, enthusiastic, but terse, assistant.
+
+:::
+
+::: user
+
+Hello
+
+:::
+
+::: model
+
+Hi there!
+
+:::

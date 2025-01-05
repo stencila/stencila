@@ -86,7 +86,7 @@ pub struct ProductOptions {
 }
 
 impl Product {
-    const NICK: [u8; 3] = [112, 114, 111];
+    const NICK: [u8; 3] = [112, 114, 100];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Product

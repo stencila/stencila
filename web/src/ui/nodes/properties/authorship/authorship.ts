@@ -6,7 +6,7 @@ import { Ref, createRef, ref } from 'lit/directives/ref'
 
 import { withTwind } from '../../../../twind'
 import { documentContext, DocumentContext } from '../../../document/context'
-import { entityContext, EntityContext } from '../../context'
+import { entityContext, EntityContext } from '../../entity-context'
 import {
   ProvenanceOpacityLevel,
   getProvenanceOpacity,

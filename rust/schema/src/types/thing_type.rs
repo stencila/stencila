@@ -7,6 +7,7 @@ use super::article::Article;
 use super::audio_object::AudioObject;
 use super::author_role_name::AuthorRoleName;
 use super::brand::Brand;
+use super::chat::Chat;
 use super::citation_intent::CitationIntent;
 use super::citation_mode::CitationMode;
 use super::claim::Claim;
@@ -18,9 +19,9 @@ use super::creative_work::CreativeWork;
 use super::datatable::Datatable;
 use super::defined_term::DefinedTerm;
 use super::enumeration::Enumeration;
+use super::execution_bounds::ExecutionBounds;
 use super::execution_dependant_relation::ExecutionDependantRelation;
 use super::execution_dependency_relation::ExecutionDependencyRelation;
-use super::execution_kind::ExecutionKind;
 use super::execution_mode::ExecutionMode;
 use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
@@ -48,6 +49,7 @@ use super::property_value::PropertyValue;
 use super::provenance_category::ProvenanceCategory;
 use super::publication_issue::PublicationIssue;
 use super::publication_volume::PublicationVolume;
+use super::relative_position::RelativePosition;
 use super::review::Review;
 use super::section_type::SectionType;
 use super::software_application::SoftwareApplication;
@@ -75,6 +77,8 @@ pub enum ThingType {
 
     Brand(Brand),
 
+    Chat(Chat),
+
     CitationIntent(CitationIntent),
 
     CitationMode(CitationMode),
@@ -97,11 +101,11 @@ pub enum ThingType {
 
     Enumeration(Enumeration),
 
+    ExecutionBounds(ExecutionBounds),
+
     ExecutionDependantRelation(ExecutionDependantRelation),
 
     ExecutionDependencyRelation(ExecutionDependencyRelation),
-
-    ExecutionKind(ExecutionKind),
 
     ExecutionMode(ExecutionMode),
 
@@ -156,6 +160,8 @@ pub enum ThingType {
     PublicationIssue(PublicationIssue),
 
     PublicationVolume(PublicationVolume),
+
+    RelativePosition(RelativePosition),
 
     Review(Review),
 

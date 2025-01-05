@@ -21,7 +21,7 @@
       "@id": "stencila:executionMode",
       "@type": "rdfs:Property",
       "rdfs:label": "executionMode",
-      "rdfs:comment": "Under which circumstances the code should be executed.",
+      "rdfs:comment": "Under which circumstances the node should be executed.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:CodeExpression"
@@ -32,6 +32,18 @@
       ],
       "schema:rangeIncludes": {
         "@id": "stencila:ExecutionMode"
+      }
+    },
+    {
+      "@id": "stencila:executionBounds",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionBounds",
+      "rdfs:comment": "Under which circumstances child nodes should be executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionBounds"
       }
     },
     {
@@ -177,15 +189,15 @@
       }
     },
     {
-      "@id": "stencila:executionKind",
+      "@id": "stencila:executionBounded",
       "@type": "rdfs:Property",
-      "rdfs:label": "executionKind",
-      "rdfs:comment": "The kind (e.g. main kernel vs kernel fork) of the last execution.",
+      "rdfs:label": "executionBounded",
+      "rdfs:comment": "The bounds, if any, on the last execution.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:ExecutionKind"
+        "@id": "stencila:ExecutionBounds"
       }
     },
     {
@@ -235,10 +247,10 @@
       }
     },
     {
-      "@id": "stencila:prompt",
+      "@id": "stencila:instructionType",
       "@type": "rdfs:Property",
-      "rdfs:label": "prompt",
-      "rdfs:comment": "An identifier for the prompt to be rendered",
+      "rdfs:label": "instructionType",
+      "rdfs:comment": "The type of instruction the  being used for",
       "schema:domainIncludes": [
         {
           "@id": "stencila:Instruction"
@@ -247,6 +259,82 @@
           "@id": "stencila:PromptBlock"
         }
       ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:InstructionType"
+      }
+    },
+    {
+      "@id": "stencila:nodeTypes",
+      "@type": "rdfs:Property",
+      "rdfs:label": "nodeTypes",
+      "rdfs:comment": "The type of nodes the prompt is being used for",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Prompt"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:relativePosition",
+      "@type": "rdfs:Property",
+      "rdfs:label": "relativePosition",
+      "rdfs:comment": "The relative position of the node being edited, described etc.",
+      "schema:domainIncludes": {
+        "@id": "stencila:PromptBlock"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:RelativePosition"
+      }
+    },
+    {
+      "@id": "stencila:query",
+      "@type": "rdfs:Property",
+      "rdfs:label": "query",
+      "rdfs:comment": "A user text query used to infer the `target` prompt",
+      "schema:domainIncludes": {
+        "@id": "stencila:PromptBlock"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:target",
+      "@type": "rdfs:Property",
+      "rdfs:label": "target",
+      "rdfs:comment": "An identifier for the prompt to be rendered",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:ModifyOperation"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:directory",
+      "@type": "rdfs:Property",
+      "rdfs:label": "directory",
+      "rdfs:comment": "The home directory of the prompt",
+      "schema:domainIncludes": {
+        "@id": "stencila:PromptBlock"
+      },
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
@@ -273,10 +361,19 @@
           "@id": "stencila:Admonition"
         },
         {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:ChatMessage"
+        },
+        {
           "@id": "stencila:Cite"
         },
         {
           "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:File"
         },
         {
           "@id": "stencila:ForBlock"

@@ -1,0 +1,23 @@
+title: ChatMessageGroup
+"@id": stencila:ChatMessageGroup
+nick: cmg
+extends: Entity
+category: works
+status: under-development
+description: A group of messages, usually alternative model messages, within a `Chat`.
+patch:
+  applyWith: ChatMessageGroup::apply_patch_op
+markdown:
+  derive: false
+required:
+  - messages
+properties:
+  messages:
+    "@id": stencila:messages
+    description: The messages within the group.
+    type: array
+    items:
+      $ref: ChatMessage
+    walk: true
+    dom:
+      elem: div

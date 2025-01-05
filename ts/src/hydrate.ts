@@ -57,6 +57,12 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.CallArgument.prototype);
     case "CallBlock":
       return Object.setPrototypeOf(value, types.CallBlock.prototype);
+    case "Chat":
+      return Object.setPrototypeOf(value, types.Chat.prototype);
+    case "ChatMessage":
+      return Object.setPrototypeOf(value, types.ChatMessage.prototype);
+    case "ChatMessageGroup":
+      return Object.setPrototypeOf(value, types.ChatMessageGroup.prototype);
     case "Cite":
       return Object.setPrototypeOf(value, types.Cite.prototype);
     case "CiteGroup":
@@ -173,8 +179,6 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.InstructionInline.prototype);
     case "InstructionMessage":
       return Object.setPrototypeOf(value, types.InstructionMessage.prototype);
-    case "InstructionModel":
-      return Object.setPrototypeOf(value, types.InstructionModel.prototype);
     case "IntegerValidator":
       return Object.setPrototypeOf(value, types.IntegerValidator.prototype);
     case "Link":
@@ -193,6 +197,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.MathInline.prototype);
     case "MediaObject":
       return Object.setPrototypeOf(value, types.MediaObject.prototype);
+    case "ModelParameters":
+      return Object.setPrototypeOf(value, types.ModelParameters.prototype);
     case "ModifyBlock":
       return Object.setPrototypeOf(value, types.ModifyBlock.prototype);
     case "ModifyInline":

@@ -46,6 +46,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -136,9 +137,9 @@
       "const": "User"
     },
     {
-      "@id": "stencila:AssistantMessage",
-      "description": "An assistant message",
-      "const": "Assistant"
+      "@id": "stencila:ModelMessage",
+      "description": "A message from a model",
+      "const": "Model"
     }
   ],
   "default": "User"

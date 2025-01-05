@@ -1,42 +1,36 @@
 import {
-  ExecutionKind,
+  ExecutionBounds,
   ExecutionMode,
   ExecutionRequired,
   ExecutionStatus,
   ExecutionTag,
-  NodeType,
 } from '@stencila/types'
 import { apply } from '@twind/core'
-import { LitElement, html } from 'lit'
+import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
+import { withTwind } from '../../../twind'
+import { UIBaseClass } from '../mixins/ui-base-class'
+
+import './execution-bounded'
+import './execution-bounds'
 import './execution-count'
 import './execution-duration'
 import './execution-ended'
-import './execution-kind'
+import './execution-mode'
 import './execution-state'
-
-import { withTwind } from '../../../twind'
-import { nodeUi } from '../icons-and-colours'
 
 /**
  * A component for displaying various execution related property of executable nodes
- *
- * Acts as a container for execution details which can be collapsed or expanded.
- * Having this collapsable is important because the user may not always want to
- * see details such as all the dependants of a node.
- *
- * TODO: Render `autoExec`, `executionTags`, `executionDependencies`, and `executionDependants`
- * when then are available in documents (they are not yet re-implemented)
  */
 @customElement('stencila-ui-node-execution-details')
 @withTwind()
-export class UINodeExecutionDetails extends LitElement {
-  @property()
-  type: NodeType
-
+export class UINodeExecutionDetails extends UIBaseClass {
   @property()
   mode?: ExecutionMode
+
+  @property()
+  bounds?: ExecutionBounds
 
   @property({ type: Array })
   tags?: ExecutionTag[]
@@ -51,7 +45,7 @@ export class UINodeExecutionDetails extends LitElement {
   status?: ExecutionStatus
 
   @property()
-  kind?: ExecutionKind
+  bounded?: ExecutionBounds
 
   @property({ type: Number })
   ended?: number
@@ -60,11 +54,11 @@ export class UINodeExecutionDetails extends LitElement {
   duration?: number
 
   override render() {
-    const { colour, borderColour } = nodeUi(this.type)
+    const { colour, borderColour, textColour } = this.ui
 
     const classes = apply([
-      'flex flex-row flex-wrap gap-3',
-      'text-xs leading-tight',
+      'flex flex-row flex-wrap items-center justify-between gap-3',
+      `text-[${textColour}] text-xs leading-tight`,
       'min-h-[2.25rem]',
       'py-1.5 px-4',
       `bg-[${colour}]`,
@@ -73,31 +67,51 @@ export class UINodeExecutionDetails extends LitElement {
     ])
 
     return html`
-      <div class="@container">
-        <div class=${`${classes}`}>
-          ${this.type !== 'SuggestionBlock'
-            ? this.renderAllDetails()
-            : this.renderTimeAndDuration()}
-        </div>
+      <div class=${classes}>
+        ${this.type !== 'SuggestionBlock'
+          ? this.renderAllDetails()
+          : this.renderTimeAndDuration()}
       </div>
     `
   }
 
   protected renderAllDetails() {
-    return html`<stencila-ui-node-execution-state
-        status=${this.status}
-        required=${this.required}
-        count=${this.count}
-      ></stencila-ui-node-execution-state>
-      ${this.count > 0
-        ? html`<stencila-ui-node-execution-count
-              value=${this.count}
-            ></stencila-ui-node-execution-count>
-            ${this.renderTimeAndDuration()}
-            <stencila-ui-node-execution-kind
-              value=${this.kind}
-            ></stencila-ui-node-execution-kind>`
-        : ''}`
+    return html`<div class="flex flex-row items-center gap-x-3">
+        <stencila-ui-node-execution-mode
+          type=${this.type}
+          node-id=${this.nodeId}
+          value=${this.mode}
+        >
+        </stencila-ui-node-execution-mode>
+
+        ${this.bounds !== undefined
+          ? html`<stencila-ui-node-execution-bounds
+              type=${this.type}
+              node-id=${this.nodeId}
+              value=${this.bounds}
+            >
+            </stencila-ui-node-execution-bounds>`
+          : ''}
+      </div>
+
+      <div class="flex flex-row items-center gap-x-3">
+        <stencila-ui-node-execution-state
+          status=${this.status}
+          required=${this.required}
+          count=${this.count}
+        >
+        </stencila-ui-node-execution-state>
+
+        ${this.count > 0
+          ? html`<stencila-ui-node-execution-count
+                value=${this.count}
+              ></stencila-ui-node-execution-count>
+              ${this.renderTimeAndDuration()}
+              <stencila-ui-node-execution-bounded
+                value=${this.bounded}
+              ></stencila-ui-node-execution-bounded>`
+          : ''}
+      </div>`
   }
 
   protected renderTimeAndDuration() {

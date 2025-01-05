@@ -7,9 +7,9 @@ name: Create Empty Table Prompt
 description: Create an empty table.
 keywords: table, empty
 
-instruction-type: Create 
-instruction-pattern: (?i)\bempty table\b
+instruction-type: Create
 node-type: Table
+query-pattern: (?i)\bempty table\b
 ---
 
 # Instructions

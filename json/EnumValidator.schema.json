@@ -55,6 +55,7 @@
         ]
       },
       "serde": {
+        "default": false,
         "deserializeWith": "none"
       },
       "type": "array",

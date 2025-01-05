@@ -29,6 +29,9 @@ old:
                 - 23
         - type: InstructionInline
           instructionType: Create
+          prompt:
+            type: PromptBlock
+            target: math
           message:
             type: InstructionMessage
             parts:
@@ -52,7 +55,8 @@ old:
                 provenanceCategory: Hw
                 characterCount: 33
                 characterPercent: 100
-          prompt: math
+          modelParameters:
+            type: ModelParameters
         - type: Text
           value:
             string: "."
@@ -108,13 +112,17 @@ new:
             string: "The area of a cube is: "
         - type: InstructionInline
           instructionType: Create
+          prompt:
+            type: PromptBlock
+            target: math
           message:
             type: InstructionMessage
             parts:
               - type: Text
                 value:
                   string: equation for surface area of cube
-          prompt: math
+          modelParameters:
+            type: ModelParameters
         - type: Text
           value:
             string: "."
@@ -159,6 +167,9 @@ merged:
                 - 23
         - type: InstructionInline
           instructionType: Create
+          prompt:
+            type: PromptBlock
+            target: math
           message:
             type: InstructionMessage
             parts:
@@ -182,7 +193,8 @@ merged:
                 provenanceCategory: Hw
                 characterCount: 33
                 characterPercent: 100
-          prompt: math
+          modelParameters:
+            type: ModelParameters
         - type: Text
           value:
             string: "."

@@ -1,0 +1,61 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/ChatMessageGroup.schema.json",
+  "@id": "stencila:ChatMessageGroup",
+  "title": "ChatMessageGroup",
+  "nick": "cmg",
+  "extends": [
+    "Entity"
+  ],
+  "category": "works",
+  "description": "A group of messages, usually alternative model messages, within a `Chat`.",
+  "status": "under-development",
+  "patch": {
+    "applyWith": "ChatMessageGroup::apply_patch_op"
+  },
+  "markdown": {
+    "derive": false
+  },
+  "required": [
+    "type",
+    "messages"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "messages": {
+      "@id": "stencila:messages",
+      "description": "The messages within the group.",
+      "aliases": [
+        "message"
+      ],
+      "walk": true,
+      "dom": {
+        "elem": "div"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ChatMessage.schema.json"
+      }
+    }
+  }
+}

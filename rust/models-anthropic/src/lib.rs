@@ -1,5 +1,7 @@
 use std::sync::Arc;
 
+use cached::proc_macro::cached;
+
 use model::{
     common::{
         async_trait::async_trait,
@@ -10,7 +12,7 @@ use model::{
         serde_with::skip_serializing_none,
         tracing,
     },
-    schema::{MessagePart, MessageRole},
+    schema::{ImageObject, MessagePart, MessageRole},
     secrets, Model, ModelIO, ModelOutput, ModelTask, ModelType,
 };
 
@@ -97,21 +99,39 @@ impl Model for AnthropicModel {
                     return None;
                 }
 
-                let role = message
-                    .role
-                    .clone()
-                    .unwrap_or_default()
-                    .to_string()
-                    .to_lowercase();
+                let role = match message.role {
+                    Some(MessageRole::Model) => "assistant",
+                    Some(MessageRole::System) => "system",
+                    _ => "user",
+                }
+                .to_string();
 
                 let content = message
                     .parts
                     .iter()
                     .filter_map(|part| match part {
-                        MessagePart::Text(text) => Some(ContentPart {
-                            r#type: "text".to_string(),
+                        MessagePart::Text(text) => Some(ContentPart::Text {
                             text: text.to_value_string(),
                         }),
+                        MessagePart::ImageObject(ImageObject{content_url,..}) =>
+                            if let (true, Some(pos)) = (content_url.starts_with("data:"), content_url.find(";base64,")) {
+                                let media_type = content_url[5..pos].to_string();
+                                let data = content_url[(pos + 8)..].to_string();
+
+                                Some(ContentPart::Image {
+                                    source: ImageSource {
+                                        r#type: "base64".into(),
+                                        media_type,
+                                        data,
+                                    },
+                                })
+                            } else {
+                                tracing::warn!(
+                                    "Image does not appear to have a DataURI so was ignored by model `{}`",
+                                    self.id()
+                                );
+                                None
+                            }
                         _ => {
                             tracing::warn!(
                                 "User message part `{part}` is ignored by model `{}`",
@@ -161,7 +181,10 @@ impl Model for AnthropicModel {
         let text = response
             .content
             .into_iter()
-            .map(|part| part.text)
+            .filter_map(|part| match part {
+                ContentPart::Text { text } => Some(text),
+                _ => None,
+            })
             .join("\n\n");
 
         ModelOutput::from_text(self, &task.format, text).await
@@ -181,29 +204,72 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
         return Ok(vec![]);
     }
 
-    let models = [
-        ("claude-3-5-sonnet-20240620", 200_000),
-        ("claude-3-opus-20240229", 200_000),
-        ("claude-3-sonnet-20240229", 200_000),
-        ("claude-3-haiku-20240307", 200_000),
-    ]
-    .into_iter()
-    .map(|(model, context_length)| {
-        Arc::new(AnthropicModel::new(model, context_length)) as Arc<dyn Model>
-    })
-    .collect();
+    let models = list_anthropic_models()
+        .await?
+        .data
+        .into_iter()
+        .sorted_by(|a, b| a.id.cmp(&b.id))
+        .map(|ModelSpec { id: model }| {
+            Arc::new(AnthropicModel::new(&model, 200_000)) as Arc<dyn Model>
+        })
+        .collect();
 
     Ok(models)
 }
 
-/// A part within the content of a message in the Messages API
+/// Fetch the list of models
 ///
-/// Note: at present only `text` type is handled
+/// In-memory cached for six hours to reduce requests to remote API.
+#[cached(time = 21_600, result = true)]
+async fn list_anthropic_models() -> Result<ModelsResponse> {
+    let response = Client::new()
+        .get(format!("{}/models", BASE_URL))
+        .header("x-api-key", secrets::env_or_get(API_KEY)?)
+        .header("anthropic-version", API_VERSION)
+        .send()
+        .await?;
+
+    if let Err(error) = response.error_for_status_ref() {
+        let message = response.text().await?;
+        bail!("{error}: {message}");
+    }
+
+    Ok(response.json().await?)
+}
+
+/// A model list response
+///
+/// Based on https://docs.anthropic.com/en/api/models-list
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(crate = "model::common::serde")]
+struct ModelsResponse {
+    data: Vec<ModelSpec>,
+}
+
+/// A model returned within a `ModelsResponse`
+///
+/// Note: at present several other fields are ignored.
+#[derive(Clone, Serialize, Deserialize)]
+#[serde(crate = "model::common::serde")]
+struct ModelSpec {
+    id: String,
+}
+
+/// A part within the content of a message in the Messages API
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "lowercase", crate = "model::common::serde")]
+enum ContentPart {
+    Text { text: String },
+    Image { source: ImageSource },
+}
+
+/// An images source
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(crate = "model::common::serde")]
-struct ContentPart {
+struct ImageSource {
     r#type: String,
-    text: String,
+    media_type: String,
+    data: String,
 }
 
 /// A Messages API message

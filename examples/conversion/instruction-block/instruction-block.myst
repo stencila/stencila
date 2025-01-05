@@ -13,7 +13,7 @@ An insert instruction with a prompt:
 
 An insert instruction with a prompt but a blank instruction
 
-:::{create}
+:::{create} 
 :prompt: code-chunk
 
 :::
@@ -29,7 +29,7 @@ The paragraph to be improved.
 An edit instruction with a prompt:
 
 :::{edit} please improve this paragraph
-:prompt: anne
+:prompt: para
 
 Another paragraph to be improved.
 
@@ -51,5 +51,20 @@ An edit instruction with a suggestion:
 :::{edit} more succinct
 
 A paragraph.
+
+:::
+
+With prompt and model parameters specified:
+
+:::{create} message
+:prompt: prompt
+:models: model1, model2
+:quality: 10
+:cost: 10
+:speed: 10
+:min-score: 40
+:temp: 10
+:seed: 123
+:reps: 3
 
 :::

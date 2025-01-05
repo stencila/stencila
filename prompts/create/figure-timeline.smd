@@ -7,11 +7,11 @@ name: Create Timeline Figure Prompt
 description: Create a figure containing a Mermaid timeline diagram with a caption.
 keywords: figure, timeline, diagram, mermaid
 
-instruction-type: Create 
-instruction-patterns:
+instruction-type: Create
+node-type: CodeChunk
+query-patterns:
   - (?i)\btime(line)? diag(ram)?\b
   - (?i)\bmermaid\b
-node-type: CodeChunk
 ---
 
 # Instructions

@@ -7,14 +7,14 @@ name: Create Code Chunk Prompt
 description: Create an executable code chunk.
 keywords: executable, code
 
-instruction-type: Create 
-instruction-patterns:
+instruction-type: Create
+node-type: CodeChunk
+query-patterns:
   - (?i)\bcode( (chunk|cell))?\b
   - (?i)\bexec(utable)?\b
   - (?i)\bpy(thon)?( code)?\b
   - (?i)\br( code)?\b
   - (?i)\bsql( code)?\b
-node-type: CodeChunk
 ---
 
 # Instructions

@@ -2,8 +2,8 @@
 
 import { Executable } from "./Executable.js";
 import { InstructionMessage } from "./InstructionMessage.js";
-import { InstructionModel } from "./InstructionModel.js";
 import { InstructionType } from "./InstructionType.js";
+import { ModelParameters } from "./ModelParameters.js";
 import { PromptBlock } from "./PromptBlock.js";
 import { UnsignedInteger } from "./UnsignedInteger.js";
 
@@ -20,51 +20,39 @@ export class Instruction extends Executable {
   instructionType: InstructionType;
 
   /**
+   * The prompt selected, rendered and provided to the model
+   */
+  prompt: PromptBlock;
+
+  /**
    * The instruction message, possibly including images, audio, or other media.
    */
-  message?: InstructionMessage;
+  message: InstructionMessage;
 
   /**
-   * An identifier for the prompt to be used for the instruction
+   * Model selection and inference parameters.
    */
-  prompt?: string;
-
-  /**
-   * The name, and other options, for the model that the assistant should use to generate suggestions.
-   */
-  model?: InstructionModel;
-
-  /**
-   * The number of suggestions to generate for the instruction
-   */
-  replicates?: UnsignedInteger;
-
-  /**
-   * A string identifying which operations should, or should not, automatically be applied to generated suggestions.
-   */
-  recursion?: string;
-
-  /**
-   * The prompt chosen, rendered and provided to the model
-   */
-  promptProvided?: PromptBlock;
+  modelParameters: ModelParameters;
 
   /**
    * The index of the suggestion that is currently active
    */
   activeSuggestion?: UnsignedInteger;
 
-  constructor(instructionType: InstructionType, options?: Partial<Instruction>) {
+  constructor(instructionType: InstructionType, prompt: PromptBlock, message: InstructionMessage, modelParameters: ModelParameters, options?: Partial<Instruction>) {
     super();
     this.type = "Instruction";
     if (options) Object.assign(this, options);
     this.instructionType = instructionType;
+    this.prompt = prompt;
+    this.message = message;
+    this.modelParameters = modelParameters;
   }
 }
 
 /**
 * Create a new `Instruction`
 */
-export function instruction(instructionType: InstructionType, options?: Partial<Instruction>): Instruction {
-  return new Instruction(instructionType, options);
+export function instruction(instructionType: InstructionType, prompt: PromptBlock, message: InstructionMessage, modelParameters: ModelParameters, options?: Partial<Instruction>): Instruction {
+  return new Instruction(instructionType, prompt, message, modelParameters, options);
 }

@@ -24,6 +24,7 @@ use common::{
     uuid::Uuid,
 };
 use document::{Document, DomPatch};
+use schema::NodeId;
 
 pub struct SubscribeDom;
 
@@ -95,12 +96,15 @@ static SUBSCRIPTIONS: Lazy<Mutex<HashMap<String, (Sender<DomPatch>, JoinHandle<(
 /// Handle a request to subscribe to DOM HTML updates for a document
 pub async fn subscribe(
     doc: Arc<RwLock<Document>>,
+    node_id: Option<NodeId>,
     client: ClientSocket,
 ) -> Result<(String, String, String), ResponseError> {
     let (in_sender, in_receiver) = mpsc::channel(256);
     let (out_sender, mut out_receiver) = mpsc::channel(256);
 
     let subscription_id = Uuid::now_v7().to_string();
+
+    tracing::debug!("Starting subscription `{subscription_id}`");
 
     // Start task to send patches to the client
     let sub_id = subscription_id.clone();
@@ -110,7 +114,7 @@ pub async fn subscribe(
                 subscription_id: sub_id.clone(),
                 patch,
             }) {
-                tracing::error!("While publishing DOM patch {error}");
+                tracing::error!("While publishing DOM patch: {error}");
             };
         }
     });
@@ -132,7 +136,7 @@ pub async fn subscribe(
 
     // Start the DOM syncing task and the initial HTML content
     let html = doc
-        .sync_dom(in_receiver, out_sender)
+        .sync_dom(node_id, in_receiver, out_sender)
         .await
         .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))?;
 
@@ -141,6 +145,8 @@ pub async fn subscribe(
 
 /// Handle a request to reset the DOM HTML for a document
 pub async fn reset(subscription_id: String) -> Result<(), ResponseError> {
+    tracing::debug!("Resetting subscription `{subscription_id}`");
+
     if let Some((sender, ..)) = SUBSCRIPTIONS.lock().await.get(&subscription_id) {
         sender
             .send(DomPatch::reset_request())
@@ -153,6 +159,8 @@ pub async fn reset(subscription_id: String) -> Result<(), ResponseError> {
 
 /// Handle a request to unsubscribe from DOM HTML updates for a document
 pub async fn unsubscribe(subscription_id: String) -> Result<(), ResponseError> {
+    tracing::debug!("Stopping subscription `{subscription_id}`");
+
     if let Some((.., task)) = SUBSCRIPTIONS.lock().await.remove(&subscription_id) {
         task.abort();
     }

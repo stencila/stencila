@@ -1,4 +1,5 @@
 use std::{
+    fmt::Display,
     ops::ControlFlow,
     path::PathBuf,
     str::FromStr,
@@ -13,7 +14,7 @@ use async_lsp::{
     lsp_types::{
         ApplyWorkspaceEditParams, DocumentChanges, ExecuteCommandParams, MessageType,
         NumberOrString, OneOf, OptionalVersionedTextDocumentIdentifier, Position, ProgressParams,
-        ProgressParamsValue, ShowMessageParams, TextDocumentEdit, Url, WorkDoneProgress,
+        ProgressParamsValue, Range, ShowMessageParams, TextDocumentEdit, Url, WorkDoneProgress,
         WorkDoneProgressBegin, WorkDoneProgressCancelParams, WorkDoneProgressCreateParams,
         WorkDoneProgressEnd, WorkDoneProgressReport, WorkspaceEdit,
     },
@@ -22,7 +23,8 @@ use async_lsp::{
 
 use codecs::{EncodeOptions, Format};
 use common::{
-    eyre::Result,
+    eyre::{OptionExt, Result},
+    itertools::Itertools,
     once_cell::sync::Lazy,
     serde_json::{self, Value},
     tokio::{
@@ -32,23 +34,29 @@ use common::{
     tracing,
 };
 use document::{
-    Command, CommandNodes, CommandScope, CommandStatus, Document, SaveDocumentSidecar,
+    Command, CommandNodes, CommandScope, CommandStatus, ContentType, Document, SaveDocumentSidecar,
     SaveDocumentSource,
 };
 use node_execute::ExecuteOptions;
+use node_find::find;
 use schema::{
-    AuthorRole, AuthorRoleName, NodeId, NodeProperty, NodeType, Patch, PatchOp, PatchPath,
-    PatchValue, Timestamp,
+    replicate, Article, AuthorRole, AuthorRoleName, Block, Chat, ChatOptions, InstructionBlock,
+    InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodeProperty, NodeType,
+    Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock, SuggestionBlock,
+    SuggestionStatus, Timestamp,
 };
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
 
-pub(super) const PATCH_NODE: &str = "stencila.patch-node";
-pub(super) const PATCH_CURR: &str = "stencila.patch-curr";
+pub(super) const PATCH_VALUE: &str = "stencila.patch-value";
+pub(super) const PATCH_CLONE: &str = "stencila.patch-clone";
+pub(super) const PATCH_CHAT_FOCUS: &str = "stencila.patch-chat-focus";
+pub(super) const PATCH_NODE_FORMAT: &str = "stencila.patch-node-format";
 pub(super) const VERIFY_NODE: &str = "stencila.verify-node";
 
 pub(super) const RUN_NODE: &str = "stencila.run-node";
 pub(super) const RUN_CURR: &str = "stencila.run-curr";
+pub(super) const RUN_CHAT: &str = "stencila.run-chat";
 pub(super) const RUN_DOC: &str = "stencila.run-doc";
 pub(super) const RUN_CODE: &str = "stencila.run-code";
 pub(super) const RUN_INSTRUCT: &str = "stencila.run-instruct";
@@ -67,17 +75,27 @@ pub(super) const NEXT_NODE: &str = "stencila.next-node";
 pub(super) const ARCHIVE_NODE: &str = "stencila.archive-node";
 pub(super) const REVISE_NODE: &str = "stencila.revise-node";
 
+pub(super) const INSERT_NODE: &str = "stencila.insert-node";
+pub(super) const INSERT_CLONE: &str = "stencila.insert-clone";
+pub(super) const INSERT_INSTRUCTION: &str = "stencila.insert-instruction";
+
+pub(super) const CREATE_CHAT: &str = "stencila.create-chat";
+pub(super) const DELETE_CHAT: &str = "stencila.delete-chat";
+
 pub(super) const SAVE_DOC: &str = "stencila.save-doc";
 pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
 
 /// Get the list of commands that the language server supports
 pub(super) fn commands() -> Vec<String> {
     [
-        PATCH_NODE,
-        PATCH_CURR,
+        PATCH_VALUE,
+        PATCH_CLONE,
+        PATCH_CHAT_FOCUS,
+        PATCH_NODE_FORMAT,
         VERIFY_NODE,
         RUN_NODE,
         RUN_CURR,
+        RUN_CHAT,
         RUN_DOC,
         RUN_CODE,
         RUN_INSTRUCT,
@@ -92,6 +110,11 @@ pub(super) fn commands() -> Vec<String> {
         NEXT_NODE,
         ARCHIVE_NODE,
         REVISE_NODE,
+        INSERT_NODE,
+        INSERT_CLONE,
+        INSERT_INSTRUCTION,
+        CREATE_CHAT,
+        DELETE_CHAT,
         SAVE_DOC,
         EXPORT_DOC,
     ]
@@ -107,11 +130,15 @@ pub(super) async fn execute_command(
     }: ExecuteCommandParams,
     author: AuthorRole,
     format: Format,
+    source: Arc<RwLock<String>>,
     root: Arc<RwLock<TextNode>>,
     doc: Arc<RwLock<Document>>,
+    source_doc: Option<Arc<RwLock<Document>>>,
     mut client: ClientSocket,
 ) -> Result<Option<Value>, ResponseError> {
+    let command = command.as_str();
     let mut args = arguments.into_iter();
+
     let uri = uri_arg(args.next())?;
 
     let file_name = PathBuf::from(&uri.to_string())
@@ -123,39 +150,106 @@ pub(super) async fn execute_command(
         ..author
     };
 
-    let (title, command, cancellable, update_after) = match command.as_str() {
-        PATCH_NODE | PATCH_CURR => {
+    let mut return_value = None;
+
+    let (title, command, cancellable, update_after) = match command {
+        PATCH_VALUE | PATCH_CLONE | PATCH_CHAT_FOCUS => {
             let node_type = node_type_arg(args.next())?;
 
-            let node_id = if command == PATCH_NODE {
-                node_id_arg(args.next())?
-            } else {
-                let position = position_arg(args.next())?;
-                match root.read().await.node_type_ancestor(node_type, position) {
+            let node_position_or_id = args
+                .next()
+                .ok_or_else(|| invalid_request("Node position or id arg missing"))?;
+            let node_id = match position_arg(Some(node_position_or_id.clone())) {
+                Ok(position) => match root.read().await.node_type_ancestor(node_type, position) {
                     Some(id) => id,
                     None => {
                         tracing::error!("No node of type {node_type} at current position");
                         return Ok(None);
                     }
-                }
+                },
+                Err(..) => node_id_arg(Some(node_position_or_id))?,
             };
 
-            let property = node_property_arg(args.next())?;
-            let value = args.next();
+            let path = args
+                .next()
+                .ok_or_eyre("Patch path arg missing")
+                .and_then(PatchPath::try_from)
+                .map_err(invalid_request)?;
 
-            let value = match value {
-                Some(value) => PatchValue::Json(value),
-                None => PatchValue::None,
+            let value = match command {
+                PATCH_CLONE | PATCH_CHAT_FOCUS => {
+                    let node_id = node_id_arg(args.next())?;
+                    let doc = doc.read().await;
+                    let root = doc.root_read().await;
+                    let clone = find(&*root, node_id)
+                        .ok_or_eyre("Node not found in source document")
+                        .and_then(|node| replicate(&node))
+                        .map_err(invalid_request)?;
+
+                    match command {
+                        PATCH_CHAT_FOCUS => Block::try_from(clone).and_then(|block| {
+                            SuggestionBlock {
+                                content: vec![block],
+                                ..Default::default()
+                            }
+                            .to_value()
+                        }),
+                        _ => clone.to_value(),
+                    }
+                    .map_err(invalid_request)?
+                }
+                _ => args
+                    .next()
+                    .map(PatchValue::Json)
+                    .unwrap_or(PatchValue::None),
+            };
+
+            let op = match command {
+                PATCH_CHAT_FOCUS => PatchOp::Push(value),
+                _ => PatchOp::Set(value),
             };
 
             (
                 "Patching node".to_string(),
                 Command::PatchNode(Patch {
                     node_id: Some(node_id),
-                    ops: vec![(PatchPath::from(property), PatchOp::Set(value))],
+                    ops: vec![(path, op)],
                     authors: Some(vec![author]),
+                    compile: true,
                     ..Default::default()
                 }),
+                false,
+                true,
+            )
+        }
+        PATCH_NODE_FORMAT => {
+            let node_id = Some(node_id_arg(args.next())?);
+            let property = node_property_arg(args.next())?;
+            let format = args
+                .next()
+                .and_then(|arg| arg.as_str().map(Format::from_name))
+                .unwrap_or_default();
+            let content = args
+                .next()
+                .and_then(|arg| arg.as_str().map(String::from))
+                .unwrap_or_default();
+            let content_type = args
+                .next()
+                .and_then(|arg| {
+                    arg.as_str()
+                        .and_then(|value| ContentType::from_str(value).ok())
+                })
+                .unwrap_or_default();
+
+            (
+                "Patching node format".to_string(),
+                Command::PatchNodeFormat {
+                    node_id,
+                    property,
+                    format,
+                    content,
+                    content_type,
+                },
                 false,
                 true,
             )
@@ -182,15 +276,22 @@ pub(super) async fn execute_command(
         RUN_NODE => {
             let node_type = node_type_arg(args.next())?;
             let node_id = node_id_arg(args.next())?;
-            // Only update if running an instruction
+            let scope = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok())
+                .unwrap_or_default();
+
+            // Only update if running an instruction or chat message (since these update
+            // the content of the document)
             let update = matches!(
                 node_type,
-                NodeType::InstructionBlock | NodeType::InstructionInline
+                NodeType::InstructionBlock | NodeType::InstructionInline | NodeType::ChatMessage
             );
+
             (
-                "Running node".to_string(),
+                format!("Running node {node_type}"),
                 Command::ExecuteNodes((
-                    CommandNodes::new(vec![node_id], CommandScope::Only),
+                    CommandNodes::new(vec![node_id], scope),
                     ExecuteOptions::default(),
                 )),
                 true,
@@ -200,8 +301,17 @@ pub(super) async fn execute_command(
         RUN_CURR => {
             let position = position_arg(args.next())?;
             if let Some(node_id) = root.read().await.node_id_closest(position) {
-                // Only update if running an instruction
-                let update = matches!(node_id.nick(), "isb" | "isi");
+                let node_type = NodeType::try_from(&node_id).map_err(internal_error)?;
+
+                // Only update if running an instruction or chat message (since these update
+                // the content of the document)
+                let update = matches!(
+                    node_type,
+                    NodeType::InstructionBlock
+                        | NodeType::InstructionInline
+                        | NodeType::ChatMessage
+                );
+
                 (
                     "Running current node".to_string(),
                     Command::ExecuteNodes((
@@ -215,6 +325,27 @@ pub(super) async fn execute_command(
                 tracing::error!("No node to run at current position");
                 return Ok(None);
             }
+        }
+        RUN_CHAT => {
+            let chat_id = node_id_arg(args.next())?;
+
+            let text = args
+                .next()
+                .and_then(|arg| arg.as_str().map(String::from))
+                .unwrap_or_default();
+
+            let files = args.next().and_then(|arg| serde_json::from_value(arg).ok());
+
+            (
+                "Adding chat message".to_string(),
+                Command::PatchExecuteChat {
+                    chat_id,
+                    text,
+                    files,
+                },
+                false,
+                false,
+            )
         }
         RUN_DOC => (
             format!("Running {file_name}"),
@@ -294,7 +425,7 @@ pub(super) async fn execute_command(
                 Err(..) => node_id_arg(args.next())?,
             };
 
-            let (title, path, op) = match command.as_str() {
+            let (title, path, op) = match command {
                 PREV_NODE => (
                     "Previous suggestion".to_string(),
                     PatchPath::from(NodeProperty::ActiveSuggestion),
@@ -370,6 +501,355 @@ pub(super) async fn execute_command(
                 true,
             )
         }
+        INSERT_NODE => {
+            // Required args
+            let position = position_arg(args.next())?;
+            let node_type = node_type_arg(args.next())?;
+
+            // Optional args for `InstructionBlock`s
+            let instruction_type = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok())
+                .unwrap_or_default();
+            let prompt = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok())
+                .map(|value: String| PromptBlock {
+                    target: Some(value),
+                    ..Default::default()
+                })
+                .unwrap_or_default();
+            let message = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok())
+                .map(|msg: String| InstructionMessage::from(msg))
+                .unwrap_or_default();
+            let model_parameters = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok())
+                .map(|model_ids| {
+                    Box::new(ModelParameters {
+                        model_ids,
+                        ..Default::default()
+                    })
+                })
+                .unwrap_or_default();
+
+            // Create the new node
+            let block = match node_type {
+                NodeType::Chat => Block::Chat(Chat {
+                    is_temporary: Some(true),
+                    content: Vec::new(),
+                    ..Default::default()
+                }),
+                NodeType::InstructionBlock => Block::InstructionBlock(InstructionBlock {
+                    instruction_type,
+                    prompt,
+                    message,
+                    model_parameters,
+                    ..Default::default()
+                }),
+                _ => return Err(invalid_request(format!("Unhandled node type: {node_type}"))),
+            };
+
+            // Return the node's id so that the client can subscribe to its DOM
+            return_value = block
+                .node_id()
+                .map(|id| serde_json::Value::String(id.to_string()));
+
+            // Create a patch to add to chat to the document's `content`
+            let value = block.to_value().map_err(|error| {
+                internal_error(format!("While converting block to patch value: {error}"))
+            })?;
+
+            // Find where to insert the block based on the position in the text document
+            // falling back to appending to the end of the document's root node's content.
+            let (node_id, op) = match root.read().await.block_content_index(position) {
+                Some((node_id, index)) => {
+                    let op = match block {
+                        // For edit and fix instructions, wrap the node at the index
+                        Block::InstructionBlock(InstructionBlock {
+                            instruction_type: InstructionType::Edit | InstructionType::Fix,
+                            ..
+                        }) => PatchOp::Wrap((index..(index + 1), value, NodeProperty::Content)),
+                        // For all other blocks, insert at the index
+                        _ => PatchOp::Insert(vec![(index, value)]),
+                    };
+                    (Some(node_id), op)
+                }
+                None => (None, PatchOp::Push(value)),
+            };
+
+            // Patch the `content` of the document
+            let patch = Patch {
+                node_id,
+                ops: vec![(PatchPath::from(NodeProperty::Content), op)],
+                ..Default::default()
+            };
+
+            (
+                format!("Inserting {node_type}"),
+                Command::PatchNode(patch),
+                false,
+                true,
+            )
+        }
+        INSERT_CLONE | INSERT_INSTRUCTION => {
+            let position = position_arg(args.next())?;
+            args.next(); // Skip the argument for the URI of the source document (already used)
+            let node_type = node_type_arg(args.next())?;
+            let node_id = node_id_arg(args.next())?;
+            let instruction_type = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok())
+                .unwrap_or_default();
+            let execution_mode = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok());
+
+            // Get the node from the source document
+            let source_doc = source_doc
+                .ok_or_else(|| invalid_request("Source document URI missing or invalid"))?;
+            let source_doc = source_doc.read().await;
+            let source_root = source_doc.root_read().await;
+            let source_node = find(&*source_root, node_id)
+                .ok_or_else(|| invalid_request("Node not found in source document"))?;
+
+            // Convert the node into a block, replicate it (to avoid having duplicate ids)
+            let block = Block::try_from(source_node)
+                .and_then(|block| replicate(&block))
+                .map_err(invalid_request)?;
+
+            // If appropriate, wrap in a command
+            let block = if matches!(command, INSERT_INSTRUCTION) {
+                Block::InstructionBlock(InstructionBlock {
+                    instruction_type,
+                    execution_mode,
+                    content: Some(vec![block]),
+                    ..Default::default()
+                })
+            } else {
+                block
+            };
+
+            // and convert to a patch value
+            let value = replicate(&block)
+                .and_then(|block| block.to_value())
+                .map_err(invalid_request)?;
+
+            // Find where to insert the block based on the position in the text document
+            // falling back to appending to the end of the document's root node's content.
+            let (node_id, op) = match root.read().await.block_content_index(position) {
+                Some((node_id, index)) => (Some(node_id), PatchOp::Insert(vec![(index, value)])),
+                None => (None, PatchOp::Push(value)),
+            };
+
+            // Patch the content of the destination document
+            let patch = Patch {
+                node_id,
+                ops: vec![(PatchPath::from(NodeProperty::Content), op)],
+                ..Default::default()
+            };
+
+            (
+                format!("Cloning {node_type}"),
+                Command::PatchNode(patch),
+                false,
+                true,
+            )
+        }
+        CREATE_CHAT => {
+            let range = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok());
+            let instruction_type = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok());
+            let execute_chat: bool = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok())
+                .unwrap_or_default();
+
+            let root = root.read().await;
+
+            // Get the ids and types of any blocks spanning the range to infer prompt
+            let (node_ids, node_types) =
+                if matches!(instruction_type, Some(InstructionType::Create)) {
+                    // If an explicit create instruction, then ignore nodes spanning
+                    // range (likely that cursor accidentally on boundary and user does not
+                    // want to use them as suggestions etc)
+                    (Vec::new(), Vec::new())
+                } else if let Some(range) = range {
+                    // Get any blocks spanning the range
+                    let node_ids = root.block_ids_spanning(range);
+
+                    let node_types: Vec<NodeType> = node_ids
+                        .iter()
+                        .map(NodeType::try_from)
+                        .try_collect()
+                        .map_err(internal_error)?;
+
+                    (node_ids, node_types)
+                } else {
+                    (Vec::new(), Vec::new())
+                };
+
+            // If there is a single chat on the range then "temporize" it (move it to temporary)
+            let (chat_id, patch, update_after) = if let (1, Some(NodeType::Chat), Some(chat_id)) =
+                (node_types.len(), node_types.first(), node_ids.first())
+            {
+                let patch = Patch {
+                    node_id: Some(chat_id.clone()),
+                    ops: vec![(PatchPath::new(), PatchOp::Temporize)],
+                    ..Default::default()
+                };
+
+                (chat_id.clone(), patch, true)
+            } else {
+                // Infer the instruction type based on the number of blocks selected
+                // and whether they have any errors
+                let instruction_type = if instruction_type.is_some() {
+                    instruction_type
+                } else if node_types.is_empty() {
+                    Some(InstructionType::Create)
+                } else if let (1, Some(NodeType::CodeChunk | NodeType::MathBlock)) =
+                    (node_types.len(), node_types.first())
+                {
+                    // Check if the node has warnings or errors and
+                    if let Some(node_id) = node_ids.first() {
+                        let doc = doc.read().await;
+                        let root = doc.root_read().await;
+                        if match find(&*root, node_id.clone()) {
+                            Some(Node::CodeChunk(node)) => node.has_warnings_errors_or_exceptions(),
+                            Some(Node::MathBlock(node)) => node.has_warnings_errors_or_exceptions(),
+                            _ => false,
+                        } {
+                            Some(InstructionType::Fix)
+                        } else {
+                            Some(InstructionType::Edit)
+                        }
+                    } else {
+                        Some(InstructionType::Edit)
+                    }
+                } else {
+                    Some(InstructionType::Edit)
+                };
+
+                let node_types = (!node_types.is_empty()).then_some(
+                    node_types
+                        .iter()
+                        .map(|node_type| node_type.to_string())
+                        .collect_vec(),
+                );
+
+                // If any, add them to the suggestions as the original
+                let suggestions = if !node_ids.is_empty() {
+                    // Get clones of the blocks
+                    let doc = doc.read().await;
+                    let root = &*doc.root_read().await;
+                    let content = node_ids
+                        .into_iter()
+                        .filter_map(|node_id| find(root, node_id))
+                        .filter_map(|node| Block::try_from(node).ok())
+                        .collect_vec();
+
+                    // Replicate to avoid duplicate ids
+                    let content = replicate(&content).map_err(internal_error)?;
+
+                    Some(vec![SuggestionBlock {
+                        suggestion_status: Some(SuggestionStatus::Original),
+                        content,
+                        ..Default::default()
+                    }])
+                } else {
+                    None
+                };
+
+                // Get the ids of any previous or next blocks so that the chat, despite being temporary,
+                // can be executed with the correct document context.
+                let (previous_block, next_block) = match range {
+                    Some(range) => root.block_ids_previous_next(range),
+                    None => (None, None),
+                };
+
+                let chat = Chat {
+                    prompt: PromptBlock {
+                        instruction_type,
+                        node_types,
+                        ..Default::default()
+                    },
+                    is_temporary: Some(true),
+                    suggestions,
+                    options: Box::new(ChatOptions {
+                        previous_block: previous_block.map(|id| id.to_string()),
+                        next_block: next_block.map(|id| id.to_string()),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                };
+                let chat_id = chat.node_id().clone();
+
+                let patch = Patch {
+                    ops: vec![(
+                        PatchPath::from(NodeProperty::Temporary),
+                        PatchOp::Push(PatchValue::Node(Node::Chat(chat))),
+                    )],
+                    ..Default::default()
+                };
+
+                (chat_id, patch, false)
+            };
+
+            return_value = Some(serde_json::Value::String(chat_id.to_string()));
+
+            let patch = Patch {
+                // Run compile so that that chat's prompt block is compiled
+                // to infer the target prompt
+                compile: true,
+                // Execute if specified
+                execute: execute_chat.then_some(vec![chat_id]),
+                ..patch
+            };
+
+            (
+                "Creating temporary chat".to_string(),
+                Command::PatchNode(patch),
+                false,
+                update_after,
+            )
+        }
+        DELETE_CHAT => {
+            let node_id = node_id_arg(args.next())?;
+
+            // Remove temporary chat based on its id. There is no command
+            // for doing this yet but in the future this may be better
+            // factored out into a command or patch op.
+
+            let doc = doc.write().await;
+            let root = &mut *doc.root_write().await;
+
+            if let Node::Article(Article {
+                temporary: Some(temporary),
+                ..
+            }) = root
+            {
+                tracing::debug!("Deleting temporary chat {node_id}");
+
+                let len_before = temporary.len();
+                let node_id = Some(node_id);
+                temporary.retain(|node| node.node_id() != node_id);
+
+                return if temporary.len() == len_before {
+                    Err(invalid_request(format!(
+                        "Chat with id not found in temporaries: {node_id:?}"
+                    )))
+                } else {
+                    Ok(None)
+                };
+            } else {
+                return Err(invalid_request("Root node is not an article"));
+            }
+        }
         SAVE_DOC => (
             "Saving document with sidecar".to_string(),
             Command::SaveDocument((SaveDocumentSource::Yes, SaveDocumentSidecar::Yes)),
@@ -385,12 +865,7 @@ pub(super) async fn execute_command(
                 false,
             )
         }
-        command => {
-            return Err(ResponseError::new(
-                ErrorCode::INVALID_REQUEST,
-                format!("Unknown command `{command}`"),
-            ))
-        }
+        command => return Err(invalid_request(format!("Unknown command `{command}`"))),
     };
 
     // Send the command to the document with a subscription to receive status updates
@@ -404,7 +879,7 @@ pub(super) async fn execute_command(
                     message: format!("While sending command to {uri}: {error}"),
                 })
                 .ok();
-            return Ok(None);
+            return Ok(return_value);
         }
     };
 
@@ -423,15 +898,18 @@ pub(super) async fn execute_command(
                     // Wait an arbitrary amount of time for any patches to be applied (see note above)
                     tokio::time::sleep(Duration::from_millis(100)).await;
 
-                    // Currently this applies a whole document formatting.
-                    // TODO: In the future this should be refined to only update the specific node.
-                    let edit = match format_doc(doc.clone(), format.clone()).await {
-                        Ok(edit) => edit,
+                    // Format the doc and apply any edits
+                    let edits = match format_doc(doc.clone(), format.clone(), source.clone()).await
+                    {
+                        Ok(Some(edits)) => edits,
+                        Ok(None) => continue,
                         Err(error) => {
                             tracing::error!("While formatting doc after command: {error}");
                             continue;
                         }
                     };
+
+                    let edits = edits.into_iter().map(OneOf::Left).collect();
                     client
                         .apply_edit(ApplyWorkspaceEditParams {
                             edit: WorkspaceEdit {
@@ -441,7 +919,7 @@ pub(super) async fn execute_command(
                                             uri,
                                             version: None,
                                         },
-                                        edits: vec![OneOf::Left(edit)],
+                                        edits,
                                     },
                                 ])),
                                 ..Default::default()
@@ -450,7 +928,9 @@ pub(super) async fn execute_command(
                         })
                         .await
                         .ok();
+
                     client.code_lens_refresh(()).await.ok();
+
                     break;
                 }
             }
@@ -479,76 +959,63 @@ pub(super) async fn execute_command(
         }
     });
 
-    Ok(None)
+    Ok(return_value)
+}
+
+/// Create an invalid request error
+fn invalid_request<T: Display>(value: T) -> ResponseError {
+    ResponseError::new(ErrorCode::INVALID_REQUEST, value.to_string())
+}
+
+/// Create an internal error
+fn internal_error<T: Display>(value: T) -> ResponseError {
+    ResponseError::new(ErrorCode::INTERNAL_ERROR, value.to_string())
 }
 
 /// Extract a document URI from a command arg
 pub(super) fn uri_arg(arg: Option<Value>) -> Result<Url, ResponseError> {
     arg.and_then(|value| serde_json::from_value(value).ok())
-        .ok_or_else(|| {
-            ResponseError::new(
-                ErrorCode::INVALID_REQUEST,
-                "Document URI argument missing or invalid".to_string(),
-            )
-        })
+        .ok_or_else(|| invalid_request("Document URI argument missing or invalid"))
 }
 
 /// Extract a Stencila [`NodeType`] from a command arg
 fn node_type_arg(arg: Option<Value>) -> Result<NodeType, ResponseError> {
     arg.and_then(|value| value.as_str().map(String::from))
         .and_then(|node_id| NodeType::from_str(&node_id).ok())
-        .ok_or_else(|| {
-            ResponseError::new(
-                ErrorCode::INVALID_REQUEST,
-                "Node type argument missing or invalid".to_string(),
-            )
-        })
+        .ok_or_else(|| invalid_request("Node type argument missing or invalid"))
 }
 
 /// Extract a Stencila [`NodeId`] from a command arg
 fn node_id_arg(arg: Option<Value>) -> Result<NodeId, ResponseError> {
     arg.and_then(|value| value.as_str().map(String::from))
         .and_then(|node_id| NodeId::from_str(&node_id).ok())
-        .ok_or_else(|| {
-            ResponseError::new(
-                ErrorCode::INVALID_REQUEST,
-                "Node id argument missing or invalid".to_string(),
-            )
-        })
+        .ok_or_else(|| invalid_request("Node id argument missing or invalid"))
 }
 
 /// Extract a Stencila [`NodeProperty`] from a command arg
 fn node_property_arg(arg: Option<Value>) -> Result<NodeProperty, ResponseError> {
     arg.and_then(|value| value.as_str().map(String::from))
         .and_then(|node_id| NodeProperty::from_str(&node_id).ok())
-        .ok_or_else(|| {
-            ResponseError::new(
-                ErrorCode::INVALID_REQUEST,
-                "Node property argument missing or invalid".to_string(),
-            )
-        })
+        .ok_or_else(|| invalid_request("Node property argument missing or invalid"))
 }
 
 /// Extract a position from a command arg
 fn position_arg(arg: Option<Value>) -> Result<Position, ResponseError> {
     arg.and_then(|value| serde_json::from_value(value).ok())
-        .ok_or_else(|| {
-            ResponseError::new(
-                ErrorCode::INVALID_REQUEST,
-                "Position argument missing or invalid".to_string(),
-            )
-        })
+        .ok_or_else(|| invalid_request("Position argument missing or invalid"))
+}
+
+/// Extract a range from a command arg
+#[allow(unused)]
+fn range_arg(arg: Option<Value>) -> Result<Range, ResponseError> {
+    arg.and_then(|value| serde_json::from_value(value).ok())
+        .ok_or_else(|| invalid_request("Range argument missing or invalid"))
 }
 
 /// Extract a `PathBuf` from a command arg
 fn path_buf_arg(arg: Option<Value>) -> Result<PathBuf, ResponseError> {
     arg.and_then(|value| serde_json::from_value(value).ok())
-        .ok_or_else(|| {
-            ResponseError::new(
-                ErrorCode::INVALID_REQUEST,
-                "Path argument missing or invalid".to_string(),
-            )
-        })
+        .ok_or_else(|| invalid_request("Path argument missing or invalid"))
 }
 
 static PROGRESS_TOKEN: Lazy<AtomicI32> = Lazy::new(AtomicI32::default);

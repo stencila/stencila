@@ -4,6 +4,7 @@ import { type Article } from "./Article.js";
 import { type AudioObject } from "./AudioObject.js";
 import { type AuthorRoleName } from "./AuthorRoleName.js";
 import { type Brand } from "./Brand.js";
+import { type Chat } from "./Chat.js";
 import { type CitationIntent } from "./CitationIntent.js";
 import { type CitationMode } from "./CitationMode.js";
 import { type Claim } from "./Claim.js";
@@ -15,9 +16,9 @@ import { type CreativeWork } from "./CreativeWork.js";
 import { type Datatable } from "./Datatable.js";
 import { type DefinedTerm } from "./DefinedTerm.js";
 import { type Enumeration } from "./Enumeration.js";
+import { type ExecutionBounds } from "./ExecutionBounds.js";
 import { type ExecutionDependantRelation } from "./ExecutionDependantRelation.js";
 import { type ExecutionDependencyRelation } from "./ExecutionDependencyRelation.js";
-import { type ExecutionKind } from "./ExecutionKind.js";
 import { type ExecutionMode } from "./ExecutionMode.js";
 import { type ExecutionRequired } from "./ExecutionRequired.js";
 import { type ExecutionStatus } from "./ExecutionStatus.js";
@@ -45,6 +46,7 @@ import { type PropertyValue } from "./PropertyValue.js";
 import { type ProvenanceCategory } from "./ProvenanceCategory.js";
 import { type PublicationIssue } from "./PublicationIssue.js";
 import { type PublicationVolume } from "./PublicationVolume.js";
+import { type RelativePosition } from "./RelativePosition.js";
 import { type Review } from "./Review.js";
 import { type SectionType } from "./SectionType.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
@@ -66,6 +68,7 @@ export type ThingType =
   AudioObject |
   AuthorRoleName |
   Brand |
+  Chat |
   CitationIntent |
   CitationMode |
   Claim |
@@ -77,9 +80,9 @@ export type ThingType =
   Datatable |
   DefinedTerm |
   Enumeration |
+  ExecutionBounds |
   ExecutionDependantRelation |
   ExecutionDependencyRelation |
-  ExecutionKind |
   ExecutionMode |
   ExecutionRequired |
   ExecutionStatus |
@@ -107,6 +110,7 @@ export type ThingType =
   ProvenanceCategory |
   PublicationIssue |
   PublicationVolume |
+  RelativePosition |
   Review |
   SectionType |
   SoftwareApplication |

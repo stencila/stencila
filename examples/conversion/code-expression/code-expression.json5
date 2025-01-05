@@ -110,7 +110,7 @@
         },
         {
           type: "CodeExpression",
-          executionMode: "Locked",
+          executionMode: "Lock",
           code: { string: "c * d" },
           programmingLanguage: "javascript"
         },

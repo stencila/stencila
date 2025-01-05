@@ -3,6 +3,7 @@
  * The status of an instruction.
  */
 export type SuggestionStatus =
+  'Original' |
   'Accepted' |
   'Rejected';
 

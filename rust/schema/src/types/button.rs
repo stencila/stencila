@@ -8,9 +8,9 @@ use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
 use super::cord::Cord;
 use super::duration::Duration;
+use super::execution_bounds::ExecutionBounds;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
-use super::execution_kind::ExecutionKind;
 use super::execution_message::ExecutionMessage;
 use super::execution_mode::ExecutionMode;
 use super::execution_required::ExecutionRequired;
@@ -39,11 +39,17 @@ pub struct Button {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// Under which circumstances the code should be executed.
+    /// Under which circumstances the node should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub execution_mode: Option<ExecutionMode>,
+
+    /// Under which circumstances child nodes should be executed.
+    #[serde(alias = "execution-bounds", alias = "execution_bounds")]
+    #[strip(execution)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    pub execution_bounds: Option<ExecutionBounds>,
 
     /// The code.
     #[strip(code)]
@@ -154,10 +160,10 @@ pub struct ButtonOptions {
     #[strip(execution)]
     pub execution_instance: Option<String>,
 
-    /// The kind (e.g. main kernel vs kernel fork) of the last execution.
-    #[serde(alias = "execution-kind", alias = "execution_kind")]
+    /// The bounds, if any, on the last execution.
+    #[serde(alias = "execution-bounded", alias = "execution_bounded")]
     #[strip(execution)]
-    pub execution_kind: Option<ExecutionKind>,
+    pub execution_bounded: Option<ExecutionBounds>,
 
     /// The timestamp when the last execution ended.
     #[serde(alias = "execution-ended", alias = "execution_ended")]

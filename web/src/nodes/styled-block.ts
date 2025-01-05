@@ -16,16 +16,25 @@ import { Styled } from './styled'
 @customElement('stencila-styled-block')
 export class StyledBlock extends Styled {
   override render() {
-    if (this.ancestors.includes('StyledBlock')) {
+    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return html`<slot name="content"></slot>`
     }
 
     return html`<stencila-ui-block-on-demand
       type="StyledBlock"
-      .canAnimate=${false}
+      node-id=${this.id}
       depth=${this.depth}
-      ancestors=${this.ancestors}
+      .canAnimate=${false}
     >
+      <div slot="header-right">
+        <stencila-ui-node-chat-commands
+          type="StyledBlock"
+          node-id=${this.id}
+          depth=${this.depth}
+        >
+        </stencila-ui-node-chat-commands>
+      </div>
+
       <div slot="body">
         <stencila-ui-node-authors type="StyledBlock">
           <stencila-ui-node-provenance slot="provenance">

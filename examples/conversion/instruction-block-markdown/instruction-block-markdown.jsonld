@@ -31,6 +31,11 @@
     {
       "@type": "stencila:InstructionBlock",
       "stencila:instructionType": "Create",
+      "stencila:prompt": {
+        "@type": "stencila:PromptBlock",
+        "stencila:instructionType": "Create",
+        "stencila:query": "message"
+      },
       "stencila:message": {
         "@type": "stencila:InstructionMessage",
         "hasParts": [
@@ -41,11 +46,19 @@
             }
           }
         ]
+      },
+      "stencila:modelParameters": {
+        "@type": "stencila:ModelParameters"
       }
     },
     {
       "@type": "stencila:InstructionBlock",
       "stencila:instructionType": "Create",
+      "stencila:prompt": {
+        "@type": "stencila:PromptBlock",
+        "stencila:instructionType": "Create",
+        "stencila:query": "message"
+      },
       "stencila:message": {
         "@type": "stencila:InstructionMessage",
         "hasParts": [
@@ -56,6 +69,9 @@
             }
           }
         ]
+      },
+      "stencila:modelParameters": {
+        "@type": "stencila:ModelParameters"
       }
     },
     {
@@ -84,6 +100,11 @@
     {
       "@type": "stencila:InstructionBlock",
       "stencila:instructionType": "Edit",
+      "stencila:prompt": {
+        "@type": "stencila:PromptBlock",
+        "stencila:instructionType": "Edit",
+        "stencila:query": "message"
+      },
       "stencila:message": {
         "@type": "stencila:InstructionMessage",
         "hasParts": [
@@ -94,6 +115,9 @@
             }
           }
         ]
+      },
+      "stencila:modelParameters": {
+        "@type": "stencila:ModelParameters"
       },
       "stencila:content": [
         {
@@ -112,6 +136,11 @@
     {
       "@type": "stencila:InstructionBlock",
       "stencila:instructionType": "Edit",
+      "stencila:prompt": {
+        "@type": "stencila:PromptBlock",
+        "stencila:instructionType": "Edit",
+        "stencila:query": "message"
+      },
       "stencila:message": {
         "@type": "stencila:InstructionMessage",
         "hasParts": [
@@ -122,6 +151,9 @@
             }
           }
         ]
+      },
+      "stencila:modelParameters": {
+        "@type": "stencila:ModelParameters"
       },
       "stencila:content": [
         {
@@ -151,6 +183,11 @@
     {
       "@type": "stencila:InstructionBlock",
       "stencila:instructionType": "Edit",
+      "stencila:prompt": {
+        "@type": "stencila:PromptBlock",
+        "stencila:instructionType": "Edit",
+        "stencila:query": "improve this"
+      },
       "stencila:message": {
         "@type": "stencila:InstructionMessage",
         "hasParts": [
@@ -161,6 +198,9 @@
             }
           }
         ]
+      },
+      "stencila:modelParameters": {
+        "@type": "stencila:ModelParameters"
       },
       "stencila:content": [
         {
@@ -175,6 +215,11 @@
     {
       "@type": "stencila:InstructionBlock",
       "stencila:instructionType": "Create",
+      "stencila:prompt": {
+        "@type": "stencila:PromptBlock",
+        "stencila:instructionType": "Create",
+        "stencila:query": "admonition"
+      },
       "stencila:message": {
         "@type": "stencila:InstructionMessage",
         "hasParts": [
@@ -185,6 +230,9 @@
             }
           }
         ]
+      },
+      "stencila:modelParameters": {
+        "@type": "stencila:ModelParameters"
       },
       "stencila:content": [
         {
@@ -232,6 +280,17 @@
     {
       "@type": "stencila:InstructionBlock",
       "stencila:instructionType": "Edit",
+      "stencila:prompt": {
+        "@type": "stencila:PromptBlock",
+        "stencila:instructionType": "Edit"
+      },
+      "stencila:message": {
+        "@type": "stencila:InstructionMessage",
+        "hasParts": []
+      },
+      "stencila:modelParameters": {
+        "@type": "stencila:ModelParameters"
+      },
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",

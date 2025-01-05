@@ -7,9 +7,9 @@ name: Create Table Caption Prompt
 description: Create a table caption.
 keywords: table, caption
 
-instruction-type: Create 
-instruction-pattern: (?i)\btable cap(tion)?\b
+instruction-type: Create
 node-type: Paragraph
+query-pattern: (?i)\btable cap(tion)?\b
 ---
 
 # Instructions

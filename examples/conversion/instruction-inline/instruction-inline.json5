@@ -11,6 +11,7 @@
         {
           type: "InstructionInline",
           instructionType: "Create",
+          prompt: { type: "PromptBlock" },
           message: {
             type: "InstructionMessage",
             parts: [
@@ -19,7 +20,8 @@
                 value: { string: "insert an inline" }
               }
             ]
-          }
+          },
+          modelParameters: { type: "ModelParameters" }
         },
         {
           type: "Text",
@@ -37,6 +39,7 @@
         {
           type: "InstructionInline",
           instructionType: "Create",
+          prompt: { type: "PromptBlock" },
           message: {
             type: "InstructionMessage",
             parts: [
@@ -46,6 +49,7 @@
               }
             ]
           },
+          modelParameters: { type: "ModelParameters" },
           content: [
             {
               type: "Text",
@@ -69,6 +73,10 @@
         {
           type: "InstructionInline",
           instructionType: "Create",
+          prompt: {
+            type: "PromptBlock",
+            target: "math"
+          },
           message: {
             type: "InstructionMessage",
             parts: [
@@ -78,7 +86,7 @@
               }
             ]
           },
-          prompt: "insert-inline-math"
+          modelParameters: { type: "ModelParameters" }
         },
         {
           type: "Text",
@@ -87,7 +95,15 @@
         {
           type: "InstructionInline",
           instructionType: "Create",
-          prompt: "insert-math-inline"
+          prompt: {
+            type: "PromptBlock",
+            target: "math"
+          },
+          message: {
+            type: "InstructionMessage",
+            parts: []
+          },
+          modelParameters: { type: "ModelParameters" }
         },
         {
           type: "Text",
@@ -96,6 +112,10 @@
         {
           type: "InstructionInline",
           instructionType: "Edit",
+          prompt: {
+            type: "PromptBlock",
+            target: "edit"
+          },
           message: {
             type: "InstructionMessage",
             parts: [
@@ -105,7 +125,7 @@
               }
             ]
           },
-          prompt: "joe",
+          modelParameters: { type: "ModelParameters" },
           content: [
             {
               type: "Text",
@@ -129,6 +149,10 @@
         {
           type: "InstructionInline",
           instructionType: "Create",
+          prompt: {
+            type: "PromptBlock",
+            target: "math"
+          },
           message: {
             type: "InstructionMessage",
             parts: [
@@ -138,7 +162,7 @@
               }
             ]
           },
-          prompt: "insert-inline-math",
+          modelParameters: { type: "ModelParameters" },
           suggestions: [
             {
               type: "SuggestionInline",
@@ -159,6 +183,7 @@
         {
           type: "InstructionInline",
           instructionType: "Edit",
+          prompt: { type: "PromptBlock" },
           message: {
             type: "InstructionMessage",
             parts: [
@@ -168,6 +193,7 @@
               }
             ]
           },
+          modelParameters: { type: "ModelParameters" },
           content: [
             {
               type: "Text",

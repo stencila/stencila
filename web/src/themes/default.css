@@ -6,7 +6,6 @@
 @import url('../fonts/stix-two-math/stix-two-math.css');
 
 :root {
-  padding: 3rem 4rem;
   /* custom properties */
   --default-text-colour: #171817;
 
@@ -40,8 +39,14 @@ body {
   margin: 1cm;
 }
 
+stencila-article[root],
+stencila-prompt[root] {
+  padding: 3rem 4rem;
+}
+
 [root] {
   @apply prose lg:prose-lg;
+
   font-family: 'Source Serif 4', Georgia, 'Times New Roman', Times, serif;
   color: var(--default-text-colour);
 
@@ -85,7 +90,7 @@ body {
   }
 
   p {
-    @apply mt-5 mb-0 pr-0 align-baseline leading-snug;
+    @apply mt-4 mb-0 pr-0 align-baseline leading-snug;
   }
 
   figure {
@@ -338,11 +343,19 @@ body {
     }
   }
 
-  /* ----------------- */
-
   stencila-admonition {
     p {
       @apply mt-0;
+    }
+  }
+
+  stencila-chat-message[message-role='User'] {
+    [slot='content'] {
+      stencila-paragraph:first-child {
+        p {
+          @apply mt-0;
+        }
+      }
     }
   }
 

@@ -15,7 +15,7 @@ export class Suggestion extends Entity {
   type: "Suggestion";
 
   /**
-   * The status of the suggestion including whether it is proposed, accepted, or rejected.
+   * The status of the suggestion including whether it is the original, or is accepted, or rejected.
    */
   suggestionStatus?: SuggestionStatus;
 

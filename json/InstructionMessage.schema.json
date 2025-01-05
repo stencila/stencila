@@ -61,6 +61,9 @@
           "qmd"
         ]
       },
+      "serde": {
+        "default": true
+      },
       "dom": {
         "elem": "div"
       },

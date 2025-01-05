@@ -13,20 +13,32 @@ content:
       string: Self closing shorthand
 - type: InstructionBlock
   instructionType: Create
+  prompt:
+    type: PromptBlock
+    instructionType: Create
+    query: message
   message:
     type: InstructionMessage
     parts:
     - type: Text
       value:
         string: message
+  modelParameters:
+    type: ModelParameters
 - type: InstructionBlock
   instructionType: Create
+  prompt:
+    type: PromptBlock
+    instructionType: Create
+    query: message
   message:
     type: InstructionMessage
     parts:
     - type: Text
       value:
         string: message
+  modelParameters:
+    type: ModelParameters
 - type: Paragraph
   content:
   - type: Text
@@ -40,12 +52,18 @@ content:
       string: Next block only shorthand
 - type: InstructionBlock
   instructionType: Edit
+  prompt:
+    type: PromptBlock
+    instructionType: Edit
+    query: message
   message:
     type: InstructionMessage
     parts:
     - type: Text
       value:
         string: message
+  modelParameters:
+    type: ModelParameters
   content:
   - type: Paragraph
     content:
@@ -54,12 +72,18 @@ content:
         string: Paragraph to edit
 - type: InstructionBlock
   instructionType: Edit
+  prompt:
+    type: PromptBlock
+    instructionType: Edit
+    query: message
   message:
     type: InstructionMessage
     parts:
     - type: Text
       value:
         string: message
+  modelParameters:
+    type: ModelParameters
   content:
   - type: Paragraph
     content:
@@ -73,12 +97,18 @@ content:
       string: Other types of content,
 - type: InstructionBlock
   instructionType: Edit
+  prompt:
+    type: PromptBlock
+    instructionType: Edit
+    query: improve this
   message:
     type: InstructionMessage
     parts:
     - type: Text
       value:
         string: improve this
+  modelParameters:
+    type: ModelParameters
   content:
   - type: CodeChunk
     code:
@@ -86,12 +116,18 @@ content:
     programmingLanguage: python
 - type: InstructionBlock
   instructionType: Create
+  prompt:
+    type: PromptBlock
+    instructionType: Create
+    query: admonition
   message:
     type: InstructionMessage
     parts:
     - type: Text
       value:
         string: admonition
+  modelParameters:
+    type: ModelParameters
   content:
   - type: Admonition
     admonitionType: Warning
@@ -114,6 +150,14 @@ content:
       string: Multiple blocks
 - type: InstructionBlock
   instructionType: Edit
+  prompt:
+    type: PromptBlock
+    instructionType: Edit
+  message:
+    type: InstructionMessage
+    parts: []
+  modelParameters:
+    type: ModelParameters
   content:
   - type: Paragraph
     content:

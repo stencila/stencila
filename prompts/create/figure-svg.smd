@@ -7,12 +7,12 @@ name: Create SVG Figure Prompt
 description: Create a figure, using SVG, with a caption.
 keywords: figure, svg
 
-instruction-type: Create 
-instruction-patterns:
+instruction-type: Create
+node-type: Figure
+query-patterns:
   - (?i)\bsvg fig(ure)?\b
   - (?i)\bdrawing of\b
   - (?i)\bsvg\b
-node-type: Figure
 ---
 
 # Instructions

@@ -7,10 +7,10 @@ name: Create Graphviz DOT Figure Prompt
 description: Create a figure, using Graphviz DOT, with a caption.
 keywords: figure, graphviz, dot
 
-instruction-type: Create 
-instruction-patterns:
-  - (?i)\b(graphviz|dot)( fig(ure)?)?\b
+instruction-type: Create
 node-type: CodeChunk
+query-patterns:
+  - (?i)\b(graphviz|dot)( fig(ure)?)?\b
 ---
 
 # Instructions

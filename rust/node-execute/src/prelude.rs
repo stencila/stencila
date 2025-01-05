@@ -8,7 +8,7 @@ pub use schema::{
     NodeProperty, Null, PatchNode, PatchOp, PatchValue, Primitive, Timestamp, WalkControl,
     WalkNode,
 };
-use schema::{CompilationDigest, CompilationMessage, ExecutionKind};
+use schema::{CompilationDigest, CompilationMessage, ExecutionBounds};
 
 pub(crate) use crate::{Executable, Executor};
 
@@ -18,6 +18,21 @@ pub fn add_to_digest(digest: &mut u64, bytes: &[u8]) {
     digest.hash(&mut hash);
     bytes.hash(&mut hash);
     *digest = hash.finish()
+}
+
+/// A macro for generating a digest from properties of a node
+#[macro_export]
+macro_rules! state_digest {
+    ($($x:expr),*) => {
+        {
+            use std::hash::{Hash, Hasher};
+            let mut hasher = common::seahash::SeaHasher::new();
+            $(
+                $x.hash(&mut hasher);
+            )*
+            hasher.finish()
+        }
+    };
 }
 
 /// Create an `CompilationMessage` from an `eyre::Report`
@@ -73,11 +88,10 @@ pub fn execution_status(messages: &Option<Vec<ExecutionMessage>>) -> ExecutionSt
     }
 }
 
-/// Create a value for `execution_kind` based on whether the executor's `kind` is not `Main`
-/// or not
-pub fn execution_kind(executor: &Executor) -> Option<ExecutionKind> {
-    (!matches!(executor.execution_kind, ExecutionKind::Main))
-        .then_some(executor.execution_kind.clone())
+/// Create a value for `execution_bounded` based on the executor's `kind`
+pub fn execution_bounded(executor: &Executor) -> Option<ExecutionBounds> {
+    (!matches!(executor.execution_bounds, ExecutionBounds::Main))
+        .then_some(executor.execution_bounds.clone())
 }
 
 /// Create a value for `execution_required` based on execution and compilation digests

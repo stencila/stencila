@@ -137,7 +137,11 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 }
             };
 
-            attrs.extend(tokens);
+            if with.ends_with("attr") {
+                attrs.extend(tokens);
+            } else {
+                children.extend(tokens);
+            }
         } else if matches!(field_attr.elem.as_deref(), Some("none")) {
             children.extend(quote! {
                 self.#field_name.to_dom(context);

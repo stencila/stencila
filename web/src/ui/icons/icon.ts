@@ -19,21 +19,29 @@ import { unsafeSVG } from 'lit/directives/unsafe-svg.js'
  * attributes but should have a `viewBox` (it may be being stripped e.g. https://github.com/svg/svgo/issues/1128#issuecomment-628208565)
  */
 
+import activity from './activity.svg'
 import admonition from './admonition.svg'
 import anthropic from './anthropic.svg'
 import archive from './archive.svg'
 import array from './array.svg'
+import arrowBarUp from './arrow-bar-up.svg'
 import arrowClockwise from './arrow-clockwise.svg'
 import arrowLeftSquare from './arrow-left-square.svg'
 import arrowNarrowUp from './arrow-narrow-up.svg'
 import arrowRampRight3 from './arrow-ramp-right-3.svg'
+import arrowRepeat from './arrow-repeat.svg'
 import arrowRightSquare from './arrow-right-square.svg'
 import arrowRight from './arrow-right.svg'
+import arrowUpCircleFill from './arrow-up-circle-fill.svg'
+import arrowUpCircle from './arrow-up-circle.svg'
 import arrowsCollapse from './arrows-collapse.svg'
 import arrowsExpand from './arrows-expand.svg'
+import asterisk from './asterisk.svg'
 import at from './at.svg'
+import ban from './ban.svg'
 import bars from './bars.svg'
 import bash from './bash.svg'
+import boxArrowInLeft from './box-arrow-in-left.svg'
 import boxArrowUpRight from './box-arrow-up-right.svg'
 import box from './box.svg'
 import bracesAsterisk from './braces-asterisk.svg'
@@ -49,6 +57,8 @@ import checkCircleFill from './check-circle-fill.svg'
 import checkCircle from './check-circle.svg'
 import check from './check.svg'
 import chevronDown from './chevron-down.svg'
+import chevronLeft from './chevron-left.svg'
+import chevronRight from './chevron-right.svg'
 import circle from './circle.svg'
 import clock from './clock.svg'
 import cloudflare from './cloudflare.svg'
@@ -56,6 +66,8 @@ import codeChunk from './code-chunk.svg'
 import codeSlash from './code-slash.svg'
 import code from './code.svg'
 import compass from './compass.svg'
+import coneStriped from './cone-striped.svg'
+import crosshair from './crosshair.svg'
 import currencyDollar from './currency-dollar.svg'
 import cursor from './cursor.svg'
 import dashCircle from './dash-circle.svg'
@@ -65,11 +77,13 @@ import exclamationCircle from './exclamation-circle.svg'
 import exclamationTriangle from './exclamation-triangle.svg'
 import eyeSlash from './eye-slash.svg'
 import eye from './eye.svg'
+import fastForwardCircle from './fast-forward-circle.svg'
 import feather from './feather.svg'
 import filePlay from './file-play.svg'
 import filePlus from './file-plus.svg'
 import fileTypeRaw from './filetype-raw.svg'
 import fullscreen from './fullscreen.svg'
+import gear from './gear.svg'
 import google from './google.svg'
 import handThumbsDownFill from './hand-thumbs-down-fill.svg'
 import handThumbsDown from './hand-thumbs-down.svg'
@@ -90,6 +104,7 @@ import latex from './latex.svg'
 import lightbulb from './lightbulb.svg'
 import lightning from './lightning.svg'
 import list from './list.svg'
+import lock from './lock.svg'
 import markdown from './markdown.svg'
 import mathBlock from './math-block.svg'
 import mermaid from './mermaid.svg'
@@ -97,6 +112,7 @@ import mistral from './mistral.svg'
 import nodejs from './nodejs.svg'
 import ollama from './ollama.svg'
 import openai from './openai.svg'
+import paperclip from './paperclip.svg'
 import paragraph from './paragraph.svg'
 import person from './person.svg'
 import playCircle from './play-circle.svg'
@@ -113,9 +129,11 @@ import robot from './robot.svg'
 import rosetteCheck from './rosette-check.svg'
 import rosetteFillCheck from './rosette-fill-check.svg'
 import sandbox from './sandbox.svg'
+import shieldCheck from './shield-check.svg'
 import skipEnd from './skip-end.svg'
 import skipStart from './skip-start.svg'
 import slashCircle from './slash-circle.svg'
+import sliders from './sliders.svg'
 import speedometer from './speedometer.svg'
 import square from './square.svg'
 import starFill from './star-fill.svg'
@@ -132,22 +150,30 @@ import xCircle from './x-circle.svg'
 import x from './x.svg'
 
 const icons = {
+  activity,
   admonition,
   anthropic,
   archive,
   array,
+  arrowBarUp,
   arrowClockwise,
   arrowLeftSquare,
   arrowNarrowUp,
   arrowRampRight3,
+  arrowRepeat,
   arrowRight,
   arrowRightSquare,
   arrowsCollapse,
   arrowsExpand,
+  arrowUpCircle,
+  arrowUpCircleFill,
+  asterisk,
   at,
+  ban,
   bars,
   bash,
   box,
+  boxArrowInLeft,
   boxArrowUpRight,
   braces,
   bracesAsterisk,
@@ -162,6 +188,8 @@ const icons = {
   checkCircle,
   checkCircleFill,
   chevronDown,
+  chevronLeft,
+  chevronRight,
   circle,
   clock,
   cloudflare,
@@ -169,6 +197,8 @@ const icons = {
   codeChunk,
   codeSlash,
   compass,
+  coneStriped,
+  crosshair,
   cursor,
   currencyDollar,
   dashCircle,
@@ -178,11 +208,13 @@ const icons = {
   exclamationTriangle,
   eye,
   eyeSlash,
+  fastForwardCircle,
   feather,
   filePlay,
   filePlus,
   fileTypeRaw,
   fullscreen,
+  gear,
   google,
   handThumbsDown,
   handThumbsDownFill,
@@ -204,6 +236,7 @@ const icons = {
   lightbulb,
   lightning,
   list,
+  lock,
   markdown,
   mathBlock,
   mermaid,
@@ -212,6 +245,7 @@ const icons = {
   'node.js': nodejs,
   ollama,
   openai,
+  paperclip,
   paragraph,
   person,
   play,
@@ -229,9 +263,11 @@ const icons = {
   rosetteCheck,
   rosetteFillCheck,
   sandbox,
+  shieldCheck,
   skipEnd,
   skipStart,
   slashCircle,
+  sliders,
   speedometer,
   square,
   starFill,
@@ -278,7 +314,7 @@ export abstract class UIIcon extends LitElement {
 
   static override styles = css`
     :host {
-      display: inline-block;
+      display: block;
       width: 1em;
       height: 1em;
       box-sizing: content-box !important;

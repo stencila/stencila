@@ -1,6 +1,6 @@
 use cli_utils::{
     table::{self, Attribute, Cell, Color},
-    Code, ToStdout,
+    AsFormat, Code, ToStdout,
 };
 use model::{
     common::{
@@ -10,8 +10,8 @@ use model::{
         serde_yaml,
     },
     format::Format,
-    schema::{InstructionMessage, InstructionModel},
-    ModelAvailability, ModelTask, ModelType,
+    schema::{InstructionMessage, ModelParameters},
+    ModelAvailability, ModelSpecification, ModelTask, ModelType,
 };
 
 use crate::select;
@@ -32,7 +32,7 @@ enum Command {
 impl Cli {
     pub async fn run(self) -> Result<()> {
         let Some(command) = self.command else {
-            List {}.run().await?;
+            List::default().run().await?;
             return Ok(());
         };
 
@@ -46,11 +46,28 @@ impl Cli {
 }
 
 /// List the models available
-#[derive(Debug, Args)]
-struct List;
+#[derive(Default, Debug, Args)]
+struct List {
+    /// Output the list as JSON or YAML
+    #[arg(long, short)]
+    r#as: Option<AsFormat>,
+}
 
 impl List {
     async fn run(self) -> Result<()> {
+        let list = super::list().await;
+
+        if let Some(format) = self.r#as {
+            let list = list
+                .into_iter()
+                .map(|model| ModelSpecification::from(model.as_ref()))
+                .collect_vec();
+
+            Code::new_from(format.into(), &list)?.to_stdout();
+
+            return Ok(());
+        }
+
         let mut table = table::new();
         table.set_header([
             "Id",
@@ -62,7 +79,7 @@ impl List {
             "I/O",
         ]);
 
-        for model in super::list().await {
+        for model in list {
             use ModelAvailability::*;
             let availability = model.availability();
 
@@ -133,8 +150,8 @@ impl Execute {
         let message = InstructionMessage::from(self.prompt);
 
         let model = if self.model.is_some() {
-            Some(InstructionModel {
-                id_pattern: self.model,
+            Some(ModelParameters {
+                model_ids: self.model.map(|model| vec![model]),
                 ..Default::default()
             })
         } else {
@@ -143,7 +160,7 @@ impl Execute {
 
         let task = ModelTask {
             messages: vec![message],
-            instruction_model: model,
+            model_parameters: model,
             dry_run: self.dry_run,
             ..Default::default()
         };

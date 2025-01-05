@@ -74,7 +74,7 @@ content:
     value:
       string: 'With execution mode specified and no output '
   - type: CodeExpression
-    executionMode: Locked
+    executionMode: Lock
     code:
       string: c * d
     programmingLanguage: javascript

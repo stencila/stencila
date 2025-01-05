@@ -1,9 +1,38 @@
 use codec_info::{lost_exec_options, lost_options};
 use codec_markdown_trait::to_markdown;
 
-use crate::{prelude::*, CodeChunk, Duration, LabelType, Timestamp};
+use crate::{
+    prelude::*, CodeChunk, Duration, ExecutionBounds, ExecutionMode, LabelType, MessageLevel,
+    Timestamp,
+};
 
 use super::utils::caption_to_dom;
+
+impl CodeChunk {
+    pub fn has_warnings_errors_or_exceptions(&self) -> bool {
+        self.options
+            .compilation_messages
+            .iter()
+            .flatten()
+            .any(|message| {
+                matches!(
+                    message.level,
+                    MessageLevel::Warning | MessageLevel::Error | MessageLevel::Exception
+                )
+            })
+            || self
+                .options
+                .execution_messages
+                .iter()
+                .flatten()
+                .any(|message| {
+                    matches!(
+                        message.level,
+                        MessageLevel::Warning | MessageLevel::Error | MessageLevel::Exception
+                    )
+                })
+    }
+}
 
 impl DomCodec for CodeChunk {
     fn to_dom(&self, context: &mut DomEncodeContext) {
@@ -14,6 +43,10 @@ impl DomCodec for CodeChunk {
 
         if let Some(execution_mode) = &self.execution_mode {
             context.push_attr("execution-mode", &execution_mode.to_string());
+        }
+
+        if let Some(execution_bounds) = &self.execution_bounds {
+            context.push_attr("execution-bounds", &execution_bounds.to_string());
         }
 
         self.code.to_dom_attr("code", context);
@@ -48,7 +81,7 @@ impl DomCodec for CodeChunk {
         exec_option!("execution-count", execution_count);
         exec_option!("execution-required", execution_required);
         exec_option!("execution-status", execution_status);
-        exec_option!("execution-kind", execution_kind);
+        exec_option!("execution-bounded", execution_bounded);
 
         if let Some(value) = &self.options.execution_ended {
             Timestamp::to_dom_attr("execution-ended", value, context);
@@ -196,12 +229,24 @@ impl MarkdownCodec for CodeChunk {
                         );
                     }
 
-                    if let Some(execution_mode) = &self.execution_mode {
-                        context.myst_directive_option(
-                            NodeProperty::ExecutionMode,
-                            Some("mode"),
-                            &execution_mode.to_string().to_lowercase(),
-                        );
+                    if let Some(mode) = &self.execution_mode {
+                        if !matches!(mode, ExecutionMode::Default) {
+                            context.myst_directive_option(
+                                NodeProperty::ExecutionMode,
+                                Some("mode"),
+                                &mode.to_string().to_lowercase(),
+                            );
+                        }
+                    }
+
+                    if let Some(bounds) = &self.execution_bounds {
+                        if !matches!(bounds, ExecutionBounds::Default) {
+                            context.myst_directive_option(
+                                NodeProperty::ExecutionBounds,
+                                Some("bounds"),
+                                &bounds.to_string().to_lowercase(),
+                            );
+                        }
                     }
 
                     if let Some(label_type) = &self.label_type {
@@ -338,10 +383,21 @@ impl MarkdownCodec for CodeChunk {
             }
 
             if let Some(mode) = &self.execution_mode {
-                context.push_str(" ").push_prop_str(
-                    NodeProperty::ExecutionMode,
-                    &mode.to_string().to_lowercase(),
-                );
+                if !matches!(mode, ExecutionMode::Default) {
+                    context.push_str(" ").push_prop_str(
+                        NodeProperty::ExecutionMode,
+                        &mode.to_string().to_lowercase(),
+                    );
+                }
+            }
+
+            if let Some(bounds) = &self.execution_bounds {
+                if !matches!(bounds, ExecutionBounds::Default) {
+                    context.push_str(" ").push_prop_str(
+                        NodeProperty::ExecutionBounds,
+                        &bounds.to_string().to_lowercase(),
+                    );
+                }
             }
 
             context

@@ -21,16 +21,16 @@ export class Claim extends Entity {
   claimType: string
 
   override render() {
-    if (this.ancestors.includes('StyledBlock')) {
+    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return html`<slot name="content"></slot>`
     }
 
     return html`
       <stencila-ui-block-on-demand
         type="Claim"
-        header-title=${this.claimType}
+        node-id=${this.id}
         depth=${this.depth}
-        ancestors=${this.ancestors}
+        header-title=${this.claimType}
       >
         <div slot="body">
           <stencila-ui-node-authors type="Claim">

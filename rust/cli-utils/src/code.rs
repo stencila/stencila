@@ -3,7 +3,13 @@ use syntect::{
     util::as_24_bit_terminal_escaped,
 };
 
-use common::{once_cell::sync::Lazy, serde::Serialize};
+use common::{
+    clap::{self, ValueEnum},
+    eyre::{bail, Result},
+    once_cell::sync::Lazy,
+    serde::Serialize,
+    serde_json, serde_yaml,
+};
 use format::Format;
 
 use crate::ToStdout;
@@ -19,12 +25,41 @@ pub struct Code {
     content: String,
 }
 
+/// A format that can be used to output a serializable value
+#[derive(Debug, Clone, ValueEnum)]
+pub enum AsFormat {
+    Json,
+    Yaml,
+}
+
+impl From<AsFormat> for Format {
+    fn from(value: AsFormat) -> Self {
+        match value {
+            AsFormat::Json => Format::Json,
+            AsFormat::Yaml => Format::Yaml,
+        }
+    }
+}
+
 impl Code {
     pub fn new(format: Format, content: &str) -> Self {
         Self {
             format,
             content: content.into(),
         }
+    }
+
+    pub fn new_from<S>(format: Format, value: &S) -> Result<Self>
+    where
+        S: Serialize,
+    {
+        let content = match format {
+            Format::Json => serde_json::to_string_pretty(value)?,
+            Format::Yaml => serde_yaml::to_string(value)?,
+            _ => bail!("Unsupported serialization format: {format}"),
+        };
+
+        Ok(Self { format, content })
     }
 }
 

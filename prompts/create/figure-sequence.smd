@@ -7,11 +7,11 @@ name: Create Sequence Diagram Figure Prompt
 description: Create a figure containing a Mermaid sequence diagram with a caption.
 keywords: figure, sequence, diagram, mermaid
 
-instruction-type: Create 
-instruction-patterns:
+instruction-type: Create
+node-type: CodeChunk
+query-patterns:
   - (?i)\bseq(uence)? diag(ram)?\b
   - (?i)\bmermaid\b
-node-type: CodeChunk
 ---
 
 # Instructions

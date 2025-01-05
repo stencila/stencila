@@ -39,7 +39,7 @@ export class ForBlock extends CodeExecutable {
   override render() {
     const { colour, borderColour } = nodeUi('ForBlock')
 
-    if (this.ancestors.includes('StyledBlock')) {
+    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return html`<slot name="iterations"></slot>`
     }
 
@@ -48,22 +48,31 @@ export class ForBlock extends CodeExecutable {
         type="ForBlock"
         node-id=${this.id}
         depth=${this.depth}
-        ancestors=${this.ancestors}
         ?removeContentPadding=${true}
         ?noVisibleContent=${!this.hasIterations}
       >
-        <span slot="header-right">
+        <div slot="header-right">
+          <stencila-ui-node-chat-commands
+            type="ForBlock"
+            node-id=${this.id}
+            depth=${this.depth}
+          >
+          </stencila-ui-node-chat-commands>
+
           <stencila-ui-node-execution-commands
             type="ForBlock"
             node-id=${this.id}
+            depth=${this.depth}
           >
           </stencila-ui-node-execution-commands>
-        </span>
+        </div>
 
         <div slot="body" class="h-full">
           <stencila-ui-node-execution-details
             type="ForBlock"
+            node-id=${this.id}
             mode=${this.executionMode}
+            bounds=${this.executionBounds}
             .tags=${this.executionTags}
             status=${this.executionStatus}
             required=${this.executionRequired}

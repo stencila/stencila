@@ -3,7 +3,6 @@ import { EditorView, ViewUpdate } from '@codemirror/view'
 
 import type { NodeId, DocumentAccess, DocumentId } from '../types'
 
-import type { DocumentCommand } from './commands'
 import { FormatOperation, FormatPatch, FormatClient } from './format'
 
 /// The number milliseconds to debounce sending updates
@@ -209,10 +208,7 @@ export class CodeMirrorClient extends FormatClient {
    * @param command The name of the command
    * @param nodeIds The ids of the specific nodes to apply the command to
    */
-  public sendCommand(
-    command: DocumentCommand['command'],
-    nodeIds: NodeId[] = []
-  ) {
+  public sendCommand(command: 'string', nodeIds: NodeId[] = []) {
     // Ensure any buffered operations are sent first
     this.sendBufferedOperations()
 

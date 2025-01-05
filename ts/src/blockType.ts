@@ -3,6 +3,9 @@
 export type BlockType =
   | "Admonition"
   | "CallBlock"
+  | "Chat"
+  | "ChatMessage"
+  | "ChatMessageGroup"
   | "Claim"
   | "CodeBlock"
   | "CodeChunk"
@@ -33,6 +36,9 @@ export type BlockType =
 export const BlockTypeList = [
   "Admonition",
   "CallBlock",
+  "Chat",
+  "ChatMessage",
+  "ChatMessageGroup",
   "Claim",
   "CodeBlock",
   "CodeChunk",

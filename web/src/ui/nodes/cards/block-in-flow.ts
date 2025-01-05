@@ -17,17 +17,17 @@ import { UIBaseCard } from './base-card'
 @withTwind()
 export class UIBlockInFlow extends UIBaseCard {
   override render() {
+    const hasBorder = this.depth > 0
+
     const cardStyles = apply([
       'group',
       'transition duration-400',
-      'border border-[rgba(255,255,255,0)]',
-      'rounded',
       `text-[${this.ui.textColour}]`,
       'my-2',
-      this.ui.borderColour && `border-[${this.ui.borderColour}]`,
+      hasBorder ? `border rounded border-[${this.ui.borderColour}]` : '',
     ])
 
-    const headerStyles = this.collapsed && 'rounded-sm'
+    const headerStyles = hasBorder && this.collapsed && 'rounded-sm'
 
     return html`
       <div class=${`${cardStyles}`}>

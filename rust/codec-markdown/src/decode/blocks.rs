@@ -10,16 +10,20 @@ use winnow::{
 };
 
 use codec::{
-    common::{indexmap::IndexMap, tracing},
+    common::{
+        indexmap::IndexMap,
+        serde_json::{self, json},
+        tracing,
+    },
     format::Format,
     schema::{
-        shortcuts, Admonition, AdmonitionType, Block, CallArgument, CallBlock, Claim, CodeBlock,
-        CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
-        IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage, InstructionModel,
-        LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node, Paragraph, PromptBlock,
-        QuoteBlock, RawBlock, ReplaceBlock, Section, StyledBlock, SuggestionBlock,
-        SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text, ThematicBreak,
-        Walkthrough, WalkthroughStep,
+        shortcuts, Admonition, AdmonitionType, Block, CallArgument, CallBlock, Chat, ChatMessage,
+        Claim, CodeBlock, CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading,
+        IfBlock, IfBlockClause, IncludeBlock, Inline, InsertBlock, InstructionBlock,
+        InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node,
+        Paragraph, PromptBlock, QuoteBlock, RawBlock, ReplaceBlock, Section, StyledBlock,
+        SuggestionBlock, SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text,
+        ThematicBreak, Walkthrough, WalkthroughStep,
     },
 };
 
@@ -27,8 +31,9 @@ use super::{
     decode_blocks, decode_inlines,
     inlines::{inlines, mds_to_inlines, mds_to_string},
     shared::{
-        attrs, attrs_list, execution_mode, instruction_options, instruction_type, model, name,
-        node_to_string, primitive_node, prompt, string_to_instruction_message,
+        attrs, attrs_list, execution_bounds, execution_mode, instruction_type, model_parameters,
+        name, node_to_string, node_type, primitive_node, prompt, relative_position,
+        string_to_instruction_message,
     },
     Context,
 };
@@ -66,9 +71,13 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
         }
 
         // Handle colon fences (paragraphs starting with `:::`)
-        if let Some((true, children, position)) =
-            para.map(|(children, position, text)| (text.starts_with(":::"), children, position))
-        {
+        if let Some((true, children, position)) = para.map(|(children, position, text)| {
+            (
+                text.starts_with(":::") || text.starts_with("/"),
+                children,
+                position,
+            )
+        }) {
             // Serialize MDAST nodes to text so that fragments such as
             // URLS (for `::: include`), and `$`s for styles with interpolated variables
             // which are otherwise consumed into non text nodes are included in parse value
@@ -496,30 +505,34 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 
 /// Parse a "div": a paragraph starting with at least three semicolons
 fn block(input: &mut Located<&str>) -> PResult<Block> {
-    preceded(
-        (take_while(3.., ':'), space0),
-        alt((
-            admonition_qmd,
-            call_block,
-            include_block,
-            prompt_block,
-            code_chunk,
-            figure,
-            table,
-            for_block,
-            instruction_block,
-            suggestion_block,
-            delete_block,
-            insert_block,
-            replace_block,
-            modify_block,
-            claim,
-            styled_block,
-            // Section parser is permissive of label so needs to
-            // come last to avoid prematurely matching others above
-            section,
-        )),
-    )
+    alt((
+        chat,
+        preceded(
+            (take_while(3.., ':'), space0),
+            alt((
+                admonition_qmd,
+                call_block,
+                include_block,
+                prompt_block,
+                code_chunk,
+                figure,
+                table,
+                for_block,
+                instruction_block,
+                suggestion_block,
+                chat_message,
+                delete_block,
+                insert_block,
+                replace_block,
+                modify_block,
+                claim,
+                styled_block,
+                // Section parser is permissive of label so needs to
+                // come last to avoid prematurely matching others above
+                section,
+            )),
+        ),
+    ))
     .parse_next(input)
 }
 
@@ -637,14 +650,36 @@ fn include_block(input: &mut Located<&str>) -> PResult<Block> {
 
 /// Parse a [`PromptBlock`] node
 fn prompt_block(input: &mut Located<&str>) -> PResult<Block> {
-    preceded(("prompt", multispace1), take_while(1.., |_| true))
-        .map(|prompt: &str| {
+    preceded(
+        "prompt",
+        (
+            opt(preceded(multispace1, instruction_type)),
+            opt(preceded(multispace1, relative_position)),
+            opt(preceded(multispace1, node_type)),
+            opt(preceded(multispace1, prompt)),
+            opt(take_while(1.., |_| true)),
+        ),
+    )
+    .map(
+        |(instruction_type, relative_position, node_type, target, query)| {
+            let node_types = node_type.map(|node_type| vec![node_type.to_string()]);
+
+            let query = query.and_then(|query| {
+                let query = query.trim();
+                (!query.is_empty()).then_some(query.to_string())
+            });
+
             Block::PromptBlock(PromptBlock {
-                prompt: prompt.trim().to_string(),
+                instruction_type,
+                relative_position,
+                node_types,
+                target: target.map(String::from),
+                query,
                 ..Default::default()
             })
-        })
-        .parse_next(input)
+        },
+    )
+    .parse_next(input)
 }
 
 /// Parse a [`Claim`] node
@@ -703,6 +738,65 @@ fn code_chunk(input: &mut Located<&str>) -> PResult<Block> {
             }),
             label: label.map(|label| label.to_string()),
             label_automatically: label.is_some().then_some(false),
+            ..Default::default()
+        })
+    })
+    .parse_next(input)
+}
+
+/// Parse a [`Chat`] node
+fn chat(input: &mut Located<&str>) -> PResult<Block> {
+    preceded(
+        "/",
+        (
+            opt(preceded(multispace0, instruction_type)),
+            opt(preceded(multispace1, relative_position)),
+            opt(preceded(multispace1, node_type)),
+            opt(preceded(multispace1, prompt)),
+            opt(preceded(multispace1, model_parameters)),
+            opt(take_while(1.., |_| true)),
+        ),
+    )
+    .map(
+        |(instruction_type, relative_position, node_type, target, model_parameters, query)| {
+            let node_types = node_type.map(|node_type| vec![node_type.to_string()]);
+
+            let query = query.and_then(|query| {
+                let query = query.trim();
+                (!query.is_empty()).then_some(query)
+            });
+
+            let prompt = PromptBlock {
+                instruction_type,
+                relative_position,
+                node_types,
+                target: target.map(String::from),
+                query: query.map(String::from),
+                ..Default::default()
+            };
+
+            let model_parameters = model_parameters.map(Box::new).unwrap_or_default();
+
+            Block::Chat(Chat {
+                prompt,
+                model_parameters,
+                is_temporary: Some(false),
+                ..Default::default()
+            })
+        },
+    )
+    .parse_next(input)
+}
+
+/// Parse a [`ChatMessage`] node
+fn chat_message(input: &mut Located<&str>) -> PResult<Block> {
+    terminated(
+        alt((Caseless("system"), Caseless("user"), Caseless("model"))),
+        multispace0,
+    )
+    .map(|role: &str| {
+        Block::ChatMessage(ChatMessage {
+            role: role.parse().ok().unwrap_or_default(),
             ..Default::default()
         })
     })
@@ -819,95 +913,80 @@ fn if_elif(input: &mut Located<&str>) -> PResult<(bool, IfBlockClause)> {
 /// Start an [`InstructionBlock`]
 fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
     (
-        terminated(instruction_type, multispace0),
-        opt(delimited((multispace0, '@'), prompt, multispace0)),
-        opt(delimited(
-            (multispace0, '[', multispace0),
-            model,
-            (multispace0, ']', multispace0),
-        )),
-        delimited(multispace0, instruction_options, multispace0),
-        opt(take_while(0.., |_| true)),
+        instruction_type,
+        opt(preceded(multispace1, execution_mode)),
+        opt(preceded(multispace1, execution_bounds)),
+        opt(preceded(multispace1, relative_position)),
+        opt(preceded(multispace1, node_type)),
+        opt(preceded(multispace1, prompt)),
+        opt(preceded(multispace1, model_parameters)),
+        opt(take_while(1.., |_| true)),
     )
-        .map(|(instruction_type, prompt, id_pattern, options, message)| {
-            let (message, capacity) = match message {
-                Some(message) => {
-                    let message = message.trim();
-                    let (message, capacity) = if let Some(message) = message.strip_suffix(":::") {
-                        (message.trim_end(), None)
-                    } else if let Some(message) = message.strip_suffix(">>>") {
-                        (message.trim_end(), Some(1))
-                    } else {
-                        (message, Some(2))
-                    };
-
-                    ((!message.is_empty()).then_some(message), capacity)
-                }
-                None => (None, Some(2)),
-            };
-
-            let message = message.map(string_to_instruction_message);
-
-            let content = capacity.map(Vec::with_capacity);
-
-            let mut recursion = Vec::new();
-            let mut replicates: Option<u64> = None;
-            let mut minimum_score: Option<u64> = None;
-            let mut temperature: Option<u64> = None;
-            let mut quality_weight: Option<u64> = None;
-            let mut speed_weight: Option<u64> = None;
-            let mut cost_weight: Option<u64> = None;
-            for option in options {
-                if matches!(option, "run" | "!run") {
-                    recursion.push(option);
-                } else {
-                    let mut chars = option.chars();
-                    let letter = chars.next().expect("Should be at least one char");
-                    let value = chars.collect::<String>().parse().ok();
-                    match letter {
-                        'x' => replicates = value,
-                        'y' => minimum_score = value,
-                        't' => temperature = value,
-                        'q' => quality_weight = value,
-                        's' => speed_weight = value,
-                        'c' => cost_weight = value,
-                        _ => {}
-                    };
-                }
-            }
-            let recursion = (!recursion.is_empty()).then_some(recursion.join(" "));
-
-            let model = if id_pattern.is_some()
-                || minimum_score.is_some()
-                || temperature.is_some()
-                || quality_weight.is_some()
-                || speed_weight.is_some()
-                || cost_weight.is_some()
-            {
-                Some(Box::new(InstructionModel {
-                    id_pattern: id_pattern.map(String::from),
-                    minimum_score,
-                    temperature,
-                    quality_weight,
-                    speed_weight,
-                    cost_weight,
-                    ..Default::default()
-                }))
-            } else {
-                None
-            };
-
-            Block::InstructionBlock(InstructionBlock {
+        .map(
+            |(
                 instruction_type,
-                message,
-                content,
-                prompt: prompt.map(String::from),
-                replicates,
-                recursion,
-                model,
-                ..Default::default()
-            })
-        })
+                execution_mode,
+                execution_bounds,
+                relative_position,
+                node_type,
+                prompt,
+                model_parameters,
+                query,
+            )| {
+                let node_types = node_type.map(|node_type| vec![node_type.to_string()]);
+
+                let mut prompt = PromptBlock {
+                    instruction_type: Some(instruction_type.clone()),
+                    relative_position,
+                    node_types,
+                    target: prompt.map(String::from),
+                    query: query.map(String::from),
+                    ..Default::default()
+                };
+
+                let model_parameters = model_parameters.map(Box::new).unwrap_or_default();
+
+                let (message, capacity) = match query {
+                    Some(message) => {
+                        let message = message.trim();
+
+                        let (message, capacity) = if let Some(message) = message.strip_suffix(":::")
+                        {
+                            (message.trim_end(), None)
+                        } else if let Some(message) = message.strip_suffix(">>>") {
+                            (message.trim_end(), Some(1))
+                        } else {
+                            (message, Some(2))
+                        };
+
+                        let message = (!message.is_empty()).then_some(message);
+
+                        // Use the message as the query for the target prompt
+                        prompt.query = message.map(String::from);
+
+                        (message, capacity)
+                    }
+                    None => (None, Some(2)),
+                };
+
+                let message = message
+                    .map(string_to_instruction_message)
+                    .unwrap_or_default();
+
+                let content = capacity.map(Vec::with_capacity);
+
+                Block::InstructionBlock(InstructionBlock {
+                    instruction_type,
+                    prompt,
+                    message,
+                    model_parameters,
+                    content,
+                    execution_mode,
+                    execution_bounds,
+                    ..Default::default()
+                })
+            },
+        )
         .parse_next(input)
 }
 
@@ -1088,6 +1167,7 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
     if let Block::SuggestionBlock(SuggestionBlock { content, .. })
     | Block::DeleteBlock(DeleteBlock { content, .. })
     | Block::InsertBlock(InsertBlock { content, .. })
+    | Block::ChatMessage(ChatMessage { content, .. })
     | Block::Claim(Claim { content, .. })
     | Block::Section(Section { content, .. })
     | Block::StyledBlock(StyledBlock { content, .. }) = parent
@@ -1117,6 +1197,7 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
                 let node_id = inner.node_id();
                 chunk.programming_language = inner.programming_language;
                 chunk.execution_mode = inner.execution_mode;
+                chunk.execution_bounds = inner.execution_bounds;
                 chunk.code = inner.code;
 
                 // Remove the inner code chunk from the mapping
@@ -1270,7 +1351,7 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
 /// Get the execution mode from block options
 fn execution_mode_from_options(options: IndexMap<&str, Option<Node>>) -> Option<ExecutionMode> {
     for (name, value) in options {
-        if matches!(name, "always" | "auto" | "locked" | "lock") && value.is_none() {
+        if matches!(name, "always" | "auto" | "need" | "lock") && value.is_none() {
             return name.parse().ok();
         }
     }
@@ -1528,24 +1609,28 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
             ..Default::default()
         }),
         "create" | "edit" | "fix" | "describe" => {
-            let id_pattern = options.get("model").map(|value| value.to_string());
-            let temperature = options.get("temp").and_then(|value| value.parse().ok());
-            let model = if id_pattern.is_some() || temperature.is_some() {
-                Some(Box::new(InstructionModel {
-                    id_pattern,
-                    temperature,
+            let prompt = options
+                .get("prompt")
+                .map(|prompt| PromptBlock {
+                    target: Some(prompt.to_string()),
                     ..Default::default()
-                }))
-            } else {
-                None
-            };
+                })
+                .unwrap_or_default();
+
+            // Use deserialization aliases inherent in schema to permissively
+            // parse model_parameters
+            let model_parameters = serde_json::from_value(json!(options)).unwrap_or_default();
+
+            let execution_mode = options.get("mode").and_then(|value| value.parse().ok());
+            let execution_bounds = options.get("bounds").and_then(|value| value.parse().ok());
 
             Block::InstructionBlock(InstructionBlock {
                 instruction_type: name.parse().unwrap_or_default(),
-                message: args.map(InstructionMessage::from),
-                prompt: options.get("prompt").map(|value| value.to_string()),
-                replicates: options.get("reps").and_then(|value| value.parse().ok()),
-                model,
+                prompt,
+                message: args.map(InstructionMessage::from).unwrap_or_default(),
+                model_parameters,
+                execution_mode,
+                execution_bounds,
                 content: if !value.trim().is_empty() {
                     Some(decode_blocks(&value, context))
                 } else {
@@ -1607,16 +1692,15 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
                 .to_string();
             (!lang.is_empty()).then_some(lang)
         });
-        let mut meta = meta.strip_prefix("exec").unwrap_or_default().trim();
 
-        let (is_invisible, execution_mode) = if meta.contains("invisible") {
-            (
-                Some(true),
-                execution_mode(&mut meta.replace("invisible", "").trim()).ok(),
-            )
-        } else {
-            (None, execution_mode(&mut meta).ok())
-        };
+        let meta = meta.strip_prefix("exec").unwrap_or_default().trim_end();
+
+        let (execution_mode, execution_bounds) = (
+            opt(preceded(multispace1, execution_mode)),
+            opt(preceded(multispace1, execution_bounds)),
+        )
+            .parse_next(&mut Located::new(meta))
+            .unwrap_or_default();
 
         let mut label_automatically = None;
         let mut label_type = None;
@@ -1658,7 +1742,7 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
                 lang
             },
             execution_mode,
-            is_invisible,
+            execution_bounds,
             label_automatically,
             label_type,
             label,

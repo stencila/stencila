@@ -16,7 +16,7 @@ use common::{
     tracing,
 };
 use schema::{
-    Author, AuthorRoleName, ExecutionKind, ExecutionRequired, ExecutionStatus, MessageLevel,
+    Author, AuthorRoleName, ExecutionBounds, ExecutionRequired, ExecutionStatus, MessageLevel,
     NodeType, StringOrNumber,
 };
 
@@ -80,7 +80,10 @@ fn statuses(node: &TextNode) -> Vec<Status> {
     // Do not show status for nodes without a range e.g. suggestions or original
     // content of instruction that are not encoded to the text document
     if node.range == Range::default()
-        && !matches!(node.node_type, NodeType::Article | NodeType::Prompt)
+        && !matches!(
+            node.node_type,
+            NodeType::Article | NodeType::Prompt | NodeType::Chat
+        )
     {
         return items;
     }
@@ -267,7 +270,7 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
                 }
             }
 
-            let status = if let Some(ExecutionKind::Fork) = &execution.kind {
+            let status = if let Some(ExecutionBounds::Fork) = &execution.bounded {
                 message.push_str(" in forked kernel");
                 "SucceededFork"
             } else {
@@ -293,9 +296,7 @@ fn diagnostics(node: &TextNode) -> Vec<Diagnostic> {
 
     // Do not show diagnostics for nodes without a range e.g. suggestions or original
     // content of instruction that are not encoded to the text document
-    if node.range == Range::default()
-        && !matches!(node.node_type, NodeType::Article | NodeType::Prompt)
-    {
+    if node.range == Range::default() && !node.is_root {
         return diags;
     }
 

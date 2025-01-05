@@ -7,12 +7,12 @@ name: Create Flowchart Figure Prompt
 description: Create a figure containing a Mermaid flowchart with a caption.
 keywords: figure, flowchart, mermaid
 
-instruction-type: Create 
-instruction-patterns:
+instruction-type: Create
+node-type: CodeChunk
+query-patterns:
   - (?i)\bflowchart\b
   - (?i)\bdecision tree\b
   - (?i)\bmermaid\b
-node-type: CodeChunk
 ---
 
 # Instructions
