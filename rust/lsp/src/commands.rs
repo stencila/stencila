@@ -124,6 +124,7 @@ pub(super) fn commands() -> Vec<String> {
 }
 
 /// Execute a command
+#[allow(clippy::too_many_arguments)]
 pub(super) async fn execute_command(
     ExecuteCommandParams {
         command, arguments, ..
