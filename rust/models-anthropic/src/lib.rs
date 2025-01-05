@@ -12,7 +12,7 @@ use model::{
         serde_with::skip_serializing_none,
         tracing,
     },
-    schema::{MessagePart, MessageRole},
+    schema::{ImageObject, MessagePart, MessageRole},
     secrets, Model, ModelIO, ModelOutput, ModelTask, ModelType,
 };
 
@@ -110,10 +110,28 @@ impl Model for AnthropicModel {
                     .parts
                     .iter()
                     .filter_map(|part| match part {
-                        MessagePart::Text(text) => Some(ContentPart {
-                            r#type: "text".to_string(),
+                        MessagePart::Text(text) => Some(ContentPart::Text {
                             text: text.to_value_string(),
                         }),
+                        MessagePart::ImageObject(ImageObject{content_url,..}) => 
+                            if let (true, Some(pos)) = (content_url.starts_with("data:"), content_url.find(";base64,")) {
+                                let media_type = content_url[5..pos].to_string();
+                                let data = content_url[(pos + 8)..].to_string();
+                                
+                                Some(ContentPart::Image {
+                                    source: ImageSource {
+                                        r#type: "base64".into(),
+                                        media_type,
+                                        data,
+                                    },
+                                })                            
+                            } else {
+                                tracing::warn!(
+                                    "Image does not appear to have a DataURI so was ignored by model `{}`",
+                                    self.id()
+                                );
+                                None
+                            }
                         _ => {
                             tracing::warn!(
                                 "User message part `{part}` is ignored by model `{}`",
@@ -163,7 +181,10 @@ impl Model for AnthropicModel {
         let text = response
             .content
             .into_iter()
-            .map(|part| part.text)
+            .filter_map(|part| match part {
+                ContentPart::Text { text } => Some(text),
+                _ => None,
+            })
             .join("\n\n");
 
         ModelOutput::from_text(self, &task.format, text).await
@@ -235,13 +256,20 @@ struct ModelSpec {
 }
 
 /// A part within the content of a message in the Messages API
-///
-/// Note: at present only `text` type is handled
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(tag = "type", rename_all = "lowercase", crate = "model::common::serde")]
+enum ContentPart {
+    Text { text: String },
+    Image { source: ImageSource },
+}
+
+/// An images source
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(crate = "model::common::serde")]
-struct ContentPart {
+struct ImageSource {
     r#type: String,
-    text: String,
+    media_type: String,
+    data: String,
 }
 
 /// A Messages API message
