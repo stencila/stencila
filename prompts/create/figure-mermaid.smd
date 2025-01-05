@@ -7,14 +7,14 @@ name: Create Mermaid Figure Prompt
 description: Create a figure containing a Mermaid diagram with a caption.
 keywords: figure, diagram, mermaid
 
-instruction-type: Create 
-instruction-patterns:
+instruction-type: Create
+node-type: CodeChunk
+query-patterns:
   - (?i)\b(class)|(state)|(erd)|(user journey)|(requirement)(git)(block) diag(ram)?\b
   - (?i)\b(gantt)|(quadrant)(sankey) (chart)|(diag(ram)?)\b
   - (?i)\bmindmap\b
   - (?i)\bzenuml\b
   - (?i)\bmermaid\b
-node-type: CodeChunk
 ---
 
 # Instructions

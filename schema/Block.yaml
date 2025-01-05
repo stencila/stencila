@@ -24,6 +24,24 @@ anyOf:
       low:
         description: Generate `CallBlock` nodes in block content.
         skip: false
+
+  - $ref: Chat
+    proptest:
+      min:
+        description: Do not generate `Chat` nodes in block content.
+        skip: true
+
+  - $ref: ChatMessage
+    proptest:
+      min:
+        description: Do not generate `ChatMessage` nodes in block content.
+        skip: true
+
+  - $ref: ChatMessageGroup
+    proptest:
+      min:
+        description: Do not generate `ChatMessageGroup` nodes in block content.
+        skip: true
   
   - $ref: Claim
     proptest:

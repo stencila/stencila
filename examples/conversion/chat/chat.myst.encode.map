@@ -1,0 +1,24 @@
+start     end        offsets   node_type+property                   authorship
+    92     99       (92, 99)   ChatMessage.role
+   101    156        (9, 57)   Text.value
+   101    156         (0, 0)   Text
+   101    156         (0, 0)   Paragraph.content
+   101    157         (0, 1)   Paragraph
+   101    158         (0, 1)   ChatMessage.content
+    89    162       (-12, 4)   ChatMessage
+   166    171        (77, 9)   ChatMessage.role
+   173    178         (7, 7)   Text.value
+   173    178         (0, 0)   Text
+   173    178         (0, 0)   Paragraph.content
+   173    179         (0, 1)   Paragraph
+   173    180         (0, 1)   ChatMessage.content
+   163    184       (-10, 4)   ChatMessage
+   188    194       (25, 10)   ChatMessage.role
+   196    205        (8, 11)   Text.value
+   196    205         (0, 0)   Text
+   196    205         (0, 0)   Paragraph.content
+   196    206         (0, 1)   Paragraph
+   196    207         (0, 1)   ChatMessage.content
+   185    211       (-11, 4)   ChatMessage
+    89    212       (-96, 1)   Chat.content
+     0    212       (-89, 0)   Chat

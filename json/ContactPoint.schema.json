@@ -49,6 +49,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -133,6 +134,7 @@
         "email"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -152,6 +154,7 @@
         "telephone_number"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -170,6 +173,7 @@
         "available_language"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",

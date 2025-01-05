@@ -18,16 +18,16 @@
   "proptest": {},
   "required": [
     "type",
-    "instructionType"
+    "instructionType",
+    "prompt",
+    "message",
+    "modelParameters"
   ],
   "core": [
     "id",
     "executionMode",
-    "message",
-    "prompt",
-    "model",
-    "replicates",
-    "recursion",
+    "executionBounds",
+    "activeSuggestion",
     "content",
     "suggestions"
   ],
@@ -52,7 +52,7 @@
     },
     "executionMode": {
       "@id": "stencila:executionMode",
-      "description": "Under which circumstances the code should be executed.",
+      "description": "Under which circumstances the node should be executed.",
       "aliases": [
         "execution-mode",
         "execution_mode"
@@ -70,6 +70,27 @@
         ]
       },
       "$ref": "ExecutionMode.schema.json"
+    },
+    "executionBounds": {
+      "@id": "stencila:executionBounds",
+      "description": "Under which circumstances child nodes should be executed.",
+      "aliases": [
+        "execution-bounds",
+        "execution_bounds"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "$ref": "ExecutionBounds.schema.json"
     },
     "compilationDigest": {
       "@id": "stencila:compilationDigest",
@@ -236,17 +257,17 @@
       ],
       "type": "string"
     },
-    "executionKind": {
-      "@id": "stencila:executionKind",
-      "description": "The kind (e.g. main kernel vs kernel fork) of the last execution.",
+    "executionBounded": {
+      "@id": "stencila:executionBounded",
+      "description": "The bounds, if any, on the last execution.",
       "aliases": [
-        "execution-kind",
-        "execution_kind"
+        "execution-bounded",
+        "execution_bounded"
       ],
       "strip": [
         "execution"
       ],
-      "$ref": "ExecutionKind.schema.json"
+      "$ref": "ExecutionBounds.schema.json"
     },
     "executionEnded": {
       "@id": "stencila:executionEnded",
@@ -307,7 +328,36 @@
         "instruction-type",
         "instruction_type"
       ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
       "$ref": "InstructionType.schema.json"
+    },
+    "prompt": {
+      "@id": "stencila:prompt",
+      "description": "The prompt selected, rendered and provided to the model",
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "serde": {
+        "default": true
+      },
+      "dom": {
+        "elem": "div"
+      },
+      "$ref": "PromptBlock.schema.json"
     },
     "message": {
       "@id": "stencila:message",
@@ -321,98 +371,42 @@
           "qmd"
         ]
       },
+      "serde": {
+        "default": true
+      },
       "dom": {
         "elem": "div"
       },
       "$ref": "InstructionMessage.schema.json"
     },
-    "prompt": {
-      "@id": "stencila:prompt",
-      "description": "An identifier for the prompt to be used for the instruction",
-      "patch": {
-        "formats": [
-          "md",
-          "smd",
-          "myst",
-          "ipynb",
-          "qmd"
-        ]
-      },
-      "proptest": {
-        "min": {
-          "description": "No prompt",
-          "value": "None"
-        },
-        "high": {
-          "description": "Generate an arbitrary id using expected characters",
-          "strategy": "option::of(r\"[a-zA-Z][a-zA-Z\\-_/.@]\")"
-        },
-        "max": {
-          "description": "Generate an arbitrary prompt id using any characters",
-          "strategy": "option::of(String::arbitrary())"
-        }
-      },
-      "type": "string"
-    },
-    "model": {
-      "@id": "stencila:model",
-      "description": "The name, and other options, for the model that the assistant should use to generate suggestions.",
-      "patch": {
-        "formats": [
-          "md",
-          "smd",
-          "myst",
-          "ipynb",
-          "qmd"
-        ]
-      },
-      "dom": {
-        "elem": "div"
-      },
-      "$ref": "InstructionModel.schema.json"
-    },
-    "replicates": {
-      "@id": "stencila:replicates",
-      "description": "The number of suggestions to generate for the instruction",
-      "patch": {
-        "formats": [
-          "md",
-          "smd",
-          "myst",
-          "ipynb",
-          "qmd"
-        ]
-      },
-      "$ref": "UnsignedInteger.schema.json"
-    },
-    "recursion": {
-      "@id": "stencila:recursion",
-      "description": "A string identifying which operations should, or should not, automatically be applied to generated suggestions.",
-      "patch": {
-        "formats": [
-          "md",
-          "smd",
-          "myst",
-          "ipynb",
-          "qmd"
-        ]
-      },
-      "$ref": "String.schema.json"
-    },
-    "promptProvided": {
-      "@id": "stencila:promptProvided",
-      "description": "The prompt chosen, rendered and provided to the model",
+    "modelParameters": {
+      "@id": "stencila:modelParameters",
+      "description": "Model selection and inference parameters.",
       "aliases": [
-        "prompt-provided",
-        "prompt_provided"
+        "model-parameters",
+        "model_parameters",
+        "model-params",
+        "model_params",
+        "model-pars",
+        "model_pars",
+        "model"
       ],
       "patch": {
-        "formats": []
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "serde": {
+        "default": true
       },
       "dom": {
         "elem": "div"
       },
-      "$ref": "PromptBlock.schema.json"
+      "$ref": "ModelParameters.schema.json"
     },
     "activeSuggestion": {
       "@id": "stencila:activeSuggestion",

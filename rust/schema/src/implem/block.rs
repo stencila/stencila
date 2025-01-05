@@ -1,4 +1,4 @@
-use crate::{prelude::*, Block, Inline, Paragraph, Section};
+use crate::{prelude::*, Block, Inline, Node, Paragraph, Section};
 
 impl Block {
     pub fn node_type(&self) -> NodeType {
@@ -13,6 +13,9 @@ impl Block {
         variants!(
             Admonition,
             CallBlock,
+            Chat,
+            ChatMessage,
+            ChatMessageGroup,
             Claim,
             CodeBlock,
             CodeChunk,
@@ -54,6 +57,57 @@ impl Block {
         variants!(
             Admonition,
             CallBlock,
+            Chat,
+            ChatMessage,
+            ChatMessageGroup,
+            Claim,
+            CodeBlock,
+            CodeChunk,
+            DeleteBlock,
+            Figure,
+            ForBlock,
+            Form,
+            Heading,
+            IfBlock,
+            IncludeBlock,
+            InsertBlock,
+            InstructionBlock,
+            List,
+            MathBlock,
+            ModifyBlock,
+            Paragraph,
+            PromptBlock,
+            QuoteBlock,
+            RawBlock,
+            ReplaceBlock,
+            Section,
+            StyledBlock,
+            SuggestionBlock,
+            Table,
+            ThematicBreak,
+            Walkthrough
+        )
+    }
+}
+
+impl TryFrom<Node> for Block {
+    type Error = ErrReport;
+
+    fn try_from(node: Node) -> Result<Self> {
+        macro_rules! variants {
+            ($( $variant:ident ),*) => {
+                match node {
+                    $(Node::$variant(node) => Ok(Block::$variant(node)),)*
+                    _ => bail!("Unable to convert node to block")
+                }
+            };
+        }
+
+        variants!(
+            Admonition,
+            CallBlock,
+            Chat,
+            ChatMessage,
             Claim,
             CodeBlock,
             CodeChunk,
@@ -153,6 +207,9 @@ impl MarkdownCodec for Block {
         variants!(
             Admonition,
             CallBlock,
+            Chat,
+            ChatMessage,
+            ChatMessageGroup,
             Claim,
             CodeBlock,
             CodeChunk,

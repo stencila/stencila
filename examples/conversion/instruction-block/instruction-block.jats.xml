@@ -8,5 +8,6 @@
     <p>An edit instruction with a prompt:</p>
     <p>An insert instruction with a prompt and a suggestion:</p>
     <p>An edit instruction with a suggestion:</p>
+    <p>With prompt and model parameters specified:</p>
   </body>
 </article>

@@ -9,7 +9,7 @@ use std::{
 
 use codecs::EncodeOptions;
 use common::{
-    eyre::Result,
+    eyre::{bail, Result},
     itertools::Itertools,
     serde::{Deserialize, Serialize},
     serde_with::skip_serializing_none,
@@ -24,6 +24,8 @@ use common::{
     tracing,
 };
 use format::Format;
+use node_find::find;
+use schema::NodeId;
 
 use crate::Document;
 
@@ -33,6 +35,12 @@ use crate::Document;
 pub struct DomPatch {
     /// The version of the patch
     version: u32,
+
+    /// Whether the document, or node within it, has been deleted
+    ///
+    /// Used to signal to clients that they should finish listening
+    /// for further patches.
+    deleted: bool,
 
     /// The operations in the patch
     ops: Vec<DomOperation>,
@@ -47,7 +55,7 @@ impl DomPatch {
     pub fn reset_request() -> Self {
         Self {
             version: 0,
-            ops: Vec::new(),
+            ..Default::default()
         }
     }
 }
@@ -152,6 +160,7 @@ impl Document {
     #[tracing::instrument(skip_all)]
     pub async fn sync_dom(
         &self,
+        node_id: Option<NodeId>,
         mut patch_receiver: Receiver<DomPatch>,
         patch_sender: Sender<DomPatch>,
     ) -> Result<String> {
@@ -173,8 +182,19 @@ impl Document {
         });
 
         // Create initial encoding of the root node
-        let node = self.root.read().await;
-        let initial_content = codecs::to_string(&node, encode_options.clone()).await?;
+        let initial_content = match node_id.as_ref() {
+            Some(node_id) => {
+                let root = self.root.read().await;
+                let Some(node) = find(&*root, node_id.clone()) else {
+                    bail!("Unable to find node in document: {node_id}")
+                };
+                codecs::to_string(&node, encode_options.clone()).await?
+            }
+            None => {
+                let node = self.root.read().await;
+                codecs::to_string(&node, encode_options.clone()).await?
+            }
+        };
 
         // Create the mutex for the current content and initialize the version
         let current = Arc::new(Mutex::new(initial_content.clone()));
@@ -200,6 +220,7 @@ impl Document {
                     let reset = DomPatch {
                         version: current_version,
                         ops: vec![DomOperation::reset_content(&*current_content)],
+                        ..Default::default()
                     };
                     if let Err(error) = patch_sender_clone.send(reset).await {
                         tracing::error!("While sending content reset patch: {error}");
@@ -218,6 +239,7 @@ impl Document {
             let init = DomPatch {
                 version: version.load(Ordering::SeqCst),
                 ops: vec![DomOperation::reset_content(reset_content)],
+                ..Default::default()
             };
             if let Err(error) = patch_sender.send(init).await {
                 tracing::error!("While sending initial string patch: {error}");
@@ -227,10 +249,32 @@ impl Document {
             while node_receiver.changed().await.is_ok() {
                 tracing::trace!("Root node changed, updating string buffer");
 
-                let node = node_receiver.borrow_and_update().clone();
+                let root = node_receiver.borrow_and_update().clone();
 
                 // Encode the node to a string in the format
-                let new_content = match codecs::to_string(&node, encode_options.clone()).await {
+                let new_content = match node_id.as_ref() {
+                    Some(node_id) => {
+                        let Some(node) = find(&root, node_id.clone()) else {
+                            // If node has been removed from the document, end the task
+                            tracing::debug!(
+                                "Unable to find node `{node_id}`: sending 'deleted' patch and stopping `sync_dom` task"
+                            );
+                            if let Err(error) = patch_sender
+                                .send(DomPatch {
+                                    deleted: true,
+                                    ..Default::default()
+                                })
+                                .await
+                            {
+                                tracing::debug!("When sending 'deleted' patch: {error}")
+                            }
+                            return;
+                        };
+                        codecs::to_string(&node, encode_options.clone()).await
+                    }
+                    None => codecs::to_string(&root, encode_options.clone()).await,
+                };
+                let new_content = match new_content {
                     Ok(string) => string,
                     Err(error) => {
                         tracing::error!("While encoding node to string: {error}");
@@ -291,7 +335,11 @@ impl Document {
                 if !ops.is_empty() {
                     // Create and send a patch for the content
                     let version = version.load(Ordering::SeqCst);
-                    let patch = DomPatch { version, ops };
+                    let patch = DomPatch {
+                        version,
+                        ops,
+                        ..Default::default()
+                    };
                     if patch_sender.send(patch).await.is_err() {
                         // Most likely receiver has dropped so just finish this task
                         break;

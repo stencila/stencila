@@ -8,9 +8,6 @@ description: Fix a block that has errors or warnings.
 keywords: fix
 
 instruction-type: Fix
-node-types:
-    - CodeChunk
-    - MathBlock
 ---
 
 # Instructions

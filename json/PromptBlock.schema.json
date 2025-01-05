@@ -11,16 +11,24 @@
   "description": "A preview of how a prompt will be rendered at a location in the document",
   "$comment": "Used on an `Instruction` to render a prompt and display the rendering to the user.\nCan also be used standalone to preview how a prompt is rendered at a particular\nposition in a document.\n",
   "status": "experimental",
+  "patch": {
+    "applyWith": "PromptBlock::apply_patch_op"
+  },
   "markdown": {
     "derive": false
   },
   "required": [
-    "type",
-    "prompt"
+    "type"
   ],
   "core": [
     "id",
     "executionMode",
+    "executionBounds",
+    "instructionType",
+    "nodeTypes",
+    "relativePosition",
+    "query",
+    "target",
     "content"
   ],
   "properties": {
@@ -44,7 +52,7 @@
     },
     "executionMode": {
       "@id": "stencila:executionMode",
-      "description": "Under which circumstances the code should be executed.",
+      "description": "Under which circumstances the node should be executed.",
       "aliases": [
         "execution-mode",
         "execution_mode"
@@ -62,6 +70,27 @@
         ]
       },
       "$ref": "ExecutionMode.schema.json"
+    },
+    "executionBounds": {
+      "@id": "stencila:executionBounds",
+      "description": "Under which circumstances child nodes should be executed.",
+      "aliases": [
+        "execution-bounds",
+        "execution_bounds"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "$ref": "ExecutionBounds.schema.json"
     },
     "compilationDigest": {
       "@id": "stencila:compilationDigest",
@@ -228,17 +257,17 @@
       ],
       "type": "string"
     },
-    "executionKind": {
-      "@id": "stencila:executionKind",
-      "description": "The kind (e.g. main kernel vs kernel fork) of the last execution.",
+    "executionBounded": {
+      "@id": "stencila:executionBounded",
+      "description": "The bounds, if any, on the last execution.",
       "aliases": [
-        "execution-kind",
-        "execution_kind"
+        "execution-bounded",
+        "execution_bounded"
       ],
       "strip": [
         "execution"
       ],
-      "$ref": "ExecutionKind.schema.json"
+      "$ref": "ExecutionBounds.schema.json"
     },
     "executionEnded": {
       "@id": "stencila:executionEnded",
@@ -292,8 +321,76 @@
         "$ref": "ExecutionMessage.schema.json"
       }
     },
-    "prompt": {
-      "@id": "stencila:prompt",
+    "instructionType": {
+      "@id": "stencila:instructionType",
+      "description": "The type of instruction the  being used for",
+      "$comment": "Used to filter and select the `target` prompt.",
+      "aliases": [
+        "instruction-type",
+        "instruction_type"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "qmd"
+        ]
+      },
+      "$ref": "InstructionType.schema.json"
+    },
+    "nodeTypes": {
+      "@id": "stencila:nodeTypes",
+      "description": "The type of nodes the prompt is being used for",
+      "$comment": "Used to filter and select the `target` prompt.",
+      "aliases": [
+        "node-types",
+        "node_types",
+        "nodeType",
+        "node-type",
+        "node_type"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "qmd"
+        ]
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "relativePosition": {
+      "@id": "stencila:relativePosition",
+      "description": "The relative position of the node being edited, described etc.",
+      "aliases": [
+        "relative-position",
+        "relative_position"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "qmd"
+        ]
+      },
+      "$ref": "RelativePosition.schema.json"
+    },
+    "query": {
+      "@id": "stencila:query",
+      "description": "A user text query used to infer the `target` prompt",
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "qmd"
+        ]
+      },
+      "type": "string"
+    },
+    "target": {
+      "@id": "schema:target",
       "description": "An identifier for the prompt to be rendered",
       "patch": {
         "formats": [
@@ -303,6 +400,28 @@
           "ipynb",
           "qmd"
         ]
+      },
+      "proptest": {
+        "min": {
+          "description": "No prompt",
+          "value": "None"
+        },
+        "high": {
+          "description": "Generate an arbitrary id using expected characters",
+          "strategy": "option::of(r\"[a-zA-Z][a-zA-Z\\-_/.@]\")"
+        },
+        "max": {
+          "description": "Generate an arbitrary prompt id using any characters",
+          "strategy": "option::of(String::arbitrary())"
+        }
+      },
+      "type": "string"
+    },
+    "directory": {
+      "@id": "stencila:directory",
+      "description": "The home directory of the prompt",
+      "patch": {
+        "formats": []
       },
       "type": "string"
     },

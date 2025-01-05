@@ -8,8 +8,8 @@ impl Executable for SuggestionBlock {
         let node_id = self.node_id();
 
         match self.suggestion_status {
-            Some(SuggestionStatus::Accepted) => {
-                // Suggestion has been accepted so compile using the main executor
+            Some(SuggestionStatus::Original | SuggestionStatus::Accepted) => {
+                // Suggestion is original or has been accepted so compile using the main executor
                 tracing::trace!("Compiling accepted suggestion block `{node_id}`");
                 if let Err(error) = self.content.walk_async(executor).await {
                     tracing::error!("While compiling suggestion block: {error}");
@@ -34,8 +34,8 @@ impl Executable for SuggestionBlock {
         let node_id = self.node_id();
 
         match self.suggestion_status {
-            Some(SuggestionStatus::Accepted) | None => {
-                // Suggestion has been accepted or is proposed so prepare using the main executor
+            Some(SuggestionStatus::Original | SuggestionStatus::Accepted) | None => {
+                // Suggestion is original, has been accepted, or is proposed so prepare using the main executor
                 // which will set the status of descendent nodes to `ExecutionStatus::Pending`
                 tracing::trace!("Preparing accepted suggestion block `{node_id}`");
                 if let Err(error) = self.content.walk_async(executor).await {
@@ -63,8 +63,8 @@ impl Executable for SuggestionBlock {
         let node_id = self.node_id();
 
         match self.suggestion_status {
-            Some(SuggestionStatus::Accepted) => {
-                // Suggestion has been accepted so execute in the main kernel set
+            Some(SuggestionStatus::Original | SuggestionStatus::Accepted) => {
+                // Suggestion is the original or has been accepted so execute in the main kernel set
                 tracing::trace!("Executing accepted suggestion block `{node_id}`");
                 if let Err(error) = self.content.walk_async(executor).await {
                     tracing::error!("While executing suggestion block: {error}");

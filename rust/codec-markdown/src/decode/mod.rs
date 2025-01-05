@@ -9,7 +9,7 @@ use markdown::{
 
 use codec::{
     common::{
-        eyre::{bail, eyre, Result},
+        eyre::{eyre, Result},
         once_cell::sync::Lazy,
         regex::Regex,
         serde_json::{self, json},
@@ -17,7 +17,7 @@ use codec::{
     },
     format::Format,
     schema::{
-        Article, Block, Inline, Node, NodeId, NodeType, Null, Prompt, VisitorMut, WalkControl,
+        Article, Block, Chat, Inline, Node, NodeId, NodeType, Null, Prompt, VisitorMut, WalkControl,
     },
     DecodeInfo, DecodeOptions, Losses, Mapping,
 };
@@ -60,14 +60,16 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
         _ => preprocess_md(content),
     };
 
-    // Parse Markdown to MDAST nodes
-    let mdast = to_mdast(&md, &parse_options()).map_err(|error| eyre!(error))?;
+    // Parse Markdown to a MDAST root node and get its children
+    let (children, position) =
+        match to_mdast(&md, &parse_options()).map_err(|error| eyre!(error))? {
+            mdast::Node::Root(mdast::Root { children, position }) => (children, position),
+            _ => (Vec::new(), None),
+        };
 
     // Transform MDAST to blocks
     let mut context = Context::new(format);
-    let Some(Node::Article(Article { content, .. })) = md_to_node(mdast, &mut context) else {
-        bail!("No node decoded from Markdown")
-    };
+    let content = blocks::mds_to_blocks(children, &mut context);
 
     // Decode frontmatter (which may have a `type`, but defaults to `Article`)
     let frontmatter = context.frontmatter();
@@ -75,13 +77,19 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
         Node::Article(Article { content, ..rest })
     } else if let Some(Node::Prompt(rest)) = frontmatter {
         Node::Prompt(Prompt { content, ..rest })
+    } else if let Some(Node::Chat(rest)) = frontmatter {
+        Node::Chat(Chat { content, ..rest })
     } else {
         Node::Article(Article::new(content))
     };
 
+    // Link footnotes to the `Note` inlines in the content
     if !context.footnotes.is_empty() {
         context.visit(&mut node);
     }
+
+    // Map the position of the root node
+    context.map_position(&position, node.node_type(), node.node_id());
 
     let info = DecodeInfo {
         messages,
@@ -368,7 +376,9 @@ impl Context {
                 if let Some(typ) = value.get("type").and_then(|typ| typ.as_str()) {
                     // Ensure that `content` is present for types that require it, so that
                     // `serde_json::from_value` succeeds
-                    if matches!(typ, "Article" | "Prompt") && value.get("content").is_none() {
+                    if matches!(typ, "Article" | "Prompt" | "Chat")
+                        && value.get("content").is_none()
+                    {
                         value.insert("content".to_string(), json!([]));
                     }
                 } else {
@@ -421,10 +431,21 @@ impl Context {
             return None;
         };
 
-        // Set title and abstract if node is Article
-        if let Node::Article(article) = &mut node {
-            article.title = title;
-            article.r#abstract = abs;
+        // Set title and abstract for node types that have them
+        match &mut node {
+            Node::Article(article) => {
+                article.title = title;
+                article.r#abstract = abs;
+            }
+            Node::Prompt(prompt) => {
+                prompt.options.title = title;
+                prompt.options.r#abstract = abs;
+            }
+            Node::Chat(chat) => {
+                chat.title = title;
+                chat.options.r#abstract = abs;
+            }
+            _ => {}
         }
 
         Some(node)
@@ -444,19 +465,4 @@ impl VisitorMut for Context {
 
         WalkControl::Continue
     }
-}
-
-/// Transform a MDAST node to Stencila Schema node
-fn md_to_node(md: mdast::Node, context: &mut Context) -> Option<Node> {
-    Some(match md {
-        mdast::Node::Root(mdast::Root { children, position }) => {
-            let node = Article::new(blocks::mds_to_blocks(children, context));
-            context.map_position(&position, node.node_type(), Some(node.node_id()));
-            Node::Article(node)
-        }
-        _ => {
-            context.lost("Node");
-            return None;
-        }
-    })
 }

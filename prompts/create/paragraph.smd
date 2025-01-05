@@ -7,9 +7,9 @@ name: Create Paragraph Prompt
 description: Create a paragraph.
 keywords: paragraph
 
-instruction-type: Create 
-instruction-pattern: (?i)\b(para(graph)?)\b
+instruction-type: Create
 node-type: Paragraph
+query-pattern: (?i)\b(para(graph)?)\b
 ---
 
 # Instructions

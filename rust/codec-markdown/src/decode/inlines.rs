@@ -3,7 +3,7 @@ use std::{collections::HashMap, ops::Range};
 use markdown::{mdast, unist::Position};
 use winnow::{
     ascii::{multispace0, multispace1, space0},
-    combinator::{alt, delimited, not, opt, peek, preceded, repeat, separated},
+    combinator::{alt, delimited, not, opt, peek, preceded, repeat, separated, terminated},
     stream::{Located, Stream},
     token::{take, take_until, take_while},
     PResult, Parser,
@@ -17,8 +17,8 @@ use codec::{
         DateTimeValidator, DateValidator, DeleteInline, DurationValidator, Emphasis, EnumValidator,
         ImageObject, Inline, InsertInline, InstructionInline, InstructionMessage, IntegerValidator,
         Link, MathInline, ModifyInline, Node, NodeType, Note, NoteType, NumberValidator, Parameter,
-        ParameterOptions, QuoteInline, ReplaceInline, Strikeout, StringValidator, Strong,
-        StyledInline, Subscript, SuggestionInline, Superscript, Text, TimeValidator,
+        ParameterOptions, PromptBlock, QuoteInline, ReplaceInline, Strikeout, StringValidator,
+        Strong, StyledInline, Subscript, SuggestionInline, Superscript, Text, TimeValidator,
         TimestampValidator, Underline, Validator, VideoObject,
     },
 };
@@ -406,7 +406,7 @@ fn code_attrs(input: &mut Located<&str>) -> PResult<Inline> {
         for (name, value) in options {
             if name == "exec" {
                 exec = true
-            } else if matches!(name, "always" | "auto" | "locked" | "lock") && value.is_none() {
+            } else if matches!(name, "always" | "auto" | "need" | "lock") && value.is_none() {
                 execution_mode = name.parse().ok()
             } else if lang.is_none() && value.is_none() {
                 lang = Some(name.to_string());
@@ -834,17 +834,25 @@ fn underline(input: &mut Located<&str>) -> PResult<Inline> {
 fn instruction_inline(input: &mut Located<&str>) -> PResult<Inline> {
     (
         delimited("[[", instruction_type, multispace0),
-        (opt(delimited('@', prompt, multispace1)), take_until_edit),
+        (opt(terminated(prompt, multispace1)), take_until_edit),
     )
         .map(|(instruction_type, (prompt, (text, term)))| {
-            let text = text.trim();
-            let message = (!text.is_empty()).then(|| InstructionMessage::from(text));
+            let prompt = prompt
+                .map(|prompt| PromptBlock {
+                    target: Some(prompt.into()),
+                    ..Default::default()
+                })
+                .unwrap_or_default();
+
+            let message = (!text.is_empty())
+                .then(|| InstructionMessage::from(text.trim()))
+                .unwrap_or_default();
 
             Inline::InstructionInline(InstructionInline {
                 instruction_type,
+                prompt,
                 message,
                 content: (term == EDIT_WITH).then_some(Vec::new()),
-                prompt: prompt.map(|handle| handle.to_string()),
                 ..Default::default()
             })
         })

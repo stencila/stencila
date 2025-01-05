@@ -25,6 +25,7 @@ repository:
       - include: "#code-block"
       - include: "#include-block"
       - include: "#call-block"
+      - include: "#chat"
       - include: "#instruction-block"
       - include: "#suggestion-block"
       - include: "#prompt-block"
@@ -38,6 +39,8 @@ repository:
       - include: "#figure-block"
       - include: "#table-block"
       - include: "#styled-block"
+      - include: "#chat"
+      - include: "#chat-message"
       - include: "#raw_block"
       - include: "#link-def"
       - include: "#table"
@@ -175,15 +178,20 @@ repository:
         (exec)
         (?:
           \s+
-          \b((?:always)|(?:auto)|(?:lock)|(?:locked)|(?:invisible))\b
+          (always|auto|need|lock)\b
         )*
-        (.*)
+        (?:
+          \s+
+          (fork|limit|box|skip)\b
+        )?
+        (?:.*)
       $
     beginCaptures:
       "1": { name: markup.heading.stencila } # backticks
       "2": { name: variable.other } # language
       "3": { name: keyword.control.stencila } # exec
-      "4": { name: keyword.control.stencila } # options
+      "4": { name: keyword.control.stencila } # mode
+      "5": { name: keyword.control.stencila } # bounds
     end: ^(`{3,})\s*$
     endCaptures:
       "1": { name: markup.heading } # backticks
@@ -202,15 +210,20 @@ repository:
         (exec)
         (?:
           \s+
-          (always|auto|locked)
+          (always|auto|need|lock)\b
         )?
-        (.*)
+        (?:
+          \s+
+          (fork|limit|box|skip)\b
+        )?
+        (?:.*)
       $
     beginCaptures:
       "1": { name: markup.heading.stencila } # backticks
       "2": { name: variable.other } # language
       "3": { name: keyword.control.stencila } # exec
       "4": { name: keyword.control.stencila } # mode
+      "5": { name: keyword.control.stencila } # bounds
     end: ^(`{3,})\s*$
     endCaptures:
       "1": { name: markup.heading } # backticks
@@ -225,14 +238,19 @@ repository:
         (exec)
         (?:
           \s+
-          (always|auto|locked)
+          (always|auto|need|lock)
         )?
-        (.*)
+        (?:
+          \s+
+          (fork|limit|box|skip)\b
+        )?
+        (?:.*)
       $
     beginCaptures:
       "1": { name: markup.heading.stencila } # backticks
       "2": { name: keyword.control.stencila } # exec
       "3": { name: keyword.control.stencila } # mode
+      "4": { name: keyword.control.stencila } # bounds
     end: ^(`{3,})\s*$
     endCaptures:
       "1": { name: markup.heading.stencila } # backticks
@@ -244,25 +262,41 @@ repository:
     match: >
       (?x)
       ^
+        (:{3,})\s*
         (?:
-          (?:(:{3,})\s*(create|edit|fix|describe))
+          (create|edit|fix|describe)\b
         )
-        \s+
         (?:
-          (@[\w/-]+)
-          \s*
+          \s+
+          (always|auto|need|lock)\b
         )?
         (?:
-          (\[[^]]+\])
-          \s*
+          \s+
+          (fork|limit|box|skip)\b
         )?
-        (
-          (?:
+        (?:
+          \s+
+          ((?:prev(?:ious)?)|above|next|below)\b
+        )?
+        (?:
+          \s+
+          (heading|(?:para(?:graph)?)|table|(?:fig(?:ure)?)|code|cell|list|math|quote|section)\b
+        )?
+        (?:
+          \s+
+          (@[^\s]+)
+        )?
+        (?:
+          \s+
+          (\[[^]]*\])
+        )?
+        (?:
+          \s+
+          (
             (?:
-              (?:(?:x|y|q|s|c|t)\d+)|
-              (?:\!?run)
-            )\s+
-          )*
+              (?:(?:x|q|c|s|m|t|r)\d+)\s+
+            )*
+          )
         )?
         (.*?)
         ((?:[:]{3})|(?:>>>))?
@@ -271,11 +305,15 @@ repository:
     captures:
       "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # instruction type
-      "3": { name: support.function } # prompt
-      "4": { name: string.quoted } # model
-      "5": { name: variable.parameter.stencila } # options
-      "6": { name: comment.stencila.instruction } # instruction message
-      "7": { name: markup.heading.stencila } # ::: or >>>
+      "3": { name: keyword.control.stencila } # mode
+      "4": { name: keyword.control.stencila } # bounds
+      "5": { name: keyword.control.stencila } # relative position
+      "6": { name: keyword.control.stencila } # node type
+      "7": { name: support.function } # prompt
+      "8": { name: string.quoted } # model ids
+      "9": { name: variable.parameter.stencila } # model parameters
+      "10": { name: comment.stencila.instruction } # message
+      "11": { name: markup.heading.stencila } # ::: or >>>
 
   instruction-inline:
     name: meta.stencila.instruction-inline
@@ -286,8 +324,7 @@ repository:
         (create|edit)
         \s+
         (?:
-          (@)
-          ([\w/-]*)
+          (@[^\s]*)
           \s*
         )?
         (.*?)
@@ -302,6 +339,67 @@ repository:
       "3": { name: decorator.keyword.stencila } # prompt
       "4": { name: comment.stencila.instruction } # message
       "5": { name: keyword.control.stencila } # >>
+
+
+  ##########  Chat ##########
+
+  chat:
+    name: meta.stencila.chat
+    match: >
+      (?x)
+      ^
+        (/)\s*
+        (create|edit|fix|describe)\b
+        (?:
+          \s+
+          ((?:prev(?:ious)?)|above|next|below)\b
+        )?
+        (?:
+          \s+
+          (heading|(?:para(?:graph)?)|table|(?:fig(?:ure)?)|code|cell|list|math|quote|section)\b
+        )?
+        (?:
+          \s+
+          (@[^\s]+)
+        )?
+        (?:
+          \s+
+          (\[[^]]*\])
+        )?
+        (?:
+          \s+
+          (
+            (?:
+              (?:(?:x|q|c|s|m|t|r)\d+)\s+
+            )*
+          )
+        )?
+        (.*?)
+      $
+    captures:
+      "1": { name: markup.heading.stencila } # slash
+      "2": { name: keyword.control.stencila } # instruction type
+      "3": { name: keyword.control.stencila } # relative position
+      "4": { name: keyword.control.stencila } # node type
+      "5": { name: support.function } # target
+      "6": { name: string.quoted } # model ids
+      "7": { name: variable.parameter.stencila } # model parameters
+      "8": { name: comment.stencila.instruction } # message
+
+  ########## ChatMessage ##########
+
+  chat-message:
+    name: meta.stencila.chat-message
+    match: >
+      (?x)
+      ^
+        (:{3,})
+        \s*
+        (system|user|model)
+      $
+    captures:
+      "1": { name: markup.heading.stencila } # semicolons
+      "2": { name: keyword.control.stencila } # role
 
   ########## Suggestions: Block & Inline ##########
 
@@ -455,11 +553,37 @@ repository:
 
   prompt-block:
     name: meta.stencila.prompt-block
-    match: ^(:{3,})\s*(prompt)\s+(.*)$
+    match: >
+      (?x)
+      ^
+        (:{3,})\s*
+        (prompt)
+        (?:
+          \s+
+          (create|edit|fix|describe)
+        )?
+        (?:
+          \s+
+          ((?:prev(?:ious)?)|above|next|below)\b
+        )?
+        (?:
+          \s+
+          (heading|(?:para(?:graph)?)|table|(?:fig(?:ure)?)|code|cell|list|math|quote|section)\b
+        )?
+        (?:
+          \s+
+          (@[^\s]+)
+        )?
+        (.*)
+      $
     captures:
       "1": { name: markup.heading.stencila } # semicolons
       "2": { name: keyword.control.stencila } # prompt
-      "3": { name: variable.name.stencila } # id
+      "3": { name: keyword.control.stencila } # instruction type
+      "4": { name: keyword.control.stencila } # relative position
+      "5": { name: keyword.control.stencila } # node type
+      "6": { name: support.function } # target
+      "7": { name: comment.stencila.instruction } # hint
 
   ########## IncludeBlock ##########
 
@@ -619,6 +743,8 @@ repository:
             end: $
             contentName: meta.embedded.language.css
             include: source.css
+
+  ######################################################################
 
   # The following grammar rules are taken from the VSCode builtin Markdown grammar at
   #   https://github.com/microsoft/vscode-markdown-tm-grammar/blob/main/markdown.tmLanguage.base.yaml

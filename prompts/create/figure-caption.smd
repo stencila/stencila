@@ -8,8 +8,8 @@ description: Create a figure caption.
 keywords: figure
 
 instruction-type: Create 
-instruction-pattern: (?i)\bfig(ure)? cap(tion)?\b
 node-type: Paragraph
+query-pattern: (?i)\bfig(ure)? cap(tion)?\b
 ---
 
 # Instructions

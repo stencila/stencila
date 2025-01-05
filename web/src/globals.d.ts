@@ -5,7 +5,7 @@ declare module '*.svg' {
 
 declare module 'idiomorph/dist/idiomorph.esm.js' {
   interface Idiomorph {
-    morph(element: Element, html: string): void
+    morph(element: Element, other: Element | string): void
   }
 
   const Idiomorph: Idiomorph

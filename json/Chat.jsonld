@@ -1,0 +1,981 @@
+{
+  "@id": "https://stencila.org/Chat",
+  "name": "Chat",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Chat",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Chat",
+      "rdfs:comment": "A chat conversation, usually with a generative AI model.",
+      "rdfs:subClassOf": {
+        "@id": "schema:CreativeWork"
+      }
+    },
+    {
+      "@id": "schema:alternateName",
+      "@type": "rdfs:Property",
+      "rdfs:label": "alternateNames",
+      "rdfs:comment": "Alternate names (aliases) for the item.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:description",
+      "@type": "rdfs:Property",
+      "rdfs:label": "description",
+      "rdfs:comment": "A description of the item.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:identifier",
+      "@type": "rdfs:Property",
+      "rdfs:label": "identifiers",
+      "rdfs:comment": "Any kind of identifier for any kind of Thing.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:PropertyValue"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
+    },
+    {
+      "@id": "schema:image",
+      "@type": "rdfs:Property",
+      "rdfs:label": "images",
+      "rdfs:comment": "Images of the item.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:ImageObject"
+      }
+    },
+    {
+      "@id": "schema:name",
+      "@type": "rdfs:Property",
+      "rdfs:label": "name",
+      "rdfs:comment": "The name of the item.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:DatatableColumn"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        },
+        {
+          "@id": "stencila:Directory"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        },
+        {
+          "@id": "stencila:File"
+        },
+        {
+          "@id": "stencila:Function"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:TableCell"
+        },
+        {
+          "@id": "stencila:Variable"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:url",
+      "@type": "rdfs:Property",
+      "rdfs:label": "url",
+      "rdfs:comment": "The URL of the item.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:about",
+      "@type": "rdfs:Property",
+      "rdfs:label": "about",
+      "rdfs:comment": "The subject matter of the content.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      }
+    },
+    {
+      "@id": "schema:abstract",
+      "@type": "rdfs:Property",
+      "rdfs:label": "abstract",
+      "rdfs:comment": "A a short description that summarizes a `CreativeWork`.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
+      }
+    },
+    {
+      "@id": "schema:author",
+      "@type": "rdfs:Property",
+      "rdfs:label": "authors",
+      "rdfs:comment": "The authors of the `CreativeWork`.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "schema:ItemList"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:Styled"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Author"
+      }
+    },
+    {
+      "@id": "stencila:provenance",
+      "@type": "rdfs:Property",
+      "rdfs:label": "provenance",
+      "rdfs:comment": "A summary of the provenance of the content within the work.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "schema:ItemList"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:Styled"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:ProvenanceCount"
+      }
+    },
+    {
+      "@id": "schema:contributor",
+      "@type": "rdfs:Property",
+      "rdfs:label": "contributors",
+      "rdfs:comment": "A secondary contributor to the `CreativeWork`.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Author"
+      }
+    },
+    {
+      "@id": "schema:editor",
+      "@type": "rdfs:Property",
+      "rdfs:label": "editors",
+      "rdfs:comment": "People who edited the `CreativeWork`.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Person"
+      }
+    },
+    {
+      "@id": "schema:maintainer",
+      "@type": "rdfs:Property",
+      "rdfs:label": "maintainers",
+      "rdfs:comment": "The maintainers of the `CreativeWork`.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Person"
+        },
+        {
+          "@id": "schema:Organization"
+        }
+      ]
+    },
+    {
+      "@id": "schema:comment",
+      "@type": "rdfs:Property",
+      "rdfs:label": "comments",
+      "rdfs:comment": "Comments about this creative work.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Comment"
+      }
+    },
+    {
+      "@id": "schema:dateCreated",
+      "@type": "rdfs:Property",
+      "rdfs:label": "dateCreated",
+      "rdfs:comment": "Date/time of creation.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Date"
+      }
+    },
+    {
+      "@id": "schema:dateReceived",
+      "@type": "rdfs:Property",
+      "rdfs:label": "dateReceived",
+      "rdfs:comment": "Date/time that work was received.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Date"
+      }
+    },
+    {
+      "@id": "stencila:dateAccepted",
+      "@type": "rdfs:Property",
+      "rdfs:label": "dateAccepted",
+      "rdfs:comment": "Date/time of acceptance.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Date"
+      }
+    },
+    {
+      "@id": "schema:dateModified",
+      "@type": "rdfs:Property",
+      "rdfs:label": "dateModified",
+      "rdfs:comment": "Date/time of most recent modification.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Date"
+      }
+    },
+    {
+      "@id": "schema:datePublished",
+      "@type": "rdfs:Property",
+      "rdfs:label": "datePublished",
+      "rdfs:comment": "Date of first publication.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Date"
+      }
+    },
+    {
+      "@id": "schema:funder",
+      "@type": "rdfs:Property",
+      "rdfs:label": "funders",
+      "rdfs:comment": "People or organizations that funded the `CreativeWork`.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "schema:MonetaryGrant"
+        },
+        {
+          "@id": "schema:Organization"
+        },
+        {
+          "@id": "schema:Person"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Person"
+        },
+        {
+          "@id": "schema:Organization"
+        }
+      ]
+    },
+    {
+      "@id": "stencila:fundedBy",
+      "@type": "rdfs:Property",
+      "rdfs:label": "fundedBy",
+      "rdfs:comment": "Grants that funded the `CreativeWork`; reverse of `fundedItems`.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Grant"
+        },
+        {
+          "@id": "schema:MonetaryGrant"
+        }
+      ]
+    },
+    {
+      "@id": "schema:genre",
+      "@type": "rdfs:Property",
+      "rdfs:label": "genre",
+      "rdfs:comment": "Genre of the creative work, broadcast channel or group.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:keywords",
+      "@type": "rdfs:Property",
+      "rdfs:label": "keywords",
+      "rdfs:comment": "Keywords or tags used to describe this content. Multiple entries in a keywords list are typically delimited by commas.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:isPartOf",
+      "@type": "rdfs:Property",
+      "rdfs:label": "isPartOf",
+      "rdfs:comment": "An item or other CreativeWork that this CreativeWork is a part of.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      }
+    },
+    {
+      "@id": "schema:license",
+      "@type": "rdfs:Property",
+      "rdfs:label": "licenses",
+      "rdfs:comment": "License documents that applies to this content, typically indicated by URL.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:hasParts",
+      "@type": "rdfs:Property",
+      "rdfs:label": "parts",
+      "rdfs:comment": "Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Directory"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
+        }
+      ]
+    },
+    {
+      "@id": "schema:publisher",
+      "@type": "rdfs:Property",
+      "rdfs:label": "publisher",
+      "rdfs:comment": "A publisher of the CreativeWork.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Person"
+        },
+        {
+          "@id": "schema:Organization"
+        }
+      ]
+    },
+    {
+      "@id": "schema:citation",
+      "@type": "rdfs:Property",
+      "rdfs:label": "references",
+      "rdfs:comment": "References to other creative works, such as another publication, web page, scholarly article, etc.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:text",
+      "@type": "rdfs:Property",
+      "rdfs:label": "text",
+      "rdfs:comment": "The textual content of this creative work.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:headline",
+      "@type": "rdfs:Property",
+      "rdfs:label": "title",
+      "rdfs:comment": "The title of the creative work.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Link"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Inline"
+      }
+    },
+    {
+      "@id": "schema:version",
+      "@type": "rdfs:Property",
+      "rdfs:label": "version",
+      "rdfs:comment": "The version of the creative work.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Text"
+        },
+        {
+          "@id": "schema:Number"
+        }
+      ]
+    },
+    {
+      "@id": "stencila:executionMode",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionMode",
+      "rdfs:comment": "Under which circumstances the node should be executed.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeExpression"
+        },
+        {
+          "@id": "stencila:Executable"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionMode"
+      }
+    },
+    {
+      "@id": "stencila:executionBounds",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionBounds",
+      "rdfs:comment": "Under which circumstances child nodes should be executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionBounds"
+      }
+    },
+    {
+      "@id": "stencila:compilationDigest",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationDigest",
+      "rdfs:comment": "A digest of the content, semantics and dependencies of the node.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationDigest"
+      }
+    },
+    {
+      "@id": "stencila:compilationMessages",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationMessages",
+      "rdfs:comment": "Messages generated while compiling the code.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationMessage"
+      }
+    },
+    {
+      "@id": "stencila:executionDigest",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionDigest",
+      "rdfs:comment": "The `compilationDigest` of the node when it was last executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationDigest"
+      }
+    },
+    {
+      "@id": "stencila:executionDependencies",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionDependencies",
+      "rdfs:comment": "The upstream dependencies of this node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionDependency"
+      }
+    },
+    {
+      "@id": "stencila:executionDependants",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionDependants",
+      "rdfs:comment": "The downstream dependants of this node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionDependant"
+      }
+    },
+    {
+      "@id": "stencila:executionTags",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionTags",
+      "rdfs:comment": "Tags in the code which affect its execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionTag"
+      }
+    },
+    {
+      "@id": "stencila:executionCount",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionCount",
+      "rdfs:comment": "A count of the number of times that the node has been executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:executionRequired",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionRequired",
+      "rdfs:comment": "Whether, and why, the code requires execution or re-execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionRequired"
+      }
+    },
+    {
+      "@id": "stencila:executionStatus",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionStatus",
+      "rdfs:comment": "Status of the most recent, including any current, execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionStatus"
+      }
+    },
+    {
+      "@id": "stencila:executionInstance",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionInstance",
+      "rdfs:comment": "The id of the kernel instance that performed the last execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:executionBounded",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionBounded",
+      "rdfs:comment": "The bounds, if any, on the last execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionBounds"
+      }
+    },
+    {
+      "@id": "stencila:executionEnded",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionEnded",
+      "rdfs:comment": "The timestamp when the last execution ended.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Timestamp"
+      }
+    },
+    {
+      "@id": "stencila:executionDuration",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionDuration",
+      "rdfs:comment": "Duration of the last execution.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Duration"
+      }
+    },
+    {
+      "@id": "stencila:executionMessages",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionMessages",
+      "rdfs:comment": "Messages emitted while executing the node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionMessage"
+      }
+    },
+    {
+      "@id": "stencila:prompt",
+      "@type": "rdfs:Property",
+      "rdfs:label": "prompt",
+      "rdfs:comment": "The prompt selected, rendered and provided to the model",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:Instruction"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:PromptBlock"
+      }
+    },
+    {
+      "@id": "stencila:modelParameters",
+      "@type": "rdfs:Property",
+      "rdfs:label": "modelParameters",
+      "rdfs:comment": "Model selection and inference parameters.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:Instruction"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:ModelParameters"
+      }
+    },
+    {
+      "@id": "stencila:content",
+      "@type": "rdfs:Property",
+      "rdfs:label": "content",
+      "rdfs:comment": "The messages, and optionally other content, that make up the chat.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:Comment"
+        },
+        {
+          "@id": "schema:ListItem"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:ChatMessage"
+        },
+        {
+          "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:File"
+        },
+        {
+          "@id": "stencila:ForBlock"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:IfBlockClause"
+        },
+        {
+          "@id": "stencila:IncludeBlock"
+        },
+        {
+          "@id": "stencila:InstructionBlock"
+        },
+        {
+          "@id": "stencila:InstructionInline"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Mark"
+        },
+        {
+          "@id": "stencila:Note"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:Prompt"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:StyledBlock"
+        },
+        {
+          "@id": "stencila:StyledInline"
+        },
+        {
+          "@id": "stencila:SuggestionBlock"
+        },
+        {
+          "@id": "stencila:SuggestionInline"
+        },
+        {
+          "@id": "stencila:TableCell"
+        },
+        {
+          "@id": "stencila:WalkthroughStep"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
+      }
+    },
+    {
+      "@id": "stencila:suggestions",
+      "@type": "rdfs:Property",
+      "rdfs:label": "suggestions",
+      "rdfs:comment": "Suggestions of content that is the focus of the chat.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:InstructionBlock"
+        },
+        {
+          "@id": "stencila:InstructionInline"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:SuggestionBlock"
+      }
+    },
+    {
+      "@id": "stencila:isTemporary",
+      "@type": "rdfs:Property",
+      "rdfs:label": "isTemporary",
+      "rdfs:comment": "Whether a chat within another node (i.e. is not standalone) is temporary.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Chat"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
+      "@id": "stencila:previousBlock",
+      "@type": "rdfs:Property",
+      "rdfs:label": "previousBlock",
+      "rdfs:comment": "The id of the block immediately before the chat (only applies to temporary chats).",
+      "schema:domainIncludes": {
+        "@id": "stencila:Chat"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:nextBlock",
+      "@type": "rdfs:Property",
+      "rdfs:label": "nextBlock",
+      "rdfs:comment": "The id of the block immediately after the chat (only applies to temporary chats).",
+      "schema:domainIncludes": {
+        "@id": "stencila:Chat"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

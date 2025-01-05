@@ -4,7 +4,7 @@ import { PropertyValueMap, html } from 'lit'
 import { customElement } from 'lit/decorators'
 
 import { withTwind } from '../twind'
-import { EntityContext, entityContext } from '../ui/nodes/context'
+import { EntityContext, entityContext } from '../ui/nodes/entity-context'
 
 import { Entity } from './entity'
 
@@ -37,11 +37,6 @@ export class Paragraph extends Entity {
   ]
 
   /**
-   * The node type of the parent node
-   */
-  private parentNodeType: NodeType
-
-  /**
    * A consumer controller for the `EntityContext`,
    * used to subscribe to the parent node's `EntityContext` if needed.
    */
@@ -52,8 +47,6 @@ export class Paragraph extends Entity {
 
   override connectedCallback() {
     super.connectedCallback()
-
-    this.parentNodeType = this.ancestors.split('.').reverse()[0] as NodeType
 
     /*
       If this Paragraph needs to be subscribed to the parent node
@@ -97,7 +90,8 @@ export class Paragraph extends Entity {
   override render() {
     if (
       Paragraph.parentNodeTypesSubscribedTo.includes(this.parentNodeType) ||
-      this.ancestors.includes('StyledBlock')
+      this.isWithin('StyledBlock') ||
+      this.isWithinUserChatMessage()
     ) {
       return html`<slot name="content"></slot>`
     }
@@ -107,8 +101,16 @@ export class Paragraph extends Entity {
         type="Paragraph"
         node-id=${this.id}
         depth=${this.depth}
-        ancestors=${this.ancestors}
       >
+        <div slot="header-right">
+          <stencila-ui-node-chat-commands
+            type="Paragraph"
+            node-id=${this.id}
+            depth=${this.depth}
+          >
+          </stencila-ui-node-chat-commands>
+        </div>
+
         <div slot="body">
           <stencila-ui-node-authors type="Paragraph">
             <stencila-ui-node-provenance slot="provenance">
@@ -117,6 +119,7 @@ export class Paragraph extends Entity {
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
+
         <slot name="content" slot="content"></slot>
       </stencila-ui-block-on-demand>
     `

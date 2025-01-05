@@ -60,6 +60,15 @@
       "$ref": "CallBlock.schema.json"
     },
     {
+      "$ref": "Chat.schema.json"
+    },
+    {
+      "$ref": "ChatMessage.schema.json"
+    },
+    {
+      "$ref": "ChatMessageGroup.schema.json"
+    },
+    {
       "$ref": "Cite.schema.json"
     },
     {
@@ -219,9 +228,6 @@
       "$ref": "InstructionMessage.schema.json"
     },
     {
-      "$ref": "InstructionModel.schema.json"
-    },
-    {
       "$ref": "IntegerValidator.schema.json"
     },
     {
@@ -241,6 +247,9 @@
     },
     {
       "$ref": "MediaObject.schema.json"
+    },
+    {
+      "$ref": "ModelParameters.schema.json"
     },
     {
       "$ref": "ModifyBlock.schema.json"

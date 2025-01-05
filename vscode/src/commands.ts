@@ -1,11 +1,25 @@
 import * as vscode from "vscode";
 
-import { createDocumentViewPanel } from "./webviews";
+import { createNodeViewPanel, createDocumentViewPanel } from "./webviews";
 
 /**
  * Register document related commands provided by the extension
  */
 export function registerDocumentCommands(context: vscode.ExtensionContext) {
+  // Keep track of the most recently active text editor for
+  // some of the commands below
+  let lastTextEditor: vscode.TextEditor | null = null;
+  context.subscriptions.push(
+    vscode.window.onDidChangeActiveTextEditor((editor) => {
+      if (
+        editor?.document.languageId &&
+        ["smd", "myst", "qmd"].includes(editor?.document.languageId)
+      ) {
+        lastTextEditor = editor;
+      }
+    })
+  );
+
   // Create document commands
   for (const format of ["smd", "myst", "qmd"]) {
     context.subscriptions.push(
@@ -23,6 +37,46 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
       })
     );
   }
+
+  // Create a new chat document and open with the chat editor
+  vscode.commands.registerCommand(`stencila.new-chat`, async () => {
+    const regex = new RegExp(`untitled:untitled-(\\d+)\\.chat$`);
+    let maxIndex = 0;
+    vscode.workspace.textDocuments.forEach((doc) => {
+      const uri = doc.uri.toString();
+      const match = regex.exec(uri);
+      if (match) {
+        const index = parseInt(match[1], 10);
+        if (!isNaN(index) && index > maxIndex) {
+          maxIndex = index;
+        }
+      }
+    });
+
+    await vscode.commands.executeCommand(
+      "vscode.openWith",
+      vscode.Uri.parse(`untitled:untitled-${maxIndex + 1}.chat`),
+      "stencila.chat-editor"
+    );
+  });
+
+  // Create a new prompt
+  vscode.commands.registerCommand(`stencila.new-prompt`, async () => {
+    // TODO: ask user for required fields, e.g instruction types, node types
+
+    await vscode.workspace.openTextDocument({
+      language: "smd",
+      content: `---
+type: Prompt
+name: user/type/name
+version: 0.1.0
+description: description
+instructionTypes: []
+nodeTypes: []
+---
+`,
+    });
+  });
 
   // Commands executed by the server but which are invoked on the client
   // and which use are passed the document URI and selection (position) as arguments
@@ -103,6 +157,59 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
           // then those arguments will not be present so pass the selection.
           ...(nodeId ? [nodeType, nodeId] : [editor.selection.active]),
           feedback
+        );
+      }
+    )
+  );
+
+  // Insert a clone of a node
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "stencila.invoke.insert-clone",
+      async (docUri, nodeType, nodeId) => {
+        const editor = vscode.window.activeTextEditor ?? lastTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
+        }
+
+        vscode.commands.executeCommand(
+          `stencila.insert-clone`,
+          // For consistency, first args are destination document and position
+          editor.document.uri.toString(),
+          editor.selection.active,
+          // Source document and node
+          docUri,
+          nodeType,
+          nodeId
+        );
+      }
+    )
+  );
+
+  // Insert a clone of a node with an instruction to edit, fix or update it
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "stencila.invoke.insert-instruction",
+      async (docUri, nodeType, nodeId, instructionType, executionMode) => {
+        const editor = vscode.window.activeTextEditor ?? lastTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
+        }
+
+        vscode.commands.executeCommand(
+          `stencila.insert-instruction`,
+          // For consistency, first args are destination document and position
+          editor.document.uri.toString(),
+          editor.selection.active,
+          // Source document and node
+          docUri,
+          nodeType,
+          nodeId,
+          // Instruction properties
+          instructionType,
+          executionMode
         );
       }
     )
@@ -201,8 +308,6 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.commands.registerCommand(
       "stencila.view-doc",
-      // docUri and nodeType are not used but are in the arguments
-      // that we pass to all commands from code lenses so need to be here
       async (docUri, nodeType) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
@@ -210,7 +315,7 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
           return;
         }
 
-        await createDocumentViewPanel(context, editor);
+        await createDocumentViewPanel(context, editor.document.uri, editor);
       }
     )
   );
@@ -224,7 +329,13 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
           return;
         }
 
-        await createDocumentViewPanel(context, editor, nodeId);
+        await createNodeViewPanel(
+          context,
+          editor.document.uri,
+          null,
+          nodeType,
+          nodeId
+        );
       }
     )
   );
@@ -238,7 +349,182 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
           return;
         }
 
-        await createDocumentViewPanel(context, editor, nodeId, true);
+        await createNodeViewPanel(
+          context,
+          editor.document.uri,
+          null,
+          nodeType,
+          nodeId,
+          true
+        );
+      }
+    )
+  );
+
+  // Create a temporary document chat
+  //
+  // The new chat will be anchored at the end of the document
+  context.subscriptions.push(
+    vscode.commands.registerCommand(`stencila.chat-doc`, async () => {
+      const editor = vscode.window.activeTextEditor;
+      if (!editor) {
+        vscode.window.showErrorMessage("No active editor");
+        return;
+      }
+
+      const chatId = await vscode.commands.executeCommand<string>(
+        "stencila.create-chat",
+        editor.document.uri.toString()
+      );
+
+      const panel = await createNodeViewPanel(
+        context,
+        editor.document.uri,
+        null,
+        "Temporary document chat",
+        chatId
+      );
+
+      panel.onDidDispose(async () => {
+        await vscode.commands.executeCommand(
+          "stencila.delete-chat",
+          editor.document.uri.toString(),
+          chatId
+        );
+      });
+    })
+  );
+
+  // Create a temporary chat
+  //
+  // If the instruction type is not supplied it is inferred from the selected node
+  // types (if any). Defaults to running the chat straightaway.
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      `stencila.insert-chat`,
+      async (instructionType, executeChat) => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
+        }
+
+        const chatId = await vscode.commands.executeCommand<string>(
+          "stencila.create-chat",
+          editor.document.uri.toString(),
+          editor.selection,
+          instructionType,
+          executeChat ?? true
+        );
+
+        const panel = await createNodeViewPanel(
+          context,
+          editor.document.uri,
+          editor.selection.active,
+          "Temporary chat",
+          chatId
+        );
+
+        panel.onDidDispose(async () => {
+          await vscode.commands.executeCommand(
+            "stencila.delete-chat",
+            editor.document.uri.toString(),
+            chatId
+          );
+        });
+      }
+    )
+  );
+
+  // Create a `Create` chat but do not run it straightaway
+  context.subscriptions.push(
+    vscode.commands.registerCommand(`stencila.insert-chat-create`, async () => {
+      await vscode.commands.executeCommand(
+        "stencila.insert-chat",
+        "Create",
+        false
+      );
+    })
+  );
+
+  // Create a `Edit` chat but do not run it straightaway
+  context.subscriptions.push(
+    vscode.commands.registerCommand(`stencila.insert-chat-edit`, async () => {
+      await vscode.commands.executeCommand(
+        "stencila.insert-chat",
+        "Edit",
+        false
+      );
+    })
+  );
+
+  // Create a `Fix` chat but do not run it straightaway
+  context.subscriptions.push(
+    vscode.commands.registerCommand(`stencila.insert-chat-fix`, async () => {
+      await vscode.commands.executeCommand(
+        "stencila.insert-chat",
+        "Fix",
+        false
+      );
+    })
+  );
+
+  // Insert a `create` command
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      `stencila.insert-command-create`,
+      async () => {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+          vscode.window.showErrorMessage("No active editor");
+          return;
+        }
+
+        let prompt = null;
+        const item: { prompt: { id: string } } =
+          await vscode.commands.executeCommand(
+            "stencila.prompts.menu",
+            "Create"
+          );
+        if (item) {
+          prompt = item.prompt.id;
+        }
+
+        let message = await vscode.window.showInputBox({
+          title: "Instructions",
+          placeHolder:
+            "Describe what you want created (end with '...' for more options)",
+          ignoreFocusOut: true,
+        });
+
+        let models = null;
+        if (message?.endsWith("...")) {
+          message = message.slice(0, -3);
+
+          const items: { model: { id: string } }[] =
+            await vscode.commands.executeCommand("stencila.models.picker");
+          if (items && items.length > 0) {
+            models = items.map((item) => item.model.id);
+          }
+        }
+
+        const nodeId = await vscode.commands.executeCommand<string>(
+          "stencila.insert-node",
+          editor.document.uri.toString(),
+          editor.selection.active,
+          "InstructionBlock",
+          "Create",
+          prompt,
+          message,
+          models
+        );
+
+        await vscode.commands.executeCommand(
+          "stencila.run-node",
+          editor.document.uri.toString(),
+          "InstructionBlock",
+          nodeId
+        );
       }
     )
   );

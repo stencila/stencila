@@ -47,6 +47,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -126,6 +127,11 @@
     }
   },
   "anyOf": [
+    {
+      "@id": "stencila:Original",
+      "description": "The suggestion is the original content.",
+      "const": "Original"
+    },
     {
       "@id": "stencila:Accepted",
       "description": "The suggestion has been accepted.",

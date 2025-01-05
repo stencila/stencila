@@ -3,14 +3,14 @@ import { css, html, PropertyValues } from 'lit'
 import { customElement, query, state } from 'lit/decorators.js'
 import { createRef, ref, Ref } from 'lit/directives/ref'
 
-import { documentCommandEvent } from '../clients/commands'
+import { archiveNode, patchValue, reviseNode } from '../clients/commands'
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
 
 import { Instruction } from './instruction'
 import { SuggestionBlock } from './suggestion-block'
 
-import '../ui/nodes/properties/generic/text-input'
+import '../ui/inputs/text-input'
 import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/commands/execution-commands'
 import '../ui/nodes/properties/execution-details'
@@ -135,12 +135,12 @@ export class InstructionBlock extends Instruction {
     }
 
     this.dispatchEvent(
-      documentCommandEvent({
-        command: 'patch-node',
-        nodeType: 'InstructionBlock',
-        nodeIds: [this.id],
-        nodeProperty: ['activeSuggestion', this.activeSuggestion],
-      })
+      patchValue(
+        'InstructionBlock',
+        this.id,
+        'activeSuggestion',
+        this.activeSuggestion
+      )
     )
   }
 
@@ -175,12 +175,12 @@ export class InstructionBlock extends Instruction {
     }
 
     this.dispatchEvent(
-      documentCommandEvent({
-        command: 'patch-node',
-        nodeType: 'InstructionBlock',
-        nodeIds: [this.id],
-        nodeProperty: ['activeSuggestion', this.activeSuggestion],
-      })
+      patchValue(
+        'InstructionBlock',
+        this.id,
+        'activeSuggestion',
+        this.activeSuggestion
+      )
     )
   }
 
@@ -190,13 +190,7 @@ export class InstructionBlock extends Instruction {
   private archive(e: Event) {
     e.stopImmediatePropagation()
 
-    this.dispatchEvent(
-      documentCommandEvent({
-        command: 'archive-node',
-        nodeType: 'InstructionBlock',
-        nodeIds: [this.id],
-      })
-    )
+    this.dispatchEvent(archiveNode('InstructionBlock', this.id))
   }
 
   /**
@@ -205,19 +199,12 @@ export class InstructionBlock extends Instruction {
   private revise(e: Event) {
     e.stopImmediatePropagation()
 
-    const args = ['InstructionBlock', this.id]
-
-    const feedback = this.feedbackRef.value.value
-
-    if (feedback) {
-      args.push(feedback)
-    }
-
     this.dispatchEvent(
-      documentCommandEvent({
-        command: 'revise-node',
-        args,
-      })
+      reviseNode(
+        'InstructionBlock',
+        this.id,
+        this.feedbackRef.value.value ? this.feedbackRef.value.value : undefined
+      )
     )
   }
 
@@ -232,7 +219,7 @@ export class InstructionBlock extends Instruction {
   `
 
   override render() {
-    if (this.ancestors.includes('StyledBlock')) {
+    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return html`
         ${this.activeSuggestion === null || this.activeSuggestion === undefined
           ? html`<slot name="content"></slot>`
@@ -244,16 +231,16 @@ export class InstructionBlock extends Instruction {
 
     return html`<stencila-ui-block-on-demand
       type="InstructionBlock"
-      header-title="${this.instructionType} Command"
       node-id=${this.id}
       depth=${this.depth}
-      ancestors=${this.ancestors}
+      header-title="${this.instructionType} Command"
       ?noVisibleContent=${this.hasContent && !this.hasSuggestions}
     >
       <span slot="header-right" class="flex">
         <stencila-ui-node-execution-commands
           type="InstructionBlock"
           node-id=${this.id}
+          depth=${this.depth}
         >
         </stencila-ui-node-execution-commands>
       </span>
@@ -261,7 +248,9 @@ export class InstructionBlock extends Instruction {
       <div slot="body">
         <stencila-ui-node-execution-details
           type="InstructionBlock"
+          node-id=${this.id}
           mode=${this.executionMode}
+          bounds=${this.executionBounds}
           .tags=${this.executionTags}
           status=${this.executionStatus}
           required=${this.executionRequired}
@@ -277,20 +266,18 @@ export class InstructionBlock extends Instruction {
           <slot name="execution-messages"></slot>
         </stencila-ui-node-execution-messages>
 
-        ${this.renderProperties()}
+        <slot name="model-parameters"></slot>
 
-        <slot name="model"></slot>
+        <slot name="prompt"></slot>
 
         <div class="border-t border-[${borderColour}]">
           <slot name="message"></slot>
         </div>
 
-        <slot name="prompt-provided"></slot>
-
         ${this.renderSuggestionsHeader()}
       </div>
 
-      <div slot="content" class="w-full">
+      <div slot="content" class="max-w-prose mx-auto">
         <div
           class="content-container ${!(
             this.activeSuggestion === null ||
@@ -319,61 +306,6 @@ export class InstructionBlock extends Instruction {
         </div>
       </div>
     </stencila-ui-block-on-demand>`
-  }
-
-  /**
-   * Render a ribbon style container with properties of the instruction
-   */
-  private renderProperties() {
-    const { borderColour, colour, textColour } = nodeUi('InstructionBlock')
-
-    const styles = apply(
-      'flex flex-row items-center',
-      'px-3 py-1.5',
-      `bg-[${colour}]`,
-      'text-xs leading-tight font-sans',
-      `border-t border-[${borderColour}]`,
-      'gap-x-3'
-    )
-
-    const inputStyles = apply([
-      `border border-[${borderColour}] rounded-sm`,
-      `outline-[${borderColour}]/50`,
-      `text-sm text-[${textColour}]`,
-      'ml-2 p-1',
-    ])
-
-    return html`
-      <div class=${styles}>
-        <span class="flex flex-row items-center grow">
-          <sl-tooltip content="Specified prompt">
-            <stencila-ui-icon class="text-base" name="at"></stencila-ui-icon>
-            <ui-node-text-input
-              class="ml-2 w-full"
-              card-type="InstructionBlock"
-              value=${this.prompt}
-              readonly
-              disabled
-            ></ui-node-text-input>
-          </sl-tooltip>
-        </span>
-
-        <span class="flex flex-row items-center">
-          <sl-tooltip content="Number of suggestions to generate">
-            <stencila-ui-icon class="text-base" name="hash"></stencila-ui-icon>
-            <input
-              class="${inputStyles}"
-              type="number"
-              min="1"
-              max="10"
-              value=${this.replicates ?? 1}
-              readonly
-              disabled
-            />
-          </sl-tooltip>
-        </span>
-      </div>
-    `
   }
 
   private renderSuggestionsHeader() {

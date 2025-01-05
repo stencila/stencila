@@ -6,68 +6,54 @@ category: edits
 description: Abstract base type for a document editing instruction.
 required:
   - instructionType
-core:
-  - message
   - prompt
-  - model
-  - replicates
-  - recursion
+  - message
+  - modelParameters
+core:
+  - activeSuggestion
 properties:
   instructionType:
     "@id": stencila:instructionType
     description: The type of instruction describing the operation to be performed.
     $ref: InstructionType
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+  prompt:
+    "@id": stencila:prompt
+    description: The prompt selected, rendered and provided to the model
+    $ref: PromptBlock
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+    serde:
+      default: true
+    dom:
+      elem: div
   message:
     "@id": stencila:message
     description: The instruction message, possibly including images, audio, or other media.
     $ref: InstructionMessage
     patch:
       formats: [md, smd, myst, ipynb, qmd]
+    serde:
+      default: true
     dom:
       elem: div
-  prompt:
-    "@id": stencila:prompt
-    description: An identifier for the prompt to be used for the instruction
-    type: string
+  modelParameters:
+    "@id": stencila:modelParameters
+    description: Model selection and inference parameters.
+    $ref: ModelParameters
+    aliases:
+      - model-parameters
+      - model_parameters
+      - model-params
+      - model_params
+      - model-pars
+      - model_pars
+      - model
     patch:
       formats: [md, smd, myst, ipynb, qmd]
-    proptest:
-      min:
-        description: No prompt
-        value: None
-      high:
-        description: Generate an arbitrary id using expected characters
-        strategy: option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")
-      max:
-        description: Generate an arbitrary prompt id using any characters
-        strategy: option::of(String::arbitrary())
-  model:
-    "@id": stencila:model
-    description: The name, and other options, for the model that the assistant should use to generate suggestions.
-    $ref: InstructionModel
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
-    dom:
-      elem: div
-  replicates:
-    "@id": stencila:replicates
-    description: The number of suggestions to generate for the instruction
-    $ref: UnsignedInteger
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
-  recursion:
-    "@id": stencila:recursion
-    description: A string identifying which operations should, or should not, automatically be applied to generated suggestions.
-    $ref: String
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
-  promptProvided:
-    "@id": stencila:promptProvided
-    description: The prompt chosen, rendered and provided to the model
-    $ref: PromptBlock
-    patch:
-      # Do not patch derived property
-      formats: []
+    serde:
+      default: true
     dom:
       elem: div
   activeSuggestion:

@@ -1,0 +1,415 @@
+{
+  "@id": "https://stencila.org/ChatMessage",
+  "name": "ChatMessage",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:ChatMessage",
+      "@type": "rdfs:Class",
+      "rdfs:label": "ChatMessage",
+      "rdfs:comment": "A message within a `Chat`.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Executable"
+      }
+    },
+    {
+      "@id": "stencila:executionMode",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionMode",
+      "rdfs:comment": "Under which circumstances the node should be executed.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeExpression"
+        },
+        {
+          "@id": "stencila:Executable"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionMode"
+      }
+    },
+    {
+      "@id": "stencila:executionBounds",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionBounds",
+      "rdfs:comment": "Under which circumstances child nodes should be executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionBounds"
+      }
+    },
+    {
+      "@id": "stencila:compilationDigest",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationDigest",
+      "rdfs:comment": "A digest of the content, semantics and dependencies of the node.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationDigest"
+      }
+    },
+    {
+      "@id": "stencila:compilationMessages",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationMessages",
+      "rdfs:comment": "Messages generated while compiling the code.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationMessage"
+      }
+    },
+    {
+      "@id": "stencila:executionDigest",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionDigest",
+      "rdfs:comment": "The `compilationDigest` of the node when it was last executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationDigest"
+      }
+    },
+    {
+      "@id": "stencila:executionDependencies",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionDependencies",
+      "rdfs:comment": "The upstream dependencies of this node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionDependency"
+      }
+    },
+    {
+      "@id": "stencila:executionDependants",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionDependants",
+      "rdfs:comment": "The downstream dependants of this node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionDependant"
+      }
+    },
+    {
+      "@id": "stencila:executionTags",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionTags",
+      "rdfs:comment": "Tags in the code which affect its execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionTag"
+      }
+    },
+    {
+      "@id": "stencila:executionCount",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionCount",
+      "rdfs:comment": "A count of the number of times that the node has been executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Number"
+      }
+    },
+    {
+      "@id": "stencila:executionRequired",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionRequired",
+      "rdfs:comment": "Whether, and why, the code requires execution or re-execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionRequired"
+      }
+    },
+    {
+      "@id": "stencila:executionStatus",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionStatus",
+      "rdfs:comment": "Status of the most recent, including any current, execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionStatus"
+      }
+    },
+    {
+      "@id": "stencila:executionInstance",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionInstance",
+      "rdfs:comment": "The id of the kernel instance that performed the last execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:executionBounded",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionBounded",
+      "rdfs:comment": "The bounds, if any, on the last execution.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionBounds"
+      }
+    },
+    {
+      "@id": "stencila:executionEnded",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionEnded",
+      "rdfs:comment": "The timestamp when the last execution ended.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Timestamp"
+      }
+    },
+    {
+      "@id": "stencila:executionDuration",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionDuration",
+      "rdfs:comment": "Duration of the last execution.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Duration"
+      }
+    },
+    {
+      "@id": "stencila:executionMessages",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionMessages",
+      "rdfs:comment": "Messages emitted while executing the node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionMessage"
+      }
+    },
+    {
+      "@id": "schema:author",
+      "@type": "rdfs:Property",
+      "rdfs:label": "author",
+      "rdfs:comment": "The author of the message",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:AuthorRole"
+        },
+        {
+          "@id": "stencila:ChatMessage"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Author"
+      }
+    },
+    {
+      "@id": "stencila:role",
+      "@type": "rdfs:Property",
+      "rdfs:label": "role",
+      "rdfs:comment": "The role of the message in the conversation.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:ChatMessage"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:MessageRole"
+      }
+    },
+    {
+      "@id": "stencila:content",
+      "@type": "rdfs:Property",
+      "rdfs:label": "content",
+      "rdfs:comment": "The content of the message.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "schema:Comment"
+        },
+        {
+          "@id": "schema:ListItem"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Chat"
+        },
+        {
+          "@id": "stencila:ChatMessage"
+        },
+        {
+          "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:File"
+        },
+        {
+          "@id": "stencila:ForBlock"
+        },
+        {
+          "@id": "stencila:Form"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:IfBlockClause"
+        },
+        {
+          "@id": "stencila:IncludeBlock"
+        },
+        {
+          "@id": "stencila:InstructionBlock"
+        },
+        {
+          "@id": "stencila:InstructionInline"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Mark"
+        },
+        {
+          "@id": "stencila:Note"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:Prompt"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:StyledBlock"
+        },
+        {
+          "@id": "stencila:StyledInline"
+        },
+        {
+          "@id": "stencila:SuggestionBlock"
+        },
+        {
+          "@id": "stencila:SuggestionInline"
+        },
+        {
+          "@id": "stencila:TableCell"
+        },
+        {
+          "@id": "stencila:WalkthroughStep"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Block"
+      }
+    },
+    {
+      "@id": "stencila:files",
+      "@type": "rdfs:Property",
+      "rdfs:label": "files",
+      "rdfs:comment": "The content of the message.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ChatMessage"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:File"
+      }
+    },
+    {
+      "@id": "stencila:isSelected",
+      "@type": "rdfs:Property",
+      "rdfs:label": "isSelected",
+      "rdfs:comment": "Whether this message is the selected message in the parent `ChatMessageGroup`",
+      "schema:domainIncludes": {
+        "@id": "stencila:ChatMessage"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    }
+  ]
+}

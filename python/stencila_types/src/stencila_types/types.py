@@ -206,6 +206,19 @@ class ClaimType(StrEnum):
     Corollary = "Corollary"
 
 
+class ExecutionBounds(StrEnum):
+    """
+    The bounds placed on the execution of a document node.
+    """
+
+    Default = "Default"
+    Main = "Main"
+    Fork = "Fork"
+    Limit = "Limit"
+    Box = "Box"
+    Skip = "Skip"
+
+
 class ExecutionDependantRelation(StrEnum):
     """
     The relation between a node and its execution dependant.
@@ -230,24 +243,16 @@ class ExecutionDependencyRelation(StrEnum):
     Uses = "Uses"
 
 
-class ExecutionKind(StrEnum):
-    """
-    The kind of execution of a document node.
-    """
-
-    Main = "Main"
-    Fork = "Fork"
-
-
 class ExecutionMode(StrEnum):
     """
-    Under which circumstances the document node should be executed.
+    Under which circumstances a node should be executed.
     """
 
+    Default = "Default"
+    Need = "Need"
     Always = "Always"
     Auto = "Auto"
-    Necessary = "Necessary"
-    Locked = "Locked"
+    Lock = "Lock"
 
 
 class ExecutionRequired(StrEnum):
@@ -349,7 +354,7 @@ class MessageRole(StrEnum):
 
     System = "System"
     User = "User"
-    Assistant = "Assistant"
+    Model = "Model"
 
 
 class NoteType(StrEnum):
@@ -386,6 +391,15 @@ class ProvenanceCategory(StrEnum):
     MwMeMv = "MwMeMv"
 
 
+class RelativePosition(StrEnum):
+    """
+    The relative position of a node to another.
+    """
+
+    Previous = "Previous"
+    Next = "Next"
+
+
 class SectionType(StrEnum):
     """
     The type of a `Section`.
@@ -412,6 +426,7 @@ class SuggestionStatus(StrEnum):
     The status of an instruction.
     """
 
+    Original = "Original"
     Accepted = "Accepted"
     Rejected = "Rejected"
 
@@ -588,7 +603,10 @@ class Executable(Entity):
     type: Literal["Executable"] = "Executable"
 
     execution_mode: ExecutionMode | None = None
-    """Under which circumstances the code should be executed."""
+    """Under which circumstances the node should be executed."""
+
+    execution_bounds: ExecutionBounds | None = None
+    """Under which circumstances child nodes should be executed."""
 
     compilation_digest: CompilationDigest | None = None
     """A digest of the content, semantics and dependencies of the node."""
@@ -620,8 +638,8 @@ class Executable(Entity):
     execution_instance: str | None = None
     """The id of the kernel instance that performed the last execution."""
 
-    execution_kind: ExecutionKind | None = None
-    """The kind (e.g. main kernel vs kernel fork) of the last execution."""
+    execution_bounded: ExecutionBounds | None = None
+    """The bounds, if any, on the last execution."""
 
     execution_ended: Timestamp | None = None
     """The timestamp when the last execution ended."""
@@ -642,7 +660,7 @@ class Suggestion(Entity):
     type: Literal["Suggestion"] = "Suggestion"
 
     suggestion_status: SuggestionStatus | None = None
-    """The status of the suggestion including whether it is proposed, accepted, or rejected."""
+    """The status of the suggestion including whether it is the original, or is accepted, or rejected."""
 
     authors: list[Author] | None = None
     """The authors of the suggestion"""
@@ -767,23 +785,14 @@ class Instruction(Executable):
     instruction_type: InstructionType
     """The type of instruction describing the operation to be performed."""
 
-    message: InstructionMessage | None = None
+    prompt: PromptBlock
+    """The prompt selected, rendered and provided to the model"""
+
+    message: InstructionMessage
     """The instruction message, possibly including images, audio, or other media."""
 
-    prompt: str | None = None
-    """An identifier for the prompt to be used for the instruction"""
-
-    model: InstructionModel | None = None
-    """The name, and other options, for the model that the assistant should use to generate suggestions."""
-
-    replicates: UnsignedInteger | None = None
-    """The number of suggestions to generate for the instruction"""
-
-    recursion: str | None = None
-    """A string identifying which operations should, or should not, automatically be applied to generated suggestions."""
-
-    prompt_provided: PromptBlock | None = None
-    """The prompt chosen, rendered and provided to the model"""
+    model_parameters: ModelParameters
+    """Model selection and inference parameters."""
 
     active_suggestion: UnsignedInteger | None = None
     """The index of the suggestion that is currently active"""
@@ -1079,6 +1088,9 @@ class Article(CreativeWork, Executable):
     archive: list[Node] | None = None
     """Nodes, usually from within `content` of the article, that have been archived."""
 
+    temporary: list[Node] | None = None
+    """Temporary nodes on document"""
+
 
 @dataclass(kw_only=True, repr=False)
 class AudioObject(MediaObject):
@@ -1186,6 +1198,72 @@ class CallBlock(IncludeBlock):
 
     arguments: list[CallArgument]
     """The value of the source document's parameters to call it with"""
+
+
+@dataclass(kw_only=True, repr=False)
+class Chat(CreativeWork, Executable):
+    """
+    A chat conversation, usually with a generative AI model.
+    """
+
+    type: Literal["Chat"] = "Chat"
+
+    prompt: PromptBlock
+    """The prompt selected, rendered and provided to the model"""
+
+    model_parameters: ModelParameters
+    """Model selection and inference parameters."""
+
+    content: list[Block]
+    """The messages, and optionally other content, that make up the chat."""
+
+    suggestions: list[SuggestionBlock] | None = None
+    """Suggestions of content that is the focus of the chat."""
+
+    is_temporary: bool | None = None
+    """Whether a chat within another node (i.e. is not standalone) is temporary."""
+
+    previous_block: str | None = None
+    """The id of the block immediately before the chat (only applies to temporary chats)."""
+
+    next_block: str | None = None
+    """The id of the block immediately after the chat (only applies to temporary chats)."""
+
+
+@dataclass(kw_only=True, repr=False)
+class ChatMessage(Executable):
+    """
+    A message within a `Chat`.
+    """
+
+    type: Literal["ChatMessage"] = "ChatMessage"
+
+    author: Author | None = None
+    """The author of the message"""
+
+    role: MessageRole
+    """The role of the message in the conversation."""
+
+    content: list[Block]
+    """The content of the message."""
+
+    files: list[File] | None = None
+    """The content of the message."""
+
+    is_selected: bool | None = None
+    """Whether this message is the selected message in the parent `ChatMessageGroup`"""
+
+
+@dataclass(kw_only=True, repr=False)
+class ChatMessageGroup(Entity):
+    """
+    A group of messages, usually alternative model messages, within a `Chat`.
+    """
+
+    type: Literal["ChatMessageGroup"] = "ChatMessageGroup"
+
+    messages: list[ChatMessage]
+    """The messages within the group."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -1790,6 +1868,15 @@ class File(Entity):
     media_type: str | None = None
     """IANA media type (MIME type)."""
 
+    transfer_encoding: str | None = None
+    """The encoding used for the context (e.g. base64, gz)"""
+
+    size: UnsignedInteger | None = None
+    """The size of the content in bytes"""
+
+    content: str | None = None
+    """The content of the file."""
+
 
 @dataclass(kw_only=True, repr=False)
 class ForBlock(CodeExecutable):
@@ -1984,36 +2071,6 @@ class InstructionMessage(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
-class InstructionModel(Entity):
-    """
-    Model selection criteria and execution options for the generative model used for an instruction.
-    """
-
-    type: Literal["InstructionModel"] = "InstructionModel"
-
-    id_pattern: str | None = None
-    """A pattern to filter model ids by."""
-
-    quality_weight: UnsignedInteger | None = None
-    """The relative weighting given to model quality (0-100)."""
-
-    speed_weight: UnsignedInteger | None = None
-    """The relative weighting given to model speed (0-100)."""
-
-    cost_weight: UnsignedInteger | None = None
-    """The relative weighting given to model cost (0-100)."""
-
-    minimum_score: UnsignedInteger | None = None
-    """The minimum score for models to be selected (0-100)."""
-
-    temperature: UnsignedInteger | None = None
-    """The temperature option for model inference (0-100)."""
-
-    random_seed: int | None = None
-    """The random seed used for the model (if possible)"""
-
-
-@dataclass(kw_only=True, repr=False)
 class IntegerValidator(NumberValidator):
     """
     A validator specifying the constraints on an integer node.
@@ -2107,6 +2164,39 @@ class MathInline(Math):
     """
 
     type: Literal["MathInline"] = "MathInline"
+
+
+@dataclass(kw_only=True, repr=False)
+class ModelParameters(Entity):
+    """
+    Model selection and inference parameters for generative AI models.
+    """
+
+    type: Literal["ModelParameters"] = "ModelParameters"
+
+    model_ids: list[str] | None = None
+    """The ids of the models to select."""
+
+    replicates: UnsignedInteger | None = None
+    """The number of replicate inferences to run per model id."""
+
+    quality_weight: UnsignedInteger | None = None
+    """The relative weighting given to model quality (0-100)."""
+
+    cost_weight: UnsignedInteger | None = None
+    """The relative weighting given to model cost (0-100)."""
+
+    speed_weight: UnsignedInteger | None = None
+    """The relative weighting given to model speed (0-100)."""
+
+    minimum_score: UnsignedInteger | None = None
+    """The minimum score for models to be selected (0-100)."""
+
+    temperature: UnsignedInteger | None = None
+    """The temperature option for model inference (0-100)."""
+
+    random_seed: int | None = None
+    """The random seed used for the model (if possible)"""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2366,11 +2456,14 @@ class Prompt(CreativeWork, Executable):
     instruction_types: list[InstructionType]
     """The types of instructions that the prompt supports"""
 
-    instruction_patterns: list[str] | None = None
-    """Regular expressions used to match the prompt with a user instruction"""
-
-    node_types: list[str]
+    node_types: list[str] | None = None
     """The types of nodes that the prompt supports"""
+
+    node_count: UnsignedInteger | str | None = None
+    """The number of nodes that the prompt supports"""
+
+    query_patterns: list[str] | None = None
+    """Regular expressions used to match the prompt with a user query"""
 
     content: list[Block]
     """The content of the prompt."""
@@ -2384,8 +2477,23 @@ class PromptBlock(Executable):
 
     type: Literal["PromptBlock"] = "PromptBlock"
 
-    prompt: str
+    instruction_type: InstructionType | None = None
+    """The type of instruction the  being used for"""
+
+    node_types: list[str] | None = None
+    """The type of nodes the prompt is being used for"""
+
+    relative_position: RelativePosition | None = None
+    """The relative position of the node being edited, described etc."""
+
+    query: str | None = None
+    """A user text query used to infer the `target` prompt"""
+
+    target: str | None = None
     """An identifier for the prompt to be rendered"""
+
+    directory: str | None = None
+    """The home directory of the prompt"""
 
     content: list[Block] | None = None
     """The executed content of the prompt"""
@@ -3030,6 +3138,9 @@ Union type for things that can be an author in `AuthorRole`.
 Block = Union[
     Admonition,
     CallBlock,
+    Chat,
+    ChatMessage,
+    ChatMessageGroup,
     Claim,
     CodeBlock,
     CodeChunk,
@@ -3065,6 +3176,7 @@ Union type in block content node types.
 CreativeWorkType = Union[
     Article,
     AudioObject,
+    Chat,
     Claim,
     Collection,
     Comment,
@@ -3209,6 +3321,9 @@ Node = Union[
     Button,
     CallArgument,
     CallBlock,
+    Chat,
+    ChatMessage,
+    ChatMessageGroup,
     Cite,
     CiteGroup,
     Claim,
@@ -3262,7 +3377,6 @@ Node = Union[
     InstructionBlock,
     InstructionInline,
     InstructionMessage,
-    InstructionModel,
     IntegerValidator,
     Link,
     List,
@@ -3270,6 +3384,7 @@ Node = Union[
     MathBlock,
     MathInline,
     MediaObject,
+    ModelParameters,
     ModifyBlock,
     ModifyInline,
     ModifyOperation,
@@ -3341,6 +3456,7 @@ ThingType = Union[
     AudioObject,
     AuthorRoleName,
     Brand,
+    Chat,
     CitationIntent,
     CitationMode,
     Claim,
@@ -3352,9 +3468,9 @@ ThingType = Union[
     Datatable,
     DefinedTerm,
     Enumeration,
+    ExecutionBounds,
     ExecutionDependantRelation,
     ExecutionDependencyRelation,
-    ExecutionKind,
     ExecutionMode,
     ExecutionRequired,
     ExecutionStatus,
@@ -3381,6 +3497,7 @@ ThingType = Union[
     ProvenanceCategory,
     PublicationIssue,
     PublicationVolume,
+    RelativePosition,
     Review,
     SectionType,
     SoftwareApplication,
@@ -3449,6 +3566,9 @@ TYPES = [
     Button,
     CallArgument,
     CallBlock,
+    Chat,
+    ChatMessage,
+    ChatMessageGroup,
     Cite,
     CiteGroup,
     Claim,
@@ -3498,13 +3618,13 @@ TYPES = [
     InstructionBlock,
     InstructionInline,
     InstructionMessage,
-    InstructionModel,
     IntegerValidator,
     Link,
     List,
     ListItem,
     MathBlock,
     MathInline,
+    ModelParameters,
     ModifyBlock,
     ModifyInline,
     ModifyOperation,
@@ -3588,6 +3708,7 @@ ANON_UNIONS = [
     PropertyValue | str,
     SoftwareSourceCode | SoftwareApplication | str,
     StringPatch | Primitive,
+    UnsignedInteger | str,
     int | str,
     str | float,
 ]

@@ -1,3 +1,4 @@
+use common::itertools::Itertools;
 use schema::{diff, Article, PatchSlot};
 
 use crate::{interrupt_impl, prelude::*, HeadingInfo};
@@ -11,10 +12,11 @@ impl Executable for Article {
         // Clear the executor's headings
         executor.headings.clear();
 
-        // Compile the `content` and `title` (could include math)
+        // Compile `content` and other properties
         if let Err(error) = async {
             self.title.walk_async(executor).await?;
-            self.content.walk_async(executor).await
+            self.content.walk_async(executor).await?;
+            self.temporary.walk_async(executor).await
         }
         .await
         {
@@ -43,7 +45,7 @@ impl Executable for Article {
             }
         }
 
-        // Break walk because `content` and `title` already walked over
+        // Break because properties compiled above
         WalkControl::Break
     }
 
@@ -62,7 +64,7 @@ impl Executable for Article {
             [set(NodeProperty::ExecutionStatus, ExecutionStatus::Pending)],
         );
 
-        // Continue to prepare executable nodes in `content`
+        // Continue to prepare executable nodes within properties
         WalkControl::Continue
     }
 
@@ -81,9 +83,37 @@ impl Executable for Article {
 
         let started = Timestamp::now();
 
-        let messages = if let Err(error) = self.content.walk_async(executor).await {
+        // Move all temporaries into the executor so it can handle when to
+        // execute them
+        if let Some(temporaries) = &mut self.temporary {
+            let mut chats = temporaries
+                .drain(..)
+                .filter_map(|node| match node {
+                    Node::Chat(ref chat) => Some((
+                        chat.options
+                            .previous_block
+                            .as_ref()
+                            .and_then(|id| id.parse().ok()),
+                        chat.options
+                            .next_block
+                            .as_ref()
+                            .and_then(|id| id.parse().ok()),
+                        node,
+                    )),
+                    _ => None,
+                })
+                .collect_vec();
+            executor.temporaries.append(&mut chats);
+        }
+
+        let messages = if let Err(error) = async {
+            self.title.walk_async(executor).await?;
+            self.content.walk_async(executor).await
+        }
+        .await
+        {
             Some(vec![error_to_execution_message(
-                "While executing content",
+                "While executing article",
                 error,
             )])
         } else {
@@ -112,6 +142,7 @@ impl Executable for Article {
             ],
         );
 
+        // Break because properties already executed above
         WalkControl::Break
     }
 
@@ -122,7 +153,7 @@ impl Executable for Article {
 
         interrupt_impl!(self, executor, &node_id);
 
-        // Continue to interrupt executable nodes in `content`
+        // Continue to interrupt executable nodes in `content` and other properties
         WalkControl::Continue
     }
 }

@@ -333,6 +333,35 @@ impl CodecSupport {
     }
 }
 
+/// Specifications for a codec
+///
+/// Currently used only for outputs and display.
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "common::serde", rename_all = "camelCase")]
+pub struct CodecSpecification {
+    name: String,
+    from: Vec<String>,
+    to: Vec<String>,
+}
+
+impl From<&dyn Codec> for CodecSpecification {
+    fn from(codec: &dyn Codec) -> Self {
+        Self {
+            name: codec.name().to_string(),
+            from: codec
+                .supports_from_formats()
+                .keys()
+                .map(|format| format.to_string())
+                .collect(),
+            to: codec
+                .supports_to_formats()
+                .keys()
+                .map(|format| format.to_string())
+                .collect(),
+        }
+    }
+}
+
 /// Decoding options
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, Serialize, Deserialize)]

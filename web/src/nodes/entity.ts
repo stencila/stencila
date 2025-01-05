@@ -1,10 +1,11 @@
 import { provide } from '@lit/context'
+import { NodeType } from '@stencila/types'
 import { html, LitElement } from 'lit'
 import { property, state } from 'lit/decorators'
 
 import { nodePatchEvent, NodePatch } from '../clients/nodes'
 import { DocumentAccess, DocumentView, NodeId } from '../types'
-import { EntityContext, entityContext } from '../ui/nodes/context'
+import { EntityContext, entityContext } from '../ui/nodes/entity-context'
 import { closestGlobally } from '../utilities/closestGlobally'
 
 /**
@@ -31,6 +32,12 @@ export abstract class Entity extends LitElement {
   $id?: string
 
   /**
+   * Whether or not this is the root node in the node tree
+   */
+  @property({ type: Boolean })
+  root: boolean = false
+
+  /**
    * The depth of the node in the node tree
    *
    * The root node (e.g. `Article`) will have a depth of zero.
@@ -44,9 +51,16 @@ export abstract class Entity extends LitElement {
    * The root node will have an empty string for this property.
    * Other nodes will have a list of ancestor node types e.g. `Article.Paragraph.Emphasis`
    * for `Text` within an emphasis node in a paragraph of an article.
+   *
+   * Made `private` to encourage this use of the `isWithin` method.
    */
   @property()
-  ancestors: string
+  private ancestors: string
+
+  /**
+   * The Stencila Schema node type of the parent node
+   */
+  protected parentNodeType: NodeType
 
   /**
    * The Id of a child node that is/or contains,
@@ -65,6 +79,8 @@ export abstract class Entity extends LitElement {
   override connectedCallback(): void {
     super.connectedCallback()
 
+    this.parentNodeType = this.ancestors.split('.').pop() as NodeType
+
     this.context.nodeId = this.id
 
     this.shadowRoot.addEventListener(
@@ -78,6 +94,34 @@ export abstract class Entity extends LitElement {
           }
         }
       }
+    )
+  }
+
+  /**
+   * Whether the parent node is of the specified type
+   */
+  protected parentNodeIs(nodeType: NodeType): boolean {
+    return this.parentNodeType === nodeType
+  }
+
+  /**
+   * Whether the node is within (i.e has an ancestor) of the specified type
+   */
+  protected isWithin(nodeType: NodeType): boolean {
+    return (
+      this.parentNodeType === nodeType ||
+      this.ancestors.includes(`${nodeType}.`)
+    )
+  }
+
+  /**
+   * Whether the node is within a chat message
+   */
+  protected isWithinUserChatMessage() {
+    return (
+      this.isWithin('ChatMessage') &&
+      this.closestGlobally('stencila-chat-message[message-role="User"]') !==
+        null
     )
   }
 

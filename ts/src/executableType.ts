@@ -5,6 +5,8 @@ export type ExecutableType =
   | "Button"
   | "CallArgument"
   | "CallBlock"
+  | "Chat"
+  | "ChatMessage"
   | "CodeChunk"
   | "CodeExecutable"
   | "CodeExpression"
@@ -25,6 +27,8 @@ export const ExecutableTypeList = [
   "Button",
   "CallArgument",
   "CallBlock",
+  "Chat",
+  "ChatMessage",
   "CodeChunk",
   "CodeExecutable",
   "CodeExpression",

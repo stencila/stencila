@@ -7,11 +7,11 @@ name: Create Ordered List Prompt
 description: Create an ordered list.
 keywords: list, ordered
 
-instruction-type: Create 
-instruction-patterns:
+instruction-type: Create
+node-type: List
+query-patterns:
   - (?i)\bordered list\b
   - (?i)\bnumber(ed)? list\b
-node-type: List
 ---
 
 # Instructions

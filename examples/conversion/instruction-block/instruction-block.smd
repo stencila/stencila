@@ -8,7 +8,7 @@ An insert instruction with a prompt:
 
 An insert instruction with a prompt but a blank instruction
 
-::: create @code-chunk  :::
+::: create @code-chunk :::
 
 An edit instruction (has content) with no prompt:
 
@@ -18,7 +18,7 @@ The paragraph to be improved.
 
 An edit instruction with a prompt:
 
-::: edit @anne please improve this paragraph >>>
+::: edit @para please improve this paragraph >>>
 
 Another paragraph to be improved.
 
@@ -35,3 +35,7 @@ An edit instruction with a suggestion:
 ::: edit more succinct >>>
 
 A paragraph.
+
+With prompt and model parameters specified:
+
+::: create @prompt [model1, model2] q10 c10 s10 m40 t10 r123 x3 message :::

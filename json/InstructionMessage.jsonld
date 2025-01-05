@@ -22,9 +22,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "role",
       "rdfs:comment": "The role of the message in the conversation.",
-      "schema:domainIncludes": {
-        "@id": "stencila:InstructionMessage"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:ChatMessage"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "stencila:MessageRole"
       }

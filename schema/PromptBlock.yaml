@@ -1,5 +1,5 @@
 title: PromptBlock
-'@id': stencila:PromptBlock
+"@id": stencila:PromptBlock
 nick: prb
 extends: Executable
 category: edits
@@ -9,28 +9,78 @@ $comment: |
   Can also be used standalone to preview how a prompt is rendered at a particular
   position in a document.
 status: experimental
+patch:
+  applyWith: PromptBlock::apply_patch_op
 markdown:
   derive: false
-required:
-  - prompt
 core:
+  - instructionType
+  - nodeTypes
+  - relativePosition
+  - query
+  - target
   - content
 properties:
-  prompt:
-    '@id': stencila:prompt
+  instructionType:
+    "@id": stencila:instructionType
+    description: The type of instruction the  being used for
+    $comment: Used to filter and select the `target` prompt.
+    $ref: InstructionType
+    patch:
+      formats: [md, smd, qmd]
+  nodeTypes:
+    "@id": stencila:nodeTypes
+    description: The type of nodes the prompt is being used for
+    $comment: Used to filter and select the `target` prompt.
+    type: array
+    items:
+      type: string
+    patch:
+      formats: [md, smd, qmd]
+  relativePosition:
+    "@id": stencila:relativePosition
+    description: The relative position of the node being edited, described etc.
+    $ref: RelativePosition
+    patch:
+      formats: [md, smd, qmd]
+  query:
+    "@id": stencila:query
+    description: A user text query used to infer the `target` prompt
+    type: string
+    patch:
+      formats: [md, smd, qmd]
+  target:
+    "@id": schema:target
     description: An identifier for the prompt to be rendered
     type: string
     patch:
       formats: [md, smd, myst, ipynb, qmd]
+    proptest:
+      min:
+        description: No prompt
+        value: None
+      high:
+        description: Generate an arbitrary id using expected characters
+        strategy: option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")
+      max:
+        description: Generate an arbitrary prompt id using any characters
+        strategy: option::of(String::arbitrary())
+  directory:
+    "@id": stencila:directory
+    description: The home directory of the prompt
+    type: string
+    patch:
+      # Do not merge content because it is derived
+      formats: []
   content:
-    '@id': stencila:content
+    "@id": stencila:content
     description: The executed content of the prompt
     type: array
     items:
       $ref: Block
     strip: [output]
     patch:
-      # Do not merge content because it is derived from `source`
+      # Do not merge content because it is derived
       formats: []
     dom:
       elem: div

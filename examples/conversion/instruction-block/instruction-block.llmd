@@ -17,3 +17,5 @@ An insert instruction with a prompt and a suggestion:
 An edit instruction with a suggestion:
 
 A rather long winded paragraph.
+
+With prompt and model parameters specified:

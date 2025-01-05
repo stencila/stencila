@@ -16,7 +16,9 @@
   ],
   "core": [
     "id",
-    "mediaType"
+    "mediaType",
+    "size",
+    "content"
   ],
   "properties": {
     "type": {
@@ -58,6 +60,30 @@
       ],
       "type": "string",
       "pattern": "^\\w+/[-+.\\w]+$"
+    },
+    "transferEncoding": {
+      "@id": "stencila:transferEncoding",
+      "description": "The encoding used for the context (e.g. base64, gz)",
+      "$comment": "Similar to the HTTP Transfer-Encoding header (https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Transfer-Encoding).\nMostly used to indicates whether the content of the file is Base64 encoded.\n",
+      "aliases": [
+        "transfer-encoding",
+        "transfer_encoding"
+      ],
+      "type": "string"
+    },
+    "size": {
+      "@id": "schema:size",
+      "description": "The size of the content in bytes",
+      "$ref": "UnsignedInteger.schema.json"
+    },
+    "content": {
+      "@id": "schema:content",
+      "description": "The content of the file.",
+      "$comment": "For binary formats, such as images, the content should be Base64 encoded.\n",
+      "dom": {
+        "skip": true
+      },
+      "type": "string"
     }
   }
 }

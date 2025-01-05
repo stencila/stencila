@@ -34,6 +34,7 @@ core:
   - references
   - config
   - headings
+  - temporary
   - archive
 properties:
   pageStart:
@@ -73,7 +74,7 @@ properties:
       This list is automatically populated when the document is compiled.
       Each item in the list has (1) a `Link` to the heading, and (2) a nested list of subheadings.
     $ref: List
-    strip: [content]
+    strip: [content, temporary]
     dom:
       elem: nav
   content:
@@ -104,6 +105,16 @@ properties:
     type: array
     items:
       $ref: Node
-    strip: [archive]
+    strip: [content, archive]
+    dom:
+      skip: true
+  temporary:
+    "@id": stencila:temporary
+    description: Temporary nodes on document
+    type: array
+    items:
+      $ref: Node
+    strip: [content, temporary]
+    walk: true
     dom:
       skip: true

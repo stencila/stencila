@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::article::Article;
 use super::audio_object::AudioObject;
+use super::chat::Chat;
 use super::claim::Claim;
 use super::collection::Collection;
 use super::comment::Comment;
@@ -29,6 +30,8 @@ pub enum CreativeWorkType {
     Article(Article),
 
     AudioObject(AudioObject),
+
+    Chat(Chat),
 
     Claim(Claim),
 

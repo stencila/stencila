@@ -7,12 +7,16 @@ content:
       string: 'A paragraph with an instruction to insert content '
   - type: InstructionInline
     instructionType: Create
+    prompt:
+      type: PromptBlock
     message:
       type: InstructionMessage
       parts:
       - type: Text
         value:
           string: insert an inline
+    modelParameters:
+      type: ModelParameters
   - type: Text
     value:
       string: .
@@ -23,12 +27,16 @@ content:
       string: 'A paragraph with an instruction to edit some existing content: '
   - type: InstructionInline
     instructionType: Create
+    prompt:
+      type: PromptBlock
     message:
       type: InstructionMessage
       parts:
       - type: Text
         value:
           string: improve this
+    modelParameters:
+      type: ModelParameters
     content:
     - type: Text
       value:
@@ -43,31 +51,46 @@ content:
       string: 'Instructions with a prompt: '
   - type: InstructionInline
     instructionType: Create
+    prompt:
+      type: PromptBlock
+      target: math
     message:
       type: InstructionMessage
       parts:
       - type: Text
         value:
           string: equation for surface area of cube
-    prompt: insert-inline-math
+    modelParameters:
+      type: ModelParameters
   - type: Text
     value:
       string: ' with a blank instruction '
   - type: InstructionInline
     instructionType: Create
-    prompt: insert-math-inline
+    prompt:
+      type: PromptBlock
+      target: math
+    message:
+      type: InstructionMessage
+      parts: []
+    modelParameters:
+      type: ModelParameters
   - type: Text
     value:
       string: ' and '
   - type: InstructionInline
     instructionType: Edit
+    prompt:
+      type: PromptBlock
+      target: edit
     message:
       type: InstructionMessage
       parts:
       - type: Text
         value:
           string: please improve this
-    prompt: joe
+    modelParameters:
+      type: ModelParameters
     content:
     - type: Text
       value:
@@ -82,13 +105,17 @@ content:
       string: 'Instructions with a suggestion: '
   - type: InstructionInline
     instructionType: Create
+    prompt:
+      type: PromptBlock
+      target: math
     message:
       type: InstructionMessage
       parts:
       - type: Text
         value:
           string: area of circle
-    prompt: insert-inline-math
+    modelParameters:
+      type: ModelParameters
     suggestions:
     - type: SuggestionInline
       content:
@@ -101,12 +128,16 @@ content:
       string: ' and '
   - type: InstructionInline
     instructionType: Edit
+    prompt:
+      type: PromptBlock
     message:
       type: InstructionMessage
       parts:
       - type: Text
         value:
           string: improve
+    modelParameters:
+      type: ModelParameters
     content:
     - type: Text
       value:

@@ -889,7 +889,10 @@ fn authorship_on_nodes() -> Result<()> {
 #[test]
 fn archive_patch_new() -> Result<()> {
     // Archive an instruction with no accepted suggestion
-    let inb = InstructionBlock::new(InstructionType::Create);
+    let inb = InstructionBlock {
+        instruction_type: InstructionType::Create,
+        ..Default::default()
+    };
     let mut article = Article::new(vec![Block::InstructionBlock(inb.clone())]);
 
     patch(

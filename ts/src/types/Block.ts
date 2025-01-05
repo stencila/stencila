@@ -4,6 +4,9 @@ import { hydrate } from "../hydrate.js";
 
 import { type Admonition } from "./Admonition.js";
 import { type CallBlock } from "./CallBlock.js";
+import { type Chat } from "./Chat.js";
+import { type ChatMessage } from "./ChatMessage.js";
+import { type ChatMessageGroup } from "./ChatMessageGroup.js";
 import { type Claim } from "./Claim.js";
 import { type CodeBlock } from "./CodeBlock.js";
 import { type CodeChunk } from "./CodeChunk.js";
@@ -37,6 +40,9 @@ import { type Walkthrough } from "./Walkthrough.js";
 export type Block =
   Admonition |
   CallBlock |
+  Chat |
+  ChatMessage |
+  ChatMessageGroup |
   Claim |
   CodeBlock |
   CodeChunk |
@@ -71,6 +77,9 @@ export function block(other: Block): Block {
   switch(other.type) {
     case "Admonition":
     case "CallBlock":
+    case "Chat":
+    case "ChatMessage":
+    case "ChatMessageGroup":
     case "Claim":
     case "CodeBlock":
     case "CodeChunk":

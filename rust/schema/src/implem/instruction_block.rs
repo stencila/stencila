@@ -1,7 +1,10 @@
 use codec_info::{lost_exec_options, lost_options};
 use common::{eyre::Ok, tracing};
 
-use crate::{merge, patch, prelude::*, InstructionBlock, InstructionType, Node};
+use crate::{
+    merge, patch, prelude::*, ExecutionBounds, ExecutionMode, InstructionBlock, InstructionType,
+    Node,
+};
 
 /// Implementation of [`PatchNode`] for [`InstructionBlock`] to customize diffing and
 /// patching from Markdown-based formats
@@ -34,27 +37,22 @@ impl PatchNode for InstructionBlock {
     }
 
     fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
+        // Compare properties other than content and suggestions
         macro_rules! compare_property {
             ($field:ident) => {
                 self.$field.similarity(&other.$field, context)?
             };
         }
-
         let mut values = vec![
             compare_property!(instruction_type),
             compare_property!(prompt),
-            compare_property!(model),
-            compare_property!(replicates),
-            compare_property!(recursion),
             compare_property!(message),
+            compare_property!(model_parameters),
+            compare_property!(execution_mode),
+            compare_property!(execution_bounds),
         ];
 
-        if context
-            .format
-            .as_ref()
-            .map(|format| format.is_markdown_flavor())
-            .unwrap_or_default()
-        {
+        if context.format_is_markdown_flavor() {
             if let Some(other_content) = &other.content {
                 // The `other` instruction is from a Markdown-based format so compare its `content` to the active suggestion
                 // if there is any, or to the `content` if no suggestions
@@ -92,28 +90,23 @@ impl PatchNode for InstructionBlock {
     }
 
     fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
+        // Diff properties other than content and suggestions
         macro_rules! diff_property {
             ($property:ident, $field:ident) => {
-                context.enter_property(NodeProperty::$property);
-                self.$field.diff(&other.$field, context)?;
-                context.exit_property();
+                context.within_property(NodeProperty::$property, |context| {
+                    self.$field.diff(&other.$field, context)
+                })?;
             };
         }
-
         diff_property!(InstructionType, instruction_type);
         diff_property!(Prompt, prompt);
-        diff_property!(Model, model);
-        diff_property!(Replicates, replicates);
-        diff_property!(Recursion, recursion);
         diff_property!(Message, message);
+        diff_property!(ModelParameters, model_parameters);
+        diff_property!(ExecutionMode, execution_mode);
+        diff_property!(ExecutionBounds, execution_bounds);
 
-        if context
-            .format
-            .as_ref()
-            .map(|format| format.is_markdown_flavor())
-            .unwrap_or_default()
-        {
-            // Other node is from a Markdown based format where the `content`` is either the
+        if context.format_is_markdown_flavor() {
+            // Other node is from a Markdown based format where the `content` is either the
             // original or the content of the active active suggestion
             if let Some(other_content) = &other.content {
                 let suggestions_count = self.suggestions.iter().flatten().count() as u64;
@@ -125,21 +118,23 @@ impl PatchNode for InstructionBlock {
                     let index = active_suggestion.min(suggestions_count - 1) as usize;
                     let suggestion = &suggestions[index];
 
-                    context
-                        .enter_property(NodeProperty::Suggestions)
-                        .enter_index(index)
-                        .enter_property(NodeProperty::Content);
-                    suggestion.content.diff(other_content, context)?;
-                    context.exit_property().exit_index().exit_property();
+                    context.within_path(
+                        PatchPath::from([
+                            PatchSlot::Property(NodeProperty::Suggestions),
+                            PatchSlot::Index(index),
+                            PatchSlot::Property(NodeProperty::Content),
+                        ]),
+                        |context| suggestion.content.diff(other_content, context),
+                    )?;
                 } else {
-                    context.enter_property(NodeProperty::Content);
-                    self.content.diff(&other.content, context)?;
-                    context.exit_property();
+                    context.within_property(NodeProperty::Content, |context| {
+                        self.content.diff(&other.content, context)
+                    })?
                 }
             } else {
-                context.enter_property(NodeProperty::Content);
-                self.content.diff(&other.content, context)?;
-                context.exit_property();
+                context.within_property(NodeProperty::Content, |context| {
+                    self.content.diff(&other.content, context)
+                })?
             }
         } else {
             // Other node is from a non-Markdown format so
@@ -163,11 +158,9 @@ impl PatchNode for InstructionBlock {
         macro_rules! patch_properties {
             ($( ($property:ident, $field:expr), )*) => {
                 $(
-                    context.enter_property(NodeProperty::$property);
-                    if $field.patch(patch, context)? {
+                    if context.within_property(NodeProperty::$property, |context| $field.patch(patch, context))? {
                         return Ok(true);
                     }
-                    context.exit_property();
                 )*
             };
         }
@@ -175,15 +168,14 @@ impl PatchNode for InstructionBlock {
         patch_properties!(
             // Core
             (ExecutionMode, self.execution_mode),
+            (ExecutionBounds, self.execution_bounds),
             (InstructionType, self.instruction_type),
-            (Message, self.message),
             (Prompt, self.prompt),
-            (Model, self.model),
-            (Replicates, self.replicates),
-            (Recursion, self.recursion),
+            (Message, self.message),
+            (ModelParameters, self.model_parameters),
+            (ActiveSuggestion, self.active_suggestion),
             (Content, self.content),
             (Suggestions, self.suggestions),
-            (ActiveSuggestion, self.active_suggestion),
             // Options
             (CompilationDigest, self.options.compilation_digest),
             (CompilationMessages, self.options.compilation_messages),
@@ -195,11 +187,10 @@ impl PatchNode for InstructionBlock {
             (ExecutionRequired, self.options.execution_required),
             (ExecutionStatus, self.options.execution_status),
             (ExecutionInstance, self.options.execution_instance),
-            (ExecutionKind, self.options.execution_kind),
+            (ExecutionBounded, self.options.execution_bounded),
             (ExecutionEnded, self.options.execution_ended),
             (ExecutionDuration, self.options.execution_duration),
             (ExecutionMessages, self.options.execution_messages),
-            (PromptProvided, self.options.prompt_provided),
         );
 
         Ok(false)
@@ -424,12 +415,11 @@ impl PatchNode for InstructionBlock {
         apply_properties!(
             // Core
             (ExecutionMode, self.execution_mode),
+            (ExecutionBounds, self.execution_bounds),
             (InstructionType, self.instruction_type),
-            (Message, self.message),
             (Prompt, self.prompt),
-            (Model, self.model),
-            (Replicates, self.replicates),
-            (Recursion, self.recursion),
+            (Message, self.message),
+            (ModelParameters, self.model_parameters),
             (Content, self.content),
             (Suggestions, self.suggestions),
             // Options
@@ -443,11 +433,10 @@ impl PatchNode for InstructionBlock {
             (ExecutionRequired, self.options.execution_required),
             (ExecutionStatus, self.options.execution_status),
             (ExecutionInstance, self.options.execution_instance),
-            (ExecutionKind, self.options.execution_kind),
+            (ExecutionBounded, self.options.execution_bounded),
             (ExecutionEnded, self.options.execution_ended),
             (ExecutionDuration, self.options.execution_duration),
             (ExecutionMessages, self.options.execution_messages),
-            (PromptProvided, self.options.prompt_provided),
         )
     }
 }
@@ -488,45 +477,44 @@ impl MarkdownCodec for InstructionBlock {
                     ':',
                     &instruction_type,
                     |context| {
-                        if let Some(message) = &self.message {
-                            context
-                                .push_str(" ")
-                                .push_prop_fn(NodeProperty::Message, |context| {
-                                    message.to_markdown(context)
-                                });
-                        }
+                        context
+                            .push_str(" ")
+                            .push_prop_fn(NodeProperty::Message, |context| {
+                                self.message.to_markdown(context)
+                            });
                     },
                     |context| {
-                        if let Some(prompt) = &self.prompt {
+                        if let Some(prompt) = &self.prompt.target {
                             context.myst_directive_option(
                                 NodeProperty::Prompt,
                                 Some("prompt"),
                                 prompt,
                             );
                         }
-                        if let Some(model) = &self.model {
-                            if let Some(id_pattern) = &model.id_pattern {
+
+                        if let Some(mode) = &self.execution_mode {
+                            if !matches!(mode, ExecutionMode::Default) {
                                 context.myst_directive_option(
-                                    NodeProperty::Model,
-                                    Some("model"),
-                                    id_pattern,
-                                );
-                            }
-                            if let Some(temp) = &model.temperature {
-                                context.myst_directive_option(
-                                    NodeProperty::Temperature,
-                                    Some("temp"),
-                                    &temp.to_string(),
+                                    NodeProperty::ExecutionMode,
+                                    Some("mode"),
+                                    &mode.to_string().to_lowercase(),
                                 );
                             }
                         }
-                        if let Some(reps) = &self.replicates {
-                            context.myst_directive_option(
-                                NodeProperty::Replicates,
-                                Some("reps"),
-                                &reps.to_string(),
-                            );
+
+                        if let Some(mode) = &self.execution_bounds {
+                            if !matches!(mode, ExecutionBounds::Default) {
+                                context.myst_directive_option(
+                                    NodeProperty::ExecutionBounds,
+                                    Some("bounds"),
+                                    &mode.to_string().to_lowercase(),
+                                );
+                            }
                         }
+
+                        context.push_prop_fn(NodeProperty::ModelParameters, |context| {
+                            self.model_parameters.to_markdown(context)
+                        });
                     },
                     |context| {
                         // Show the active suggestion (if any) falling back to content (if any)
@@ -561,93 +549,57 @@ impl MarkdownCodec for InstructionBlock {
 
         context
             .push_colons()
-            .push_str(" ")
-            .push_str(&instruction_type)
-            .push_str(" ");
+            .space()
+            .push_prop_str(NodeProperty::InstructionType, &instruction_type);
 
-        if let Some(prompt) = &self.prompt {
-            context.push_str("@").push_str(prompt).push_str(" ");
+        if let Some(mode) = &self.execution_mode {
+            if !matches!(mode, ExecutionMode::Default) {
+                context.space().push_prop_str(
+                    NodeProperty::ExecutionMode,
+                    &mode.to_string().to_lowercase(),
+                );
+            }
         }
 
-        if let Some(model) = self
-            .model
-            .as_ref()
-            .and_then(|model| model.id_pattern.as_ref())
-        {
-            context.push_str("[").push_str(model).push_str("] ");
+        if let Some(bounds) = &self.execution_bounds {
+            if !matches!(bounds, ExecutionBounds::Default) {
+                context.space().push_prop_str(
+                    NodeProperty::ExecutionBounds,
+                    &bounds.to_string().to_lowercase(),
+                );
+            }
         }
 
-        if let Some(replicates) = &self.replicates {
+        if let Some(value) = &self.prompt.relative_position {
+            context.space().push_prop_str(
+                NodeProperty::RelativePosition,
+                &value.to_string().to_lowercase(),
+            );
+        }
+
+        if let Some(value) = self.prompt.node_types.iter().flatten().next() {
             context
-                .push_str("x")
-                .push_str(&replicates.to_string())
-                .push_str(" ");
+                .space()
+                .push_prop_str(NodeProperty::NodeTypes, &value.to_string().to_lowercase());
         }
 
-        if let Some(value) = self
-            .model
-            .as_ref()
-            .and_then(|model| model.minimum_score.as_ref())
-        {
-            context
-                .push_str("y")
-                .push_str(&value.to_string())
-                .push_str(" ");
+        if let Some(prompt) = &self.prompt.target {
+            if !prompt.ends_with("?") {
+                context
+                    .push_str(" @")
+                    .push_prop_str(NodeProperty::Prompt, prompt);
+            }
         }
 
-        if let Some(value) = self
-            .model
-            .as_ref()
-            .and_then(|model| model.temperature.as_ref())
-        {
-            context
-                .push_str("t")
-                .push_str(&value.to_string())
-                .push_str(" ");
-        }
+        context.push_prop_fn(NodeProperty::ModelParameters, |context| {
+            self.model_parameters.to_markdown(context);
+        });
 
-        if let Some(value) = self
-            .model
-            .as_ref()
-            .and_then(|model| model.quality_weight.as_ref())
-        {
-            context
-                .push_str("q")
-                .push_str(&value.to_string())
-                .push_str(" ");
-        }
-
-        if let Some(value) = self
-            .model
-            .as_ref()
-            .and_then(|model| model.speed_weight.as_ref())
-        {
-            context
-                .push_str("s")
-                .push_str(&value.to_string())
-                .push_str(" ");
-        }
-
-        if let Some(value) = self
-            .model
-            .as_ref()
-            .and_then(|model| model.cost_weight.as_ref())
-        {
-            context
-                .push_str("c")
-                .push_str(&value.to_string())
-                .push_str(" ");
-        }
-
-        if let Some(recursion) = &self.recursion {
-            context.push_str(&recursion.to_string()).push_str(" ");
-        }
-
-        if let Some(message) = &self.message {
-            context.push_prop_fn(NodeProperty::Message, |context| {
-                message.to_markdown(context)
-            });
-        }
+        context.push_prop_fn(NodeProperty::Message, |context| {
+            context.space();
+            self.message.to_markdown(context);
+            context.trim_end();
+        });
 
         // Show the active suggestion (if any) falling back to content (if any)
         let suggestions_count = self.suggestions.iter().flatten().count() as u64;
@@ -680,17 +632,21 @@ impl MarkdownCodec for InstructionBlock {
                 context.push_colons().newline().newline();
             }
         } else if let Some(content) = &self.content {
-            if content.len() == 1 {
-                context.push_str(" >>>");
-            }
-            context.newline().newline();
+            if content.is_empty() {
+                context.push_str(" :::").newline().newline();
+            } else {
+                if content.len() == 1 {
+                    context.push_str(" >>>");
+                }
+                context.newline().newline();
 
-            context.push_prop_fn(NodeProperty::Content, |context| {
-                content.to_markdown(context)
-            });
+                context.push_prop_fn(NodeProperty::Content, |context| {
+                    content.to_markdown(context)
+                });
 
-            if content.len() != 1 {
-                context.push_colons().newline().newline();
+                if content.len() != 1 {
+                    context.push_colons().newline().newline();
+                }
             }
         } else {
             context.push_str(" :::").newline().newline();

@@ -12,9 +12,9 @@ use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_text::CreativeWorkTypeOrText;
 use super::date::Date;
 use super::duration::Duration;
+use super::execution_bounds::ExecutionBounds;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
-use super::execution_kind::ExecutionKind;
 use super::execution_message::ExecutionMessage;
 use super::execution_mode::ExecutionMode;
 use super::execution_required::ExecutionRequired;
@@ -154,12 +154,19 @@ pub struct Article {
     #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,
 
-    /// Under which circumstances the code should be executed.
+    /// Under which circumstances the node should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
+
+    /// Under which circumstances child nodes should be executed.
+    #[serde(alias = "execution-bounds", alias = "execution_bounds")]
+    #[strip(execution)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub execution_bounds: Option<ExecutionBounds>,
 
     /// Configuration options for the document.
     #[strip(metadata)]
@@ -169,7 +176,7 @@ pub struct Article {
     pub config: Option<Config>,
 
     /// A list of links to headings, including implied section headings, within the document
-    #[strip(content)]
+    #[strip(content, temporary)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "nav")]
     pub headings: Option<List>,
@@ -188,10 +195,18 @@ pub struct Article {
 
     /// Nodes, usually from within `content` of the article, that have been archived.
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[strip(archive)]
+    #[strip(content, archive)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(skip)]
     pub archive: Option<Vec<Node>>,
+
+    /// Temporary nodes on document
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(content, temporary)]
+    #[walk]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(skip)]
+    pub temporary: Option<Vec<Node>>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -405,11 +420,11 @@ pub struct ArticleOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_instance: Option<String>,
 
-    /// The kind (e.g. main kernel vs kernel fork) of the last execution.
-    #[serde(alias = "execution-kind", alias = "execution_kind")]
+    /// The bounds, if any, on the last execution.
+    #[serde(alias = "execution-bounded", alias = "execution_bounded")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub execution_kind: Option<ExecutionKind>,
+    pub execution_bounded: Option<ExecutionBounds>,
 
     /// The timestamp when the last execution ended.
     #[serde(alias = "execution-ended", alias = "execution_ended")]

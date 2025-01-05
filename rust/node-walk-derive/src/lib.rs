@@ -49,33 +49,39 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let struct_name = type_attr.ident;
 
-    let (enter, exit) = if !struct_name.to_string().ends_with("Options") {
+    let (enter, enter_async, exit) = if !struct_name.to_string().ends_with("Options") {
         (
             quote! {
-                visitor.enter_struct(self.node_type(), self.node_id());
+                if visitor.enter_struct(self.node_type(), self.node_id()).is_break() {
+                    return
+                }
+            },
+            quote! {
+                if visitor.enter_struct(self.node_type(), self.node_id()).is_break() {
+                    return Ok(())
+                }
             },
             quote! {
                 visitor.exit_struct();
             },
         )
     } else {
-        (TokenStream::new(), TokenStream::new())
+        (TokenStream::new(), TokenStream::new(), TokenStream::new())
     };
 
-    let (visit, visit_mut, visit_async) = match struct_name.to_string().as_str() {
-        name @ ("IfBlockClause" | "ListItem" | "SuggestionBlock" | "SuggestionInline"
-        | "TableRow" | "TableCell" | "WalkthroughStep") => {
-            let method = match name {
-                "IfBlockClause" => quote!(visit_if_block_clause),
-                "ListItem" => quote!(visit_list_item),
-                "SuggestionBlock" => quote!(visit_suggestion_block),
-                "SuggestionInline" => quote!(visit_suggestion_inline),
-                "TableRow" => quote!(visit_table_row),
-                "TableCell" => quote!(visit_table_cell),
-                "WalkthroughStep" => quote!(visit_walkthrough_step),
-                _ => unreachable!(),
-            };
+    let (visit, visit_mut, visit_async) = {
+        let method = match struct_name.to_string().as_str() {
+            "IfBlockClause" => Some(quote!(visit_if_block_clause)),
+            "ListItem" => Some(quote!(visit_list_item)),
+            "SuggestionBlock" => Some(quote!(visit_suggestion_block)),
+            "SuggestionInline" => Some(quote!(visit_suggestion_inline)),
+            "TableRow" => Some(quote!(visit_table_row)),
+            "TableCell" => Some(quote!(visit_table_cell)),
+            "WalkthroughStep" => Some(quote!(visit_walkthrough_step)),
+            _ => None,
+        };
 
+        if let Some(method) = method {
             (
                 quote! {
                     if visitor.#method(self).is_break() {
@@ -93,8 +99,9 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                     }
                 },
             )
+        } else {
+            (TokenStream::new(), TokenStream::new(), TokenStream::new())
         }
-        _ => (TokenStream::new(), TokenStream::new(), TokenStream::new()),
     };
 
     let mut fields = TokenStream::new();
@@ -108,18 +115,30 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             let property = Ident::new(&field_name.to_string().to_pascal_case(), Span::call_site());
 
             fields.extend(quote! {
-                visitor.enter_property(NodeProperty::#property);
+                if visitor.enter_property(NodeProperty::#property).is_break() {
+                    return
+                }
+
                 self.#field_name.walk(visitor);
+
                 visitor.exit_property();
             });
             fields_mut.extend(quote! {
-                visitor.enter_property(NodeProperty::#property);
+                if visitor.enter_property(NodeProperty::#property).is_break() {
+                    return
+                }
+
                 self.#field_name.walk_mut(visitor);
+
                 visitor.exit_property();
             });
             fields_async.extend(quote! {
-                visitor.enter_property(NodeProperty::#property);
+                if visitor.enter_property(NodeProperty::#property).is_break() {
+                    return Ok(())
+                }
+
                 self.#field_name.walk_async(visitor).await?;
+
                 visitor.exit_property();
             })
         }
@@ -148,7 +167,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
                 #[async_recursion]
                 async fn walk_async<V: VisitorAsync>(&mut self, visitor: &mut V) -> Result<()> {
-                    #enter
+                    #enter_async
                     #visit_async
                     #fields_async
                     #exit
@@ -163,16 +182,16 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     let enum_name = type_attr.ident;
 
-    let (visit, visit_mut, visit_async) = match enum_name.to_string().as_str() {
-        name @ ("Node" | "CreativeWorkType" | "Block" | "Inline") => {
-            let method = match name {
-                "Node" => quote!(visit_node),
-                "CreativeWorkType" => quote!(visit_work),
-                "Block" => quote!(visit_block),
-                "Inline" => quote!(visit_inline),
-                _ => unreachable!(),
-            };
+    let (visit, visit_mut, visit_async) = {
+        let method = match enum_name.to_string().as_str() {
+            "Node" => Some(quote!(visit_node)),
+            "CreativeWorkType" => Some(quote!(visit_work)),
+            "Block" => Some(quote!(visit_block)),
+            "Inline" => Some(quote!(visit_inline)),
+            _ => None,
+        };
 
+        if let Some(method) = method {
             (
                 quote! {
                     if visitor.#method(self).is_break() {
@@ -190,8 +209,9 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
                     }
                 },
             )
+        } else {
+            (TokenStream::new(), TokenStream::new(), TokenStream::new())
         }
-        _ => (TokenStream::new(), TokenStream::new(), TokenStream::new()),
     };
 
     let mut variants = TokenStream::new();
@@ -201,13 +221,13 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
         if matches!(variant.fields, Fields::Named(..) | Fields::Unnamed(..)) {
             let variant_name = &variant.ident;
             variants.extend(quote! {
-                Self::#variant_name(variant) => { variant.walk(visitor); },
+                Self::#variant_name(variant) => variant.walk(visitor),
             });
             variants_mut.extend(quote! {
-                Self::#variant_name(variant) => { variant.walk_mut(visitor); },
+                Self::#variant_name(variant) => variant.walk_mut(visitor),
             });
             variants_async.extend(quote! {
-                Self::#variant_name(variant) => { variant.walk_async(visitor).await?; },
+                Self::#variant_name(variant) => variant.walk_async(visitor).await?,
             })
         };
     }

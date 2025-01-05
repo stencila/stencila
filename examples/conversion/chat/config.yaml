@@ -1,0 +1,12 @@
+smd:
+  canonical: true
+
+compact.jats.xml:
+  encode:
+    # Not yet supported
+    skip: true
+
+pandoc:
+  encode:
+    # Not yet supported
+    skip: true

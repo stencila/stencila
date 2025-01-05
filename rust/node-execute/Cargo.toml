@@ -9,6 +9,7 @@ codec-markdown-trait = { path = "../codec-markdown-trait" }
 codecs = { path = "../codecs" }
 common = { path = "../common" }
 kernels = { path = "../kernels" }
+models = { path = "../models" }
 parsers = { path = "../parsers" }
 prompts = { path = "../prompts" }
 schema = { path = "../schema" }

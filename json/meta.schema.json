@@ -821,6 +821,11 @@
       "description": "Options for `serde` serialization/deserialization",
       "type": "object",
       "properties": {
+        "default": {
+          "description": "Set the `default` attribute of a field\n\nSee https://serde.rs/field-attrs.html#default",
+          "default": false,
+          "type": "boolean"
+        },
         "deserializeWith": {
           "description": "Set the `deserialize_with` attribute of a field\n\nSee https://serde.rs/field-attrs.html#deserialize_with",
           "type": "string"
@@ -848,6 +853,7 @@
         "metadata",
         "content",
         "archive",
+        "temporary",
         "code",
         "execution",
         "output",

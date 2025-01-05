@@ -19,12 +19,14 @@ import { registerStatusBar } from "./status-bar";
 import {
   closeDocumentViewPanels,
   documentPatchHandlers,
+  DomPatch,
   registerSubscriptionNotifications,
 } from "./webviews";
 import { cliPath } from "./cli";
 import { registerWalkthroughCommands } from "./walkthroughs";
 import { registerStencilaShell } from "./shell";
 import { registerSetupView } from "./setup";
+import { registerChatEditor } from "./editors";
 
 let client: LanguageClient | undefined;
 
@@ -53,9 +55,10 @@ export async function activate(context: vscode.ExtensionContext) {
   registerAuthenticationProvider(context);
   registerSecretsCommands(context);
   registerDocumentCommands(context);
-  registerStatusBar(context);
   registerWalkthroughCommands(context);
+  registerStatusBar(context);
   registerStencilaShell(context);
+  registerChatEditor(context);
   registerOtherCommands(context);
 
   await startServer(context);
@@ -205,7 +208,7 @@ export function deactivate() {
  */
 export async function subscribeToDom(
   documentUri: vscode.Uri,
-  callback: (patch: unknown) => void
+  callback: (patch: DomPatch) => void
 ): Promise<[string, string, string]> {
   if (!client) {
     throw new Error("No Stencila LSP client");

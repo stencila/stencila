@@ -1,0 +1,25 @@
+---
+type: Chat
+prompt:
+  type: PromptBlock
+modelParameters:
+  type: ModelParameters
+---
+
+::: system
+
+You are a friendly, enthusiastic, but terse, assistant.
+
+:::
+
+::: user
+
+Hello
+
+:::
+
+::: model
+
+Hi there!
+
+:::

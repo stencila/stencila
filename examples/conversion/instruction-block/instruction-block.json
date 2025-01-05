@@ -31,7 +31,10 @@
     {
       "type": "InstructionBlock",
       "instructionType": "Create",
-      "prompt": "table",
+      "prompt": {
+        "type": "PromptBlock",
+        "target": "table"
+      },
       "message": {
         "type": "InstructionMessage",
         "parts": [
@@ -54,7 +57,10 @@
     {
       "type": "InstructionBlock",
       "instructionType": "Create",
-      "prompt": "code-chunk"
+      "prompt": {
+        "type": "PromptBlock",
+        "target": "code-chunk"
+      }
     },
     {
       "type": "Paragraph",
@@ -93,7 +99,10 @@
     {
       "type": "InstructionBlock",
       "instructionType": "Edit",
-      "prompt": "anne",
+      "prompt": {
+        "type": "PromptBlock",
+        "target": "para"
+      },
       "message": {
         "type": "InstructionMessage",
         "parts": [{ "type": "Text", "value": "please improve this paragraph" }]
@@ -119,7 +128,10 @@
     {
       "type": "InstructionBlock",
       "instructionType": "Create",
-      "prompt": "code-chunk",
+      "prompt": {
+        "type": "PromptBlock",
+        "target": "code-chunk"
+      },
       "message": {
         "type": "InstructionMessage",
         "parts": [{ "type": "Text", "value": "analyze data" }]
@@ -168,6 +180,45 @@
           ]
         }
       ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "With prompt and model parameters specified:"
+        }
+      ]
+    },
+    {
+      "type": "InstructionBlock",
+      "instructionType": "Create",
+      "message": {
+        "type": "InstructionMessage",
+        "parts": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "message"
+            }
+          }
+        ]
+      },
+      "prompt": {
+        "type": "PromptBlock",
+        "target": "prompt"
+      },
+      "modelParameters": {
+        "type": "ModelParameters",
+        "modelIds": ["model1", "model2"],
+        "replicates": 3,
+        "qualityWeight": 10,
+        "costWeight": 10,
+        "speedWeight": 10,
+        "minimumScore": 40,
+        "temperature": 10,
+        "randomSeed": 123
+      }
     }
   ]
 }

@@ -28,7 +28,7 @@ use common::{
 };
 use document::{CommandWait, Document, SaveDocumentSidecar, SaveDocumentSource};
 use schema::{
-    Author, AuthorRole, AuthorRoleName, Duration, ExecutionKind, ExecutionMessage, ExecutionMode,
+    Author, AuthorRole, AuthorRoleName, Duration, ExecutionBounds, ExecutionMessage, ExecutionMode,
     ExecutionRequired, ExecutionStatus, Node, NodeId, NodeType, Person, ProvenanceCount, Timestamp,
     Visitor,
 };
@@ -43,6 +43,9 @@ use crate::{diagnostics, inspect::Inspector, node_info, ServerState};
 pub(super) struct TextNode {
     /// The range in the document that the node occurs
     pub range: Range,
+
+    /// Whether the node is the root node of a document
+    pub is_root: bool,
 
     /// The type of the parent of the node
     pub parent_type: NodeType,
@@ -102,7 +105,7 @@ pub(super) struct TextNodeExecution {
     pub mode: Option<ExecutionMode>,
     pub status: Option<ExecutionStatus>,
     pub required: Option<ExecutionRequired>,
-    pub kind: Option<ExecutionKind>,
+    pub bounded: Option<ExecutionBounds>,
     pub duration: Option<Duration>,
     pub ended: Option<Timestamp>,
     pub outputs: Option<usize>,
@@ -115,6 +118,7 @@ impl Default for TextNode {
     fn default() -> Self {
         Self {
             range: Range::default(),
+            is_root: false,
             parent_type: NodeType::Null,
             parent_id: NodeId::null(),
             is_block: false,
@@ -226,6 +230,89 @@ impl TextNode {
         None
     }
 
+    /// Get the [`NodeId`] of a block at a position
+    pub fn block_id_at(&self, position: Position) -> Option<NodeId> {
+        // Search through children (and thus recursively through all
+        // descendants so that the deepest (most narrow range) node is selected
+        for child in &self.children {
+            if let Some(node_id) = child.block_id_at(position) {
+                return Some(node_id);
+            }
+        }
+
+        // If no descendants in range then check if this is
+        if self.node_type.is_block() && position >= self.range.start && position < self.range.end {
+            return Some(self.node_id.clone());
+        }
+
+        None
+    }
+
+    /// Get th [`NodeId`]s of the blocks that span a range
+    ///
+    /// Note that this is only intended to be called on the root text node
+    /// to identify top level blocks within the selected range.
+    pub fn block_ids_spanning(&self, range: Range) -> Vec<NodeId> {
+        self.children
+            .iter()
+            .filter(|child| {
+                child.node_type.is_block()
+                    && !((child.range.start.line < range.start.line
+                        && child.range.end.line < range.end.line)
+                        || (child.range.start.line > range.end.line
+                            && child.range.end.line > range.end.line))
+            })
+            .map(|child_node| child_node.node_id.clone())
+            .collect()
+    }
+
+    /// Get the [`NodeId`]s of the previous and next blocks relative to a range
+    pub fn block_ids_previous_next(&self, range: Range) -> (Option<NodeId>, Option<NodeId>) {
+        // Search for previous block
+        let start_block = self.block_id_at(range.start);
+        let mut line = range.start.line;
+        let mut previous = None;
+        loop {
+            let block = self.block_id_at(Position { line, character: 0 });
+            if block.is_some() && block != start_block {
+                previous = block;
+                break;
+            }
+
+            if line == 0 {
+                break;
+            } else {
+                line -= 1;
+            }
+        }
+
+        // Search for next block
+        let end_block = self.block_id_at(range.end);
+        let mut line = range.end.line;
+        let mut next = None;
+        loop {
+            let block = self.block_id_at(Position { line, character: 0 });
+            if block.is_some() && block != end_block {
+                next = block;
+                break;
+            }
+
+            let mut end = self.range.end.line;
+            if end <= range.end.line {
+                // self.range is not reliably populated: if it looks like
+                // it isn't then just move forward a large number of lines
+                end = range.end.line + 100;
+            }
+            if line > end {
+                break;
+            } else {
+                line += 1;
+            }
+        }
+
+        (previous, next)
+    }
+
     /// Get the [`NodeId`] of the [`NodeType::InstructionBlock`] or [`NodeType::InstructionInline`]
     /// at a position if any
     ///
@@ -253,7 +340,7 @@ impl TextNode {
         None
     }
 
-    /// Get the [`NodeId`] of the [`NodeType::Walkthrough`] at a position if any
+    /// Get the [`NodeId`] of the [`NodeType`] at a position if any
     pub fn node_type_ancestor(&self, node_type: NodeType, position: Position) -> Option<NodeId> {
         // Check if this is the desired type and spans the position
         if self.node_type == node_type && position >= self.range.start && position < self.range.end
@@ -269,6 +356,59 @@ impl TextNode {
         }
 
         None
+    }
+
+    /// Get the [`NodeId`] and index within block content at a position
+    ///
+    /// Used for finding the index to insert a new block within the [`NodeProperty::Content`]
+    /// of a node.
+    pub fn block_content_index(&self, position: Position) -> Option<(NodeId, usize)> {
+        // Return early with `None` if this is not a node type that
+        // has a content property with blocks
+        use NodeType::*;
+        if !matches!(
+            self.node_type,
+            // This list can be updated by searching for `content: Vec<Block>` in `schema/src/types/*.rs`
+            Admonition
+                | Article
+                | Chat
+                | ChatMessage
+                | Claim
+                | Comment
+                | Figure
+                | ForBlock
+                | Form
+                | IfBlockClause
+                | ListItem
+                | Note
+                | Prompt
+                | QuoteBlock
+                | Section
+                | StyledBlock
+                | SuggestionBlock
+                | TableCell
+                | WalkthroughStep
+        ) {
+            return None;
+        }
+
+        for (index, child) in self.children.iter().enumerate() {
+            // Use less than or equal here so that if cursor is at start we return
+            // the index before the child
+            if position <= child.range.start {
+                return Some((self.node_id.clone(), index));
+            }
+
+            if position < child.range.end {
+                // Check if in child or one of child's descendants
+                if let Some(result) = child.block_content_index(position) {
+                    return Some(result);
+                }
+            }
+        }
+
+        (position >= self.range.start && position < self.range.end)
+            .then_some((self.node_id.clone(), self.children.len()))
     }
 
     /// Get the [`Range`] of a [`NodeId`]
@@ -484,8 +624,9 @@ impl TextDocument {
                     // Received nothing: sender has dropped so stop
                     break;
                 }
-                Ok(Some((source, delay))) => {
-                    // Received new source
+                Ok(Some((new_source, delay))) => {
+                    // Always update source for accuracy of code completions etc
+                    *source.write().await = new_source.clone();
 
                     // Notify watchers that document is out of sync
                     if let Err(error) = sync_state_sender.send(SyncState::Stale) {
@@ -494,11 +635,11 @@ impl TextDocument {
 
                     // Update the latest source or continue
                     if matches!(delay, UpdateDelay::Yes) {
-                        latest_source = Some(source);
+                        latest_source = Some(new_source);
                         continue;
                     } else {
                         latest_source = None;
-                        source
+                        new_source
                     }
                 }
                 Err(..) => {
@@ -511,9 +652,6 @@ impl TextDocument {
                     source
                 }
             };
-
-            // Update the source
-            *source.write().await = new_source.clone();
 
             // Decode the source into a node
             let (node, DecodeInfo { messages, .. }) = match codecs::from_str_with_info(
@@ -680,7 +818,6 @@ impl TextDocument {
 
             // Publish diagnostics and update the root TextNode
             if let Some(text_node) = inspector.root() {
-                //eprintln!("ROOT: {text_node:#?}");
                 diagnostics::publish(&uri, &text_node, &mut client);
                 node_info::publish(&uri, &text_node, &mut client);
                 *root.write().await = text_node;
@@ -706,7 +843,12 @@ pub(super) fn did_open(
 ) -> ControlFlow<Result<(), Error>> {
     let uri = params.text_document.uri;
     let format = params.text_document.language_id;
-    let source = params.text_document.text;
+    let mut source = params.text_document.text;
+
+    // Ensure if the document is a new chat document, that is it well formed
+    if uri.path().ends_with(".chat") && source.is_empty() {
+        source.push_str("---\ntype: Chat\n---");
+    }
 
     let client = state.client.clone();
     let user = state

@@ -18,15 +18,15 @@ import './datatable-column'
 @withTwind()
 export class Datatable extends Entity {
   override render() {
-    if (this.ancestors.includes('StyledBlock')) {
+    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return this.renderContent()
     }
 
     return html`
       <stencila-ui-block-on-demand
         type="Datatable"
+        node-id=${this.id}
         depth=${this.depth}
-        ancestors=${this.ancestors}
       >
         <div class="content" slot="content">${this.renderContent()}</div>
       </stencila-ui-block-on-demand>

@@ -4,6 +4,8 @@ import { apply } from '@twind/core'
 import { html } from 'lit'
 import { state, property } from 'lit/decorators'
 
+import { ChatMessage } from '../../../nodes/chat-message'
+import { SuggestionBlock } from '../../../nodes/suggestion-block'
 import { getModeParam } from '../../../utilities/getModeParam'
 import { DocumentContext, documentContext } from '../../document/context'
 import { UIBaseCard } from '../cards/base-card'
@@ -51,18 +53,6 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
     protected toggle: boolean = false
 
     /**
-     * the depth of the current `Node`
-     */
-    @property({ type: Number })
-    depth: number
-
-    /**
-     * the string of ancestors for the `Node`
-     */
-    @property({ type: String })
-    ancestors: string
-
-    /**
      * Boolean switch property, to handle nodes with empty content/output
      */
     @property({ type: Boolean })
@@ -102,12 +92,36 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
       )
     }
 
-    override connectedCallback(): void {
-      super.connectedCallback()
+    /**
+     * Whether the node card should be initially expanded
+     */
+    protected isInitiallyExpanded() {
+      // Expand if the root node
+      if (this.depth === 0) {
+        return true
+      }
+
+      // Expand if in 'test-expand-all' mode for snapshot tests
       const testMode = getModeParam(window)
       if (testMode && testMode === 'test-expand-all') {
-        this.toggle = true
+        return true
       }
+
+      // Expand certain nodes types in certain chat messages
+      if (
+        ChatMessage.shouldExpand(this, this.type) ||
+        SuggestionBlock.shouldExpand(this, this.type)
+      ) {
+        return true
+      }
+
+      return false
+    }
+
+    override connectedCallback(): void {
+      super.connectedCallback()
+
+      this.toggle = this.isInitiallyExpanded()
     }
 
     protected renderMarker() {
@@ -125,9 +139,8 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
 
       const { borderColour, icon } = nodeUi(this.type)
 
-      const markerStateClasses = this.toggle
-        ? 'opacity-100'
-        : this.docViewContext.nodeMarkerState === 'hidden'
+      const markerStateClasses =
+        this.toggle || this.docViewContext.nodeMarkerState === 'hidden'
           ? 'opacity-0 pointer-events-none'
           : this.docViewContext.nodeMarkerState === 'hover-only'
             ? 'opacity-0 group-hover:opacity-100'

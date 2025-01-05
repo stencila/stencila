@@ -1,16 +1,12 @@
 import SlTooltip from '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
-import {
-  NodeType,
-  ProvenanceCategory,
-  provenanceCategories,
-} from '@stencila/types'
+import { ProvenanceCategory, provenanceCategories } from '@stencila/types'
 import { apply } from '@twind/core'
 import { html, PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators'
 import { Ref, createRef, ref } from 'lit/directives/ref'
 
 import { withTwind } from '../twind'
-import { nodeUi } from '../ui/nodes/icons-and-colours'
+import { NodeTypeUI, nodeUi } from '../ui/nodes/icons-and-colours'
 import { renderProvenanceCategory } from '../ui/nodes/properties/provenance-category'
 
 import { Entity } from './entity'
@@ -31,14 +27,26 @@ export class ProvenanceCount extends Entity {
   characterPercent: number
 
   /**
+   * UI settings of the parent node type
+   *
+   * Instantiated in `connectedCallback` to avoid getting on each render.
+   */
+  private parentNodeUI: NodeTypeUI
+
+  /**
    * The refs used by this element.
    */
   private tooltipRef: Ref<SlTooltip> = createRef()
   private buttonRef: Ref<HTMLElement> = createRef()
 
+  override connectedCallback() {
+    super.connectedCallback()
+
+    this.parentNodeUI = nodeUi(this.parentNodeType)
+  }
+
   override render() {
-    const nodeType = this.ancestors.split('.').reverse()[0] as NodeType
-    const { colour, borderColour, textColour } = nodeUi(nodeType)
+    const { colour, borderColour, textColour } = this.parentNodeUI
 
     const styles = apply([
       'relative',

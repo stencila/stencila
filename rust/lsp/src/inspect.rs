@@ -2,17 +2,19 @@ use async_lsp::lsp_types::Range;
 
 use codec_text_trait::TextCodec;
 use codecs::{Mapping, PoshMap};
+use common::tracing;
 use schema::{
-    Admonition, Article, AudioObject, Block, Button, CallBlock, Cite, CiteGroup, Claim, CodeBlock,
-    CodeChunk, CodeExpression, CodeInline, Date, DateTime, DeleteBlock, DeleteInline, Duration,
-    Emphasis, ExecutionStatus, Figure, ForBlock, Form, Heading, IfBlock, IfBlockClause,
-    ImageObject, IncludeBlock, Inline, InsertBlock, InsertInline, InstructionBlock,
-    InstructionInline, LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject,
-    ModifyBlock, ModifyInline, Node, NodeId, NodeProperty, NodeType, Note, Paragraph, Parameter,
-    PromptBlock, ProvenanceCount, QuoteBlock, QuoteInline, RawBlock, ReplaceBlock, ReplaceInline,
-    Section, Strikeout, Strong, StyledBlock, StyledInline, Subscript, SuggestionBlock,
-    SuggestionInline, Superscript, Table, TableCell, TableRow, Text, ThematicBreak, Time,
-    Timestamp, Underline, VideoObject, Visitor, WalkControl, Walkthrough, WalkthroughStep,
+    Admonition, Article, AudioObject, Block, Button, CallBlock, Chat, ChatMessage,
+    ChatMessageGroup, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeExpression, CodeInline,
+    Date, DateTime, DeleteBlock, DeleteInline, Duration, Emphasis, ExecutionStatus, Figure,
+    ForBlock, Form, Heading, IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline,
+    InsertBlock, InsertInline, InstructionBlock, InstructionInline, LabelType, Link, List,
+    ListItem, MathBlock, MathInline, MediaObject, ModifyBlock, ModifyInline, Node, NodeId,
+    NodeProperty, NodeType, Note, Paragraph, Parameter, Prompt, PromptBlock, ProvenanceCount,
+    QuoteBlock, QuoteInline, RawBlock, ReplaceBlock, ReplaceInline, Section, Strikeout, Strong,
+    StyledBlock, StyledInline, Subscript, SuggestionBlock, SuggestionInline, Superscript, Table,
+    TableCell, TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor,
+    WalkControl, Walkthrough, WalkthroughStep,
 };
 
 use crate::{
@@ -62,14 +64,20 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
         execution: Option<TextNodeExecution>,
         provenance: Option<Vec<ProvenanceCount>>,
     ) -> &mut TextNode {
-        let range = match self.poshmap.node_id_to_range16(&node_id) {
-            Some(range) => range16_to_range(range),
-            None => {
-                // A range may not exist for nodes that are not encoded into the
-                // text document (e.g. the non-active suggestions of an instruction).
-                // In these cases we return the default range (first char of document)
-                // and use that as a way of knowing whether to show code lenses of not
-                Range::default()
+        let is_root = self.stack.is_empty();
+
+        let range = if is_root {
+            Range::default()
+        } else {
+            match self.poshmap.node_id_to_range16(&node_id) {
+                Some(range) => range16_to_range(range),
+                None => {
+                    // A range may not exist for nodes that are not encoded into the
+                    // text document (e.g. the non-active suggestions of an instruction).
+                    // In these cases we return the default range (first char of document)
+                    // and use that as a way of knowing whether to show code lenses of not
+                    Range::default()
+                }
             }
         };
 
@@ -86,38 +94,11 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
             _ => node_type.to_string(),
         });
 
-        use NodeType::*;
-        let is_block = matches!(
-            node_type,
-            Admonition
-                | CallBlock
-                | Claim
-                | CodeBlock
-                | CodeChunk
-                | DeleteBlock
-                | Figure
-                | ForBlock
-                | Form
-                | Heading
-                | IfBlock
-                | IncludeBlock
-                | InsertBlock
-                | InstructionBlock
-                | List
-                | MathBlock
-                | ModifyBlock
-                | Paragraph
-                | QuoteBlock
-                | ReplaceBlock
-                | Section
-                | StyledBlock
-                | SuggestionBlock
-                | Table
-                | ThematicBreak
-        );
+        let is_block = !is_root && node_type.is_block();
 
         self.stack.push(TextNode {
             range,
+            is_root,
             parent_type,
             parent_id,
             is_block,
@@ -136,6 +117,7 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
     fn exit_node(&mut self) {
         if self.stack.len() > 1 {
             if let Some(node) = self.stack.pop() {
+                // If has parent, add to its children
                 if let Some(parent) = self.stack.last_mut() {
                     parent.children.push(node)
                 }
@@ -149,7 +131,11 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         #[allow(clippy::single_match)]
         match node {
             Node::Article(node) => node.inspect(self),
-            _ => {}
+            Node::Chat(node) => node.inspect(self),
+            Node::Prompt(node) => node.inspect(self),
+            _ => {
+                tracing::warn!("Node type `{node}` not inspected");
+            }
         };
 
         // Break walk because `variant` visited above
@@ -168,6 +154,9 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         variants!(
             Admonition,
             CallBlock,
+            Chat,
+            ChatMessage,
+            ChatMessageGroup,
             Claim,
             CodeBlock,
             CodeChunk,
@@ -393,33 +382,28 @@ trait Inspect {
     fn inspect(&self, inspector: &mut Inspector);
 }
 
-impl Inspect for Article {
+impl Inspect for ChatMessage {
     fn inspect(&self, inspector: &mut Inspector) {
-        // Set this as the root node that others will become children of
-        inspector.stack.push(TextNode {
-            range: Range::default(),
-            parent_type: NodeType::Null,
-            parent_id: NodeId::null(),
-            is_block: false,
-            node_type: self.node_type(),
-            node_id: self.node_id(),
-            name: "Article".to_string(),
-            detail: None,
-            // Do not collect execution details or provenance because
-            // we do not want these displayed on the first line in code lenses etc
+        let execution = Some(TextNodeExecution {
+            mode: self.execution_mode.clone(),
+            status: self.options.execution_status.clone(),
+            required: self.options.execution_required.clone(),
+            duration: self.options.execution_duration.clone(),
+            ended: self.options.execution_ended.clone(),
+            messages: self.options.execution_messages.clone(),
             ..Default::default()
         });
 
-        // Visit the article
+        inspector.enter_node(
+            self.node_type(),
+            self.node_id(),
+            Some("Message".into()),
+            Some(self.role.to_string()),
+            execution,
+            None,
+        );
         inspector.visit(self);
-
-        // Expand the range of the article to the last node
-        if let (Some(last), Some(node)) = (
-            inspector.stack.last().map(|last| last.range),
-            inspector.stack.first_mut(),
-        ) {
-            node.range.end = last.end;
-        }
+        inspector.exit_node();
     }
 }
 
@@ -464,7 +448,7 @@ impl Inspect for CodeChunk {
             mode: self.execution_mode.clone(),
             status: self.options.execution_status.clone(),
             required: self.options.execution_required.clone(),
-            kind: self.options.execution_kind.clone(),
+            bounded: self.options.execution_bounded.clone(),
             duration: self.options.execution_duration.clone(),
             ended: self.options.execution_ended.clone(),
             outputs: self.outputs.as_ref().map(|outputs| outputs.len()),
@@ -749,8 +733,13 @@ macro_rules! default {
 }
 
 default!(
+    // Works
+    Article,
+    Prompt,
+    Chat,
     // Blocks
     Admonition,
+    ChatMessageGroup,
     Claim,
     CodeBlock,
     DeleteBlock,

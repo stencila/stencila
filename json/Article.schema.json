@@ -30,6 +30,7 @@
     "id",
     "id",
     "executionMode",
+    "executionBounds",
     "title",
     "authors",
     "provenance",
@@ -45,6 +46,7 @@
     "references",
     "config",
     "headings",
+    "temporary",
     "archive"
   ],
   "properties": {
@@ -80,6 +82,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -193,6 +196,7 @@
         "authors"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -227,6 +231,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -248,6 +253,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -269,6 +275,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -314,6 +321,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -329,6 +337,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -345,6 +354,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -360,6 +370,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -376,6 +387,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -390,6 +402,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -449,6 +462,7 @@
         ]
       },
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -475,6 +489,7 @@
         ]
       },
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -543,6 +558,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "dom": {
@@ -634,7 +650,7 @@
     },
     "executionMode": {
       "@id": "stencila:executionMode",
-      "description": "Under which circumstances the code should be executed.",
+      "description": "Under which circumstances the node should be executed.",
       "aliases": [
         "execution-mode",
         "execution_mode"
@@ -652,6 +668,27 @@
         ]
       },
       "$ref": "ExecutionMode.schema.json"
+    },
+    "executionBounds": {
+      "@id": "stencila:executionBounds",
+      "description": "Under which circumstances child nodes should be executed.",
+      "aliases": [
+        "execution-bounds",
+        "execution_bounds"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "$ref": "ExecutionBounds.schema.json"
     },
     "compilationDigest": {
       "@id": "stencila:compilationDigest",
@@ -818,17 +855,17 @@
       ],
       "type": "string"
     },
-    "executionKind": {
-      "@id": "stencila:executionKind",
-      "description": "The kind (e.g. main kernel vs kernel fork) of the last execution.",
+    "executionBounded": {
+      "@id": "stencila:executionBounded",
+      "description": "The bounds, if any, on the last execution.",
       "aliases": [
-        "execution-kind",
-        "execution_kind"
+        "execution-bounded",
+        "execution_bounded"
       ],
       "strip": [
         "execution"
       ],
-      "$ref": "ExecutionKind.schema.json"
+      "$ref": "ExecutionBounds.schema.json"
     },
     "executionEnded": {
       "@id": "stencila:executionEnded",
@@ -953,7 +990,8 @@
       "description": "A list of links to headings, including implied section headings, within the document",
       "$comment": "This list is automatically populated when the document is compiled.\nEach item in the list has (1) a `Link` to the heading, and (2) a nested list of subheadings.\n",
       "strip": [
-        "content"
+        "content",
+        "temporary"
       ],
       "dom": {
         "elem": "nav"
@@ -996,8 +1034,25 @@
       "@id": "stencila:archive",
       "description": "Nodes, usually from within `content` of the article, that have been archived.",
       "strip": [
+        "content",
         "archive"
       ],
+      "dom": {
+        "skip": true
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Node.schema.json"
+      }
+    },
+    "temporary": {
+      "@id": "stencila:temporary",
+      "description": "Temporary nodes on document",
+      "strip": [
+        "content",
+        "temporary"
+      ],
+      "walk": true,
       "dom": {
         "skip": true
       },

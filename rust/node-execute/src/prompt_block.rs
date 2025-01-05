@@ -1,28 +1,99 @@
-use std::{ops::Deref, path::Path, sync::Arc};
+use std::{ops::Deref, path::PathBuf, sync::Arc};
 
 use common::{
     eyre::{OptionExt, Result},
-    rand::{self, Rng},
     tokio::sync::RwLock,
 };
 use kernels::Kernels;
 use prompts::prompt::{KernelsContext, PromptContext};
-use schema::{replicate, CompilationDigest, InstructionType, PromptBlock};
+use schema::{replicate, CompilationDigest, PromptBlock};
 
-use crate::prelude::*;
+use crate::{prelude::*, state_digest};
 
 impl Executable for PromptBlock {
     #[tracing::instrument(skip_all)]
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
+
+        let state_digest = state_digest!(
+            self.instruction_type,
+            self.node_types,
+            self.query,
+            self.target
+        );
+
+        let compilation_digest = CompilationDigest::new(state_digest);
+
+        if Some(&compilation_digest) == self.options.compilation_digest.as_ref() {
+            tracing::trace!("Skipping compiling PromptBlock {node_id}");
+
+            return WalkControl::Break;
+        }
+
         tracing::trace!("Compiling PromptBlock {node_id}");
 
-        // Always change compile digest because if this has been
-        // called then likely document has changed and prompt should
-        // be considered stale
-        let mut rng = rand::thread_rng();
-        let state_digest = rng.gen();
-        let compilation_digest = CompilationDigest::new(state_digest);
+        // Infer prompt if appropriate
+        if self.target.is_none()
+            || self
+                .target
+                .as_ref()
+                .map(|target| target.ends_with("?"))
+                .unwrap_or_default()
+        {
+            if let Some(prompt) = prompts::infer(
+                &self.instruction_type,
+                &self.node_types,
+                &self.query.as_deref(),
+            )
+            .await
+            {
+                let id = prompt
+                    .id
+                    .as_ref()
+                    .map(|id| prompts::shorten(id, &self.instruction_type))
+                    .map(|id| [&id, "?"].concat());
+
+                self.target = id.clone();
+                executor.patch(&node_id, [set(NodeProperty::Target, id)]);
+            }
+        }
+
+        // Populate prompt content so it is preview-able to the user
+        let messages = if let Some(target) = &self.target {
+            let target = prompts::expand(target, &self.instruction_type);
+            match prompts::get(&target).await {
+                Ok(prompt) => {
+                    // Get the home directory of the prompt, needed at execution times
+                    let dir = prompt.home().to_string_lossy().to_string();
+
+                    // Replicate the content of the prompt so that the prompt block has different ids.
+                    // Given that the same prompt could be used multiple times in a doc, if we don't
+                    // do this there could be clashes.
+                    let content = replicate(&prompt.content).unwrap_or_default();
+
+                    // Set both here and via patch
+                    self.options.directory = Some(dir.clone());
+                    self.content = Some(content.clone());
+                    executor.patch(
+                        &node_id,
+                        [
+                            set(NodeProperty::Directory, dir),
+                            // It is important to use `none` and `append` here because
+                            // the latter retains node ids so they are the same as in `self.content`
+                            // TODO: consider doing a merge rather than full replacement. Replacement
+                            // seems to cause large, slow diffs in DOMs (do to a whole lot of new ids?)
+                            none(NodeProperty::Content),
+                            append(NodeProperty::Content, content),
+                        ],
+                    );
+
+                    None
+                }
+                Err(error) => Some(vec![error_to_compilation_message(error)]),
+            }
+        } else {
+            None
+        };
 
         let execution_required =
             execution_required_digests(&self.options.execution_digest, &compilation_digest);
@@ -33,6 +104,7 @@ impl Executable for PromptBlock {
             &node_id,
             [
                 set(NodeProperty::CompilationDigest, compilation_digest),
+                set(NodeProperty::CompilationMessages, messages),
                 set(NodeProperty::ExecutionRequired, execution_required),
             ],
         );
@@ -75,53 +147,25 @@ impl Executable for PromptBlock {
         self.options.execution_status = Some(status.clone());
         executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
 
-        // Get the prompt
-        let prompt = match prompts::get(&self.prompt, &InstructionType::Create).await {
-            Ok(prompt) => prompt,
-            Err(error) => {
-                executor.patch(
-                    &node_id,
-                    [set(
-                        NodeProperty::ExecutionMessages,
-                        vec![error_to_execution_message("While getting prompt", error)],
-                    )],
-                );
-                return WalkControl::Break;
-            }
-        };
-
         let started = Timestamp::now();
         let mut messages = Vec::new();
 
-        // Replicate the content so it has unique ids (given that the
-        // same prompt could be used multiple times in a doc, if we don't
-        // do this there could be clashes)
-        let content = replicate(&prompt.content).unwrap_or_default();
-
-        // Set content here and via patch
-        self.content = Some(content.clone());
-        executor.patch(
-            &node_id,
-            [
-                // It is important to use `none` and `append` here because
-                // the later retains node ids so they are the same as in `self.content`
-                none(NodeProperty::Content),
-                append(NodeProperty::Content, content),
-            ],
+        // Execute content of prompt
+        let home = PathBuf::from(
+            self.options
+                .directory
+                .as_ref()
+                .map(String::as_str)
+                .unwrap_or_default(),
         );
-
-        // Execute content using fork that
-        let home = prompt.home();
-        match prompt_executor(&home, executor).await {
+        match prompt_executor(executor, home).await {
             Ok(mut prompt_executor) => {
-                prompt_executor.directory_stack.push(home);
                 if let Err(error) = prompt_executor
                     .compile_prepare_execute(&mut self.content)
                     .await
                 {
                     messages.push(error_to_execution_message("While executing prompt", error));
                 }
-                prompt_executor.directory_stack.pop();
             }
             Err(error) => {
                 messages.push(error_to_execution_message(
@@ -159,7 +203,7 @@ impl Executable for PromptBlock {
 }
 
 /// Create a new executor to execute a prompt
-async fn prompt_executor(home: &Path, executor: &Executor) -> Result<Executor> {
+async fn prompt_executor(executor: &Executor, home: PathBuf) -> Result<Executor> {
     // Create a prompt context
     // TODO: allow prompts to specify whether they need various parts of context
     // as an optimization, particularly to avoid getting kernel contexts unnecessarily.
@@ -176,19 +220,23 @@ async fn prompt_executor(home: &Path, executor: &Executor) -> Result<Executor> {
     let kernel_instance = context.into_kernel().await?;
 
     // Create a set of kernels to execute the prompt and add the kernel instance to it
-    let mut kernels = Kernels::new(home);
+    let mut kernels = Kernels::new(&home);
     kernels
         .add_instance(Arc::new(kernel), kernel_instance)
         .await?;
 
     // Create the new executor using the set of kernels
-    let executor = Executor::new(
-        home.to_path_buf(),
+    let mut executor = Executor::new(
+        home.clone(),
         Arc::new(RwLock::new(kernels)),
         executor.patch_sender.clone(),
         None,
         None,
     );
+
+    // Push the home directory onto the stack
+    // TODO: consider pushing the executor's home on the the stack in Executor::new?
+    executor.directory_stack.push(home);
 
     Ok(executor)
 }

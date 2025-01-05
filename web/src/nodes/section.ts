@@ -3,7 +3,7 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
-import { entityContext, EntityContext } from '../ui/nodes/context'
+import { entityContext, EntityContext } from '../ui/nodes/entity-context'
 
 import '../ui/nodes/for-block-iteration'
 import '../ui/nodes/cards/block-on-demand'
@@ -46,7 +46,7 @@ export class Section extends Entity {
   }
 
   override render() {
-    if (this.ancestors.includes('StyledBlock')) {
+    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return html`<slot name="content"></slot>`
     }
 
@@ -62,9 +62,18 @@ export class Section extends Entity {
     return html`
       <stencila-ui-block-on-demand
         type="Section"
+        node-id=${this.id}
         depth=${this.depth}
-        ancestors=${this.ancestors}
       >
+        <div slot="header-right">
+          <stencila-ui-node-chat-commands
+            type="Section"
+            node-id=${this.id}
+            depth=${this.depth}
+          >
+          </stencila-ui-node-chat-commands>
+        </div>
+
         <div slot="body">
           <stencila-ui-node-authors type="Section">
             <stencila-ui-node-provenance slot="provenance">
@@ -73,6 +82,7 @@ export class Section extends Entity {
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
+
         <div slot="content">
           <slot name="content"></slot>
         </div>
