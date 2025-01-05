@@ -147,11 +147,16 @@ impl Executable for Chat {
         // Add a new model message, or message group, to the chat (with no content)
         // so the user can see it as running
 
-        let model_ids = self
-            .model_parameters
-            .model_ids
-            .clone()
-            .unwrap_or_else(|| vec!["stencila/router".to_string()]);
+        let model_ids = match &self.model_parameters.model_ids {
+            Some(ids) => ids.clone(),
+            // If no model ids specified, use the first available model
+            None => models::list()
+                .await
+                .into_iter()
+                .find(|model| model.is_available())
+                .map(|model| vec![model.id()])
+                .unwrap_or_else(|| vec!["stencila/router".to_string()]),
+        };
         let replicates = self.model_parameters.replicates.unwrap_or(1) as usize;
 
         let model_ids = model_ids
