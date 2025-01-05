@@ -7,12 +7,12 @@ name: Create Unordered List Prompt
 description: Create an unordered list.
 keywords: list, unordered
 
-instruction-type: Create 
-instruction-patterns:
+instruction-type: Create
+node-type: List
+query-patterns:
   - (?i)\bunordered list\b
   - (?i)\bbullet(ed)? list\b
   - (?i)\blist\b
-node-type: List
 ---
 
 # Instructions
