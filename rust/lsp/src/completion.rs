@@ -42,7 +42,11 @@ pub(super) async fn request(
 
     // Code chunk completions
     if line.starts_with("```") {
-        return kernel_completion().await;
+        if line.contains("exec") {
+            return execution_keywords(&line);
+        } else {
+            return kernel_completion().await;
+        }
     }
 
     // Chat and command completions
@@ -204,6 +208,51 @@ async fn kernel_completion() -> Result<Option<CompletionResponse>, ResponseError
             })
         })
         .collect();
+
+    Ok(Some(CompletionResponse::Array(items)))
+}
+
+/// Provide list of keyword for execution mode and bounds
+fn execution_keywords(line: &str) -> Result<Option<CompletionResponse>, ResponseError> {
+    const MODE: [&str; 4] = ["auto", "always", "lock", "need"];
+    const BOUNDS: [&str; 5] = ["fork", "limit", "box", "skip", "main"];
+
+    let has_bounds = BOUNDS.iter().any(|word| line.contains(word));
+    if has_bounds {
+        return Ok(None);
+    }
+
+    let mut items = Vec::new();
+
+    // Order as defined above
+    let mut order = "abcdefghijklmnop".chars();
+
+    let has_mode = MODE.iter().any(|word| line.contains(word));
+    if !has_mode {
+        items.append(
+            &mut MODE
+                .into_iter()
+                .map(|mode| CompletionItem {
+                    kind: Some(CompletionItemKind::EVENT),
+                    label: mode.into(),
+                    sort_text: order.next().map(String::from),
+                    ..Default::default()
+                })
+                .collect(),
+        );
+    }
+
+    items.append(
+        &mut BOUNDS
+            .into_iter()
+            .map(|mode| CompletionItem {
+                kind: Some(CompletionItemKind::MODULE),
+                label: mode.into(),
+                sort_text: order.next().map(String::from),
+                ..Default::default()
+            })
+            .collect(),
+    );
 
     Ok(Some(CompletionResponse::Array(items)))
 }
