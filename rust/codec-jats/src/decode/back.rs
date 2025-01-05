@@ -84,15 +84,27 @@ fn decode_citation(path: &str, node: &Node, losses: &mut Losses) -> CreativeWork
             }));
         } else if child_tag == "volume" {
             if let Some(value) = child.text() {
-                version = Some(StringOrNumber::String(value.into()))
+                if let Ok(num) = value.parse::<f64>() {
+                    version = Some(StringOrNumber::Number(num))
+                } else {
+                    version = Some(StringOrNumber::String(value.into()))
+                }
             }
         } else if child_tag == "fpage" {
             if let Some(value) = child.text() {
-                page_start = Some(IntegerOrString::String(value.into()))
+                if let Ok(num) = value.parse::<i64>() {
+                    page_start = Some(IntegerOrString::Integer(num))
+                } else {
+                    page_start = Some(IntegerOrString::String(value.into()))
+                }
             }
         } else if child_tag == "lpage" {
             if let Some(value) = child.text() {
-                page_end = Some(IntegerOrString::String(value.into()))
+                if let Ok(num) = value.parse::<i64>() {
+                    page_end = Some(IntegerOrString::Integer(num))
+                } else {
+                    page_end = Some(IntegerOrString::String(value.into()))
+                }
             }
         } else if child_tag == "pub-id" {
             if let Some(value) = child.text() {
