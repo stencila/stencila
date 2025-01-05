@@ -40,15 +40,22 @@ pub(super) async fn request(
     let line: String = source.chars().skip(start).take(take).collect();
 
     // Prompt completions
-    if line.starts_with(":::") && line.ends_with('@') {
-        return prompt_completion(&line).await;
+    if line.starts_with("/") || line.starts_with(":::") {
+        if line.ends_with('@') {
+            return prompt_completion(&line).await;
+        }
+
+        if line.ends_with('[') || (line.contains('[') && !line.contains(']') && line.ends_with(','))
+        {
+            return model_completion().await;
+        }
     }
 
     // Snippet completions
     smd_snippets(&line, position.line)
 }
 
-/// Provide completion list for prompts of an instruction
+/// Provide completion list of prompts
 async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, ResponseError> {
     let instruction_type = if before.contains("create ") {
         Some(InstructionType::Create)
@@ -119,6 +126,35 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
                 label,
                 detail,
                 documentation,
+                ..Default::default()
+            })
+        })
+        .collect();
+
+    Ok(Some(CompletionResponse::Array(items)))
+}
+
+/// Provide completion list of models
+async fn model_completion() -> Result<Option<CompletionResponse>, ResponseError> {
+    let items = models::list()
+        .await
+        .iter()
+        .filter_map(|model| {
+            if !model.is_available() {
+                return None;
+            }
+
+            let label = model.id();
+            let detail = Some(format!(
+                "{} {} {}",
+                model.provider(),
+                model.name(),
+                model.version()
+            ));
+
+            Some(CompletionItem {
+                label,
+                detail,
                 ..Default::default()
             })
         })
