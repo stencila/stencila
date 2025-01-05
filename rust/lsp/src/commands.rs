@@ -909,7 +909,7 @@ pub(super) async fn execute_command(
                         }
                     };
 
-                    let edits = edits.into_iter().map(|edit| OneOf::Left(edit)).collect();
+                    let edits = edits.into_iter().map(OneOf::Left).collect();
                     client
                         .apply_edit(ApplyWorkspaceEditParams {
                             edit: WorkspaceEdit {
@@ -1006,6 +1006,7 @@ fn position_arg(arg: Option<Value>) -> Result<Position, ResponseError> {
 }
 
 /// Extract a range from a command arg
+#[allow(unused)]
 fn range_arg(arg: Option<Value>) -> Result<Range, ResponseError> {
     arg.and_then(|value| serde_json::from_value(value).ok())
         .ok_or_else(|| invalid_request("Range argument missing or invalid"))

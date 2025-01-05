@@ -25,7 +25,7 @@ pub(crate) async fn request(
     format: Format,
     source: Arc<RwLock<String>>,
 ) -> Result<Option<Vec<TextEdit>>, ResponseError> {
-    Ok(format_doc(doc, format, source).await?)
+    format_doc(doc, format, source).await
 }
 
 // Create a text edit to format the document
@@ -71,7 +71,7 @@ pub(crate) async fn format_doc(
 }
 
 /// Compute a set of [`TextEdit`]s
-/// 
+///
 /// This uses a line based approach. It would be possible to go to character level but
 /// that would be more complicated because it would require then calculating line
 /// and UTF16 character indices for each diff.
