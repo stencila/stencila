@@ -113,18 +113,18 @@ impl Model for AnthropicModel {
                         MessagePart::Text(text) => Some(ContentPart::Text {
                             text: text.to_value_string(),
                         }),
-                        MessagePart::ImageObject(ImageObject{content_url,..}) => 
+                        MessagePart::ImageObject(ImageObject{content_url,..}) =>
                             if let (true, Some(pos)) = (content_url.starts_with("data:"), content_url.find(";base64,")) {
                                 let media_type = content_url[5..pos].to_string();
                                 let data = content_url[(pos + 8)..].to_string();
-                                
+
                                 Some(ContentPart::Image {
                                     source: ImageSource {
                                         r#type: "base64".into(),
                                         media_type,
                                         data,
                                     },
-                                })                            
+                                })
                             } else {
                                 tracing::warn!(
                                     "Image does not appear to have a DataURI so was ignored by model `{}`",
