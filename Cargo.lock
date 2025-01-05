@@ -3743,6 +3743,7 @@ dependencies = [
 name = "models-anthropic"
 version = "0.0.0"
 dependencies = [
+ "cached",
  "model",
 ]
 
