@@ -1,11 +1,23 @@
-use common::{itertools::Itertools, tokio};
+use codec_markdown_trait::to_markdown;
+use common::{
+    futures::{stream::FuturesUnordered, StreamExt},
+    itertools::Itertools,
+    tokio,
+};
+use models::ModelTask;
 use schema::{
-    shortcuts::{cc, mb, p, t},
-    Author, Block, Chat, ChatMessage, ChatMessageGroup, ChatMessageOptions, MessageRole,
-    SoftwareApplication,
+    authorship,
+    shortcuts::{adm, p, t},
+    AdmonitionType, Author, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ChatMessageGroup,
+    ChatMessageOptions, ExecutionBounds, InstructionMessage, MessagePart, MessageRole,
+    ModelParameters, SoftwareApplication,
 };
 
-use crate::{interrupt_impl, prelude::*};
+use crate::{
+    interrupt_impl,
+    model_utils::{file_to_message_part, model_task_to_blocks_and_authors},
+    prelude::*,
+};
 
 impl Executable for Chat {
     #[tracing::instrument(skip_all)]
@@ -26,14 +38,14 @@ impl Executable for Chat {
         let node_id = self.node_id();
         tracing::trace!("Preparing Chat {node_id}");
 
-        // Check if this chat is to be executed: node ids contain this chat.
+        // Check if this chat is to be executed i.e.node ids contain this chat.
         // This is more restrictive than other nodes types: a chat is only executed
         // explicitly.
-        let prepare_self = executor.node_ids.iter().flatten().any(|id| id == &node_id);
+        let is_pending = executor.node_ids.iter().flatten().any(|id| id == &node_id);
 
         // If not to be executed, then return early and continue walking document
         // to prepare nodes in the chat's `content`
-        if !prepare_self {
+        if !is_pending {
             return WalkControl::Continue;
         }
 
@@ -57,12 +69,14 @@ impl Executable for Chat {
             self.options.execution_status,
             Some(ExecutionStatus::Pending)
         ) {
-            // Chat itself not marked as pending so continue to execute nodes in `content`
+            // Chat itself not marked as pending so continue walk
+            // to execute nodes in `content`
             return WalkControl::Continue;
         }
 
         tracing::debug!("Executing Chat {node_id}");
 
+        // Set status to running and clear execution messages
         executor.patch(
             &node_id,
             [
@@ -72,6 +86,8 @@ impl Executable for Chat {
         );
 
         let started = Timestamp::now();
+
+        // TODO: execute the prompt and add as system message
 
         // If there are no messages yet, and the prompt block contains a query
         // then use it as the first message
@@ -104,26 +120,32 @@ impl Executable for Chat {
             executor.patch(&node_id, [push(NodeProperty::Content, message)])
         }
 
-        // TODO: construct a model task from all the messages in this chat
-        for block in self.content.iter_mut() {
-            if let Block::ChatMessage(msg) = block {
-                // If the message does not have an execution status then
-                // set to succeeded. This is important for user messages because
-                // it triggers a re-render of the Web Component.
-                if msg.options.execution_status.is_none() {
-                    executor.patch(
-                        &msg.node_id(),
-                        [set(
-                            NodeProperty::ExecutionStatus,
-                            ExecutionStatus::Succeeded,
-                        )],
-                    );
-                }
-            }
-        }
+        // Construct a model task from all the messages in this chat
+        let instruction_messages: Vec<InstructionMessage> = self
+            .content
+            .iter()
+            .filter_map(|block| match block {
+                Block::ChatMessage(msg) => msg_to_instr_msg(msg),
+                Block::ChatMessageGroup(group) => group_to_instr_msg(group),
+                _ => None,
+            })
+            .collect();
 
-        // Add a new model message to the chat, with no content, so the user
-        // can see it as running
+        // Create an author role for the author (if any) of the last user message
+        let user_author_role = self.content.iter().rev().find_map(|message| match message {
+            Block::ChatMessage(ChatMessage {
+                role: MessageRole::User,
+                options,
+                ..
+            }) => options.author.as_ref().map(|author| AuthorRole {
+                last_modified: Some(Timestamp::now()),
+                ..author.clone().into_author_role(AuthorRoleName::Instructor)
+            }),
+            _ => None,
+        });
+
+        // Add a new model message, or message group, to the chat (with no content)
+        // so the user can see it as running
 
         let model_ids = self
             .model_parameters
@@ -133,90 +155,138 @@ impl Executable for Chat {
         let replicates = self.model_parameters.replicates.unwrap_or(1) as usize;
 
         let model_ids = model_ids
-            .into_iter()
+            .iter()
             .flat_map(|x| vec![x; replicates])
+            .cloned()
             .collect_vec();
 
-        let mut messages = model_ids
-            .into_iter()
-            .map(|model_id| ChatMessage {
-                role: MessageRole::Model,
-                options: Box::new(ChatMessageOptions {
-                    author: Some(Author::SoftwareApplication(SoftwareApplication {
-                        id: Some(model_id),
-                        name: "Model".into(), // TODO
+        let models = models::list().await;
+        let mut chat_messages = model_ids
+            .iter()
+            .map(|model_id| {
+                let model = models.iter().find(|model| &model.id() == model_id);
+
+                let author = model
+                    .map(|model| model.to_software_application())
+                    .unwrap_or(SoftwareApplication {
+                        id: Some(model_id.into()),
                         ..Default::default()
-                    })),
-                    execution_status: Some(ExecutionStatus::Running),
+                    });
+
+                ChatMessage {
+                    role: MessageRole::Model,
+                    options: Box::new(ChatMessageOptions {
+                        author: Some(Author::SoftwareApplication(author)),
+                        execution_status: Some(ExecutionStatus::Running),
+                        ..Default::default()
+                    }),
                     ..Default::default()
-                }),
-                ..Default::default()
+                }
             })
             .collect_vec();
 
-        let message_ids = messages
+        let message_ids = chat_messages
             .iter()
             .map(|message| message.node_id())
             .collect_vec();
 
-        let block = if messages.len() == 1 {
-            Block::ChatMessage(messages.swap_remove(0))
+        let block = if chat_messages.len() == 1 {
+            Block::ChatMessage(chat_messages.swap_remove(0))
         } else {
             Block::ChatMessageGroup(ChatMessageGroup {
-                messages,
+                messages: chat_messages,
                 ..Default::default()
             })
         };
         executor.patch(&node_id, [push(NodeProperty::Content, block)]);
 
-        // TODO: replace this simulation with actual model generated content
-        tokio::time::sleep(tokio::time::Duration::from_secs(3)).await;
-        let messages = None;
-        let contents = message_ids.iter().map(|_| {
-            vec![
-                p([t("This is placeholder content for model response. Laborum duis ut cillum ex incididunt officia ex aliquip. Here is some executable code:")]),
-                cc("plot(1)", Some("r")),
-                p([t("Here is some math:")]),
-                mb("E = mc ^ 2 * \\pi", Some("tex")),
-                p([t("Last paragraph of the model response. Enim pariatur in voluptate reprehenderit Lorem quis esse cupidatat minim. Anim ipsum exercitation eiusmod laboris nostrud ullamco commodo amet nisi sit. Aute sunt quis ad tempor consectetur eiusmod non est. Laborum ea et esse irure nostrud labore irure. Officia labore velit cillum id cupidatat aliquip aute fugiat ea deserunt esse aliqua in. Non amet est eu enim mollit velit fugiat et ullamco cillum. Reprehenderit reprehenderit adipisicing laboris veniam in aute aute aliqua..")]),
-            ]
-        });
+        // Create futures for each message
+        let mut futures = FuturesUnordered::new();
+        for (model_id, message_id) in model_ids.into_iter().zip(message_ids.into_iter()) {
+            tracing::trace!("Creating task for {model_id}");
 
-        // Set the status of each message
-        for block in self.content.iter_mut() {
-            if let Block::ChatMessage(msg) = block {
-                if !matches!(
-                    msg.options.execution_status,
-                    Some(ExecutionStatus::Succeeded)
-                ) {
-                    executor.patch(
-                        &msg.node_id(),
-                        [set(
-                            NodeProperty::ExecutionStatus,
-                            ExecutionStatus::Succeeded,
-                        )],
-                    );
-                }
-            }
+            let task = ModelTask::new(
+                self.prompt.instruction_type.clone().unwrap_or_default(),
+                ModelParameters {
+                    model_ids: Some(vec![model_id]),
+                    ..*self.model_parameters.clone()
+                },
+                instruction_messages.clone(),
+            );
+            futures.push(async move {
+                let started = Timestamp::now();
+                let result = model_task_to_blocks_and_authors(task).await;
+                let ended = Timestamp::now();
+                (message_id, started, ended, result)
+            })
         }
 
+        // Wait for each future to complete and patch content
+        let execution_bounds = self.execution_bounds.clone().unwrap_or_default();
+        while let Some((message_id, started, ended, result)) = futures.next().await {
+            tracing::trace!("Model message finished {message_id}");
+
+            let (content, messages) = match result {
+                Ok((mut content, mut authors)) => {
+                    // Apply model and user authorship to blocks
+                    if let Some(role) = &user_author_role {
+                        authors.push(role.clone());
+                    }
+                    if let Err(error) = authorship(&mut content, authors) {
+                        tracing::error!("While applying authorship to content: {error}");
+                    }
+
+                    // Execute if not skipped
+                    if !matches!(execution_bounds, ExecutionBounds::Skip) {
+                        let mut fork = executor.fork_for_all();
+                        let mut content = content.clone();
+                        let execute = async move {
+                            if let Err(error) = fork.compile_prepare_execute(&mut content).await {
+                                tracing::error!("While executing content: {error}");
+                            }
+                        };
+                        tokio::spawn(execute);
+                    }
+
+                    (content, None)
+                }
+                Err(error) => (
+                    vec![adm(
+                        AdmonitionType::Failure,
+                        None::<String>,
+                        [p([t(error.to_string())])],
+                    )],
+                    Some(vec![error_to_execution_message(
+                        "While running model",
+                        error,
+                    )]),
+                ),
+            };
+
+            let status = execution_status(&messages);
+            let required = execution_required_status(&status);
+            let duration = execution_duration(&started, &ended);
+
+            executor.patch(
+                &message_id,
+                [
+                    set(NodeProperty::ExecutionStatus, status),
+                    set(NodeProperty::ExecutionRequired, required),
+                    set(NodeProperty::ExecutionMessages, messages),
+                    set(NodeProperty::ExecutionDuration, duration),
+                    set(NodeProperty::ExecutionEnded, ended),
+                    append(NodeProperty::Content, content.clone()),
+                ],
+            );
+        }
+
+        let messages = None;
         let ended = Timestamp::now();
 
         let status = execution_status(&messages);
         let required = execution_required_status(&status);
         let duration = execution_duration(&started, &ended);
         let count = self.options.execution_count.unwrap_or_default() + 1;
-
-        // Patch the status and content of the model messages
-        for (message_id, content) in message_ids.iter().zip(contents) {
-            executor.patch(
-                message_id,
-                [
-                    set(NodeProperty::ExecutionStatus, status.clone()),
-                    append(NodeProperty::Content, content),
-                ],
-            );
-        }
 
         // Patch the chat, including appending a new, empty user message
         executor.patch(
@@ -245,4 +315,40 @@ impl Executable for Chat {
         // Continue to interrupt executable nodes in `content`
         WalkControl::Continue
     }
+}
+
+fn msg_to_instr_msg(msg: &ChatMessage) -> Option<InstructionMessage> {
+    // Begin parts with content of message converted to Markdown
+    let mut parts: Vec<MessagePart> = msg
+        .content
+        .iter()
+        .map(|block| MessagePart::Text(to_markdown(block).into()))
+        .collect();
+
+    // Add any attached files
+    let mut files = msg
+        .options
+        .files
+        .iter()
+        .flatten()
+        .filter_map(file_to_message_part)
+        .collect();
+    parts.append(&mut files);
+
+    Some(InstructionMessage {
+        role: Some(msg.role.clone()),
+        parts,
+        ..Default::default()
+    })
+}
+
+fn group_to_instr_msg(group: &ChatMessageGroup) -> Option<InstructionMessage> {
+    // Convert the selected message, defaulting to the first messages, into an
+    // instruction message
+    group
+        .messages
+        .iter()
+        .find(|msg| msg.options.is_selected.unwrap_or_default())
+        .or_else(|| group.messages.first())
+        .and_then(msg_to_instr_msg)
 }

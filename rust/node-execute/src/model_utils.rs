@@ -5,16 +5,14 @@ use common::{
 };
 use models::{ModelOutput, ModelOutputKind, ModelTask};
 use schema::{
-    authorship, shortcuts::p, Article, AudioObject, AuthorRole, Block, ImageObject, Inline, Link,
-    Node, VideoObject,
+    shortcuts::p, Article, AudioObject, AuthorRole, Block, File, ImageObject, Inline, Link, MessagePart, Node, Text, VideoObject
 };
 
-/// Performs a model task, converts the output to blocks, and
-/// applies model authorship to those blocks.
+/// Performs a model task and converts the output to blocks
 ///
 /// Returns the block and the list of author roles.
 #[tracing::instrument(skip_all)]
-pub(super) async fn model_task_to_blocks_with_authors(
+pub(super) async fn model_task_to_blocks_and_authors(
     task: ModelTask,
 ) -> Result<(Vec<Block>, Vec<AuthorRole>)> {
     let ModelOutput {
@@ -24,7 +22,7 @@ pub(super) async fn model_task_to_blocks_with_authors(
         content,
     } = models::perform_task(task).await?;
 
-    let mut blocks = match kind {
+    let blocks = match kind {
         ModelOutputKind::Text => {
             // Decode the model output into blocks
             let node = codecs::from_str(
@@ -78,8 +76,26 @@ pub(super) async fn model_task_to_blocks_with_authors(
         }
     };
 
-    // Apply model authorship to blocks
-    authorship(&mut blocks, authors.clone())?;
-
     Ok((blocks, authors))
+}
+
+/// Convert a Stencila [`File`] to a [`MessagePart`]
+pub(super) fn file_to_message_part(file: &File) -> Option<MessagePart> {
+    let format = file
+        .media_type
+        .as_ref()
+        .and_then(|media_type| Format::from_media_type(media_type).ok())
+        .unwrap_or_else(|| Format::from_name(&file.name));
+
+    if format.is_image() {
+        None // TODO
+    } else if format.is_audio() {
+        None // TODO
+    } else if format.is_video() {
+        None // TODO
+    } else {
+        file.content
+            .as_ref()
+            .map(|value| MessagePart::Text(Text::from(value)))
+    }
 }
