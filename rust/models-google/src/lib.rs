@@ -108,8 +108,8 @@ impl Model for GoogleModel {
                     .filter_map(|part| match part {
                         MessagePart::Text(text) => Some(Part::text(&text.value)),
                         MessagePart::ImageObject(ImageObject{content_url,..}) => {
-                            if let Some(pos) = content_url.find(";base64,") {
-                                let mime_type = &content_url[..pos];
+                            if let (true, Some(pos)) = (content_url.starts_with("data:"), content_url.find(";base64,")) {
+                                let mime_type = &content_url[5..pos];
                                 let base64 = &content_url[(pos + 8)..];
                                 Some(Part::inline_data(mime_type, base64))
                             } else {
