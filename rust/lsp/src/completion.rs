@@ -15,6 +15,7 @@ use async_lsp::{
 
 use codecs::Positions;
 use common::tokio::sync::RwLock;
+use kernels::KernelType;
 use schema::{InstructionType, Prompt, StringOrNumber};
 
 use crate::utils::position_to_position16;
@@ -39,7 +40,12 @@ pub(super) async fn request(
     let take = end - start;
     let line: String = source.chars().skip(start).take(take).collect();
 
-    // Prompt completions
+    // Code chunk completions
+    if line.starts_with("```") {
+        return kernel_completion().await;
+    }
+
+    // Chat and command completions
     if line.starts_with("/") || line.starts_with(":::") {
         if line.ends_with('@') {
             return prompt_completion(&line).await;
@@ -155,6 +161,45 @@ async fn model_completion() -> Result<Option<CompletionResponse>, ResponseError>
             Some(CompletionItem {
                 label,
                 detail,
+                ..Default::default()
+            })
+        })
+        .collect();
+
+    Ok(Some(CompletionResponse::Array(items)))
+}
+
+/// Provide completion list of kernels
+async fn kernel_completion() -> Result<Option<CompletionResponse>, ResponseError> {
+    let items = kernels::list()
+        .await
+        .iter()
+        .filter_map(|kernel| {
+            if !kernel.is_available() {
+                return None;
+            }
+
+            let kind = match kernel.r#type() {
+                KernelType::Programming => CompletionItemKind::EVENT,
+                KernelType::Math => CompletionItemKind::OPERATOR,
+                KernelType::Diagrams => CompletionItemKind::INTERFACE,
+                KernelType::Templating => CompletionItemKind::KEYWORD,
+                KernelType::Styling => {
+                    return None;
+                }
+            };
+
+            let mut label = kernel.name();
+            if matches!(
+                kernel.r#type(),
+                KernelType::Programming | KernelType::Diagrams | KernelType::Templating
+            ) {
+                label.push_str(" exec");
+            }
+
+            Some(CompletionItem {
+                kind: Some(kind),
+                label,
                 ..Default::default()
             })
         })
