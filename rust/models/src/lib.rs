@@ -61,9 +61,16 @@ pub async fn list() -> Vec<Arc<dyn Model>> {
 
     unique
         .into_values()
-        .sorted_by(|a, b| match a.r#type().cmp(&b.r#type()) {
-            Ordering::Equal => a.id().cmp(&b.id()),
-            order => order,
+        .sorted_by(|a, b| match (a.r#type(), b.r#type()) {
+            (ModelType::Router, _) => Ordering::Less,
+            (_, ModelType::Router) => Ordering::Greater,
+            _ => match a.provider().cmp(&b.provider()) {
+                Ordering::Equal => match a.name().cmp(&b.name()) {
+                    Ordering::Equal => a.version().cmp(&b.version()).reverse(),
+                    order => order,
+                },
+                order => order,
+            },
         })
         .collect_vec()
 }
