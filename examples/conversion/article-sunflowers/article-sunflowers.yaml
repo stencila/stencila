@@ -2021,6 +2021,10 @@ references:
     givenNames:
     - AJ
   pageStart: e96462
+title:
+- type: Text
+  value:
+    string: The circadian clock controls temporal and spatial patterns of floral development in sunflower
 content:
 - type: Section
   content:

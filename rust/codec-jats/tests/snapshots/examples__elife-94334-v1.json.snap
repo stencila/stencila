@@ -4463,6 +4463,14 @@ snapshot_kind: text
       "pageEnd": 1548
     }
   ],
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Prolonged cell cycle arrest in response to DNA damage in yeast requires the maintenance of DNA damage signaling and the spindle assembly checkpoint"
+      }
+    }
+  ],
   "content": [
     {
       "type": "Section",

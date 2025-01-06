@@ -2419,6 +2419,14 @@ snapshot_kind: text
       "pageEnd": 12158
     }
   ],
+  "title": [
+    {
+      "type": "Text",
+      "value": {
+        "string": "Synaptic connectivity and electrophysiological properties of the nucleus of the lateral olfactory tract"
+      }
+    }
+  ],
   "content": [
     {
       "type": "Section",
