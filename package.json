@@ -19,6 +19,7 @@
     "@types/jest": "29.5.14",
     "@types/node": "22.10.1",
     "@types/tmp": "0.2.6",
+    "@typescript-eslint/parser": "^8.19.0",
     "benchmark": "2.1.4",
     "better-npm-audit": "3.11.0",
     "buffer": "^6.0.3",
