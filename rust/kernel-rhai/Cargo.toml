@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 kernel = { path = "../kernel" }
-rhai = { version = "1.20.0", features = ["sync", "serde"] }
+rhai = { version = "1.20.1", features = ["sync", "serde"] }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
