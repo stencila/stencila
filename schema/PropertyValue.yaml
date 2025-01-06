@@ -1,5 +1,6 @@
 title: PropertyValue
 '@id': schema:PropertyValue
+nick: prv
 extends: Thing
 category: other
 description: A property-value pair.

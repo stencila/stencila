@@ -23,6 +23,12 @@ import { CodeExecutable } from './code-executable'
 @withTwind()
 export class CodeExpression extends CodeExecutable {
   override render() {
+    if (this.isWithinUserChatMessage()) {
+      return html`
+        ${this.executionCount > 0 ? html`<slot name="output"></slot>` : ''}
+      `
+    }
+
     const { icon, title } = getTitleIcon(this.programmingLanguage) ?? {
       title: 'Code',
       icon: 'code',
@@ -37,12 +43,14 @@ export class CodeExpression extends CodeExecutable {
         <stencila-ui-node-execution-commands
           node-id=${this.id}
           type="CodeExpression"
+          depth=${this.depth}
         >
         </stencila-ui-node-execution-commands>
       </span>
       <div slot="body">
         <stencila-ui-node-execution-details
           type="CodeExpression"
+          node-id=${this.id}
           mode=${this.executionMode}
           .tags=${this.executionTags}
           status=${this.executionStatus}

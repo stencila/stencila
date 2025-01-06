@@ -11,9 +11,9 @@ use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_text::CreativeWorkTypeOrText;
 use super::date::Date;
 use super::duration::Duration;
+use super::execution_bounds::ExecutionBounds;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
-use super::execution_kind::ExecutionKind;
 use super::execution_message::ExecutionMessage;
 use super::execution_mode::ExecutionMode;
 use super::execution_required::ExecutionRequired;
@@ -33,6 +33,7 @@ use super::string_or_number::StringOrNumber;
 use super::text::Text;
 use super::thing_type::ThingType;
 use super::timestamp::Timestamp;
+use super::unsigned_integer_or_string::UnsignedIntegerOrString;
 
 /// A prompt for creating or editing document content.
 #[skip_serializing_none]
@@ -64,26 +65,36 @@ pub struct Prompt {
     #[strip(metadata)]
     pub version: StringOrNumber,
 
-    /// Under which circumstances the code should be executed.
+    /// Under which circumstances the node should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub execution_mode: Option<ExecutionMode>,
+
+    /// Under which circumstances child nodes should be executed.
+    #[serde(alias = "execution-bounds", alias = "execution_bounds")]
+    #[strip(execution)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    pub execution_bounds: Option<ExecutionBounds>,
 
     /// The types of instructions that the prompt supports
     #[serde(alias = "instruction-types", alias = "instruction_types", alias = "instructionType", alias = "instruction-type", alias = "instruction_type")]
     #[serde(deserialize_with = "one_or_many")]
     pub instruction_types: Vec<InstructionType>,
 
-    /// Regular expressions used to match the prompt with a user instruction
-    #[serde(alias = "instruction-patterns", alias = "instruction_patterns", alias = "instructionPattern", alias = "instruction-pattern", alias = "instruction_pattern")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    pub instruction_patterns: Option<Vec<String>>,
-
     /// The types of nodes that the prompt supports
     #[serde(alias = "node-types", alias = "node_types", alias = "nodeType", alias = "node-type", alias = "node_type")]
-    #[serde(deserialize_with = "one_or_many")]
-    pub node_types: Vec<String>,
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub node_types: Option<Vec<String>>,
+
+    /// The number of nodes that the prompt supports
+    #[serde(alias = "node-count", alias = "node_count")]
+    pub node_count: Option<UnsignedIntegerOrString>,
+
+    /// Regular expressions used to match the prompt with a user query
+    #[serde(alias = "query-patterns", alias = "query_patterns", alias = "queryPattern", alias = "query-pattern", alias = "query_pattern")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub query_patterns: Option<Vec<String>>,
 
     /// The content of the prompt.
     #[serde(deserialize_with = "one_or_many")]
@@ -344,10 +355,10 @@ pub struct PromptOptions {
     #[strip(execution)]
     pub execution_instance: Option<String>,
 
-    /// The kind (e.g. main kernel vs kernel fork) of the last execution.
-    #[serde(alias = "execution-kind", alias = "execution_kind")]
+    /// The bounds, if any, on the last execution.
+    #[serde(alias = "execution-bounded", alias = "execution_bounded")]
     #[strip(execution)]
-    pub execution_kind: Option<ExecutionKind>,
+    pub execution_bounded: Option<ExecutionBounds>,
 
     /// The timestamp when the last execution ended.
     #[serde(alias = "execution-ended", alias = "execution_ended")]

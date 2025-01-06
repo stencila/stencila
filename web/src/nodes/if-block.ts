@@ -32,31 +32,40 @@ export class IfBlock extends Executable {
   }
 
   override render() {
-    if (this.ancestors.includes('StyledBlock')) {
+    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return html`<slot name="clauses"></slot>`
     }
 
     return html`
       <stencila-ui-block-on-demand
         type="IfBlock"
-        depth=${this.depth}
-        ancestors=${this.ancestors}
         node-id=${this.id}
+        depth=${this.depth}
         ?removeContentPadding=${true}
         ?noVisibleContent=${!this.hasClauses}
       >
-        <span slot="header-right">
+        <div slot="header-right">
+          <stencila-ui-node-chat-commands
+            type="IfBlock"
+            node-id=${this.id}
+            depth=${this.depth}
+          >
+          </stencila-ui-node-chat-commands>
+
           <stencila-ui-node-execution-commands
             type="IfBlock"
             node-id=${this.id}
+            depth=${this.depth}
           >
           </stencila-ui-node-execution-commands>
-        </span>
+        </div>
 
         <div slot="body" class="h-full">
           <stencila-ui-node-execution-details
             type="IfBlock"
+            node-id=${this.id}
             mode=${this.executionMode}
+            bounds=${this.executionBounds}
             .tags=${this.executionTags}
             status=${this.executionStatus}
             required=${this.executionRequired}

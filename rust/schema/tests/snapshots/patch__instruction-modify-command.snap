@@ -41,6 +41,11 @@ old:
           characterPercent: 100
     - type: InstructionBlock
       instructionType: Create
+      prompt:
+        type: PromptBlock
+        instructionType: Create
+        query: "top five highest mountains, with height in metres"
+        target: table
       message:
         type: InstructionMessage
         parts:
@@ -64,7 +69,8 @@ old:
             provenanceCategory: Hw
             characterCount: 49
             characterPercent: 100
-      prompt: table
+      modelParameters:
+        type: ModelParameters
 new:
   type: Article
   content:
@@ -75,13 +81,19 @@ new:
             string: "An insert instruction with a prompt:"
     - type: InstructionBlock
       instructionType: Create
+      prompt:
+        type: PromptBlock
+        instructionType: Create
+        query: "top five highest mountains, with height in feet"
+        target: table
       message:
         type: InstructionMessage
         parts:
           - type: Text
             value:
               string: "top five highest mountains, with height in feet"
-      prompt: table
+      modelParameters:
+        type: ModelParameters
 merged:
   type: Article
   authors:
@@ -131,6 +143,11 @@ merged:
           characterPercent: 100
     - type: InstructionBlock
       instructionType: Create
+      prompt:
+        type: PromptBlock
+        instructionType: Create
+        query: "top five highest mountains, with height in feet"
+        target: table
       message:
         type: InstructionMessage
         parts:
@@ -172,8 +189,14 @@ merged:
             provenanceCategory: HwHe
             characterCount: 2
             characterPercent: 4
-      prompt: table
+      modelParameters:
+        type: ModelParameters
 ops:
+  - - - content
+      - 1
+      - prompt
+      - query
+    - Set: "top five highest mountains, with height in feet"
   - - - content
       - 1
       - message

@@ -1,6 +1,6 @@
 # Execution Mode
 
-**Under which circumstances the document node should be executed.**
+**Under which circumstances a node should be executed.**
 
 **`@id`**: `stencila:ExecutionMode`
 
@@ -8,10 +8,11 @@
 
 The `ExecutionMode` type has these members:
 
+- `Default`
+- `Need`
 - `Always`
 - `Auto`
-- `Necessary`
-- `Locked`
+- `Lock`
 
 ## Bindings
 

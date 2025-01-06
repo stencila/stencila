@@ -18,7 +18,7 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila prompts`↴](#stencila-prompts)
 * [`stencila prompts list`↴](#stencila-prompts-list)
 * [`stencila prompts show`↴](#stencila-prompts-show)
-* [`stencila prompts select`↴](#stencila-prompts-select)
+* [`stencila prompts infer`↴](#stencila-prompts-infer)
 * [`stencila prompts update`↴](#stencila-prompts-update)
 * [`stencila prompts reset`↴](#stencila-prompts-reset)
 * [`stencila models`↴](#stencila-models)
@@ -195,6 +195,8 @@ Convert a document to another format
     Strip content properties of nodes
   - `archive`:
     Strip archive properties of node
+  - `temporary`:
+    Strip temporary properties of a node
   - `code`:
     Strip code properties of executable nodes
   - `execution`:
@@ -254,6 +256,8 @@ The direction of synchronization can be specified by appending the to the file p
     Strip content properties of nodes
   - `archive`:
     Strip archive properties of node
+  - `temporary`:
+    Strip temporary properties of a node
   - `code`:
     Strip code properties of executable nodes
   - `execution`:
@@ -311,6 +315,8 @@ Compile a document
     Strip content properties of nodes
   - `archive`:
     Strip archive properties of node
+  - `temporary`:
+    Strip temporary properties of a node
   - `code`:
     Strip code properties of executable nodes
   - `execution`:
@@ -391,6 +397,8 @@ Execute a document
     Strip content properties of nodes
   - `archive`:
     Strip archive properties of node
+  - `temporary`:
+    Strip temporary properties of a node
   - `code`:
     Strip code properties of executable nodes
   - `execution`:
@@ -473,6 +481,8 @@ Equivalent to the `execute` command with the `--render` flag.
     Strip content properties of nodes
   - `archive`:
     Strip archive properties of node
+  - `temporary`:
+    Strip temporary properties of a node
   - `code`:
     Strip code properties of executable nodes
   - `execution`:
@@ -605,7 +615,7 @@ Manage prompts
 
 * `list` — List the prompts available
 * `show` — Show a prompt
-* `select` — Select a prompt
+* `infer` — Infer a prompt from a query
 * `update` — Update builtin prompts
 * `reset` — Reset builtin prompts
 
@@ -615,7 +625,14 @@ Manage prompts
 
 List the prompts available
 
-**Usage:** `stencila prompts list`
+**Usage:** `stencila prompts list [OPTIONS]`
+
+###### **Options:**
+
+* `-a`, `--as <AS>` — Output the list as JSON or YAML
+
+  Possible values: `json`, `yaml`
+
 
 
 
@@ -637,18 +654,22 @@ Show a prompt
 
 
 
-## `stencila prompts select`
+## `stencila prompts infer`
 
-Select a prompt
+Infer a prompt from a query
 
-Useful for checking which prompt will be matched to a given instruction
+Useful for checking which prompt will be matched to a given instruction type, node types, and/or query
 
-**Usage:** `stencila prompts select <TYPE> <MESSAGE>`
+**Usage:** `stencila prompts infer [OPTIONS] [QUERY]`
 
 ###### **Arguments:**
 
-* `<TYPE>` — The type of instruction
-* `<MESSAGE>` — The instruction message
+* `<QUERY>` — The query
+
+###### **Options:**
+
+* `-i`, `--instruction-type <INSTRUCTION_TYPE>` — The instruction type
+* `-n`, `--node-types <NODE_TYPES>` — The node types
 
 
 
@@ -687,7 +708,14 @@ Manage generative models
 
 List the models available
 
-**Usage:** `stencila models list`
+**Usage:** `stencila models list [OPTIONS]`
+
+###### **Options:**
+
+* `-a`, `--as <AS>` — Output the list as JSON or YAML
+
+  Possible values: `json`, `yaml`
+
 
 
 
@@ -734,9 +762,13 @@ List the kernels available
 
 ###### **Options:**
 
-* `-t`, `--type <TYPE>` — Only show languages of a particular type
+* `-t`, `--type <TYPE>` — Only list kernels of a particular type
 
   Possible values: `programming`, `templating`, `diagrams`, `math`, `styling`
+
+* `-a`, `--as <AS>` — Output the list as JSON or YAML
+
+  Possible values: `json`, `yaml`
 
 
 
@@ -824,7 +856,14 @@ Manage format conversion codecs
 
 List the codecs available
 
-**Usage:** `stencila codecs list`
+**Usage:** `stencila codecs list [OPTIONS]`
+
+###### **Options:**
+
+* `-a`, `--as <AS>` — Output the list as JSON or YAML
+
+  Possible values: `json`, `yaml`
+
 
 
 

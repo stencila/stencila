@@ -649,6 +649,7 @@ export function {name}({required_args}options?: Partial<{title}>): {title} {{
             "IntegerOrString",
             "StringOrNumber",
             "ThingType",
+            "UnsignedIntegerOrString"
         ]
         .contains(&name.as_str());
 

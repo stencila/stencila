@@ -18,18 +18,27 @@ export class CodeBlock extends CodeStatic {
       icon: 'code',
     }
 
-    if (this.ancestors.includes('StyledBlock')) {
+    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return this.renderContent()
     }
 
     return html`
       <stencila-ui-block-on-demand
         type="CodeBlock"
+        node-id=${this.id}
         depth=${this.depth}
-        ancestors=${this.ancestors}
         header-icon=${icon}
         header-title=${title}
       >
+        <div slot="header-right">
+          <stencila-ui-node-chat-commands
+            type="CodeBlock"
+            node-id=${this.id}
+            depth=${this.depth}
+          >
+          </stencila-ui-node-chat-commands>
+        </div>
+
         <div slot="body">
           <stencila-ui-node-authors type="CodeBlock">
             <stencila-ui-node-provenance slot="provenance">
@@ -38,6 +47,7 @@ export class CodeBlock extends CodeStatic {
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
+
         <div slot="content">${this.renderContent()}</div>
       </stencila-ui-block-on-demand>
     `

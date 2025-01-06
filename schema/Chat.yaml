@@ -1,0 +1,85 @@
+title: Chat
+"@id": stencila:Chat
+nick: cht
+extends: [CreativeWork, Executable]
+category: works
+status: under-development
+description: A chat conversation, usually with a generative AI model.
+patch:
+  applyWith: Chat::apply_with
+markdown:
+  derive: false
+required:
+  - prompt
+  - modelParameters
+  - content
+core:
+  - title
+  - suggestions
+  - isTemporary
+properties:
+  prompt:
+    "@id": stencila:prompt
+    description: The prompt selected, rendered and provided to the model
+    $ref: PromptBlock
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+    serde:
+      default: true
+    dom:
+      elem: div
+  modelParameters:
+    "@id": stencila:modelParameters
+    description: Model selection and inference parameters.
+    $ref: ModelParameters
+    aliases:
+      - model-parameters
+      - model_parameters
+      - model-params
+      - model_params
+      - model-pars
+      - model_pars
+      - model
+    walk: true
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+    serde:
+      default: true
+    dom:
+      elem: div
+  content:
+    "@id": stencila:content
+    description: The messages, and optionally other content, that make up the chat.
+    $comment: |
+      Usually, a chat will only contain `ChatMessage`s that alternate
+      between user and model roles. However, other types of block content
+      are permitted.
+    type: array
+    items:
+      $ref: Block
+    dom:
+      elem: div
+  suggestions:
+    "@id": stencila:suggestions
+    description: Suggestions of content that is the focus of the chat.
+    type: array
+    items:
+      $ref: SuggestionBlock
+    walk: true
+    dom:
+      with: Chat::suggestions_to_dom_elem
+  isTemporary:
+    "@id": stencila:isTemporary
+    description: Whether a chat within another node (i.e. is not standalone) is temporary.
+    $comment: |
+      This property should be set to `false` for `Chat`s that are not standalone but not
+      temporary so that the messages are not patched by formats that do not support them.
+    type: boolean
+  previousBlock:
+    "@id": stencila:previousBlock
+    description: The id of the block immediately before the chat (only applies to temporary chats).
+    type: string
+  nextBlock:
+    "@id": stencila:nextBlock
+    description: The id of the block immediately after the chat (only applies to temporary chats).
+    type: string

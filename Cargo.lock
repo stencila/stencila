@@ -1962,6 +1962,7 @@ dependencies = [
  "json-patch",
  "kernels",
  "node-execute",
+ "node-find",
  "node-map",
  "node-strip",
  "notify",
@@ -3742,6 +3743,7 @@ dependencies = [
 name = "models-anthropic"
 version = "0.0.0"
 dependencies = [
+ "cached",
  "model",
 ]
 
@@ -3958,6 +3960,7 @@ dependencies = [
  "codecs",
  "common",
  "kernels",
+ "models",
  "parsers",
  "prompts",
  "schema",
@@ -4036,6 +4039,7 @@ name = "node-type"
 version = "0.0.0"
 dependencies = [
  "common",
+ "node-id",
 ]
 
 [[package]]

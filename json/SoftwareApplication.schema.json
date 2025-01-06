@@ -51,6 +51,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -164,6 +165,7 @@
         "authors"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -198,6 +200,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -219,6 +222,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -240,6 +244,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -285,6 +290,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -300,6 +306,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -316,6 +323,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -331,6 +339,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -347,6 +356,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -361,6 +371,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -420,6 +431,7 @@
         ]
       },
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -446,6 +458,7 @@
         ]
       },
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -514,6 +527,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "dom": {

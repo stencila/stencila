@@ -19,14 +19,16 @@
     "version",
     "description",
     "instructionTypes",
-    "nodeTypes",
     "content"
   ],
   "core": [
     "id",
     "id",
     "executionMode",
-    "instructionPatterns"
+    "executionBounds",
+    "nodeTypes",
+    "nodeCount",
+    "queryPatterns"
   ],
   "properties": {
     "type": {
@@ -61,6 +63,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -174,6 +177,7 @@
         "authors"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -208,6 +212,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -229,6 +234,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -250,6 +256,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -295,6 +302,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -310,6 +318,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -326,6 +335,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -341,6 +351,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -357,6 +368,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -371,6 +383,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -430,6 +443,7 @@
         ]
       },
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -456,6 +470,7 @@
         ]
       },
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -524,6 +539,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "dom": {
@@ -615,7 +631,7 @@
     },
     "executionMode": {
       "@id": "stencila:executionMode",
-      "description": "Under which circumstances the code should be executed.",
+      "description": "Under which circumstances the node should be executed.",
       "aliases": [
         "execution-mode",
         "execution_mode"
@@ -633,6 +649,27 @@
         ]
       },
       "$ref": "ExecutionMode.schema.json"
+    },
+    "executionBounds": {
+      "@id": "stencila:executionBounds",
+      "description": "Under which circumstances child nodes should be executed.",
+      "aliases": [
+        "execution-bounds",
+        "execution_bounds"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "$ref": "ExecutionBounds.schema.json"
     },
     "compilationDigest": {
       "@id": "stencila:compilationDigest",
@@ -799,17 +836,17 @@
       ],
       "type": "string"
     },
-    "executionKind": {
-      "@id": "stencila:executionKind",
-      "description": "The kind (e.g. main kernel vs kernel fork) of the last execution.",
+    "executionBounded": {
+      "@id": "stencila:executionBounded",
+      "description": "The bounds, if any, on the last execution.",
       "aliases": [
-        "execution-kind",
-        "execution_kind"
+        "execution-bounded",
+        "execution_bounded"
       ],
       "strip": [
         "execution"
       ],
-      "$ref": "ExecutionKind.schema.json"
+      "$ref": "ExecutionBounds.schema.json"
     },
     "executionEnded": {
       "@id": "stencila:executionEnded",
@@ -878,21 +915,6 @@
         "$ref": "InstructionType.schema.json"
       }
     },
-    "instructionPatterns": {
-      "@id": "stencila:instructionPatterns",
-      "description": "Regular expressions used to match the prompt with a user instruction",
-      "aliases": [
-        "instruction-patterns",
-        "instruction_patterns",
-        "instructionPattern",
-        "instruction-pattern",
-        "instruction_pattern"
-      ],
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
     "nodeTypes": {
       "@id": "stencila:nodeTypes",
       "description": "The types of nodes that the prompt supports",
@@ -902,6 +924,38 @@
         "nodeType",
         "node-type",
         "node_type"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "nodeCount": {
+      "@id": "stencila:nodeCount",
+      "description": "The number of nodes that the prompt supports",
+      "$comment": "Use a string to indicate a range of possible node counts e.g. \"1+\" for one\nor more nodes, \"1-5\" for one to five nodes.\n",
+      "aliases": [
+        "node-count",
+        "node_count"
+      ],
+      "anyOf": [
+        {
+          "$ref": "UnsignedInteger.schema.json"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "queryPatterns": {
+      "@id": "stencila:queryPatterns",
+      "description": "Regular expressions used to match the prompt with a user query",
+      "aliases": [
+        "query-patterns",
+        "query_patterns",
+        "queryPattern",
+        "query-pattern",
+        "query_pattern"
       ],
       "type": "array",
       "items": {

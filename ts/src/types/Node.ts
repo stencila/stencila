@@ -14,6 +14,9 @@ import { type Brand } from "./Brand.js";
 import { type Button } from "./Button.js";
 import { type CallArgument } from "./CallArgument.js";
 import { type CallBlock } from "./CallBlock.js";
+import { type Chat } from "./Chat.js";
+import { type ChatMessage } from "./ChatMessage.js";
+import { type ChatMessageGroup } from "./ChatMessageGroup.js";
 import { type Cite } from "./Cite.js";
 import { type CiteGroup } from "./CiteGroup.js";
 import { type Claim } from "./Claim.js";
@@ -68,7 +71,6 @@ import { type InsertInline } from "./InsertInline.js";
 import { type InstructionBlock } from "./InstructionBlock.js";
 import { type InstructionInline } from "./InstructionInline.js";
 import { type InstructionMessage } from "./InstructionMessage.js";
-import { type InstructionModel } from "./InstructionModel.js";
 import { type Integer } from "./Integer.js";
 import { type IntegerValidator } from "./IntegerValidator.js";
 import { type Link } from "./Link.js";
@@ -77,6 +79,7 @@ import { type ListItem } from "./ListItem.js";
 import { type MathBlock } from "./MathBlock.js";
 import { type MathInline } from "./MathInline.js";
 import { type MediaObject } from "./MediaObject.js";
+import { type ModelParameters } from "./ModelParameters.js";
 import { type ModifyBlock } from "./ModifyBlock.js";
 import { type ModifyInline } from "./ModifyInline.js";
 import { type ModifyOperation } from "./ModifyOperation.js";
@@ -161,6 +164,9 @@ export type Node =
   Button |
   CallArgument |
   CallBlock |
+  Chat |
+  ChatMessage |
+  ChatMessageGroup |
   Cite |
   CiteGroup |
   Claim |
@@ -214,7 +220,6 @@ export type Node =
   InstructionBlock |
   InstructionInline |
   InstructionMessage |
-  InstructionModel |
   IntegerValidator |
   Link |
   List |
@@ -222,6 +227,7 @@ export type Node =
   MathBlock |
   MathInline |
   MediaObject |
+  ModelParameters |
   ModifyBlock |
   ModifyInline |
   ModifyOperation |
@@ -301,6 +307,9 @@ export function node(other: Node): Node {
     case "Button":
     case "CallArgument":
     case "CallBlock":
+    case "Chat":
+    case "ChatMessage":
+    case "ChatMessageGroup":
     case "Cite":
     case "CiteGroup":
     case "Claim":
@@ -354,7 +363,6 @@ export function node(other: Node): Node {
     case "InstructionBlock":
     case "InstructionInline":
     case "InstructionMessage":
-    case "InstructionModel":
     case "IntegerValidator":
     case "Link":
     case "List":
@@ -362,6 +370,7 @@ export function node(other: Node): Node {
     case "MathBlock":
     case "MathInline":
     case "MediaObject":
+    case "ModelParameters":
     case "ModifyBlock":
     case "ModifyInline":
     case "ModifyOperation":

@@ -1,6 +1,6 @@
 import { customElement } from 'lit/decorators.js'
 
-import { WebViewClient } from '../clients/webview'
+import { VSCodeClient } from '../clients/vscode'
 
 import { DocumentView } from './document'
 
@@ -16,14 +16,14 @@ export class VsCodeView extends DocumentView {
   /**
    * Client for handling the messages to and from the VSCode webview API
    */
-  protected webviewClient: WebViewClient
+  protected client: VSCodeClient
 
   /**
    * Override to pass the render root to the client
    */
   protected override createRenderRoot(): this {
     const renderRoot = super.createRenderRoot()
-    this.webviewClient = new WebViewClient(renderRoot)
+    this.client = new VSCodeClient(renderRoot)
     return renderRoot
   }
 }

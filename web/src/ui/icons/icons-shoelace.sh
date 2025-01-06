@@ -3,13 +3,21 @@
 src="../../../../node_modules/@shoelace-style/shoelace/cdn/assets/icons"
 
 icons=(
+    activity
     archive
+    arrow-bar-up
     arrow-clockwise
     arrow-left-square
+    arrow-repeat
     arrow-right
     arrow-right-square
+    arrow-up-circle
+    arrow-up-circle-fill
+    asterisk
     at
+    ban
     box
+    box-arrow-in-left
     box-arrow-up-right
     braces
     braces-asterisk
@@ -24,21 +32,27 @@ icons=(
     check-circle
     check-circle-fill
     chevron-down
+    chevron-left
+    chevron-right
     circle
     clock
     code
     code-slash
+    cone-striped
+    crosshair
     currency-dollar
     dash-circle
     exclamation-circle
     exclamation-triangle
     eye
     eye-slash
+    fast-forward-circle
     feather
     file-play
     file-plus
     filetype-raw
     fullscreen
+    gear
     hand-thumbs-down
     hand-thumbs-down-fill
     hand-thumbs-up
@@ -50,6 +64,8 @@ icons=(
     info-circle
     lightbulb
     lightning
+    lock
+    paperclip
     person
     play
     play-circle
@@ -58,9 +74,11 @@ icons=(
     question-circle
     quote
     repeat
+    shield-check
     skip-end
     skip-start
     slash-circle
+    sliders
     speedometer
     square
     star-fill

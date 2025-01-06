@@ -5,16 +5,19 @@ use std::str::FromStr;
 use markdown::mdast;
 use winnow::{
     ascii::{dec_int, digit1, float, multispace0, multispace1, take_escaped, Caseless},
-    combinator::{alt, delimited, not, opt, peek, separated, separated_pair, terminated},
+    combinator::{alt, delimited, not, opt, peek, preceded, separated, separated_pair, terminated},
     error::{ErrMode, ErrorKind, ParserError},
     stream::Stream,
-    token::{none_of, take_while},
+    token::{none_of, take_until, take_while},
     Located, PResult, Parser,
 };
 
-use codec::schema::{
-    Date, DateTime, Duration, ExecutionMode, ImageObject, InstructionMessage, InstructionType,
-    MessagePart, Node, Time, Timestamp,
+use codec::{
+    schema::{
+        Date, DateTime, Duration, ExecutionBounds, ExecutionMode, ImageObject, InstructionMessage,
+        InstructionType, MessagePart, ModelParameters, Node, RelativePosition, Time, Timestamp,
+    },
+    NodeType,
 };
 use codec_json5_trait::Json5Codec;
 use codec_text_trait::TextCodec;
@@ -33,13 +36,28 @@ pub(super) fn name<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
         .parse_next(input)
 }
 
-/// Parse a execution mode
-pub(super) fn execution_mode(input: &mut &str) -> PResult<ExecutionMode> {
-    alt(("always", "auto", "locked", "lock"))
+/// Parse an execution mode variant
+pub(super) fn execution_mode(input: &mut Located<&str>) -> PResult<ExecutionMode> {
+    alt(("always", "auto", "need", "lock"))
         .map(|typ| match typ {
             "always" => ExecutionMode::Always,
             "auto" => ExecutionMode::Auto,
-            "locked" | "lock" => ExecutionMode::Locked,
+            "need" => ExecutionMode::Need,
+            "lock" => ExecutionMode::Lock,
+            _ => unreachable!(),
+        })
+        .parse_next(input)
+}
+
+/// Parse an execution bounds variant
+pub(super) fn execution_bounds(input: &mut Located<&str>) -> PResult<ExecutionBounds> {
+    alt(("main", "fork", "limit", "box", "skip"))
+        .map(|typ| match typ {
+            "main" => ExecutionBounds::Main,
+            "fork" => ExecutionBounds::Fork,
+            "limit" => ExecutionBounds::Limit,
+            "box" => ExecutionBounds::Box,
+            "skip" => ExecutionBounds::Skip,
             _ => unreachable!(),
         })
         .parse_next(input)
@@ -56,42 +74,89 @@ pub(super) fn instruction_type(input: &mut Located<&str>) -> PResult<Instruction
     .parse_next(input)
 }
 
-/// Parse instruction options
-pub(super) fn instruction_options<'s>(input: &mut Located<&'s str>) -> PResult<Vec<&'s str>> {
-    separated(
-        0..,
-        alt((
-            "run",
-            "!run",
-            (alt(('x', 'y', 'q', 's', 'c', 't')), digit1).take(),
-        )),
-        multispace1,
-    )
+/// Parse a relative position
+pub(super) fn relative_position(input: &mut Located<&str>) -> PResult<RelativePosition> {
+    alt((
+        alt(("above", "previous", "prev")).value(RelativePosition::Previous),
+        alt(("below", "next")).value(RelativePosition::Next),
+    ))
     .parse_next(input)
 }
 
-/// Parse the name of a prompt of an instruction (e.g. `insert-image-object`, `joe@example.org`)
-pub(super) fn prompt<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
+/// Parse a node type
+pub(super) fn node_type(input: &mut Located<&str>) -> PResult<NodeType> {
+    alt((
+        "heading".value(NodeType::Heading),
+        alt(("paragraph", "para")).value(NodeType::Paragraph),
+        "table".value(NodeType::Table),
+        alt(("figure", "fig")).value(NodeType::Figure),
+        alt(("code", "cell")).value(NodeType::CodeChunk),
+        "list".value(NodeType::List),
+        "math".value(NodeType::MathBlock),
+        "quote".value(NodeType::QuoteBlock),
+        "section".value(NodeType::Section),
+    ))
+    .parse_next(input)
+}
+
+/// Parse instruction options
+pub(super) fn model_parameters<'s>(input: &mut Located<&'s str>) -> PResult<ModelParameters> {
     (
-        take_while(1.., |c: char| c.is_ascii_alphabetic()),
-        take_while(0.., |c: char| {
-            c.is_ascii_alphanumeric() || "_-/.@".contains(c)
-        }),
+        opt(delimited(
+            (multispace0, '['),
+            take_until(0.., ']'),
+            (']', multispace0),
+        )),
+        separated(
+            0..,
+            (alt(('x', 'q', 'c', 's', 'm', 't', 'r')), digit1).take(),
+            multispace1,
+        ),
     )
-        .take()
+        .map(|(ids, pars): (Option<&str>, Vec<&'s str>)| {
+            let model_ids = ids.map(|ids| ids.split(",").map(|id| id.trim().to_string()).collect());
+
+            let mut replicates: Option<u64> = None;
+            let mut quality_weight: Option<u64> = None;
+            let mut speed_weight: Option<u64> = None;
+            let mut cost_weight: Option<u64> = None;
+            let mut minimum_score: Option<u64> = None;
+            let mut temperature: Option<u64> = None;
+            let mut random_seed: Option<i64> = None;
+            for par in pars {
+                let mut chars = par.chars();
+                let letter = chars.next().expect("Should be at least one char");
+                let value = chars.collect::<String>().parse().ok();
+                match letter {
+                    'x' => replicates = value,
+                    'q' => quality_weight = value,
+                    'c' => cost_weight = value,
+                    's' => speed_weight = value,
+                    'm' => minimum_score = value,
+                    't' => temperature = value,
+                    'r' => random_seed = value.map(|value| value as i64),
+                    _ => {}
+                };
+            }
+
+            ModelParameters {
+                model_ids,
+                replicates,
+                quality_weight,
+                cost_weight,
+                speed_weight,
+                minimum_score,
+                temperature,
+                random_seed,
+                ..Default::default()
+            }
+        })
         .parse_next(input)
 }
 
-/// Parse the name of a model of an instruction (e.g. `openai/gpt4`)
-pub(super) fn model<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
-    (
-        take_while(1.., |c: char| c.is_ascii_alphabetic()),
-        take_while(0.., |c: char| {
-            c.is_ascii_alphanumeric() || "_-/.".contains(c)
-        }),
-    )
-        .take()
-        .parse_next(input)
+/// Parse a specified prompt id
+pub(super) fn prompt<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
+    preceded('@', take_while(1.., |c: char| !c.is_whitespace())).parse_next(input)
 }
 
 /// Take characters until `opening` and `closing` are unbalanced

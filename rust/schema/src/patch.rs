@@ -2,11 +2,12 @@ use std::{
     any::type_name,
     collections::{HashMap, VecDeque},
     fmt::{self, Debug},
+    ops::Range,
 };
 
 use common::{
-    derive_more::{Deref, DerefMut},
-    eyre::{bail, Report, Result},
+    derive_more::{Deref, DerefMut, IntoIterator},
+    eyre::{bail, OptionExt, Report, Result},
     itertools::Itertools,
     serde::{de::DeserializeOwned, Deserialize, Serialize},
     serde_json::{self, Value as JsonValue},
@@ -16,8 +17,8 @@ use node_id::NodeId;
 use node_type::NodeProperty;
 
 use crate::{
-    prelude::AuthorType, replicate, Author, AuthorRole, AuthorRoleName, Block, CordOp, Inline,
-    Node, PromptBlock, ProvenanceCount, SuggestionBlock, Timestamp,
+    prelude::AuthorType, replicate, Author, AuthorRole, AuthorRoleName, Block, ChatMessage, CordOp,
+    Inline, Node, PromptBlock, ProvenanceCount, SuggestionBlock, Timestamp,
 };
 
 /// Assign authorship to a node
@@ -150,6 +151,30 @@ pub struct PatchContext {
 }
 
 impl PatchContext {
+    /// Whether the format associated with the patch is lossy
+    pub fn format_is_lossy(&self) -> bool {
+        self.format
+            .as_ref()
+            .map(|format| format.is_lossy())
+            .unwrap_or(false)
+    }
+
+    /// Whether the format associated with the patch is lossless
+    pub fn format_is_lossless(&self) -> bool {
+        self.format
+            .as_ref()
+            .map(|format| format.is_lossless())
+            .unwrap_or(true)
+    }
+
+    /// Whether the format associated with the patch is a Markdown flavour
+    pub fn format_is_markdown_flavor(&self) -> bool {
+        self.format
+            .as_ref()
+            .map(|format| format.is_markdown_flavor())
+            .unwrap_or(false)
+    }
+
     /// Calculate the mean similarity
     ///
     /// A convenience function used in derive macros.
@@ -220,7 +245,47 @@ impl PatchContext {
         (!prov.is_empty()).then_some(prov)
     }
 
+    /// Run a function within a path
+    ///
+    /// Ensures that the path is always pushed onto and then popped off the
+    /// context's path
+    pub fn within_path<F, R>(&mut self, path: PatchPath, func: F) -> R
+    where
+        F: Fn(&mut Self) -> R,
+    {
+        let pushed = path.len();
+        for slot in path.0 {
+            self.path.push_back(slot);
+        }
+
+        let result = func(self);
+
+        let len = self.path.len();
+        if len > pushed {
+            self.path.truncate(len - pushed);
+        } else {
+            self.path.clear();
+        }
+
+        result
+    }
+
+    /// Run a function within a property
+    pub fn within_property<F, R>(&mut self, node_property: NodeProperty, mut func: F) -> R
+    where
+        F: FnMut(&mut Self) -> R,
+    {
+        self.path.push_back(PatchSlot::Property(node_property));
+        let result = func(self);
+        self.path.pop_back();
+
+        result
+    }
+
     /// Enter a property during the walk
+    ///
+    /// Must be followed by a call to `exit_property`. Prefer using `with_property`
+    /// is possible.
     pub fn enter_property(&mut self, node_property: NodeProperty) -> &mut Self {
         self.path.push_back(PatchSlot::Property(node_property));
         self
@@ -229,11 +294,30 @@ impl PatchContext {
     /// Exit a property during the diff walk
     pub fn exit_property(&mut self) -> &mut Self {
         let popped = self.path.pop_back();
-        debug_assert!(matches!(popped, Some(PatchSlot::Property(..))));
+        debug_assert!(
+            matches!(popped, Some(PatchSlot::Property(..))),
+            "Expected property to be popped off path: {:?}, got {popped:?}",
+            self.path
+        );
         self
     }
 
+    /// Run a function within an index
+    pub fn within_index<F, R>(&mut self, index: usize, mut func: F) -> R
+    where
+        F: FnMut(&mut Self) -> R,
+    {
+        self.path.push_back(PatchSlot::Index(index));
+        let result = func(self);
+        self.path.pop_back();
+
+        result
+    }
+
     /// Enter an item in a vector during the diff walk
+    ///
+    /// Must be followed by a call to `exit_index`. Prefer using `with_index`
+    /// is possible.
     pub fn enter_index(&mut self, index: usize) -> &mut Self {
         self.path.push_back(PatchSlot::Index(index));
         self
@@ -242,7 +326,11 @@ impl PatchContext {
     /// Exit an item in a vector during the diff walk
     pub fn exit_index(&mut self) -> &mut Self {
         let popped = self.path.pop_back();
-        debug_assert!(matches!(popped, Some(PatchSlot::Index(..))));
+        debug_assert!(
+            matches!(popped, Some(PatchSlot::Index(..))),
+            "Expected index to be popped off path: {:?}, got {popped:?}",
+            self.path
+        );
         self
     }
 
@@ -481,6 +569,12 @@ pub struct Patch {
 
     /// The authors of the patch
     pub authors: Option<Vec<AuthorRole>>,
+
+    /// Whether to compile the document after applying the patch
+    pub compile: bool,
+
+    /// Whether to execute the document after applying the patch
+    pub execute: Option<Vec<NodeId>>,
 }
 
 impl Patch {
@@ -536,6 +630,9 @@ pub enum PatchOp {
     /// Insert items into a vector
     Insert(Vec<(usize, PatchValue)>),
 
+    /// Wrap items in a vector
+    Wrap((Range<usize>, PatchValue, NodeProperty)),
+
     /// Push an item onto the end of a vector
     Push(PatchValue),
 
@@ -563,8 +660,11 @@ pub enum PatchOp {
     /// Accept a suggestion within an instruction
     Accept(NodeId),
 
-    /// Archive a node
+    /// Archive a node (move it to the root node's archive)
     Archive,
+
+    /// Temporize a node (move it to the root node's `temporary` set)
+    Temporize,
 
     /// Do no operation
     /// Used to be able to apply patches which only update
@@ -594,6 +694,7 @@ pub enum PatchValue {
     Node(Node),
     PromptBlock(PromptBlock),
     SuggestionBlock(SuggestionBlock),
+    ChatMessage(ChatMessage),
     String(String),
     Json(JsonValue),
     None,
@@ -625,11 +726,39 @@ impl From<usize> for PatchSlot {
     }
 }
 
+impl TryFrom<serde_json::Value> for PatchSlot {
+    type Error = Report;
+
+    fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
+        use serde_json::Value::*;
+        match value {
+            String(name) => Ok(Self::from(NodeProperty::try_from(name.as_str())?)),
+            Number(index) => index
+                .as_u64()
+                .ok_or_eyre("Expected u64")
+                .map(|value| Self::from(value as usize)),
+            _ => bail!("Unhandled JSON value for `PatchSlot`"),
+        }
+    }
+}
+
 /// A path to reach a node from the root: a vector of [`PatchSlot`]s
 ///
 /// A [`VecDeque`], rather than a [`Vec`] so that when applying operations in
 /// a call to `patch` the front of the path can be popped off.
-#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Deref, DerefMut, Serialize, Deserialize)]
+#[derive(
+    Clone,
+    PartialEq,
+    Eq,
+    PartialOrd,
+    Ord,
+    Hash,
+    Deref,
+    DerefMut,
+    IntoIterator,
+    Serialize,
+    Deserialize,
+)]
 #[serde(crate = "common::serde")]
 #[derive(Default)]
 pub struct PatchPath(VecDeque<PatchSlot>);
@@ -642,13 +771,43 @@ impl PatchPath {
 
 impl From<NodeProperty> for PatchPath {
     fn from(value: NodeProperty) -> Self {
-        Self(VecDeque::from([PatchSlot::Property(value)]))
+        Self::from(PatchSlot::from(value))
+    }
+}
+
+impl From<usize> for PatchPath {
+    fn from(value: usize) -> Self {
+        Self::from(PatchSlot::from(value))
+    }
+}
+
+impl From<PatchSlot> for PatchPath {
+    fn from(value: PatchSlot) -> Self {
+        Self(VecDeque::from([value]))
     }
 }
 
 impl<const N: usize> From<[PatchSlot; N]> for PatchPath {
     fn from(value: [PatchSlot; N]) -> Self {
         Self(value.into())
+    }
+}
+
+impl TryFrom<serde_json::Value> for PatchPath {
+    type Error = Report;
+
+    fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
+        use serde_json::Value::*;
+        match value {
+            Number(..) | String(..) => Ok(Self::from(PatchSlot::try_from(value)?)),
+            Array(array) => Ok(Self(VecDeque::from(
+                array
+                    .into_iter()
+                    .map(PatchSlot::try_from)
+                    .collect::<Result<Vec<_>>>()?,
+            ))),
+            _ => bail!("Unhandled JSON value for `PatchPath`"),
+        }
     }
 }
 
@@ -968,7 +1127,7 @@ where
 
     fn from_value(value: PatchValue) -> Result<Self> {
         match value {
-            PatchValue::None => Ok(None),
+            PatchValue::None | PatchValue::Json(serde_json::Value::Null) => Ok(None),
             _ => T::from_value(value).map(Some),
         }
     }
@@ -1295,9 +1454,9 @@ where
                     for (from, tos) in copy {
                         for (to, similarity) in tos {
                             if similarity < 1.0 {
-                                context.enter_index(to);
-                                self[from].diff(&other[to], context)?;
-                                context.exit_index();
+                                context.within_index(to, |context| {
+                                    self[from].diff(&other[to], context)
+                                })?
                             }
                         }
                     }
@@ -1396,9 +1555,9 @@ where
                 replace.push((new_pos, other[other_pos].to_value()?));
             } else {
                 // Otherwise diff the two items
-                context.enter_index(other_pos);
-                self[self_pos].diff(&other[other_pos], context)?;
-                context.exit_index();
+                context.within_index(other_pos, |context| {
+                    self[self_pos].diff(&other[other_pos], context)
+                })?
             }
         }
         if !replace.is_empty() {
@@ -1416,11 +1575,9 @@ where
 
         // Try to apply patches to children
         for (index, child) in self.iter_mut().enumerate() {
-            context.enter_index(index);
-            if child.patch(patch, context)? {
+            if context.within_index(index, |context| child.patch(patch, context))? {
                 return Ok(true); // Patch was applied
             }
-            context.exit_index();
         }
 
         Ok(false) // Patch was not applied
@@ -1432,24 +1589,42 @@ where
         op: PatchOp,
         context: &mut PatchContext,
     ) -> Result<()> {
+        // Apply verify operation
         if matches!(op, PatchOp::Verify) {
-            for value in self {
-                value.apply(path, op.clone(), context)?;
+            for (index, item) in self.iter_mut().enumerate() {
+                context.within_index(index, |context| item.apply(path, op.clone(), context))?
             }
+
             return Ok(());
         }
 
+        // Apply operations that are on child item
         if let Some(slot) = path.pop_front() {
             let PatchSlot::Index(index) = slot else {
                 bail!("Invalid slot for Vec: {slot:?}")
             };
 
-            let Some(child) = self.get_mut(index) else {
+            let Some(item) = self.get_mut(index) else {
                 bail!("Invalid index for Vec: {index}")
             };
 
-            return child.apply(path, op, context);
+            // Borrowing rules prevents us from using `within_index` here
+            context.enter_index(index);
+            let result = item.apply(path, op, context);
+            context.exit_index();
+
+            return result;
         }
+
+        // Apply operations that are on this vector...
+
+        let check_index = |index: usize| -> Result<()> {
+            if index >= self.len() {
+                bail!("Invalid index for Vec: {index}")
+            } else {
+                Ok(())
+            }
+        };
 
         let mut from_value = |value: PatchValue| -> Result<T> {
             let mut node = T::from_value(value)?;
@@ -1462,6 +1637,35 @@ where
                 for (index, value) in values {
                     self.insert(index, from_value(value)?);
                 }
+            }
+            PatchOp::Wrap((range, value, property)) => {
+                let Range { start, end } = range;
+                check_index(start)?;
+                if range.len() > 1 {
+                    check_index(end.saturating_sub(1))?;
+                }
+
+                // Replace the exiting items with the new item
+                let new = from_value(value)?;
+                let existing = if range.len() == 1 {
+                    let items = vec![self[start].to_value()?];
+                    self[start] = new;
+                    items
+                } else {
+                    let items = self
+                        .drain(range)
+                        .map(|item| item.to_value())
+                        .collect::<Result<Vec<_>>>()?;
+                    self.insert(start, new);
+                    items
+                };
+
+                // Create additional operation to append the current items
+                // to the property of the new item
+                let mut path = context.path();
+                path.push_back(PatchSlot::Index(start));
+                path.push_back(PatchSlot::Property(property));
+                context.op_additional(path, PatchOp::Append(existing));
             }
             PatchOp::Push(value) => {
                 self.push(from_value(value)?);

@@ -1,5 +1,3 @@
-use std::ops::Deref;
-
 use codec_cbor::r#trait::CborCodec;
 use codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
 use codecs::Format;
@@ -9,11 +7,11 @@ use common::{
     tokio,
 };
 use schema::{
-    Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, CompilationDigest, InstructionBlock,
-    InstructionModel, PromptBlock, SoftwareApplication,
+    Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, CompilationDigest, ExecutionBounds,
+    InstructionBlock, SoftwareApplication,
 };
 
-use crate::{interrupt_impl, prelude::*};
+use crate::{interrupt_impl, prelude::*, state_digest};
 
 impl Executable for InstructionBlock {
     #[tracing::instrument(skip_all)]
@@ -24,26 +22,14 @@ impl Executable for InstructionBlock {
         // Generate a compilation digest that captures the state of properties that
         // determine if a re-execution is required. The feedback on suggestions is
         // ignored because that would change the digest when a suggestion is deleted.
-        let mut state_digest = 0u64;
-        add_to_digest(
-            &mut state_digest,
-            self.instruction_type.to_string().as_bytes(),
-        );
-        add_to_digest(
-            &mut state_digest,
+        let state_digest = state_digest!(
+            self.instruction_type,
             self.message.to_cbor().unwrap_or_default().as_slice(),
-        );
-        add_to_digest(
-            &mut state_digest,
-            self.prompt.clone().unwrap_or_default().as_bytes(),
-        );
-        add_to_digest(
-            &mut state_digest,
-            self.model.to_cbor().unwrap_or_default().as_slice(),
-        );
-        add_to_digest(
-            &mut state_digest,
-            &self.replicates.unwrap_or(1).to_be_bytes(),
+            self.prompt.target,
+            self.model_parameters
+                .to_cbor()
+                .unwrap_or_default()
+                .as_slice()
         );
 
         let compilation_digest = CompilationDigest::new(state_digest);
@@ -56,6 +42,10 @@ impl Executable for InstructionBlock {
                 set(NodeProperty::ExecutionRequired, execution_required),
             ],
         );
+
+        // Call `prompt.compile` directly because a `PromptBlock` that
+        // is not a `Block::PromptBlock` variant is not walked over
+        self.prompt.compile(executor).await;
 
         WalkControl::Continue
     }
@@ -87,12 +77,8 @@ impl Executable for InstructionBlock {
 
         // Get options which may be overridden if this is a revision
         // Note: to avoid accidentally generating many replicates, hard code maximum 10 here
-        let mut replicates = (self.replicates.unwrap_or(1) as usize).min(10);
-        let mut model_id_pattern = self
-            .model
-            .as_ref()
-            .and_then(|model| model.id_pattern.clone())
-            .clone();
+        let mut model_ids = self.model_parameters.model_ids.clone().clone();
+        let mut replicates = (self.model_parameters.replicates.unwrap_or(1) as usize).min(10);
 
         // If this is a revision (i.e. a retry, possibly with feedback already added to suggestions)
         // as indicated by previous suggestions being retained, then (a) set the number of replicates
@@ -103,7 +89,7 @@ impl Executable for InstructionBlock {
 
             if let (Some(index), Some(suggestions)) = (self.active_suggestion, &self.suggestions) {
                 if let Some(suggestion) = suggestions.get(index as usize) {
-                    model_id_pattern = suggestion.authors.iter().flatten().find_map(|author| {
+                    model_ids = suggestion.authors.iter().flatten().find_map(|author| {
                         match author {
                             // Gets the first generator author having an id
                             Author::AuthorRole(AuthorRole {
@@ -114,7 +100,7 @@ impl Executable for InstructionBlock {
                                         ..
                                     }),
                                 ..
-                            }) => Some(id.clone()),
+                            }) => Some(vec![id.clone()]),
                             _ => None,
                         }
                     });
@@ -146,77 +132,39 @@ impl Executable for InstructionBlock {
         let mut messages = Vec::new();
 
         // Determine the types of nodes in the content of the instruction
-        let node_types = self
+        // TODO: reinstate use of node_types
+        let _ = self
             .content
             .iter()
             .flatten()
             .map(|block| block.node_type().to_string())
             .collect_vec();
 
-        // Select the best prompt for the instruction
-        let prompt = match prompts::select(
-            &self.instruction_type,
-            &self.message,
-            &self.prompt,
-            &Some(node_types),
-        )
-        .await
-        {
-            Ok(prompt) => prompt,
-            Err(error) => {
-                messages.push(error_to_execution_message("While selecting prompt", error));
-
-                executor.patch(
-                    &node_id,
-                    [
-                        set(NodeProperty::ExecutionStatus, ExecutionStatus::Errors),
-                        set(
-                            NodeProperty::ExecutionRequired,
-                            ExecutionRequired::ExecutionFailed,
-                        ),
-                        set(NodeProperty::ExecutionMessages, messages),
-                    ],
-                );
-
-                return WalkControl::Continue;
-            }
-        };
-        let prompt_id = prompt.id.clone().unwrap_or_default();
-
-        // Create a new `PromptBlock` to render the prompt and patch it to `prompt_provided`
-        // so that when it is executed it gets patched
-        let mut prompt_block = PromptBlock::new(prompt_id);
-        executor.patch(
-            &node_id,
-            [set(NodeProperty::PromptProvided, prompt_block.clone())],
-        );
-
         // Execute the `PromptBlock`. The instruction context needs to
         // be set for the prompt context to be complete (i.e. include `instruction` variable)
         executor.instruction_context = Some((&*self).into());
-        prompt_block.execute(executor).await;
+        self.prompt.execute(executor).await;
         executor.instruction_context = None;
 
         // Render the `PromptBlock` into a system prompt
         let mut context = MarkdownEncodeContext::new(Some(Format::Markdown), Some(true));
-        prompt_block.content.to_markdown(&mut context);
+        self.prompt.content.to_markdown(&mut context);
         let system_prompt = context.content;
 
         // Create an author role for the prompt
         let prompter = AuthorRole {
             last_modified: Some(Timestamp::now()),
-            ..prompt.deref().clone().into()
+            ..Default::default() // TODO: reinstate getting the author role for the prompt
+                                 //..prompt.deref().clone().into()
         };
 
         // Get the authors of the instruction
         let mut instructors = Vec::new();
-        if let Some(message) = &self.message {
-            for author in message.authors.iter().flatten() {
-                instructors.push(AuthorRole {
-                    last_modified: Some(Timestamp::now()),
-                    ..author.clone().into_author_role(AuthorRoleName::Instructor)
-                });
-            }
+        for author in self.message.authors.iter().flatten() {
+            instructors.push(AuthorRole {
+                last_modified: Some(Timestamp::now()),
+                ..author.clone().into_author_role(AuthorRoleName::Instructor)
+            });
         }
 
         // Unless specified, clear existing suggestions
@@ -235,19 +183,9 @@ impl Executable for InstructionBlock {
             let system_prompt = system_prompt.to_string();
             let mut instruction = self.clone();
             let dry_run = executor.options.dry_run;
-            if let Some(id_pattern) = model_id_pattern.clone() {
+            if let Some(model_ids) = model_ids.clone() {
                 // Apply the model id for revisions
-                let id_pattern = Some(id_pattern);
-                instruction.model = Some(Box::new(match instruction.model {
-                    Some(model) => InstructionModel {
-                        id_pattern,
-                        ..*model
-                    },
-                    None => InstructionModel {
-                        id_pattern,
-                        ..Default::default()
-                    },
-                }))
+                instruction.model_parameters.model_ids = Some(model_ids);
             };
             futures.push(async move {
                 prompts::execute_instruction_block(
@@ -263,8 +201,7 @@ impl Executable for InstructionBlock {
 
         // Wait for each future, adding the suggestion (or error message) to the instruction
         // as it arrives, and then (optionally) executing the suggestion
-        let recursion = self.recursion.as_deref().unwrap_or_default();
-        let run = recursion.contains("run") && !recursion.contains("!run");
+        let bounds = self.execution_bounds.clone().unwrap_or_default();
         while let Some(result) = futures.next().await {
             match result {
                 Ok(mut suggestion) => {
@@ -273,7 +210,7 @@ impl Executable for InstructionBlock {
                         [push(NodeProperty::Suggestions, suggestion.clone())],
                     );
 
-                    if run {
+                    if !matches!(bounds, ExecutionBounds::Skip) {
                         let mut fork = executor.fork_for_all();
                         tokio::spawn(async move {
                             if let Err(error) = fork.compile_prepare_execute(&mut suggestion).await

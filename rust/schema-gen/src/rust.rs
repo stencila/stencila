@@ -64,8 +64,9 @@ const BOX_PROPERTIES: &[&str] = &[
     "CallArgument.value",
     "CodeExpression.output",
     "ConstantValidator.value",
-    "InstructionBlock.model",
-    "InstructionInline.model",
+    "Chat.model_parameters",
+    "InstructionBlock.model_parameters",
+    "InstructionInline.model_parameters",
     "ListItem.item",
     "ModifyOperation.value",
     "Parameter.default",
@@ -163,17 +164,6 @@ impl Schemas {
             .join("\n");
 
         // Export all types from one file
-        let nodes = self
-            .schemas
-            .get("Node")
-            .and_then(|schema| schema.any_of.as_ref())
-            .expect("should always exist");
-        let node_types = nodes
-            .iter()
-            .filter_map(|schema| schema.r#ref.as_ref())
-            .map(|title| format!("    {title}"))
-            .join(",\n");
-
         write(
             dest.join("types.rs"),
             format!(
@@ -187,21 +177,68 @@ impl Schemas {
         .await?;
 
         //  Create an enum with unit variants for each node type
+        let nodes = self
+            .schemas
+            .get("Node")
+            .and_then(|schema| schema.any_of.as_ref())
+            .expect("should always exist");
+
+        let node_types = nodes
+            .iter()
+            .filter_map(|schema| schema.r#ref.as_ref())
+            .map(|title| format!("    {title},"))
+            .join("\n");
+
+        let nodes = nodes
+            .iter()
+            .filter_map(|schema| schema.r#ref.clone())
+            .collect_vec();
+        let nicks_to_types = self
+            .schemas
+            .iter()
+            .filter_map(|(title, schema)| {
+                if !nodes.contains(title) {
+                    return None;
+                }
+                let nick = match &schema.nick {
+                    Some(nick) => nick.to_string(),
+                    None => title.to_lowercase().chars().take(3).collect(),
+                };
+                Some(format!(r#"            "{nick}" => {title},"#))
+            })
+            .join("\n");
+
         write(
             PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../node-type/src/node_type.rs"),
             format!(
                 r#"{GENERATED_COMMENT}
 
 use common::{{
+    eyre::{{bail, Report}},
     serde::Serialize,
     strum::{{Display, EnumIter, EnumString}},
 }};
+
+use node_id::NodeId;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Display, EnumString, EnumIter)]
 #[serde(crate = "common::serde")]
 #[strum(crate = "common::strum")]
 pub enum NodeType {{
-{node_types},
+{node_types}
+}}
+
+
+impl TryFrom<&NodeId> for NodeType {{
+    type Error = Report;
+
+    fn try_from(value: &NodeId) -> Result<Self, Self::Error> {{
+        use NodeType::*;
+        Ok(match value.nick() {{
+{nicks_to_types}
+            nick => bail!("Unknown node nick `{{nick}}`")
+        }})
+    }}
 }}
 "#
             ),
@@ -609,9 +646,20 @@ pub enum NodeProperty {{
 
             // Add #[serde] attribute for field if necessary
             if let Some(serde) = &property.serde {
-                let mut args = vec!["default".to_string()];
+                let mut args = Vec::new();
+
+                if serde.default {
+                    args.push("default".to_string());
+                }
 
                 if let Some(deserialize_with) = &serde.deserialize_with {
+                    // This maintains consistency with previous implementation
+                    // when `default` could nto be specified. But adding this here may
+                    // not be necessary
+                    if args.is_empty() {
+                        args.push("default".to_string());
+                    }
+
                     // `deserializeWith: none` is used in the schema to avoid the
                     // default behavior for arrays below (which is problematic for
                     // arrays of `Node` or `Primitive` (since they can be arrays themselves))
@@ -1107,6 +1155,10 @@ impl {title} {{
 
         if unit_variants && !NO_ORD.contains(&title) {
             derives.push("Eq, PartialOrd, Ord");
+        }
+
+        if unit_variants {
+            derives.push("Hash");
         }
 
         if !NO_READ_NODE.contains(&title) {

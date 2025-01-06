@@ -5,6 +5,7 @@ import { customElement, property, state } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 import { admonitionUi } from '../ui/nodes/icons-and-colours'
+import { booleanConverter } from '../utilities/booleanConverter'
 
 import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/properties/authors'
@@ -29,8 +30,8 @@ export class Admonition extends Entity {
   /**
    * Whether the admonition is folded.
    */
-  @property({ attribute: 'is-folded' })
-  isFolded?: 'true' | 'false'
+  @property({ attribute: 'is-folded', converter: booleanConverter })
+  isFolded?: boolean
 
   /**
    * Whether the admonition has a title.
@@ -41,10 +42,10 @@ export class Admonition extends Entity {
   hasTitleSlot: boolean
 
   private toggleIsFolded() {
-    if (this.isFolded === 'true') {
-      this.isFolded = 'false'
+    if (this.isFolded) {
+      this.isFolded = false
     } else {
-      this.isFolded = 'true'
+      this.isFolded = true
     }
   }
 
@@ -61,7 +62,7 @@ export class Admonition extends Entity {
       'shadow rounded',
     ])
 
-    if (this.ancestors.includes('StyledBlock')) {
+    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return html`
         <div class=${styles}>
           ${this.renderHeader()} ${this.renderContent()}
@@ -72,9 +73,18 @@ export class Admonition extends Entity {
     return html`
       <stencila-ui-block-on-demand
         type="Admonition"
+        node-id=${this.id}
         depth=${this.depth}
-        ancestors=${this.ancestors}
       >
+        <div slot="header-right">
+          <stencila-ui-node-chat-commands
+            type="Admonition"
+            node-id=${this.id}
+            depth=${this.depth}
+          >
+          </stencila-ui-node-chat-commands>
+        </div>
+
         <div slot="body">
           <stencila-ui-node-authors type="Admonition">
             <stencila-ui-node-provenance slot="provenance">
@@ -83,6 +93,7 @@ export class Admonition extends Entity {
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
+
         <div slot="content" class="mt-2">
           <div class=${styles}>
             ${this.renderHeader()} ${this.renderContent()}
@@ -100,7 +111,7 @@ export class Admonition extends Entity {
       'p-2',
       `text-[${textColour}]`,
       `bg-[${baseColour}]`,
-      `${this.isFolded === 'true' ? 'rounded-r' : 'rounded-tr'}`,
+      `${this.isFolded ? 'rounded-r' : 'rounded-tr'}`,
     ])
 
     return html`
@@ -113,7 +124,7 @@ export class Admonition extends Entity {
 
         ${this.isFolded !== undefined
           ? html`<stencila-ui-chevron-button
-              default-pos=${this.isFolded === 'true' ? 'left' : 'down'}
+              default-pos=${this.isFolded ? 'left' : 'down'}
               slot="right-side"
               custom-class="flex items-center"
               .clickEvent=${() => this.toggleIsFolded()}
@@ -125,8 +136,8 @@ export class Admonition extends Entity {
 
   protected renderContent() {
     const styles = apply([
-      this.isFolded === 'true' ? 'opacity-0' : 'opacity-100',
-      this.isFolded === 'true' ? 'max-h-0' : 'max-h-[10000px]',
+      this.isFolded ? 'opacity-0' : 'opacity-100',
+      this.isFolded ? 'max-h-0' : 'max-h-[10000px]',
       'transition-all duration-200',
     ])
 

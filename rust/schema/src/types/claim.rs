@@ -305,7 +305,7 @@ pub struct ClaimOptions {
 }
 
 impl Claim {
-    const NICK: [u8; 3] = [99, 108, 97];
+    const NICK: [u8; 3] = [99, 108, 109];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Claim

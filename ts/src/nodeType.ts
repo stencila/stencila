@@ -20,6 +20,9 @@ export type NodeType =
   | "Button"
   | "CallArgument"
   | "CallBlock"
+  | "Chat"
+  | "ChatMessage"
+  | "ChatMessageGroup"
   | "Cite"
   | "CiteGroup"
   | "Claim"
@@ -73,7 +76,6 @@ export type NodeType =
   | "InstructionBlock"
   | "InstructionInline"
   | "InstructionMessage"
-  | "InstructionModel"
   | "IntegerValidator"
   | "Link"
   | "List"
@@ -81,6 +83,7 @@ export type NodeType =
   | "MathBlock"
   | "MathInline"
   | "MediaObject"
+  | "ModelParameters"
   | "ModifyBlock"
   | "ModifyInline"
   | "ModifyOperation"
@@ -161,6 +164,9 @@ export const NodeTypeList = [
   "Button",
   "CallArgument",
   "CallBlock",
+  "Chat",
+  "ChatMessage",
+  "ChatMessageGroup",
   "Cite",
   "CiteGroup",
   "Claim",
@@ -214,7 +220,6 @@ export const NodeTypeList = [
   "InstructionBlock",
   "InstructionInline",
   "InstructionMessage",
-  "InstructionModel",
   "IntegerValidator",
   "Link",
   "List",
@@ -222,6 +227,7 @@ export const NodeTypeList = [
   "MathBlock",
   "MathInline",
   "MediaObject",
+  "ModelParameters",
   "ModifyBlock",
   "ModifyInline",
   "ModifyOperation",

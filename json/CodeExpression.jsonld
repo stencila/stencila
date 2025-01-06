@@ -35,6 +35,18 @@
       }
     },
     {
+      "@id": "stencila:executionBounds",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionBounds",
+      "rdfs:comment": "Under which circumstances child nodes should be executed.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Executable"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionBounds"
+      }
+    },
+    {
       "@id": "stencila:compilationDigest",
       "@type": "rdfs:Property",
       "rdfs:label": "compilationDigest",
@@ -177,15 +189,15 @@
       }
     },
     {
-      "@id": "stencila:executionKind",
+      "@id": "stencila:executionBounded",
       "@type": "rdfs:Property",
-      "rdfs:label": "executionKind",
-      "rdfs:comment": "The kind (e.g. main kernel vs kernel fork) of the last execution.",
+      "rdfs:label": "executionBounded",
+      "rdfs:comment": "The bounds, if any, on the last execution.",
       "schema:domainIncludes": {
         "@id": "stencila:Executable"
       },
       "schema:rangeIncludes": {
-        "@id": "stencila:ExecutionKind"
+        "@id": "stencila:ExecutionBounds"
       }
     },
     {

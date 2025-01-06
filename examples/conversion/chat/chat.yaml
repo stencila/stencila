@@ -1,0 +1,30 @@
+type: Chat
+prompt:
+  type: PromptBlock
+modelParameters:
+  type: ModelParameters
+content:
+- type: ChatMessage
+  role: System
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value:
+        string: You are a friendly, enthusiastic, but terse, assistant.
+- type: ChatMessage
+  role: User
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value:
+        string: Hello
+- type: ChatMessage
+  role: Model
+  content:
+  - type: Paragraph
+    content:
+    - type: Text
+      value:
+        string: Hi there!

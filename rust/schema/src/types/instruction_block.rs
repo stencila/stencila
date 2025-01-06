@@ -6,18 +6,18 @@ use super::block::Block;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
 use super::duration::Duration;
+use super::execution_bounds::ExecutionBounds;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
-use super::execution_kind::ExecutionKind;
 use super::execution_message::ExecutionMessage;
 use super::execution_mode::ExecutionMode;
 use super::execution_required::ExecutionRequired;
 use super::execution_status::ExecutionStatus;
 use super::execution_tag::ExecutionTag;
 use super::instruction_message::InstructionMessage;
-use super::instruction_model::InstructionModel;
 use super::instruction_type::InstructionType;
 use super::integer::Integer;
+use super::model_parameters::ModelParameters;
 use super::prompt_block::PromptBlock;
 use super::string::String;
 use super::suggestion_block::SuggestionBlock;
@@ -43,41 +43,41 @@ pub struct InstructionBlock {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// Under which circumstances the code should be executed.
+    /// Under which circumstances the node should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
+
+    /// Under which circumstances child nodes should be executed.
+    #[serde(alias = "execution-bounds", alias = "execution_bounds")]
+    #[strip(execution)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub execution_bounds: Option<ExecutionBounds>,
 
     /// The type of instruction describing the operation to be performed.
     #[serde(alias = "instruction-type", alias = "instruction_type")]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub instruction_type: InstructionType,
 
+    /// The prompt selected, rendered and provided to the model
+    #[serde(default)]
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
+    #[dom(elem = "div")]
+    pub prompt: PromptBlock,
+
     /// The instruction message, possibly including images, audio, or other media.
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[serde(default)]
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[dom(elem = "div")]
-    pub message: Option<InstructionMessage>,
+    pub message: InstructionMessage,
 
-    /// An identifier for the prompt to be used for the instruction
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(value = r#"None"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z][a-zA-Z\-_/.@]")"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
-    pub prompt: Option<String>,
-
-    /// The name, and other options, for the model that the assistant should use to generate suggestions.
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    /// Model selection and inference parameters.
+    #[serde(alias = "model-parameters", alias = "model_parameters", alias = "model-params", alias = "model_params", alias = "model-pars", alias = "model_pars", alias = "model")]
+    #[serde(default)]
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[dom(elem = "div")]
-    pub model: Option<Box<InstructionModel>>,
-
-    /// The number of suggestions to generate for the instruction
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub replicates: Option<UnsignedInteger>,
-
-    /// A string identifying which operations should, or should not, automatically be applied to generated suggestions.
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub recursion: Option<String>,
+    pub model_parameters: Box<ModelParameters>,
 
     /// The index of the suggestion that is currently active
     #[serde(alias = "active-suggestion", alias = "active_suggestion")]
@@ -190,11 +190,11 @@ pub struct InstructionBlockOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_instance: Option<String>,
 
-    /// The kind (e.g. main kernel vs kernel fork) of the last execution.
-    #[serde(alias = "execution-kind", alias = "execution_kind")]
+    /// The bounds, if any, on the last execution.
+    #[serde(alias = "execution-bounded", alias = "execution_bounded")]
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub execution_kind: Option<ExecutionKind>,
+    pub execution_bounded: Option<ExecutionBounds>,
 
     /// The timestamp when the last execution ended.
     #[serde(alias = "execution-ended", alias = "execution_ended")]
@@ -217,12 +217,6 @@ pub struct InstructionBlockOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
-
-    /// The prompt chosen, rendered and provided to the model
-    #[serde(alias = "prompt-provided", alias = "prompt_provided")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(elem = "div")]
-    pub prompt_provided: Option<PromptBlock>,
 }
 
 impl InstructionBlock {
@@ -236,9 +230,12 @@ impl InstructionBlock {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(instruction_type: InstructionType) -> Self {
+    pub fn new(instruction_type: InstructionType, prompt: PromptBlock, message: InstructionMessage, model_parameters: Box<ModelParameters>) -> Self {
         Self {
             instruction_type,
+            prompt,
+            message,
+            model_parameters,
             ..Default::default()
         }
     }

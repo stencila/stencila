@@ -93,12 +93,18 @@ new:
             string: Some okay text.
     - type: InstructionBlock
       instructionType: Edit
+      prompt:
+        type: PromptBlock
+        instructionType: Edit
+        query: more succinct
       message:
         type: InstructionMessage
         parts:
           - type: Text
             value:
               string: more succinct
+      modelParameters:
+        type: ModelParameters
       content:
         - type: Paragraph
           content:
@@ -155,6 +161,10 @@ merged:
           characterPercent: 100
     - type: InstructionBlock
       instructionType: Edit
+      prompt:
+        type: PromptBlock
+        instructionType: Edit
+        query: more succinct
       message:
         type: InstructionMessage
         parts:
@@ -178,6 +188,8 @@ merged:
             provenanceCategory: Hw
             characterCount: 13
             characterPercent: 100
+      modelParameters:
+        type: ModelParameters
       content:
         - type: Paragraph
           content:
@@ -229,12 +241,18 @@ ops:
         - - 1
           - type: InstructionBlock
             instructionType: Edit
+            prompt:
+              type: PromptBlock
+              instructionType: Edit
+              query: more succinct
             message:
               type: InstructionMessage
               parts:
                 - type: Text
                   value:
                     string: more succinct
+            modelParameters:
+              type: ModelParameters
             content:
               - type: Paragraph
                 content:

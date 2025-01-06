@@ -7,12 +7,12 @@ name: Create Filled Table Prompt
 description: Create a table with a caption and filled cells.
 keywords: table, filled
 
-instruction-type: Create 
-instruction-patterns:
+instruction-type: Create
+node-type: Table
+query-patterns:
  - (?i)\bfilled table\b
  - (?i)\btable of\b
  - (?i)\btable\b
-node-type: Table
 ---
 
 # Instructions

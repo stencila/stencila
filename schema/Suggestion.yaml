@@ -14,7 +14,7 @@ core:
 properties:
   suggestionStatus:
     '@id': stencila:suggestionStatus
-    description: The status of the suggestion including whether it is proposed, accepted, or rejected.
+    description: The status of the suggestion including whether it is the original, or is accepted, or rejected.
     strip: [metadata]
     patch:
       formats: [md, smd, myst, ipynb, qmd]

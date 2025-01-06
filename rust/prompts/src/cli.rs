@@ -1,14 +1,15 @@
 use cli_utils::{
     table::{self, Attribute, Cell, Color},
-    Code, ToStdout,
+    AsFormat, Code, ToStdout,
 };
 use codecs::{EncodeOptions, Format};
+use common::itertools::Itertools;
 use model::{
     common::{
         clap::{self, Args, Parser, Subcommand},
         eyre::Result,
     },
-    schema::{InstructionMessage, InstructionType, Node, Prompt, StringOrNumber},
+    schema::{InstructionType, Node, Prompt, StringOrNumber},
 };
 
 /// Manage prompts
@@ -22,7 +23,7 @@ pub struct Cli {
 enum Command {
     List(List),
     Show(Show),
-    Select(Select),
+    Infer(Infer),
     Update(Update),
     Reset(Reset),
 }
@@ -30,14 +31,14 @@ enum Command {
 impl Cli {
     pub async fn run(self) -> Result<()> {
         let Some(command) = self.command else {
-            List {}.run().await?;
+            List::default().run().await?;
             return Ok(());
         };
 
         match command {
             Command::List(list) => list.run().await?,
             Command::Show(show) => show.run().await?,
-            Command::Select(select) => select.run().await?,
+            Command::Infer(infer) => infer.run().await?,
             Command::Update(update) => update.run().await?,
             Command::Reset(update) => update.run().await?,
         }
@@ -47,15 +48,26 @@ impl Cli {
 }
 
 /// List the prompts available
-#[derive(Debug, Args)]
-struct List;
+#[derive(Default, Debug, Args)]
+struct List {
+    /// Output the list as JSON or YAML
+    #[arg(long, short)]
+    r#as: Option<AsFormat>,
+}
 
 impl List {
     async fn run(self) -> Result<()> {
+        let list = super::list().await;
+
+        if let Some(format) = self.r#as {
+            Code::new_from(format.into(), &list)?.to_stdout();
+            return Ok(());
+        }
+
         let mut table = table::new();
         table.set_header(["Id", "Version", "Description"]);
 
-        for prompt in super::list().await {
+        for prompt in list {
             let Prompt {
                 id,
                 version,
@@ -105,7 +117,7 @@ struct Show {
 
 impl Show {
     async fn run(self) -> Result<()> {
-        let prompt = super::get(&self.id, &InstructionType::Create).await?;
+        let prompt = super::get(&self.id).await?;
 
         let content = codecs::to_string(
             &Node::Prompt(prompt.inner),
@@ -122,29 +134,34 @@ impl Show {
     }
 }
 
-/// Select a prompt
+/// Infer a prompt from a query
 ///
-/// Useful for checking which prompt will be matched to a given instruction
+/// Useful for checking which prompt will be matched to a given
+/// instruction type, node types, and/or query
 #[derive(Debug, Args)]
-struct Select {
-    /// The type of instruction
-    r#type: InstructionType,
+struct Infer {
+    /// The instruction type
+    #[arg(short, long)]
+    instruction_type: Option<InstructionType>,
 
-    /// The instruction message
-    message: String,
+    /// The node types
+    #[arg(short, long)]
+    node_types: Option<String>,
+
+    /// The query
+    query: Option<String>,
 }
 
-impl Select {
+impl Infer {
     async fn run(self) -> Result<()> {
-        let prompt = super::select(
-            &self.r#type,
-            &Some(InstructionMessage::from(self.message)),
-            &None,
-            &None,
-        )
-        .await?;
+        let node_types = self
+            .node_types
+            .map(|value| value.split(",").map(String::from).collect_vec());
 
-        println!("{}", prompt.id.clone().unwrap_or_default());
+        match super::infer(&self.instruction_type, &node_types, &self.query.as_deref()).await {
+            Some(prompt) => println!("{}", prompt.id.clone().unwrap_or_default()),
+            None => println!("Unable to infer prompt"),
+        };
 
         Ok(())
     }

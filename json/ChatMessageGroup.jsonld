@@ -1,0 +1,33 @@
+{
+  "@id": "https://stencila.org/ChatMessageGroup",
+  "name": "ChatMessageGroup",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:ChatMessageGroup",
+      "@type": "rdfs:Class",
+      "rdfs:label": "ChatMessageGroup",
+      "rdfs:comment": "A group of messages, usually alternative model messages, within a `Chat`.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:messages",
+      "@type": "rdfs:Property",
+      "rdfs:label": "messages",
+      "rdfs:comment": "The messages within the group.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ChatMessageGroup"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ChatMessage"
+      }
+    }
+  ]
+}

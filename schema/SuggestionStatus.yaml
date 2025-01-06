@@ -4,6 +4,9 @@ extends: Enumeration
 category: edits
 description: The status of an instruction.
 anyOf:
+  - const: Original
+    "@id": stencila:Original
+    description: The suggestion is the original content.
   - const: Accepted
     "@id": stencila:Accepted
     description: The suggestion has been accepted.

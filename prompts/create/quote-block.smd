@@ -7,9 +7,9 @@ name: Create Quote Block Prompt
 description: Create a quote block.
 keywords: quote, blockquote
 
-instruction-type: Create 
-instruction-pattern: (?i)\bquote\b
+instruction-type: Create
 node-type: QuoteBlock
+query-pattern: (?i)\bquote\b
 ---
 
 # Instructions

@@ -7,13 +7,13 @@ name: Create Math Block Prompt
 description: Create a math equation in TeX, AsciiMath or MathML.
 keywords: math, block, display
 
-instruction-type: Create 
-instruction-patterns:
+instruction-type: Create
+node-type: MathBlock
+query-patterns:
   - (?i)\bmath( (block))?\b
   - (?i)\bdisplay math\b
   - (?i)\b(eqn)|(eq(uation)?)\b
   - (?i)\bformula\b
-node-type: MathBlock
 ---
 
 # Instructions

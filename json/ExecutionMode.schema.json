@@ -7,7 +7,7 @@
     "Enumeration"
   ],
   "category": "flow",
-  "description": "Under which circumstances the document node should be executed.",
+  "description": "Under which circumstances a node should be executed.",
   "required": [
     "type"
   ],
@@ -47,6 +47,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -127,6 +128,16 @@
   },
   "anyOf": [
     {
+      "@id": "stencila:Default",
+      "description": "Use the mode configured in the document, workspace or user settings.\n",
+      "const": "Default"
+    },
+    {
+      "@id": "stencila:Need",
+      "description": "Execute the node when needed (i.e. if it is stale) when the document or ancestor\nnode is executed.\n",
+      "const": "Need"
+    },
+    {
       "@id": "stencila:Always",
       "description": "Always execute the node when the document or ancestor node is executed.\nUse this for nodes that you want to always be executed, even if they, or\ntheir upstream dependencies, are not stale.\n",
       "const": "Always"
@@ -137,15 +148,10 @@
       "const": "Auto"
     },
     {
-      "@id": "stencila:Necessary",
-      "description": "Execute the node when necessary (i.e. if it is stale) when the document or ancestor node is executed.",
-      "const": "Necessary"
-    },
-    {
-      "@id": "stencila:Locked",
+      "@id": "stencila:Lock",
       "description": "Do not execute the node. Requires that the node is unlocked first to be executed.\n",
-      "const": "Locked"
+      "const": "Lock"
     }
   ],
-  "default": "Necessary"
+  "default": "Default"
 }

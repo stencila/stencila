@@ -139,12 +139,34 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
             command: "stencila.view-doc",
           },
           {
+            label: "$(comment-discussion) Chat",
+            description: "Chat about the current document",
+            command: "stencila.chat-doc",
+          },
+          {
             label: "$(save-all) Save",
             description: "Save the current document with a sidecar file",
             command: "stencila.invoke.save-doc",
           }
         );
       }
+
+      commands.push(
+        {
+          label: "AI",
+          kind: vscode.QuickPickItemKind.Separator,
+        },
+        {
+          label: "$(comment-discussion) Chat",
+          description: "New AI chat",
+          command: "stencila.new-chat",
+        },
+        {
+          label: "$(comment) Prompt",
+          description: "New AI prompt",
+          command: "stencila.new-prompt",
+        }
+      );
 
       commands.push(
         {

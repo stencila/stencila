@@ -161,16 +161,17 @@ impl From<&schema::InstructionBlock> for Instruction {
     fn from(value: &schema::InstructionBlock) -> Self {
         Self {
             r#type: value.instruction_type.to_string(),
-            message: value.message.as_ref().map(|message| {
-                message
+            message: Some(
+                value
+                    .message
                     .parts
                     .iter()
                     .filter_map(|part| match part {
                         MessagePart::Text(text) => Some(text.value.to_string()),
                         _ => None,
                     })
-                    .join(" ")
-            }),
+                    .join(" "),
+            ),
             content_types: value.content.as_ref().map(|blocks| {
                 blocks
                     .iter()

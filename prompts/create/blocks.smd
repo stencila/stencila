@@ -8,7 +8,6 @@ description: Create one or more blocks.
 keywords: create, blocks
 
 instruction-type: Create
-node-types: Block
 ---
 
 # Instructions

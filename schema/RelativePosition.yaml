@@ -1,0 +1,12 @@
+title: RelativePosition
+"@id": stencila:RelativePosition
+extends: Enumeration
+category: other
+description: The relative position of a node to another.
+proptest: {}
+default: Next
+anyOf:
+  - const: Previous
+    "@id": stencila:Previous
+  - const: Next
+    "@id": stencila:Next

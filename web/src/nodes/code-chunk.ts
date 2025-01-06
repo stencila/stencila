@@ -4,6 +4,7 @@ import { customElement, property, query, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 import { getTitleIcon } from '../ui/nodes/properties/programming-language'
+import { booleanConverter } from '../utilities/booleanConverter'
 
 import '../ui/nodes/commands/execution-commands'
 import '../ui/nodes/cards/block-on-demand'
@@ -24,9 +25,6 @@ import { CodeExecutable } from './code-executable'
 @customElement('stencila-code-chunk')
 @withTwind()
 export class CodeChunk extends CodeExecutable {
-  @query('slot[name="outputs"]')
-  outputsSlot!: HTMLSlotElement
-
   @property({ attribute: 'label-type' })
   labelType?: LabelType
 
@@ -35,12 +33,12 @@ export class CodeChunk extends CodeExecutable {
 
   @property({
     attribute: 'is-invisible',
-    type: Boolean,
-    // Converter needed because encoded not a boolean attribute (present or absent)
-    // but as a stringified boolean
-    converter: (attr) => attr == 'true',
+    converter: booleanConverter,
   })
-  isInvisible: boolean = false
+  isInvisible?: boolean
+
+  @query('slot[name="outputs"]')
+  outputsSlot!: HTMLSlotElement
 
   @state()
   hasOutputs: boolean = false
@@ -50,7 +48,7 @@ export class CodeChunk extends CodeExecutable {
   }
 
   override render() {
-    if (this.ancestors.includes('StyledBlock')) {
+    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return this.renderContent()
     }
 
@@ -61,43 +59,39 @@ export class CodeChunk extends CodeExecutable {
 
     return html`<stencila-ui-block-on-demand
       type="CodeChunk"
-      depth=${this.depth}
-      ancestors=${this.ancestors}
       node-id=${this.id}
+      depth=${this.depth}
       header-icon=${icon}
       header-title=${title}
       ?noVisibleContent=${!this.hasOutputs}
     >
-      <span slot="header-right">
-        <stencila-ui-node-execution-commands
-          node-id=${this.id}
+      <span slot="header-right" class="flex flex-row items-center gap-3">
+        <stencila-ui-node-chat-commands
           type="CodeChunk"
+          node-id=${this.id}
+          depth=${this.depth}
         >
-          <sl-tooltip
-            content=${this.isInvisible ? 'Show output' : 'Hide output'}
-          >
-            <stencila-ui-icon-button
-              class="ml-3"
-              name=${this.isInvisible ? 'eye' : 'eyeSlash'}
-              @click=${(e: Event) => {
-                // Stop the click behavior of the card header parent element
-                e.stopImmediatePropagation()
-                this.isInvisible = !this.isInvisible
-              }}
-            ></stencila-ui-icon-button>
-          </sl-tooltip>
+        </stencila-ui-node-chat-commands>
+
+        <stencila-ui-node-execution-commands
+          type="CodeChunk"
+          node-id=${this.id}
+          depth=${this.depth}
+        >
         </stencila-ui-node-execution-commands>
       </span>
 
       <div slot="body">
         <stencila-ui-node-execution-details
           type="CodeChunk"
+          node-id=${this.id}
           mode=${this.executionMode}
+          bounds=${this.executionBounds}
           .tags=${this.executionTags}
           status=${this.executionStatus}
           required=${this.executionRequired}
           count=${this.executionCount}
-          kind=${this.executionKind}
+          bounded=${this.executionBounded}
           ended=${this.executionEnded}
           duration=${this.executionDuration}
         >
@@ -127,6 +121,24 @@ export class CodeChunk extends CodeExecutable {
       <div slot="content">${this.renderContent()}</div>
     </stencila-ui-block-on-demand>`
   }
+
+  /*
+  private renderShowHideOutput() {
+    return html`<sl-tooltip
+      content=${this.isInvisible ? 'Show output' : 'Hide output'}
+    >
+      <stencila-ui-icon-button
+        class="text-xl"
+        name=${this.isInvisible ? 'eye' : 'eyeSlash'}
+        @click=${(e: Event) => {
+          // Stop the click behavior of the card header parent element
+          e.stopImmediatePropagation()
+          this.isInvisible = !this.isInvisible
+        }}
+      ></stencila-ui-icon-button>
+    </sl-tooltip>`
+  }
+  */
 
   private renderContent() {
     return this.isInvisible

@@ -10,6 +10,6 @@ anyOf:
   - const: User
     '@id': stencila:UserMessage
     description: A user message
-  - const: Assistant
-    '@id': stencila:AssistantMessage
-    description: An assistant message
+  - const: Model
+    '@id': stencila:ModelMessage
+    description: A message from a model

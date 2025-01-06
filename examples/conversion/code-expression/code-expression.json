@@ -91,7 +91,7 @@
           "type": "CodeExpression",
           "programmingLanguage": "javascript",
           "code": "c * d",
-          "executionMode": "Locked"
+          "executionMode": "Lock"
         },
         { "type": "Text", "value": "." }
       ]

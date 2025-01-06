@@ -31,7 +31,7 @@ use kernel_rhai::RhaiKernel;
 use kernel_style::StyleKernel;
 use kernel_tex::TexKernel;
 
-pub use kernel::{KernelAvailability, KernelProvider, KernelType};
+pub use kernel::{KernelAvailability, KernelProvider, KernelSpecification, KernelType};
 
 pub mod cli;
 

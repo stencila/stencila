@@ -83,9 +83,10 @@ impl Visitor for Mapper {
     }
 
     /// Enter a property
-    fn enter_property(&mut self, property: NodeProperty) {
+    fn enter_property(&mut self, property: NodeProperty) -> WalkControl {
         self.path
             .push(NodePathSegment::Property(property.to_smolstr()));
+        WalkControl::Continue
     }
 
     /// Exit a property
@@ -94,8 +95,9 @@ impl Visitor for Mapper {
     }
 
     /// Enter a node at an index
-    fn enter_index(&mut self, index: usize) {
+    fn enter_index(&mut self, index: usize) -> WalkControl {
         self.path.push(NodePathSegment::Index(index));
+        WalkControl::Continue
     }
 
     /// Exit a node at an index

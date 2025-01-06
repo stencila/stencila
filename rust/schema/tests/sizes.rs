@@ -35,6 +35,9 @@ fn sizes() {
         Block,
         Admonition,
         CallBlock,
+        Chat,
+        ChatMessage,
+        ChatMessageGroup,
         Claim,
         CodeBlock,
         CodeChunk,
@@ -51,12 +54,16 @@ fn sizes() {
         MathBlock,
         ModifyBlock,
         Paragraph,
+        PromptBlock,
         QuoteBlock,
+        RawBlock,
         ReplaceBlock,
         Section,
         StyledBlock,
+        SuggestionBlock,
         Table,
-        ThematicBreak
+        ThematicBreak,
+        Walkthrough
     );
 
     println!("\n");

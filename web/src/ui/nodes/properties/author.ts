@@ -130,10 +130,12 @@ export class UINodeAuthor extends LitElement {
                 class="text-xs leading-5 overflow-hidden whitespace-nowrap text-ellipsis inline-block"
                 >${this.renderName()}</span
               >
-              <span
-                class=${`text-2xs leading-none overflow-hidden whitespace-nowrap text-ellipsis inline-block ${this.details ? '' : 'hidden'}`}
-                >${this.details}</span
-              >
+              ${this.details
+                ? html`<span
+                    class=${`text-2xs leading-none overflow-hidden whitespace-nowrap text-ellipsis inline-block`}
+                    >${this.details}</span
+                  >`
+                : ''}
             </div>
           </div>
           <div
@@ -182,7 +184,7 @@ export class UINodeAuthor extends LitElement {
     // Fallback to using prompt icon if appropriate
     if (
       !icon &&
-      (this.name.includes('Prompt') || this.roleName.includes('Prompt'))
+      (this.name?.includes('Prompt') || this.roleName?.includes('Prompt'))
     ) {
       icon = 'chatSquareText'
     }

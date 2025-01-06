@@ -1,5 +1,6 @@
 title: Strong
 '@id': stencila:Strong
+nick: stg
 extends: Mark
 category: prose
 description: Strongly emphasized content.

@@ -36,13 +36,13 @@ export class UINodeCollapsibleProperty extends LitElement {
   }
 
   override render() {
-    const { colour, borderColour } = nodeUi(this.type)
+    const { colour, borderColour, textColour } = nodeUi(this.type)
 
     const headerStyles = apply([
       'flex flex-row items-center',
       'h-9',
       'px-4 py-1',
-      'font-sans not-italic',
+      `text-[${textColour}] font-sans not-italic`,
       `border-t border-[${borderColour}]`,
       this.expanded && `border-b`,
       `bg-[${colour}]`,

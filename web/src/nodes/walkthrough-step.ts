@@ -2,8 +2,9 @@ import { apply } from '@twind/core'
 import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
-import { documentCommandEvent } from '../clients/commands'
+import { patchValue } from '../clients/commands'
 import { withTwind } from '../twind'
+import { booleanConverter } from '../utilities/booleanConverter'
 
 import { Entity } from './entity'
 
@@ -20,8 +21,8 @@ import { Entity } from './entity'
 @customElement('stencila-walkthrough-step')
 @withTwind()
 export class WalkthroughStep extends Entity {
-  @property({ attribute: 'is-collapsed' })
-  isCollapsed?: string
+  @property({ attribute: 'is-collapsed', converter: booleanConverter })
+  isCollapsed?: boolean
 
   @state()
   isNext: boolean = false
@@ -33,10 +34,7 @@ export class WalkthroughStep extends Entity {
     e.stopImmediatePropagation()
 
     this.dispatchEvent(
-      documentCommandEvent({
-        command: 'patch-node',
-        args: ['WalkthroughStep', this.id, 'isCollapsed', false],
-      })
+      patchValue('WalkthroughStep', this.id, 'isCollapsed', false)
     )
   }
 
@@ -47,15 +45,12 @@ export class WalkthroughStep extends Entity {
     e.stopImmediatePropagation()
 
     this.dispatchEvent(
-      documentCommandEvent({
-        command: 'patch-node',
-        args: [
-          'Walkthrough',
-          this.closestGlobally('stencila-walkthrough')?.id,
-          'isCollapsed',
-          false,
-        ],
-      })
+      patchValue(
+        'Walkthrough',
+        this.closestGlobally('stencila-walkthrough')?.id,
+        'isCollapsed',
+        false
+      )
     )
   }
 
@@ -73,7 +68,7 @@ export class WalkthroughStep extends Entity {
     super.updated(changedProperties)
 
     // Update `isNext` on the next step
-    if (this.isCollapsed === 'false' || this.isCollapsed !== 'true') {
+    if (!this.isCollapsed) {
       const next = this.nextElementSibling as WalkthroughStep
       if (next) {
         next.isNext = true
@@ -90,9 +85,7 @@ export class WalkthroughStep extends Entity {
 
     const contentStyle = apply(
       'transition-all duration-1000 ease-in-out',
-      this.isCollapsed == 'true'
-        ? 'max-h-0 opacity-0'
-        : 'max-h-[5000px] opacity-100'
+      this.isCollapsed ? 'max-h-0 opacity-0' : 'max-h-[5000px] opacity-100'
     )
 
     return html`<div class=${actionsStyle}>

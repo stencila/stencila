@@ -4,7 +4,7 @@ import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 import { createRef, Ref, ref } from 'lit/directives/ref'
 
-import { documentCommandEvent } from '../../../clients/commands'
+import { reviseNode } from '../../../clients/commands'
 import { withTwind } from '../../../twind'
 import { UIBaseClass } from '../mixins/ui-base-class'
 
@@ -91,36 +91,10 @@ export class UINodeSuggestionCommands extends UIBaseClass {
   private emitEvent(e: Event, command: 'accept' | 'reject' | 'revise') {
     e.stopImmediatePropagation()
 
-    const nodeType = this.type
-    const nodeIds =
-      command === 'accept' ? [this.nodeId, this.instructionId] : [this.nodeId]
-
     if (command === 'revise') {
-      if (this.feedback) {
-        this.dispatchEvent(
-          documentCommandEvent({
-            command: 'patch-node',
-            nodeType,
-            nodeIds,
-            nodeProperty: ['feedback', this.feedback],
-          })
-        )
-      }
-      this.dispatchEvent(
-        documentCommandEvent({
-          command: 'revise-node',
-          nodeType,
-          nodeIds,
-        })
-      )
+      this.dispatchEvent(reviseNode(this.type, this.nodeId, this.feedback))
     } else {
-      this.dispatchEvent(
-        documentCommandEvent({
-          command: `${command}-node`,
-          nodeType,
-          nodeIds,
-        })
-      )
+      // TODO: maybe, if used
     }
   }
 

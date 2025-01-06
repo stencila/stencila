@@ -25,24 +25,25 @@ export class UIBlockOnDemand extends ToggleMarkerMixin(UIBaseCard) {
   protected override toggleMarkerPosition: string = ''
 
   override render() {
+    const hasBorder = this.depth > 0 && this.toggle
+
     const cardStyles = apply([
-      'fit-contents',
       'group',
       'transition duration-400',
-      'border border-[transparent]',
-      'rounded',
-      'font-normal',
-      this.toggle && `border-[${this.ui.borderColour}] my-2 mx-auto`,
+      hasBorder
+        ? `rounded border border-[${this.ui.borderColour}] my-2 mx-auto`
+        : '',
     ])
+
     return html`
-      <div class=${`ui-block-on-demand ${cardStyles}`}>
+      <div class=${cardStyles}>
         <div class="relative">
           <stencila-ui-collapsible-animation
             class=${this.toggle ? 'opened' : ''}
           >
             ${this.renderHeader()} ${this.renderAnimatedCardBody()}
           </stencila-ui-collapsible-animation>
-          <div class=${`animated-content`}>${this.renderContent()}</div>
+          ${this.renderContent()}
         </div>
       </div>
     `

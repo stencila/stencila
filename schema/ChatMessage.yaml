@@ -1,0 +1,48 @@
+title: ChatMessage
+'@id': stencila:ChatMessage
+nick: chm
+extends: Executable
+category: works
+status: under-development
+description: A message within a `Chat`.
+markdown:
+  derive: false
+required:
+  - role
+  - content
+properties:
+  author:
+    '@id': schema:author
+    description: The author of the message
+    $ref: Author
+    dom:
+      elem: div
+  role:
+    '@id': stencila:role
+    description: The role of the message in the conversation.
+    $ref: MessageRole
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+    dom:
+      # Avoid clash with the HTML `role` attribute by using alias
+      attr: message-role
+  content:
+    '@id': stencila:content
+    description: The content of the message.
+    type: array
+    items:
+      $ref: Block
+    dom:
+      elem: div
+  files:
+    '@id': stencila:files
+    description: The content of the message.
+    type: array
+    items:
+      $ref: File
+    dom:
+      elem: div
+  isSelected:
+    '@id': stencila:isSelected
+    description: Whether this message is the selected message in the parent `ChatMessageGroup`
+    type: boolean

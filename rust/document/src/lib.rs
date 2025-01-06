@@ -1,7 +1,6 @@
 #![recursion_limit = "256"]
 
 use std::{
-    fs::File,
     io,
     path::{Path, PathBuf},
     sync::{atomic::AtomicU64, Arc},
@@ -16,7 +15,7 @@ use common::{
     strum::{Display, EnumString},
     tokio::{
         self,
-        sync::{broadcast, mpsc, watch, RwLock, RwLockReadGuard},
+        sync::{broadcast, mpsc, watch, RwLock, RwLockReadGuard, RwLockWriteGuard},
         time::sleep,
     },
     tracing,
@@ -25,7 +24,9 @@ use common::{
 use format::Format;
 use kernels::Kernels;
 use node_execute::ExecuteOptions;
-use schema::{Article, AuthorRole, Node, NodeId, NodeType, Null, Patch, Prompt};
+use schema::{
+    Article, AuthorRole, File, Node, NodeId, NodeProperty, NodeType, Null, Patch, Prompt,
+};
 
 mod config;
 mod sync_directory;
@@ -105,12 +106,31 @@ pub enum Command {
     /// Patch a node in the document
     PatchNode(Patch),
 
-    /// Patch and the document and then execute nodes within it
+    /// Patch a node in the document using content in a specific format
+    PatchNodeFormat {
+        node_id: Option<NodeId>,
+        property: NodeProperty,
+        format: Format,
+        content: String,
+        content_type: ContentType,
+    },
+
+    /// Patch the document and then execute nodes within it
     ///
     /// This command should be used when it is necessary to patch and then
     /// immediately execute as it avoid race conditions associated with
     /// sending separate patch and execute commands.
     PatchExecuteNodes((Patch, CommandNodes, ExecuteOptions)),
+
+    /// Patch and then execute a chat
+    ///
+    /// Adds a new user [`ChatMessage`] to the chat and then executes the
+    /// chat thereby creating a new model message.
+    PatchExecuteChat {
+        chat_id: NodeId,
+        text: String,
+        files: Option<Vec<File>>,
+    },
 }
 
 /// Whether the document source file should be saved
@@ -130,6 +150,16 @@ pub enum SaveDocumentSidecar {
     #[default]
     IfExists,
     No,
+}
+
+/// The type of content in a
+#[derive(Default, Debug, Display, EnumString, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "kebab-case", crate = "common::serde")]
+#[strum(ascii_case_insensitive, crate = "common::strum")]
+pub enum ContentType {
+    #[default]
+    Block,
+    Inline,
 }
 
 /// The node ids for commands that require them
@@ -509,7 +539,7 @@ impl Document {
         let sidecar = Self::sidecar_path(path);
         if sidecar.exists() {
             fn modification_time(path: &Path) -> io::Result<SystemTime> {
-                let metadata = File::open(path)?.metadata()?;
+                let metadata = std::fs::File::open(path)?.metadata()?;
                 metadata.modified()
             }
 
@@ -548,6 +578,11 @@ impl Document {
     /// Get a read guard to the document's root node
     pub async fn root_read(&self) -> RwLockReadGuard<Node> {
         self.root.read().await
+    }
+
+    /// Get a write guard to the document's root node
+    pub async fn root_write(&self) -> RwLockWriteGuard<Node> {
+        self.root.write().await
     }
 
     /// Import a file into a new, or existing, document

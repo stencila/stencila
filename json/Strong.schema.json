@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/Strong.schema.json",
   "@id": "stencila:Strong",
   "title": "Strong",
+  "nick": "stg",
   "extends": [
     "Mark"
   ],

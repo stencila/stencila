@@ -47,11 +47,11 @@ start     end        offsets   node_type+property                   authorship
    256    300         (0, 0)   Text
    301    306        (45, 6)   CodeExpression.code
    308    318        (7, 12)   CodeExpression.programmingLanguage
-   324    330       (16, 12)   CodeExpression.executionMode
-   300    331       (-24, 1)   CodeExpression
-   331    332        (31, 1)   Text.value
-   331    332         (0, 0)   Text
-   256    332       (-75, 0)   Paragraph.content
-   256    333         (0, 1)   Paragraph
-     0    334      (-256, 1)   Article.content
-     0    334         (0, 0)   Article
+   324    328       (16, 10)   CodeExpression.executionMode
+   300    329       (-24, 1)   CodeExpression
+   329    330        (29, 1)   Text.value
+   329    330         (0, 0)   Text
+   256    330       (-73, 0)   Paragraph.content
+   256    331         (0, 1)   Paragraph
+     0    332      (-256, 1)   Article.content
+     0    332         (0, 0)   Article

@@ -1,3 +1,5 @@
+#![recursion_limit = "256"]
+
 use std::{collections::HashMap, env};
 
 use async_lsp::{lsp_types::Url, ClientSocket};

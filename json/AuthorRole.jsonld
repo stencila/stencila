@@ -22,9 +22,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "author",
       "rdfs:comment": "The entity acting as an author.",
-      "schema:domainIncludes": {
-        "@id": "stencila:AuthorRole"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:AuthorRole"
+        },
+        {
+          "@id": "stencila:ChatMessage"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "stencila:AuthorRoleAuthor"
       }

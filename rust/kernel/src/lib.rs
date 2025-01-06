@@ -187,6 +187,39 @@ pub enum KernelForks {
     No,
 }
 
+/// Specifications for a kernel
+///
+/// Currently used only for outputs and display.
+#[derive(Serialize, Deserialize)]
+#[serde(crate = "common::serde", rename_all = "camelCase")]
+pub struct KernelSpecification {
+    name: String,
+    r#type: KernelType,
+    provider: KernelProvider,
+    availability: KernelAvailability,
+    languages: Vec<Format>,
+    supports_forks: KernelForks,
+    supports_interrupt: KernelInterrupt,
+    supports_terminate: KernelTerminate,
+    supports_kill: KernelKill,
+}
+
+impl From<&dyn Kernel> for KernelSpecification {
+    fn from(kernel: &dyn Kernel) -> Self {
+        Self {
+            name: kernel.name(),
+            r#type: kernel.r#type(),
+            provider: kernel.provider(),
+            availability: kernel.availability(),
+            languages: kernel.supports_languages(),
+            supports_forks: kernel.supports_forks(),
+            supports_interrupt: kernel.supports_interrupt(),
+            supports_terminate: kernel.supports_terminate(),
+            supports_kill: kernel.supports_kill(),
+        }
+    }
+}
+
 pub struct KernelVariableRequest {
     /// The name of the kernel instance making the request
     ///

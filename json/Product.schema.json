@@ -3,6 +3,7 @@
   "$id": "https://stencila.org/Product.schema.json",
   "@id": "schema:Product",
   "title": "Product",
+  "nick": "prd",
   "extends": [
     "Thing"
   ],
@@ -50,6 +51,7 @@
         "metadata"
       ],
       "serde": {
+        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",

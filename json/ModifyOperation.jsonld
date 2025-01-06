@@ -31,6 +31,9 @@
         },
         {
           "@id": "stencila:ModifyOperation"
+        },
+        {
+          "@id": "stencila:PromptBlock"
         }
       ],
       "schema:rangeIncludes": {

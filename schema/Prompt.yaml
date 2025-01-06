@@ -10,10 +10,11 @@ required:
   - version
   - description
   - instructionTypes
-  - nodeTypes
   - content
 core:
-  - instructionPatterns
+  - nodeTypes
+  - nodeCount
+  - queryPatterns
 properties:
   instructionTypes:
     "@id": stencila:instructionTypes
@@ -21,15 +22,24 @@ properties:
     type: array
     items:
       $ref: InstructionType
-  instructionPatterns:
-    "@id": stencila:instructionPatterns
-    description: Regular expressions used to match the prompt with a user instruction
-    type: array
-    items:
-      type: string
   nodeTypes:
     "@id": stencila:nodeTypes
     description: The types of nodes that the prompt supports
+    type: array
+    items:
+      type: string
+  nodeCount:
+    "@id": stencila:nodeCount
+    description: The number of nodes that the prompt supports
+    $comment: |
+      Use a string to indicate a range of possible node counts e.g. "1+" for one
+      or more nodes, "1-5" for one to five nodes.
+    anyOf:
+      - $ref: UnsignedInteger
+      - type: string
+  queryPatterns:
+    "@id": stencila:queryPatterns
+    description: Regular expressions used to match the prompt with a user query
     type: array
     items:
       type: string

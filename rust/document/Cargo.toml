@@ -11,6 +11,7 @@ format = { path = "../format" }
 kernels = { path = "../kernels" }
 json-patch = "1.2.0"
 node-execute = { path = "../node-execute" }
+node-find = { path = "../node-find" }
 node-map = { path = "../node-map" }
 node-strip = { path = "../node-strip" }
 notify = { version = "6.1.1", default-features = false, features = ["macos_kqueue"] }

@@ -17,8 +17,9 @@ export class UINodeExecutionEnded extends UINodeTimestampProperty {
 
     return html`
       <stencila-ui-node-simple-property
-        icon-name="clock"
-        tooltip-content="${isoFormat
+        class="max-w-20 truncate"
+        icon="clock"
+        tooltip="${isoFormat
           ? `Last executed at ${isoFormat}`
           : 'No previous executions'}"
       >

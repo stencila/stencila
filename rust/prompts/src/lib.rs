@@ -3,7 +3,9 @@
 use std::{
     cmp::Ordering,
     io::Cursor,
+    ops::RangeInclusive,
     path::{Path, PathBuf},
+    str::FromStr,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -15,10 +17,11 @@ use common::{
     eyre::{bail, eyre, OptionExt, Result},
     futures::future::{join_all, try_join_all},
     glob::glob,
+    inflector::Inflector,
     itertools::Itertools,
     regex::Regex,
     reqwest::Client,
-    serde::{Deserialize, Serialize},
+    serde::{ser::SerializeStruct, Deserialize, Serialize, Serializer},
     serde_json,
     tar::Archive,
     tokio::fs::{create_dir_all, read_to_string, remove_dir_all, write},
@@ -33,7 +36,7 @@ use model::{
         authorship, shortcuts::p, Article, AudioObject, Author, AuthorRole, Block,
         CompilationMessage, ExecutionMessage, ImageObject, Inline, InstructionBlock,
         InstructionMessage, InstructionType, Link, MessageLevel, MessagePart, Node, Prompt,
-        SuggestionBlock, SuggestionStatus, Timestamp, VideoObject,
+        SuggestionBlock, SuggestionStatus, Timestamp, UnsignedIntegerOrString, VideoObject,
     },
     ModelOutput, ModelOutputKind, ModelTask,
 };
@@ -49,8 +52,8 @@ use version::stencila_version;
 ///
 /// A wrapper around an [`Prompt`] used to cache derived properties
 /// such as regexes / embeddings
-#[derive(Clone, Deref, DerefMut, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
+#[derive(Default, Clone, Deref, DerefMut, Deserialize)]
+#[serde(default, crate = "common::serde")]
 pub struct PromptInstance {
     #[deref]
     #[deref_mut]
@@ -69,9 +72,41 @@ pub struct PromptInstance {
     #[serde(skip)]
     home: PathBuf,
 
-    /// Compiled regexes for the prompt's instruction regexes
+    /// The `node_count` of the prompt parsed from a number or string into a [`RangeInclusive`]
     #[serde(skip)]
-    instruction_regexes: Vec<Regex>,
+    node_count_range: Option<RangeInclusive<usize>>,
+
+    /// Compiled regexes for the prompt's query patterns
+    #[serde(skip)]
+    query_patterns_regexes: Vec<Regex>,
+
+    /// The generality of the prompt
+    ///
+    /// Based on the number of instruction types and node types the prompt supports.
+    /// Used to rank prompts with higher specificity (i.e. lower generality) when
+    /// inferring which prompts to use for chats and commands.                         
+    #[serde(skip)]
+    generality: usize,
+}
+
+/// Custom serialization to flatten and avoid unnecessarily serializing content of prompt
+impl Serialize for PromptInstance {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        let mut state = serializer.serialize_struct("PromptInstance", 2)?;
+        state.serialize_field("id", &self.inner.id)?;
+        state.serialize_field("version", &self.inner.version)?;
+        state.serialize_field("name", &self.inner.name)?;
+        state.serialize_field("description", &self.inner.description)?;
+        state.serialize_field("instructionTypes", &self.inner.instruction_types)?;
+        state.serialize_field("nodeTypes", &self.inner.node_types)?;
+        state.serialize_field("nodeCount", &self.inner.node_count)?;
+        state.serialize_field("queryPatterns", &self.inner.query_patterns)?;
+        state.serialize_field("path", &self.path)?;
+        state.end()
+    }
 }
 
 impl PromptInstance {
@@ -83,18 +118,51 @@ impl PromptInstance {
             .ok_or_eyre("prompt not in a dir")?
             .to_path_buf();
 
-        let instruction_regexes = inner
-            .instruction_patterns
+        let node_count_range = if let Some(node_count) = &inner.node_count {
+            let range = match node_count {
+                UnsignedIntegerOrString::UnsignedInteger(count) => {
+                    let count = *count as usize;
+                    count..=count
+                }
+                UnsignedIntegerOrString::String(range) => {
+                    let mut parts = range.split(['+', '-']);
+                    let lower = match parts.next() {
+                        Some(lower) => usize::from_str(lower)?,
+                        None => 0,
+                    };
+                    let upper = match parts.next() {
+                        Some(upper) => usize::from_str(upper)?,
+                        None => usize::MAX,
+                    };
+                    lower..=upper
+                }
+            };
+            Some(range)
+        } else {
+            None
+        };
+
+        let query_patterns_regexes = inner
+            .query_patterns
             .iter()
             .flatten()
             .map(|pattern| Regex::new(pattern))
             .try_collect()?;
 
+        let generality = inner.instruction_types.len().min(1)
+            * inner
+                .node_types
+                .as_ref()
+                .map(|node_types| node_types.len())
+                .unwrap_or(10);
+
         Ok(Self {
             inner,
             path,
             home,
-            instruction_regexes,
+            node_count_range,
+            query_patterns_regexes,
+            generality,
         })
     }
 
@@ -135,7 +203,10 @@ pub async fn list() -> Vec<PromptInstance> {
                 .first()
                 .cmp(&b.instruction_types.first())
             {
-                Ordering::Equal => a.id.cmp(&b.id),
+                Ordering::Equal => match a.generality.cmp(&b.generality) {
+                    Ordering::Equal => a.id.cmp(&b.id),
+                    cmp => cmp,
+                },
                 cmp => cmp,
             }
         })
@@ -143,23 +214,140 @@ pub async fn list() -> Vec<PromptInstance> {
 }
 
 /// Get a prompt by id
-pub async fn get(id: &str, instruction_type: &InstructionType) -> Result<PromptInstance> {
-    let id = if id.contains('/') {
-        id.to_string()
-    } else {
-        let instruction_type = [&instruction_type.to_string().to_lowercase(), "/"].concat();
-        if !id.starts_with(&instruction_type) {
-            ["stencila/", &instruction_type, id].concat()
-        } else {
-            ["stencila/", id].concat()
-        }
-    };
-
+pub async fn get(id: &str) -> Result<PromptInstance> {
     list()
         .await
         .into_iter()
-        .find(|prompt| prompt.id.as_ref() == Some(&id))
+        .find(|prompt| prompt.id.as_deref() == Some(id))
         .ok_or_else(|| eyre!("Unable to find prompt with id `{id}`"))
+}
+
+/// Infer which prompt to use based on instruction type, node types, node count and/or query
+pub async fn infer(
+    instruction_type: &Option<InstructionType>,
+    node_types: &Option<Vec<String>>,
+    query: &Option<&str>,
+) -> Option<PromptInstance> {
+    let prompts = list().await.into_iter();
+
+    // Filter the prompts by instruction type
+    let prompts = prompts.filter(|prompt| match instruction_type {
+        Some(instruction_type) => prompt.instruction_types.contains(instruction_type),
+        None => true,
+    });
+
+    // Filter the prompts by node types: all node types must be in the prompts node types
+    let prompts = prompts.filter(|prompt| match (node_types, &prompt.node_types) {
+        (Some(node_types), Some(prompt_node_types)) => node_types
+            .iter()
+            .all(|node_type| prompt_node_types.contains(node_type)),
+        _ => true,
+    });
+
+    // Filter the prompts by the number of nodes: the count must be in the prompts node count range
+    let prompts = prompts.filter(|prompt| match (node_types, &prompt.node_count_range) {
+        (Some(node_types), Some(range)) => range.contains(&node_types.len()),
+        _ => true,
+    });
+
+    if let Some(query) = query {
+        // If there is a query, count the number of characters in the query that
+        // are matched by each of the patterns in each of the candidate prompts
+        let counts = prompts
+            .map(|prompt| {
+                let matches = prompt
+                    .query_patterns_regexes
+                    .iter()
+                    .flat_map(|regex| regex.find_iter(query).map(|found| found.len()))
+                    .sum::<usize>();
+                (prompt, matches)
+            })
+            .sorted_by(|(prompt_a, matches_a), (prompt_b, matches_b)| {
+                // Sort by descending matches, and ascending generality
+                match matches_a.cmp(matches_b).reverse() {
+                    Ordering::Equal => prompt_a.generality.cmp(&prompt_b.generality),
+                    order => order,
+                }
+            });
+
+        // Get the prompt with the highest matches / lowest generality
+        counts.map(|(prompt, ..)| prompt).next().take()
+    } else if let Some(node_types) = node_types {
+        // Sort nodes by whether any of the lower case node types occur in the id of the prompt
+        prompts
+            .sorted_by(|prompt_a, prompt_b| {
+                let mut node_types = node_types.iter().map(|node_type| node_type.to_kebab_case());
+                let a_id_has_node_type = node_types.clone().any(|node_type| {
+                    prompt_a
+                        .id
+                        .as_ref()
+                        .map(|id| id.contains(&node_type))
+                        .unwrap_or_default()
+                });
+                let b_id_has_node_type = node_types.any(|node_type| {
+                    prompt_b
+                        .id
+                        .as_ref()
+                        .map(|id| id.contains(&node_type))
+                        .unwrap_or_default()
+                });
+                match (a_id_has_node_type, b_id_has_node_type) {
+                    (true, false) => Ordering::Less,
+                    (false, true) => Ordering::Greater,
+                    _ => prompt_a.generality.cmp(&prompt_b.generality),
+                }
+            })
+            .next()
+            .take()
+    } else {
+        // Get the prompt with the lowest generality
+        prompts
+            .sorted_by(|prompt_a, prompt_b| prompt_a.generality.cmp(&prompt_b.generality))
+            .next()
+            .take()
+    }
+}
+
+/// Expand a prompt id by removing any "?"" suffix (used to indicate inferred prompt)
+/// and instruction type and "stencila/" prefixes if appropriate
+pub fn expand(id: &str, instruction_type: &Option<InstructionType>) -> String {
+    let id = id.strip_suffix("?").unwrap_or(id).to_string();
+
+    let parts = id.split('/').count();
+    match parts {
+        1 => {
+            if let Some(instruction_type) = instruction_type {
+                [
+                    "stencila/",
+                    &instruction_type.to_string().to_lowercase(),
+                    "/",
+                    &id,
+                ]
+                .concat()
+            } else {
+                ["stencila/create/", &id].concat()
+            }
+        }
+        2 => ["stencila/", &id].concat(),
+        _ => id,
+    }
+}
+
+/// Attempt to shorten a prompt id, by removing "stencila/" and instruction type prefixes if possible
+pub fn shorten(id: &str, instruction_type: &Option<InstructionType>) -> String {
+    if let Some(rest) = id.strip_prefix("stencila/") {
+        if let Some(instruction_type) = instruction_type {
+            let prefix = [&instruction_type.to_string().to_lowercase(), "/"].concat();
+            if let Some(name) = rest.strip_prefix(&prefix) {
+                return name.into();
+            } else {
+                return rest.into();
+            }
+        }
+        return rest.into();
+    }
+
+    id.into()
 }
 
 /// Builtin prompts
@@ -364,58 +552,6 @@ async fn update_builtin() -> Result<()> {
     Ok(())
 }
 
-/// Select the most appropriate prompt for an instruction
-pub async fn select(
-    instruction_type: &InstructionType,
-    message: &Option<InstructionMessage>,
-    prompt: &Option<String>,
-    _node_types: &Option<Vec<String>>,
-) -> Result<PromptInstance> {
-    let prompts = list().await;
-
-    // If there is a prompt specified then get it
-    if let Some(prompt) = prompt {
-        return get(prompt, instruction_type).await;
-    }
-
-    // Filter the prompts to those that support the instruction type
-    let prompts = prompts
-        .into_iter()
-        .filter(|prompt| prompt.instruction_types.contains(instruction_type));
-
-    // Get the text of the message to match prompts against
-    let message_text = match message {
-        Some(message) => message
-            .parts
-            .iter()
-            .filter_map(|part| match part {
-                MessagePart::Text(text) => Some(text.value.string.clone()),
-                _ => None,
-            })
-            .join(""),
-        None => String::new(),
-    };
-
-    // Count the number of characters in the instruction message that are matched by
-    // each of the patterns in each of the candidates
-    let counts = prompts
-        .filter_map(|prompt| {
-            let matches = prompt
-                .instruction_regexes
-                .iter()
-                .flat_map(|regex| regex.find_iter(&message_text).map(|found| found.len()))
-                .sum::<usize>();
-            // Let through those with any matches or that have no regexes (i.e. defaults)
-            (matches > 0 || prompt.instruction_regexes.is_empty()).then_some((prompt, matches))
-        })
-        .sorted_by(|(.., a), (.., b)| a.cmp(b).reverse());
-
-    // Get the prompt with the highest matches (or no regexes)
-    let prompt = counts.map(|(prompt, ..)| prompt).next().take();
-
-    prompt.ok_or_eyre("No prompts found for instruction")
-}
-
 /// Execute an [`InstructionBlock`]
 pub async fn execute_instruction_block(
     mut instructors: Vec<AuthorRole>,
@@ -431,23 +567,22 @@ pub async fn execute_instruction_block(
     )];
 
     // Add a user message for the instruction
-    if let Some(message) = instruction.message.clone() {
-        let parts = message
-            .parts
-            .into_iter()
-            .map(|part| {
-                // Ensure that any images in the message are fully resolved
-                Ok(match part {
-                    MessagePart::ImageObject(image) => MessagePart::ImageObject(ImageObject {
-                        content_url: ensure_http_or_data_uri(&image.content_url)?,
-                        ..image
-                    }),
-                    _ => part,
-                })
+    let message = instruction.message.clone();
+    let parts = message
+        .parts
+        .into_iter()
+        .map(|part| {
+            // Ensure that any images in the message are fully resolved
+            Ok(match part {
+                MessagePart::ImageObject(image) => MessagePart::ImageObject(ImageObject {
+                    content_url: ensure_http_or_data_uri(&image.content_url)?,
+                    ..image
+                }),
+                _ => part,
             })
-            .collect::<Result<_>>()?;
-        messages.push(InstructionMessage { parts, ..message })
-    }
+        })
+        .collect::<Result<_>>()?;
+    messages.push(InstructionMessage { parts, ..message });
 
     // If the instruction type is `Fix` and the first block in the content
     // (usually there is only one!) has errors or warnings then add a message for those.
@@ -513,6 +648,7 @@ pub async fn execute_instruction_block(
             feedback
         } else if let Some(status) = &suggestion.suggestion_status {
             match status {
+                SuggestionStatus::Original => "This is the original.",
                 SuggestionStatus::Accepted => {
                     "This is suggestion is acceptable, but please try again."
                 }
@@ -531,7 +667,7 @@ pub async fn execute_instruction_block(
     // Create a model task
     let mut task = ModelTask::new(
         instruction.instruction_type.clone(),
-        instruction.model.as_deref().cloned(),
+        *instruction.model_parameters.clone(),
         messages,
     );
     task.dry_run = dry_run;

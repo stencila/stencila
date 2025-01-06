@@ -12,7 +12,7 @@
       "@id": "stencila:ExecutionMode",
       "@type": "rdfs:Class",
       "rdfs:label": "ExecutionMode",
-      "rdfs:comment": "Under which circumstances the document node should be executed.",
+      "rdfs:comment": "Under which circumstances a node should be executed.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"
       }

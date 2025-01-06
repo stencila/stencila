@@ -201,7 +201,7 @@ impl OpenAIModel {
                         ..Default::default()
                     })
                 }
-                MessageRole::Assistant => {
+                MessageRole::Model => {
                     let content = message
                         .parts
                         .iter()
@@ -452,6 +452,8 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
                 || name == "gpt-4-turbo"
                 || name == "gpt-4o"
                 || name == "gpt-4o-mini"
+                || name == "o1"
+                || name == "o1-mini"
                 || name == "tts-1"
                 || name == "tts-1-hd"
             {
@@ -475,7 +477,10 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
                 };
 
             use ModelIO::*;
-            let (inputs, outputs) = if name.starts_with("gpt-4-vision") {
+            let (inputs, outputs) = if name.contains("vision")
+                || name.starts_with("gpt-4o")
+                || name.starts_with("o1")
+            {
                 (vec![Text, Image], vec![Text])
             } else if name.starts_with("gpt-4") || name.starts_with("gpt-3.5") {
                 (vec![Text], vec![Text])
@@ -486,8 +491,8 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
             } else if name.starts_with("whisper") {
                 (vec![Audio], vec![Text])
             } else {
-                // Other models are not mapped
-                return None;
+                // Other models are assumed to be text-text only
+                (vec![Text], vec![Text])
             };
 
             Some(

@@ -8,7 +8,6 @@ description: Edit a block.
 keywords: edit
 
 instruction-type: Edit
-node-types: Block
 ---
 
 # Instructions

@@ -1,8 +1,21 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, MathBlock};
+use crate::{prelude::*, MathBlock, MessageLevel};
 
 impl MathBlock {
+    pub fn has_warnings_errors_or_exceptions(&self) -> bool {
+        self.options
+            .compilation_messages
+            .iter()
+            .flatten()
+            .any(|message| {
+                matches!(
+                    message.level,
+                    MessageLevel::Warning | MessageLevel::Error | MessageLevel::Exception
+                )
+            })
+    }
+
     pub fn to_jats_special(&self) -> (String, Losses) {
         use codec_jats_trait::encode::{elem, elem_no_attrs};
 
