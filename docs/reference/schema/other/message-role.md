@@ -10,7 +10,7 @@ The `MessageRole` type has these members:
 
 - `System`
 - `User`
-- `Assistant`
+- `Model`
 
 ## Bindings
 

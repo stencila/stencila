@@ -61,6 +61,9 @@ Support and degree of loss for node types:
 | [Article](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)                          | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function                    |
 | [AudioObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio_object.md)                 | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function                    |
 | [AuthorRole](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/author_role.md)                   | ⚠️ High loss |            |                                                       |
+| [Chat](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat.md)                                | ⚠️ High loss |            | Encoded using implemented function                    |
+| [ChatMessage](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat_message.md)                 | ⚠️ High loss |            | Encoded using implemented function                    |
+| [ChatMessageGroup](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat_message_group.md)      | ⚠️ High loss |            | Encoded using implemented function                    |
 | [Claim](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)                              | ⚠️ High loss |            | Encoded using implemented function                    |
 | [Collection](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/collection.md)                    | ⚠️ High loss |            |                                                       |
 | [Comment](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/comment.md)                          | ⚠️ High loss |            |                                                       |
@@ -195,7 +198,7 @@ Support and degree of loss for node types:
 | [ContactPoint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/contact_point.md)               | ⚠️ High loss |            |                                                       |
 | [Enumeration](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/enumeration.md)                  | ⚠️ High loss |            |                                                       |
 | [Grant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/grant.md)                              | ⚠️ High loss |            |                                                       |
-| [InstructionModel](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/instruction_model.md)       | ⚠️ High loss |            |                                                       |
+| [ModelParameters](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/model_parameters.md)         | ⚠️ High loss |            | Encoded using implemented function                    |
 | [MonetaryGrant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/monetary_grant.md)             | ⚠️ High loss |            |                                                       |
 | [Organization](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/organization.md)                | ⚠️ High loss |            |                                                       |
 | [Person](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/person.md)                            | ⚠️ High loss |            |                                                       |

@@ -10,6 +10,9 @@ The `Block` type has these members:
 
 - [`Admonition`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/admonition.md)
 - [`CallBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call-block.md)
+- [`Chat`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat.md)
+- [`ChatMessage`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat-message.md)
+- [`ChatMessageGroup`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat-message-group.md)
 - [`Claim`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)
 - [`CodeBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-block.md)
 - [`CodeChunk`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-chunk.md)
@@ -57,6 +60,9 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 |                    | Low+       | Generate `Admonition` nodes in block content.              | Default for level |
 | `CallBlock`        | Min+       | Do not generate `CallBlock` nodes in block content.        | -                 |
 |                    | Low+       | Generate `CallBlock` nodes in block content.               | Default for level |
+| `Chat`             | Min+       | Do not generate `Chat` nodes in block content.             | -                 |
+| `ChatMessage`      | Min+       | Do not generate `ChatMessage` nodes in block content.      | -                 |
+| `ChatMessageGroup` | Min+       | Do not generate `ChatMessageGroup` nodes in block content. | -                 |
 | `Claim`            | Min+       | Do not generate `Claim` nodes in block content.            | -                 |
 |                    | Low+       | Generate `Claim` nodes in block content.                   | Default for level |
 | `CodeChunk`        | Min+       | Do not generate `CodeChunk` nodes in block content.        | -                 |

@@ -8,6 +8,7 @@ The `CreativeWorkType` type has these members:
 
 - [`Article`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)
 - [`AudioObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio-object.md)
+- [`Chat`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat.md)
 - [`Claim`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)
 - [`Collection`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/collection.md)
 - [`Comment`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/comment.md)

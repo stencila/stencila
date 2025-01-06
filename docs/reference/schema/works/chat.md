@@ -1,12 +1,14 @@
-# Prompt
+# Chat
 
-**A prompt for creating or editing document content.**
+**A chat conversation, usually with a generative AI model.**
 
-**`@id`**: `stencila:Prompt`
+**`@id`**: `stencila:Chat`
+
+This type is marked as unstable and is subject to change.
 
 ## Properties
 
-The `Prompt` type has these properties:
+The `Chat` type has these properties:
 
 | Name                    | Aliases                                                                                                                   | `@id`                                                      | Type                                                                                                                                                                                                                      | Description                                                                                                             | Inherited from                                                                                                |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
@@ -58,22 +60,24 @@ The `Prompt` type has these properties:
 | `executionEnded`        | `execution-ended`, `execution_ended`                                                                                      | `stencila:executionEnded`                                  | [`Timestamp`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/timestamp.md)                                                                                                                     | The timestamp when the last execution ended.                                                                            | [`Executable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/executable.md)       |
 | `executionDuration`     | `execution-duration`, `execution_duration`                                                                                | `stencila:executionDuration`                               | [`Duration`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration.md)                                                                                                                       | Duration of the last execution.                                                                                         | [`Executable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/executable.md)       |
 | `executionMessages`     | `execution-messages`, `execution_messages`, `executionMessage`, `execution-message`, `execution_message`                  | `stencila:executionMessages`                               | [`ExecutionMessage`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/execution-message.md)*                                                                                                     | Messages emitted while executing the node.                                                                              | [`Executable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/executable.md)       |
-| `instructionTypes`      | `instruction-types`, `instruction_types`, `instructionType`, `instruction-type`, `instruction_type`                       | `stencila:instructionTypes`                                | [`InstructionType`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/instruction-type.md)*                                                                                                      | The types of instructions that the prompt supports                                                                      | -                                                                                                             |
-| `nodeTypes`             | `node-types`, `node_types`, `nodeType`, `node-type`, `node_type`                                                          | `stencila:nodeTypes`                                       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                                                                                                                          | The types of nodes that the prompt supports                                                                             | -                                                                                                             |
-| `nodeCount`             | `node-count`, `node_count`                                                                                                | `stencila:nodeCount`                                       | [`UnsignedInteger`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/unsigned-integer.md) \| [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)     | The number of nodes that the prompt supports                                                                            | -                                                                                                             |
-| `queryPatterns`         | `query-patterns`, `query_patterns`, `queryPattern`, `query-pattern`, `query_pattern`                                      | `stencila:queryPatterns`                                   | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                                                                                                                          | Regular expressions used to match the prompt with a user query                                                          | -                                                                                                             |
-| `content`               | -                                                                                                                         | `stencila:content`                                         | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)*                                                                                                                           | The content of the prompt.                                                                                              | -                                                                                                             |
+| `prompt`                | -                                                                                                                         | `stencila:prompt`                                          | [`PromptBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/prompt-block.md)                                                                                                               | The prompt selected, rendered and provided to the model                                                                 | -                                                                                                             |
+| `modelParameters`       | `model-parameters`, `model_parameters`, `model-params`, `model_params`, `model-pars`, `model_pars`, `model`               | `stencila:modelParameters`                                 | [`ModelParameters`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/model-parameters.md)                                                                                                       | Model selection and inference parameters.                                                                               | -                                                                                                             |
+| `content`               | -                                                                                                                         | `stencila:content`                                         | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)*                                                                                                                           | The messages, and optionally other content, that make up the chat.                                                      | -                                                                                                             |
+| `suggestions`           | `suggestion`                                                                                                              | `stencila:suggestions`                                     | [`SuggestionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-block.md)*                                                                                                      | Suggestions of content that is the focus of the chat.                                                                   | -                                                                                                             |
+| `isTemporary`           | `is-temporary`, `is_temporary`                                                                                            | `stencila:isTemporary`                                     | [`Boolean`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md)                                                                                                                         | Whether a chat within another node (i.e. is not standalone) is temporary.                                               | -                                                                                                             |
+| `previousBlock`         | `previous-block`, `previous_block`                                                                                        | `stencila:previousBlock`                                   | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                                           | The id of the block immediately before the chat (only applies to temporary chats).                                      | -                                                                                                             |
+| `nextBlock`             | `next-block`, `next_block`                                                                                                | `stencila:nextBlock`                                       | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                                           | The id of the block immediately after the chat (only applies to temporary chats).                                       | -                                                                                                             |
 
 ## Related
 
-The `Prompt` type is related to these types:
+The `Chat` type is related to these types:
 
 - Parents: [`CreativeWork`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/creative-work.md)[`Executable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/executable.md)
 - Children: none
 
 ## Formats
 
-The `Prompt` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
+The `Chat` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
 | Format                                                                                               | Encoding     | Decoding   | Status              | Notes                              |
 | ---------------------------------------------------------------------------------------------------- | ------------ | ---------- | ------------------- | ---------------------------------- |
@@ -105,14 +109,14 @@ The `Prompt` type can be encoded (serialized) to, and/or decoded (deserialized) 
 
 ## Bindings
 
-The `Prompt` type is represented in these bindings:
+The `Chat` type is represented in these bindings:
 
-- [JSON-LD](https://stencila.org/Prompt.jsonld)
-- [JSON Schema](https://stencila.org/Prompt.schema.json)
-- Python class [`Prompt`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/prompt.py)
-- Rust struct [`Prompt`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/prompt.rs)
-- TypeScript class [`Prompt`](https://github.com/stencila/stencila/blob/main/ts/src/types/Prompt.ts)
+- [JSON-LD](https://stencila.org/Chat.jsonld)
+- [JSON Schema](https://stencila.org/Chat.schema.json)
+- Python class [`Chat`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/chat.py)
+- Rust struct [`Chat`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/chat.rs)
+- TypeScript class [`Chat`](https://github.com/stencila/stencila/blob/main/ts/src/types/Chat.ts)
 
 ## Source
 
-This documentation was generated from [`Prompt.yaml`](https://github.com/stencila/stencila/blob/main/schema/Prompt.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`Chat.yaml`](https://github.com/stencila/stencila/blob/main/schema/Chat.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).

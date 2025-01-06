@@ -41,13 +41,10 @@ pub(super) fn file_to_message_part(file: &File) -> Option<MessagePart> {
         .unwrap_or_else(|| Format::from_name(&file.name));
 
     if format.is_image() || format.is_audio() || format.is_video() {
-        let Some(content) = file
+        let content = file
             .content
             .as_ref()
-            .and_then(|content| (!content.trim().is_empty()).then_some(content))
-        else {
-            return None;
-        };
+            .and_then(|content| (!content.trim().is_empty()).then_some(content))?;
 
         let mut content_url = content.clone();
         let media_type = file.media_type.clone();

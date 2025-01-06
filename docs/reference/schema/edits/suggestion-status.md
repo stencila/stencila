@@ -8,6 +8,7 @@
 
 The `SuggestionStatus` type has these members:
 
+- `Original`
 - `Accepted`
 - `Rejected`
 
