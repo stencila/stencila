@@ -15,7 +15,11 @@ snapshot_kind: text
         "Felix Y"
       ],
       "identifiers": [
-        "https://orcid.org/0000-0002-8619-7160"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/orcid",
+          "value": "https://orcid.org/0000-0002-8619-7160"
+        }
       ]
     },
     {
@@ -72,7 +76,11 @@ snapshot_kind: text
         "James E"
       ],
       "identifiers": [
-        "https://orcid.org/0000-0002-1878-0610"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/orcid",
+          "value": "https://orcid.org/0000-0002-1878-0610"
+        }
       ],
       "emails": [
         "haber@brandeis.edu"
@@ -152,16 +160,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1074/jbc.M306783200",
-        "12947083"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1074/jbc.M306783200"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "12947083"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "The Journal of Biological Chemistry"
       },
-      "version": "278",
-      "pageStart": "45027",
-      "pageEnd": "45033"
+      "version": 278.0,
+      "pageStart": 45027,
+      "pageEnd": 45033
     },
     {
       "type": "Article",
@@ -213,16 +229,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1038/nature22046",
-        "28405019"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1038/nature22046"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "28405019"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Nature"
       },
-      "version": "544",
-      "pageStart": "377",
-      "pageEnd": "380"
+      "version": 544.0,
+      "pageStart": 377,
+      "pageEnd": 380
     },
     {
       "type": "Article",
@@ -273,15 +297,19 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1128/MCB.23.18.6585-6596.2003"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1128/MCB.23.18.6585-6596.2003"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Molecular and Cellular Biology"
       },
-      "version": "23",
-      "pageStart": "6585",
-      "pageEnd": "6596"
+      "version": 23.0,
+      "pageStart": 6585,
+      "pageEnd": 6596
     },
     {
       "type": "Article",
@@ -324,16 +352,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1016/s0092-8674(00)00007-6",
-        "10929710"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/s0092-8674(00)00007-6"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "10929710"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Cell"
       },
-      "version": "102",
-      "pageStart": "21",
-      "pageEnd": "31"
+      "version": 102.0,
+      "pageStart": 21,
+      "pageEnd": 31
     },
     {
       "type": "Article",
@@ -394,16 +430,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1128/MCB.01000-09",
-        "19884341"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1128/MCB.01000-09"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "19884341"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Molecular and Cellular Biology"
       },
-      "version": "30",
-      "pageStart": "131",
-      "pageEnd": "145"
+      "version": 30.0,
+      "pageStart": 131,
+      "pageEnd": 145
     },
     {
       "type": "Article",
@@ -457,16 +501,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1074/jbc.M609322200",
-        "17114794"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1074/jbc.M609322200"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "17114794"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "The Journal of Biological Chemistry"
       },
-      "version": "282",
-      "pageStart": "986",
-      "pageEnd": "995"
+      "version": 282.0,
+      "pageStart": 986,
+      "pageEnd": 995
     },
     {
       "type": "Article",
@@ -536,16 +588,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1093/emboj/20.22.6485",
-        "11707419"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1093/emboj/20.22.6485"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "11707419"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "The EMBO Journal"
       },
-      "version": "20",
-      "pageStart": "6485",
-      "pageEnd": "6498"
+      "version": 20.0,
+      "pageStart": 6485,
+      "pageEnd": 6498
     },
     {
       "type": "Article",
@@ -588,16 +648,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1093/emboj/17.9.2687",
-        "9564050"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1093/emboj/17.9.2687"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "9564050"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "The EMBO Journal"
       },
-      "version": "17",
-      "pageStart": "2687",
-      "pageEnd": "2698"
+      "version": 17.0,
+      "pageStart": 2687,
+      "pageEnd": 2698
     },
     {
       "type": "Article",
@@ -631,16 +699,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1038/ncb2842",
-        "24096243"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1038/ncb2842"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "24096243"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Nature Cell Biology"
       },
-      "version": "15",
-      "pageStart": "1370",
-      "pageEnd": "1377"
+      "version": 15.0,
+      "pageStart": 1370,
+      "pageEnd": 1377
     },
     {
       "type": "Article",
@@ -701,16 +777,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1073/pnas.0609636104",
-        "17586685"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1073/pnas.0609636104"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "17586685"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "PNAS"
       },
-      "version": "104",
-      "pageStart": "11358",
-      "pageEnd": "11363"
+      "version": 104.0,
+      "pageStart": 11358,
+      "pageEnd": 11363
     },
     {
       "type": "Article",
@@ -771,16 +855,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1016/j.cub.2009.12.033",
-        "20096585"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.cub.2009.12.033"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "20096585"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Current Biology"
       },
-      "version": "20",
-      "pageStart": "328",
-      "pageEnd": "332"
+      "version": 20.0,
+      "pageStart": 328,
+      "pageEnd": 332
     },
     {
       "type": "Article",
@@ -832,16 +924,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1242/jcs.018366",
-        "18003698"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1242/jcs.018366"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "18003698"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Journal of Cell Science"
       },
-      "version": "120",
-      "pageStart": "4209",
-      "pageEnd": "4220"
+      "version": 120.0,
+      "pageStart": 4209,
+      "pageEnd": 4220
     },
     {
       "type": "Article",
@@ -893,16 +993,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1016/s1097-2765(00)80340-8",
-        "10518219"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/s1097-2765(00)80340-8"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "10518219"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Molecular Cell"
       },
-      "version": "4",
-      "pageStart": "387",
-      "pageEnd": "394"
+      "version": 4.0,
+      "pageStart": 387,
+      "pageEnd": 394
     },
     {
       "type": "Article",
@@ -980,16 +1088,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1128/MCB.00566-12",
-        "23007155"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1128/MCB.00566-12"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "23007155"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Molecular and Cellular Biology"
       },
-      "version": "32",
-      "pageStart": "4727",
-      "pageEnd": "4740"
+      "version": 32.0,
+      "pageStart": 4727,
+      "pageEnd": 4740
     },
     {
       "type": "Article",
@@ -1023,14 +1139,22 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1371/journal.pbio.0000033",
-        "14624239"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1371/journal.pbio.0000033"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "14624239"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "PLOS Biology"
       },
-      "version": "1"
+      "version": 1.0
     },
     {
       "type": "Article",
@@ -1055,16 +1179,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1016/s1097-2765(00)80128-8",
-        "9734355"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/s1097-2765(00)80128-8"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "9734355"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Molecular Cell"
       },
-      "version": "2",
-      "pageStart": "183",
-      "pageEnd": "189"
+      "version": 2.0,
+      "pageStart": 183,
+      "pageEnd": 189
     },
     {
       "type": "Article",
@@ -1125,16 +1257,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.4161/cc.7.4.5323",
-        "18287812"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.4161/cc.7.4.5323"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "18287812"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Cell Cycle"
       },
-      "version": "7",
-      "pageStart": "493",
-      "pageEnd": "499"
+      "version": 7.0,
+      "pageStart": 493,
+      "pageEnd": 499
     },
     {
       "type": "Article",
@@ -1179,16 +1319,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1093/genetics/161.2.521",
-        "12072451"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1093/genetics/161.2.521"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "12072451"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Genetics"
       },
-      "version": "161",
-      "pageStart": "521",
-      "pageEnd": "534"
+      "version": 161.0,
+      "pageStart": 521,
+      "pageEnd": 534
     },
     {
       "type": "Article",
@@ -1267,16 +1415,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1074/jbc.M202540200",
-        "12048186"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1074/jbc.M202540200"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "12048186"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "The Journal of Biological Chemistry"
       },
-      "version": "277",
-      "pageStart": "28439",
-      "pageEnd": "28445"
+      "version": 277.0,
+      "pageStart": 28439,
+      "pageEnd": 28445
     },
     {
       "type": "Article",
@@ -1346,16 +1502,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1016/s0092-8674(01)00580-3",
-        "11733064"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/s0092-8674(01)00580-3"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "11733064"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Cell"
       },
-      "version": "107",
-      "pageStart": "655",
-      "pageEnd": "665"
+      "version": 107.0,
+      "pageStart": 655,
+      "pageEnd": 665
     },
     {
       "type": "Article",
@@ -1416,16 +1580,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1083/jcb.200612031",
-        "17635934"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1083/jcb.200612031"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "17635934"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "The Journal of Cell Biology"
       },
-      "version": "178",
-      "pageStart": "209",
-      "pageEnd": "218"
+      "version": 178.0,
+      "pageStart": 209,
+      "pageEnd": 218
     },
     {
       "type": "Article",
@@ -1459,14 +1631,22 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1371/journal.pgen.1000015",
-        "18454191"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1371/journal.pgen.1000015"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "18454191"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "PLOS Genetics"
       },
-      "version": "4"
+      "version": 4.0
     },
     {
       "type": "Article",
@@ -1509,14 +1689,22 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.15252/embj.2019101801",
-        "31393028"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.15252/embj.2019101801"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "31393028"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "The EMBO Journal"
       },
-      "version": "38"
+      "version": 38.0
     },
     {
       "type": "Article",
@@ -1613,16 +1801,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1038/emboj.2008.81",
-        "18418382"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1038/emboj.2008.81"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "18418382"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "The EMBO Journal"
       },
-      "version": "27",
-      "pageStart": "1502",
-      "pageEnd": "1512"
+      "version": 27.0,
+      "pageStart": 1502,
+      "pageEnd": 1512
     },
     {
       "type": "Article",
@@ -1692,16 +1888,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1016/s0092-8674(00)81482-8",
-        "9708741"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/s0092-8674(00)81482-8"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "9708741"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Cell"
       },
-      "version": "94",
-      "pageStart": "399",
-      "pageEnd": "409"
+      "version": 94.0,
+      "pageStart": 399,
+      "pageEnd": 409
     },
     {
       "type": "Article",
@@ -1753,16 +1957,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1038/nsmb.2737",
-        "24336221"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1038/nsmb.2737"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "24336221"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Nature Structural & Molecular Biology"
       },
-      "version": "21",
-      "pageStart": "103",
-      "pageEnd": "109"
+      "version": 21.0,
+      "pageStart": 103,
+      "pageEnd": 109
     },
     {
       "type": "Article",
@@ -1841,16 +2053,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1016/s1097-2765(03)00058-3",
-        "12667463"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/s1097-2765(03)00058-3"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "12667463"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Molecular Cell"
       },
-      "version": "11",
-      "pageStart": "827",
-      "pageEnd": "835"
+      "version": 11.0,
+      "pageStart": 827,
+      "pageEnd": 835
     },
     {
       "type": "Article",
@@ -1902,16 +2122,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1128/MCB.00994-10",
-        "21098122"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1128/MCB.00994-10"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "21098122"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Molecular and Cellular Biology"
       },
-      "version": "31",
-      "pageStart": "573",
-      "pageEnd": "583"
+      "version": 31.0,
+      "pageStart": 573,
+      "pageEnd": 583
     },
     {
       "type": "Article",
@@ -1963,16 +2191,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1074/jbc.M605176200",
-        "16864589"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1074/jbc.M605176200"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "16864589"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "The Journal of Biological Chemistry"
       },
-      "version": "281",
-      "pageStart": "27855",
-      "pageEnd": "27861"
+      "version": 281.0,
+      "pageStart": 27855,
+      "pageEnd": 27861
     },
     {
       "type": "Article",
@@ -2041,16 +2277,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1038/sj.embor.7400911",
-        "17347674"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1038/sj.embor.7400911"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "17347674"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "EMBO Reports"
       },
-      "version": "8",
-      "pageStart": "380",
-      "pageEnd": "387"
+      "version": 8.0,
+      "pageStart": 380,
+      "pageEnd": 387
     },
     {
       "type": "Article",
@@ -2129,14 +2373,22 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1038/ncomms9706",
-        "26522734"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1038/ncomms9706"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "26522734"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Nature Communications"
       },
-      "version": "6"
+      "version": 6.0
     },
     {
       "type": "Article",
@@ -2170,16 +2422,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1038/cr.2014.147",
-        "25403473"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1038/cr.2014.147"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "25403473"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Cell Research"
       },
-      "version": "25",
-      "pageStart": "9",
-      "pageEnd": "23"
+      "version": 25.0,
+      "pageStart": 9,
+      "pageEnd": 23
     },
     {
       "type": "Article",
@@ -2224,14 +2484,22 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.3390/genes11020195",
-        "32059558"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.3390/genes11020195"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "32059558"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Genes"
       },
-      "version": "11"
+      "version": 11.0
     },
     {
       "type": "Article",
@@ -2265,16 +2533,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1038/s41580-023-00593-z",
-        "36964313"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1038/s41580-023-00593-z"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "36964313"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Nature Reviews. Molecular Cell Biology"
       },
-      "version": "24",
-      "pageStart": "543",
-      "pageEnd": "559"
+      "version": 24.0,
+      "pageStart": 543,
+      "pageEnd": 559
     },
     {
       "type": "Article",
@@ -2308,14 +2584,22 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1101/cshperspect.a016428",
-        "25104768"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1101/cshperspect.a016428"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "25104768"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Cold Spring Harbor Perspectives in Biology"
       },
-      "version": "6"
+      "version": 6.0
     },
     {
       "type": "Article",
@@ -2358,16 +2642,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1101/gad.903501",
-        "11691833"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1101/gad.903501"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "11691833"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Genes & Development"
       },
-      "version": "15",
-      "pageStart": "2809",
-      "pageEnd": "2821"
+      "version": 15.0,
+      "pageStart": 2809,
+      "pageEnd": 2821
     },
     {
       "type": "Article",
@@ -2446,15 +2738,19 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1016/j.celrep.2019.06.068"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.celrep.2019.06.068"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Cell Reports"
       },
-      "version": "28",
-      "pageStart": "1090",
-      "pageEnd": "1102"
+      "version": 28.0,
+      "pageStart": 1090,
+      "pageEnd": 1102
     },
     {
       "type": "Article",
@@ -2523,16 +2819,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.4161/auto.27707",
-        "24430166"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.4161/auto.27707"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "24430166"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Autophagy"
       },
-      "version": "10",
-      "pageStart": "514",
-      "pageEnd": "517"
+      "version": 10.0,
+      "pageStart": 514,
+      "pageEnd": 517
     },
     {
       "type": "Article",
@@ -2577,16 +2881,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1128/MCB.16.5.2164",
-        "8628283"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1128/MCB.16.5.2164"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "8628283"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Molecular and Cellular Biology"
       },
-      "version": "16",
-      "pageStart": "2164",
-      "pageEnd": "2173"
+      "version": 16.0,
+      "pageStart": 2164,
+      "pageEnd": 2173
     },
     {
       "type": "Article",
@@ -2620,16 +2932,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1002/yea.2967",
-        "23836714"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1002/yea.2967"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "23836714"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Yeast"
       },
-      "version": "30",
-      "pageStart": "341",
-      "pageEnd": "351"
+      "version": 30.0,
+      "pageStart": 341,
+      "pageEnd": 351
     },
     {
       "type": "Article",
@@ -2654,14 +2974,22 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1016/j.cub.2015.08.051",
-        "26485365"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.cub.2015.08.051"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "26485365"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Current Biology"
       },
-      "version": "25",
+      "version": 25.0,
       "pageStart": "R1002",
       "pageEnd": "R1018"
     },
@@ -2697,16 +3025,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1016/j.molcel.2009.10.014",
-        "20005839"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.molcel.2009.10.014"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "20005839"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Molecular Cell"
       },
-      "version": "36",
-      "pageStart": "743",
-      "pageEnd": "753"
+      "version": 36.0,
+      "pageStart": 743,
+      "pageEnd": 753
     },
     {
       "type": "Article",
@@ -2767,16 +3103,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1038/nmeth.1401",
-        "19915560"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1038/nmeth.1401"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "19915560"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Nature Methods"
       },
-      "version": "6",
-      "pageStart": "917",
-      "pageEnd": "922"
+      "version": 6.0,
+      "pageStart": 917,
+      "pageEnd": 922
     },
     {
       "type": "Article",
@@ -2855,16 +3199,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1073/pnas.0703252104",
-        "17517611"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1073/pnas.0703252104"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "17517611"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "PNAS"
       },
-      "version": "104",
-      "pageStart": "9290",
-      "pageEnd": "9295"
+      "version": 104.0,
+      "pageStart": 9290,
+      "pageEnd": 9295
     },
     {
       "type": "Article",
@@ -2933,15 +3285,19 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10950868"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "10950868"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Genes & Development"
       },
-      "version": "14",
-      "pageStart": "2046",
-      "pageEnd": "2059"
+      "version": 14.0,
+      "pageStart": 2046,
+      "pageEnd": 2059
     },
     {
       "type": "Article",
@@ -3038,16 +3394,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1093/emboj/18.22.6561",
-        "10562568"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1093/emboj/18.22.6561"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "10562568"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "The EMBO Journal"
       },
-      "version": "18",
-      "pageStart": "6561",
-      "pageEnd": "6572"
+      "version": 18.0,
+      "pageStart": 6561,
+      "pageEnd": 6572
     },
     {
       "type": "Article",
@@ -3108,16 +3472,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1016/s1097-2765(01)00177-0",
-        "11239458"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/s1097-2765(01)00177-0"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "11239458"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Molecular Cell"
       },
-      "version": "7",
-      "pageStart": "293",
-      "pageEnd": "300"
+      "version": 7.0,
+      "pageStart": 293,
+      "pageEnd": 300
     },
     {
       "type": "Article",
@@ -3186,16 +3558,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1534/genetics.109.112854",
-        "20233857"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1534/genetics.109.112854"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "20233857"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Genetics"
       },
-      "version": "185",
-      "pageStart": "211",
-      "pageEnd": "220"
+      "version": 185.0,
+      "pageStart": 211,
+      "pageEnd": 220
     },
     {
       "type": "Article",
@@ -3256,16 +3636,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1074/jbc.273.10.5858",
-        "9488723"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1074/jbc.273.10.5858"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "9488723"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "The Journal of Biological Chemistry"
       },
-      "version": "273",
-      "pageStart": "5858",
-      "pageEnd": "5868"
+      "version": 273.0,
+      "pageStart": 5858,
+      "pageEnd": 5868
     },
     {
       "type": "Article",
@@ -3326,16 +3714,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1038/s41567-022-01601-3",
-        "36281344"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1038/s41567-022-01601-3"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "36281344"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Nature Physics"
       },
-      "version": "18",
-      "pageStart": "832",
-      "pageEnd": "839"
+      "version": 18.0,
+      "pageStart": 832,
+      "pageEnd": 839
     },
     {
       "type": "Article",
@@ -3414,16 +3810,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1126/science.286.5442.1166",
-        "10550056"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1126/science.286.5442.1166"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "10550056"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Science"
       },
-      "version": "286",
-      "pageStart": "1166",
-      "pageEnd": "1171"
+      "version": 286.0,
+      "pageStart": 1166,
+      "pageEnd": 1171
     },
     {
       "type": "Article",
@@ -3510,16 +3914,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1016/s1097-2765(02)00532-4",
-        "12049741"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/s1097-2765(02)00532-4"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "12049741"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Molecular Cell"
       },
-      "version": "9",
-      "pageStart": "1055",
-      "pageEnd": "1065"
+      "version": 9.0,
+      "pageStart": 1055,
+      "pageEnd": 1065
     },
     {
       "type": "Article",
@@ -3562,16 +3974,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1128/mcb.14.11.7476-7482.1994",
-        "7935462"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1128/mcb.14.11.7476-7482.1994"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "7935462"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Molecular and Cellular Biology"
       },
-      "version": "14",
-      "pageStart": "7476",
-      "pageEnd": "7482"
+      "version": 14.0,
+      "pageStart": 7476,
+      "pageEnd": 7482
     },
     {
       "type": "Article",
@@ -3659,16 +4079,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1016/j.cub.2004.09.047",
-        "15458641"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.cub.2004.09.047"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "15458641"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Current Biology"
       },
-      "version": "14",
-      "pageStart": "1703",
-      "pageEnd": "1711"
+      "version": 14.0,
+      "pageStart": 1703,
+      "pageEnd": 1711
     },
     {
       "type": "Article",
@@ -3720,16 +4148,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1073/pnas.0701622104",
-        "17563356"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1073/pnas.0701622104"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "17563356"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "PNAS"
       },
-      "version": "104",
-      "pageStart": "10364",
-      "pageEnd": "10369"
+      "version": 104.0,
+      "pageStart": 10364,
+      "pageEnd": 10369
     },
     {
       "type": "Article",
@@ -3810,16 +4246,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1016/j.cub.2005.06.063",
-        "16085488"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.cub.2005.06.063"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "16085488"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Current Biology"
       },
-      "version": "15",
-      "pageStart": "1364",
-      "pageEnd": "1375"
+      "version": 15.0,
+      "pageStart": 1364,
+      "pageEnd": 1375
     },
     {
       "type": "Article",
@@ -3907,16 +4351,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1093/nar/gkv520",
-        "26019182"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1093/nar/gkv520"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "26019182"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Nucleic Acids Research"
       },
-      "version": "43",
-      "pageStart": "6889",
-      "pageEnd": "6901"
+      "version": 43.0,
+      "pageStart": 6889,
+      "pageEnd": 6901
     },
     {
       "type": "Article",
@@ -3967,16 +4419,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1073/pnas.0611259104",
-        "17299042"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1073/pnas.0611259104"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "17299042"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "PNAS"
       },
-      "version": "104",
-      "pageStart": "2797",
-      "pageEnd": "2802"
+      "version": 104.0,
+      "pageStart": 2797,
+      "pageEnd": 2802
     },
     {
       "type": "Article",
@@ -4019,16 +4479,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1016/j.molcel.2008.12.022",
-        "19187758"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.molcel.2008.12.022"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "19187758"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Molecular Cell"
       },
-      "version": "33",
-      "pageStart": "147",
-      "pageEnd": "159"
+      "version": 33.0,
+      "pageStart": 147,
+      "pageEnd": 159
     },
     {
       "type": "Article",
@@ -4116,16 +4584,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1016/s1097-2765(02)00593-2",
-        "12191482"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/s1097-2765(02)00593-2"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "12191482"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Molecular Cell"
       },
-      "version": "10",
-      "pageStart": "373",
-      "pageEnd": "385"
+      "version": 10.0,
+      "pageStart": 373,
+      "pageEnd": 385
     },
     {
       "type": "Article",
@@ -4188,16 +4664,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1002/yea.320101310",
-        "7747518"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1002/yea.320101310"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "7747518"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Yeast"
       },
-      "version": "10",
-      "pageStart": "1793",
-      "pageEnd": "1808"
+      "version": 10.0,
+      "pageStart": 1793,
+      "pageEnd": 1808
     },
     {
       "type": "Article",
@@ -4240,16 +4724,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1146/annurev-biochem-011520-104722",
-        "32176524"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1146/annurev-biochem-011520-104722"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "32176524"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Annual Review of Biochemistry"
       },
-      "version": "89",
-      "pageStart": "103",
-      "pageEnd": "133"
+      "version": 89.0,
+      "pageStart": 103,
+      "pageEnd": 133
     },
     {
       "type": "Article",
@@ -4310,16 +4802,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1093/nar/gkaa355",
-        "32402080"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1093/nar/gkaa355"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "32402080"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Nucleic Acids Research"
       },
-      "version": "48",
-      "pageStart": "6092",
-      "pageEnd": "6107"
+      "version": 48.0,
+      "pageStart": 6092,
+      "pageEnd": 6107
     },
     {
       "type": "Article",
@@ -4461,14 +4961,22 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1038/s41467-020-19532-z",
-        "33177522"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1038/s41467-020-19532-z"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "33177522"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Nature Communications"
       },
-      "version": "11"
+      "version": 11.0
     },
     {
       "type": "Article",
@@ -4502,16 +5010,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1073/pnas.062502299",
-        "11904430"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1073/pnas.062502299"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "11904430"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "PNAS"
       },
-      "version": "99",
-      "pageStart": "3746",
-      "pageEnd": "3751"
+      "version": 99.0,
+      "pageStart": 3746,
+      "pageEnd": 3751
     },
     {
       "type": "Article",
@@ -4545,16 +5061,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1016/0092-8674(93)90321-g",
-        "8261511"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/0092-8674(93)90321-g"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "8261511"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Cell"
       },
-      "version": "75",
-      "pageStart": "1119",
-      "pageEnd": "1127"
+      "version": 75.0,
+      "pageStart": 1119,
+      "pageEnd": 1127
     },
     {
       "type": "Article",
@@ -4615,16 +5139,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1016/j.cell.2008.08.037",
-        "18805091"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.cell.2008.08.037"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "18805091"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Cell"
       },
-      "version": "134",
-      "pageStart": "981",
-      "pageEnd": "994"
+      "version": 134.0,
+      "pageStart": 981,
+      "pageEnd": 994
     },
     {
       "type": "Article",
@@ -4658,16 +5190,24 @@ snapshot_kind: text
       ],
       "content": [],
       "identifiers": [
-        "10.1126/science.1083430",
-        "12791985"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1126/science.1083430"
+        },
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/pubmed",
+          "value": "12791985"
+        }
       ],
       "publisher": {
         "type": "Organization",
         "name": "Science"
       },
-      "version": "300",
-      "pageStart": "1542",
-      "pageEnd": "1548"
+      "version": 300.0,
+      "pageStart": 1542,
+      "pageEnd": 1548
     }
   ],
   "content": [

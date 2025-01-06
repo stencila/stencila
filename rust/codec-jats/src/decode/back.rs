@@ -3,7 +3,8 @@ use roxmltree::Node;
 use codec::{
     schema::{
         Article, ArticleOptions, Author, CreativeWorkTypeOrText, IntegerOrString, Organization,
-        Person, PersonOrOrganization, PropertyValueOrString, StringOrNumber,
+        Person, PersonOrOrganization, Primitive, PropertyValue, PropertyValueOrString,
+        StringOrNumber,
     },
     Losses,
 };
@@ -108,7 +109,20 @@ fn decode_citation(path: &str, node: &Node, losses: &mut Losses) -> CreativeWork
             }
         } else if child_tag == "pub-id" {
             if let Some(value) = child.text() {
-                identifiers.push(PropertyValueOrString::String(value.into()));
+                let child_type = child.attribute("pub-id-type");
+                if child_type == Some("doi") {
+                    identifiers.push(PropertyValueOrString::PropertyValue(PropertyValue {
+                        property_id: Some("https://registry.identifiers.org/registry/doi".into()),
+                        value: Primitive::String(value.into()),
+                        ..Default::default()
+                    }))
+                } else if child_type == Some("pmid") {
+                    identifiers.push(PropertyValueOrString::PropertyValue(PropertyValue {
+                        property_id: Some("https://registry.identifiers.org/registry/pubmed".into()),
+                        value: Primitive::String(value.into()),
+                        ..Default::default()
+                    }))
+                }
             }
         } else if child_tag == "year" {
             //TODO

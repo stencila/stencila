@@ -10,19 +10,37 @@
       type: "Person",
       familyNames: [ "Thompson" ],
       givenNames: [ "Veronica L." ],
-      identifiers: [ "http:\/\/orcid.org\/0000-0003-0500-5639" ]
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/orcid",
+          value: "http:\/\/orcid.org\/0000-0003-0500-5639"
+        }
+      ]
     },
     {
       type: "Person",
       familyNames: [ "Creux" ],
       givenNames: [ "Nicky M." ],
-      identifiers: [ "http:\/\/orcid.org\/0000-0002-4179-6995" ]
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/orcid",
+          value: "http:\/\/orcid.org\/0000-0002-4179-6995"
+        }
+      ]
     },
     {
       type: "Person",
       familyNames: [ "Harmer" ],
       givenNames: [ "Stacey L." ],
-      identifiers: [ "http:\/\/orcid.org\/0000-0001-6813-6682" ]
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/orcid",
+          value: "http:\/\/orcid.org\/0000-0001-6813-6682"
+        }
+      ]
     }
   ],
   datePublished: {
@@ -92,7 +110,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1111\/plb.13283" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1111\/plb.13283"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Plant Biol"
@@ -142,7 +166,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1126\/science.aaf9793" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1126\/science.aaf9793"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Science"
@@ -221,7 +251,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1098\/rstb.2016.0256" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1098\/rstb.2016.0256"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Philos Trans R Soc B Biol Sci"
@@ -260,7 +296,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.3389\/fphys.2021.776826" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.3389\/fphys.2021.776826"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Front Physiol"
@@ -337,7 +379,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1007\/s00344-010-9180-x" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1007\/s00344-010-9180-x"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "J Plant Growth Regul"
@@ -407,7 +455,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1111\/nph.17627" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1111\/nph.17627"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "New Phytol"
@@ -437,7 +491,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1080\/00218839.2000.11101019" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1080\/00218839.2000.11101019"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "J Apic Res"
@@ -502,7 +562,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1126\/science.1115581" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1126\/science.1115581"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Science"
@@ -537,7 +603,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1111\/j.1558-5646.2008.00324.x" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1111\/j.1558-5646.2008.00324.x"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Evolution"
@@ -605,7 +677,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1038\/nrg3976" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1038\/nrg3976"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Nat Rev Genet"
@@ -650,7 +728,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1007\/s40415-013-0023-4" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1007\/s40415-013-0023-4"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Braz J Bot"
@@ -680,7 +764,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1016\/j.mce.2011.06.040" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1016\/j.mce.2011.06.040"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Mol Cell Endocrinol"
@@ -710,7 +800,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1016\/j.tplants.2006.09.004" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1016\/j.tplants.2006.09.004"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Trends Plant Sci"
@@ -745,7 +841,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1007\/s10265-017-0991-8" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1007\/s10265-017-0991-8"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "J Plant Res"
@@ -795,7 +897,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1101\/gad.999202" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1101\/gad.999202"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Genes Dev"
@@ -903,7 +1011,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1177\/0748730419896486" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1177\/0748730419896486"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "J Biol Rhythms"
@@ -933,7 +1047,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1007\/82_2018_143" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1007\/82_2018_143"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Fungal Physiology and Immunopathogenesis, Current Topics in Microbiology and Immunology"
@@ -962,7 +1082,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1139\/cjb-2014-0245" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1139\/cjb-2014-0245"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Botany"
@@ -997,7 +1123,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1016\/j.fcr.2007.06.005" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1016\/j.fcr.2007.06.005"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Field Crops Res"
@@ -1042,7 +1174,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1093\/jxb\/51.349.1403" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1093\/jxb\/51.349.1403"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "J Exp Bot"
@@ -1089,7 +1227,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1073\/pnas.1903871116" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1073\/pnas.1903871116"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Proc Natl Acad Sci"
@@ -1119,7 +1263,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1016\/0378-4290(81)90065-4" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1016\/0378-4290(81)90065-4"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Field Crops Res"
@@ -1144,7 +1294,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.3390\/genes10100811" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.3390\/genes10100811"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Genes"
@@ -1168,7 +1324,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.3390\/biology8010014" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.3390\/biology8010014"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Biol Basel"
@@ -1261,7 +1423,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1371\/journal.pgen.0040014" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1371\/journal.pgen.0040014"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "PLoS Genet"
@@ -1325,7 +1493,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1126\/science.1082971" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1126\/science.1082971"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Science"
@@ -1375,7 +1549,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1016\/j.cub.2004.07.055" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1016\/j.cub.2004.07.055"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Curr Biol"
@@ -1405,7 +1585,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1177\/07487304211014622" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1177\/07487304211014622"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "J Biol Rhythms"
@@ -1475,7 +1661,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1093\/pcp\/pcab048" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1093\/pcp\/pcab048"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Plant Cell Physiol"
@@ -1549,7 +1741,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1073\/pnas.95.15.8660" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1073\/pnas.95.15.8660"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Proc Natl Acad Sci U A"
@@ -1579,7 +1777,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1016\/0378-4290(85)90088-7" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1016\/0378-4290(85)90088-7"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Field Crops Res"
@@ -1598,7 +1802,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.3120\/0024-9637-56.3.209" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.3120\/0024-9637-56.3.209"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Systematics, Evolution, and Biogeography of Compositae, Madroño"
@@ -1625,7 +1835,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1086\/282327" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1086\/282327"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Am Nat"
@@ -1672,7 +1888,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1081\/CBI-120014569" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1081\/CBI-120014569"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Chronobiol Int"
@@ -1702,7 +1924,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1016\/j.gde.2012.10.003" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1016\/j.gde.2012.10.003"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Curr Opin Genet Dev"
@@ -1737,7 +1965,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1073\/pnas.0501884102" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1073\/pnas.0501884102"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Proc Natl Acad Sci U S A"
@@ -1772,7 +2006,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1038\/s41573-020-00109-w" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1038\/s41573-020-00109-w"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Nat Rev Drug Discov"
@@ -1807,7 +2047,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1104\/pp.41.8.1343" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1104\/pp.41.8.1343"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Plant Physiol"
@@ -1866,7 +2112,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.2134\/agronmonogr35.c3" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.2134\/agronmonogr35.c3"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Agronomy Monographs"
@@ -1910,7 +2162,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1073\/pnas.1516442113" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1073\/pnas.1516442113"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Proc Natl Acad Sci"
@@ -1955,7 +2213,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1080\/0028825X.2016.1236735" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1080\/0028825X.2016.1236735"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "N Z J Bot"
@@ -1985,7 +2249,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.2307\/1940121" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.2307\/1940121"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Ecology"
@@ -2034,7 +2304,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1111\/j.1365-313X.2011.04505.x" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1111\/j.1365-313X.2011.04505.x"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Plant J"
@@ -2174,7 +2450,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.21105\/joss.01686" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.21105\/joss.01686"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "J Open Source Softw"
@@ -2208,7 +2490,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1242\/dev.181446" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1242\/dev.181446"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Development"
@@ -2237,7 +2525,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1038\/nrm1077" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1038\/nrm1077"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Nat Rev Mol Cell Biol"
@@ -2287,7 +2581,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1111\/nph.13681" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1111\/nph.13681"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "New Phytol"
@@ -2337,7 +2637,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1111\/jipb.12511" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1111\/jipb.12511"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "J Integr Plant Biol"
@@ -2397,7 +2703,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1073\/pnas.2016304118" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1073\/pnas.2016304118"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "Proc Natl Acad Sci"
@@ -2441,7 +2753,13 @@
         }
       ],
       content: [],
-      identifiers: [ "10.1371\/journal.pone.0096462" ],
+      identifiers: [
+        {
+          type: "PropertyValue",
+          propertyId: "https:\/\/registry.identifiers.org\/registry\/doi",
+          value: "10.1371\/journal.pone.0096462"
+        }
+      ],
       publisher: {
         type: "Organization",
         name: "PLoS ONE"

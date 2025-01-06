@@ -19,7 +19,11 @@
         "Veronica L."
       ],
       "identifiers": [
-        "http://orcid.org/0000-0003-0500-5639"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/orcid",
+          "value": "http://orcid.org/0000-0003-0500-5639"
+        }
       ]
     },
     {
@@ -31,7 +35,11 @@
         "Nicky M."
       ],
       "identifiers": [
-        "http://orcid.org/0000-0002-4179-6995"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/orcid",
+          "value": "http://orcid.org/0000-0002-4179-6995"
+        }
       ]
     },
     {
@@ -43,7 +51,11 @@
         "Stacey L."
       ],
       "identifiers": [
-        "http://orcid.org/0000-0001-6813-6682"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/orcid",
+          "value": "http://orcid.org/0000-0001-6813-6682"
+        }
       ]
     }
   ],
@@ -147,7 +159,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1111/plb.13283"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1111/plb.13283"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -225,7 +241,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1126/science.aaf9793"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1126/science.aaf9793"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -342,7 +362,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1098/rstb.2016.0256"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1098/rstb.2016.0256"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -401,7 +425,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.3389/fphys.2021.776826"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.3389/fphys.2021.776826"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -502,7 +530,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1007/s00344-010-9180-x"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1007/s00344-010-9180-x"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -616,7 +648,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1111/nph.17627"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1111/nph.17627"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -658,7 +694,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1080/00218839.2000.11101019"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1080/00218839.2000.11101019"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -763,7 +803,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1126/science.1115581"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1126/science.1115581"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -814,7 +858,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1111/j.1558-5646.2008.00324.x"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1111/j.1558-5646.2008.00324.x"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -912,7 +960,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1038/nrg3976"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1038/nrg3976"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -981,7 +1033,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1007/s40415-013-0023-4"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1007/s40415-013-0023-4"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -1023,7 +1079,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1016/j.mce.2011.06.040"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.mce.2011.06.040"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -1065,7 +1125,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1016/j.tplants.2006.09.004"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.tplants.2006.09.004"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -1116,7 +1180,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1007/s10265-017-0991-8"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1007/s10265-017-0991-8"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -1194,7 +1262,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1101/gad.999202"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1101/gad.999202"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -1364,7 +1436,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1177/0748730419896486"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1177/0748730419896486"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -1406,7 +1482,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1007/82_2018_143"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1007/82_2018_143"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -1447,7 +1527,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1139/cjb-2014-0245"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1139/cjb-2014-0245"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -1498,7 +1582,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1016/j.fcr.2007.06.005"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.fcr.2007.06.005"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -1567,7 +1655,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1093/jxb/51.349.1403"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1093/jxb/51.349.1403"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -1642,7 +1734,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1073/pnas.1903871116"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1073/pnas.1903871116"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -1684,7 +1780,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1016/0378-4290(81)90065-4"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/0378-4290(81)90065-4"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -1717,7 +1817,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.3390/genes10100811"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.3390/genes10100811"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -1749,7 +1853,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.3390/biology8010014"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.3390/biology8010014"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -1906,7 +2014,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1371/journal.pgen.0040014"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1371/journal.pgen.0040014"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -2010,7 +2122,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1126/science.1082971"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1126/science.1082971"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -2088,7 +2204,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1016/j.cub.2004.07.055"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.cub.2004.07.055"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -2130,7 +2250,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1177/07487304211014622"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1177/07487304211014622"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -2244,7 +2368,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1093/pcp/pcab048"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1093/pcp/pcab048"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -2352,7 +2480,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1073/pnas.95.15.8660"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1073/pnas.95.15.8660"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -2394,7 +2526,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1016/0378-4290(85)90088-7"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/0378-4290(85)90088-7"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -2419,7 +2555,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.3120/0024-9637-56.3.209"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.3120/0024-9637-56.3.209"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -2458,7 +2598,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1086/282327"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1086/282327"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -2519,7 +2663,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1081/CBI-120014569"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1081/CBI-120014569"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -2561,7 +2709,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1016/j.gde.2012.10.003"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1016/j.gde.2012.10.003"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -2612,7 +2764,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1073/pnas.0501884102"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1073/pnas.0501884102"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -2663,7 +2819,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1038/s41573-020-00109-w"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1038/s41573-020-00109-w"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -2714,7 +2874,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1104/pp.41.8.1343"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1104/pp.41.8.1343"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -2795,7 +2959,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.2134/agronmonogr35.c3"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.2134/agronmonogr35.c3"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -2863,7 +3031,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1073/pnas.1516442113"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1073/pnas.1516442113"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -2932,7 +3104,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1080/0028825X.2016.1236735"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1080/0028825X.2016.1236735"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -2974,7 +3150,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.2307/1940121"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.2307/1940121"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -3051,7 +3231,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1111/j.1365-313X.2011.04505.x"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1111/j.1365-313X.2011.04505.x"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -3291,7 +3475,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.21105/joss.01686"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.21105/joss.01686"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -3341,7 +3529,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1242/dev.181446"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1242/dev.181446"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -3382,7 +3574,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1038/nrm1077"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1038/nrm1077"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -3460,7 +3656,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1111/nph.13681"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1111/nph.13681"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -3538,7 +3738,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1111/jipb.12511"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1111/jipb.12511"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -3634,7 +3838,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1073/pnas.2016304118"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1073/pnas.2016304118"
+        }
       ],
       "publisher": {
         "type": "Organization",
@@ -3702,7 +3910,11 @@
       ],
       "content": [],
       "identifiers": [
-        "10.1371/journal.pone.0096462"
+        {
+          "type": "PropertyValue",
+          "propertyId": "https://registry.identifiers.org/registry/doi",
+          "value": "10.1371/journal.pone.0096462"
+        }
       ],
       "publisher": {
         "type": "Organization",
