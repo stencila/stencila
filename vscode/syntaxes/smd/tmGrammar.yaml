@@ -49,6 +49,7 @@ repository:
     patterns:
       # Order is important for matching!
       - include: "#html"
+      - include: "#code-expression"
       - include: "#parameter"
       - include: "#math-inline"
       - include: "#instruction-inline"
@@ -72,6 +73,15 @@ repository:
       - include: "#link-ref"
       - include: "#link-ref-literal"
       - include: "#link-ref-shortcut"
+
+  ########## Code Expression ##########
+
+  code-expression:
+    name: meta.stencila.code-expression
+    match: "(`[^`]*`){(exec)}"
+    captures:
+      "1": { name: string.quoted } # code
+      "2": { name: keyword.control.stencila } # exec
 
   ########## Parameter ##########
 
