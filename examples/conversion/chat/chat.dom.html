@@ -35,5 +35,36 @@
         </stencila-paragraph>
       </div>
     </stencila-chat-message>
+    <stencila-chat-message id=xxx depth=1 ancestors=Chat message-role=User>
+      <div slot=content>
+        <stencila-paragraph id=xxx depth=2 ancestors=Chat.ChatMessage>
+          <p slot=content>
+            <stencila-text id=xxx depth=3 ancestors=Chat.ChatMessage.Paragraph>Repeat</stencila-text>
+          </p>
+        </stencila-paragraph>
+      </div>
+    </stencila-chat-message>
+    <stencila-chat-message-group id=xxx depth=1 ancestors=Chat>
+      <div slot=messages>
+        <stencila-chat-message id=xxx depth=2 ancestors=Chat.ChatMessageGroup message-role=Model>
+          <div slot=content>
+            <stencila-paragraph id=xxx depth=3 ancestors=Chat.ChatMessageGroup.ChatMessage>
+              <p slot=content>
+                <stencila-text id=xxx depth=4 ancestors=Chat.ChatMessageGroup.ChatMessage.Paragraph>Hi there!</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </div>
+        </stencila-chat-message>
+        <stencila-chat-message id=xxx depth=2 ancestors=Chat.ChatMessageGroup message-role=Model>
+          <div slot=content>
+            <stencila-paragraph id=xxx depth=3 ancestors=Chat.ChatMessageGroup.ChatMessage>
+              <p slot=content>
+                <stencila-text id=xxx depth=4 ancestors=Chat.ChatMessageGroup.ChatMessage.Paragraph>Hi there!</stencila-text>
+              </p>
+            </stencila-paragraph>
+          </div>
+        </stencila-chat-message>
+      </div>
+    </stencila-chat-message-group>
   </div>
 </stencila-chat>

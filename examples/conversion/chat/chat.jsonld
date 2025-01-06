@@ -61,6 +61,62 @@
           ]
         }
       ]
+    },
+    {
+      "@type": "stencila:ChatMessage",
+      "stencila:role": "User",
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": {
+                "string": "Repeat"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:ChatMessageGroup",
+      "stencila:messages": [
+        {
+          "@type": "stencila:ChatMessage",
+          "stencila:role": "Model",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Hi there!"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "@type": "stencila:ChatMessage",
+          "stencila:role": "Model",
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Hi there!"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }
