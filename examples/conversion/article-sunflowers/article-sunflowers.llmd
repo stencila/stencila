@@ -12,21 +12,27 @@ authors:
   givenNames:
   - Veronica L.
   identifiers:
-  - http://orcid.org/0000-0003-0500-5639
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/orcid
+    value: http://orcid.org/0000-0003-0500-5639
 - type: Person
   familyNames:
   - Creux
   givenNames:
   - Nicky M.
   identifiers:
-  - http://orcid.org/0000-0002-4179-6995
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/orcid
+    value: http://orcid.org/0000-0002-4179-6995
 - type: Person
   familyNames:
   - Harmer
   givenNames:
   - Stacey L.
   identifiers:
-  - http://orcid.org/0000-0001-6813-6682
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/orcid
+    value: http://orcid.org/0000-0001-6813-6682
 datePublished:
   type: Date
   value: '2022'
@@ -84,7 +90,9 @@ references:
       string: Gongylolepis martiana, an Asteraceae pollinated by bats in the Amazon
   content: []
   identifiers:
-  - 10.1111/plb.13283
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1111/plb.13283
   publisher:
     type: Organization
     name: Plant Biol
@@ -129,7 +137,9 @@ references:
       string: Circadian regulation of sunflower heliotropism, floral orientation, and pollinator visits
   content: []
   identifiers:
-  - 10.1126/science.aaf9793
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1126/science.aaf9793
   publisher:
     type: Organization
     name: Science
@@ -197,7 +207,9 @@ references:
       string: 'Time is honey: circadian clocks of bees and flowers and how their interactions may influence ecological communities'
   content: []
   identifiers:
-  - 10.1098/rstb.2016.0256
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1098/rstb.2016.0256
   publisher:
     type: Organization
     name: Philos Trans R Soc B Biol Sci
@@ -231,7 +243,9 @@ references:
       string: The Circadian Clock in Lepidoptera
   content: []
   identifiers:
-  - 10.3389/fphys.2021.776826
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.3389/fphys.2021.776826
   publisher:
     type: Organization
     name: Front Physiol
@@ -291,7 +305,9 @@ references:
       string: The Hormonal Regulation of Flower Development
   content: []
   identifiers:
-  - 10.1007/s00344-010-9180-x
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1007/s00344-010-9180-x
   publisher:
     type: Organization
     name: J Plant Growth Regul
@@ -356,7 +372,9 @@ references:
       string: Flower orientation influences floral temperature, pollinator visits and plant fitness
   content: []
   identifiers:
-  - 10.1111/nph.17627
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1111/nph.17627
   publisher:
     type: Organization
     name: New Phytol
@@ -381,7 +399,9 @@ references:
       string: The foraging activity of honey bees Apis mellifera and non-Apis bees on hybrid sunflowers (Helianthus annuus) and its influence on cross-pollination and seed set
   content: []
   identifiers:
-  - 10.1080/00218839.2000.11101019
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1080/00218839.2000.11101019
   publisher:
     type: Organization
     name: J Apic Res
@@ -441,7 +461,9 @@ references:
       string: Plant circadian clocks increase photosynthesis, growth, survival, and competitive advantage
   content: []
   identifiers:
-  - 10.1126/science.1115581
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1126/science.1115581
   publisher:
     type: Organization
     name: Science
@@ -471,7 +493,9 @@ references:
       string: Concordance of the circadian clock with the environment is necessary to maximize fitness in natural populations
   content: []
   identifiers:
-  - 10.1111/j.1558-5646.2008.00324.x
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1111/j.1558-5646.2008.00324.x
   publisher:
     type: Organization
     name: Evolution
@@ -528,7 +552,9 @@ references:
       string: Integrating circadian dynamics with physiological processes in plants
   content: []
   identifiers:
-  - 10.1038/nrg3976
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1038/nrg3976
   publisher:
     type: Organization
     name: Nat Rev Genet
@@ -568,7 +594,9 @@ references:
       string: The pollination biology of Pseudostifftia kingii H.Rob. (Asteraceae), a rare endemic Brazilian species with uniflorous capitula
   content: []
   identifiers:
-  - 10.1007/s40415-013-0023-4
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1007/s40415-013-0023-4
   publisher:
     type: Organization
     name: Braz J Bot
@@ -593,7 +621,9 @@ references:
       string: Circadian clocks and the measurement of daylength in seasonal reproduction
   content: []
   identifiers:
-  - 10.1016/j.mce.2011.06.040
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1016/j.mce.2011.06.040
   publisher:
     type: Organization
     name: Mol Cell Endocrinol
@@ -618,7 +648,9 @@ references:
       string: 'Photoperiodic control of flowering: not only by coincidence'
   content: []
   identifiers:
-  - 10.1016/j.tplants.2006.09.004
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1016/j.tplants.2006.09.004
   publisher:
     type: Organization
     name: Trends Plant Sci
@@ -648,7 +680,9 @@ references:
       string: Circadian clock during plant development
   content: []
   identifiers:
-  - 10.1007/s10265-017-0991-8
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1007/s10265-017-0991-8
   publisher:
     type: Organization
     name: J Plant Res
@@ -693,7 +727,9 @@ references:
       string: Phytochrome mediates the external light signal to repress FT orthologs in photoperiodic flowering of rice
   content: []
   identifiers:
-  - 10.1101/gad.999202
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1101/gad.999202
   publisher:
     type: Organization
     name: Genes Dev
@@ -790,7 +826,9 @@ references:
       string: Habitat-Specific Clock Variation and Its Consequence on Reproductive Fitness
   content: []
   identifiers:
-  - 10.1177/0748730419896486
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1177/0748730419896486
   publisher:
     type: Organization
     name: J Biol Rhythms
@@ -815,7 +853,9 @@ references:
       string: 'The Clock Keeps on Ticking: Emerging Roles for Circadian Regulation in the Control of Fungal Physiology and Pathogenesis'
   content: []
   identifiers:
-  - 10.1007/82_2018_143
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1007/82_2018_143
   publisher:
     type: Organization
     name: Fungal Physiology and Immunopathogenesis, Current Topics in Microbiology and Immunology
@@ -839,7 +879,9 @@ references:
       string: 'Developmental morphology and anatomy of the reproductive structures in sunflower (Helianthus annuus): a unified temporal scale'
   content: []
   identifiers:
-  - 10.1139/cjb-2014-0245
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1139/cjb-2014-0245
   publisher:
     type: Organization
     name: Botany
@@ -869,7 +911,9 @@ references:
       string: Histological development of the sunflower fruit pericarp as affected by pre- and early post-anthesis canopy shading
   content: []
   identifiers:
-  - 10.1016/j.fcr.2007.06.005
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1016/j.fcr.2007.06.005
   publisher:
     type: Organization
     name: Field Crops Res
@@ -909,7 +953,9 @@ references:
       string: Hormonal influence on photocontrol of the protandry in the genus Helianthus
   content: []
   identifiers:
-  - 10.1093/jxb/51.349.1403
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1093/jxb/51.349.1403
   publisher:
     type: Organization
     name: J Exp Bot
@@ -951,7 +997,9 @@ references:
       string: A fully resolved backbone phylogeny reveals numerous dispersals and explosive diversifications throughout the history of Asteraceae
   content: []
   identifiers:
-  - 10.1073/pnas.1903871116
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1073/pnas.1903871116
   publisher:
     type: Organization
     name: Proc Natl Acad Sci
@@ -976,7 +1024,9 @@ references:
       string: Photoperiodic sensitivity of inflorescence initiation and development in sunflower
   content: []
   identifiers:
-  - 10.1016/0378-4290(81)90065-4
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1016/0378-4290(81)90065-4
   publisher:
     type: Organization
     name: Field Crops Res
@@ -996,7 +1046,9 @@ references:
       string: Comprehensive Insight into Gibberellin- and Jasmonate-Mediated Stamen Development
   content: []
   identifiers:
-  - 10.3390/genes10100811
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.3390/genes10100811
   publisher:
     type: Organization
     name: Genes
@@ -1015,7 +1067,9 @@ references:
       string: The Plant Circadian Oscillator
   content: []
   identifiers:
-  - 10.3390/biology8010014
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.3390/biology8010014
   publisher:
     type: Organization
     name: Biol Basel
@@ -1103,7 +1157,9 @@ references:
       string: Network Discovery Pipeline Elucidates Conserved Time-of-Day–Specific cis-Regulatory Modules
   content: []
   identifiers:
-  - 10.1371/journal.pgen.0040014
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1371/journal.pgen.0040014
   publisher:
     type: Organization
     name: PLoS Genet
@@ -1162,7 +1218,9 @@ references:
       string: Enhanced Fitness Conferred by Naturally Occurring Variation in the Circadian Clock
   content: []
   identifiers:
-  - 10.1126/science.1082971
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1126/science.1082971
   publisher:
     type: Organization
     name: Science
@@ -1207,7 +1265,9 @@ references:
       string: Circadian Clock Mutation Disrupts Estrous Cyclicity and Maintenance of Pregnancy
   content: []
   identifiers:
-  - 10.1016/j.cub.2004.07.055
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1016/j.cub.2004.07.055
   publisher:
     type: Organization
     name: Curr Biol
@@ -1232,7 +1292,9 @@ references:
       string: 'Circadian Interactomics: How Research Into Protein-Protein Interactions Beyond the Core Clock Has Influenced the Model of Circadian Timekeeping'
   content: []
   identifiers:
-  - 10.1177/07487304211014622
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1177/07487304211014622
   publisher:
     type: Organization
     name: J Biol Rhythms
@@ -1297,7 +1359,9 @@ references:
       string: Circadian Clock in Arabidopsis thaliana Determines Flower Opening Time Early in the Morning and Dominantly Closes Early in the Afternoon
   content: []
   identifiers:
-  - 10.1093/pcp/pcab048
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1093/pcp/pcab048
   publisher:
     type: Organization
     name: Plant Cell Physiol
@@ -1360,7 +1424,9 @@ references:
       string: Resonating circadian clocks enhance fitness in cyanobacteria
   content: []
   identifiers:
-  - 10.1073/pnas.95.15.8660
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1073/pnas.95.15.8660
   publisher:
     type: Organization
     name: Proc Natl Acad Sci U A
@@ -1385,7 +1451,9 @@ references:
       string: The generative area as the site of floret initiation in the sunflower capitulum and its integration to predict floret number
   content: []
   identifiers:
-  - 10.1016/0378-4290(85)90088-7
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1016/0378-4290(85)90088-7
   publisher:
     type: Organization
     name: Field Crops Res
@@ -1401,7 +1469,9 @@ references:
     - B.
   content: []
   identifiers:
-  - 10.3120/0024-9637-56.3.209
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.3120/0024-9637-56.3.209
   publisher:
     type: Organization
     name: Systematics, Evolution, and Biogeography of Compositae, Madroño
@@ -1423,7 +1493,9 @@ references:
       string: The Entrainment of Circadian Oscillations by Light and Their Role as Photoperiodic Clocks
   content: []
   identifiers:
-  - 10.1086/282327
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1086/282327
   publisher:
     type: Organization
     name: Am Nat
@@ -1460,7 +1532,9 @@ references:
       string: Temperature effect on entrainment, phase shifting, and amplitude of circadian clocks and its molecular bases
   content: []
   identifiers:
-  - 10.1081/CBI-120014569
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1081/CBI-120014569
   publisher:
     type: Organization
     name: Chronobiol Int
@@ -1485,7 +1559,9 @@ references:
       string: 'The segmentation clock: inherited trait or universal design principle?'
   content: []
   identifiers:
-  - 10.1016/j.gde.2012.10.003
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1016/j.gde.2012.10.003
   publisher:
     type: Organization
     name: Curr Opin Genet Dev
@@ -1515,7 +1591,9 @@ references:
       string: 'Demasking biological oscillators: properties and principles of entrainment exemplified by the Neurospora circadian clock'
   content: []
   identifiers:
-  - 10.1073/pnas.0501884102
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1073/pnas.0501884102
   publisher:
     type: Organization
     name: Proc Natl Acad Sci U S A
@@ -1545,7 +1623,9 @@ references:
       string: Circadian rhythm as a therapeutic target
   content: []
   identifiers:
-  - 10.1038/s41573-020-00109-w
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1038/s41573-020-00109-w
   publisher:
     type: Organization
     name: Nat Rev Drug Discov
@@ -1575,7 +1655,9 @@ references:
       string: Circadian Nature of a Rhythm Expressed by an Invertaseless Strain of Neurospora crassa
   content: []
   identifiers:
-  - 10.1104/pp.41.8.1343
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1104/pp.41.8.1343
   publisher:
     type: Organization
     name: Plant Physiol
@@ -1623,7 +1705,9 @@ references:
       string: Anatomy and Morphology of Sunflower
   content: []
   identifiers:
-  - 10.2134/agronmonogr35.c3
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.2134/agronmonogr35.c3
   publisher:
     type: Organization
     name: Agronomy Monographs
@@ -1662,7 +1746,9 @@ references:
       string: Natural selection against a circadian clock gene mutation in mice
   content: []
   identifiers:
-  - 10.1073/pnas.1516442113
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1073/pnas.1516442113
   publisher:
     type: Organization
     name: Proc Natl Acad Sci
@@ -1702,7 +1788,9 @@ references:
       string: Three psychophilous Asteraceae species with distinct reproductive mechanisms in southeastern Brazil
   content: []
   identifiers:
-  - 10.1080/0028825X.2016.1236735
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1080/0028825X.2016.1236735
   publisher:
     type: Organization
     name: N Z J Bot
@@ -1727,7 +1815,9 @@ references:
       string: Foraging Strategy of Honeybee Colonies in a Temperate Deciduous Forest
   content: []
   identifiers:
-  - 10.2307/1940121
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.2307/1940121
   publisher:
     type: Organization
     name: Ecology
@@ -1771,7 +1861,9 @@ references:
       string: Light inputs shape the Arabidopsis circadian system
   content: []
   identifiers:
-  - 10.1111/j.1365-313X.2011.04505.x
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1111/j.1365-313X.2011.04505.x
   publisher:
     type: Organization
     name: Plant J
@@ -1906,7 +1998,9 @@ references:
       string: Welcome to the Tidyverse
   content: []
   identifiers:
-  - 10.21105/joss.01686
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.21105/joss.01686
   publisher:
     type: Organization
     name: J Open Source Softw
@@ -1935,7 +2029,9 @@ references:
       string: The dynamic nature and regulation of the root clock
   content: []
   identifiers:
-  - 10.1242/dev.181446
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1242/dev.181446
   publisher:
     type: Organization
     name: Development
@@ -1959,7 +2055,9 @@ references:
       string: 'Living by the calendar: how plants know when to flower'
   content: []
   identifiers:
-  - 10.1038/nrm1077
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1038/nrm1077
   publisher:
     type: Organization
     name: Nat Rev Mol Cell Biol
@@ -2004,7 +2102,9 @@ references:
       string: Silencing Nicotiana attenuata LHY and ZTL alters circadian rhythms in flowers
   content: []
   identifiers:
-  - 10.1111/nph.13681
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1111/nph.13681
   publisher:
     type: Organization
     name: New Phytol
@@ -2049,7 +2149,9 @@ references:
       string: Fitness consequences of altering floral circadian oscillations for Nicotiana attenuata
   content: []
   identifiers:
-  - 10.1111/jipb.12511
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1111/jipb.12511
   publisher:
     type: Organization
     name: J Integr Plant Biol
@@ -2104,7 +2206,9 @@ references:
       string: Phyllotactic patterning of gerbera flower heads
   content: []
   identifiers:
-  - 10.1073/pnas.2016304118
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1073/pnas.2016304118
   publisher:
     type: Organization
     name: Proc Natl Acad Sci
@@ -2143,7 +2247,9 @@ references:
       string: Strengths and limitations of period estimation methods for circadian data
   content: []
   identifiers:
-  - 10.1371/journal.pone.0096462
+  - type: PropertyValue
+    propertyId: https://registry.identifiers.org/registry/doi
+    value: 10.1371/journal.pone.0096462
   publisher:
     type: Organization
     name: PLoS ONE

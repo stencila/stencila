@@ -279,7 +279,11 @@ fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> Author {
             }
         } else if tag == "contrib-id" {
             if let Some(value) = child.text() {
-                identifiers.push(PropertyValueOrString::String(value.into()));
+                identifiers.push(PropertyValueOrString::PropertyValue(PropertyValue {
+                    property_id:Some("https://registry.identifiers.org/registry/orcid".into()),
+                    value:Primitive::String(value.into()),
+                    ..Default::default()
+                }));
             }
         } else if tag == "email" {
             if let Some(value) = child.text() {
