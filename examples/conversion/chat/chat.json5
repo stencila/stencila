@@ -47,6 +47,56 @@
           ]
         }
       ]
+    },
+    {
+      type: "ChatMessage",
+      role: "User",
+      content: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: { string: "Repeat" }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "ChatMessageGroup",
+      messages: [
+        {
+          type: "ChatMessage",
+          role: "Model",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: { string: "Hi there!" }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          type: "ChatMessage",
+          role: "Model",
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: { string: "Hi there!" }
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }

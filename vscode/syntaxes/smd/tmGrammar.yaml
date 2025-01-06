@@ -340,7 +340,6 @@ repository:
       "4": { name: comment.stencila.instruction } # message
       "5": { name: keyword.control.stencila } # >>
 
-
   ##########  Chat ##########
 
   chat:
@@ -395,11 +394,12 @@ repository:
       ^
         (:{3,})
         \s*
-        (system|user|model)
+        (chat)\/(system|user|model|group)
       $
     captures:
       "1": { name: markup.heading.stencila } # semicolons
-      "2": { name: keyword.control.stencila } # role
+      "2": { name: keyword.control.stencila } # chat
+      "3": { name: support.function } # role
 
   ########## Suggestions: Block & Inline ##########
 

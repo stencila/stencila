@@ -8,16 +8,18 @@ impl MarkdownCodec for ChatMessage {
             .push_prop_str(
                 NodeProperty::Role,
                 match self.role {
-                    MessageRole::User => " user",
-                    MessageRole::System => " system",
-                    MessageRole::Model => " model",
+                    MessageRole::User => " chat/user",
+                    MessageRole::System => " chat/system",
+                    MessageRole::Model => " chat/model",
                 },
             )
             .newline()
             .newline()
+            .increase_depth()
             .push_prop_fn(NodeProperty::Content, |context| {
                 self.content.to_markdown(context)
             })
+            .decrease_depth()
             .push_colons()
             .newline()
             .exit_node()
