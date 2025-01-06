@@ -1,8 +1,8 @@
 import js from '@eslint/js'
-import tseslint from 'typescript-eslint'
 import importPlugin from 'eslint-plugin-import'
-import wcPlugin from 'eslint-plugin-wc'
 import litPlugin from 'eslint-plugin-lit'
+import wcPlugin from 'eslint-plugin-wc'
+import tseslint from 'typescript-eslint'
 
 export default [
   ...tseslint.config(
