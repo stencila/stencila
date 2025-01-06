@@ -280,3 +280,6 @@ make audit lint test
 
 > [!NOTE]
 > Themes are applied to the Shadow DOM of HTML-based document views using [Constructed Stylesheets](https://web.dev/articles/constructable-stylesheets). These do not allow the use of `@import`. Therefore the `postcss-import` plugin is used to inline these statements. This requires some oddities in the file paths used for font file in imported files. See the notes in the CSS file for existing fonts.
+
+> [!NOTE]
+> There have been issues using the lit [`@query`](https://lit.dev/docs/api/decorators/#query) decorator in the vscode webview environement. Due to the way the dom patching occurs between the editor and preview windows, the query properties are often turning `null` in the `connectedCallback`, `firstUpdated` and `render` methods of `Entity` elements.

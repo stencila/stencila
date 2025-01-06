@@ -24,9 +24,12 @@ import '../ui/nodes/properties/execution-messages'
 @customElement('stencila-instruction-block')
 @withTwind()
 export class InstructionBlock extends Instruction {
-  @query('slot[name="content"]')
-  contentSlot!: HTMLSlotElement
-
+  /**
+   * Slot element for the suggestion carousel
+   * - this slot will contain a `div` element with child `stencila-suggestion` nodes
+   * - query porperty decorator is used for this slot as it is used in multiple methods,
+   *   all triggered after rendering.
+   */
   @query('slot[name="suggestions"]')
   suggestionsSlot!: HTMLSlotElement
 
@@ -51,12 +54,9 @@ export class InstructionBlock extends Instruction {
     }
   }
 
-  private onContentSlotChange() {
-    const contentSlot = this.contentSlot?.assignedNodes()[0] as
-      | HTMLElement
-      | undefined
-
-    this.hasContent = contentSlot !== undefined
+  private onContentSlotChange(e: Event) {
+    const slot = e.target as HTMLSlotElement
+    this.hasContent = !!slot.assignedNodes()[0]
   }
 
   private onSuggestionsSlotChange() {
@@ -68,7 +68,7 @@ export class InstructionBlock extends Instruction {
    * are not visible.
    */
   private updateActiveSuggestion() {
-    const suggestionsSlot = this.suggestionsSlot?.assignedNodes()[0] as
+    const suggestionsSlot = this.suggestionsSlot.assignedNodes()[0] as
       | HTMLElement
       | undefined
 
