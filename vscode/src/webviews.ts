@@ -6,7 +6,6 @@ import { LanguageClient } from "vscode-languageclient/node";
 import { resetDom, subscribeToDom, unsubscribeFromDom } from "./extension";
 import { ScrollSyncer } from "./scroll-syncer";
 import { statusBar } from "./status-bar";
-import { event } from "./events";
 
 /**
  * A map of document view panels used to ensure that only one

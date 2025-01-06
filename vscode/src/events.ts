@@ -9,6 +9,7 @@ let isEnabled = false;
 /**
  * Capture an event (if eventing is enabled)
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function event(name: string, data?: any) {
   if (isEnabled) {
     posthog.capture(`vsce_${name}`, data);
