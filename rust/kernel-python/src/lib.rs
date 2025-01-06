@@ -105,7 +105,7 @@ mod tests {
                     vec![Node::Integer(2)],
                     vec![],
                 ),
-                // Multiple outputs, and outputs can span lines
+                // Only the last value is output; outputs can span lines
                 (
                     "
 1
@@ -115,7 +115,7 @@ sum([
   2
 ])
 ",
-                    vec![Node::Integer(1), Node::Integer(3)],
+                    vec![Node::Integer(3)],
                     vec![],
                 ),
                 // Prints and an expression: multiple, separate outputs
