@@ -31,7 +31,7 @@ import { event } from "./events";
 
 let client: LanguageClient | undefined;
 
-let outputChannel = vscode.window.createOutputChannel(
+const outputChannel = vscode.window.createOutputChannel(
   "Stencila Language Server"
 );
 
@@ -92,7 +92,7 @@ async function startServer(context: vscode.ExtensionContext) {
   const initializationOptions = vscode.workspace.getConfiguration("stencila");
 
   // Get the path to the CLI
-  let command = cliPath(context);
+  const command = cliPath(context);
 
   // Determine the arguments to the CLI
   let args: string[];
@@ -151,7 +151,7 @@ async function startServer(context: vscode.ExtensionContext) {
     }
   } else {
     views = [
-      registerSetupView(context, client),
+      registerSetupView(context),
       registerKernelsView(context, client),
       registerPromptsView(context, client),
       registerModelsView(context, client),

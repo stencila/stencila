@@ -148,7 +148,7 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
     vscode.env.openExternal(authUri);
 
     // Wait for callback URL to be requested with `?otc=xxxx` query params
-    const otc = await new Promise<string | null>((resolve, reject) => {
+    const otc = await new Promise<string | null>((resolve) => {
       const disposable = vscode.window.registerUriHandler({
         handleUri(uri: vscode.Uri) {
           if (uri.path.startsWith(callbackPath)) {
@@ -175,6 +175,7 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
     if (!tokenResponse.ok) {
       let message;
       try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const error: any = await tokenResponse.json();
         message = error?.message ?? error?.error ?? JSON.stringify(error);
       } catch {
@@ -209,6 +210,7 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
           username?: string;
           firstName?: string;
           lastName?: string;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           emailAddresses?: any[];
         };
       userLabel =
@@ -260,7 +262,7 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
       return;
     }
 
-    let token = session?.accessToken;
+    const token = session?.accessToken;
     if (token) {
       // Delete the access token on Stencila Cloud
       const response = await fetch(`${API_URL}/access-tokens/token/${token}`, {
@@ -273,6 +275,7 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
       if (!response.ok) {
         let message;
         try {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const error: any = await response.json();
           message = error?.message ?? error?.error ?? JSON.stringify(error);
         } catch {

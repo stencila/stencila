@@ -635,6 +635,7 @@ CONTEXT: dict[str, Any] = {"print": print}
 
 # Execute lines of code
 def execute(lines: list[str], file: str) -> None:
+    value = None
     buffer = ""
     for index, line in enumerate(lines):
         buffer += line + "\n"
@@ -651,8 +652,6 @@ def execute(lines: list[str], file: str) -> None:
             # First, try to compile and evaluate as an expression
             compiled = compile(buffer, file, "eval")
             value = eval(compiled, CONTEXT)
-            if value is not None:
-                sys.stdout.write(to_json(value) + END + "\n")
         except SyntaxError:
             # Not an expression, execute as statements
             compiled = compile(buffer, file, "exec")
@@ -660,6 +659,10 @@ def execute(lines: list[str], file: str) -> None:
 
         # Reset buffer
         buffer = "\n" * (index + 1)
+
+    # Output the last value (if any)
+    if value is not None:
+        sys.stdout.write(to_json(value) + END + "\n")
 
     # If any buffer remaining then compile to raise the syntax error
     compiled = compile(buffer, file, "exec")

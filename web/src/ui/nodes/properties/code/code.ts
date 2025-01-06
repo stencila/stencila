@@ -374,7 +374,7 @@ export class UINodeCode extends LitElement {
     if (
       changedProperties.has('code') ||
       (changedProperties.has('executionRequired') &&
-        ['StateChanged' || 'SemanticsChanged'].includes(this.executionRequired))
+        ['StateChanged', 'SemanticsChanged'].includes(this.executionRequired))
     ) {
       this.updateDiagnostics([])
     }

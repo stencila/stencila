@@ -65,7 +65,7 @@ pub fn check(md: &str, _format: &Format) -> Messages {
                 let line = line.trim_start_matches(':').trim();
                 if line.starts_with("include")
                     || line.starts_with("call")
-                    || line.starts_with("chat")
+                    || line.starts_with("chat") && !line.starts_with("chat/")
                     || line.starts_with("prompt")
                     || line.ends_with(":::")
                     || line.ends_with(">>>")

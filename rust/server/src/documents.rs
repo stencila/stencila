@@ -605,7 +605,7 @@ async fn websocket_for_document(
 
 /// Handle a WebSocket connection
 #[tracing::instrument(skip(ws, doc))]
-async fn websocket_handler(ws: WebSocket, doc: Arc<Document>, dir: PathBuf) {
+async fn websocket_handler(mut ws: WebSocket, doc: Arc<Document>, dir: PathBuf) {
     tracing::trace!("WebSocket connection");
 
     let Some(protocol) = ws
@@ -813,7 +813,7 @@ where
                 }
             };
 
-            let message = Message::Text(message);
+            let message = Message::Text(message.into());
 
             if sender.send(message).await.is_err() {
                 break;

@@ -18,5 +18,5 @@ percent-encoding = "2.3.1"
 prompts = { path = "../prompts" }
 schema = { path = "../schema" }
 tokio-util = { version = "0.7.13", features = ["compat"] }
-tower = "0.5.1"
+tower = "0.5.2"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }

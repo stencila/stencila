@@ -33,12 +33,14 @@ impl MarkdownCodec for ChatMessageGroup {
         context
             .enter_node(self.node_type(), self.node_id())
             .push_colons()
-            .push_str(" messages")
+            .push_str(" chat/group")
             .newline()
             .newline()
+            .increase_depth()
             .push_prop_fn(NodeProperty::Messages, |context| {
                 self.messages.to_markdown(context)
             })
+            .decrease_depth()
             .push_colons()
             .newline()
             .exit_node()

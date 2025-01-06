@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import * as vscode from "vscode";
 
 import { event } from "./events";

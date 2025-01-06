@@ -18,12 +18,12 @@ use codec::{
     format::Format,
     schema::{
         shortcuts, Admonition, AdmonitionType, Block, CallArgument, CallBlock, Chat, ChatMessage,
-        Claim, CodeBlock, CodeChunk, DeleteBlock, ExecutionMode, Figure, ForBlock, Heading,
-        IfBlock, IfBlockClause, IncludeBlock, Inline, InsertBlock, InstructionBlock,
-        InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock, ModifyBlock, Node,
-        Paragraph, PromptBlock, QuoteBlock, RawBlock, ReplaceBlock, Section, StyledBlock,
-        SuggestionBlock, SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text,
-        ThematicBreak, Walkthrough, WalkthroughStep,
+        ChatMessageGroup, Claim, CodeBlock, CodeChunk, DeleteBlock, ExecutionMode, Figure,
+        ForBlock, Heading, IfBlock, IfBlockClause, IncludeBlock, Inline, InsertBlock,
+        InstructionBlock, InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock,
+        ModifyBlock, Node, Paragraph, PromptBlock, QuoteBlock, RawBlock, ReplaceBlock, Section,
+        StyledBlock, SuggestionBlock, SuggestionStatus, Table, TableCell, TableRow, TableRowType,
+        Text, ThematicBreak, Walkthrough, WalkthroughStep,
     },
 };
 
@@ -788,17 +788,31 @@ fn chat(input: &mut Located<&str>) -> PResult<Block> {
     .parse_next(input)
 }
 
-/// Parse a [`ChatMessage`] node
+/// Parse a [`ChatMessage`] or [`ChatMessageGroup`] node
 fn chat_message(input: &mut Located<&str>) -> PResult<Block> {
     terminated(
-        alt((Caseless("system"), Caseless("user"), Caseless("model"))),
+        preceded(
+            Caseless("chat/"),
+            alt((
+                Caseless("system"),
+                Caseless("user"),
+                Caseless("model"),
+                Caseless("group"),
+            )),
+        ),
         multispace0,
     )
     .map(|role: &str| {
-        Block::ChatMessage(ChatMessage {
-            role: role.parse().ok().unwrap_or_default(),
-            ..Default::default()
-        })
+        if role == "group" {
+            Block::ChatMessageGroup(ChatMessageGroup {
+                ..Default::default()
+            })
+        } else {
+            Block::ChatMessage(ChatMessage {
+                role: role.parse().ok().unwrap_or_default(),
+                ..Default::default()
+            })
+        }
     })
     .parse_next(input)
 }
@@ -1175,6 +1189,15 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
         // Parent div is a node type where we just have to assign children
         // to content.
         *content = children;
+    } else if let Block::ChatMessageGroup(ChatMessageGroup { messages, .. }) = parent {
+        // Filter to only include chat messages
+        *messages = children
+            .into_iter()
+            .filter_map(|block| match block {
+                Block::ChatMessage(message) => Some(message),
+                _ => None,
+            })
+            .collect();
     } else if let Block::Admonition(admonition) = parent {
         if matches!(context.format, Format::Qmd) {
             for block in children {
