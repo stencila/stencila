@@ -2,14 +2,12 @@ use roxmltree::Node;
 
 use codec::{
     schema::{
-        Article, ArticleOptions, Author, CreativeWorkTypeOrText, IntegerOrString, Organization,
-        Person, PersonOrOrganization, Primitive, PropertyValue, PropertyValueOrString,
-        StringOrNumber,
+        Article, Author, CreativeWorkType, CreativeWorkTypeOrText, IntegerOrString, Periodical,
+        Person, Primitive, PropertyValue, PropertyValueOrString, PublicationVolume,
+        PublicationVolumeOptions,
     },
     Losses,
 };
-
-use crate::decode::body::decode_inlines;
 
 use super::utilities::{extend_path, record_attrs_lost, record_node_lost};
 
@@ -61,7 +59,7 @@ fn decode_citation(path: &str, node: &Node, losses: &mut Losses) -> CreativeWork
     let mut identifiers = Vec::new();
     let mut title = None;
     let mut publisher = None;
-    let mut version = None;
+    let mut volume_number = None;
     let mut page_start = None;
     let mut page_end = None;
 
@@ -77,18 +75,15 @@ fn decode_citation(path: &str, node: &Node, losses: &mut Losses) -> CreativeWork
                 }
             }
         } else if child_tag.to_string().contains("title") {
-            title = Some(decode_inlines(path, child.children(), losses));
+            title = child.text().map(str::to_string)
         } else if child_tag == "source" {
-            publisher = Some(PersonOrOrganization::Organization(Organization {
-                name: child.text().map(str::to_string),
-                ..Default::default()
-            }));
+            publisher = child.text().map(str::to_string);
         } else if child_tag == "volume" {
             if let Some(value) = child.text() {
-                if let Ok(num) = value.parse::<f64>() {
-                    version = Some(StringOrNumber::Number(num))
+                if let Ok(num) = value.parse::<i64>() {
+                    volume_number = Some(IntegerOrString::Integer(num))
                 } else {
-                    version = Some(StringOrNumber::String(value.into()))
+                    volume_number = Some(IntegerOrString::String(value.into()))
                 }
             }
         } else if child_tag == "fpage" {
@@ -118,7 +113,9 @@ fn decode_citation(path: &str, node: &Node, losses: &mut Losses) -> CreativeWork
                     }))
                 } else if child_type == Some("pmid") {
                     identifiers.push(PropertyValueOrString::PropertyValue(PropertyValue {
-                        property_id: Some("https://registry.identifiers.org/registry/pubmed".into()),
+                        property_id: Some(
+                            "https://registry.identifiers.org/registry/pubmed".into(),
+                        ),
                         value: Primitive::String(value.into()),
                         ..Default::default()
                     }))
@@ -132,19 +129,24 @@ fn decode_citation(path: &str, node: &Node, losses: &mut Losses) -> CreativeWork
     let authors = (!authors.is_empty()).then_some(authors);
     let identifiers = (!identifiers.is_empty()).then_some(identifiers);
 
-    CreativeWorkTypeOrText::CreativeWorkType(codec::schema::CreativeWorkType::Article(Article {
-        authors,
-        title,
-        options: Box::new(ArticleOptions {
-            identifiers,
-            publisher,
-            version,
-            page_start,
-            page_end,
+    CreativeWorkTypeOrText::CreativeWorkType(CreativeWorkType::PublicationVolume(
+        PublicationVolume {
+            volume_number,
+            id: title,
+            is_part_of: Some(Box::new(CreativeWorkType::Periodical(Periodical {
+                id: publisher,
+                ..Default::default()
+            }))),
+            options: Box::new(PublicationVolumeOptions {
+                identifiers,
+                authors,
+                page_start,
+                page_end,
+                ..Default::default()
+            }),
             ..Default::default()
-        }),
-        ..Default::default()
-    }))
+        },
+    ))
 }
 
 /// Decode an `<name> and <string-name>`
