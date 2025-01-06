@@ -17,7 +17,7 @@ export function registerChatEditor(
 
 /**
  * A custom editor for Stencila `Chat` documents
- * 
+ *
  * Allows users to use the interactive chat interface without
  * having to have a Stencila Markdown file open.
  */
@@ -26,8 +26,7 @@ export class ChatEditorProvider implements vscode.CustomTextEditorProvider {
 
   public resolveCustomTextEditor(
     document: vscode.TextDocument,
-    panel: vscode.WebviewPanel,
-    token: vscode.CancellationToken
+    panel: vscode.WebviewPanel
   ): void {
     panel.webview.options = {
       enableScripts: true,

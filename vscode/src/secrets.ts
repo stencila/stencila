@@ -58,7 +58,7 @@ export async function collectSecrets(
 
 export function registerSecretsCommands(context: vscode.ExtensionContext) {
   // Command to set a secret
-  let setSecretCommand = vscode.commands.registerCommand(
+  const setSecretCommand = vscode.commands.registerCommand(
     "stencila.secrets.set",
     async () => {
       // Ask user to select a secret name
@@ -89,7 +89,7 @@ export function registerSecretsCommands(context: vscode.ExtensionContext) {
   );
 
   // Command to delete a secret
-  let deleteSecretCommand = vscode.commands.registerCommand(
+  const deleteSecretCommand = vscode.commands.registerCommand(
     "stencila.secrets.delete",
     async () => {
       // Get all stored secret names
