@@ -11,7 +11,7 @@ use codec::{
 };
 
 use super::{
-    body::decode_blocks,
+    body::{decode_blocks, decode_inlines},
     utilities::{extend_path, record_attrs_lost, record_node_lost},
 };
 
@@ -48,6 +48,7 @@ fn decode_article_meta(path: &str, node: &Node, article: &mut Article, losses: &
             "volume" => decode_volume(&child_path, &child, article, losses),
             "funding-group" => decode_funding_group(&child_path, &child, article, losses),
             "contrib-group" => decode_contrib_group(&child_path, &child, article, losses),
+            "title-group" => decode_title_group(&child_path, &child, article, losses),
             _ => record_node_lost(path, &child, losses),
         };
     }
@@ -136,6 +137,17 @@ fn decode_article_id(path: &str, node: &Node, article: &mut Article, losses: &mu
         about.push(item);
     } else {
         article.options.identifiers = Some(vec![item])
+    }
+}
+
+/// Decode an `<title-group>` element
+fn decode_title_group(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    record_attrs_lost(path, node, [], losses);
+
+    for child in node.children() {
+        for _grandchild in child.children() {
+            article.title = Some(decode_inlines(path, child.children(), losses));
+        }
     }
 }
 
@@ -280,8 +292,8 @@ fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> Author {
         } else if tag == "contrib-id" {
             if let Some(value) = child.text() {
                 identifiers.push(PropertyValueOrString::PropertyValue(PropertyValue {
-                    property_id:Some("https://registry.identifiers.org/registry/orcid".into()),
-                    value:Primitive::String(value.into()),
+                    property_id: Some("https://registry.identifiers.org/registry/orcid".into()),
+                    value: Primitive::String(value.into()),
                     ..Default::default()
                 }));
             }
