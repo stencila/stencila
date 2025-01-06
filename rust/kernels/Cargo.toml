@@ -15,7 +15,7 @@ kernel-nodejs = { path = "../kernel-nodejs" }
 kernel-python = { path = "../kernel-python" }
 kernel-quickjs = { path = "../kernel-quickjs" }
 kernel-r = { path = "../kernel-r" }
-kernel-rhai = { path = "../kernel-rhai" }
+kernel-rhai = { path = "../kernel-rhai", optional = true }
 kernel-style = { path = "../kernel-style" }
 kernel-tex = { path = "../kernel-tex" }
 plugins = { path = "../plugins" }

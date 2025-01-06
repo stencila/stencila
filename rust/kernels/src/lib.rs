@@ -27,9 +27,11 @@ use kernel_nodejs::NodeJsKernel;
 use kernel_python::PythonKernel;
 use kernel_quickjs::QuickJsKernel;
 use kernel_r::RKernel;
-use kernel_rhai::RhaiKernel;
 use kernel_style::StyleKernel;
 use kernel_tex::TexKernel;
+
+#[cfg(feature = "kernel-rhai")]
+use kernel_rhai::RhaiKernel;
 
 pub use kernel::{KernelAvailability, KernelProvider, KernelSpecification, KernelType};
 
@@ -48,10 +50,12 @@ pub async fn list() -> Vec<Box<dyn Kernel>> {
         Box::<NodeJsKernel>::default() as Box<dyn Kernel>,
         Box::<PythonKernel>::default() as Box<dyn Kernel>,
         Box::<RKernel>::default() as Box<dyn Kernel>,
-        Box::<RhaiKernel>::default() as Box<dyn Kernel>,
         Box::<StyleKernel>::default() as Box<dyn Kernel>,
         Box::<TexKernel>::default() as Box<dyn Kernel>,
     ];
+
+    #[cfg(feature = "kernel-rhai")]
+    kernels.push(Box::<RhaiKernel>::default() as Box<dyn Kernel>);
 
     let provided_by_plugins = &mut plugins::kernels::list().await;
     kernels.append(provided_by_plugins);
