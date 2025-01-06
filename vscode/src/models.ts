@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 
+import { event } from "./events";
+
 export function registerModelsView(
   context: vscode.ExtensionContext,
   client: LanguageClient
@@ -19,6 +21,8 @@ export function registerModelsView(
   const use = vscode.commands.registerCommand(
     "stencila.models.use",
     (item: ModelTreeItem) => {
+      event("models_use", { id: item.model?.id });
+
       const editor = vscode.window.activeTextEditor;
       if (editor) {
         const selection = editor.selection;
@@ -186,6 +190,8 @@ class ModelTreeProvider implements vscode.TreeDataProvider<ModelTreeItem> {
   }
 
   async refresh(client?: LanguageClient): Promise<void> {
+    event("models_refresh");
+
     if (client) {
       this.client = client;
     }

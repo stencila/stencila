@@ -25,6 +25,7 @@ import { cliPath } from "./cli";
 import { registerWalkthroughCommands } from "./walkthroughs";
 import { registerStencilaShell } from "./shell";
 import { registerSetupView } from "./setup";
+import { event } from "./events";
 
 let client: LanguageClient | undefined;
 
@@ -47,6 +48,8 @@ let views: ClientView[] = [];
  * Activate the extension
  */
 export async function activate(context: vscode.ExtensionContext) {
+  checkExtensionVersion(context);
+
   // Register auth provider, commands etc
   // Some of these (e.g. auth provider) are used when collecting secrets in `startServer`
   // so this needs to be done first
@@ -59,6 +62,23 @@ export async function activate(context: vscode.ExtensionContext) {
   registerOtherCommands(context);
 
   await startServer(context);
+}
+
+/**
+ * Check the version of the extension
+ */
+async function checkExtensionVersion(context: vscode.ExtensionContext) {
+  const current = context.extension.packageJSON.version;
+  const previous = context.globalState.get<string>("extensionVersion");
+
+  if (previous !== current) {
+    if (!previous) {
+      event("extension_install", { version: current });
+    } else {
+      event("extension_upgrade", { previous, current });
+    }
+    context.globalState.update("extensionVersion", current);
+  }
 }
 
 /**
@@ -153,6 +173,8 @@ function registerOtherCommands(context: vscode.ExtensionContext) {
   // Command to restart the server (e.g. after setting or removing secrets)
   context.subscriptions.push(
     vscode.commands.registerCommand("stencila.lsp-server.restart", async () => {
+      event("lsp_restart");
+      
       if (client) {
         try {
           await client.stop();
