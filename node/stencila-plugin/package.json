@@ -48,7 +48,7 @@
     "cover": "npm test -- --collectCoverage --coverageReports=cobertura",
     "build": "tsup",
     "pubcheck": "attw --pack . && publint",
-    "unused": "depcheck --quiet --ignore-patterns '.eslintrc*'"
+    "unused": "depcheck --quiet --ignore-patterns 'eslint.config.js'"
   },
   "engines": {
     "node": ">=16"

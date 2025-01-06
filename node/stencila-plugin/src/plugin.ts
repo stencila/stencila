@@ -349,7 +349,7 @@ export class Plugin {
     function errorResponse(
       id: string | null,
       code: number,
-      message: string
+      message: string,
     ): string {
       return JSON.stringify({ jsonrpc: "2.0", id, error: { code, message } });
     }
@@ -421,7 +421,7 @@ export class Plugin {
                 jsonrpc: "2.0",
                 error: { code: -32603, message: "Internal error" },
                 id: null,
-              })
+              }),
             );
           }
         });
@@ -445,7 +445,7 @@ export class Plugin {
     } else if (protocol == "http") {
       this.listenHttp(
         parseInt(process.env.STENCILA_PORT!),
-        process.env.STENCILA_TOKEN!
+        process.env.STENCILA_TOKEN!,
       );
     } else {
       throw Error(`Unknown protocol: ${protocol}`);

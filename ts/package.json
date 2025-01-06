@@ -47,7 +47,7 @@
     "test": "jest",
     "build": "tsup",
     "pubcheck": "attw --pack . && publint",
-    "unused": "depcheck --quiet --ignores @types/jest --ignore-patterns '.eslintrc*'"
+    "unused": "depcheck --quiet --ignores @types/jest --ignore-patterns 'eslint.config.js'"
   },
   "jest": {
     "preset": "ts-jest/presets/default-esm",

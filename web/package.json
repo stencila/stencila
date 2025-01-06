@@ -56,7 +56,7 @@
     "build": "cross-env NODE_ENV=production parcel build --target default --no-scope-hoist",
     "build:vscode": "cross-env NODE_ENV=production parcel build --target vscode --config .parcelrc-vscode --no-source-maps --no-cache",
     "export:vscode": "tsx scripts/export-to-vscode.ts",
-    "unused": "depcheck --quiet --ignores '@parcel/*,parcel-*,postcss-*' --ignore-patterns '.eslintrc*'"
+    "unused": "depcheck --quiet --ignores '@parcel/*,parcel-*,postcss-*' --ignore-patterns 'eslint.config.js'"
   },
   "dependencies": {
     "@codemirror/lang-css": "6.3.1",
@@ -100,13 +100,13 @@
   },
   "devDependencies": {
     "@argos-ci/playwright": "3.9.4",
-    "@parcel/compressor-brotli": "2.12.0",
-    "@parcel/transformer-inline-string": "2.12.0",
-    "@parcel/transformer-typescript-tsc": "2.12.0",
+    "@parcel/compressor-brotli": "2.13.3",
+    "@parcel/transformer-inline-string": "2.13.3",
+    "@parcel/transformer-typescript-tsc": "2.13.3",
     "@playwright/test": "1.49.1",
     "@types/plotly.js-dist-min": "2.3.4",
     "glob": "11.0.0",
-    "parcel": "2.12.0",
+    "parcel": "2.13.3",
     "postcss-import": "16.1.0",
     "tsx": "4.19.2"
   }

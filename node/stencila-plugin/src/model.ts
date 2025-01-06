@@ -74,7 +74,7 @@ export abstract class Model {
    */
   async performTask(task: ModelTask): Promise<ModelOutput> {
     throw new Error(
-      "Method `performTask` must be implemented by plugins that provide a model"
+      "Method `performTask` must be implemented by plugins that provide a model",
     );
   }
 }
