@@ -13,7 +13,7 @@ use codec::{
 };
 use codec_dom_trait::{
     html_escape::{encode_double_quoted_attribute, encode_safe},
-    DomCodec as _, DomEncodeContext,
+    DomCodec as DomCodecTrait, DomEncodeContext,
 };
 use codec_text_trait::to_text;
 
@@ -186,6 +186,13 @@ impl Codec for DomCodec {
 
         Ok((html, EncodeInfo::none()))
     }
+}
+
+// Encode a single node to DOM HTML
+pub fn encode<T: DomCodecTrait>(node: &T) -> String {
+    let mut context = DomEncodeContext::new(false, None, None);
+    node.to_dom(&mut context);
+    context.content()
 }
 
 /// Indent HTML
