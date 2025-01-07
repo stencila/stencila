@@ -87,6 +87,14 @@ snapshot_kind: text
       ]
     }
   ],
+  "dateReceived": {
+    "type": "Date",
+    "value": "2023-12-31"
+  },
+  "dateAccepted": {
+    "type": "Date",
+    "value": "2024-1-01"
+  },
   "datePublished": {
     "type": "Date",
     "value": "2024-1-1"

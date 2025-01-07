@@ -45,6 +45,7 @@ fn decode_article_meta(path: &str, node: &Node, article: &mut Article, losses: &
             "article-id" => decode_article_id(&child_path, &child, article, losses),
             "article-version" => decode_article_version(&child_path, &child, article, losses),
             "pub-date" => decode_pub_date(&child_path, &child, article, losses),
+            "history" => decode_history(&child_path, &child, article, losses),
             "volume" => decode_volume(&child_path, &child, article, losses),
             "funding-group" => decode_funding_group(&child_path, &child, article, losses),
             "contrib-group" => decode_contrib_group(&child_path, &child, article, losses),
@@ -145,7 +146,7 @@ fn decode_title_group(path: &str, node: &Node, article: &mut Article, losses: &m
     record_attrs_lost(path, node, [], losses);
 
     for child in node.children() {
-        if child.tag_name().name() == "article-title"{
+        if child.tag_name().name() == "article-title" {
             article.title = Some(decode_inlines(path, child.children(), losses));
         }
     }
@@ -182,6 +183,48 @@ fn decode_pub_date(path: &str, node: &Node, article: &mut Article, losses: &mut 
     let date = year.iter().chain(month.iter()).chain(day.iter()).join("-");
 
     article.date_published = (!date.is_empty()).then(|| Date::new(date))
+}
+
+/// Decode a `<history>` element
+fn decode_history(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    record_attrs_lost(path, node, [], losses);
+
+    for child in node.children() {
+        let tag = child.tag_name().name();
+
+        if tag == "date" {
+            decode_date(path, &child, article, losses);
+        }
+    }
+}
+
+/// Decode a `<date>` element
+fn decode_date(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    let date_type = node.attribute("date-type");
+    record_attrs_lost(path, node, ["date-type"], losses);
+
+    let mut day = None;
+    let mut month = None;
+    let mut year = None;
+
+    for child in node.children() {
+        if let Some(value) = child.text() {
+            match child.tag_name().name() {
+                "day" => day = Some(value),
+                "month" => month = Some(value),
+                "year" => year = Some(value),
+                _ => {}
+            }
+        }
+    }
+
+    let date = year.iter().chain(month.iter()).chain(day.iter()).join("-");
+
+    if date_type == Some("accepted") {
+        article.date_accepted = (!date.is_empty()).then(|| Date::new(date.clone()));
+    } else if date_type == Some("received") {
+        article.date_received = (!date.is_empty()).then(|| Date::new(date.clone()));
+    }
 }
 
 /// Decode an `<volume>` element
