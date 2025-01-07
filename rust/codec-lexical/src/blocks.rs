@@ -3,7 +3,8 @@ use codec::{
     schema::{
         shortcuts::{art, p},
         transforms::blocks_to_inlines,
-        Block, CodeBlock, Heading, Inline, Paragraph, QuoteBlock, Table, Text, ThematicBreak,
+        Block, CodeBlock, Heading, Inline, Paragraph, QuoteBlock, RawBlock, Table, Text,
+        ThematicBreak,
     },
 };
 
@@ -61,7 +62,10 @@ fn block_from_lexical(block: lexical::BlockNode, context: &mut LexicalDecodeCont
         }
 
         lexical::BlockNode::CodeBlock(code_block) => code_block_from_lexical(code_block, context),
+
         lexical::BlockNode::Markdown(block) => return markdown_from_lexical(block, context),
+        lexical::BlockNode::Html(block) => html_from_lexical(block, context),
+
         lexical::BlockNode::HorizontalRule(..) => thematic_break_from_lexical(),
 
         lexical::BlockNode::Unknown(block) => {
@@ -82,6 +86,7 @@ fn block_to_lexical(block: &Block, context: &mut LexicalEncodeContext) -> lexica
         QuoteBlock(quote) => quote_to_lexical(quote, context),
         CodeBlock(code_block) => code_block_to_lexical(code_block, context),
         Table(table) => table_to_lexical(table, context),
+        RawBlock(block) => raw_block_to_lexical(block, context),
         ThematicBreak(..) => thematic_break_to_lexical(),
 
         _ => {
@@ -251,6 +256,45 @@ fn table_to_lexical(table: &Table, context: &mut LexicalEncodeContext) -> lexica
         markdown,
         ..Default::default()
     })
+}
+
+fn html_from_lexical(block: lexical::HtmlNode, context: &mut LexicalDecodeContext) -> Block {
+    // Currently, Stencila does not Ghost's HTML visibility options
+    if block.visibility.is_some() {
+        context.losses.add_prop(&block, "visibility");
+    }
+
+    Block::RawBlock(RawBlock {
+        format: "html".into(),
+        content: block.html.into(),
+        ..Default::default()
+    })
+}
+
+fn raw_block_to_lexical(
+    block: &RawBlock,
+    context: &mut LexicalEncodeContext,
+) -> lexical::BlockNode {
+    let format = Format::from_name(&block.format);
+
+    match format {
+        Format::Markdown => lexical::BlockNode::Markdown(lexical::MarkdownNode {
+            markdown: block.content.to_string(),
+            ..Default::default()
+        }),
+        Format::Html | Format::Svg => lexical::BlockNode::Html(lexical::HtmlNode {
+            html: block.content.to_string(),
+            ..Default::default()
+        }),
+        _ => {
+            // Record loss for other formats and return an empty HTML block
+            context.losses.add("RawBlock");
+            lexical::BlockNode::Html(lexical::HtmlNode {
+                html: String::new(),
+                ..Default::default()
+            })
+        }
+    }
 }
 
 fn thematic_break_from_lexical() -> Block {

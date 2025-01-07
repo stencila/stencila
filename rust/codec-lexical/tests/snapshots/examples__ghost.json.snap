@@ -372,15 +372,11 @@ expression: article
       ]
     },
     {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "LOST Unknown (html)"
-          }
-        }
-      ]
+      "type": "RawBlock",
+      "format": "html",
+      "content": {
+        "string": "<span>HTML card</span>"
+      }
     }
   ]
 }
