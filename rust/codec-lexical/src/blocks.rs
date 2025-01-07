@@ -1,8 +1,8 @@
 use codec::{
     format::Format,
     schema::{
-        shortcuts::p, transforms::blocks_to_inlines, Block, Heading, Inline, Paragraph, QuoteBlock,
-        Text, ThematicBreak,
+        shortcuts::p, transforms::blocks_to_inlines, Block, CodeBlock, Heading, Inline, Paragraph,
+        QuoteBlock, Text, ThematicBreak,
     },
 };
 
@@ -59,6 +59,8 @@ fn block_from_lexical(block: lexical::BlockNode, context: &mut LexicalDecodeCont
             quote_from_lexical(children, context)
         }
 
+        lexical::BlockNode::CodeBlock(block) => code_block_from_lexical(block, context),
+
         lexical::BlockNode::HorizontalRule(..) => thematic_break_from_lexical(),
 
         lexical::BlockNode::Unknown(block) => {
@@ -74,9 +76,10 @@ fn block_from_lexical(block: lexical::BlockNode, context: &mut LexicalDecodeCont
 fn block_to_lexical(block: &Block, context: &mut LexicalEncodeContext) -> lexical::BlockNode {
     use Block::*;
     match block {
-        Heading(block) => heading_to_lexical(block, context),
-        Paragraph(block) => paragraph_to_lexical(block, context),
-        QuoteBlock(block) => quote_to_lexical(block, context),
+        Heading(heading) => heading_to_lexical(heading, context),
+        Paragraph(paragraph) => paragraph_to_lexical(paragraph, context),
+        QuoteBlock(quote) => quote_to_lexical(quote, context),
+        CodeBlock(code_block) => code_block_to_lexical(code_block, context),
         ThematicBreak(..) => thematic_break_to_lexical(),
 
         _ => {
@@ -187,6 +190,33 @@ fn quote_to_lexical(quote: &QuoteBlock, context: &mut LexicalEncodeContext) -> l
             ..Default::default()
         }),
     }
+}
+
+fn code_block_from_lexical(
+    code_block: lexical::CodeBlockNode,
+    context: &mut LexicalDecodeContext,
+) -> Block {
+    // Currently, Stencila does not support captions on code blocks
+    if code_block.caption.is_some() {
+        context.losses.add_prop(&code_block, "caption");
+    }
+
+    Block::CodeBlock(CodeBlock {
+        code: code_block.code.into(),
+        programming_language: code_block.language,
+        ..Default::default()
+    })
+}
+
+fn code_block_to_lexical(
+    code_block: &CodeBlock,
+    _context: &mut LexicalEncodeContext,
+) -> lexical::BlockNode {
+    lexical::BlockNode::CodeBlock(lexical::CodeBlockNode {
+        code: code_block.code.to_string(),
+        language: code_block.programming_language.clone(),
+        ..Default::default()
+    })
 }
 
 fn thematic_break_from_lexical() -> Block {

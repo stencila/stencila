@@ -3,7 +3,7 @@ use monostate::MustBe;
 use serde::{Deserialize, Serialize};
 use smart_default::SmartDefault;
 
-use codec::common::serde_json;
+use codec::common::{serde_json, serde_with::skip_serializing_none};
 
 /// Lexical node types represented as Rust structs with support
 /// for serialization/deserialization
@@ -31,6 +31,7 @@ pub(super) enum BlockNode {
     List(ListNode),
     Quote(QuoteNode),
     ExtendedQuote(ExtendedQuoteNode),
+    CodeBlock(CodeBlockNode),
     HorizontalRule(HorizontalRuleNode),
     Unknown(UnknownNode),
 }
@@ -135,6 +136,7 @@ pub(super) enum ListType {
     Bullet,
 }
 
+#[skip_serializing_none]
 #[derive(Default, Serialize, Deserialize)]
 pub(super) struct ListItemNode {
     pub r#type: MustBe!("listitem"),
@@ -147,6 +149,18 @@ pub(super) struct ListItemNode {
     /// Assumes that only inline nodes are expected here
     /// (whereas in Stencila, block nodes are expected)
     pub children: Vec<InlineNode>,
+}
+
+#[skip_serializing_none]
+#[derive(Default, Serialize, Deserialize)]
+pub(super) struct CodeBlockNode {
+    pub r#type: MustBe!("codeblock"),
+
+    pub code: String,
+
+    pub language: Option<String>,
+
+    pub caption: Option<String>,
 }
 
 #[derive(Default, Serialize, Deserialize)]
@@ -163,6 +177,7 @@ pub(super) struct HashTagNode {
     pub text: String,
 }
 
+#[skip_serializing_none]
 #[derive(Serialize, Deserialize)]
 pub(super) struct LinkNode {
     pub r#type: MustBe!("link"),

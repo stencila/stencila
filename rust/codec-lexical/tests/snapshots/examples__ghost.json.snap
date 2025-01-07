@@ -285,15 +285,11 @@ expression: article
       ]
     },
     {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "LOST Unknown (codeblock)"
-          }
-        }
-      ]
+      "type": "CodeBlock",
+      "code": {
+        "string": "print(\"Hello world\")"
+      },
+      "programmingLanguage": "Python"
     },
     {
       "type": "Paragraph",

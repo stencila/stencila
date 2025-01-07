@@ -212,14 +212,9 @@ expression: lexical
         ]
       },
       {
-        "type": "paragraph",
-        "children": [
-          {
-            "type": "text",
-            "format": 0,
-            "text": "LOST Unknown (codeblock)"
-          }
-        ]
+        "type": "codeblock",
+        "code": "print(\"Hello world\")",
+        "language": "Python"
       },
       {
         "type": "paragraph",
