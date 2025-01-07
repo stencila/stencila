@@ -109,6 +109,18 @@ snapshot_kind: text
     "type": "Date",
     "value": "2024-12-10"
   },
+  "keywords": [
+    "double-strand break",
+    "DSB",
+    "DNA damage checkpoint",
+    "DDC",
+    "spindle assembly 3 checkpoint",
+    "SAC",
+    "S. cerevisiae",
+    "auxin-inducible degron",
+    "HO endonuclease",
+    "S. cerevisiae"
+  ],
   "references": [
     {
       "type": "PublicationVolume",

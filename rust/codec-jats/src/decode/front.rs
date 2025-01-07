@@ -50,6 +50,7 @@ fn decode_article_meta(path: &str, node: &Node, article: &mut Article, losses: &
             "funding-group" => decode_funding_group(&child_path, &child, article, losses),
             "contrib-group" => decode_contrib_group(&child_path, &child, article, losses),
             "title-group" => decode_title_group(&child_path, &child, article, losses),
+            "kwd-group" => decode_kwd_group(&child_path, &child, article, losses),
             _ => record_node_lost(path, &child, losses),
         };
     }
@@ -391,4 +392,37 @@ fn decode_publisher(path: &str, node: &Node, article: &mut Article, losses: &mut
         name,
         ..Default::default()
     }));
+}
+
+/// Decode an `<kwd-group>` element
+fn decode_kwd_group(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    record_attrs_lost(path, node, [], losses);
+
+    let mut keywords = node
+        .children()
+        .filter(|child| child.tag_name().name() == "kwd")
+        .map(|child| decode_kwd(path, &child, losses))
+        .collect();
+
+    if let Some(ref mut vector) = article.keywords {
+        vector.append(&mut keywords);
+    } else {
+        article.keywords = Some(keywords);
+    }
+}
+
+/// Decode an `<kwd>` element
+fn decode_kwd(path: &str, node: &Node, losses: &mut Losses) -> String {
+    record_attrs_lost(path, node, [], losses);
+
+    let mut keyword = String::new();
+
+    for child in node.children() {
+        if node.text().is_none() {
+            keyword.push_str(&decode_kwd(path, &child, losses))
+        } else if !child.text().unwrap().trim().is_empty() {
+            keyword.push_str(child.text().unwrap())
+        }
+    }
+    keyword
 }
