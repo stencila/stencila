@@ -465,7 +465,7 @@ mod tests {
     async fn variables_to_jinja() -> Result<()> {
         let mut kernels = Kernels::new_here();
 
-        let (_, messages, ..) = kernels.execute("let a = 123", Some("rhai")).await?;
+        let (_, messages, ..) = kernels.execute("var a = 123", Some("js")).await?;
         assert_eq!(messages, vec![]);
 
         let (node, messages, ..) = kernels.evaluate("a * 2", Some("jinja")).await?;
@@ -493,11 +493,11 @@ mod tests {
     async fn fork() -> Result<()> {
         let mut kernels = Kernels::new_here();
         kernels.execute("var a = 1", Some("js")).await?;
-        kernels.execute("let b = 2", Some("rhai")).await?;
+        kernels.execute("var b = 2", Some("js")).await?;
 
         let mut fork = kernels.fork().await?;
         fork.execute("a = 11", Some("js")).await?;
-        fork.execute("b = 22", Some("rhai")).await?;
+        fork.execute("b = 22", Some("js")).await?;
         fork.execute("var c = 33", Some("js")).await?;
 
         // In original kernels post forking
