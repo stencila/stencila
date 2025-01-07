@@ -108,6 +108,7 @@ impl TryFrom<Node> for Block {
             CallBlock,
             Chat,
             ChatMessage,
+            ChatMessageGroup,
             Claim,
             CodeBlock,
             CodeChunk,
@@ -135,6 +136,35 @@ impl TryFrom<Node> for Block {
             ThematicBreak,
             Walkthrough
         )
+    }
+}
+
+impl TryFrom<Node> for Vec<Block> {
+    type Error = ErrReport;
+
+    fn try_from(node: Node) -> Result<Self> {
+        use Node::*;
+        Ok(match node {
+            // For creative works with block content, return that content
+            Article(node) => node.content,
+            Chat(node) => node.content,
+            Prompt(node) => node.content,
+
+            // For block nodes with block content, return that content
+            Admonition(block) => block.content,
+            CallBlock(block) => block.content.unwrap_or_default(),
+            ChatMessage(block) => block.content,
+            Claim(block) => block.content,
+            Figure(block) => block.content,
+            ForBlock(block) => block.content,
+            QuoteBlock(block) => block.content,
+            Section(block) => block.content,
+            StyledBlock(block) => block.content,
+            SuggestionBlock(block) => block.content,
+
+            // For other node types, attempt to return a vector with a single block
+            _ => vec![Block::try_from(node)?],
+        })
     }
 }
 
