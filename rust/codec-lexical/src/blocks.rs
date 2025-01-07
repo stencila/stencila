@@ -2,7 +2,7 @@ use codec::{
     format::Format,
     schema::{
         shortcuts::p, transforms::blocks_to_inlines, Block, Heading, Inline, Paragraph, QuoteBlock,
-        Text,
+        Text, ThematicBreak,
     },
 };
 
@@ -59,6 +59,8 @@ fn block_from_lexical(block: lexical::BlockNode, context: &mut LexicalDecodeCont
             quote_from_lexical(children, context)
         }
 
+        lexical::BlockNode::HorizontalRule(..) => thematic_break_from_lexical(),
+
         lexical::BlockNode::Unknown(block) => {
             let typename = block
                 .get("type")
@@ -75,6 +77,7 @@ fn block_to_lexical(block: &Block, context: &mut LexicalEncodeContext) -> lexica
         Heading(block) => heading_to_lexical(block, context),
         Paragraph(block) => paragraph_to_lexical(block, context),
         QuoteBlock(block) => quote_to_lexical(block, context),
+        ThematicBreak(..) => thematic_break_to_lexical(),
 
         _ => {
             context.losses.add(block.node_type().to_string());
@@ -184,4 +187,12 @@ fn quote_to_lexical(quote: &QuoteBlock, context: &mut LexicalEncodeContext) -> l
             ..Default::default()
         }),
     }
+}
+
+fn thematic_break_from_lexical() -> Block {
+    Block::ThematicBreak(ThematicBreak::new())
+}
+
+fn thematic_break_to_lexical() -> lexical::BlockNode {
+    lexical::BlockNode::HorizontalRule(lexical::HorizontalRuleNode::default())
 }
