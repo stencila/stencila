@@ -32,6 +32,12 @@ authors:
   - type: PropertyValue
     propertyId: https://registry.identifiers.org/registry/orcid
     value: http://orcid.org/0000-0001-6813-6682
+dateReceived:
+  type: Date
+  value: 2022-6-30
+dateAccepted:
+  type: Date
+  value: 2022-7-02
 datePublished:
   type: Date
   value: '2022'

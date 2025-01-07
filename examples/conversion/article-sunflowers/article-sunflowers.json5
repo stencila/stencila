@@ -43,6 +43,14 @@
       ]
     }
   ],
+  dateReceived: {
+    type: "Date",
+    value: "2022-6-30"
+  },
+  dateAccepted: {
+    type: "Date",
+    value: "2022-7-02"
+  },
   datePublished: {
     type: "Date",
     value: "2022"

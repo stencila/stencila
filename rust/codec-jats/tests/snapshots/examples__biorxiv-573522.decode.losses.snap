@@ -76,7 +76,8 @@ snapshot_kind: text
 //article/front/article-meta/counts: 1
 //article/front/article-meta/custom-meta-wrap: 1
 //article/front/article-meta/elocation-id: 1
-//article/front/article-meta/history: 1
+//article/front/article-meta/history/@id: 1
+//article/front/article-meta/history/@start: 3
 //article/front/article-meta/permissions: 1
 //article/front/article-meta/pub-date/@date-type: 1
 //article/front/article-meta/pub-date/@pub-type: 5
