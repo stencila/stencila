@@ -1259,6 +1259,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-lexical"
+version = "0.0.0"
+dependencies = [
+ "bitflags 2.6.0",
+ "codec",
+ "codec-dom",
+ "common-dev",
+ "monostate",
+ "serde",
+ "smart-default",
+]
+
+[[package]]
 name = "codec-markdown"
 version = "0.0.0"
 dependencies = [
