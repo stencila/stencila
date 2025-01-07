@@ -154,6 +154,30 @@ pub(super) struct HorizontalRuleNode {
     pub r#type: MustBe!("horizontalrule"),
 }
 
+#[derive(Serialize, Deserialize)]
+pub(super) struct HashTagNode {
+    pub r#type: MustBe!("hashtag"),
+
+    pub format: TextFormat,
+
+    pub text: String,
+}
+
+#[derive(Serialize, Deserialize)]
+pub(super) struct LinkNode {
+    pub r#type: MustBe!("link"),
+
+    pub format: String,
+
+    pub url: String,
+
+    pub title: Option<String>,
+
+    pub target: Option<String>,
+
+    pub rel: Option<String>,
+}
+
 #[derive(Default, Serialize, Deserialize)]
 pub(super) struct TextNode {
     pub r#type: MustBe!("text"),
@@ -203,28 +227,4 @@ impl<'de> Deserialize<'de> for TextFormat {
         let bits = u8::deserialize(deserializer)?;
         Ok(TextFormat::from_bits_truncate(bits))
     }
-}
-
-#[derive(Serialize, Deserialize)]
-pub(super) struct HashTagNode {
-    pub r#type: MustBe!("hashtag"),
-
-    pub format: TextFormat,
-
-    pub text: String,
-}
-
-#[derive(Serialize, Deserialize)]
-pub(super) struct LinkNode {
-    pub r#type: MustBe!("link"),
-
-    pub format: String,
-
-    pub url: String,
-
-    pub title: Option<String>,
-
-    pub target: Option<String>,
-
-    pub rel: Option<String>,
 }
