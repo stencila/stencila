@@ -88,11 +88,7 @@ fn block_to_lexical(block: &Block, context: &mut LexicalEncodeContext) -> lexica
         Table(table) => table_to_lexical(table, context),
         RawBlock(block) => raw_block_to_lexical(block, context),
         ThematicBreak(..) => thematic_break_to_lexical(),
-
-        _ => {
-            context.losses.add(block.node_type().to_string());
-            lexical::BlockNode::Paragraph(lexical::ParagraphNode::default())
-        }
+        _ => block_to_lexical_default(block),
     }
 }
 
@@ -303,4 +299,16 @@ fn thematic_break_from_lexical() -> Block {
 
 fn thematic_break_to_lexical() -> lexical::BlockNode {
     lexical::BlockNode::HorizontalRule(lexical::HorizontalRuleNode::default())
+}
+
+fn block_to_lexical_default(block: &Block) -> lexical::BlockNode {
+    // Default for Stencila block is to encode to DOM HTML and wrap
+    // in a Koenig HTML card
+
+    let html = codec_dom::encode(block);
+
+    lexical::BlockNode::Html(lexical::HtmlNode {
+        html,
+        ..Default::default()
+    })
 }
