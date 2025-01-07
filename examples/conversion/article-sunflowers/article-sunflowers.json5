@@ -55,6 +55,14 @@
     type: "Date",
     value: "2022"
   },
+  keywords: [
+    "Helianthus annuus",
+    "rhythms",
+    "anthesis",
+    "spiral phyllotaxy",
+    "floral organs",
+    "external coincidence model"
+  ],
   references: [
     {
       type: "PublicationVolume",
