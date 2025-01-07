@@ -164,7 +164,7 @@ pub async fn serve(
             documents::router().route_layer(middleware_fn(state.clone(), auth_middleware)),
         )
         .route(
-            "/*path",
+            "/{*path}",
             get(documents::serve_path).route_layer(middleware_fn(state.clone(), auth_middleware)),
         )
         .route(

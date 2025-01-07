@@ -220,10 +220,10 @@ pub fn router() -> Router<ServerState> {
     Router::new()
         .without_v07_checks()
         .route("/open/*path", get(open_document))
-        .route("/:id/close", post(close_document))
-        .route("/:id/command", post(command_document))
-        .route("/:id/export", get(export_document))
-        .route("/:id/websocket", get(websocket_for_document))
+        .route("/{id}/close", post(close_document))
+        .route("/{id}/command", post(command_document))
+        .route("/{id}/export", get(export_document))
+        .route("/{id}/websocket", get(websocket_for_document))
 }
 
 /// Serve the root path
