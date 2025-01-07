@@ -217,14 +217,8 @@ expression: lexical
         "language": "Python"
       },
       {
-        "type": "paragraph",
-        "children": [
-          {
-            "type": "text",
-            "format": 0,
-            "text": "LOST Unknown (markdown)"
-          }
-        ]
+        "type": "markdown",
+        "markdown": "| A   | B   |\n| --- | --- |\n| 1   | 2   |\n"
       },
       {
         "type": "paragraph",
