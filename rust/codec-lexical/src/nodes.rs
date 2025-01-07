@@ -7,7 +7,7 @@ use codec::{
 
 use crate::{
     blocks::{blocks_from_lexical, blocks_to_lexical},
-    lexical::{LexicalDoc, RootNode},
+    lexical::{self, HtmlNode, LexicalDoc, RootNode},
     shared::{LexicalDecodeContext, LexicalEncodeContext},
 };
 
@@ -35,8 +35,14 @@ pub(crate) fn root_to_lexical(
         .and_then(|options| options.format.clone())
         .unwrap_or(Format::Lexical);
 
+    let standalone = options
+        .as_ref()
+        .and_then(|options| options.standalone)
+        .unwrap_or(false);
+
     let mut context = LexicalEncodeContext {
         format,
+        standalone,
         ..Default::default()
     };
 
@@ -71,9 +77,17 @@ fn article_from_lexical(lexical: LexicalDoc, context: &mut LexicalDecodeContext)
 }
 
 fn article_to_lexical(article: &Article, context: &mut LexicalEncodeContext) -> LexicalDoc {
+    let children = match context.standalone {
+        true => vec![lexical::BlockNode::Html(HtmlNode {
+            html: codec_dom::encode(&article.content),
+            ..Default::default()
+        })],
+        false => blocks_to_lexical(&article.content, context),
+    };
+
     LexicalDoc {
         root: RootNode {
-            children: blocks_to_lexical(&article.content, context),
+            children,
             ..Default::default()
         },
     }

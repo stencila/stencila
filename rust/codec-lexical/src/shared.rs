@@ -13,6 +13,7 @@ pub(super) struct LexicalDecodeContext {
 #[derive(Default)]
 pub(super) struct LexicalEncodeContext {
     pub format: Format,
+    pub standalone: bool,
     pub text_format: TextFormat,
     pub losses: Losses,
 }
