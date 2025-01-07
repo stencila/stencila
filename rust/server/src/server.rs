@@ -156,6 +156,7 @@ pub async fn serve(
     };
 
     let router = Router::new()
+        .without_v07_checks()
         .nest("/~static", statics::router())
         .route("/~login", get(login::login))
         .nest(

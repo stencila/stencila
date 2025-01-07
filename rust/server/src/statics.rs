@@ -29,7 +29,9 @@ const STATIC_ENCODINGS: [(&str, &str); 2] = [("br", ".br"), ("", "")];
 
 /// Create a router for static file routes
 pub fn router() -> Router<ServerState> {
-    Router::new().route("/*path", get(serve_static))
+    Router::new()
+        .without_v07_checks()
+        .route("/*path", get(serve_static))
 }
 
 /// Serve a static file (e.g. `index.js``)

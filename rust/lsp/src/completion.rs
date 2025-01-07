@@ -306,18 +306,6 @@ A caption for the table.
 ",
         ),
         (
-            "::: include ",
-            "::: include ${1:source}",
-            "Include content from another document",
-            "Include",
-            "Insert an `IncludeBlock` to include content from another file, e.g.
-
-```smd
-::: include some/other/file.md
-```
-"
-        ),
-        (
             "/create ",
             "/create ${0}",
             "AI chat to create new content",
@@ -428,41 +416,9 @@ err!
 ",
         ),
         (
-            "::: for ",
-            "::: for ${1:var} in ${2:expr}\n\n$0\n\n:::",
-            "Repeat a block of content",
-            "For Block",
-            "Content will be repeated for each value of variable in the expression, e.g.
-
-```smd
-::: for var in expr
-
-Content to be repeated.
-
-:::
-```
-",
-        ),
-        (
-            "::: if ",
-            "::: if ${1:expr}\n\n$0\n\n:::",
-            "Conditionally activate content",
-            "If Block",
-            "Content will only be shown (and executed) if the expression evaluates to a truthy value,
-
-```smd
-::: if expr
-
-Content to be conditionally activated.
-
-:::
-```
-",
-        ),
-        (
             "::: prompt ",
             "::: prompt ",
-            "Preview a prompt",
+            "Preview an AI prompt",
             "Prompt Preview",
             "Mainly for prompt authors to preview when a prompt is selected (based on keywords and query) and how it is rendered.
 
@@ -477,12 +433,105 @@ Content to be conditionally activated.
 ```
 ",
         ),
+        (
+            "::: for ",
+            "::: for ${1:x} in ${2:expr}\n\n$0\n\n:::",
+            "Repeat a block of content",
+            "For Block",
+            "Content will be repeated for each value of variable in the expression, e.g.
+
+```smd
+::: for x in expr
+
+Repeated for each value of
+`x` in `expr`.
+
+:::
+```
+",
+        ),
+        (
+            "::: if ",
+            "::: if ${1:expr}\n\n$0\n\n:::",
+            "Activate content conditionally",
+            "If Block",
+            "Content will only be shown (and executed) if the expression evaluates to a truthy value,
+
+```smd
+::: if expr
+
+Activated if `expr` is true.
+
+:::
+```
+",
+        ),
+        (
+            "::: if else",
+            "::: if ${1:expr}\n\n$2\n\n::: else\n\n$0\n\n:::",
+            "Activate content with fallback",
+            "If Else Block",
+            "Content will only be shown (and executed) if the expression evaluates to a truthy value, otherwise the fallback content will be shown,
+
+```smd
+::: if expr
+
+Activated if `expr` is true.
+
+::: else
+
+Activated if `expr` is false.
+
+:::
+```
+",
+        ),
+        (
+            "::: if elif else",
+            "::: if ${1:expr}\n\n$2\n\n::: else\n\n$0\n\n:::",
+            "Activate content alternatives",
+            "If Elif Else Block",
+            "Content will only be shown (and executed) in each clause if the expression is truthy,
+
+```smd
+::: if expr1
+
+Activated if `expr1` is true.
+
+::: elif expr2
+
+Activated if `expr1` is false
+and `expr2` is true.
+
+::: else
+
+Activated if all of the above
+are false.
+
+:::
+```
+",
+        ),
+        (
+            "::: include ",
+            "::: include ${1:source}",
+            "Include content from another document",
+            "Include",
+            "Insert content from another file, e.g.
+
+```smd
+::: include some/other/file.md
+```
+"
+        ),
     ];
 
     let items = ITEMS
         .iter()
-        .filter_map(|&(prefix, body, desc, heading, docs)| {
-            (line.is_empty() || prefix.starts_with(line)).then_some(CompletionItem {
+        .filter(|(prefix, ..)| line.is_empty() || prefix.starts_with(line))
+        .enumerate()
+        .map(|(index, &(prefix, body, desc, heading, docs))| {
+            CompletionItem {
                 label: prefix.into(),
                 label_details: Some(CompletionItemLabelDetails {
                     description: Some(desc.into()),
@@ -509,8 +558,9 @@ Content to be conditionally activated.
                     },
                     new_text: body.into(),
                 })),
+                sort_text: Some(format!("{index:03}")),
                 ..Default::default()
-            })
+            }
         })
         .collect();
 
