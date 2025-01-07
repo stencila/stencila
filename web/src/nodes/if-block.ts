@@ -1,5 +1,5 @@
 import { html } from 'lit'
-import { customElement, query, state } from 'lit/decorators.js'
+import { customElement, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 
@@ -21,14 +21,12 @@ import { Executable } from './executable'
 @customElement('stencila-if-block')
 @withTwind()
 export class IfBlock extends Executable {
-  @query('slot[name="clauses"]')
-  clausesSlot!: HTMLSlotElement
-
   @state()
   hasClauses: boolean = true
 
-  protected handleClauseChange() {
-    this.hasClauses = this.clausesSlot.assignedElements().length > 0
+  protected handleClauseChange(e: Event) {
+    const slot = e.target as HTMLSlotElement
+    this.hasClauses = slot.assignedElements().length > 0
   }
 
   override render() {
