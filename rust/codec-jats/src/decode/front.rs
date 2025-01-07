@@ -145,7 +145,7 @@ fn decode_title_group(path: &str, node: &Node, article: &mut Article, losses: &m
     record_attrs_lost(path, node, [], losses);
 
     for child in node.children() {
-        for _grandchild in child.children() {
+        if child.tag_name().name() == "article-title"{
             article.title = Some(decode_inlines(path, child.children(), losses));
         }
     }
