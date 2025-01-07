@@ -33,6 +33,7 @@ pub(super) enum BlockNode {
     ExtendedQuote(ExtendedQuoteNode),
     CodeBlock(CodeBlockNode),
     Markdown(MarkdownNode),
+    Html(HtmlNode),
     HorizontalRule(HorizontalRuleNode),
     Unknown(UnknownNode),
 }
@@ -169,6 +170,28 @@ pub(super) struct MarkdownNode {
     pub r#type: MustBe!("markdown"),
 
     pub markdown: String,
+}
+
+#[skip_serializing_none]
+#[derive(Default, Serialize, Deserialize)]
+pub(super) struct HtmlNode {
+    pub r#type: MustBe!("html"),
+
+    pub html: String,
+
+    pub visibility: Option<HtmlVisibility>,
+}
+
+#[derive(SmartDefault, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct HtmlVisibility {
+    #[default = true]
+    pub show_on_email: bool,
+
+    #[default = true]
+    pub show_on_web: bool,
+
+    pub segment: String,
 }
 
 #[derive(Default, Serialize, Deserialize)]
