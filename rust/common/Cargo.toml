@@ -27,12 +27,12 @@ rand = "0.8.5"
 regex = "1.11.1"
 reqwest = { version = "0.12.12", default-features = false, features = ["json", "rustls-tls"] }
 seahash = "4.1.0"
-serde = { version = "1.0.217", features = ["derive", "rc"] }
+serde = { workspace = true }
 serde_json = { version = "1.0.134", features = ["preserve_order"] }
 serde_with = "3.12.0"
 serde_yaml = "0.9.34"
 similar = { version = "2.5.0", features = ["serde", "unicode"] }
-smart-default = "0.7.1"
+smart-default = { workspace = true }
 smol_str = "0.2.1"
 strum = { version = "0.26.3", features = ["derive"] }
 syn = "2.0.95"
