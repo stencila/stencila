@@ -73,7 +73,7 @@ pub fn decode(content: &str, _options: Option<DecodeOptions>) -> Result<(Node, D
 }
 
 pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {
-    let (doc, info) = root_to_lexical(node)?;
+    let (doc, info) = root_to_lexical(node, &options)?;
 
     let json = match options.and_then(|options| options.compact) {
         Some(true) | None => serde_json::to_string(&doc)?,
