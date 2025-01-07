@@ -31,6 +31,7 @@ pub(super) enum BlockNode {
     List(ListNode),
     Quote(QuoteNode),
     ExtendedQuote(ExtendedQuoteNode),
+    HorizontalRule(HorizontalRuleNode),
     Unknown(UnknownNode),
 }
 
@@ -146,6 +147,11 @@ pub(super) struct ListItemNode {
     /// Assumes that only inline nodes are expected here
     /// (whereas in Stencila, block nodes are expected)
     pub children: Vec<InlineNode>,
+}
+
+#[derive(Default, Serialize, Deserialize)]
+pub(super) struct HorizontalRuleNode {
+    pub r#type: MustBe!("horizontalrule"),
 }
 
 #[derive(Default, Serialize, Deserialize)]
