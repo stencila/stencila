@@ -1,0 +1,15 @@
+[package]
+name = "codec-lexical"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+bitflags = "2.6.0"
+codec = { path = "../codec" }
+codec-dom = { path = "../codec-dom" }
+monostate = { workspace = true }
+serde = { workspace = true }
+smart-default = { workspace = true }
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }
