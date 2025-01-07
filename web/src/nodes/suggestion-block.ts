@@ -72,6 +72,12 @@ export class SuggestionBlock extends Entity {
   `
 
   override render() {
+    return this.isWithin('Chat')
+      ? this.renderInChat()
+      : this.renderInInstruction()
+  }
+
+  private renderInChat() {
     return html`
       ${this.suggestionStatus
         ? html`<sl-tag class="font-sans">${this.suggestionStatus}</sl-tag>`
@@ -79,5 +85,9 @@ export class SuggestionBlock extends Entity {
       <slot name="authors"></slot>
       <slot name="content"></slot>
     `
+  }
+
+  private renderInInstruction() {
+    return html`<slot name="content"></slot> `
   }
 }
