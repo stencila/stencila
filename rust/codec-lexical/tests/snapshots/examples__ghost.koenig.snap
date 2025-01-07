@@ -1,0 +1,246 @@
+---
+source: rust/codec-lexical/tests/examples.rs
+expression: lexical
+---
+{
+  "root": {
+    "type": "root",
+    "children": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "A document for testing Stencila's integration with Ghost. This document is used as a test fixture, so be careful making changes because it is likely to affect those tests. "
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "Paragraph with "
+          },
+          {
+            "type": "text",
+            "format": 1,
+            "text": "bold"
+          },
+          {
+            "type": "text",
+            "format": 0,
+            "text": " "
+          },
+          {
+            "type": "text",
+            "format": 2,
+            "text": "italic"
+          },
+          {
+            "type": "text",
+            "format": 0,
+            "text": " "
+          },
+          {
+            "type": "text",
+            "format": 3,
+            "text": "bold and italic"
+          },
+          {
+            "type": "text",
+            "format": 0,
+            "text": " "
+          },
+          {
+            "type": "text",
+            "format": 4,
+            "text": "strikethrough"
+          },
+          {
+            "type": "text",
+            "format": 0,
+            "text": " "
+          },
+          {
+            "type": "text",
+            "format": 8,
+            "text": "underline"
+          },
+          {
+            "type": "text",
+            "format": 0,
+            "text": " "
+          },
+          {
+            "type": "text",
+            "format": 16,
+            "text": "code"
+          },
+          {
+            "type": "text",
+            "format": 0,
+            "text": " "
+          },
+          {
+            "type": "text",
+            "format": 32,
+            "text": "subscript"
+          },
+          {
+            "type": "text",
+            "format": 0,
+            "text": " "
+          },
+          {
+            "type": "text",
+            "format": 64,
+            "text": "superscript"
+          },
+          {
+            "type": "text",
+            "format": 0,
+            "text": " "
+          },
+          {
+            "type": "text",
+            "format": 0,
+            "text": "highlight"
+          },
+          {
+            "type": "text",
+            "format": 0,
+            "text": " and a "
+          },
+          {
+            "type": "text",
+            "format": 0,
+            "text": "LOST Link"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "tag": "h1",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "Heading 1"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "tag": "h2",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "Heading 2"
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "tag": "h3",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "Heading 3"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": []
+      },
+      {
+        "type": "quote",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "A quote"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "LOST Unknown (aside)"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "LOST List"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "LOST List"
+          }
+        ]
+      },
+      {
+        "type": "horizontalrule"
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "LOST Unknown (image)"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "LOST Unknown (codeblock)"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "LOST Unknown (markdown)"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "LOST Unknown (html)"
+          }
+        ]
+      }
+    ]
+  }
+}

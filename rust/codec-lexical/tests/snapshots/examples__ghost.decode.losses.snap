@@ -1,0 +1,11 @@
+---
+source: rust/codec-lexical/tests/examples.rs
+expression: info.losses
+---
+Link: 1
+List: 2
+Unknown (aside): 1
+Unknown (codeblock): 1
+Unknown (html): 1
+Unknown (image): 1
+Unknown (markdown): 1

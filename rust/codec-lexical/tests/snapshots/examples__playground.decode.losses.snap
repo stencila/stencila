@@ -1,0 +1,6 @@
+---
+source: rust/codec-lexical/tests/examples.rs
+expression: info.losses
+---
+HashTag: 1
+List: 1
