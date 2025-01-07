@@ -1,7 +1,7 @@
 use std::{fs::read_to_string, path::PathBuf};
 
 use codec::{
-    common::{eyre::Result, glob::glob},
+    common::{eyre::Result, glob::glob, once_cell::sync::Lazy, regex::Regex},
     format::Format,
     EncodeOptions,
 };
@@ -19,6 +19,14 @@ fn examples() -> Result<()> {
         .to_string_lossy()
         .to_string()
         + "/**/*";
+
+    // Redact ids in DOM HTML since these will change between test runs
+    fn redact(content: &str) -> String {
+        static ID_REGEX: Lazy<Regex> =
+            Lazy::new(|| Regex::new(r" id=[a-z]{3}_\w+").expect("invalid_regex"));
+
+        ID_REGEX.replace_all(&content, " id=xxx").to_string()
+    }
 
     for path in glob(&format!("{pattern}.lexical"))?
         .chain(glob(&format!("{pattern}.koenig"))?)
@@ -49,7 +57,7 @@ fn examples() -> Result<()> {
             }),
         )?;
 
-        assert_snapshot!(format!("{name}.{ext}"), lexical);
+        assert_snapshot!(format!("{name}.{ext}"), redact(&lexical));
         assert_yaml_snapshot!(format!("{name}.encode.losses"), info.losses);
 
         let (lexical, ..) = encode(
@@ -61,7 +69,7 @@ fn examples() -> Result<()> {
                 ..Default::default()
             }),
         )?;
-        assert_snapshot!(format!("{name}.standalone.{ext}"), lexical);
+        assert_snapshot!(format!("{name}.standalone.{ext}"), redact(&lexical));
     }
 
     Ok(())
