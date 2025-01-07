@@ -51,6 +51,17 @@ fn examples() -> Result<()> {
 
         assert_snapshot!(format!("{name}.{ext}"), lexical);
         assert_yaml_snapshot!(format!("{name}.encode.losses"), info.losses);
+
+        let (lexical, ..) = encode(
+            &article,
+            Some(EncodeOptions {
+                format: Some(format),
+                standalone: Some(true),
+                compact: Some(false),
+                ..Default::default()
+            }),
+        )?;
+        assert_snapshot!(format!("{name}.standalone.{ext}"), lexical);
     }
 
     Ok(())
