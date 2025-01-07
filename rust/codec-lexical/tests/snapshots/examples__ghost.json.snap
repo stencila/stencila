@@ -1,0 +1,321 @@
+---
+source: rust/codec-lexical/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A document for testing Stencila's integration with Ghost. This document is used as a test fixture, so be careful making changes because it is likely to affect those tests. "
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Paragraph with "
+          }
+        },
+        {
+          "type": "Strong",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "bold"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "italic"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Strong",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "bold and italic"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " "
+          }
+        },
+        {
+          "type": "Strikeout",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "strikethrough"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " "
+          }
+        },
+        {
+          "type": "Underline",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "underline"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " "
+          }
+        },
+        {
+          "type": "CodeInline",
+          "code": {
+            "string": "code"
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " "
+          }
+        },
+        {
+          "type": "Subscript",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "subscript"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " "
+          }
+        },
+        {
+          "type": "Superscript",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "superscript"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " "
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "highlight"
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " and a "
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "LOST Link"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Heading 1"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 2,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Heading 2"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Heading",
+      "level": 3,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Heading 3"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": []
+    },
+    {
+      "type": "QuoteBlock",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "A quote"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "LOST Unknown (aside)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "LOST List"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "LOST List"
+          }
+        }
+      ]
+    },
+    {
+      "type": "ThematicBreak"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "LOST Unknown (image)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "LOST Unknown (codeblock)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "LOST Unknown (markdown)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "LOST Unknown (html)"
+          }
+        }
+      ]
+    }
+  ]
+}

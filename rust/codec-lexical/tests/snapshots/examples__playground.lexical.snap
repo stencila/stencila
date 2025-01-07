@@ -1,0 +1,122 @@
+---
+source: rust/codec-lexical/tests/examples.rs
+expression: lexical
+---
+{
+  "root": {
+    "type": "root",
+    "children": [
+      {
+        "type": "heading",
+        "tag": "h1",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "Welcome to the playground"
+          }
+        ]
+      },
+      {
+        "type": "quote",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "In case you were wondering what the black box at the bottom is – it's the debug view, showing the current state of the editor. You can disable it by pressing on the settings control in the bottom-left of your screen and toggling the debug view setting."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "The playground is a demo environment built with "
+          },
+          {
+            "type": "text",
+            "format": 16,
+            "text": "@lexical/react"
+          },
+          {
+            "type": "text",
+            "format": 0,
+            "text": ". Try typing in "
+          },
+          {
+            "type": "text",
+            "format": 1,
+            "text": "some text"
+          },
+          {
+            "type": "text",
+            "format": 0,
+            "text": " with "
+          },
+          {
+            "type": "text",
+            "format": 2,
+            "text": "different"
+          },
+          {
+            "type": "text",
+            "format": 0,
+            "text": " formats."
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "Make sure to check out the various plugins in the toolbar. You can also use "
+          },
+          {
+            "type": "text",
+            "format": 0,
+            "text": "LOST HashTag"
+          },
+          {
+            "type": "text",
+            "format": 0,
+            "text": " or @-mentions too!"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "If you'd like to find out more about Lexical, you can:"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "LOST List"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "format": 0,
+            "text": "Lastly, we're constantly adding cool new features to this playground. So make sure you check back here when you next get a chance 🙂."
+          }
+        ]
+      }
+    ]
+  }
+}
