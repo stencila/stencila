@@ -30,6 +30,7 @@ pub(super) enum BlockNode {
     Paragraph(ParagraphNode),
     List(ListNode),
     Quote(QuoteNode),
+    ExtendedQuote(ExtendedQuoteNode),
     Unknown(UnknownNode),
 }
 
@@ -100,6 +101,13 @@ pub(super) struct ParagraphNode {
 #[derive(Default, Serialize, Deserialize)]
 pub(super) struct QuoteNode {
     pub r#type: MustBe!("quote"),
+
+    pub children: Vec<InlineNode>,
+}
+
+#[derive(Default, Serialize, Deserialize)]
+pub(super) struct ExtendedQuoteNode {
+    pub r#type: MustBe!("extended-quote"),
 
     pub children: Vec<InlineNode>,
 }

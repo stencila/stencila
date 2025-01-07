@@ -1,6 +1,9 @@
 use codec::{
     format::Format,
-    schema::{Block, Heading, Inline, Paragraph, Text},
+    schema::{
+        shortcuts::p, transforms::blocks_to_inlines, Block, Heading, Inline, Paragraph, QuoteBlock,
+        Text,
+    },
 };
 
 use crate::{
@@ -50,7 +53,11 @@ fn block_from_lexical(block: lexical::BlockNode, context: &mut LexicalDecodeCont
         lexical::BlockNode::Paragraph(block) => paragraph_from_lexical(block, context),
 
         lexical::BlockNode::List(..) => loss!("List"),
-        lexical::BlockNode::Quote(..) => loss!("Quote"),
+
+        lexical::BlockNode::Quote(lexical::QuoteNode { children, .. })
+        | lexical::BlockNode::ExtendedQuote(lexical::ExtendedQuoteNode { children, .. }) => {
+            quote_from_lexical(children, context)
+        }
 
         lexical::BlockNode::Unknown(block) => {
             let typename = block
@@ -67,6 +74,7 @@ fn block_to_lexical(block: &Block, context: &mut LexicalEncodeContext) -> lexica
     match block {
         Heading(block) => heading_to_lexical(block, context),
         Paragraph(block) => paragraph_to_lexical(block, context),
+        QuoteBlock(block) => quote_to_lexical(block, context),
 
         _ => {
             context.losses.add(block.node_type().to_string());
@@ -148,4 +156,32 @@ fn paragraph_to_lexical(
         children,
         ..Default::default()
     })
+}
+
+fn quote_from_lexical(
+    children: Vec<lexical::InlineNode>,
+    context: &mut LexicalDecodeContext,
+) -> Block {
+    let content = vec![p(inlines_from_lexical(children, context))];
+
+    Block::QuoteBlock(QuoteBlock {
+        content,
+        ..Default::default()
+    })
+}
+
+fn quote_to_lexical(quote: &QuoteBlock, context: &mut LexicalEncodeContext) -> lexical::BlockNode {
+    let inlines = blocks_to_inlines(quote.content.clone());
+    let children = inlines_to_lexical(&inlines, context);
+
+    match context.format {
+        Format::Koenig => lexical::BlockNode::ExtendedQuote(lexical::ExtendedQuoteNode {
+            children,
+            ..Default::default()
+        }),
+        _ => lexical::BlockNode::Quote(lexical::QuoteNode {
+            children,
+            ..Default::default()
+        }),
+    }
 }
