@@ -32,6 +32,7 @@ pub(super) enum BlockNode {
     Quote(QuoteNode),
     ExtendedQuote(ExtendedQuoteNode),
     CodeBlock(CodeBlockNode),
+    Markdown(MarkdownNode),
     HorizontalRule(HorizontalRuleNode),
     Unknown(UnknownNode),
 }
@@ -161,6 +162,13 @@ pub(super) struct CodeBlockNode {
     pub language: Option<String>,
 
     pub caption: Option<String>,
+}
+
+#[derive(Default, Serialize, Deserialize)]
+pub(super) struct MarkdownNode {
+    pub r#type: MustBe!("markdown"),
+
+    pub markdown: String,
 }
 
 #[derive(Default, Serialize, Deserialize)]

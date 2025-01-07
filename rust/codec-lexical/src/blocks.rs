@@ -1,8 +1,9 @@
 use codec::{
     format::Format,
     schema::{
-        shortcuts::p, transforms::blocks_to_inlines, Block, CodeBlock, Heading, Inline, Paragraph,
-        QuoteBlock, Text, ThematicBreak,
+        shortcuts::{art, p},
+        transforms::blocks_to_inlines,
+        Block, CodeBlock, Heading, Inline, Paragraph, QuoteBlock, Table, Text, ThematicBreak,
     },
 };
 
@@ -18,7 +19,7 @@ pub(super) fn blocks_from_lexical(
 ) -> Vec<Block> {
     blocks
         .into_iter()
-        .map(|block| block_from_lexical(block, context))
+        .flat_map(|block| block_from_lexical(block, context))
         .collect()
 }
 
@@ -32,7 +33,7 @@ pub(super) fn blocks_to_lexical(
         .collect()
 }
 
-fn block_from_lexical(block: lexical::BlockNode, context: &mut LexicalDecodeContext) -> Block {
+fn block_from_lexical(block: lexical::BlockNode, context: &mut LexicalDecodeContext) -> Vec<Block> {
     // Macro to indicate type that has not yet been implemented
     macro_rules! loss {
         ($name:expr) => {{
@@ -44,13 +45,13 @@ fn block_from_lexical(block: lexical::BlockNode, context: &mut LexicalDecodeCont
         }};
     }
 
-    match block {
+    vec![match block {
         lexical::BlockNode::Heading(lexical::HeadingNode { tag, children, .. })
         | lexical::BlockNode::ExtendedHeading(lexical::ExtendedHeadingNode {
             tag, children, ..
         }) => heading_from_lexical(tag, children, context),
 
-        lexical::BlockNode::Paragraph(block) => paragraph_from_lexical(block, context),
+        lexical::BlockNode::Paragraph(paragraph) => paragraph_from_lexical(paragraph, context),
 
         lexical::BlockNode::List(..) => loss!("List"),
 
@@ -59,8 +60,8 @@ fn block_from_lexical(block: lexical::BlockNode, context: &mut LexicalDecodeCont
             quote_from_lexical(children, context)
         }
 
-        lexical::BlockNode::CodeBlock(block) => code_block_from_lexical(block, context),
-
+        lexical::BlockNode::CodeBlock(code_block) => code_block_from_lexical(code_block, context),
+        lexical::BlockNode::Markdown(block) => return markdown_from_lexical(block, context),
         lexical::BlockNode::HorizontalRule(..) => thematic_break_from_lexical(),
 
         lexical::BlockNode::Unknown(block) => {
@@ -70,7 +71,7 @@ fn block_from_lexical(block: lexical::BlockNode, context: &mut LexicalDecodeCont
                 .unwrap_or("unknown");
             loss!(format!("Unknown ({typename})"))
         }
-    }
+    }]
 }
 
 fn block_to_lexical(block: &Block, context: &mut LexicalEncodeContext) -> lexical::BlockNode {
@@ -80,6 +81,7 @@ fn block_to_lexical(block: &Block, context: &mut LexicalEncodeContext) -> lexica
         Paragraph(paragraph) => paragraph_to_lexical(paragraph, context),
         QuoteBlock(quote) => quote_to_lexical(quote, context),
         CodeBlock(code_block) => code_block_to_lexical(code_block, context),
+        Table(table) => table_to_lexical(table, context),
         ThematicBreak(..) => thematic_break_to_lexical(),
 
         _ => {
@@ -215,6 +217,38 @@ fn code_block_to_lexical(
     lexical::BlockNode::CodeBlock(lexical::CodeBlockNode {
         code: code_block.code.to_string(),
         language: code_block.programming_language.clone(),
+        ..Default::default()
+    })
+}
+
+fn markdown_from_lexical(
+    block: lexical::MarkdownNode,
+    context: &mut LexicalDecodeContext,
+) -> Vec<Block> {
+    match codec_markdown::decode(&block.markdown, None).and_then(|(node, ..)| node.try_into()) {
+        Ok(blocks) => blocks,
+        Err(error) => {
+            // If decoding or transform fails (should very, rarely if at all)
+            // record loss and return empty vector
+            context.losses.add(format!("Markdown: {error}"));
+            Vec::new()
+        }
+    }
+}
+
+fn table_to_lexical(table: &Table, context: &mut LexicalEncodeContext) -> lexical::BlockNode {
+    let markdown = match codec_markdown::encode(&art([Block::Table(table.clone())]), None) {
+        Ok((md, ..)) => md,
+        Err(error) => {
+            // If encoding fails (should very, rarely if at all)
+            // record loss and return empty string
+            context.losses.add(format!("Markdown: {error}"));
+            String::new()
+        }
+    };
+
+    lexical::BlockNode::Markdown(lexical::MarkdownNode {
+        markdown,
         ..Default::default()
     })
 }

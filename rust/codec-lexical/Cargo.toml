@@ -7,6 +7,7 @@ edition = "2021"
 bitflags = "2.6.0"
 codec = { path = "../codec" }
 codec-dom = { path = "../codec-dom" }
+codec-markdown = { path = "../codec-markdown" }
 monostate = { workspace = true }
 serde = { workspace = true }
 smart-default = { workspace = true }

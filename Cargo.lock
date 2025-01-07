@@ -1265,6 +1265,7 @@ dependencies = [
  "bitflags 2.6.0",
  "codec",
  "codec-dom",
+ "codec-markdown",
  "common-dev",
  "monostate",
  "serde",
