@@ -3,6 +3,8 @@ import path from "path";
 
 import * as vscode from "vscode";
 
+import { event } from "./events";
+
 export function registerWalkthroughCommands(context: vscode.ExtensionContext) {
   const open = vscode.commands.registerCommand(
     "stencila.walkthroughs.open",
@@ -38,6 +40,8 @@ export function registerWalkthroughCommands(context: vscode.ExtensionContext) {
           })
         ).format;
       }
+
+      event("walkthrough_open", { name, format });
 
       // Read the walkthrough content
       const filePath = path.join(

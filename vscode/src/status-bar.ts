@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 
 import { PROVIDER_ID } from "./authentication";
+import { event } from "./events";
 
 /**
  * The status bar for the extension
@@ -87,6 +88,8 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
   const menu = vscode.commands.registerCommand(
     "stencila.command-picker",
     async () => {
+      event("command_picker");
+
       const commands: CommandPickerItem[] = [
         {
           label: "Documents",

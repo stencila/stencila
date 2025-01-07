@@ -22,6 +22,7 @@
 import * as vscode from "vscode";
 
 import { PROVIDER_ID } from "./authentication";
+import { event } from "./events";
 
 const SECRET_NAMES = [
   "STENCILA_API_TOKEN",
@@ -85,6 +86,8 @@ export function registerSecretsCommands(context: vscode.ExtensionContext) {
       vscode.window.showInformationMessage(
         `Secret ${secretName} set. Restart Stencila Language Server for change to take effect.`
       );
+
+      event("token_set", { name: secretName });
     }
   );
 
@@ -117,6 +120,8 @@ export function registerSecretsCommands(context: vscode.ExtensionContext) {
       vscode.window.showInformationMessage(
         `Secret ${secretName} removed. Restart Stencila Language Server for change to take effect.`
       );
+
+      event("token_delete", { name: secretName });
     }
   );
 

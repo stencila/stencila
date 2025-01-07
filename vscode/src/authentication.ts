@@ -1,5 +1,7 @@
 import * as vscode from "vscode";
 
+import { event } from "./events";
+
 export const PROVIDER_ID = "stencila";
 
 // If developing against Stencila Cloud running locally use
@@ -35,10 +37,14 @@ export function registerAuthenticationProvider(
         vscode.window.showInformationMessage(
           `Signed in to Stencila Cloud as ${session.account.label}`
         );
+
+        event("cloud_signin_success");
       } catch (error) {
         vscode.window.showErrorMessage(
           `Failed to sign in to Stencila Cloud: ${error}`
         );
+
+        event("cloud_signin_failed", { error });
       }
     })
   );
@@ -60,6 +66,8 @@ export function registerAuthenticationProvider(
       vscode.window.showInformationMessage(
         `STENCILA_API_TOKEN set. Restart Stencila Language Server for change to take effect.`
       );
+
+      event("cloud_token_set");
     })
   );
 
@@ -79,6 +87,8 @@ export function registerAuthenticationProvider(
           vscode.window.showInformationMessage(
             "Successfully signed out from Stencila Cloud"
           );
+
+          event("cloud_signout_success");
         } else {
           vscode.window.showInformationMessage(
             "No active Stencila Cloud session to sign out from"
@@ -88,6 +98,8 @@ export function registerAuthenticationProvider(
         vscode.window.showErrorMessage(
           `Failed to sign out from Stencila Cloud: ${error}`
         );
+
+        event("cloud_signout_failed", { error });
       }
     })
   );
