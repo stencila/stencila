@@ -1,11 +1,6 @@
 use std::env;
 
-use cli_utils::{
-    table::{self, Attribute, Cell, CellAlignment, Color},
-    ToStdout,
-};
 use common::{
-    derive_more::Deref,
     eyre::{bail, Result},
     itertools::Itertools,
     once_cell::sync::Lazy,
@@ -52,30 +47,6 @@ impl Secret {
             description: description.into(),
             redacted: None,
         }
-    }
-}
-
-/// A list of secrets
-#[derive(Deref, Serialize)]
-#[serde(crate = "common::serde")]
-pub struct SecretList(Vec<Secret>);
-
-impl ToStdout for SecretList {
-    fn to_terminal(&self) -> impl std::fmt::Display {
-        let mut table = table::new();
-        table.set_header(["Name", "Description", "Value"]);
-        for secret in self.iter() {
-            table.add_row([
-                Cell::new(&secret.name).add_attribute(Attribute::Bold),
-                Cell::new(&secret.description),
-                match &secret.redacted {
-                    Some(redacted) => Cell::new(redacted).fg(Color::Green),
-                    None => Cell::new(""),
-                }
-                .set_alignment(CellAlignment::Left),
-            ]);
-        }
-        table
     }
 }
 
@@ -137,7 +108,7 @@ fn entry(name: &str) -> Result<keyring::Entry> {
 }
 
 /// List secrets
-pub fn list() -> Result<SecretList> {
+pub fn list() -> Result<Vec<Secret>> {
     SECRETS
         .iter()
         .map(|secret| {
@@ -147,7 +118,6 @@ pub fn list() -> Result<SecretList> {
             })
         })
         .collect::<Result<Vec<Secret>>>()
-        .map(SecretList)
 }
 
 /// Redact a secret

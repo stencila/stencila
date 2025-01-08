@@ -98,7 +98,7 @@ impl List {
             ]);
         }
 
-        println!("{table}");
+        table.to_stdout();
 
         Ok(())
     }
@@ -153,6 +153,7 @@ struct Infer {
 }
 
 impl Infer {
+    #[allow(clippy::print_stdout)]
     async fn run(self) -> Result<()> {
         let node_types = self
             .node_types
