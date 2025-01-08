@@ -1,6 +1,7 @@
 ---
 source: rust/codec-lexical/tests/examples.rs
 expression: article
+snapshot_kind: text
 ---
 {
   "type": "Article",
@@ -125,15 +126,122 @@ expression: article
       ]
     },
     {
-      "type": "Paragraph",
-      "content": [
+      "type": "List",
+      "items": [
         {
-          "type": "Text",
-          "value": {
-            "string": "LOST List"
-          }
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Visit the "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "LOST Link"
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " for documentation and more information."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Check out the code on our "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "LOST Link"
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Playground code can be found "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "LOST Link"
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Join our "
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "LOST Link"
+                  }
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " and chat with the team."
+                  }
+                }
+              ]
+            }
+          ]
         }
-      ]
+      ],
+      "order": "Unordered"
     },
     {
       "type": "Paragraph",

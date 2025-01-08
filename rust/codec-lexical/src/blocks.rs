@@ -3,8 +3,8 @@ use codec::{
     schema::{
         shortcuts::{art, p},
         transforms::blocks_to_inlines,
-        Block, CodeBlock, Heading, Inline, Paragraph, QuoteBlock, RawBlock, Table, Text,
-        ThematicBreak,
+        Block, CodeBlock, Heading, Inline, List, ListItem, Paragraph, QuoteBlock, RawBlock, Table,
+        Text, ThematicBreak,
     },
 };
 
@@ -54,7 +54,7 @@ fn block_from_lexical(block: lexical::BlockNode, context: &mut LexicalDecodeCont
 
         lexical::BlockNode::Paragraph(paragraph) => paragraph_from_lexical(paragraph, context),
 
-        lexical::BlockNode::List(..) => loss!("List"),
+        lexical::BlockNode::List(list) => list_from_lexical(list, context),
 
         lexical::BlockNode::Quote(lexical::QuoteNode { children, .. })
         | lexical::BlockNode::ExtendedQuote(lexical::ExtendedQuoteNode { children, .. }) => {
@@ -83,6 +83,7 @@ fn block_to_lexical(block: &Block, context: &mut LexicalEncodeContext) -> lexica
     match block {
         Heading(heading) => heading_to_lexical(heading, context),
         Paragraph(paragraph) => paragraph_to_lexical(paragraph, context),
+        List(list) => list_to_lexical(list, context),
         QuoteBlock(quote) => quote_to_lexical(quote, context),
         CodeBlock(code_block) => code_block_to_lexical(code_block, context),
         Table(table) => table_to_lexical(table, context),
@@ -177,6 +178,49 @@ fn quote_from_lexical(
         content,
         ..Default::default()
     })
+}
+
+fn list_from_lexical(list: lexical::ListNode, context: &mut LexicalDecodeContext) -> Block {
+    let items = list
+        .children
+        .into_iter()
+        .map(|child| ListItem::new(vec![p(inlines_from_lexical(child.children, context))]))
+        .collect();
+
+    Block::List(List {
+        items,
+        ..Default::default()
+    })
+}
+
+fn list_to_lexical(list: &List, context: &mut LexicalEncodeContext) -> lexical::BlockNode {
+    let children = list
+        .items
+        .clone()
+        .into_iter()
+        .map(|item| list_item_to_lexical(item.content.first().unwrap(), context))
+        .collect();
+
+    lexical::BlockNode::List(lexical::ListNode {
+        children,
+        ..Default::default()
+    })
+}
+
+fn list_item_to_lexical(
+    block: &Block,
+    context: &mut LexicalEncodeContext,
+) -> lexical::ListItemNode {
+    if let Block::Paragraph(Paragraph { content, .. }) = block {
+        lexical::ListItemNode {
+            children: inlines_to_lexical(content, context),
+            ..Default::default()
+        }
+    } else {
+        lexical::ListItemNode {
+            ..Default::default()
+        }
+    }
 }
 
 fn quote_to_lexical(quote: &QuoteBlock, context: &mut LexicalEncodeContext) -> lexical::BlockNode {

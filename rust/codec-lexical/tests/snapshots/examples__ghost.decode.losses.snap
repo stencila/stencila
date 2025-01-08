@@ -1,10 +1,10 @@
 ---
 source: rust/codec-lexical/tests/examples.rs
 expression: info.losses
+snapshot_kind: text
 ---
 CodeBlockNode.caption: 1
 HtmlNode.visibility: 1
 Link: 1
-List: 2
 Unknown (aside): 1
 Unknown (image): 1

@@ -1,6 +1,7 @@
 ---
 source: rust/codec-lexical/tests/examples.rs
 expression: info.losses
+snapshot_kind: text
 ---
 HashTag: 1
-List: 1
+Link: 4

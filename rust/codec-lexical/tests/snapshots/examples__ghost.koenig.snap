@@ -1,6 +1,7 @@
 ---
 source: rust/codec-lexical/tests/examples.rs
 expression: lexical
+snapshot_kind: text
 ---
 {
   "root": {
@@ -179,22 +180,56 @@ expression: lexical
         ]
       },
       {
-        "type": "paragraph",
+        "type": "list",
+        "listType": "number",
+        "start": 1,
         "children": [
           {
-            "type": "extended-text",
-            "format": 0,
-            "text": "LOST List"
+            "type": "listitem",
+            "children": [
+              {
+                "type": "extended-text",
+                "format": 0,
+                "text": "List item 1"
+              }
+            ]
+          },
+          {
+            "type": "listitem",
+            "children": [
+              {
+                "type": "extended-text",
+                "format": 0,
+                "text": "List item 2"
+              }
+            ]
           }
         ]
       },
       {
-        "type": "paragraph",
+        "type": "list",
+        "listType": "number",
+        "start": 1,
         "children": [
           {
-            "type": "extended-text",
-            "format": 0,
-            "text": "LOST List"
+            "type": "listitem",
+            "children": [
+              {
+                "type": "extended-text",
+                "format": 0,
+                "text": "Numbered list item 1"
+              }
+            ]
+          },
+          {
+            "type": "listitem",
+            "children": [
+              {
+                "type": "extended-text",
+                "format": 0,
+                "text": "Numbered list item 2"
+              }
+            ]
           }
         ]
       },

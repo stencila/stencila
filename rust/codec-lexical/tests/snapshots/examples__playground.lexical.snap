@@ -1,6 +1,7 @@
 ---
 source: rust/codec-lexical/tests/examples.rs
 expression: lexical
+snapshot_kind: text
 ---
 {
   "root": {
@@ -98,12 +99,89 @@ expression: lexical
         ]
       },
       {
-        "type": "paragraph",
+        "type": "list",
+        "listType": "number",
+        "start": 1,
         "children": [
           {
-            "type": "text",
-            "format": 0,
-            "text": "LOST List"
+            "type": "listitem",
+            "children": [
+              {
+                "type": "text",
+                "format": 0,
+                "text": "Visit the "
+              },
+              {
+                "type": "text",
+                "format": 0,
+                "text": "LOST Link"
+              },
+              {
+                "type": "text",
+                "format": 0,
+                "text": " for documentation and more information."
+              }
+            ]
+          },
+          {
+            "type": "listitem",
+            "children": [
+              {
+                "type": "text",
+                "format": 0,
+                "text": "Check out the code on our "
+              },
+              {
+                "type": "text",
+                "format": 0,
+                "text": "LOST Link"
+              },
+              {
+                "type": "text",
+                "format": 0,
+                "text": "."
+              }
+            ]
+          },
+          {
+            "type": "listitem",
+            "children": [
+              {
+                "type": "text",
+                "format": 0,
+                "text": "Playground code can be found "
+              },
+              {
+                "type": "text",
+                "format": 0,
+                "text": "LOST Link"
+              },
+              {
+                "type": "text",
+                "format": 0,
+                "text": "."
+              }
+            ]
+          },
+          {
+            "type": "listitem",
+            "children": [
+              {
+                "type": "text",
+                "format": 0,
+                "text": "Join our "
+              },
+              {
+                "type": "text",
+                "format": 0,
+                "text": "LOST Link"
+              },
+              {
+                "type": "text",
+                "format": 0,
+                "text": " and chat with the team."
+              }
+            ]
           }
         ]
       },

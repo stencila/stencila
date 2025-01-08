@@ -1,6 +1,7 @@
 ---
 source: rust/codec-lexical/tests/examples.rs
 expression: article
+snapshot_kind: text
 ---
 {
   "type": "Article",
@@ -249,26 +250,80 @@ expression: article
       ]
     },
     {
-      "type": "Paragraph",
-      "content": [
+      "type": "List",
+      "items": [
         {
-          "type": "Text",
-          "value": {
-            "string": "LOST List"
-          }
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "List item 1"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "List item 2"
+                  }
+                }
+              ]
+            }
+          ]
         }
-      ]
+      ],
+      "order": "Unordered"
     },
     {
-      "type": "Paragraph",
-      "content": [
+      "type": "List",
+      "items": [
         {
-          "type": "Text",
-          "value": {
-            "string": "LOST List"
-          }
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Numbered list item 1"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Numbered list item 2"
+                  }
+                }
+              ]
+            }
+          ]
         }
-      ]
+      ],
+      "order": "Unordered"
     },
     {
       "type": "ThematicBreak"
