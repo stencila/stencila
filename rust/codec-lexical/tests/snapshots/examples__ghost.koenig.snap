@@ -116,9 +116,11 @@ snapshot_kind: text
             "text": " and a "
           },
           {
-            "type": "extended-text",
-            "format": 0,
-            "text": "LOST Link"
+            "type": "link",
+            "format": "",
+            "url": "https://ghost.org/help/using-the-editor/",
+            "target": "https://ghost.org/help/using-the-editor/",
+            "rel": "noreferrer"
           }
         ]
       },

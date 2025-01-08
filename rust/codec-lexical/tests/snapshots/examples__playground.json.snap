@@ -141,10 +141,16 @@ snapshot_kind: text
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "LOST Link"
-                  }
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "https://lexical.dev/"
+                      }
+                    }
+                  ],
+                  "target": "https://lexical.dev/"
                 },
                 {
                   "type": "Text",
@@ -169,10 +175,16 @@ snapshot_kind: text
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "LOST Link"
-                  }
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "https://github.com/facebook/lexical"
+                      }
+                    }
+                  ],
+                  "target": "https://github.com/facebook/lexical"
                 },
                 {
                   "type": "Text",
@@ -197,10 +209,16 @@ snapshot_kind: text
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "LOST Link"
-                  }
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "https://github.com/facebook/lexical/tree/main/packages/lexical-playground"
+                      }
+                    }
+                  ],
+                  "target": "https://github.com/facebook/lexical/tree/main/packages/lexical-playground"
                 },
                 {
                   "type": "Text",
@@ -225,10 +243,16 @@ snapshot_kind: text
                   }
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "LOST Link"
-                  }
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "https://discord.com/invite/KmG4wQnnD9"
+                      }
+                    }
+                  ],
+                  "target": "https://discord.com/invite/KmG4wQnnD9"
                 },
                 {
                   "type": "Text",

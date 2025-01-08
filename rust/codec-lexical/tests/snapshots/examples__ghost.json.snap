@@ -180,10 +180,17 @@ snapshot_kind: text
           }
         },
         {
-          "type": "Text",
-          "value": {
-            "string": "LOST Link"
-          }
+          "type": "Link",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "https://ghost.org/help/using-the-editor/"
+              }
+            }
+          ],
+          "target": "https://ghost.org/help/using-the-editor/",
+          "rel": "noreferrer"
         }
       ]
     },
