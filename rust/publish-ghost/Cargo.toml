@@ -5,3 +5,6 @@ edition = "2021"
 
 [dependencies]
 common = { "path" = "../common" }
+
+[lints]
+workspace = true

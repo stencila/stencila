@@ -5,3 +5,6 @@ edition = "2021"
 
 [dependencies]
 rust-embed = { version = "8.5.0", features = ["interpolate-folder-path", "include-exclude"] }
+
+[lints]
+workspace = true

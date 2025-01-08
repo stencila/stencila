@@ -9,3 +9,6 @@ latex2mathml = "0.2.3"
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+
+[lints]
+workspace = true

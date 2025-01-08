@@ -10,3 +10,6 @@ codec-dom = { path = "../codec-dom" }
 codec-markdown = { path = "../codec-markdown" }
 flate2 = { workspace = true }
 web-dist = { path = "../web-dist" }
+
+[lints]
+workspace = true

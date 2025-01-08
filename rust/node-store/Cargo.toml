@@ -20,3 +20,6 @@ node-type = { path = "../node-type" }
 codecs = { path = "../codecs" }
 common-dev = { path = "../common-dev" }
 schema = { path = "../schema" }
+
+[lints]
+workspace = true

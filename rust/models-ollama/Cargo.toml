@@ -7,3 +7,6 @@ edition = "2021"
 cached = { workspace = true }
 model = { path = "../model" }
 ollama-rs = { version = "0.2.2", features = ["rustls", "stream"] }
+
+[lints]
+workspace = true

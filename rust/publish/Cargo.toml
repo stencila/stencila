@@ -7,3 +7,6 @@ edition = "2021"
 common = { "path" = "../common" }
 publish-ghost = { "path" = "../publish-ghost" }
 publish-stencila = { "path" = "../publish-stencila" }
+
+[lints]
+workspace = true

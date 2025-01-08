@@ -7,3 +7,6 @@ edition = "2021"
 model = { path = "../model" }
 async-openai = { version = "0.23.4", features = ["rustls"] }
 cached = { workspace = true }
+
+[lints]
+workspace = true

@@ -10,3 +10,6 @@ proc-macro = true
 common = { path = "../common" }
 darling = "0.20.10"
 format = { path = "../format" }
+
+[lints]
+workspace = true
