@@ -4,9 +4,6 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-cloud = { path = "../cloud" }
-codec = { "path" = "../codec" }
-codec-swb = { "path" = "../codec-swb" }
 common = { "path" = "../common" }
-document = { path = "../document" }
-schema = { "path" = "../schema" }
+publish-ghost = { "path" = "../publish-ghost" }
+publish-stencila = { "path" = "../publish-stencila" }
