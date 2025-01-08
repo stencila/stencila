@@ -413,7 +413,12 @@ pub enum KernelSignal {
 pub mod tests {
     use std::{env, time::Duration};
 
-    use common::{eyre::Report, indexmap::IndexMap, itertools::Itertools, tokio, tracing};
+    use common::{
+        eyre::{OptionExt, Report},
+        indexmap::IndexMap,
+        itertools::Itertools,
+        tokio, tracing,
+    };
     use common_dev::pretty_assertions::assert_eq;
     use schema::{Array, Null, Object, Paragraph, Primitive, SoftwareApplication};
 
@@ -789,7 +794,7 @@ pub mod tests {
             }
 
             // Setup step
-            step_receiver.recv().await.unwrap();
+            step_receiver.recv().await.ok_or_eyre("No step received")?;
             let (outputs, messages) = instance.execute(&setup_step).await?;
             if !messages.is_empty() {
                 error!("Unexpected messages in setup step: {messages:?}")
@@ -805,7 +810,7 @@ pub mod tests {
 
             if let Some(interrupt_step) = interrupt_step {
                 // Interrupt step
-                step_receiver.recv().await.unwrap();
+                step_receiver.recv().await.ok_or_eyre("No step received")?;
                 let (.., messages) = instance.execute(&interrupt_step).await?;
                 if !messages.is_empty() {
                     error!("Unexpected messages in interrupt step: {messages:?}")
@@ -817,7 +822,7 @@ pub mod tests {
 
                 // Value should not have changed because task was interrupted
                 // before it completed
-                step_receiver.recv().await.unwrap();
+                step_receiver.recv().await.ok_or_eyre("No step received")?;
                 let value = instance.get("value").await?;
                 if value != initial_value {
                     error!("Unexpected value after interrupt step: {value:?} !== {initial_value:?}")
@@ -826,7 +831,7 @@ pub mod tests {
 
             if let Some(terminate_step) = terminate_step {
                 // Terminate step
-                step_receiver.recv().await.unwrap();
+                step_receiver.recv().await.ok_or_eyre("No step received")?;
                 let (.., messages) = instance.execute(&terminate_step).await?;
                 if !messages.is_empty() {
                     error!("Unexpected messages in terminate step: {messages:?}")
@@ -837,7 +842,7 @@ pub mod tests {
                 }
             } else if let Some(kill_step) = kill_step {
                 // Kill step
-                step_receiver.recv().await.unwrap();
+                step_receiver.recv().await.ok_or_eyre("No step received")?;
                 let (.., messages) = instance.execute(&kill_step).await?;
                 if !messages.is_empty() {
                     error!("Unexpected messages in kill step: {messages:?}")
