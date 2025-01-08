@@ -1,0 +1,96 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Annotation.schema.json",
+  "@id": "stencila:Annotation",
+  "title": "Annotation",
+  "nick": "ann",
+  "extends": [
+    "Mark"
+  ],
+  "category": "prose",
+  "description": "Annotated content.",
+  "jats": {
+    "elem": "annotation"
+  },
+  "markdown": {
+    "template": "=={{content}}==",
+    "escape": "="
+  },
+  "proptest": {},
+  "required": [
+    "type",
+    "content"
+  ],
+  "core": [
+    "id",
+    "annotation"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content that is marked.",
+      "dom": {
+        "elem": "none"
+      },
+      "proptest": {
+        "min": {
+          "description": "Generate a single fixed text value.",
+          "value": "vec![t(\"text\")]"
+        },
+        "low": {
+          "description": "Generate a single arbitrary, non-recursive, inline node",
+          "strategy": "vec_inlines_non_recursive(1)"
+        },
+        "high": {
+          "description": "Generate up to two arbitrary, non-recursive, inline nodes",
+          "strategy": "vec_inlines_non_recursive(2)"
+        },
+        "max": {
+          "description": "Generate up to four arbitrary, non-recursive, inline nodes",
+          "strategy": "vec_inlines_non_recursive(4)"
+        }
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Inline.schema.json"
+      }
+    },
+    "annotation": {
+      "@id": "stencila:annotation",
+      "description": "The annotation, usually a paragraph.",
+      "$comment": "Most annotation will have a single paragraph but could have multiple\nparagraphs, tables and even figures.\n",
+      "walk": true,
+      "dom": {
+        "elem": "aside"
+      },
+      "proptest": {
+        "min": {
+          "description": "Generate a single paragraph (with no `Annotation` to avoid recursion).",
+          "value": "vec![p([t(\"Annotation paragraph\")])]"
+        }
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
+    }
+  }
+}

@@ -103,13 +103,7 @@ fn inline_to_pandoc(
 
         // Inline types currently ignored: record loss and encode an empty span
         // TODO: implement these or remove from schema's `Inline` enum
-        Inline::Button(..)
-        | Inline::DeleteInline(..)
-        | Inline::InsertInline(..)
-        | Inline::InstructionInline(..)
-        | Inline::ModifyInline(..)
-        | Inline::ReplaceInline(..)
-        | Inline::SuggestionInline(..) => {
+        _ => {
             context.losses.add(inline.node_type().to_string());
             pandoc::Inline::Span(attrs_empty(), Vec::new())
         }

@@ -2,6 +2,7 @@
 
 export * from "./Admonition.js";
 export * from "./AdmonitionType.js";
+export * from "./Annotation.js";
 export * from "./Array.js";
 export * from "./ArrayHint.js";
 export * from "./ArrayValidator.js";

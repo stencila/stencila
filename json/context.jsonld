@@ -12,6 +12,7 @@
   "@graph": {
     "Admonition": "stencila:Admonition",
     "AdmonitionType": "stencila:AdmonitionType",
+    "Annotation": "stencila:Annotation",
     "Array": "stencila:Array",
     "ArrayHint": "stencila:ArrayHint",
     "ArrayValidator": "stencila:ArrayValidator",
@@ -208,6 +209,7 @@
     "affiliations": "schema:affiliation",
     "alternateNames": "schema:alternateName",
     "amounts": "schema:amount",
+    "annotation": "stencila:annotation",
     "archive": "stencila:archive",
     "arguments": "stencila:arguments",
     "author": "schema:author",

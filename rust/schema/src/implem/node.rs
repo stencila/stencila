@@ -14,11 +14,11 @@ impl Node {
 
         variants!(
             Admonition,
+            Annotation,
             Array,
             ArrayHint,
             ArrayValidator,
             Article,
-            Prompt,
             AudioObject,
             AuthorRole,
             Boolean,
@@ -110,6 +110,7 @@ impl Node {
             Person,
             PostalAddress,
             Product,
+            Prompt,
             PromptBlock,
             PropertyValue,
             ProvenanceCount,
@@ -179,10 +180,10 @@ impl Node {
 
         variants!(
             Admonition,
+            Annotation,
             ArrayHint,
             ArrayValidator,
             Article,
-            Prompt,
             AudioObject,
             AuthorRole,
             BooleanValidator,
@@ -268,6 +269,7 @@ impl Node {
             Person,
             PostalAddress,
             Product,
+            Prompt,
             PromptBlock,
             PropertyValue,
             ProvenanceCount,
@@ -376,10 +378,10 @@ impl ReadNode for Node {
 
         load_map_variants!(
             Admonition,
+            Annotation,
             ArrayHint,
             ArrayValidator,
             Article,
-            Prompt,
             AudioObject,
             AuthorRole,
             BooleanValidator,
@@ -466,6 +468,7 @@ impl ReadNode for Node {
             Person,
             PostalAddress,
             Product,
+            Prompt,
             PromptBlock,
             PropertyValue,
             ProvenanceCount,
@@ -541,6 +544,7 @@ impl From<Inline> for Node {
         }
 
         variants!(
+            Annotation,
             AudioObject,
             Boolean,
             Button,
