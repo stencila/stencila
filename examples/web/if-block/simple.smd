@@ -1,0 +1,9 @@
+::: if true
+
+Hello, world!
+
+::: else
+
+Goodbye, world!
+
+:::

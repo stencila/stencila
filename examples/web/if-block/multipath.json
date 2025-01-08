@@ -1,0 +1,561 @@
+{
+  "$schema": "https://stencila.org/v2.0.0-beta.20/Article.schema.json",
+  "@context": "https://stencila.org/v2.0.0-beta.20/context.jsonld",
+  "type": "Article",
+  "authors": [
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [],
+        "name": "Mike Parkin"
+      },
+      "roleName": "Writer",
+      "format": "Stencila Markdown",
+      "lastModified": {
+        "type": "Timestamp",
+        "value": 1736297920919,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ],
+  "provenance": [
+    {
+      "type": "ProvenanceCount",
+      "provenanceCategory": "Hw",
+      "characterCount": 78,
+      "characterPercent": 100
+    }
+  ],
+  "content": [
+    {
+      "type": "CodeChunk",
+      "code": {
+        "string": "x = 3",
+        "authorship": [
+          [
+            1,
+            0,
+            0,
+            5
+          ]
+        ]
+      },
+      "programmingLanguage": "python",
+      "authors": [
+        {
+          "type": "AuthorRole",
+          "author": {
+            "type": "Person",
+            "affiliations": [],
+            "name": "Mike Parkin"
+          },
+          "roleName": "Writer",
+          "format": "Stencila Markdown",
+          "lastModified": {
+            "type": "Timestamp",
+            "value": 1736297920919,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "AuthorRole",
+          "author": {
+            "type": "SoftwareApplication",
+            "name": "Python",
+            "url": "/usr/bin/python3.12",
+            "softwareVersion": "3.12.3",
+            "operatingSystem": "posix Linux-6.8.0-51-generic-x86_64-with-glibc2.39"
+          },
+          "roleName": "Executor",
+          "lastModified": {
+            "type": "Timestamp",
+            "value": 1736297935065,
+            "timeUnit": "Millisecond"
+          }
+        }
+      ],
+      "provenance": [
+        {
+          "type": "ProvenanceCount",
+          "provenanceCategory": "Hw",
+          "characterCount": 5,
+          "characterPercent": 100
+        }
+      ],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 967882767457008460
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 967882767457008460
+      },
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionInstance": "python_KrFXt4h1DEvAqobERdS4Uo",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1736297935064,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 1094,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "IfBlock",
+      "clauses": [
+        {
+          "type": "IfBlockClause",
+          "code": {
+            "string": "x == 1",
+            "authorship": [
+              [
+                1,
+                0,
+                0,
+                6
+              ]
+            ]
+          },
+          "authors": [
+            {
+              "type": "AuthorRole",
+              "author": {
+                "type": "Person",
+                "affiliations": [],
+                "name": "Mike Parkin"
+              },
+              "roleName": "Writer",
+              "format": "Stencila Markdown",
+              "lastModified": {
+                "type": "Timestamp",
+                "value": 1736297920919,
+                "timeUnit": "Millisecond"
+              }
+            }
+          ],
+          "provenance": [
+            {
+              "type": "ProvenanceCount",
+              "provenanceCategory": "Hw",
+              "characterCount": 16,
+              "characterPercent": 100
+            }
+          ],
+          "isActive": false,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "x equals 1",
+                    "authorship": [
+                      [
+                        1,
+                        0,
+                        0,
+                        10
+                      ]
+                    ]
+                  }
+                }
+              ],
+              "authors": [
+                {
+                  "type": "AuthorRole",
+                  "author": {
+                    "type": "Person",
+                    "affiliations": [],
+                    "name": "Mike Parkin"
+                  },
+                  "roleName": "Writer",
+                  "format": "Stencila Markdown",
+                  "lastModified": {
+                    "type": "Timestamp",
+                    "value": 1736297920919,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ],
+              "provenance": [
+                {
+                  "type": "ProvenanceCount",
+                  "provenanceCategory": "Hw",
+                  "characterCount": 10,
+                  "characterPercent": 100
+                }
+              ]
+            }
+          ],
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 339480689581811266
+          },
+          "executionDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 339480689581811266
+          },
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1736297938513,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 1,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "IfBlockClause",
+          "code": {
+            "string": "x == 2",
+            "authorship": [
+              [
+                1,
+                0,
+                0,
+                6
+              ]
+            ]
+          },
+          "authors": [
+            {
+              "type": "AuthorRole",
+              "author": {
+                "type": "Person",
+                "affiliations": [],
+                "name": "Mike Parkin"
+              },
+              "roleName": "Writer",
+              "format": "Stencila Markdown",
+              "lastModified": {
+                "type": "Timestamp",
+                "value": 1736297920919,
+                "timeUnit": "Millisecond"
+              }
+            }
+          ],
+          "provenance": [
+            {
+              "type": "ProvenanceCount",
+              "provenanceCategory": "Hw",
+              "characterCount": 16,
+              "characterPercent": 100
+            }
+          ],
+          "isActive": false,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "x equals 2",
+                    "authorship": [
+                      [
+                        1,
+                        0,
+                        0,
+                        10
+                      ]
+                    ]
+                  }
+                }
+              ],
+              "authors": [
+                {
+                  "type": "AuthorRole",
+                  "author": {
+                    "type": "Person",
+                    "affiliations": [],
+                    "name": "Mike Parkin"
+                  },
+                  "roleName": "Writer",
+                  "format": "Stencila Markdown",
+                  "lastModified": {
+                    "type": "Timestamp",
+                    "value": 1736297920919,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ],
+              "provenance": [
+                {
+                  "type": "ProvenanceCount",
+                  "provenanceCategory": "Hw",
+                  "characterCount": 10,
+                  "characterPercent": 100
+                }
+              ]
+            }
+          ],
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 8881996953383598658
+          },
+          "executionDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 8881996953383598658
+          },
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1736297938513,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 0,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "IfBlockClause",
+          "code": {
+            "string": "x == 3",
+            "authorship": [
+              [
+                1,
+                0,
+                0,
+                6
+              ]
+            ]
+          },
+          "authors": [
+            {
+              "type": "AuthorRole",
+              "author": {
+                "type": "Person",
+                "affiliations": [],
+                "name": "Mike Parkin"
+              },
+              "roleName": "Writer",
+              "format": "Stencila Markdown",
+              "lastModified": {
+                "type": "Timestamp",
+                "value": 1736297920919,
+                "timeUnit": "Millisecond"
+              }
+            }
+          ],
+          "provenance": [
+            {
+              "type": "ProvenanceCount",
+              "provenanceCategory": "Hw",
+              "characterCount": 16,
+              "characterPercent": 100
+            }
+          ],
+          "isActive": true,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "x equals 3",
+                    "authorship": [
+                      [
+                        1,
+                        0,
+                        0,
+                        10
+                      ]
+                    ]
+                  }
+                }
+              ],
+              "authors": [
+                {
+                  "type": "AuthorRole",
+                  "author": {
+                    "type": "Person",
+                    "affiliations": [],
+                    "name": "Mike Parkin"
+                  },
+                  "roleName": "Writer",
+                  "format": "Stencila Markdown",
+                  "lastModified": {
+                    "type": "Timestamp",
+                    "value": 1736297920919,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ],
+              "provenance": [
+                {
+                  "type": "ProvenanceCount",
+                  "provenanceCategory": "Hw",
+                  "characterCount": 10,
+                  "characterPercent": 100
+                }
+              ]
+            }
+          ],
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 3464682963817330477
+          },
+          "executionDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 3464682963817330477
+          },
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1736297938514,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 1,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "IfBlockClause",
+          "code": {
+            "string": "",
+            "authorship": [
+              [
+                1,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "authors": [
+            {
+              "type": "AuthorRole",
+              "author": {
+                "type": "Person",
+                "affiliations": [],
+                "name": "Mike Parkin"
+              },
+              "roleName": "Writer",
+              "format": "Stencila Markdown",
+              "lastModified": {
+                "type": "Timestamp",
+                "value": 1736297920919,
+                "timeUnit": "Millisecond"
+              }
+            }
+          ],
+          "provenance": [
+            {
+              "type": "ProvenanceCount",
+              "provenanceCategory": "Hw",
+              "characterCount": 25,
+              "characterPercent": 100
+            }
+          ],
+          "isActive": false,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "x does not equal 1,2 or 3",
+                    "authorship": [
+                      [
+                        1,
+                        0,
+                        0,
+                        25
+                      ]
+                    ]
+                  }
+                }
+              ],
+              "authors": [
+                {
+                  "type": "AuthorRole",
+                  "author": {
+                    "type": "Person",
+                    "affiliations": [],
+                    "name": "Mike Parkin"
+                  },
+                  "roleName": "Writer",
+                  "format": "Stencila Markdown",
+                  "lastModified": {
+                    "type": "Timestamp",
+                    "value": 1736297920919,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ],
+              "provenance": [
+                {
+                  "type": "ProvenanceCount",
+                  "provenanceCategory": "Hw",
+                  "characterCount": 25,
+                  "characterPercent": 100
+                }
+              ]
+            }
+          ],
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 9336520420413539212
+          },
+          "executionRequired": "NeverExecuted"
+        }
+      ],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 9373763475818645440
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 9373763475818645440
+      },
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1736297938514,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 2,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ],
+  "executionCount": 2,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1736297938514,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 2,
+    "timeUnit": "Millisecond"
+  }
+}

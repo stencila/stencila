@@ -1,0 +1,21 @@
+```python exec
+x = 3
+```
+
+::: if x == 1
+
+x equals 1
+
+::: elif x == 2
+
+x equals 2
+
+::: elif x == 3
+
+x equals 3
+
+::: else
+
+x does not equal 1,2 or 3
+
+:::

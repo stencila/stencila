@@ -1,0 +1,761 @@
+{
+  "$schema": "https://stencila.org/v2.0.0-beta.20/Article.schema.json",
+  "@context": "https://stencila.org/v2.0.0-beta.20/context.jsonld",
+  "type": "Article",
+  "authors": [
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [],
+        "name": "Mike Parkin"
+      },
+      "roleName": "Writer",
+      "format": "Stencila Markdown",
+      "lastModified": {
+        "type": "Timestamp",
+        "value": 1736294477275,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ],
+  "provenance": [
+    {
+      "type": "ProvenanceCount",
+      "provenanceCategory": "Hw",
+      "characterCount": 138,
+      "characterPercent": 41
+    },
+    {
+      "type": "ProvenanceCount",
+      "provenanceCategory": "Mw",
+      "characterCount": 190,
+      "characterPercent": 57
+    },
+    {
+      "type": "ProvenanceCount",
+      "provenanceCategory": "MwHe",
+      "characterCount": 6,
+      "characterPercent": 2
+    }
+  ],
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Lorem ipsum dolor sit, dark text added by human, consectetur adipiscing elit, sed do eiusmod tempor ut labore et aliqua, the light text is AI generated.",
+            "authorship": [
+              [
+                1,
+                0,
+                1,
+                21
+              ],
+              [
+                1,
+                4,
+                0,
+                1
+              ],
+              [
+                1,
+                0,
+                1,
+                1
+              ],
+              [
+                1,
+                4,
+                0,
+                11
+              ],
+              [
+                2,
+                4,
+                3,
+                2
+              ],
+              [
+                1,
+                4,
+                0,
+                1
+              ],
+              [
+                2,
+                4,
+                3,
+                1
+              ],
+              [
+                1,
+                4,
+                0,
+                9
+              ],
+              [
+                1,
+                0,
+                1,
+                72
+              ],
+              [
+                1,
+                4,
+                0,
+                20
+              ],
+              [
+                1,
+                4,
+                0,
+                3
+              ],
+              [
+                1,
+                4,
+                0,
+                4
+              ],
+              [
+                1,
+                4,
+                0,
+                5
+              ],
+              [
+                1,
+                0,
+                1,
+                1
+              ]
+            ]
+          }
+        }
+      ],
+      "authors": [
+        {
+          "type": "AuthorRole",
+          "author": {
+            "type": "SoftwareApplication",
+            "id": "anthropic/claude-3-5-sonnet-20241022",
+            "name": "Claude",
+            "version": "3-5-sonnet-20241022"
+          },
+          "roleName": "Generator",
+          "lastModified": {
+            "type": "Timestamp",
+            "value": 1736294345171,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "AuthorRole",
+          "author": {
+            "type": "SoftwareApplication",
+            "id": "stencila/router",
+            "name": "Model Router",
+            "version": "0.1.0"
+          },
+          "roleName": "Router",
+          "lastModified": {
+            "type": "Timestamp",
+            "value": 1736294343228,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "AuthorRole",
+          "author": {
+            "type": "Person",
+            "affiliations": [],
+            "name": "Mike Parkin"
+          },
+          "roleName": "Instructor",
+          "format": "Stencila Markdown",
+          "lastModified": {
+            "type": "Timestamp",
+            "value": 1736294340708,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "AuthorRole",
+          "author": {
+            "type": "Person"
+          },
+          "roleName": "Writer",
+          "lastModified": {
+            "type": "Timestamp",
+            "value": 1736294340708,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "AuthorRole",
+          "author": {
+            "type": "Person",
+            "affiliations": [],
+            "name": "Mike Parkin"
+          },
+          "roleName": "Writer",
+          "format": "Stencila Markdown",
+          "lastModified": {
+            "type": "Timestamp",
+            "value": 1736294477275,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "AuthorRole",
+          "author": {
+            "type": "Person",
+            "affiliations": [],
+            "name": "Mike Parkin"
+          },
+          "roleName": "Accepter",
+          "format": "Stencila Markdown",
+          "lastModified": {
+            "type": "Timestamp",
+            "value": 1736294486708,
+            "timeUnit": "Millisecond"
+          }
+        }
+      ],
+      "provenance": [
+        {
+          "type": "ProvenanceCount",
+          "provenanceCategory": "Mw",
+          "characterCount": 95,
+          "characterPercent": 63
+        },
+        {
+          "type": "ProvenanceCount",
+          "provenanceCategory": "MwHe",
+          "characterCount": 3,
+          "characterPercent": 2
+        },
+        {
+          "type": "ProvenanceCount",
+          "provenanceCategory": "Hw",
+          "characterCount": 54,
+          "characterPercent": 36
+        }
+      ]
+    }
+  ],
+  "archive": [
+    {
+      "type": "InstructionBlock",
+      "instructionType": "Create",
+      "prompt": {
+        "type": "PromptBlock",
+        "instructionType": "Create",
+        "nodeTypes": [
+          "Paragraph"
+        ],
+        "query": "write 20 words of random lorem",
+        "target": "figure-caption?",
+        "content": [
+          {
+            "type": "Heading",
+            "level": 1,
+            "content": [
+              {
+                "type": "Text",
+                "value": {
+                  "string": "Instructions"
+                }
+              }
+            ]
+          },
+          {
+            "type": "Paragraph",
+            "content": [
+              {
+                "type": "Text",
+                "value": {
+                  "string": "You are an assistant that writes figure captions to insert into a Markdown document. Your task is to write the caption following the user's instruction and incorporating the following contextual information where appropriate."
+                }
+              }
+            ]
+          },
+          {
+            "type": "Paragraph",
+            "content": [
+              {
+                "type": "Text",
+                "value": {
+                  "string": "If necessary, the caption should expand the user's instruction into one or more complete, accurate and descriptive sentences."
+                }
+              }
+            ]
+          },
+          {
+            "type": "Paragraph",
+            "content": [
+              {
+                "type": "Text",
+                "value": {
+                  "string": "Pay attention to the style and length of any figure captions already in the document."
+                }
+              }
+            ]
+          },
+          {
+            "type": "IncludeBlock",
+            "source": "../partials/instructions/document/paragraphs/previous.smd"
+          },
+          {
+            "type": "Paragraph",
+            "content": [
+              {
+                "type": "Text",
+                "value": {
+                  "string": "Only provide ONE figure caption. Do NOT provide a label indicating the figure number. Do NOT provide any comments or explanation before or after the caption."
+                }
+              }
+            ]
+          },
+          {
+            "type": "Heading",
+            "level": 1,
+            "content": [
+              {
+                "type": "Text",
+                "value": {
+                  "string": "Context"
+                }
+              }
+            ]
+          },
+          {
+            "type": "IncludeBlock",
+            "source": "../partials/context/document/metadata.smd"
+          },
+          {
+            "type": "IncludeBlock",
+            "source": "../partials/context/document/block-context.smd"
+          },
+          {
+            "type": "IncludeBlock",
+            "source": "../partials/context/document/figures/captions.smd"
+          },
+          {
+            "type": "IncludeBlock",
+            "source": "../partials/context/document/paragraphs/previous.smd"
+          }
+        ],
+        "compilationDigest": {
+          "type": "CompilationDigest",
+          "stateDigest": 4363130852222524419
+        },
+        "executionDigest": {
+          "type": "CompilationDigest",
+          "stateDigest": 7819532974622379400
+        },
+        "executionCount": 1,
+        "executionRequired": "StateChanged",
+        "executionStatus": "Succeeded",
+        "executionEnded": {
+          "type": "Timestamp",
+          "value": 1736294340708,
+          "timeUnit": "Millisecond"
+        },
+        "executionDuration": {
+          "type": "Duration",
+          "value": 334,
+          "timeUnit": "Millisecond"
+        },
+        "directory": "/home/mike-p/dragonfly/projects/stencila/stencila/prompts/create"
+      },
+      "message": {
+        "type": "InstructionMessage",
+        "parts": [
+          {
+            "type": "Text",
+            "value": {
+              "string": "write 20 words of random lorem",
+              "authorship": [
+                [
+                  1,
+                  0,
+                  0,
+                  30
+                ]
+              ]
+            }
+          }
+        ],
+        "authors": [
+          {
+            "type": "AuthorRole",
+            "author": {
+              "type": "Person",
+              "affiliations": [],
+              "name": "Mike Parkin"
+            },
+            "roleName": "Writer",
+            "format": "Stencila Markdown",
+            "lastModified": {
+              "type": "Timestamp",
+              "value": 1736294334293,
+              "timeUnit": "Millisecond"
+            }
+          }
+        ],
+        "provenance": [
+          {
+            "type": "ProvenanceCount",
+            "provenanceCategory": "Hw",
+            "characterCount": 30,
+            "characterPercent": 100
+          }
+        ]
+      },
+      "modelParameters": {
+        "type": "ModelParameters"
+      },
+      "activeSuggestion": 0,
+      "suggestions": [
+        {
+          "type": "SuggestionBlock",
+          "authors": [
+            {
+              "type": "AuthorRole",
+              "author": {
+                "type": "SoftwareApplication",
+                "id": "anthropic/claude-3-5-sonnet-20241022",
+                "name": "Claude",
+                "version": "3-5-sonnet-20241022"
+              },
+              "roleName": "Generator",
+              "lastModified": {
+                "type": "Timestamp",
+                "value": 1736294345171,
+                "timeUnit": "Millisecond"
+              }
+            },
+            {
+              "type": "AuthorRole",
+              "author": {
+                "type": "SoftwareApplication",
+                "id": "stencila/router",
+                "name": "Model Router",
+                "version": "0.1.0"
+              },
+              "roleName": "Router",
+              "lastModified": {
+                "type": "Timestamp",
+                "value": 1736294343228,
+                "timeUnit": "Millisecond"
+              }
+            },
+            {
+              "type": "AuthorRole",
+              "author": {
+                "type": "Person",
+                "affiliations": [],
+                "name": "Mike Parkin"
+              },
+              "roleName": "Instructor",
+              "format": "Stencila Markdown",
+              "lastModified": {
+                "type": "Timestamp",
+                "value": 1736294340708,
+                "timeUnit": "Millisecond"
+              }
+            },
+            {
+              "type": "AuthorRole",
+              "author": {
+                "type": "Person"
+              },
+              "roleName": "Writer",
+              "lastModified": {
+                "type": "Timestamp",
+                "value": 1736294340708,
+                "timeUnit": "Millisecond"
+              }
+            },
+            {
+              "type": "AuthorRole",
+              "author": {
+                "type": "Person",
+                "affiliations": [],
+                "name": "Mike Parkin"
+              },
+              "roleName": "Writer",
+              "format": "Stencila Markdown",
+              "lastModified": {
+                "type": "Timestamp",
+                "value": 1736294477275,
+                "timeUnit": "Millisecond"
+              }
+            }
+          ],
+          "provenance": [
+            {
+              "type": "ProvenanceCount",
+              "provenanceCategory": "Mw",
+              "characterCount": 95,
+              "characterPercent": 63
+            },
+            {
+              "type": "ProvenanceCount",
+              "provenanceCategory": "MwHe",
+              "characterCount": 3,
+              "characterPercent": 2
+            },
+            {
+              "type": "ProvenanceCount",
+              "provenanceCategory": "Hw",
+              "characterCount": 54,
+              "characterPercent": 36
+            }
+          ],
+          "executionDuration": {
+            "type": "Duration",
+            "value": 4493,
+            "timeUnit": "Millisecond"
+          },
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1736294345201,
+            "timeUnit": "Millisecond"
+          },
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Lorem ipsum dolor sit, dark text added by human, consectetur adipiscing elit, sed do eiusmod tempor ut labore et aliqua, the light text is AI generated.",
+                    "authorship": [
+                      [
+                        1,
+                        0,
+                        1,
+                        21
+                      ],
+                      [
+                        1,
+                        4,
+                        0,
+                        1
+                      ],
+                      [
+                        1,
+                        0,
+                        1,
+                        1
+                      ],
+                      [
+                        1,
+                        4,
+                        0,
+                        11
+                      ],
+                      [
+                        2,
+                        4,
+                        3,
+                        2
+                      ],
+                      [
+                        1,
+                        4,
+                        0,
+                        1
+                      ],
+                      [
+                        2,
+                        4,
+                        3,
+                        1
+                      ],
+                      [
+                        1,
+                        4,
+                        0,
+                        9
+                      ],
+                      [
+                        1,
+                        0,
+                        1,
+                        72
+                      ],
+                      [
+                        1,
+                        4,
+                        0,
+                        20
+                      ],
+                      [
+                        1,
+                        4,
+                        0,
+                        3
+                      ],
+                      [
+                        1,
+                        4,
+                        0,
+                        4
+                      ],
+                      [
+                        1,
+                        4,
+                        0,
+                        5
+                      ],
+                      [
+                        1,
+                        0,
+                        1,
+                        1
+                      ]
+                    ]
+                  }
+                }
+              ],
+              "authors": [
+                {
+                  "type": "AuthorRole",
+                  "author": {
+                    "type": "SoftwareApplication",
+                    "id": "anthropic/claude-3-5-sonnet-20241022",
+                    "name": "Claude",
+                    "version": "3-5-sonnet-20241022"
+                  },
+                  "roleName": "Generator",
+                  "lastModified": {
+                    "type": "Timestamp",
+                    "value": 1736294345171,
+                    "timeUnit": "Millisecond"
+                  }
+                },
+                {
+                  "type": "AuthorRole",
+                  "author": {
+                    "type": "SoftwareApplication",
+                    "id": "stencila/router",
+                    "name": "Model Router",
+                    "version": "0.1.0"
+                  },
+                  "roleName": "Router",
+                  "lastModified": {
+                    "type": "Timestamp",
+                    "value": 1736294343228,
+                    "timeUnit": "Millisecond"
+                  }
+                },
+                {
+                  "type": "AuthorRole",
+                  "author": {
+                    "type": "Person",
+                    "affiliations": [],
+                    "name": "Mike Parkin"
+                  },
+                  "roleName": "Instructor",
+                  "format": "Stencila Markdown",
+                  "lastModified": {
+                    "type": "Timestamp",
+                    "value": 1736294340708,
+                    "timeUnit": "Millisecond"
+                  }
+                },
+                {
+                  "type": "AuthorRole",
+                  "author": {
+                    "type": "Person"
+                  },
+                  "roleName": "Writer",
+                  "lastModified": {
+                    "type": "Timestamp",
+                    "value": 1736294340708,
+                    "timeUnit": "Millisecond"
+                  }
+                },
+                {
+                  "type": "AuthorRole",
+                  "author": {
+                    "type": "Person",
+                    "affiliations": [],
+                    "name": "Mike Parkin"
+                  },
+                  "roleName": "Writer",
+                  "format": "Stencila Markdown",
+                  "lastModified": {
+                    "type": "Timestamp",
+                    "value": 1736294477275,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ],
+              "provenance": [
+                {
+                  "type": "ProvenanceCount",
+                  "provenanceCategory": "Mw",
+                  "characterCount": 95,
+                  "characterPercent": 63
+                },
+                {
+                  "type": "ProvenanceCount",
+                  "provenanceCategory": "MwHe",
+                  "characterCount": 3,
+                  "characterPercent": 2
+                },
+                {
+                  "type": "ProvenanceCount",
+                  "provenanceCategory": "Hw",
+                  "characterCount": 54,
+                  "characterPercent": 36
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 17670096513358138492
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 8560068540722522686
+      },
+      "executionCount": 1,
+      "executionRequired": "StateChanged",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1736294345202,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 4828,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1736294345202,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 4828,
+    "timeUnit": "Millisecond"
+  }
+}
