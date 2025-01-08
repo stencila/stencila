@@ -277,6 +277,7 @@ bitflags! {
         const CODE          = 0b00010000;
         const SUBSCRIPT     = 0b00100000;
         const SUPERSCRIPT   = 0b01000000;
+        const HIGHLIGHT     = 0b10000000;
     }
 }
 

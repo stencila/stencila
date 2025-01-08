@@ -162,10 +162,15 @@ expression: article
           }
         },
         {
-          "type": "Text",
-          "value": {
-            "string": "highlight"
-          }
+          "type": "Annotation",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "highlight"
+              }
+            }
+          ]
         },
         {
           "type": "Text",

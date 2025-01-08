@@ -106,7 +106,7 @@ expression: redact(&lexical)
           },
           {
             "type": "extended-text",
-            "format": 0,
+            "format": 128,
             "text": "highlight"
           },
           {
