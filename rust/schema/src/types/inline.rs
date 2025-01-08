@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::annotation::Annotation;
 use super::audio_object::AudioObject;
 use super::boolean::Boolean;
 use super::button::Button;
@@ -46,6 +47,12 @@ use super::video_object::VideoObject;
 #[serde(untagged, crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub enum Inline {
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    Annotation(Annotation),
+
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]
     AudioObject(AudioObject),

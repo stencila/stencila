@@ -1,6 +1,6 @@
 import { LabelType } from '@stencila/types'
 import { html } from 'lit'
-import { customElement, property, query, state } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 import { getTitleIcon } from '../ui/nodes/properties/programming-language'
@@ -37,14 +37,12 @@ export class CodeChunk extends CodeExecutable {
   })
   isInvisible?: boolean
 
-  @query('slot[name="outputs"]')
-  outputsSlot!: HTMLSlotElement
-
   @state()
   hasOutputs: boolean = false
 
-  protected handleOutputsChange() {
-    this.hasOutputs = !!this.outputsSlot.assignedElements()[0]
+  protected handleOutputsChange(e: Event) {
+    const slot = e.target as HTMLSlotElement
+    this.hasOutputs = !!slot.assignedElements()[0]
   }
 
   override render() {
@@ -149,7 +147,7 @@ export class CodeChunk extends CodeExecutable {
                 <slot name="caption"></slot>
               </caption>`
             : ''}
-          <slot name="outputs"></slot>
+          <slot name="outputs" @slotchange=${this.handleOutputsChange}></slot>
           ${this.labelType === 'FigureLabel'
             ? html`<figcaption><slot name="caption"></slot></figcaption>`
             : ''}

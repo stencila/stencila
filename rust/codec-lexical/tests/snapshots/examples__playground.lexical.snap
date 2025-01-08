@@ -1,6 +1,6 @@
 ---
 source: rust/codec-lexical/tests/examples.rs
-expression: lexical
+expression: redact(&lexical)
 snapshot_kind: text
 ---
 {

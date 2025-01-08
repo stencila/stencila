@@ -3,6 +3,7 @@
 import { hydrate } from "../hydrate.js";
 
 import { type Admonition } from "./Admonition.js";
+import { type AudioObject } from "./AudioObject.js";
 import { type CallBlock } from "./CallBlock.js";
 import { type Chat } from "./Chat.js";
 import { type ChatMessage } from "./ChatMessage.js";
@@ -12,10 +13,12 @@ import { type CodeBlock } from "./CodeBlock.js";
 import { type CodeChunk } from "./CodeChunk.js";
 import { type DeleteBlock } from "./DeleteBlock.js";
 import { type Figure } from "./Figure.js";
+import { type File } from "./File.js";
 import { type ForBlock } from "./ForBlock.js";
 import { type Form } from "./Form.js";
 import { type Heading } from "./Heading.js";
 import { type IfBlock } from "./IfBlock.js";
+import { type ImageObject } from "./ImageObject.js";
 import { type IncludeBlock } from "./IncludeBlock.js";
 import { type InsertBlock } from "./InsertBlock.js";
 import { type InstructionBlock } from "./InstructionBlock.js";
@@ -32,6 +35,7 @@ import { type StyledBlock } from "./StyledBlock.js";
 import { type SuggestionBlock } from "./SuggestionBlock.js";
 import { type Table } from "./Table.js";
 import { type ThematicBreak } from "./ThematicBreak.js";
+import { type VideoObject } from "./VideoObject.js";
 import { type Walkthrough } from "./Walkthrough.js";
 
 /**
@@ -39,6 +43,7 @@ import { type Walkthrough } from "./Walkthrough.js";
  */
 export type Block =
   Admonition |
+  AudioObject |
   CallBlock |
   Chat |
   ChatMessage |
@@ -48,10 +53,12 @@ export type Block =
   CodeChunk |
   DeleteBlock |
   Figure |
+  File |
   ForBlock |
   Form |
   Heading |
   IfBlock |
+  ImageObject |
   IncludeBlock |
   InsertBlock |
   InstructionBlock |
@@ -68,6 +75,7 @@ export type Block =
   SuggestionBlock |
   Table |
   ThematicBreak |
+  VideoObject |
   Walkthrough;
 
 /**
@@ -76,6 +84,7 @@ export type Block =
 export function block(other: Block): Block {
   switch(other.type) {
     case "Admonition":
+    case "AudioObject":
     case "CallBlock":
     case "Chat":
     case "ChatMessage":
@@ -85,10 +94,12 @@ export function block(other: Block): Block {
     case "CodeChunk":
     case "DeleteBlock":
     case "Figure":
+    case "File":
     case "ForBlock":
     case "Form":
     case "Heading":
     case "IfBlock":
+    case "ImageObject":
     case "IncludeBlock":
     case "InsertBlock":
     case "InstructionBlock":
@@ -105,6 +116,7 @@ export function block(other: Block): Block {
     case "SuggestionBlock":
     case "Table":
     case "ThematicBreak":
+    case "VideoObject":
     case "Walkthrough":
       return hydrate(other) as Block
     default:

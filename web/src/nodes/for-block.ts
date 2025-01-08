@@ -1,5 +1,5 @@
 import { html } from 'lit'
-import { customElement, property, query, state } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
@@ -23,17 +23,15 @@ import { CodeExecutable } from './code-executable'
 @customElement('stencila-for-block')
 @withTwind()
 export class ForBlock extends CodeExecutable {
-  @query('slot[name="iterations"]')
-  iterationSlot: HTMLSlotElement
-
   @property()
   variable: string
 
   @state()
   hasIterations: boolean = true
 
-  private handleIterationChange() {
-    this.hasIterations = !!this.iterationSlot.assignedElements()[0]
+  private handleIterationChange(e: Event) {
+    const slot = e.target as HTMLSlotElement
+    this.hasIterations = !!slot.assignedElements()[0]
   }
 
   override render() {

@@ -1266,6 +1266,7 @@ dependencies = [
  "codec",
  "codec-dom",
  "codec-markdown",
+ "codec-text",
  "common-dev",
  "monostate",
  "serde",

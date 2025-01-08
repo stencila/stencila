@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 
+import { event } from "./events";
+
 export function registerKernelsView(
   context: vscode.ExtensionContext,
   client: LanguageClient
@@ -29,6 +31,8 @@ export function registerKernelsView(
   const use = vscode.commands.registerCommand(
     "stencila.kernels.use",
     (item: KernelTreeItem) => {
+      event("kernels_use", { name: item.kernel?.name });
+
       const editor = vscode.window.activeTextEditor;
       if (editor) {
         const selection = editor.selection;
@@ -211,6 +215,8 @@ class KernelTreeProvider implements vscode.TreeDataProvider<KernelTreeItem> {
   }
 
   async refresh(client?: LanguageClient): Promise<void> {
+    event("kernels_refresh");
+
     if (client) {
       this.client = client;
     }

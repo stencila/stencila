@@ -1,0 +1,31 @@
+title: Annotation
+'@id': stencila:Annotation
+nick: ann
+extends: Mark
+category: prose
+description: Annotated content.
+jats:
+  elem: annotation
+markdown:
+  template: '=={{content}}=='
+  escape: '='
+proptest: {}
+core:
+  - annotation
+properties:
+  annotation:
+    '@id': stencila:annotation
+    description: The annotation, usually a paragraph.
+    $comment: |
+      Most annotation will have a single paragraph but could have multiple
+      paragraphs, tables and even figures.
+    type: array
+    items:
+      $ref: Block
+    walk: true
+    dom:
+      elem: aside
+    proptest:
+      min:
+        description: Generate a single paragraph (with no `Annotation` to avoid recursion).
+        value: vec![p([t("Annotation paragraph")])]

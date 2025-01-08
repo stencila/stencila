@@ -2,6 +2,7 @@
 
 import * as vscode from "vscode";
 
+import { event } from "./events";
 import { createNodeViewPanel, createDocumentViewPanel } from "./webviews";
 
 /**
@@ -26,6 +27,8 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
   for (const format of ["smd", "myst", "qmd"]) {
     context.subscriptions.push(
       vscode.commands.registerCommand(`stencila.new-${format}`, async () => {
+        event("doc_create", { format });
+
         vscode.workspace.openTextDocument({ language: format }).then(
           (document) => {
             vscode.window.showTextDocument(document);
@@ -42,6 +45,8 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
 
   // Create a new chat document and open with the chat editor
   vscode.commands.registerCommand(`stencila.new-chat`, async () => {
+    event("chat_create");
+
     const regex = new RegExp(`untitled:untitled-(\\d+)\\.chat$`);
     let maxIndex = 0;
     vscode.workspace.textDocuments.forEach((doc) => {
@@ -65,6 +70,8 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
   // Create a new prompt
   vscode.commands.registerCommand(`stencila.new-prompt`, async () => {
     // TODO: ask user for required fields, e.g instruction types, node types
+
+    event("chat_create");
 
     await vscode.workspace.openTextDocument({
       language: "smd",
@@ -298,6 +305,8 @@ nodeTypes: []
         return;
       }
 
+      event("doc_export", { format: format?.label });
+
       vscode.commands.executeCommand(
         `stencila.export-doc`,
         editor.document.uri.toString(),
@@ -316,6 +325,8 @@ nodeTypes: []
           vscode.window.showErrorMessage("No active editor");
           return;
         }
+
+        event("doc_preview", { format: editor.document.languageId });
 
         await createDocumentViewPanel(context, editor.document.uri, editor);
       }
@@ -374,6 +385,8 @@ nodeTypes: []
         return;
       }
 
+      event("doc_chat", { format: editor.document.languageId });
+
       const chatId = await vscode.commands.executeCommand<string>(
         "stencila.create-chat",
         editor.document.uri.toString()
@@ -410,6 +423,12 @@ nodeTypes: []
           vscode.window.showErrorMessage("No active editor");
           return;
         }
+
+        event("doc_chat_insert", {
+          format: editor.document.languageId,
+          type: instructionType,
+          execute: executeChat,
+        });
 
         const chatId = await vscode.commands.executeCommand<string>(
           "stencila.create-chat",

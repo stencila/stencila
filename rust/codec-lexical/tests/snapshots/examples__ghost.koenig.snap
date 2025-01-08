@@ -1,6 +1,6 @@
 ---
 source: rust/codec-lexical/tests/examples.rs
-expression: lexical
+expression: redact(&lexical)
 snapshot_kind: text
 ---
 {
@@ -107,7 +107,7 @@ snapshot_kind: text
           },
           {
             "type": "extended-text",
-            "format": 0,
+            "format": 128,
             "text": "highlight"
           },
           {
@@ -237,14 +237,8 @@ snapshot_kind: text
         "type": "horizontalrule"
       },
       {
-        "type": "paragraph",
-        "children": [
-          {
-            "type": "extended-text",
-            "format": 0,
-            "text": "LOST Unknown (image)"
-          }
-        ]
+        "type": "image",
+        "src": "https://stencila.ghost.io/content/images/2025/01/stencila-128.png"
       },
       {
         "type": "codeblock",
@@ -258,6 +252,70 @@ snapshot_kind: text
       {
         "type": "html",
         "html": "<span>HTML card</span>"
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": "LOST Unknown (callout)"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": "LOST Unknown (video)"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": "LOST Unknown (audio)"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": "LOST Unknown (toggle)"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": "LOST Unknown (file)"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": "LOST Unknown (bookmark)"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": []
       }
     ]
   }

@@ -27,6 +27,7 @@ import { registerWalkthroughCommands } from "./walkthroughs";
 import { registerStencilaShell } from "./shell";
 import { registerSetupView } from "./setup";
 import { registerChatEditor } from "./editors";
+import { event, registerEventing } from "./events";
 
 let client: LanguageClient | undefined;
 
@@ -49,9 +50,10 @@ let views: ClientView[] = [];
  * Activate the extension
  */
 export async function activate(context: vscode.ExtensionContext) {
-  // Register auth provider, commands etc
+  // Register event handlers, commands etc
   // Some of these (e.g. auth provider) are used when collecting secrets in `startServer`
   // so this needs to be done first
+  registerEventing(context);
   registerAuthenticationProvider(context);
   registerSecretsCommands(context);
   registerDocumentCommands(context);
@@ -61,7 +63,29 @@ export async function activate(context: vscode.ExtensionContext) {
   registerChatEditor(context);
   registerOtherCommands(context);
 
+  // Check status of extension
+  checkExtensionStatus(context);
+
   await startServer(context);
+}
+
+/**
+ * Check the installation status of the extension
+ *
+ * TODO: launch a welcome document on first install.
+ */
+async function checkExtensionStatus(context: vscode.ExtensionContext) {
+  const current = context.extension.packageJSON.version;
+  const previous = context.globalState.get<string>("extensionVersion");
+
+  if (previous !== current) {
+    if (!previous) {
+      event("extension_install", { version: current });
+    } else {
+      event("extension_upgrade", { previous, current });
+    }
+    context.globalState.update("extensionVersion", current);
+  }
 }
 
 /**
@@ -156,6 +180,8 @@ function registerOtherCommands(context: vscode.ExtensionContext) {
   // Command to restart the server (e.g. after setting or removing secrets)
   context.subscriptions.push(
     vscode.commands.registerCommand("stencila.lsp-server.restart", async () => {
+      event("lsp_restart");
+
       if (client) {
         try {
           await client.stop();

@@ -443,7 +443,7 @@
         "version": 1,
         "code": "print(\"Hello world\")",
         "language": "Python",
-        "caption": "<p dir=\"ltr\"><span style=\"white-space: pre-wrap;\">Code caption</span></p>"
+        "caption": "<p><span style=\"white-space: pre-wrap;\">Code caption</span></p>"
       },
       {
         "type": "markdown",
@@ -459,6 +459,75 @@
           "showOnWeb": true,
           "segment": ""
         }
+      },
+      {
+        "type": "callout",
+        "version": 1,
+        "calloutText": "<p><span style=\"white-space: pre-wrap;\">What Ghost calls a \"callout\" and Stencila refers to as an \"admonition\"</span></p>",
+        "calloutEmoji": "💡",
+        "backgroundColor": "blue"
+      },
+      {
+        "type": "video",
+        "version": 1,
+        "src": "https://stencila.ghost.io/content/media/2025/01/Screen-Recording-2024-11-28-11-10-58.mp4",
+        "caption": "",
+        "fileName": "Screen-Recording-2024-11-28-11-10-58.mp4",
+        "mimeType": "video/mp4",
+        "width": 1578,
+        "height": 1024,
+        "duration": 13,
+        "thumbnailSrc": "https://stencila.ghost.io/content/media/2025/01/Screen-Recording-2024-11-28-11-10-58_thumb.jpg",
+        "customThumbnailSrc": "https://stencila.ghost.io/content/images/2025/01/IMG_5570.jpeg",
+        "thumbnailWidth": 1280,
+        "thumbnailHeight": 960,
+        "cardWidth": "regular",
+        "loop": false
+      },
+      {
+        "type": "audio",
+        "version": 1,
+        "duration": 2.88,
+        "mimeType": "audio/x-m4a",
+        "src": "https://stencila.ghost.io/content/media/2025/01/testing.m4a",
+        "title": "Testing",
+        "thumbnailSrc": ""
+      },
+      {
+        "type": "toggle",
+        "version": 1,
+        "heading": "<span style=\"white-space: pre-wrap;\">Collapsable Content Area</span>",
+        "content": "<p><span style=\"white-space: pre-wrap;\">We can hide the text inside this area.</span></p>"
+      },
+      {
+        "type": "file",
+        "src": "https://stencila.ghost.io/content/files/2025/01/markdown-test-pandoc.pdf",
+        "fileTitle": "markdown-test-pandoc",
+        "fileCaption": "",
+        "fileName": "markdown-test-pandoc.pdf",
+        "fileSize": 186479
+      },
+      {
+        "type": "bookmark",
+        "version": 1,
+        "url": "https://stencila.io",
+        "metadata": {
+          "icon": "https://stencila.ghost.io/content/images/icon/favicon.png",
+          "title": "Stencila",
+          "description": "Documents with scientific intelligence",
+          "author": null,
+          "publisher": null,
+          "thumbnail": "https://stencila.ghost.io/content/images/thumbnail/90ce2ee68419149e.svg"
+        },
+        "caption": ""
+      },
+      {
+        "children": [],
+        "direction": null,
+        "format": "",
+        "indent": 0,
+        "type": "paragraph",
+        "version": 1
       }
     ],
     "direction": "ltr",

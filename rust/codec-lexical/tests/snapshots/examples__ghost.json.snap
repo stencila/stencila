@@ -163,10 +163,15 @@ snapshot_kind: text
           }
         },
         {
-          "type": "Text",
-          "value": {
-            "string": "highlight"
-          }
+          "type": "Annotation",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "highlight"
+              }
+            }
+          ]
         },
         {
           "type": "Text",
@@ -329,15 +334,8 @@ snapshot_kind: text
       "type": "ThematicBreak"
     },
     {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "LOST Unknown (image)"
-          }
-        }
-      ]
+      "type": "ImageObject",
+      "contentUrl": "https://stencila.ghost.io/content/images/2025/01/stencila-128.png"
     },
     {
       "type": "CodeBlock",
@@ -432,6 +430,76 @@ snapshot_kind: text
       "content": {
         "string": "<span>HTML card</span>"
       }
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "LOST Unknown (callout)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "LOST Unknown (video)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "LOST Unknown (audio)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "LOST Unknown (toggle)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "LOST Unknown (file)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "LOST Unknown (bookmark)"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": []
     }
   ]
 }

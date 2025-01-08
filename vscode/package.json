@@ -142,6 +142,16 @@
             "error"
           ],
           "default": "info"
+        },
+        "stencila.logging.usage": {
+          "order": 10,
+          "description": "Enable logging of extension usage events. Helps us fix bugs and improve usability.",
+          "type": "boolean",
+          "default": true,
+          "tags": [
+            "telemetry",
+            "usesOnlineServices"
+          ]
         }
       }
     },
@@ -1078,6 +1088,7 @@
     "package": "npm run package-vsix"
   },
   "dependencies": {
+    "posthog-js": "^1.202.2",
     "vscode-languageclient": "9.0.1"
   },
   "devDependencies": {

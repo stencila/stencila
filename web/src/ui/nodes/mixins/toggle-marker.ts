@@ -196,7 +196,7 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
         <div class=${classes}>
           <stencila-ui-icon-button
             name="x"
-            @click=${() => (this.toggle = false)}
+            @click=${() => this.closeCard()}
           ></stencila-ui-icon-button>
         </div>
       `

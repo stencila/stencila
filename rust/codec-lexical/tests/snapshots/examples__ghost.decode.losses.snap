@@ -5,6 +5,17 @@ snapshot_kind: text
 ---
 CodeBlockNode.caption: 1
 HtmlNode.visibility: 1
+ImageNode.alt: 1
+ImageNode.caption: 1
+ImageNode.cardWidth: 1
+ImageNode.height: 1
+ImageNode.href: 1
+ImageNode.width: 1
 Link: 1
 Unknown (aside): 1
-Unknown (image): 1
+Unknown (audio): 1
+Unknown (bookmark): 1
+Unknown (callout): 1
+Unknown (file): 1
+Unknown (toggle): 1
+Unknown (video): 1

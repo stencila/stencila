@@ -1,6 +1,8 @@
 import * as vscode from "vscode";
 import { LanguageClient } from "vscode-languageclient/node";
 
+import { event } from "./events";
+
 export function registerPromptsView(
   context: vscode.ExtensionContext,
   client: LanguageClient
@@ -42,6 +44,8 @@ export function registerPromptsView(
   const use = vscode.commands.registerCommand(
     "stencila.prompts.use",
     ({ prompt }: { prompt: PromptInstance }) => {
+      event("prompts_use", { id: prompt?.id });
+
       const editor = vscode.window.activeTextEditor;
       if (editor) {
         const selection = editor.selection;
@@ -339,6 +343,8 @@ class PromptTreeProvider implements vscode.TreeDataProvider<PromptTreeItem> {
   }
 
   async refresh(client?: LanguageClient): Promise<void> {
+    event("prompts_refresh");
+
     if (client) {
       this.client = client;
     }

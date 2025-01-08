@@ -1,7 +1,7 @@
 use codec::{
     format::Format,
     schema::{
-        CodeInline, Emphasis, Inline, Strikeout, Strong, Subscript, Superscript, Text, Underline,
+        Annotation, CodeInline, Emphasis, Inline, Strikeout, Strong, Subscript, Superscript, Text, Underline
     },
 };
 
@@ -44,6 +44,9 @@ pub(super) fn inlines_to_lexical(
             }
             Inline::Superscript(Superscript { content, .. }) => {
                 formatted_to_lexical(TextFormat::SUPERSCRIPT, content, context)
+            }
+            Inline::Annotation(Annotation { content, .. }) => {
+                formatted_to_lexical(TextFormat::HIGHLIGHT, content, context)
             }
             Inline::CodeInline(CodeInline { code, .. }) => formatted_to_lexical(
                 TextFormat::CODE,
@@ -120,6 +123,9 @@ fn text_from_lexical(format: lexical::TextFormat, value: String) -> Inline {
     if format.contains(TextFormat::SUPERSCRIPT) {
         inline = Inline::Superscript(Superscript::new(vec![inline]))
     }
+    if format.contains(TextFormat::HIGHLIGHT) {
+        inline = Inline::Annotation(Annotation::new(vec![inline]))
+    }
 
     inline
 }
@@ -130,12 +136,12 @@ fn formatted_to_lexical(
     context: &mut LexicalEncodeContext,
 ) -> Vec<lexical::InlineNode> {
     // Add the format to the context so it is applied to child inlines
-    context.text_format |= format;
+    context.text_format.insert(format);
 
     let inlines = inlines_to_lexical(inlines, context);
 
     // Remove the format from the context
-    context.text_format &= !format;
+    context.text_format.remove(format);
 
     inlines
 }

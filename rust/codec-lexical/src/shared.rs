@@ -8,7 +8,6 @@ pub(super) struct LexicalDecodeContext {
     pub losses: Losses,
 }
 
-
 /// The context for encoding to Lexical JSON
 #[derive(Default)]
 pub(super) struct LexicalEncodeContext {
