@@ -597,6 +597,7 @@ impl From<Block> for Node {
 
         variants!(
             Admonition,
+            AudioObject,
             CallBlock,
             Chat,
             ChatMessage,
@@ -606,10 +607,12 @@ impl From<Block> for Node {
             CodeChunk,
             DeleteBlock,
             Figure,
+            File,
             ForBlock,
             Form,
             Heading,
             IfBlock,
+            ImageObject,
             IncludeBlock,
             InsertBlock,
             InstructionBlock,
@@ -626,6 +629,7 @@ impl From<Block> for Node {
             SuggestionBlock,
             Table,
             ThematicBreak,
+            VideoObject,
             Walkthrough
         )
     }

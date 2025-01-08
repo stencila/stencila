@@ -16,6 +16,12 @@ anyOf:
         description: Generate `Admonition` nodes in block content.
         skip: false
 
+  - $ref: AudioObject
+    proptest:
+      min:
+        description: Do not generate `AudioObject` nodes in block content.
+        skip: true
+
   - $ref: CallBlock
     proptest:
       min:
@@ -42,7 +48,7 @@ anyOf:
       min:
         description: Do not generate `ChatMessageGroup` nodes in block content.
         skip: true
-  
+
   - $ref: Claim
     proptest:
       min:
@@ -51,9 +57,9 @@ anyOf:
       low:
         description: Generate `Claim` nodes in block content.
         skip: false
-    
+
   - $ref: CodeBlock
-  
+
   - $ref: CodeChunk
     proptest:
       min:
@@ -62,7 +68,7 @@ anyOf:
       low:
         description: Generate `CodeChunk` nodes in block content.
         skip: false
-  
+
   - $ref: DeleteBlock
     proptest:
       min:
@@ -77,7 +83,13 @@ anyOf:
       low:
         description: Generate `Figure` nodes in block content.
         skip: false
-  
+
+  - $ref: File
+    proptest:
+      min:
+        description: Do not generate `File` nodes in block content.
+        skip: true
+
   - $ref: ForBlock
     proptest:
       min:
@@ -86,15 +98,15 @@ anyOf:
       low:
         description: Generate `ForBlock` nodes in block content.
         skip: false
-  
+
   - $ref: Form
     proptest:
       min:
         description: Do not generate `Form` nodes in block content.
         skip: true
-  
+
   - $ref: Heading
-  
+
   - $ref: IfBlock
     proptest:
       min:
@@ -103,7 +115,13 @@ anyOf:
       low:
         description: Generate `IfBlock` nodes in block content.
         skip: false
-  
+
+  - $ref: ImageObject
+    proptest:
+      min:
+        description: Do not generate `ImageObject` nodes in block content.
+        skip: true
+
   - $ref: IncludeBlock
     proptest:
       min:
@@ -124,9 +142,9 @@ anyOf:
       min:
         description: Do not generate `InstructionBlock` nodes in block content.
         skip: true
-  
+
   - $ref: List
-  
+
   - $ref: MathBlock
 
   - $ref: ModifyBlock
@@ -134,7 +152,7 @@ anyOf:
       min:
         description: Do not generate `ModifyBlock` nodes in block content.
         skip: true
-  
+
   - $ref: Paragraph
 
   - $ref: PromptBlock
@@ -142,7 +160,7 @@ anyOf:
       min:
         description: Do not generate `PromptBlock` nodes in block content.
         skip: true
-  
+
   - $ref: QuoteBlock
 
   - $ref: RawBlock
@@ -152,7 +170,7 @@ anyOf:
       min:
         description: Do not generate `ReplaceBlock` nodes in block content.
         skip: true
-  
+
   - $ref: Section
     proptest:
       min:
@@ -169,10 +187,16 @@ anyOf:
       min:
         description: Do not generate `SuggestionBlock` nodes in block content.
         skip: true
-  
+
   - $ref: Table
-  
+
   - $ref: ThematicBreak
+
+  - $ref: VideoObject
+    proptest:
+      min:
+        description: Do not generate `VideoObject` nodes in block content.
+        skip: true
 
   - $ref: Walkthrough
     proptest:

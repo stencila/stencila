@@ -12,6 +12,7 @@ impl Block {
 
         variants!(
             Admonition,
+            AudioObject,
             CallBlock,
             Chat,
             ChatMessage,
@@ -21,10 +22,12 @@ impl Block {
             CodeChunk,
             DeleteBlock,
             Figure,
+            File,
             ForBlock,
             Form,
             Heading,
             IfBlock,
+            ImageObject,
             IncludeBlock,
             InsertBlock,
             InstructionBlock,
@@ -41,6 +44,7 @@ impl Block {
             SuggestionBlock,
             Table,
             ThematicBreak,
+            VideoObject,
             Walkthrough
         )
     }
@@ -56,6 +60,7 @@ impl Block {
 
         variants!(
             Admonition,
+            AudioObject,
             CallBlock,
             Chat,
             ChatMessage,
@@ -65,10 +70,12 @@ impl Block {
             CodeChunk,
             DeleteBlock,
             Figure,
+            File,
             ForBlock,
             Form,
             Heading,
             IfBlock,
+            ImageObject,
             IncludeBlock,
             InsertBlock,
             InstructionBlock,
@@ -85,6 +92,7 @@ impl Block {
             SuggestionBlock,
             Table,
             ThematicBreak,
+            VideoObject,
             Walkthrough
         )
     }
@@ -236,6 +244,7 @@ impl MarkdownCodec for Block {
         }
         variants!(
             Admonition,
+            AudioObject,
             CallBlock,
             Chat,
             ChatMessage,
@@ -245,10 +254,12 @@ impl MarkdownCodec for Block {
             CodeChunk,
             DeleteBlock,
             Figure,
+            File,
             ForBlock,
             Form,
             Heading,
             IfBlock,
+            ImageObject,
             IncludeBlock,
             InsertBlock,
             InstructionBlock,
@@ -265,6 +276,7 @@ impl MarkdownCodec for Block {
             SuggestionBlock,
             Table,
             ThematicBreak,
+            VideoObject,
             Walkthrough
         )
     }

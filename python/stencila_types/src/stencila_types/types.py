@@ -3137,6 +3137,7 @@ Union type for things that can be an author in `AuthorRole`.
 
 Block = Union[
     Admonition,
+    AudioObject,
     CallBlock,
     Chat,
     ChatMessage,
@@ -3146,10 +3147,12 @@ Block = Union[
     CodeChunk,
     DeleteBlock,
     Figure,
+    File,
     ForBlock,
     Form,
     Heading,
     IfBlock,
+    ImageObject,
     IncludeBlock,
     InsertBlock,
     InstructionBlock,
@@ -3166,6 +3169,7 @@ Block = Union[
     SuggestionBlock,
     Table,
     ThematicBreak,
+    VideoObject,
     Walkthrough,
 ]
 """
