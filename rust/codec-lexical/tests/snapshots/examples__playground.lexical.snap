@@ -113,9 +113,15 @@ snapshot_kind: text
               },
               {
                 "type": "link",
+                "children": [
+                  {
+                    "type": "text",
+                    "format": 0,
+                    "text": "Lexical website"
+                  }
+                ],
                 "format": "",
-                "url": "https://lexical.dev/",
-                "target": "https://lexical.dev/"
+                "url": "https://lexical.dev/"
               },
               {
                 "type": "text",
@@ -134,9 +140,15 @@ snapshot_kind: text
               },
               {
                 "type": "link",
+                "children": [
+                  {
+                    "type": "text",
+                    "format": 0,
+                    "text": "GitHub repository"
+                  }
+                ],
                 "format": "",
-                "url": "https://github.com/facebook/lexical",
-                "target": "https://github.com/facebook/lexical"
+                "url": "https://github.com/facebook/lexical"
               },
               {
                 "type": "text",
@@ -155,9 +167,15 @@ snapshot_kind: text
               },
               {
                 "type": "link",
+                "children": [
+                  {
+                    "type": "text",
+                    "format": 0,
+                    "text": "here"
+                  }
+                ],
                 "format": "",
-                "url": "https://github.com/facebook/lexical/tree/main/packages/lexical-playground",
-                "target": "https://github.com/facebook/lexical/tree/main/packages/lexical-playground"
+                "url": "https://github.com/facebook/lexical/tree/main/packages/lexical-playground"
               },
               {
                 "type": "text",
@@ -176,9 +194,15 @@ snapshot_kind: text
               },
               {
                 "type": "link",
+                "children": [
+                  {
+                    "type": "text",
+                    "format": 0,
+                    "text": "Discord Server"
+                  }
+                ],
                 "format": "",
-                "url": "https://discord.com/invite/KmG4wQnnD9",
-                "target": "https://discord.com/invite/KmG4wQnnD9"
+                "url": "https://discord.com/invite/KmG4wQnnD9"
               },
               {
                 "type": "text",

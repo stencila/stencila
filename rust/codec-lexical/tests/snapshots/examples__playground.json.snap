@@ -146,7 +146,7 @@ snapshot_kind: text
                     {
                       "type": "Text",
                       "value": {
-                        "string": "https://lexical.dev/"
+                        "string": "Lexical website"
                       }
                     }
                   ],
@@ -180,7 +180,7 @@ snapshot_kind: text
                     {
                       "type": "Text",
                       "value": {
-                        "string": "https://github.com/facebook/lexical"
+                        "string": "GitHub repository"
                       }
                     }
                   ],
@@ -214,7 +214,7 @@ snapshot_kind: text
                     {
                       "type": "Text",
                       "value": {
-                        "string": "https://github.com/facebook/lexical/tree/main/packages/lexical-playground"
+                        "string": "here"
                       }
                     }
                   ],
@@ -248,7 +248,7 @@ snapshot_kind: text
                     {
                       "type": "Text",
                       "value": {
-                        "string": "https://discord.com/invite/KmG4wQnnD9"
+                        "string": "Discord Server"
                       }
                     }
                   ],

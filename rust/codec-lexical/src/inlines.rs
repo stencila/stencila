@@ -74,7 +74,7 @@ fn inline_from_lexical(inline: lexical::InlineNode, context: &mut LexicalDecodeC
             text_from_lexical(format, text)
         }
 
-        lexical::InlineNode::Link(link) => link_from_lexical(link),
+        lexical::InlineNode::Link(link) => link_from_lexical(link, context),
         lexical::InlineNode::HashTag(..) => loss!("HashTag"),
 
         lexical::InlineNode::Unknown(inline) => {
@@ -91,7 +91,7 @@ fn inline_to_lexical(inline: &Inline, context: &mut LexicalEncodeContext) -> lex
     use Inline::*;
     match inline {
         Text(inline) => text_to_lexical(inline, context),
-        Link(link) => link_to_lexical(link),
+        Link(link) => link_to_lexical(link, context),
 
         _ => {
             context.losses.add(inline.node_type().to_string());
@@ -166,37 +166,27 @@ fn text_to_lexical(text: &Text, context: &mut LexicalEncodeContext) -> lexical::
     }
 }
 
-fn link_from_lexical(link: lexical::LinkNode) -> Inline {
-    if link.target.is_some() {
-        Inline::Link(Link {
-            rel: link.rel,
-            target: link.target.unwrap_or_default(),
-            content: vec![Inline::Text(Text::from(link.url))],
-            ..Default::default()
-        })
-    } else {
-        Inline::Link(Link {
-            rel: link.rel,
-            target: link.url.clone(),
-            content: vec![Inline::Text(Text::from(link.url))],
-            ..Default::default()
-        })
-    }
+fn link_from_lexical(link: lexical::LinkNode, context: &mut LexicalDecodeContext) -> Inline {
+    Inline::Link(Link {
+        title: link.title,
+        rel: link.rel,
+        target: link.url,
+        content: inlines_from_lexical(link.children, context),
+        ..Default::default()
+    })
 }
 
-fn link_to_lexical(link: &Link) -> lexical::InlineNode {
-    if let Inline::Text(Text { value, .. }) = link.content.first().unwrap() {
-        lexical::InlineNode::Link(lexical::LinkNode {
-            url: value.to_string(),
-            target: Some(link.target.clone()),
-            rel: link.rel.clone(),
-            ..Default::default()
-        })
-    } else {
-        lexical::InlineNode::Link(lexical::LinkNode {
-            target: Some(link.target.clone()),
-            rel: link.rel.clone(),
-            ..Default::default()
-        })
-    }
+fn link_to_lexical(link: &Link, context: &mut LexicalEncodeContext) -> lexical::InlineNode {
+    let children = inlines_to_lexical(&link.content, context);
+    let url = link.target.clone();
+    let target = link.title.clone();
+    let rel = link.rel.clone();
+
+    lexical::InlineNode::Link(lexical::LinkNode {
+        children,
+        url,
+        target,
+        rel,
+        ..Default::default()
+    })
 }

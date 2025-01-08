@@ -237,6 +237,8 @@ pub(super) struct HashTagNode {
 pub(super) struct LinkNode {
     pub r#type: MustBe!("link"),
 
+    pub children:Vec<InlineNode>,
+
     pub format: String,
 
     pub url: String,

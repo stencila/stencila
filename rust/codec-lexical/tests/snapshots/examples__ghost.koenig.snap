@@ -117,9 +117,15 @@ snapshot_kind: text
           },
           {
             "type": "link",
+            "children": [
+              {
+                "type": "extended-text",
+                "format": 0,
+                "text": "link"
+              }
+            ],
             "format": "",
             "url": "https://ghost.org/help/using-the-editor/",
-            "target": "https://ghost.org/help/using-the-editor/",
             "rel": "noreferrer"
           }
         ]

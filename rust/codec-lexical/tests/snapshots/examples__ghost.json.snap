@@ -185,7 +185,7 @@ snapshot_kind: text
             {
               "type": "Text",
               "value": {
-                "string": "https://ghost.org/help/using-the-editor/"
+                "string": "link"
               }
             }
           ],
