@@ -1,12 +1,13 @@
 use codec::{
     format::Format,
     schema::{
-        shortcuts::{art, p},
+        shortcuts::{art, p, t},
         transforms::blocks_to_inlines,
-        Block, CodeBlock, Heading, Inline, Paragraph, QuoteBlock, RawBlock, Table, Text,
-        ThematicBreak,
+        Block, CodeBlock, Heading, ImageObject, Inline, Paragraph, QuoteBlock, RawBlock, Table,
+        Text, ThematicBreak,
     },
 };
+use codec_text::to_text;
 
 use crate::{
     inlines::{inlines_from_lexical, inlines_to_lexical},
@@ -61,8 +62,9 @@ fn block_from_lexical(block: lexical::BlockNode, context: &mut LexicalDecodeCont
             quote_from_lexical(children, context)
         }
 
-        lexical::BlockNode::CodeBlock(code_block) => code_block_from_lexical(code_block, context),
+        lexical::BlockNode::Image(image) => image_from_lexical(image, context),
 
+        lexical::BlockNode::CodeBlock(code_block) => code_block_from_lexical(code_block, context),
         lexical::BlockNode::Markdown(block) => return markdown_from_lexical(block, context),
         lexical::BlockNode::Html(block) => html_from_lexical(block, context),
 
@@ -86,6 +88,7 @@ fn block_to_lexical(block: &Block, context: &mut LexicalEncodeContext) -> lexica
         QuoteBlock(quote) => quote_to_lexical(quote, context),
         CodeBlock(code_block) => code_block_to_lexical(code_block, context),
         Table(table) => table_to_lexical(table, context),
+        ImageObject(image) => image_to_lexical(image, context),
         RawBlock(block) => raw_block_to_lexical(block, context),
         ThematicBreak(..) => thematic_break_to_lexical(),
         _ => block_to_lexical_default(block),
@@ -193,6 +196,55 @@ fn quote_to_lexical(quote: &QuoteBlock, context: &mut LexicalEncodeContext) -> l
             ..Default::default()
         }),
     }
+}
+
+fn image_from_lexical(image: lexical::ImageNode, context: &mut LexicalDecodeContext) -> Block {
+    // Currently, Stencila does not support captions on code blocks
+    if image.width.is_some() {
+        context.losses.add_prop(&image, "width");
+    }
+    if image.height.is_some() {
+        context.losses.add_prop(&image, "height");
+    }
+    if image.alt.is_some() {
+        context.losses.add_prop(&image, "alt");
+    }
+    if image.card_width.is_some() {
+        context.losses.add_prop(&image, "cardWidth");
+    }
+    if image.href.is_some() {
+        context.losses.add_prop(&image, "href");
+    }
+
+    // Captions from Ghost are wrapped in HTML e.g. "<span style=\"white-space: pre-wrap;\">Image caption</span>"
+    // So we are currently ignoring them, until we work out best way to parse them.
+    if image.caption.is_some() {
+        context.losses.add_prop(&image, "caption");
+    }
+
+    let title = image
+        .title
+        .and_then(|title| (!title.is_empty()).then_some(vec![t(title)]));
+
+    Block::ImageObject(ImageObject {
+        content_url: image.src,
+        title,
+        ..Default::default()
+    })
+}
+
+fn image_to_lexical(
+    image: &ImageObject,
+    _context: &mut LexicalEncodeContext,
+) -> lexical::BlockNode {
+    let src = image.content_url.clone();
+    let title = image.title.as_ref().map(to_text);
+
+    lexical::BlockNode::Image(lexical::ImageNode {
+        src,
+        title,
+        ..Default::default()
+    })
 }
 
 fn code_block_from_lexical(

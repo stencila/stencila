@@ -274,15 +274,8 @@ expression: article
       "type": "ThematicBreak"
     },
     {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "LOST Unknown (image)"
-          }
-        }
-      ]
+      "type": "ImageObject",
+      "contentUrl": "https://stencila.ghost.io/content/images/2025/01/stencila-128.png"
     },
     {
       "type": "CodeBlock",

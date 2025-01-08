@@ -4,7 +4,12 @@ expression: info.losses
 ---
 CodeBlockNode.caption: 1
 HtmlNode.visibility: 1
+ImageNode.alt: 1
+ImageNode.caption: 1
+ImageNode.cardWidth: 1
+ImageNode.height: 1
+ImageNode.href: 1
+ImageNode.width: 1
 Link: 1
 List: 2
 Unknown (aside): 1
-Unknown (image): 1

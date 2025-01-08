@@ -31,6 +31,7 @@ pub(super) enum BlockNode {
     List(ListNode),
     Quote(QuoteNode),
     ExtendedQuote(ExtendedQuoteNode),
+    Image(ImageNode),
     CodeBlock(CodeBlockNode),
     Markdown(MarkdownNode),
     Html(HtmlNode),
@@ -151,6 +152,29 @@ pub(super) struct ListItemNode {
     /// Assumes that only inline nodes are expected here
     /// (whereas in Stencila, block nodes are expected)
     pub children: Vec<InlineNode>,
+}
+
+#[skip_serializing_none]
+#[derive(Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct ImageNode {
+    pub r#type: MustBe!("image"),
+
+    pub src: String,
+
+    pub width: Option<u32>,
+
+    pub height: Option<u32>,
+
+    pub title: Option<String>,
+
+    pub alt: Option<String>,
+
+    pub caption: Option<String>,
+
+    pub card_width: Option<String>,
+
+    pub href: Option<String>,
 }
 
 #[skip_serializing_none]

@@ -1,6 +1,6 @@
 ---
 source: rust/codec-lexical/tests/examples.rs
-expression: lexical
+expression: redact(&lexical)
 ---
 {
   "root": {
@@ -202,14 +202,8 @@ expression: lexical
         "type": "horizontalrule"
       },
       {
-        "type": "paragraph",
-        "children": [
-          {
-            "type": "extended-text",
-            "format": 0,
-            "text": "LOST Unknown (image)"
-          }
-        ]
+        "type": "image",
+        "src": "https://stencila.ghost.io/content/images/2025/01/stencila-128.png"
       },
       {
         "type": "codeblock",
