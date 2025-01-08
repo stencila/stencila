@@ -1,7 +1,10 @@
+use std::path::{Path, PathBuf};
+
 use cloud::ErrorResponse;
 use codec::{Codec, EncodeOptions};
 use codec_swb::SwbCodec;
 use common::{
+    clap::{self, Parser},
     eyre::{bail, eyre, Result},
     reqwest::{
         multipart::{Form, Part},
@@ -12,14 +15,71 @@ use common::{
     tempfile::TempDir,
     tokio, tracing,
 };
+use document::{CommandWait, Document};
 use schema::Node;
+
+/// Publish to Stencila Cloud
+#[derive(Debug, Parser)]
+pub struct Cli {
+    /// Path to the file or directory to publish
+    ///
+    /// Defaults to the current directory.
+    #[arg(default_value = ".")]
+    path: PathBuf,
+
+    /// The key for the site
+    #[arg(long, short)]
+    key: Option<String>,
+
+    /// Perform a dry run only
+    #[arg(long)]
+    dry_run: bool,
+
+    #[clap(flatten)]
+    swb: SwbCodec,
+}
+
+impl Cli {
+    pub async fn run(self) -> Result<()> {
+        publish_path(&self.path, &self.key, self.dry_run, &self.swb).await
+    }
+}
+
+/// Publish a path (file or directory)
+async fn publish_path(
+    path: &Path,
+    key: &Option<String>,
+    dry_run: bool,
+    swb: &SwbCodec,
+) -> Result<()> {
+    if !path.exists() {
+        bail!("Path does not exist: {}", path.display())
+    }
+
+    if path.is_file() {
+        let doc = Document::open(path).await?;
+        doc.compile(CommandWait::Yes).await?;
+
+        let theme = doc.config().await?.theme;
+        let node = &*doc.root_read().await;
+
+        let options = EncodeOptions {
+            theme,
+            ..Default::default()
+        };
+
+        publish_node(node, options, key, dry_run, swb).await
+    } else {
+        bail!("Publishing of directories is not currently supported")
+    }
+}
 
 #[derive(Serialize)]
 #[serde(crate = "common::serde")]
 struct Manifest {}
 
 /// Publish a single node to Stencila Cloud
-pub(super) async fn publish_node(
+async fn publish_node(
     node: &Node,
     options: EncodeOptions,
     key: &Option<String>,
