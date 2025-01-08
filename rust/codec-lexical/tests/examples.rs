@@ -25,7 +25,7 @@ fn examples() -> Result<()> {
         static ID_REGEX: Lazy<Regex> =
             Lazy::new(|| Regex::new(r" id=[a-z]{3}_\w+").expect("invalid_regex"));
 
-        ID_REGEX.replace_all(&content, " id=xxx").to_string()
+        ID_REGEX.replace_all(content, " id=xxx").to_string()
     }
 
     for path in glob(&format!("{pattern}.lexical"))?
