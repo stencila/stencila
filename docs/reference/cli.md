@@ -13,6 +13,8 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila render`↴](#stencila-render)
 * [`stencila preview`↴](#stencila-preview)
 * [`stencila publish`↴](#stencila-publish)
+* [`stencila publish ghost`↴](#stencila-publish-ghost)
+* [`stencila publish stencila`↴](#stencila-publish-stencila)
 * [`stencila serve`↴](#stencila-serve)
 * [`stencila lsp`↴](#stencila-lsp)
 * [`stencila prompts`↴](#stencila-prompts)
@@ -64,7 +66,7 @@ CLI subcommands and global options
 * `execute` — Execute a document
 * `render` — Render a document
 * `preview` — Preview a document or site
-* `publish` — Publish a document or site
+* `publish` — Publish one or more documents
 * `serve` — Run the HTTP/Websocket server
 * `lsp` — Run the Language Server Protocol server
 * `prompts` — Manage prompts
@@ -527,17 +529,26 @@ Opens a preview of a document or site in the browser. When `--sync=in` (the defa
 
 ## `stencila publish`
 
-Publish a document or site
+Publish one or more documents
 
-Currently only supports publishing a single document to the web via Stencila Cloud.
+**Usage:** `stencila publish <COMMAND>`
 
-In the future, it is likely that other publication platforms will be supported.
+###### **Subcommands:**
 
-**Usage:** `stencila publish [OPTIONS] [PATH]`
+* `ghost` — Publish to Ghost
+* `stencila` — Publish to Stencila Cloud
+
+
+
+## `stencila publish ghost`
+
+Publish to Ghost
+
+**Usage:** `stencila publish ghost [OPTIONS] [PATH]`
 
 ###### **Arguments:**
 
-* `<PATH>` — The path to the document file or site directory to publish
+* `<PATH>` — Path to the file or directory to publish
 
    Defaults to the current directory.
 
@@ -545,8 +556,31 @@ In the future, it is likely that other publication platforms will be supported.
 
 ###### **Options:**
 
-* `-k`, `--key <KEY>` — Key or identifier required by the platform being published to
-* `--dry-run` — Perform a dry run
+* `--domain` — The Ghost domain
+* `--key` — The Ghost Admin API key
+* `--post` — Create a post
+* `--page` — Create a page
+
+
+
+## `stencila publish stencila`
+
+Publish to Stencila Cloud
+
+**Usage:** `stencila publish stencila [OPTIONS] [PATH]`
+
+###### **Arguments:**
+
+* `<PATH>` — Path to the file or directory to publish
+
+   Defaults to the current directory.
+
+  Default value: `.`
+
+###### **Options:**
+
+* `-k`, `--key <KEY>` — The key for the site
+* `--dry-run` — Perform a dry run only
 * `--no-html` — Do not publish a HTML file
 * `--no-jsonld` — Do not publish a JSON-LD file
 * `--no-llmd` — Do not publish a LLM-Markdown file
