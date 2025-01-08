@@ -383,7 +383,7 @@ class {name}({base}):
                 // This is a anonymous Union of Stencila types
                 // We still need to register it.
                 let mut sub_names = Vec::new();
-                for subs in schema.any_of.clone().unwrap().iter() {
+                for subs in schema.any_of.iter().flatten() {
                     let name = Self::python_type(subs, None).await?.0;
                     sub_names.push(name);
                 }

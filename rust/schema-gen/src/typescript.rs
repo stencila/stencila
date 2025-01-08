@@ -79,10 +79,10 @@ impl Schemas {
                 if NO_GENERATE_MODULE.contains(
                     &path
                         .file_name()
-                        .unwrap()
+                        .expect("should have filename")
                         .to_string_lossy()
                         .strip_suffix(".ts")
-                        .unwrap(),
+                        .expect("should have suffix"),
                 ) {
                     continue;
                 }
@@ -109,10 +109,10 @@ impl Schemas {
                 entry
                     .path()
                     .file_name()
-                    .unwrap()
+                    .expect("should have filename")
                     .to_string_lossy()
                     .strip_suffix(".ts")
-                    .unwrap()
+                    .expect("should have suffix")
                     .to_string()
             })
             .sorted()
@@ -436,7 +436,7 @@ export const provenanceCategories: {{ [Property in ProvenanceCategory]: string }
                     if self
                         .schemas
                         .get(base)
-                        .unwrap()
+                        .expect("should have key")
                         .properties
                         .get(&name)
                         .map(|prop| prop.is_required)
