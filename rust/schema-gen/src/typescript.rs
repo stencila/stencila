@@ -59,6 +59,7 @@ const NATIVE_TYPES: &[&str] = &["null", "boolean", "number", "string"];
 
 impl Schemas {
     /// Generate a TypeScript module for each schema
+    #[allow(clippy::print_stderr)]
     pub async fn typescript(&self) -> Result<()> {
         eprintln!("Generating TypeScript types");
 

@@ -36,6 +36,7 @@ impl Schemas {
     /// constructed and then exported as Markdown. This makes this crate sort of recursive
     /// in that it both generates the Rust types in the [`Schemas::rust`] function,
     /// and then uses those to construct the `Article`.
+    #[allow(clippy::print_stderr)]
     pub async fn docs_types(&self) -> Result<()> {
         eprintln!("Generating documentation for types");
 

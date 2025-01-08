@@ -55,6 +55,7 @@ struct Summary {
 
 /// Snapshot tests of the `MergeNode::diff` method
 #[tokio::test]
+#[allow(clippy::print_stderr)]
 async fn fixtures() -> Result<()> {
     let mut ops_count = BTreeMap::new();
     let mut ops_total = 0;

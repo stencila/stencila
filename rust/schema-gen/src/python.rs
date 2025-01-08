@@ -88,6 +88,7 @@ const EXPECTED_PRIMITIVES: [&str; 9] = [
 
 impl Schemas {
     /// Generate a Python module for each schema
+    #[allow(clippy::print_stderr)]
     pub async fn python(&self) -> Result<()> {
         eprintln!("Generating Python types");
 

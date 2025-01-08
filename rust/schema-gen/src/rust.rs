@@ -97,6 +97,7 @@ fn escape_keyword(input: &str) -> String {
 
 impl Schemas {
     /// Generate Rust modules for each schema
+    #[allow(clippy::print_stderr)]
     pub async fn rust(&self) -> Result<()> {
         eprintln!("Generating Rust types");
 

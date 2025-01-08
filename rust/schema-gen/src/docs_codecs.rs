@@ -30,6 +30,7 @@ impl Schemas {
     ///
     /// <!-- CODEC-DOCS:STOP -->
     /// <!-- prettier-ignore-end -->
+    #[allow(clippy::print_stderr)]
     pub async fn docs_codecs(&self) -> Result<()> {
         eprintln!("Generating documentation for codecs");
 

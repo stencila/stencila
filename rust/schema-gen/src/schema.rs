@@ -5,7 +5,7 @@ use std::{collections::BTreeMap, fmt::Display, path::PathBuf};
 use schemars::JsonSchema;
 
 use common::{
-    eyre::{bail, eyre, Context, Result},
+    eyre::{bail, eyre, Context, Report, Result},
     indexmap::IndexMap,
     inflector::Inflector,
     itertools::Itertools,
@@ -802,15 +802,14 @@ impl Schema {
             .map(|extend| {
                 let mut parent = schemas
                     .get(extend)
-                    .ok_or_else(|| eyre!("no schema matching `extends` keyword: {}", extend))
-                    .unwrap()
+                    .ok_or_else(|| eyre!("no schema matching `extends` keyword: {}", extend))?
                     .clone();
                 if !parent.is_extended {
-                    parent = parent.extend(extend, schemas).unwrap();
+                    parent = parent.extend(extend, schemas)?;
                 }
-                parent
+                Ok::<_, Report>(parent)
             })
-            .collect();
+            .try_collect()?;
 
         let mut extended = self.clone();
 

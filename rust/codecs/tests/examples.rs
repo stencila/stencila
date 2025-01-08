@@ -331,6 +331,7 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
 ///
 ///   UPDATE_EXAMPLES=true cargo test -p codecs examples
 #[tokio::test]
+#[allow(clippy::print_stderr)]
 async fn examples() -> Result<()> {
     let pattern = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../examples/conversion")

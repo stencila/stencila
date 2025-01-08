@@ -13,6 +13,7 @@ use schema::Node;
 /// it to an Automerge store, read it back from the store, and finally assert it
 /// is equal to the original.
 #[tokio::test]
+#[allow(clippy::print_stderr)]
 async fn examples() -> Result<()> {
     let pattern = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("../../examples/conversion")
