@@ -199,9 +199,8 @@ fn list_from_lexical(list: lexical::ListNode, context: &mut LexicalDecodeContext
 fn list_to_lexical(list: &List, context: &mut LexicalEncodeContext) -> lexical::BlockNode {
     let children = list
         .items
-        .clone()
-        .into_iter()
-        .map(|item| list_item_to_lexical(item.content.first().unwrap(), context))
+        .iter()
+        .map(|item| list_item_to_lexical(item, context))
         .collect();
 
     lexical::BlockNode::List(lexical::ListNode {
@@ -211,20 +210,17 @@ fn list_to_lexical(list: &List, context: &mut LexicalEncodeContext) -> lexical::
 }
 
 fn list_item_to_lexical(
-    block: &Block,
+    list_item: &ListItem,
     context: &mut LexicalEncodeContext,
 ) -> lexical::ListItemNode {
-    if let Block::Paragraph(Paragraph { content, .. }) = block {
-        lexical::ListItemNode {
-            children: inlines_to_lexical(content, context),
-            ..Default::default()
-        }
-    } else {
-        lexical::ListItemNode {
-            ..Default::default()
-        }
+    let children = inlines_to_lexical(&blocks_to_inlines(list_item.content.clone()), context);
+
+    lexical::ListItemNode {
+        children,
+        ..Default::default()
     }
 }
+
 fn quote_to_lexical(quote: &QuoteBlock, context: &mut LexicalEncodeContext) -> lexical::BlockNode {
     let inlines = blocks_to_inlines(quote.content.clone());
     let children = inlines_to_lexical(&inlines, context);
