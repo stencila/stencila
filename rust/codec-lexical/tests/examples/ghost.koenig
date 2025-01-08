@@ -461,46 +461,6 @@
         }
       },
       {
-        "children": [
-          {
-            "detail": 0,
-            "format": 0,
-            "mode": "normal",
-            "style": "",
-            "text": "TODO: Add one of each of the cards so we know what their structure is ",
-            "type": "extended-text",
-            "version": 1
-          },
-          {
-            "children": [
-              {
-                "detail": 0,
-                "format": 0,
-                "mode": "normal",
-                "style": "",
-                "text": "https://ghost.org/help/cards/",
-                "type": "extended-text",
-                "version": 1
-              }
-            ],
-            "direction": "ltr",
-            "format": "",
-            "indent": 0,
-            "type": "link",
-            "version": 1,
-            "rel": null,
-            "target": null,
-            "title": null,
-            "url": "https://ghost.org/help/cards/"
-          }
-        ],
-        "direction": "ltr",
-        "format": "",
-        "indent": 0,
-        "type": "paragraph",
-        "version": 1
-      },
-      {
         "type": "callout",
         "version": 1,
         "calloutText": "<p><span style=\"white-space: pre-wrap;\">What Ghost calls a \"callout\" and Stencila refers to as an \"admonition\"</span></p>",
@@ -546,6 +506,20 @@
         "fileCaption": "",
         "fileName": "markdown-test-pandoc.pdf",
         "fileSize": 186479
+      },
+      {
+        "type": "bookmark",
+        "version": 1,
+        "url": "https://stencila.io",
+        "metadata": {
+          "icon": "https://stencila.ghost.io/content/images/icon/favicon.png",
+          "title": "Stencila",
+          "description": "Documents with scientific intelligence",
+          "author": null,
+          "publisher": null,
+          "thumbnail": "https://stencila.ghost.io/content/images/thumbnail/90ce2ee68419149e.svg"
+        },
+        "caption": ""
       },
       {
         "children": [],
