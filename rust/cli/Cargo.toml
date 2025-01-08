@@ -39,5 +39,9 @@ tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }
 version = { path = "../version" }
 webbrowser = "1.0.3"
 
-[lints]
-workspace = true
+[lints.rust]
+unsafe_code = "deny"
+
+[lints.clippy]
+unwrap_used = "deny"
+print_stderr = "warn"
