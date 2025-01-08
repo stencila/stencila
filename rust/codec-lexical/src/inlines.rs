@@ -1,7 +1,8 @@
 use codec::{
     format::Format,
     schema::{
-        Annotation, CodeInline, Emphasis, Inline, Strikeout, Strong, Subscript, Superscript, Text, Underline
+        Annotation, CodeInline, Emphasis, Inline, Link, Strikeout, Strong, Subscript, Superscript,
+        Text, Underline,
     },
 };
 
@@ -73,7 +74,7 @@ fn inline_from_lexical(inline: lexical::InlineNode, context: &mut LexicalDecodeC
             text_from_lexical(format, text)
         }
 
-        lexical::InlineNode::Link(..) => loss!("Link"),
+        lexical::InlineNode::Link(link) => link_from_lexical(link),
         lexical::InlineNode::HashTag(..) => loss!("HashTag"),
 
         lexical::InlineNode::Unknown(inline) => {
@@ -90,6 +91,7 @@ fn inline_to_lexical(inline: &Inline, context: &mut LexicalEncodeContext) -> lex
     use Inline::*;
     match inline {
         Text(inline) => text_to_lexical(inline, context),
+        Link(link) => link_to_lexical(link),
 
         _ => {
             context.losses.add(inline.node_type().to_string());
@@ -161,5 +163,40 @@ fn text_to_lexical(text: &Text, context: &mut LexicalEncodeContext) -> lexical::
             text,
             ..Default::default()
         }),
+    }
+}
+
+fn link_from_lexical(link: lexical::LinkNode) -> Inline {
+    if link.target.is_some() {
+        Inline::Link(Link {
+            rel: link.rel,
+            target: link.target.unwrap_or_default(),
+            content: vec![Inline::Text(Text::from(link.url))],
+            ..Default::default()
+        })
+    } else {
+        Inline::Link(Link {
+            rel: link.rel,
+            target: link.url.clone(),
+            content: vec![Inline::Text(Text::from(link.url))],
+            ..Default::default()
+        })
+    }
+}
+
+fn link_to_lexical(link: &Link) -> lexical::InlineNode {
+    if let Inline::Text(Text { value, .. }) = link.content.first().unwrap() {
+        lexical::InlineNode::Link(lexical::LinkNode {
+            url: value.to_string(),
+            target: Some(link.target.clone()),
+            rel: link.rel.clone(),
+            ..Default::default()
+        })
+    } else {
+        lexical::InlineNode::Link(lexical::LinkNode {
+            target: Some(link.target.clone()),
+            rel: link.rel.clone(),
+            ..Default::default()
+        })
     }
 }

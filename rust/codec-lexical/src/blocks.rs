@@ -1,10 +1,10 @@
 use codec::{
     format::Format,
     schema::{
-        shortcuts::{art, p,t},
+        shortcuts::{art, p, t},
         transforms::blocks_to_inlines,
-        Block, CodeBlock, Heading,ImageObject, Inline, List, ListItem, Paragraph, QuoteBlock, RawBlock, Table,
-        Text, ThematicBreak,
+        Block, CodeBlock, Heading, ImageObject, Inline, List, ListItem, Paragraph, QuoteBlock,
+        RawBlock, Table, Text, ThematicBreak,
     },
 };
 use codec_text::to_text;

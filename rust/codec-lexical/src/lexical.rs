@@ -233,7 +233,7 @@ pub(super) struct HashTagNode {
 }
 
 #[skip_serializing_none]
-#[derive(Serialize, Deserialize)]
+#[derive(Default,Serialize, Deserialize)]
 pub(super) struct LinkNode {
     pub r#type: MustBe!("link"),
 
