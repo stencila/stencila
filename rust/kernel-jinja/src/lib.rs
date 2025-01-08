@@ -165,8 +165,8 @@ impl KernelInstance for JinjaKernelInstance {
 
         let (value, messages) = match expr.eval(context) {
             Ok(value) => {
-                let value = serde_json::to_value(value).unwrap();
-                let node: Node = serde_json::from_value(value).unwrap();
+                let value = serde_json::to_value(value).unwrap_or_default();
+                let node: Node = serde_json::from_value(value).unwrap_or_default();
                 (node, Vec::new())
             }
             Err(error) => (
