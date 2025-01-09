@@ -144,7 +144,7 @@ impl Model for PluginModel {
 
                 let inst = plugin.start(None).await?;
                 *guard = Some(inst);
-                guard.as_mut().unwrap()
+                guard.as_mut().expect("assigned on line above")
             }
         };
 

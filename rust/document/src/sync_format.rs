@@ -482,6 +482,7 @@ fn extract_chars(content: &str, range: Range<usize>) -> &str {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use common::{eyre::Report, tokio::sync::mpsc::channel};
     use common_dev::{ntest::timeout, pretty_assertions::assert_eq};

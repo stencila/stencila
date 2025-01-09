@@ -37,3 +37,6 @@ serde_with = "3.12.0"
 codec = { path = "../codec" }
 codec-markdown = { path = "../codec-markdown" }
 common-dev = { path = "../common-dev" }
+
+[lints]
+workspace = true

@@ -1956,6 +1956,7 @@ fn mds_to_table_cells(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<Table
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use codec::schema::{ClaimType, ExecutionMode, Node};
     use common_dev::pretty_assertions::assert_eq;

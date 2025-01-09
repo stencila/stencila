@@ -36,3 +36,6 @@ node-strip = { path = "../node-strip" }
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
 json_value_merge = "2.0.0"
+
+[lints]
+workspace = true

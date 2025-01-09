@@ -7,3 +7,6 @@ edition = "2021"
 common = { path = "../common" }
 format = { path = "../format" }
 schema = { path = "../schema" }
+
+[lints]
+workspace = true

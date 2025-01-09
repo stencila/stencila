@@ -14,3 +14,6 @@ schema = { path = "../schema", optional = true }
 schemars = { version = "0.8.17", features = ["indexmap2"] }
 status = { path = "../status" }
 topological-sort = "0.2.2"
+
+[lints]
+workspace = true

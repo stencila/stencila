@@ -60,6 +60,7 @@ impl Microkernel for BashKernel {
 }
 
 #[cfg(test)]
+#[allow(clippy::print_stderr)]
 mod tests {
     use common_dev::{ntest::timeout, pretty_assertions::assert_eq};
     use kernel_micro::{
@@ -83,7 +84,7 @@ mod tests {
     #[test_log::test(tokio::test)]
     async fn execution() -> Result<()> {
         if std::env::var("CI").is_ok() {
-            println!("Skipping flakey test on CI");
+            eprintln!("Skipping flakey test on CI");
             return Ok(());
         }
 
@@ -146,7 +147,7 @@ echo $value",
     #[test_log::test(tokio::test)]
     async fn evaluation() -> Result<()> {
         if std::env::var("CI").is_ok() {
-            println!("Skipping flakey test on CI");
+            eprintln!("Skipping flakey test on CI");
             return Ok(());
         }
 
@@ -172,7 +173,7 @@ echo $value",
     #[test_log::test(tokio::test)]
     async fn printing() -> Result<()> {
         if std::env::var("CI").is_ok() {
-            println!("Skipping flakey test on CI");
+            eprintln!("Skipping flakey test on CI");
             return Ok(());
         }
 
@@ -192,9 +193,10 @@ echo $value",
 
     /// Custom test for execution messages
     #[test_log::test(tokio::test)]
+    #[allow(clippy::print_stderr)]
     async fn messages() -> Result<()> {
         if std::env::var("CI").is_ok() {
-            println!("Skipping flakey test on CI");
+            eprintln!("Skipping flakey test on CI");
             return Ok(());
         }
 
@@ -249,7 +251,7 @@ echo $value",
     #[test_log::test(tokio::test)]
     async fn var_listing() -> Result<()> {
         if std::env::var("CI").is_ok() {
-            println!("Skipping flakey test on CI");
+            eprintln!("Skipping flakey test on CI");
             return Ok(());
         }
 
@@ -303,7 +305,7 @@ declare -A obj=(["key1"]="value1" ["key2"]="value2")
     #[test_log::test(tokio::test)]
     async fn var_management() -> Result<()> {
         if std::env::var("CI").is_ok() {
-            println!("Skipping flakey test on CI");
+            eprintln!("Skipping flakey test on CI");
             return Ok(());
         }
 
@@ -318,7 +320,7 @@ declare -A obj=(["key1"]="value1" ["key2"]="value2")
     #[test_log::test(tokio::test)]
     async fn forking() -> Result<()> {
         if std::env::var("CI").is_ok() {
-            println!("Skipping flakey test on CI");
+            eprintln!("Skipping flakey test on CI");
             return Ok(());
         }
 
@@ -334,7 +336,7 @@ declare -A obj=(["key1"]="value1" ["key2"]="value2")
     #[timeout(5000)]
     async fn signals() -> Result<()> {
         if std::env::var("CI").is_ok() {
-            println!("Skipping flakey test on CI");
+            eprintln!("Skipping flakey test on CI");
             return Ok(());
         }
 
@@ -365,7 +367,7 @@ sleep 100",
     #[test_log::test(tokio::test)]
     async fn stop() -> Result<()> {
         if std::env::var("CI").is_ok() {
-            println!("Skipping flakey test on CI");
+            eprintln!("Skipping flakey test on CI");
             return Ok(());
         }
 
@@ -380,7 +382,7 @@ sleep 100",
     #[tokio::test]
     async fn escaping() -> Result<()> {
         if std::env::var("CI").is_ok() {
-            println!("Skipping flakey test on CI");
+            eprintln!("Skipping flakey test on CI");
             return Ok(());
         }
 

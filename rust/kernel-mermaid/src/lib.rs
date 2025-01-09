@@ -149,7 +149,7 @@ mod tests {
             ..
         })) = outputs.first()
         {
-            assert_eq!(media_type.as_ref().unwrap(), "text/vnd.mermaid");
+            assert_eq!(media_type.as_deref(), Some("text/vnd.mermaid"));
             assert_eq!(content_url, code);
         } else {
             bail!("Unexpected output type")

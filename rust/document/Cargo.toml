@@ -19,3 +19,6 @@ schema = { path = "../schema" }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+
+[lints]
+workspace = true

@@ -7,3 +7,6 @@ edition = "2021"
 cached = { workspace = true }
 cloud = { path = "../cloud" }
 model = { path = "../model" }
+
+[lints]
+workspace = true

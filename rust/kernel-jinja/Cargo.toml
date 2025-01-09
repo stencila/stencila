@@ -8,3 +8,6 @@ kernel = { path = "../kernel" }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+
+[lints]
+workspace = true

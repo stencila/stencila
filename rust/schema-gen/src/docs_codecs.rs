@@ -30,6 +30,7 @@ impl Schemas {
     ///
     /// <!-- CODEC-DOCS:STOP -->
     /// <!-- prettier-ignore-end -->
+    #[allow(clippy::print_stderr)]
     pub async fn docs_codecs(&self) -> Result<()> {
         eprintln!("Generating documentation for codecs");
 
@@ -38,9 +39,11 @@ impl Schemas {
         const START: &str = "<!-- CODEC-DOCS:START -->";
         const STOP: &str = "<!-- CODEC-DOCS:STOP -->";
 
-        for file in glob(dest.join("*.md").as_os_str().to_str().unwrap())?.flatten() {
-            let name = file.file_stem().unwrap().to_string_lossy().to_string();
-            let format = Format::from_name(&name);
+        for file in glob(&dest.join("*.md").as_os_str().to_string_lossy())?.flatten() {
+            let Some(name) = file.file_stem() else {
+                continue;
+            };
+            let format = Format::from_name(name.to_string_lossy().as_ref());
 
             let Ok(codec) = codecs::get(None, Some(&format), None) else {
                 continue;

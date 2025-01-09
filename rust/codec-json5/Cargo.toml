@@ -6,3 +6,6 @@ edition = "2021"
 [dependencies]
 codec = { path = "../codec" }
 codec-json5-trait = { path = "../codec-json5-trait" }
+
+[lints]
+workspace = true

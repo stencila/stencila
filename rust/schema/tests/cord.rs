@@ -7,6 +7,7 @@ use schema::{
 };
 
 #[test]
+#[allow(clippy::unwrap_used)]
 fn serialization() {
     // Test deserialization of a union type containing a cord with
     // authorship
@@ -47,6 +48,7 @@ fn serialization() {
 }
 
 #[test]
+#[allow(clippy::unwrap_used)]
 fn update_authors() {
     let update = Cord::update_authors;
     let extract = Cord::extract_authors;

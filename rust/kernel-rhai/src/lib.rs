@@ -645,7 +645,11 @@ b",
         let sw = kernel::tests::info(instance).await?;
         assert_eq!(sw.name, "Rhai");
         assert!(sw.options.software_version.is_some());
-        assert!(sw.options.software_version.unwrap().starts_with('1'));
+        assert!(sw
+            .options
+            .software_version
+            .map(|version| version.starts_with('1'))
+            .unwrap_or_default());
         assert!(sw.options.operating_system.is_some());
 
         Ok(())

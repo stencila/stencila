@@ -446,8 +446,8 @@ df1 = data.frame(
 
         let list = instance.list().await?;
         assert_eq!(
-            list.iter().find(|var| var.name == "df1").unwrap(),
-            &Variable {
+            list.iter().find(|var| var.name == "df1"),
+            Some(&Variable {
                 name: "df1".to_string(),
                 native_type: Some("data.frame".to_string()),
                 node_type: Some("Datatable".to_string()),
@@ -494,12 +494,12 @@ df1 = data.frame(
                 ))),
                 programming_language: Some("R".to_string()),
                 ..Default::default()
-            },
+            }),
         );
 
         assert_eq!(
-            instance.get("df1").await?.unwrap(),
-            Node::Datatable(Datatable::new(vec![
+            instance.get("df1").await?,
+            Some(Node::Datatable(Datatable::new(vec![
                 DatatableColumn {
                     name: "c1".to_string(),
                     values: vec![
@@ -578,7 +578,7 @@ df1 = data.frame(
                     }),
                     ..Default::default()
                 }
-            ]))
+            ])))
         );
 
         Ok(())
