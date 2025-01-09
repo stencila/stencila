@@ -161,22 +161,24 @@ export class PromptBlock extends Executable {
       return html``
     }
 
+    const inChat = this.isWithin('Chat')
+
     const { colour, textColour, borderColour } = this.ui
 
     const headerClasses = apply(
       'flex flex-row items-center gap-x-2',
       'w-full',
-      'px-3 py-1',
       `bg-[${colour}]`,
       `text-[${textColour}] text-xs leading-tight font-sans`,
-      `border-t border-[${borderColour}]`
+      inChat ? 'my-3' : `px-3 py-1 border-t border-[${borderColour}]`
     )
 
     // Render as the property of a chat or instruction block
     if (this.isProperty()) {
       return html`
         <div class=${headerClasses}>
-          Prompt ${this.renderPromptSelect(textColour)}
+          <label class=${inChat ? 'hidden' : ''}>Prompt </label>
+          ${this.renderPromptSelect(borderColour, textColour)}
           ${this.renderShowHideContent()}
         </div>
 
@@ -223,7 +225,7 @@ export class PromptBlock extends Executable {
         </stencila-ui-node-execution-messages>
 
         <div class=${headerClasses}>
-          Prompt ${this.renderPromptSelect(textColour)}
+          Prompt ${this.renderPromptSelect(borderColour, textColour)}
         </div>
       </div>
 
@@ -231,7 +233,7 @@ export class PromptBlock extends Executable {
     </stencila-ui-block-in-flow>`
   }
 
-  private renderPromptSelect(textColour: string) {
+  private renderPromptSelect(borderColour: string, textColour: string) {
     // Filter prompts if necessary
     const prompts = this.instructionType
       ? data.prompts.filter(
@@ -307,6 +309,9 @@ export class PromptBlock extends Executable {
     }
 
     const style = css`
+      &::part(combobox) {
+        border-color: ${borderColour};
+      }
       &::part(display-input) {
         font-size: 0.75rem;
         color: ${textColour};
@@ -344,7 +349,7 @@ export class PromptBlock extends Executable {
 
   private renderContent() {
     return html`<div
-      class="max-w-prose mx-auto p-3"
+      class="max-w-prose mx-auto p-3 overflow-y-auto"
       style="color: var(--default-text-colour);"
     >
       <slot name="content"></slot>
