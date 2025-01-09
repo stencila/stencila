@@ -179,13 +179,13 @@ fn link_from_lexical(link: lexical::LinkNode, context: &mut LexicalDecodeContext
 fn link_to_lexical(link: &Link, context: &mut LexicalEncodeContext) -> lexical::InlineNode {
     let children = inlines_to_lexical(&link.content, context);
     let url = link.target.clone();
-    let target = link.title.clone();
+    let title = link.title.clone();
     let rel = link.rel.clone();
 
     lexical::InlineNode::Link(lexical::LinkNode {
         children,
         url,
-        target,
+        title,
         rel,
         ..Default::default()
     })
