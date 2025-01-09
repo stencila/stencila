@@ -178,12 +178,12 @@ snapshot_kind: text
         ]
       },
       {
-        "type": "paragraph",
+        "type": "extended-quote",
         "children": [
           {
             "type": "extended-text",
             "format": 0,
-            "text": "LOST Unknown (aside)"
+            "text": "Another quote"
           }
         ]
       },

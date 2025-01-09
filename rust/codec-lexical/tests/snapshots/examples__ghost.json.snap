@@ -251,13 +251,18 @@ snapshot_kind: text
       ]
     },
     {
-      "type": "Paragraph",
+      "type": "QuoteBlock",
       "content": [
         {
-          "type": "Text",
-          "value": {
-            "string": "LOST Unknown (aside)"
-          }
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Another quote"
+              }
+            }
+          ]
         }
       ]
     },

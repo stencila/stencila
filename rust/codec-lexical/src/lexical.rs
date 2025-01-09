@@ -30,6 +30,7 @@ pub(super) enum BlockNode {
     Paragraph(ParagraphNode),
     List(ListNode),
     Quote(QuoteNode),
+    Aside(AsideNode),
     ExtendedQuote(ExtendedQuoteNode),
     Image(ImageNode),
     Audio(AudioNode),
@@ -279,6 +280,13 @@ pub(super) struct AudioNode {
     pub src: String,
 
     pub title: Option<String>,
+}
+
+#[derive(Default, Serialize, Deserialize)]
+pub(super) struct AsideNode {
+    pub r#type: MustBe!("aside"),
+
+    pub children: Vec<InlineNode>,
 }
 
 bitflags! {

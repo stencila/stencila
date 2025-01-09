@@ -58,7 +58,8 @@ fn block_from_lexical(block: lexical::BlockNode, context: &mut LexicalDecodeCont
         lexical::BlockNode::List(list) => list_from_lexical(list, context),
 
         lexical::BlockNode::Quote(lexical::QuoteNode { children, .. })
-        | lexical::BlockNode::ExtendedQuote(lexical::ExtendedQuoteNode { children, .. }) => {
+        | lexical::BlockNode::ExtendedQuote(lexical::ExtendedQuoteNode { children, .. }) 
+        | lexical::BlockNode::Aside(lexical::AsideNode{children, ..})=> {
             quote_from_lexical(children, context)
         }
 
