@@ -13,7 +13,7 @@ use common::{
 };
 use document::{CommandWait, Document};
 
-use url;
+use url::Host;
 use jsonwebtoken as jwt;
 
 const SECRET_NAME: &str = "GHOST_ADMIN_API_KEY";
@@ -113,9 +113,9 @@ fn parse_key(arg: &str) -> Result<String> {
     secrets::get(SECRET_NAME)
 }
 
-fn parse_host(arg: &str) -> Result<url::Host> {
+fn parse_host(arg: &str) -> Result<Host> {
     // Question mark converts between error types
-    Ok(url::Host::parse(arg)?)
+    Ok(Host::parse(arg)?)
 }
 
 /// Publish to Ghost
@@ -131,7 +131,7 @@ pub struct Cli {
     /// 
     /// This is the domain name of your Ghost instance, with an optional port. 
     #[arg(long, env = "STENCILA_GHOST_DOMAIN", value_parser = parse_host)]
-    ghost: url::Host,
+    ghost: Host,
 
     /// The Ghost Admin API key
     /// 
@@ -176,12 +176,8 @@ impl Cli {
             ..Default::default()
         };
 
-        let codec = TextCodec;
-        // codec.to_string()
-        
-        // let codec = HtmlCodec;
+        let codec = TextCodec;        
         let (content, _encode_info) = codec.to_string(node, Some(options)).await?;
-        // let content = format!("<!--kg-card-begin: html-->\r\n{content}\r\n<!--kg-card-end: html-->");
         let content = format!("<!--kg-card-begin: html-->\r\n<pre>{content}</pre>\r\n<!--kg-card-end: html-->");
 
         // Send content to Ghost
