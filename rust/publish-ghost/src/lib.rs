@@ -58,8 +58,7 @@ fn generate_jwt(key: &str) -> Result<String> {
         .as_bytes()
         .chunks(2)
         .map(|chunk| {
-            // SAFETY: will always succeed as we start with a str
-            let hex_pair = std::str::from_utf8(chunk).unwrap();
+            let hex_pair = std::str::from_utf8(chunk)?; // will always succeed as we start with a str
 
             u8::from_str_radix(hex_pair, 16)
                 .map_err(|e| eyre!("invalid input in secret: {}", e))
