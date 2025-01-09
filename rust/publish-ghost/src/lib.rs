@@ -183,16 +183,19 @@ impl Cli {
         // Send content to Ghost
         let token = generate_jwt(&self.key).context("generating JWT")?;
 
-        let url = if self.post {
-            format!("https://{}/ghost/api/admin/posts/", self.ghost)
+        // "root key" is the terminology use by Ghost/Lexical
+        let root_key = if self.post {
+            "posts"
         } else if self.page {
-            format!("https://{}/ghost/api/admin/pages/", self.ghost)
+            "pages"
         } else {
             unreachable!();
         };
 
+        let url = format!("https://{}/ghost/api/admin/{}/", self.ghost, root_key);
+
         let payload = serde_json::json!({
-            "posts" : [
+            root_key : [
                 json!({
                     "title": "WIP: Stencila",
                     "html": content,
