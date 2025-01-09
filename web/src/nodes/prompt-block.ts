@@ -170,7 +170,7 @@ export class PromptBlock extends Executable {
       'w-full',
       `bg-[${colour}]`,
       `text-[${textColour}] text-xs leading-tight font-sans`,
-      inChat ? 'my-3' : `px-3 py-1 border-t border-[${borderColour}]`
+      inChat ? '' : `px-3 py-1 border-t border-[${borderColour}]`
     )
 
     // Render as the property of a chat or instruction block
@@ -323,7 +323,6 @@ export class PromptBlock extends Executable {
 
     return html`<sl-select
       class="w-full ${style}"
-      clearable
       size="small"
       value=${target}
       @sl-change=${(e: InputEvent) => this.onPromptChanged(e)}
@@ -337,6 +336,7 @@ export class PromptBlock extends Executable {
       content=${this.showContent ? 'Hide content' : 'Show content'}
     >
       <stencila-ui-icon-button
+        class="text-base"
         name=${this.showContent ? 'eyeSlash' : 'eye'}
         @click=${(e: Event) => {
           // Stop the click behavior of the card header parent element
