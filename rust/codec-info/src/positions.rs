@@ -285,37 +285,16 @@ mod tests {
         let content = "line1\n\n\nbefore😊after";
         let positions = Positions::new(content);
 
-        assert_eq!(
-            positions.index_at_position8(Position8::new(0, 0)).unwrap(),
-            0
-        );
-        assert_eq!(
-            positions.index_at_position8(Position8::new(0, 4)).unwrap(),
-            4
-        );
+        assert_eq!(positions.index_at_position8(Position8::new(0, 0)), Some(0));
+        assert_eq!(positions.index_at_position8(Position8::new(0, 4)), Some(4));
         assert_eq!(positions.index_at_position8(Position8::new(0, 6)), None);
-        assert_eq!(
-            positions.index_at_position8(Position8::new(1, 0)).unwrap(),
-            6
-        );
+        assert_eq!(positions.index_at_position8(Position8::new(1, 0)), Some(6));
         assert_eq!(positions.index_at_position8(Position8::new(1, 1)), None);
-        assert_eq!(
-            positions.index_at_position8(Position8::new(2, 0)).unwrap(),
-            7
-        );
+        assert_eq!(positions.index_at_position8(Position8::new(2, 0)), Some(7));
         assert_eq!(positions.index_at_position8(Position8::new(2, 1)), None);
-        assert_eq!(
-            positions.index_at_position8(Position8::new(3, 0)).unwrap(),
-            8
-        );
-        assert_eq!(
-            positions.index_at_position8(Position8::new(3, 6)).unwrap(),
-            14
-        );
-        assert_eq!(
-            positions.index_at_position8(Position8::new(3, 7)).unwrap(),
-            15
-        );
+        assert_eq!(positions.index_at_position8(Position8::new(3, 0)), Some(8));
+        assert_eq!(positions.index_at_position8(Position8::new(3, 6)), Some(14));
+        assert_eq!(positions.index_at_position8(Position8::new(3, 7)), Some(15));
         assert_eq!(positions.index_at_position8(Position8::new(3, 12)), None);
         assert_eq!(positions.index_at_position8(Position8::new(4, 0)), None);
     }
@@ -326,54 +305,38 @@ mod tests {
         let positions = Positions::new(content);
 
         assert_eq!(
-            positions
-                .index_at_position16(Position16::new(0, 0))
-                .unwrap(),
-            0
+            positions.index_at_position16(Position16::new(0, 0)),
+            Some(0)
         );
         assert_eq!(
-            positions
-                .index_at_position16(Position16::new(0, 4))
-                .unwrap(),
-            4
+            positions.index_at_position16(Position16::new(0, 4)),
+            Some(4)
         );
         assert_eq!(
-            positions
-                .index_at_position16(Position16::new(0, 5))
-                .unwrap(),
-            5
+            positions.index_at_position16(Position16::new(0, 5)),
+            Some(5)
         );
         assert_eq!(
-            positions
-                .index_at_position16(Position16::new(1, 0))
-                .unwrap(),
-            6
+            positions.index_at_position16(Position16::new(1, 0)),
+            Some(6)
         );
         assert_eq!(positions.index_at_position16(Position16::new(1, 1)), None);
         assert_eq!(
-            positions
-                .index_at_position16(Position16::new(2, 0))
-                .unwrap(),
-            7
+            positions.index_at_position16(Position16::new(2, 0)),
+            Some(7)
         );
         assert_eq!(positions.index_at_position16(Position16::new(2, 1)), None);
         assert_eq!(
-            positions
-                .index_at_position16(Position16::new(3, 0))
-                .unwrap(),
-            8
+            positions.index_at_position16(Position16::new(3, 0)),
+            Some(8)
         );
         assert_eq!(
-            positions
-                .index_at_position16(Position16::new(3, 6))
-                .unwrap(),
-            14
+            positions.index_at_position16(Position16::new(3, 6)),
+            Some(14)
         );
         assert_eq!(
-            positions
-                .index_at_position16(Position16::new(3, 8)) // Note different to above
-                .unwrap(),
-            15
+            positions.index_at_position16(Position16::new(3, 8)), // Note different to above
+            Some(15)
         );
         assert_eq!(positions.index_at_position16(Position16::new(3, 13)), None);
     }
@@ -383,21 +346,9 @@ mod tests {
         let content = "😊\nab";
         let positions = Positions::new(content);
 
-        assert_eq!(
-            positions.index_at_position8(Position8::new(0, 0)).unwrap(),
-            0
-        );
-        assert_eq!(
-            positions.index_at_position8(Position8::new(0, 1)).unwrap(),
-            1
-        );
-        assert_eq!(
-            positions.index_at_position8(Position8::new(1, 0)).unwrap(),
-            2
-        );
-        assert_eq!(
-            positions.index_at_position8(Position8::new(1, 1)).unwrap(),
-            3
-        );
+        assert_eq!(positions.index_at_position8(Position8::new(0, 0)), Some(0));
+        assert_eq!(positions.index_at_position8(Position8::new(0, 1)), Some(1));
+        assert_eq!(positions.index_at_position8(Position8::new(1, 0)), Some(2));
+        assert_eq!(positions.index_at_position8(Position8::new(1, 1)), Some(3));
     }
 }

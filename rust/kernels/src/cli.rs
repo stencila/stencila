@@ -167,7 +167,7 @@ impl List {
             ]);
         }
 
-        println!("{table}");
+        table.to_stdout();
 
         Ok(())
     }
@@ -184,6 +184,7 @@ struct Info {
 }
 
 impl Info {
+    #[allow(clippy::print_stdout)]
     async fn run(self) -> Result<()> {
         let mut kernels = Kernels::new_here();
         let instance = kernels.create_instance(Some(&self.name)).await?;
@@ -247,7 +248,7 @@ impl Packages {
             ]);
         }
 
-        println!("{table}");
+        table.to_stdout();
 
         Ok(())
     }
@@ -273,6 +274,7 @@ struct Execute {
 }
 
 impl Execute {
+    #[allow(clippy::print_stdout)]
     async fn run(self) -> Result<()> {
         let mut kernels = Kernels::new_here();
         let instance = kernels.create_instance(Some(&self.name)).await?;
@@ -310,6 +312,7 @@ struct Evaluate {
 }
 
 impl Evaluate {
+    #[allow(clippy::print_stdout)]
     async fn run(self) -> Result<()> {
         let mut kernels = Kernels::new_here();
         let instance = kernels.create_instance(Some(&self.name)).await?;

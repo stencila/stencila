@@ -59,6 +59,7 @@ impl Microkernel for PythonKernel {
 }
 
 #[cfg(test)]
+#[allow(clippy::print_stderr, clippy::unwrap_used)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use kernel_micro::{
@@ -583,7 +584,7 @@ para = {'type':'Paragraph', 'content':[]}
             .and_then(|message| message.error_type.as_deref())
             == Some("ModuleNotFoundError")
         {
-            println!("Skipping test because `numpy` not available");
+            eprintln!("Skipping test because `numpy` not available");
             return Ok(());
         }
 
@@ -742,7 +743,7 @@ a4 = np.array([1.23, 4.56], dtype=np.float64)
             .and_then(|message| message.error_type.as_deref())
             == Some("ModuleNotFoundError")
         {
-            println!("Skipping test because `pandas` not available");
+            eprintln!("Skipping test because `pandas` not available");
             return Ok(());
         }
 
@@ -911,7 +912,7 @@ max    2.000000  4.560000"#
             .and_then(|message| message.error_type.as_deref())
             == Some("ModuleNotFoundError")
         {
-            println!("Skipping test because `pandas` not available");
+            eprintln!("Skipping test because `pandas` not available");
             return Ok(());
         }
 
@@ -979,7 +980,7 @@ max    2.000000  4.560000"#
             .and_then(|message| message.error_type.as_deref())
             == Some("ModuleNotFoundError")
         {
-            println!("Skipping test because `matplotlib` not available");
+            eprintln!("Skipping test because `matplotlib` not available");
             return Ok(());
         }
 
@@ -1016,7 +1017,7 @@ plt.show()",
             .and_then(|message| message.error_type.as_deref())
             == Some("ModuleNotFoundError")
         {
-            println!("Skipping test because `plotly` not available");
+            eprintln!("Skipping test because `plotly` not available");
             return Ok(());
         }
 
@@ -1066,7 +1067,7 @@ plt.show()",
             .and_then(|message| message.error_type.as_deref())
             == Some("ModuleNotFoundError")
         {
-            println!("Skipping test because `altair` not available");
+            eprintln!("Skipping test because `altair` not available");
             return Ok(());
         }
 

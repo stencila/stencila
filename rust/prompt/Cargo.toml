@@ -11,3 +11,6 @@ rquickjs = { version = "0.6.2", features = ["futures", "macro", "parallel"] }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+
+[lints]
+workspace = true

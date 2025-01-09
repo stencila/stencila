@@ -13,3 +13,6 @@ models = { path = "../models" }
 parsers = { path = "../parsers" }
 prompts = { path = "../prompts" }
 schema = { path = "../schema" }
+
+[lints]
+workspace = true

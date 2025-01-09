@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use common::serde::Serialize;
 
 use crate::ToStdout;
@@ -14,8 +16,14 @@ macro_rules! message {
     };
 }
 
+impl Display for Message {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "{}", self.0)
+    }
+}
+
 impl ToStdout for Message {
     fn to_terminal(&self) -> impl std::fmt::Display {
-        self.0.clone()
+        &self.0
     }
 }

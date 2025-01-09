@@ -45,3 +45,6 @@ type-safe-id = "0.3.1"
 uuid = { version = "1.11.0", features = ["v4"] }
 which = "6.0.3"
 zip = "0.6.6"
+
+[lints]
+workspace = true

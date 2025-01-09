@@ -96,6 +96,7 @@ pub fn check(force: bool) -> JoinHandle<Option<String>> {
 }
 
 /// Notify the user if a upgrade is available on stderr
+#[allow(clippy::print_stderr)]
 pub fn notify() {
     if UPGRADE_AVAILABLE.load(Ordering::SeqCst) {
         eprintln!("🎂 A newer version is available. Get it using `stencila upgrade`");

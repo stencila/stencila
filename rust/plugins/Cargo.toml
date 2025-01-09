@@ -12,3 +12,6 @@ common-dev = { path = "../common-dev" }
 kernel = { path = "../kernel" }
 model = { path = "../model" }
 semver = { version = "1.0.22" }
+
+[lints]
+workspace = true

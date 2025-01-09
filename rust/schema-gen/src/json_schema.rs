@@ -18,6 +18,7 @@ use crate::{schema::Schema, schemas::Schemas};
 
 impl Schemas {
     /// Generate a JSON Schema meta-schema and a JSON Schema for each schema
+    #[allow(clippy::print_stderr)]
     pub async fn json_schema(&self) -> Result<()> {
         eprintln!("Generating JSON Schema");
 

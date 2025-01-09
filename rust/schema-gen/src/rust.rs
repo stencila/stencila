@@ -97,6 +97,7 @@ fn escape_keyword(input: &str) -> String {
 
 impl Schemas {
     /// Generate Rust modules for each schema
+    #[allow(clippy::print_stderr)]
     pub async fn rust(&self) -> Result<()> {
         eprintln!("Generating Rust types");
 
@@ -113,10 +114,10 @@ impl Schemas {
                 if NO_GENERATE_MODULE.contains(
                     &path
                         .file_name()
-                        .unwrap()
+                        .expect("should have filename")
                         .to_string_lossy()
                         .strip_suffix(".rs")
-                        .unwrap()
+                        .expect("should have suffix")
                         .to_pascal_case()
                         .as_str(),
                 ) {
@@ -144,10 +145,10 @@ impl Schemas {
                 entry
                     .path()
                     .file_name()
-                    .unwrap()
+                    .expect("should have filename")
                     .to_string_lossy()
                     .strip_suffix(".rs")
-                    .unwrap()
+                    .expect("should have suffix")
                     .to_string()
             })
             .sorted()

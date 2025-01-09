@@ -36,6 +36,7 @@ impl Schemas {
     /// constructed and then exported as Markdown. This makes this crate sort of recursive
     /// in that it both generates the Rust types in the [`Schemas::rust`] function,
     /// and then uses those to construct the `Article`.
+    #[allow(clippy::print_stderr)]
     pub async fn docs_types(&self) -> Result<()> {
         eprintln!("Generating documentation for types");
 
@@ -55,7 +56,11 @@ impl Schemas {
         for file in read_dir(&dest)?.flatten() {
             let path = file.path();
 
-            if HANDWRITTEN_FILES.contains(&path.file_name().unwrap().to_string_lossy().as_ref()) {
+            let Some(name) = path.file_name() else {
+                continue;
+            };
+
+            if HANDWRITTEN_FILES.contains(&name.to_string_lossy().as_ref()) {
                 continue;
             }
 
@@ -451,7 +456,7 @@ fn proptests_anyof(title: &str, schema: &Schema) -> Vec<Block> {
         th([t("Strategy")]),
     ])];
 
-    for variant_schema in schema.any_of.as_ref().unwrap() {
+    for variant_schema in schema.any_of.iter().flatten() {
         let Some(proptest) = &variant_schema.proptest else {
             continue;
         };

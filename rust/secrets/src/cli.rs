@@ -1,6 +1,10 @@
 use std::io::{stdin, IsTerminal, Read};
 
-use cli_utils::{rpassword::prompt_password, ToStdout};
+use cli_utils::{
+    rpassword::prompt_password,
+    table::{self, Attribute, Cell, CellAlignment, Color},
+    ToStdout,
+};
 use common::{
     clap::{self, Args, Parser, Subcommand},
     eyre::Result,
@@ -51,12 +55,11 @@ impl Cli {
     // Run the CLI
     pub async fn run(self) -> Result<()> {
         let Some(command) = self.command else {
-            list()?.to_stdout();
-            return Ok(());
+            return list_cli();
         };
 
         match command {
-            Command::List => list()?.to_stdout(),
+            Command::List => list_cli()?,
             Command::Set(Set { name }) => {
                 let value = if !stdin().is_terminal() {
                     let mut input = String::new();
@@ -72,4 +75,26 @@ impl Cli {
 
         Ok(())
     }
+}
+
+fn list_cli() -> Result<()> {
+    let list = list()?;
+
+    let mut table = table::new();
+    table.set_header(["Name", "Description", "Value"]);
+    for secret in list {
+        table.add_row([
+            Cell::new(&secret.name).add_attribute(Attribute::Bold),
+            Cell::new(&secret.description),
+            match &secret.redacted {
+                Some(redacted) => Cell::new(redacted).fg(Color::Green),
+                None => Cell::new(""),
+            }
+            .set_alignment(CellAlignment::Left),
+        ]);
+    }
+
+    table.to_stdout();
+
+    Ok(())
 }

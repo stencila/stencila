@@ -9,6 +9,7 @@ use codec_markdown::MarkdownCodec;
 use common_dev::insta::assert_snapshot;
 
 #[tokio::test]
+#[allow(clippy::unwrap_used)]
 async fn same() -> Result<()> {
     let codec = MarkdownCodec {};
 
@@ -63,6 +64,7 @@ async fn same() -> Result<()> {
 }
 
 #[tokio::test]
+#[allow(clippy::unwrap_used)]
 async fn spacing() -> Result<()> {
     let codec = MarkdownCodec {};
 
@@ -135,6 +137,7 @@ async fn spacing() -> Result<()> {
 }
 
 #[tokio::test]
+#[allow(clippy::unwrap_used)]
 async fn emoji() -> Result<()> {
     let codec = MarkdownCodec {};
 

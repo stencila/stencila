@@ -6,3 +6,6 @@ edition = "2021"
 [dependencies]
 clap-markdown = "0.1.4"
 cli = { path = "../cli" }
+
+[lints]
+workspace = true

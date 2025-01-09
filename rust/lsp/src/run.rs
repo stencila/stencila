@@ -14,7 +14,7 @@ use schema::NodeId;
 use tower::ServiceBuilder;
 use tracing_subscriber::filter::LevelFilter;
 
-use common::serde_json;
+use common::{eyre::Result, serde_json};
 
 use crate::{
     code_lens,
@@ -24,7 +24,7 @@ use crate::{
 };
 
 /// Run the language server
-pub async fn run(log_level: LevelFilter, log_filter: &str) {
+pub async fn run(log_level: LevelFilter, log_filter: &str) -> Result<()> {
     let (server, _) = MainLoop::new_server(|client| {
         logging::setup(log_level, log_filter, client.clone());
 
@@ -284,8 +284,8 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
     // Prefer truly asynchronous piped stdin/stdout without blocking tasks.
     #[cfg(unix)]
     let (stdin, stdout) = (
-        async_lsp::stdio::PipeStdin::lock_tokio().unwrap(),
-        async_lsp::stdio::PipeStdout::lock_tokio().unwrap(),
+        async_lsp::stdio::PipeStdin::lock_tokio()?,
+        async_lsp::stdio::PipeStdout::lock_tokio()?,
     );
 
     // Fallback to spawn blocking read/write otherwise.
@@ -298,5 +298,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
         )
     };
 
-    server.run_buffered(stdin, stdout).await.unwrap();
+    server.run_buffered(stdin, stdout).await?;
+
+    Ok(())
 }

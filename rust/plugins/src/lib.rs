@@ -16,12 +16,8 @@ use std::{
 use semver::{Version, VersionReq};
 
 use app::{get_app_dir, DirType};
-use cli_utils::{
-    table::{self, Attribute, Cell, Color},
-    Code, ToStdout,
-};
+use cli_utils::Code;
 use common::{
-    derive_more::Deref,
     eyre::{bail, eyre, OptionExt, Report, Result},
     itertools::Itertools,
     rand::{distributions::Alphanumeric, thread_rng, Rng},
@@ -802,59 +798,6 @@ async fn plugins() -> Vec<Plugin> {
             tracing::debug!("While getting list of plugins: {error}");
             vec![]
         }
-    }
-}
-
-/// A list of plugins
-#[derive(Default, Deref, Serialize, Deserialize)]
-#[serde(crate = "common::serde")]
-pub struct PluginList(Vec<Plugin>);
-
-/// Implement `ToStdout` to display a list of plugins as a table.
-impl ToStdout for PluginList {
-    fn to_terminal(&self) -> impl std::fmt::Display {
-        let mut table = table::new();
-        table.set_header(["Name", "Description", "Home", "Version", "Enabled"]);
-
-        for plugin in self.iter() {
-            let (status, enabled) = plugin.availability();
-
-            let suffix = if plugin.unregistered && plugin.linked {
-                Some("(unregistered, linked)")
-            } else if plugin.unregistered {
-                Some("(unregistered)")
-            } else if plugin.linked {
-                Some("(linked)")
-            } else {
-                None
-            };
-
-            table.add_row([
-                if let Some(suffix) = suffix {
-                    Cell::new([&plugin.name, "\n", suffix].concat())
-                } else {
-                    Cell::new(&plugin.name).add_attribute(Attribute::Bold)
-                },
-                Cell::new(&plugin.description),
-                Cell::new(&plugin.home).fg(Color::Blue),
-                match status {
-                    PluginStatus::InstalledLatest(version) => Cell::new(version).fg(Color::Green),
-                    PluginStatus::InstalledOutdated(installed, latest) => {
-                        Cell::new(format!("{installed} → {latest}")).fg(Color::DarkYellow)
-                    }
-                    PluginStatus::Installable => Cell::new(status).fg(Color::Cyan),
-                    PluginStatus::UnavailableRuntime => Cell::new(status).fg(Color::DarkGrey),
-                    PluginStatus::UnavailablePlatform => Cell::new(status).fg(Color::Red),
-                },
-                match enabled {
-                    PluginEnabled::NotApplicable => Cell::new(""),
-                    PluginEnabled::Yes => Cell::new("yes").fg(Color::Green),
-                    PluginEnabled::No => Cell::new("no").fg(Color::DarkGrey),
-                },
-            ]);
-        }
-
-        table
     }
 }
 
