@@ -480,10 +480,10 @@ fn video_to_lexical(video: &VideoObject) -> lexical::BlockNode {
 }
 
 fn file_from_lexical(file: lexical::FileNode, context: &mut LexicalDecodeContext) -> Block {
-    if file.file_title.is_some(){
+    if file.file_title.is_some() {
         context.losses.add_prop(&file, "file_title");
     }
-    if file.file_caption.is_some(){
+    if file.file_caption.is_some() {
         context.losses.add_prop(&file, "file_caption");
     }
 
@@ -495,11 +495,11 @@ fn file_from_lexical(file: lexical::FileNode, context: &mut LexicalDecodeContext
     })
 }
 
-fn file_to_lexical(file: &File) -> lexical::BlockNode{
-    lexical::BlockNode::File(FileNode{
+fn file_to_lexical(file: &File) -> lexical::BlockNode {
+    lexical::BlockNode::File(FileNode {
         file_name: file.name.clone(),
         src: file.path.clone(),
-        file_size: file.size.clone(),
+        file_size: file.size,
         ..Default::default()
     })
 }

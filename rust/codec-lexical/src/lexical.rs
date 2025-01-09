@@ -323,18 +323,18 @@ pub(super) struct VideoNode {
 
 #[derive(Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub(super) struct FileNode{
+pub(super) struct FileNode {
     pub r#type: MustBe!("file"),
 
-    pub src:String,
+    pub src: String,
 
-    pub file_title:Option<String>,
+    pub file_title: Option<String>,
 
-    pub file_caption:Option<String>,
+    pub file_caption: Option<String>,
 
-    pub file_name:String,
+    pub file_name: String,
 
-    pub file_size:Option<u64>,
+    pub file_size: Option<u64>,
 }
 
 bitflags! {
