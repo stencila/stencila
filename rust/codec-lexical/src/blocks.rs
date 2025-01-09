@@ -3,15 +3,15 @@ use codec::{
     schema::{
         shortcuts::{art, p, t},
         transforms::blocks_to_inlines,
-        AudioObject, Block, CodeBlock, Heading, ImageObject, Inline, List, ListItem, Paragraph,
-        QuoteBlock, RawBlock, Table, Text, ThematicBreak, VideoObject,
+        AudioObject, Block, CodeBlock, File, Heading, ImageObject, Inline, List, ListItem,
+        Paragraph, QuoteBlock, RawBlock, Table, Text, ThematicBreak, VideoObject,
     },
 };
 use codec_text::to_text;
 
 use crate::{
     inlines::{inlines_from_lexical, inlines_to_lexical},
-    lexical::{self, AudioNode, VideoNode},
+    lexical::{self, AudioNode, FileNode, VideoNode},
     shared::{LexicalDecodeContext, LexicalEncodeContext},
 };
 
@@ -67,6 +67,8 @@ fn block_from_lexical(block: lexical::BlockNode, context: &mut LexicalDecodeCont
         lexical::BlockNode::Audio(audio) => audio_from_lexical(audio, context),
         lexical::BlockNode::Video(video) => video_from_lexical(video, context),
 
+        lexical::BlockNode::File(file) => file_from_lexical(file, context),
+
         lexical::BlockNode::CodeBlock(code_block) => code_block_from_lexical(code_block, context),
         lexical::BlockNode::Markdown(block) => return markdown_from_lexical(block, context),
         lexical::BlockNode::Html(block) => html_from_lexical(block, context),
@@ -95,6 +97,7 @@ fn block_to_lexical(block: &Block, context: &mut LexicalEncodeContext) -> lexica
         ImageObject(image) => image_to_lexical(image, context),
         AudioObject(audio) => audio_to_lexical(audio),
         VideoObject(video) => video_to_lexical(video),
+        File(file) => file_to_lexical(file),
         RawBlock(block) => raw_block_to_lexical(block, context),
         ThematicBreak(..) => thematic_break_to_lexical(),
         _ => block_to_lexical_default(block),
@@ -430,34 +433,34 @@ fn audio_to_lexical(audio: &AudioObject) -> lexical::BlockNode {
 }
 
 fn video_from_lexical(video: lexical::VideoNode, context: &mut LexicalDecodeContext) -> Block {
-    if video.file_name.is_some(){
+    if video.file_name.is_some() {
         context.losses.add_prop(&video, "file_name");
     }
-    if video.width.is_some(){
+    if video.width.is_some() {
         context.losses.add_prop(&video, "width");
     }
-    if video.height.is_some(){
+    if video.height.is_some() {
         context.losses.add_prop(&video, "height");
     }
-    if video.duration.is_some(){
+    if video.duration.is_some() {
         context.losses.add_prop(&video, "duration");
     }
-    if video.thumbnail_src.is_some(){
+    if video.thumbnail_src.is_some() {
         context.losses.add_prop(&video, "thumbnail_src");
     }
-    if video.custom_thumbnail_src.is_some(){
+    if video.custom_thumbnail_src.is_some() {
         context.losses.add_prop(&video, "custom_thumbnail_src");
     }
-    if video.thumbnail_width.is_some(){
+    if video.thumbnail_width.is_some() {
         context.losses.add_prop(&video, "thumbnail_width");
     }
-    if video.thumbnail_height.is_some(){
+    if video.thumbnail_height.is_some() {
         context.losses.add_prop(&video, "thumbnail_height");
     }
-    if video.card_width.is_some(){
+    if video.card_width.is_some() {
         context.losses.add_prop(&video, "card_width");
     }
-    if video.r#loop.is_some(){
+    if video.r#loop.is_some() {
         context.losses.add_prop(&video, "loop");
     }
 
@@ -472,6 +475,31 @@ fn video_to_lexical(video: &VideoObject) -> lexical::BlockNode {
     lexical::BlockNode::Video(VideoNode {
         src: video.content_url.clone(),
         mime_type: video.media_type.clone(),
+        ..Default::default()
+    })
+}
+
+fn file_from_lexical(file: lexical::FileNode, context: &mut LexicalDecodeContext) -> Block {
+    if file.file_title.is_some(){
+        context.losses.add_prop(&file, "file_title");
+    }
+    if file.file_caption.is_some(){
+        context.losses.add_prop(&file, "file_caption");
+    }
+
+    Block::File(File {
+        name: file.file_name,
+        path: file.src,
+        size: file.file_size,
+        ..Default::default()
+    })
+}
+
+fn file_to_lexical(file: &File) -> lexical::BlockNode{
+    lexical::BlockNode::File(FileNode{
+        file_name: file.name.clone(),
+        src: file.path.clone(),
+        file_size: file.size.clone(),
         ..Default::default()
     })
 }

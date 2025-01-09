@@ -477,15 +477,10 @@ snapshot_kind: text
       ]
     },
     {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "LOST Unknown (file)"
-          }
-        }
-      ]
+      "type": "File",
+      "name": "markdown-test-pandoc.pdf",
+      "path": "https://stencila.ghost.io/content/files/2025/01/markdown-test-pandoc.pdf",
+      "size": 186479
     },
     {
       "type": "Paragraph",

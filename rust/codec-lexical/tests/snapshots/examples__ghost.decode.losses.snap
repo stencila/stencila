@@ -5,6 +5,8 @@ snapshot_kind: text
 ---
 AudioNode.duration: 1
 CodeBlockNode.caption: 1
+FileNode.fileCaption: 1
+FileNode.fileTitle: 1
 HtmlNode.visibility: 1
 ImageNode.alt: 1
 ImageNode.caption: 1
@@ -14,7 +16,6 @@ ImageNode.href: 1
 ImageNode.width: 1
 Unknown (bookmark): 1
 Unknown (callout): 1
-Unknown (file): 1
 Unknown (toggle): 1
 VideoNode.cardWidth: 1
 VideoNode.customThumbnailSrc: 1

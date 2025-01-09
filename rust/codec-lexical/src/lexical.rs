@@ -35,6 +35,7 @@ pub(super) enum BlockNode {
     Image(ImageNode),
     Audio(AudioNode),
     Video(VideoNode),
+    File(FileNode),
     CodeBlock(CodeBlockNode),
     Markdown(MarkdownNode),
     Html(HtmlNode),
@@ -318,6 +319,22 @@ pub(super) struct VideoNode {
     pub card_width: Option<String>,
 
     pub r#loop: Option<bool>,
+}
+
+#[derive(Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct FileNode{
+    pub r#type: MustBe!("file"),
+
+    pub src:String,
+
+    pub file_title:Option<String>,
+
+    pub file_caption:Option<String>,
+
+    pub file_name:String,
+
+    pub file_size:Option<u64>,
 }
 
 bitflags! {
