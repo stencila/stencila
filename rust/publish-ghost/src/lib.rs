@@ -167,6 +167,14 @@ impl Cli {
         let theme = doc.config().await?.theme;
         let node = &*doc.root_read().await;
 
+        let mut title = String::from("Untitled");
+        if let schema::Node::Article(article) = node {
+             if let Some(title_parts) = &article.title {
+                title = title_parts.iter().map(|x| x.to_string()).collect();
+                println!("{title}");
+             }
+        }
+
         // Convert it to Lexical
         // TODO: use codec-lexical 
 
@@ -197,7 +205,7 @@ impl Cli {
         let payload = serde_json::json!({
             root_key : [
                 json!({
-                    "title": "WIP: Stencila",
+                    "title": title,
                     "html": content,
                     "status": "published",
                 })
