@@ -24,7 +24,7 @@ impl Codec for LexicalCodec {
     }
 
     fn status(&self) -> Status {
-        Status::UnderDevelopment
+        Status::Alpha
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {
