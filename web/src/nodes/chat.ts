@@ -277,24 +277,22 @@ export class Chat extends Executable {
                 </div>
               </div>
 
-              <div class="bg-[${colour}] border-t border-[${borderColour}]">
-                <div class="p-1">
-                  <div class="max-w-prose mx-auto">
-                    <stencila-ui-chat-message-inputs
-                      type="Chat"
-                      node-id=${this.id}
-                      @stencila-message-input=${this.onMessageInput}
-                    ></stencila-ui-chat-message-inputs>
-                  </div>
-                </div>
+              <div
+                class="bg-[${colour}] border-t border-[${borderColour}] px-3 py-1"
+              >
+                <slot name="prompt"></slot>
+
+                <stencila-ui-chat-message-inputs
+                  type="Chat"
+                  node-id=${this.id}
+                  @stencila-message-input=${this.onMessageInput}
+                ></stencila-ui-chat-message-inputs>
 
                 <stencila-ui-node-execution-messages type="Chat">
                   <slot name="execution-messages"></slot>
                 </stencila-ui-node-execution-messages>
 
                 <slot name="model-parameters"></slot>
-
-                <slot name="prompt"></slot>
               </div>
             </div>
 
