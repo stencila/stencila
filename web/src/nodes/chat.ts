@@ -8,6 +8,8 @@ import { customElement, state } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
+import '../ui/nodes/chat-message-inputs'
+import '../ui/nodes/nodes-selected'
 
 import { ChatMessage } from './chat-message'
 import { ChatMessageGroup } from './chat-message-group'
@@ -273,6 +275,10 @@ export class Chat extends Executable {
                       name="content"
                       @slotchange=${this.onContentSlotChange}
                     ></slot>
+                    <stencila-ui-nodes-selected
+                      type="Chat"
+                      node-id=${this.id}
+                    ></stencila-ui-nodes-selected>
                   </div>
                 </div>
               </div>
