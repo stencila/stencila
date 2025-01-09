@@ -130,7 +130,7 @@ pub struct Cli {
     /// The Ghost domain
     /// 
     /// This is the domain name of your Ghost instance, with an optional port. 
-    #[arg(long, env = "STENCILA_GHOST_DOMAIN", value_parser = parse_host)]
+    #[arg(long, env = "STENCILA_GHOST_DOMAIN", value_parser = parse_host, default_value = "ghost.io")]
     ghost: Host,
 
     /// The Ghost Admin API key
