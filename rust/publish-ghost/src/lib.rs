@@ -127,6 +127,18 @@ pub struct Cli {
     #[arg(default_value = ".")]
     path: PathBuf,
 
+    /// Dry run test
+    /// 
+    /// When set, stencila will perform the document conversion but skip the publication to Ghost.
+    #[arg(long, default_value_t = false)]
+    dry_run: bool,
+
+    /// Dry run test
+    /// 
+    /// When set, stencila will perform the document conversion but skip the publication to Ghost.
+    #[arg(long, default_value_t = false)]
+    dry_run: bool,
+
     /// The Ghost domain
     /// 
     /// This is the domain name of your Ghost instance, with an optional port. 
@@ -211,6 +223,10 @@ impl Cli {
                 })
             ]
         });
+
+        if self.dry_run {
+            return Ok(());
+        }
 
         let response = Client::new()
             .post(url)
