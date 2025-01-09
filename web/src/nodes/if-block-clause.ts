@@ -1,4 +1,4 @@
-import { consume } from '@lit/context'
+import { ContextConsumer } from '@lit/context'
 import { apply } from '@twind/core'
 import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
@@ -38,9 +38,8 @@ export class IfBlockClause extends CodeExecutable {
    * all clauses should be visible. If it is closed, only the content
    * of the active clauses should be visible.
    */
-  @consume({ context: entityContext, subscribe: true })
   @state()
-  private ifBlockConsumer: EntityContext
+  private ifBlockConsumer: ContextConsumer<{ __context__: EntityContext }, this>
 
   /**
    * Whether the clause is folded (i.e. its content is hidden)
@@ -89,23 +88,37 @@ export class IfBlockClause extends CodeExecutable {
   protected override update(changedProperties: PropertyValues): void {
     super.update(changedProperties)
 
-    if (changedProperties.has('ifBlockConsumer')) {
-      // if card is closed only active path stays open
-      if (!this.ifBlockConsumer.cardOpen) {
-        // TODO: consider al alternative to disabling this lint error
-        // eslint-disable-next-line lit/no-property-change-update
-        this.isFolded = this.isActive === false
-      }
+    // if card is closed only active path stays open
+    if (!this.ifBlockConsumer?.value?.cardOpen) {
+      // TODO: consider alternative to disabling this lint error
+      // eslint-disable-next-line lit/no-property-change-update
+      this.isFolded = this.isActive === false
     }
-    if (changedProperties.has('isActive') && !this.ifBlockConsumer.cardOpen) {
+    // }
+    if (
+      changedProperties.has('isActive') &&
+      !this.ifBlockConsumer?.value?.cardOpen
+    ) {
       // eslint-disable-next-line lit/no-property-change-update
       this.isFolded = this.isActive === false
     }
   }
 
+  protected override updated(_changedProperties: PropertyValues): void {
+    super.updated(_changedProperties)
+
+    // Initailise the `ifBlockConsumer` object
+    if (!this.ifBlockConsumer) {
+      this.ifBlockConsumer = new ContextConsumer(this, {
+        context: entityContext,
+        subscribe: true,
+      })
+    }
+  }
+
   override render() {
     return html`
-      ${this.ifBlockConsumer?.cardOpen ? this.renderHeader() : ''}
+      ${this.ifBlockConsumer?.value?.cardOpen ? this.renderHeader() : ''}
       <stencila-ui-collapsible-animation
         class=${!this.isFolded ? 'opened' : ''}
       >
@@ -189,7 +202,7 @@ export class IfBlockClause extends CodeExecutable {
 
   protected renderContent() {
     const styles = apply([
-      this.ifBlockConsumer?.cardOpen ? 'px-2 pb-4' : '',
+      this.ifBlockConsumer?.value?.cardOpen ? 'px-2 pb-4' : '',
       this.hasContent ? '' : 'pt-4',
     ])
 

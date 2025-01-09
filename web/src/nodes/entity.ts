@@ -7,6 +7,7 @@ import { nodePatchEvent, NodePatch } from '../clients/nodes'
 import { DocumentAccess, DocumentView, NodeId } from '../types'
 import { EntityContext, entityContext } from '../ui/nodes/entity-context'
 import { closestGlobally } from '../utilities/closestGlobally'
+import { getModeParam } from '../utilities/getModeParam'
 
 /**
  * Abstract base class for web components representing Stencila Schema `Entity` node types
@@ -82,6 +83,12 @@ export abstract class Entity extends LitElement {
     this.parentNodeType = this.ancestors.split('.').pop() as NodeType
 
     this.context.nodeId = this.id
+
+    const mode = getModeParam(window)
+    if (mode && mode === 'test-expand-all') {
+      // start with card open in default
+      this.context.cardOpen = true
+    }
 
     this.shadowRoot.addEventListener(
       `toggle-${this.id}`,
