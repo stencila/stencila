@@ -9,7 +9,6 @@ jats:
 markdown:
   template: '=={{content}}=='
   escape: '='
-proptest: {}
 core:
   - annotation
 properties:
