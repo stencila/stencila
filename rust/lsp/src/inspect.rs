@@ -4,7 +4,7 @@ use codec_text_trait::TextCodec;
 use codecs::{Mapping, PoshMap};
 use common::tracing;
 use schema::{
-    Admonition, Article, AudioObject, Block, Button, CallBlock, Chat, ChatMessage,
+    Admonition, Annotation, Article, AudioObject, Block, Button, CallBlock, Chat, ChatMessage,
     ChatMessageGroup, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeExpression, CodeInline,
     Date, DateTime, DeleteBlock, DeleteInline, Duration, Emphasis, ExecutionStatus, Figure, File,
     ForBlock, Form, Heading, IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline,
@@ -202,6 +202,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             };
         }
         variants!(
+            Annotation,
             AudioObject,
             Button,
             Cite,
@@ -757,6 +758,7 @@ default!(
     Section,
     ThematicBreak,
     // Inlines
+    Annotation,
     AudioObject,
     Button,
     Cite,
