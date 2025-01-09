@@ -32,7 +32,7 @@ export class UINodeChatCommands extends UIBaseClass {
    * Insert a clone of the node into the active document
    */
   private onInsertClone() {
-    this.dispatchEvent(insertClone(this.type, this.nodeId))
+    this.dispatchEvent(insertClone([this.nodeId]))
   }
 
   /**
@@ -40,7 +40,7 @@ export class UINodeChatCommands extends UIBaseClass {
    * the active document
    */
   private onInsertInstruction(type: InstructionType) {
-    this.dispatchEvent(insertInstruction(this.type, this.nodeId, type, 'Auto'))
+    this.dispatchEvent(insertInstruction([this.nodeId], type, 'Auto'))
   }
 
   /**
