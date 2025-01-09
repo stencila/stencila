@@ -242,6 +242,46 @@ export class ModelParameters extends Entity {
   }
 
   override render() {
+    return this.isWithin('Chat') ? this.renderParts() : this.renderRibbon()
+  }
+
+  private renderParts() {
+    const { textColour } = this.parentNodeUI
+
+    const styles = apply(
+      'flex flex-row items-center gap-x-2 w-full',
+      `text-[${textColour}] text-xs leading-tight font-sans`
+    )
+
+    return html`
+      <div class=${styles}>
+        ${this.renderSliders()} ${this.renderSelect(false)}
+      </div>
+    `
+  }
+
+  private renderRibbon() {
+    const { colour, textColour, borderColour } = this.parentNodeUI
+
+    const styles = apply(
+      'flex flex-row items-center gap-x-2',
+      'w-full',
+      'px-3 py-1',
+      `bg-[${colour}]`,
+      `text-[${textColour}] text-xs leading-tight font-sans`,
+      `border-t border-[${borderColour}]`
+    )
+
+    return html`
+      <div class=${styles}>
+        Model ${this.renderSelect()} ${this.renderSliders()}
+      </div>
+    `
+  }
+
+  private renderSelect(border = true) {
+    const { textColour, borderColour } = this.parentNodeUI
+
     // Model id strings written by the user may be partial, so here match them with
     // the id in the model list. This is the same as done in Rust.
     const modelIds: string[] = []
@@ -254,18 +294,10 @@ export class ModelParameters extends Entity {
       }
     }
 
-    const { colour, textColour, borderColour } = this.parentNodeUI
-
-    const styles = apply(
-      'flex flex-row items-center gap-x-2',
-      'w-full',
-      'px-3 py-1',
-      `bg-[${colour}]`,
-      `text-[${textColour}] text-xs leading-tight font-sans`,
-      `border-t border-[${borderColour}]`
-    )
-
     const selectStyles = css`
+      &::part(combobox) {
+        border-color: ${border ? borderColour : 'white'};
+      }
       &::part(tag__base) {
         background-color: white;
         border-color: ${borderColour};
@@ -277,38 +309,20 @@ export class ModelParameters extends Entity {
     `
 
     return html`
-      <div class=${styles}>
-        Model
-        <sl-select
-          class="w-full ${selectStyles}"
-          multiple
-          clearable
-          max-options-visible="2"
-          size="small"
-          value=${modelIds.join(' ')}
-          @sl-change=${(e: InputEvent) => this.onModelIdsChanged(e)}
-        >
-          ${this.modelOptions}
-        </sl-select>
-        <sl-dropdown placement="bottom-end" distance="20">
-          <div slot="trigger" class="cursor-pointer">
-            <sl-tooltip
-              content="Model settings"
-              style="--show-delay: 500ms; --hide-delay: 100ms"
-            >
-              <stencila-ui-icon
-                name="sliders"
-                class="text-base"
-              ></stencila-ui-icon>
-            </sl-tooltip>
-          </div>
-          ${this.renderDropdown()}
-        </sl-dropdown>
-      </div>
+      <sl-select
+        class="w-full ${selectStyles}"
+        multiple
+        max-options-visible="2"
+        size="small"
+        value=${modelIds.join(' ')}
+        @sl-change=${(e: InputEvent) => this.onModelIdsChanged(e)}
+      >
+        ${this.modelOptions}
+      </sl-select>
     `
   }
 
-  renderDropdown() {
+  private renderSliders() {
     const { borderColour, textColour, colour } = this.parentNodeUI
 
     const headerClasses = apply(
@@ -331,7 +345,7 @@ export class ModelParameters extends Entity {
         ></stencila-ui-icon>
       </sl-tooltip>`
 
-    return html`
+    const options = html`
       <div class="border rounded border-[${borderColour}] bg-white">
         <div class="bg-[${colour}]/20 min-w-[300px] p-4">
           <span class="${headerClasses} mt-0">
@@ -441,5 +455,18 @@ export class ModelParameters extends Entity {
         </div>
       </div>
     `
+
+    return html` <sl-dropdown placement="bottom-end" distance="20">
+      <div slot="trigger" class="cursor-pointer">
+        <sl-tooltip
+          content="Model settings"
+          style="--show-delay: 500ms; --hide-delay: 100ms"
+        >
+          <stencila-ui-icon name="sliders" class="text-base"></stencila-ui-icon>
+        </sl-tooltip>
+      </div>
+
+      ${options}
+    </sl-dropdown>`
   }
 }
