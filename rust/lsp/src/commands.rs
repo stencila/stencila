@@ -861,7 +861,8 @@ pub(super) async fn execute_command(
                     Ok(None)
                 };
             } else {
-                return Err(invalid_request("Root node is not an article"));
+                tracing::warn!("Root node is not an article");
+                return Ok(None);
             }
         }
         SAVE_DOC => (
