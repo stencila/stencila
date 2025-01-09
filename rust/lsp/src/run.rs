@@ -18,7 +18,7 @@ use common::{eyre::Result, serde_json};
 
 use crate::{
     code_lens,
-    commands::{self, INSERT_CLONE, INSERT_INSTRUCTION},
+    commands::{self, INSERT_CLONES, INSERT_INSTRUCTION},
     completion, content, dom, formatting, hover, kernels_, lifecycle, logging, models_, node_ids,
     prompts_, symbols, text_document, ServerState, ServerStatus,
 };
@@ -126,7 +126,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) -> Result<()> {
                     });
 
                 let source_doc =
-                    if matches!(params.command.as_str(), INSERT_CLONE | INSERT_INSTRUCTION) {
+                    if matches!(params.command.as_str(), INSERT_CLONES | INSERT_INSTRUCTION) {
                         params
                             .arguments
                             .get(2)

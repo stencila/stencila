@@ -62,26 +62,25 @@ export const patchChatFocus = (chatId: NodeId, cloneId: NodeId) =>
   })
 
 /**
- * Create an `invoke.insert-clone` command event
+ * Create an `invoke.insert-clones` command event
  */
-export const insertClone = (nodeType: NodeType, nodeId: NodeId) =>
+export const insertClone = (nodeIds: [NodeId]) =>
   documentCommandEvent({
-    command: 'invoke.insert-clone',
-    args: [nodeType, nodeId],
+    command: 'invoke.insert-clones',
+    args: [[nodeIds]],
   })
 
 /**
  * Create an `invoke.insert-instruction` command event
  */
 export const insertInstruction = (
-  nodeType: NodeType,
-  nodeId: NodeId,
+  nodeIds: [NodeId],
   instructionType: InstructionType,
   executionMode: ExecutionMode
 ) =>
   documentCommandEvent({
     command: 'invoke.insert-instruction',
-    args: [nodeType, nodeId, instructionType, executionMode],
+    args: [nodeIds, instructionType, executionMode],
   })
 
 /**

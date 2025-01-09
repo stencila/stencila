@@ -76,7 +76,7 @@ pub(super) const ARCHIVE_NODE: &str = "stencila.archive-node";
 pub(super) const REVISE_NODE: &str = "stencila.revise-node";
 
 pub(super) const INSERT_NODE: &str = "stencila.insert-node";
-pub(super) const INSERT_CLONE: &str = "stencila.insert-clone";
+pub(super) const INSERT_CLONES: &str = "stencila.insert-clones";
 pub(super) const INSERT_INSTRUCTION: &str = "stencila.insert-instruction";
 
 pub(super) const CREATE_CHAT: &str = "stencila.create-chat";
@@ -111,7 +111,7 @@ pub(super) fn commands() -> Vec<String> {
         ARCHIVE_NODE,
         REVISE_NODE,
         INSERT_NODE,
-        INSERT_CLONE,
+        INSERT_CLONES,
         INSERT_INSTRUCTION,
         CREATE_CHAT,
         DELETE_CHAT,
@@ -595,11 +595,13 @@ pub(super) async fn execute_command(
                 true,
             )
         }
-        INSERT_CLONE | INSERT_INSTRUCTION => {
+        INSERT_CLONES | INSERT_INSTRUCTION => {
             let position = position_arg(args.next())?;
             args.next(); // Skip the argument for the URI of the source document (already used)
-            let node_type = node_type_arg(args.next())?;
-            let node_id = node_id_arg(args.next())?;
+            let node_ids: Vec<NodeId> = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok())
+                .ok_or_else(|| invalid_request("node ids arg missing"))?;
             let instruction_type = args
                 .next()
                 .and_then(|value| serde_json::from_value(value).ok())
@@ -608,41 +610,52 @@ pub(super) async fn execute_command(
                 .next()
                 .and_then(|value| serde_json::from_value(value).ok());
 
-            // Get the node from the source document
+            // Get the root node from the source document
             let source_doc = source_doc
                 .ok_or_else(|| invalid_request("Source document URI missing or invalid"))?;
             let source_doc = source_doc.read().await;
             let source_root = source_doc.root_read().await;
-            let source_node = find(&*source_root, node_id)
-                .ok_or_else(|| invalid_request("Node not found in source document"))?;
 
-            // Convert the node into a block, replicate it (to avoid having duplicate ids)
-            let block = Block::try_from(source_node)
-                .and_then(|block| replicate(&block))
+            // Clone the nodes from the source
+            let nodes: Vec<Node> = node_ids
+                .into_iter()
+                .map(|node_id| find(&*source_root, node_id).ok_or_eyre("Node not found"))
+                .try_collect()
                 .map_err(invalid_request)?;
+
+            // Convert the nodes into blocks (if necessary) and replicate (to avoid having duplicate ids)
+            let blocks: Vec<Block> = nodes
+                .into_iter()
+                .map(|node| replicate(&Block::try_from(node)?))
+                .try_collect()
+                .map_err(internal_error)?;
 
             // If appropriate, wrap in a command
-            let block = if matches!(command, INSERT_INSTRUCTION) {
-                Block::InstructionBlock(InstructionBlock {
+            let blocks = if matches!(command, INSERT_INSTRUCTION) {
+                vec![Block::InstructionBlock(InstructionBlock {
                     instruction_type,
                     execution_mode,
-                    content: Some(vec![block]),
+                    content: Some(blocks),
                     ..Default::default()
-                })
+                })]
             } else {
-                block
+                blocks
             };
 
-            // and convert to a patch value
-            let value = replicate(&block)
-                .and_then(|block| block.to_value())
-                .map_err(invalid_request)?;
+            // Convert blocks to patch values
+            let values = blocks.into_iter().map(PatchValue::Block);
 
             // Find where to insert the block based on the position in the text document
             // falling back to appending to the end of the document's root node's content.
             let (node_id, op) = match root.read().await.block_content_index(position) {
-                Some((node_id, index)) => (Some(node_id), PatchOp::Insert(vec![(index, value)])),
-                None => (None, PatchOp::Push(value)),
+                Some((node_id, index)) => {
+                    let values = values
+                        .enumerate()
+                        .map(|(offset, value)| (index + offset, value))
+                        .collect_vec();
+                    (Some(node_id), PatchOp::Insert(values))
+                }
+                None => (None, PatchOp::Append(values.collect())),
             };
 
             // Patch the content of the destination document
@@ -653,7 +666,7 @@ pub(super) async fn execute_command(
             };
 
             (
-                format!("Cloning {node_type}"),
+                format!("Cloning nodes"),
                 Command::PatchNode(patch),
                 false,
                 true,
