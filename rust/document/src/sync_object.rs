@@ -176,6 +176,7 @@ impl Document {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use json_patch::{AddOperation, RemoveOperation};
 

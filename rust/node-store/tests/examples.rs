@@ -24,7 +24,10 @@ async fn examples() -> Result<()> {
     let examples = glob(pattern)?.flatten().collect_vec();
 
     for path in examples {
-        let name = path.file_name().unwrap().to_string_lossy();
+        let Some(name) = path.file_name() else {
+            continue;
+        };
+        let name = name.to_string_lossy();
 
         // TODO: Do not skip this!
         if name == "primitives.json" {

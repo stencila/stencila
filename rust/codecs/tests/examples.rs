@@ -352,7 +352,10 @@ async fn examples() -> Result<()> {
             continue;
         }
 
-        let name = dir.file_name().unwrap().to_string_lossy().to_string();
+        let Some(name) = dir.file_name() else {
+            continue;
+        };
+        let name = name.to_string_lossy().to_string();
 
         if let Some(include) = include.as_ref() {
             if !include.contains(&name) {

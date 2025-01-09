@@ -540,7 +540,7 @@ mod tests {
         let model = list
             .iter()
             .find(|model| model.name().starts_with("GPT"))
-            .unwrap();
+            .expect("model should exists");
         let output = model.perform_task(&test_task_repeat_word()).await?;
 
         assert_eq!(output.content.trim(), "HELLO".to_string());

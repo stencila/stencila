@@ -10,6 +10,7 @@ use markdown::{
 /// Note that a descending number of backticks is needed.
 /// See https://github.com/wooorm/markdown-rs/issues/119
 #[test]
+#[allow(clippy::unwrap_used)]
 fn nested_code_block() {
     let options = ParseOptions::gfm();
 

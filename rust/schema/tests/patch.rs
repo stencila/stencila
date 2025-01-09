@@ -62,11 +62,10 @@ async fn fixtures() -> Result<()> {
     for path in glob("tests/fixtures/*.smd")?.flatten() {
         eprintln!("{}", path.display());
 
-        let name = path
-            .file_stem()
-            .and_then(|name| name.to_str())
-            .unwrap()
-            .to_string();
+        let Some(name) = path.file_stem() else {
+            continue;
+        };
+        let name = name.to_string_lossy().to_string();
 
         // Read in the fixture and split into old and new Stencila Markdown
         let content = read_to_string(path)?;
@@ -888,6 +887,7 @@ fn authorship_on_nodes() -> Result<()> {
 
 /// Test an archive patch for a new instruction
 #[test]
+#[allow(clippy::unwrap_used)]
 fn archive_patch_new() -> Result<()> {
     // Archive an instruction with no accepted suggestion
     let inb = InstructionBlock {
