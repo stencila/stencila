@@ -461,15 +461,10 @@ snapshot_kind: text
       ]
     },
     {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "LOST Unknown (audio)"
-          }
-        }
-      ]
+      "type": "AudioObject",
+      "id": "Testing",
+      "contentUrl": "https://stencila.ghost.io/content/media/2025/01/testing.m4a",
+      "mediaType": "audio/x-m4a"
     },
     {
       "type": "Paragraph",

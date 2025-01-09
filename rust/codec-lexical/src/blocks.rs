@@ -3,15 +3,15 @@ use codec::{
     schema::{
         shortcuts::{art, p, t},
         transforms::blocks_to_inlines,
-        Block, CodeBlock, Heading, ImageObject, Inline, List, ListItem, Paragraph, QuoteBlock,
-        RawBlock, Table, Text, ThematicBreak,
+        AudioObject, Block, CodeBlock, Heading, ImageObject, Inline, List, ListItem, Paragraph,
+        QuoteBlock, RawBlock, Table, Text, ThematicBreak,
     },
 };
 use codec_text::to_text;
 
 use crate::{
     inlines::{inlines_from_lexical, inlines_to_lexical},
-    lexical,
+    lexical::{self, AudioNode},
     shared::{LexicalDecodeContext, LexicalEncodeContext},
 };
 
@@ -63,6 +63,7 @@ fn block_from_lexical(block: lexical::BlockNode, context: &mut LexicalDecodeCont
         }
 
         lexical::BlockNode::Image(image) => image_from_lexical(image, context),
+        lexical::BlockNode::Audio(audio) => audio_from_lexical(audio, context),
 
         lexical::BlockNode::CodeBlock(code_block) => code_block_from_lexical(code_block, context),
         lexical::BlockNode::Markdown(block) => return markdown_from_lexical(block, context),
@@ -90,6 +91,7 @@ fn block_to_lexical(block: &Block, context: &mut LexicalEncodeContext) -> lexica
         CodeBlock(code_block) => code_block_to_lexical(code_block, context),
         Table(table) => table_to_lexical(table, context),
         ImageObject(image) => image_to_lexical(image, context),
+        AudioObject(audio) => audio_to_lexical(audio),
         RawBlock(block) => raw_block_to_lexical(block, context),
         ThematicBreak(..) => thematic_break_to_lexical(),
         _ => block_to_lexical_default(block),
@@ -400,6 +402,27 @@ fn block_to_lexical_default(block: &Block) -> lexical::BlockNode {
 
     lexical::BlockNode::Html(lexical::HtmlNode {
         html,
+        ..Default::default()
+    })
+}
+
+fn audio_from_lexical(audio: lexical::AudioNode, context: &mut LexicalDecodeContext) -> Block {
+        
+    context.losses.add_prop(&audio, "duration");
+
+    Block::AudioObject(AudioObject {
+        id: audio.title,
+        content_url: audio.src,
+        media_type: audio.mime_type,
+        ..Default::default()
+    })
+}
+
+fn audio_to_lexical(audio: &AudioObject) -> lexical::BlockNode {
+    lexical::BlockNode::Audio(AudioNode {
+        title: audio.id.clone(),
+        src: audio.content_url.clone(),
+        mime_type: audio.media_type.clone(),
         ..Default::default()
     })
 }

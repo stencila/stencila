@@ -3,6 +3,7 @@ source: rust/codec-lexical/tests/examples.rs
 expression: info.losses
 snapshot_kind: text
 ---
+AudioNode.duration: 1
 CodeBlockNode.caption: 1
 HtmlNode.visibility: 1
 ImageNode.alt: 1
@@ -12,7 +13,6 @@ ImageNode.height: 1
 ImageNode.href: 1
 ImageNode.width: 1
 Unknown (aside): 1
-Unknown (audio): 1
 Unknown (bookmark): 1
 Unknown (callout): 1
 Unknown (file): 1

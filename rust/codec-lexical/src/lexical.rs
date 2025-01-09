@@ -32,6 +32,7 @@ pub(super) enum BlockNode {
     Quote(QuoteNode),
     ExtendedQuote(ExtendedQuoteNode),
     Image(ImageNode),
+    Audio(AudioNode),
     CodeBlock(CodeBlockNode),
     Markdown(MarkdownNode),
     Html(HtmlNode),
@@ -233,11 +234,11 @@ pub(super) struct HashTagNode {
 }
 
 #[skip_serializing_none]
-#[derive(Default,Serialize, Deserialize)]
+#[derive(Default, Serialize, Deserialize)]
 pub(super) struct LinkNode {
     pub r#type: MustBe!("link"),
 
-    pub children:Vec<InlineNode>,
+    pub children: Vec<InlineNode>,
 
     pub format: String,
 
@@ -266,6 +267,18 @@ pub(super) struct ExtendedTextNode {
     pub format: TextFormat,
 
     pub text: String,
+}
+
+#[derive(Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct AudioNode {
+    pub r#type: MustBe!("audio"),
+
+    pub mime_type: Option<String>,
+
+    pub src: String,
+
+    pub title: Option<String>,
 }
 
 bitflags! {

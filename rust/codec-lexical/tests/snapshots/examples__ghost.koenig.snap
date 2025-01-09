@@ -282,14 +282,10 @@ snapshot_kind: text
         ]
       },
       {
-        "type": "paragraph",
-        "children": [
-          {
-            "type": "extended-text",
-            "format": 0,
-            "text": "LOST Unknown (audio)"
-          }
-        ]
+        "type": "audio",
+        "mimeType": "audio/x-m4a",
+        "src": "https://stencila.ghost.io/content/media/2025/01/testing.m4a",
+        "title": "Testing"
       },
       {
         "type": "paragraph",
