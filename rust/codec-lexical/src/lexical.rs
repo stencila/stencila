@@ -34,6 +34,7 @@ pub(super) enum BlockNode {
     ExtendedQuote(ExtendedQuoteNode),
     Image(ImageNode),
     Audio(AudioNode),
+    Video(VideoNode),
     CodeBlock(CodeBlockNode),
     Markdown(MarkdownNode),
     Html(HtmlNode),
@@ -287,6 +288,36 @@ pub(super) struct AsideNode {
     pub r#type: MustBe!("aside"),
 
     pub children: Vec<InlineNode>,
+}
+
+#[derive(Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct VideoNode {
+    pub r#type: MustBe!("video"),
+
+    pub src: String,
+
+    pub file_name: Option<String>,
+
+    pub mime_type: Option<String>,
+
+    pub width: Option<u32>,
+
+    pub height: Option<u32>,
+
+    pub duration: Option<u32>,
+
+    pub thumbnail_src: Option<String>,
+
+    pub custom_thumbnail_src: Option<String>,
+
+    pub thumbnail_width: Option<u32>,
+
+    pub thumbnail_height: Option<u32>,
+
+    pub card_width: Option<String>,
+
+    pub r#loop: Option<bool>,
 }
 
 bitflags! {

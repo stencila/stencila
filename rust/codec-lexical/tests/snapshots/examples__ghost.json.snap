@@ -455,15 +455,9 @@ snapshot_kind: text
       ]
     },
     {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-          "value": {
-            "string": "LOST Unknown (video)"
-          }
-        }
-      ]
+      "type": "VideoObject",
+      "contentUrl": "https://stencila.ghost.io/content/media/2025/01/Screen-Recording-2024-11-28-11-10-58.mp4",
+      "mediaType": "video/mp4"
     },
     {
       "type": "AudioObject",

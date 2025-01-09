@@ -272,14 +272,19 @@ snapshot_kind: text
         ]
       },
       {
-        "type": "paragraph",
-        "children": [
-          {
-            "type": "extended-text",
-            "format": 0,
-            "text": "LOST Unknown (video)"
-          }
-        ]
+        "type": "video",
+        "src": "https://stencila.ghost.io/content/media/2025/01/Screen-Recording-2024-11-28-11-10-58.mp4",
+        "fileName": null,
+        "mimeType": "video/mp4",
+        "width": null,
+        "height": null,
+        "duration": null,
+        "thumbnailSrc": null,
+        "customThumbnailSrc": null,
+        "thumbnailWidth": null,
+        "thumbnailHeight": null,
+        "cardWidth": null,
+        "loop": null
       },
       {
         "type": "audio",

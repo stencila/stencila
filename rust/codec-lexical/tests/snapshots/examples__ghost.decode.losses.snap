@@ -16,4 +16,13 @@ Unknown (bookmark): 1
 Unknown (callout): 1
 Unknown (file): 1
 Unknown (toggle): 1
-Unknown (video): 1
+VideoNode.cardWidth: 1
+VideoNode.customThumbnailSrc: 1
+VideoNode.duration: 1
+VideoNode.fileName: 1
+VideoNode.height: 1
+VideoNode.loop: 1
+VideoNode.thumbnailHeight: 1
+VideoNode.thumbnailSrc: 1
+VideoNode.thumbnailWidth: 1
+VideoNode.width: 1
