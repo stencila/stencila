@@ -240,11 +240,17 @@ mod tests {
         let (output, messages) = instance.evaluate("a\nb😃c").await?;
         assert_eq!(messages[0].message, "Non-ASCII characters are not allowed");
         assert_eq!(
-            messages[0].code_location.as_ref().unwrap().start_line,
+            messages[0]
+                .code_location
+                .as_ref()
+                .and_then(|loc| loc.start_line),
             Some(1)
         );
         assert_eq!(
-            messages[0].code_location.as_ref().unwrap().start_column,
+            messages[0]
+                .code_location
+                .as_ref()
+                .and_then(|loc| loc.start_column),
             Some(2)
         );
         assert_eq!(output, Node::Null(Null));
