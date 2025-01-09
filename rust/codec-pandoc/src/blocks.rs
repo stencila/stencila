@@ -68,16 +68,7 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
 
         // Block types currently ignored create an empty div and record loss
         // TODO: implement these
-        Block::Chat(..)
-        | Block::ChatMessageGroup(..)
-        | Block::DeleteBlock(..)
-        | Block::Form(..)
-        | Block::InsertBlock(..)
-        | Block::ModifyBlock(..)
-        | Block::PromptBlock(..)
-        | Block::ReplaceBlock(..)
-        | Block::SuggestionBlock(..)
-        | Block::Walkthrough(..) => {
+        _ => {
             context.losses.add(block.node_type().to_string());
             pandoc::Block::Div(attrs_empty(), Vec::new())
         }

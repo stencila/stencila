@@ -4,9 +4,9 @@ use codec_text_trait::TextCodec;
 use codecs::{Mapping, PoshMap};
 use common::tracing;
 use schema::{
-    Admonition, Article, AudioObject, Block, Button, CallBlock, Chat, ChatMessage,
+    Admonition, Annotation, Article, AudioObject, Block, Button, CallBlock, Chat, ChatMessage,
     ChatMessageGroup, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeExpression, CodeInline,
-    Date, DateTime, DeleteBlock, DeleteInline, Duration, Emphasis, ExecutionStatus, Figure,
+    Date, DateTime, DeleteBlock, DeleteInline, Duration, Emphasis, ExecutionStatus, Figure, File,
     ForBlock, Form, Heading, IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline,
     InsertBlock, InsertInline, InstructionBlock, InstructionInline, LabelType, Link, List,
     ListItem, MathBlock, MathInline, MediaObject, ModifyBlock, ModifyInline, Node, NodeId,
@@ -153,6 +153,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
         }
         variants!(
             Admonition,
+            AudioObject,
             CallBlock,
             Chat,
             ChatMessage,
@@ -162,10 +163,12 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             CodeChunk,
             DeleteBlock,
             Figure,
+            File,
             ForBlock,
             Form,
             Heading,
             IfBlock,
+            ImageObject,
             IncludeBlock,
             InsertBlock,
             InstructionBlock,
@@ -181,6 +184,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             StyledBlock,
             Table,
             ThematicBreak,
+            VideoObject,
             Walkthrough
         );
 
@@ -198,6 +202,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             };
         }
         variants!(
+            Annotation,
             AudioObject,
             Button,
             Cite,
@@ -743,6 +748,7 @@ default!(
     Claim,
     CodeBlock,
     DeleteBlock,
+    File,
     Form,
     InsertBlock,
     List,
@@ -752,6 +758,7 @@ default!(
     Section,
     ThematicBreak,
     // Inlines
+    Annotation,
     AudioObject,
     Button,
     Cite,

@@ -22,8 +22,11 @@ flate2 = "1.0.35"
 is-terminal = "0.4.12"
 mime = "0.3.17"
 mime_guess = "2.0.5"
+monostate = "0.1.12"
 quick-xml = "0.37.0"
+serde = { version = "1.0.217", features = ["derive", "rc"] }
 semver = { version = "1.0.24", features = ["serde"] }
+smart-default = "0.7.1"
 
 [workspace.lints.rust]
 unsafe_code = "deny"

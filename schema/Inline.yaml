@@ -7,6 +7,12 @@ markdown:
   derive: false
 proptest: {}
 anyOf:
+  - $ref: Annotation
+    proptest:
+      min:
+        description: Do not generate `Annotation` nodes in inline content.
+        skip: true
+
   - $ref: AudioObject
     proptest:
       min:

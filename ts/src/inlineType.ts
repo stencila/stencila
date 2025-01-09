@@ -1,6 +1,7 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 export type InlineType =
+  | "Annotation"
   | "AudioObject"
   | "Button"
   | "Cite"
@@ -41,6 +42,7 @@ export type InlineType =
   | "Number";
 
 export const InlineTypeList = [
+  "Annotation",
   "AudioObject",
   "Button",
   "Cite",

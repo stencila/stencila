@@ -1,0 +1,329 @@
+---
+source: rust/codec-lexical/tests/examples.rs
+expression: redact(&lexical)
+snapshot_kind: text
+---
+{
+  "root": {
+    "type": "root",
+    "children": [
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": "A document for testing Stencila's integration with Ghost. This document is used as a test fixture, so be careful making changes because it is likely to affect those tests. "
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": "Paragraph with "
+          },
+          {
+            "type": "extended-text",
+            "format": 1,
+            "text": "bold"
+          },
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": " "
+          },
+          {
+            "type": "extended-text",
+            "format": 2,
+            "text": "italic"
+          },
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": " "
+          },
+          {
+            "type": "extended-text",
+            "format": 3,
+            "text": "bold and italic"
+          },
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": " "
+          },
+          {
+            "type": "extended-text",
+            "format": 4,
+            "text": "strikethrough"
+          },
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": " "
+          },
+          {
+            "type": "extended-text",
+            "format": 8,
+            "text": "underline"
+          },
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": " "
+          },
+          {
+            "type": "extended-text",
+            "format": 16,
+            "text": "code"
+          },
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": " "
+          },
+          {
+            "type": "extended-text",
+            "format": 32,
+            "text": "subscript"
+          },
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": " "
+          },
+          {
+            "type": "extended-text",
+            "format": 64,
+            "text": "superscript"
+          },
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": " "
+          },
+          {
+            "type": "extended-text",
+            "format": 128,
+            "text": "highlight"
+          },
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": " and a "
+          },
+          {
+            "type": "link",
+            "children": [
+              {
+                "type": "extended-text",
+                "format": 0,
+                "text": "link"
+              }
+            ],
+            "format": "",
+            "url": "https://ghost.org/help/using-the-editor/",
+            "rel": "noreferrer"
+          }
+        ]
+      },
+      {
+        "type": "extended-heading",
+        "tag": "h1",
+        "children": [
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": "Heading 1"
+          }
+        ]
+      },
+      {
+        "type": "extended-heading",
+        "tag": "h2",
+        "children": [
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": "Heading 2"
+          }
+        ]
+      },
+      {
+        "type": "extended-heading",
+        "tag": "h3",
+        "children": [
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": "Heading 3"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": []
+      },
+      {
+        "type": "extended-quote",
+        "children": [
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": "A quote"
+          }
+        ]
+      },
+      {
+        "type": "extended-quote",
+        "children": [
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": "Another quote"
+          }
+        ]
+      },
+      {
+        "type": "list",
+        "listType": "number",
+        "start": 1,
+        "children": [
+          {
+            "type": "listitem",
+            "children": [
+              {
+                "type": "extended-text",
+                "format": 0,
+                "text": "List item 1"
+              }
+            ]
+          },
+          {
+            "type": "listitem",
+            "children": [
+              {
+                "type": "extended-text",
+                "format": 0,
+                "text": "List item 2"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "list",
+        "listType": "number",
+        "start": 1,
+        "children": [
+          {
+            "type": "listitem",
+            "children": [
+              {
+                "type": "extended-text",
+                "format": 0,
+                "text": "Numbered list item 1"
+              }
+            ]
+          },
+          {
+            "type": "listitem",
+            "children": [
+              {
+                "type": "extended-text",
+                "format": 0,
+                "text": "Numbered list item 2"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "horizontalrule"
+      },
+      {
+        "type": "image",
+        "src": "https://stencila.ghost.io/content/images/2025/01/stencila-128.png"
+      },
+      {
+        "type": "codeblock",
+        "code": "print(\"Hello world\")",
+        "language": "Python"
+      },
+      {
+        "type": "markdown",
+        "markdown": "| A   | B   |\n| --- | --- |\n| 1   | 2   |\n"
+      },
+      {
+        "type": "html",
+        "html": "<span>HTML card</span>"
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": "LOST Unknown (callout)"
+          }
+        ]
+      },
+      {
+        "type": "video",
+        "src": "https://stencila.ghost.io/content/media/2025/01/Screen-Recording-2024-11-28-11-10-58.mp4",
+        "fileName": null,
+        "mimeType": "video/mp4",
+        "width": null,
+        "height": null,
+        "duration": null,
+        "thumbnailSrc": null,
+        "customThumbnailSrc": null,
+        "thumbnailWidth": null,
+        "thumbnailHeight": null,
+        "cardWidth": null,
+        "loop": null
+      },
+      {
+        "type": "audio",
+        "mimeType": "audio/x-m4a",
+        "src": "https://stencila.ghost.io/content/media/2025/01/testing.m4a",
+        "title": "Testing"
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": "LOST Unknown (toggle)"
+          }
+        ]
+      },
+      {
+        "type": "file",
+        "src": "https://stencila.ghost.io/content/files/2025/01/markdown-test-pandoc.pdf",
+        "fileTitle": null,
+        "fileCaption": null,
+        "fileName": "markdown-test-pandoc.pdf",
+        "fileSize": 186479
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "extended-text",
+            "format": 0,
+            "text": "LOST Unknown (bookmark)"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": []
+      }
+    ]
+  }
+}
