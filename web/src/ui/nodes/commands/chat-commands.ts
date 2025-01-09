@@ -4,8 +4,8 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import {
-  insertClone,
-  insertInstruction,
+  insertClones,
+  insertInstructions,
   patchChatFocus,
 } from '../../../clients/commands'
 import { withTwind } from '../../../twind'
@@ -32,7 +32,7 @@ export class UINodeChatCommands extends UIBaseClass {
    * Insert a clone of the node into the active document
    */
   private onInsertClone() {
-    this.dispatchEvent(insertClone([this.nodeId]))
+    this.dispatchEvent(insertClones([this.nodeId]))
   }
 
   /**
@@ -40,7 +40,7 @@ export class UINodeChatCommands extends UIBaseClass {
    * the active document
    */
   private onInsertInstruction(type: InstructionType) {
-    this.dispatchEvent(insertInstruction([this.nodeId], type, 'Auto'))
+    this.dispatchEvent(insertInstructions([this.nodeId], type, 'Auto'))
   }
 
   /**

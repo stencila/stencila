@@ -64,7 +64,7 @@ export const patchChatFocus = (chatId: NodeId, cloneId: NodeId) =>
 /**
  * Create an `invoke.insert-clones` command event
  */
-export const insertClone = (nodeIds: [NodeId]) =>
+export const insertClones = (nodeIds: NodeId[]) =>
   documentCommandEvent({
     command: 'invoke.insert-clones',
     args: [[nodeIds]],
@@ -73,8 +73,8 @@ export const insertClone = (nodeIds: [NodeId]) =>
 /**
  * Create an `invoke.insert-instruction` command event
  */
-export const insertInstruction = (
-  nodeIds: [NodeId],
+export const insertInstructions = (
+  nodeIds: NodeId[],
   instructionType: InstructionType,
   executionMode: ExecutionMode
 ) =>
