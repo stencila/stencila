@@ -106,7 +106,7 @@ pub enum Command {
     Render(render::Cli),
 
     Preview(preview::Cli),
-    Publish(publish::cli::Cli),
+    Publish(publish::Cli),
 
     Serve(ServeOptions),
     /// Run the Language Server Protocol server
