@@ -6,13 +6,13 @@ edition = "2021"
 [dependencies]
 codec = { "path" = "../codec" }
 codec-text = { "path" = "../codec-text" }
+codec-lexical = { "path" = "../codec-lexical" }
 common = { "path" = "../common" }
 document = { path = "../document" }
-jsonwebtoken = {version = "9", default-features = false }
+jsonwebtoken = { version = "9.3.0", default-features = false }
 schema = { "path" = "../schema" }
 secrets = { "path" = "../secrets" }
-url = "2.5"
+url = "2.5.4"
 
 [lints]
 workspace = true
-
