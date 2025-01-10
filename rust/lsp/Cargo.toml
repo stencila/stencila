@@ -13,7 +13,6 @@ document = { path = "../document" }
 kernels = { path = "../kernels" }
 models = { path = "../models" }
 node-execute = { path = "../node-execute" }
-node-find = { path = "../node-find" }
 percent-encoding = "2.3.1"
 prompts = { path = "../prompts" }
 schema = { path = "../schema" }
