@@ -334,7 +334,7 @@ pub async fn serve_path(
     // root HTML. This is somewhat redundant, but is necessary, given that we need to have a known version of the
     // HTML as the basis for patching. We could skip including the HTML here (we used to) but then that is unsafe
     // if there are Websocket issues (the page would be blank).
-    let root_type = doc.root_type().await;
+    let root_type = doc.inspect(|root| root.node_type()).await;
     let root_html = doc
         .dump(Format::Dom, None)
         .await

@@ -15,7 +15,7 @@ use common::{
     strum::{Display, EnumString},
     tokio::{
         self,
-        sync::{broadcast, mpsc, watch, RwLock, RwLockReadGuard},
+        sync::{broadcast, mpsc, watch, RwLock},
         time::sleep,
     },
     tracing,
@@ -24,6 +24,7 @@ use common::{
 use format::Format;
 use kernels::Kernels;
 use node_execute::ExecuteOptions;
+use node_find::find;
 use schema::{
     Article, AuthorRole, File, Node, NodeId, NodeProperty, NodeType, Null, Patch, Prompt,
 };
@@ -570,22 +571,43 @@ impl Document {
         &self.id
     }
 
-    /// Get the [`NodeType`] of the root node
-    pub async fn root_type(&self) -> NodeType {
-        self.root.read().await.node_type()
-    }
-
-    /// Get a read guard to the document's root node
-    pub async fn root_read(&self) -> RwLockReadGuard<Node> {
-        self.root.read().await
+    /// Inspect the root node of the document using a function or closure
+    ///
+    /// See [`Document::mutate`] for an alternative if it is necessary to have
+    /// a mutable reference to the root node.
+    pub async fn inspect<F, R>(&self, func: F) -> R
+    where
+        F: Fn(&Node) -> R,
+    {
+        func(&*self.root.read().await)
     }
 
     /// Mutate the root node of the document using a function or closure
+    ///
+    /// See [`Document::inspect`] for an alternative if it is not necessary to have
+    /// a mutable reference to the root node.
     pub async fn mutate<F, R>(&self, func: F) -> R
     where
         F: Fn(&mut Node) -> R,
     {
         func(&mut *self.root.write().await)
+    }
+
+    /// Get a clone of the root node of the document
+    ///
+    /// Clone's the entire root node, so should only be used when necessary.
+    /// Consider using [`Document::inspect`] when you just need to obtain
+    /// some part of the document tree.
+    pub async fn root(&self) -> Node {
+        self.root.read().await.clone()
+    }
+
+    /// Find and clone a node within the root node of the document
+    ///
+    /// Consider using [`Document::inspect`] if it is not necessary to
+    /// obtain a clone of the entire node.
+    pub async fn find(&self, node_id: NodeId) -> Option<Node> {
+        find(&*self.root.read().await, node_id)
     }
 
     /// Merge a node into the root of a document.
