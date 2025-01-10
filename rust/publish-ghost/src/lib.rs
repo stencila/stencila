@@ -120,7 +120,7 @@ impl Cli {
                 json!({
                     "title": title,
                     "lexical": lexical,
-                    "status": "published",
+                    "status": "draft",
                 })
             ]
         });
@@ -159,7 +159,7 @@ impl Cli {
 
                     if let Node::Article(article) = node {
                         let identifier =
-                            PropertyValueOrString::String(format!("{resource_url}/{id}"));
+                            PropertyValueOrString::String(format!("{resource_url}{id}"));
                         match article.options.identifiers.as_mut() {
                             Some(ids) => ids.push(identifier),
                             None => article.options.identifiers = Some(vec![identifier]),
