@@ -286,7 +286,7 @@ export class Chat extends Executable {
               <div
                 class="bg-[${colour}] border-t border-[${borderColour}] px-3 py-2"
               >
-                <div class="pr-1 pb-2">
+                <div class="pb-2">
                   <slot name="prompt"></slot>
                 </div>
 
