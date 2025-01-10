@@ -1391,6 +1391,7 @@ dependencies = [
  "codec-json5",
  "codec-jsonld",
  "codec-latex",
+ "codec-lexical",
  "codec-markdown",
  "codec-odt",
  "codec-pandoc",
@@ -5024,7 +5025,6 @@ name = "publish-ghost"
 version = "0.0.0"
 dependencies = [
  "codec",
- "codec-lexical",
  "codec-text",
  "common",
  "document",
