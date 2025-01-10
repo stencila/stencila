@@ -3,13 +3,10 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use codec_lexical::LexicalCodec;
 use jsonwebtoken as jwt;
 use url::Host;
 
-use codec::{format::Format, Codec, DecodeOptions, EncodeOptions};
 use common::{
-    chrono::Utc,
     clap::{self, Parser, ValueEnum},
     eyre::{bail, eyre, Context, OptionExt, Result},
     reqwest::{Client, Response, StatusCode},
@@ -17,8 +14,10 @@ use common::{
     serde_json::{self, json},
     tracing,
 };
-use document::{CommandWait, Document};
-use schema::{merge, Node, PropertyValueOrString};
+use document::{
+    schema::{Node, PropertyValueOrString},
+    CommandWait, DecodeOptions, Document, EncodeOptions, Format,
+};
 
 const SECRET_NAME: &str = "GHOST_ADMIN_API_KEY";
 
@@ -74,6 +73,7 @@ pub struct Cli {
 }
 
 impl Cli {
+    /// Run the CLI command
     pub async fn run(self) -> Result<()> {
         if !self.path.exists() {
             bail!("Path does not exist: {}", self.path.display())
@@ -91,24 +91,23 @@ impl Cli {
 
         // Get Ghost URL of the document, if any.
         // Must be a URL on the current Ghost host
-        let doc_url = {
-            let node = &*doc.root_read().await;
-
-            let mut doc_url = None;
-            if let Node::Article(article) = node {
-                if let Some(ids) = &article.options.identifiers {
-                    for id in ids {
-                        if let PropertyValueOrString::String(id) = id {
-                            if id.starts_with(&base_url) {
-                                doc_url = Some(id.clone())
+        let doc_url = doc
+            .inspect(|root| {
+                let mut doc_url = None;
+                if let Node::Article(article) = root {
+                    if let Some(ids) = &article.options.identifiers {
+                        for id in ids {
+                            if let PropertyValueOrString::String(id) = id {
+                                if id.starts_with(&base_url) {
+                                    doc_url = Some(id.clone())
+                                }
                             }
                         }
                     }
                 }
-            }
-
-            doc_url
-        };
+                doc_url
+            })
+            .await;
 
         // Dispatch to method based on action and presence of existing doc URL
         let action = self.action.unwrap_or_default();
@@ -123,36 +122,25 @@ impl Cli {
         }
     }
 
-    /// POST a document (ie publish for first time)
+    /// POST a document (ie publish post or page for first time)
     #[tracing::instrument(skip(doc))]
     async fn post(&self, doc: Document, base_url: String) -> Result<()> {
         tracing::trace!("Publishing document to {base_url}");
 
-        // Get title, content and metadata from document
-        // Title is required.
-        let mut title = String::from("Untitled");
-        let lexical = {
-            let root = &*doc.root_read().await;
+        // Get document title and other metadata
+        let (title,) = doc_metadata(&doc).await;
 
-            if let Node::Article(article) = root {
-                if let Some(inlines) = &article.title {
-                    title = codec_text::to_text(inlines);
-                }
-            }
-
-            let (lexical, ..) = LexicalCodec
-                .to_string(
-                    root,
-                    Some(EncodeOptions {
-                        format: Some(Format::Koenig),
-                        standalone: Some(false),
-                        ..Default::default()
-                    }),
-                )
-                .await?;
-
-            lexical
-        };
+        // Dump document to a Lexical (Ghost's Dialect) string
+        let lexical = doc
+            .dump(
+                Format::Koenig,
+                Some(EncodeOptions {
+                    // TODO: The option for "just one big HTML card" so go here
+                    standalone: Some(false),
+                    ..Default::default()
+                }),
+            )
+            .await?;
 
         // Generate JWT for request
         let token = generate_jwt(&self.key).context("generating JWT")?;
@@ -178,7 +166,7 @@ impl Cli {
 
         // Send the request
         let response = Client::new()
-            .post(&format!("{}{}/", base_url, root_key))
+            .post(format!("{}{}/", base_url, root_key))
             .header("Authorization", format!("Ghost {token}"))
             .json(&payload)
             .send()
@@ -186,32 +174,30 @@ impl Cli {
 
         // Handle the response...
         if let StatusCode::CREATED = response.status() {
+            // Get the URL of the newly created Ghost page/post
             let Some(location) = response.headers().get("location") else {
                 tracing::error!(resp = ?response, "POST succeeded, but Location header unavailable");
                 bail!("Uploading the document to Ghost appears to have succeeded, but Ghost did not provide the new URL. Check Ghost Admin for the new draft.");
             };
-
-            let location = location
+            let url = location
                 .to_str()
                 .context("interpreting Location HTTP header")?
                 .to_string();
 
-            {
-                tracing::debug!("Acquiring doc write lock");
-                let node: &mut Node = &mut *doc.root_write().await;
-
-                if let Node::Article(article) = node {
-                    let identifier = PropertyValueOrString::String(location);
+            // Add the URL to the article's identifiers
+            doc.mutate(move |root| {
+                if let Node::Article(article) = root {
+                    let identifier = PropertyValueOrString::String(url.clone());
                     match article.options.identifiers.as_mut() {
                         Some(ids) => ids.push(identifier),
                         None => article.options.identifiers = Some(vec![identifier]),
                     }
                 }
-            }
+            })
+            .await;
 
-            doc.save(CommandWait::Yes).await?;
-
-            Ok(())
+            // Save the document to disk
+            doc.save(CommandWait::Yes).await
         } else {
             error_for_response(response).await
         }
@@ -222,30 +208,20 @@ impl Cli {
     async fn put(&self, doc: Document, doc_url: String) -> Result<()> {
         tracing::trace!("Updating document {doc_url}");
 
-        // Get title, content and metadata from document
-        let mut title = None;
-        let lexical = {
-            let root = &*doc.root_read().await;
+        // Get document title and other metadata
+        let (title,) = doc_metadata(&doc).await;
 
-            if let Node::Article(article) = root {
-                if let Some(inlines) = &article.title {
-                    title = Some(codec_text::to_text(inlines));
-                }
-            }
-
-            let (lexical, ..) = LexicalCodec
-                .to_string(
-                    root,
-                    Some(EncodeOptions {
-                        format: Some(Format::Koenig),
-                        standalone: Some(false),
-                        ..Default::default()
-                    }),
-                )
-                .await?;
-
-            lexical
-        };
+        // Dump document to a Lexical (Ghost's Dialect) string
+        let lexical = doc
+            .dump(
+                Format::Koenig,
+                Some(EncodeOptions {
+                    // TODO: The option for "just one big HTML card" so go here
+                    standalone: Some(false),
+                    ..Default::default()
+                }),
+            )
+            .await?;
 
         // Generate JWT for request
         let token = generate_jwt(&self.key).context("generating JWT")?;
@@ -297,11 +273,11 @@ impl Cli {
             .await?;
 
         if response.status().is_success() {
-            tracing::trace!("Update succeeded");
-            return Ok(());
+            tracing::debug!("Update succeeded");
+            Ok(())
+        } else {
+            error_for_response(response).await
         }
-
-        error_for_response(response).await
     }
 
     /// GET a document (ie update a local file from remote)
@@ -338,21 +314,20 @@ impl Cli {
             .and_then(|value| value.as_str())
             .ok_or_eyre("Response has unexpected structure")?;
 
-        let (new, ..) = LexicalCodec
-            .from_str(
-                lexical,
-                Some(DecodeOptions {
-                    format: Some(Format::Koenig),
-                    ..Default::default()
-                }),
-            )
-            .await?;
+        // Merge the Lexical into the document
+        doc.load(
+            lexical,
+            Some(DecodeOptions {
+                format: Some(Format::Koenig),
+                ..Default::default()
+            }),
+            // TODO: consider constructing a Vec<AuthorRole> here so
+            // that authorship can be assigned for the merge
+            None,
+        )
+        .await?;
 
-        {
-            let root = &mut *doc.root_write().await;
-            merge(root, &new, Some(Format::Koenig), None)?;
-        }
-
+        // Save the document to disk
         doc.save(CommandWait::Yes).await
     }
 
@@ -390,7 +365,7 @@ fn parse_key(arg: &str) -> Result<String> {
     secrets::get(SECRET_NAME)
 }
 
-// Validate that key looks like a Ghost Admin API key
+// Validate that a key looks like a Ghost Admin API key
 fn validate_key(key: &str) -> Result<String> {
     // Split into id:secret
     let Some((id, secret)) = key.split_once(':') else {
@@ -415,6 +390,7 @@ fn validate_key(key: &str) -> Result<String> {
     Ok(key.to_string())
 }
 
+/// JWT claims
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
 struct Claims {
@@ -427,7 +403,7 @@ struct Claims {
 /// Generate a Ghost JWT
 fn generate_jwt(key: &str) -> Result<String> {
     let Some((id, secret)) = key.split_once(':') else {
-        return Err(eyre!("invalid Ghost Admin API key")); // should never happen because
+        return Err(eyre!("invalid Ghost Admin API key")); // should never happen because validated on entry
     };
 
     let iat = SystemTime::now()
@@ -462,6 +438,9 @@ fn generate_jwt(key: &str) -> Result<String> {
 }
 
 /// Generate an error for an unsuccessful response
+///
+/// Attempts to extract error message from JSON response, and if
+/// that fails, displays the body text.
 async fn error_for_response(response: Response) -> Result<()> {
     let code = response.status().as_u16();
     if let Ok(body) = response.text().await {
@@ -474,6 +453,25 @@ async fn error_for_response(response: Response) -> Result<()> {
             bail!("HTTP {code}: {body}")
         }
     } else {
-        bail!("HTTP {code}s")
+        bail!("HTTP {code}")
     }
+}
+
+/// Get document metadata
+///
+/// TODO: other metadata such as authors, excerpt (from abstract?)
+/// could be obtained in a similar way and returned from this function
+async fn doc_metadata(doc: &Document) -> (String,) {
+    doc.inspect(|root: &Node| {
+        let mut title = String::from("Untitled");
+
+        if let Node::Article(article) = root {
+            if let Some(inlines) = &article.title {
+                title = codec_text::to_text(inlines);
+            }
+        }
+
+        (title,)
+    })
+    .await
 }
