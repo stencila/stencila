@@ -655,20 +655,17 @@ impl Document {
 
     /// Dump a document to a string in a specified format
     ///
-    /// The format must be specified in the `format` option.
+    /// The format argument is required (rather than using the `format` in `options`)
+    /// because it is probably an error to call this without a format specified.
     #[tracing::instrument(skip(self))]
-    pub async fn dump(&self, options: Option<EncodeOptions>) -> Result<String> {
-        if options
-            .as_ref()
-            .and_then(|opts| opts.format.as_ref())
-            .is_none()
-        {
-            bail!("The `format` option must be provided")
-        }
-
+    pub async fn dump(&self, format: Format, options: Option<EncodeOptions>) -> Result<String> {
         let root = self.root.read().await;
 
-        codecs::to_string(&root, options).await
+        let options = EncodeOptions {
+            format: Some(format),
+            ..options.unwrap_or_default()
+        };
+        codecs::to_string(&root, Some(options)).await
     }
 
     /// Export a document to a file

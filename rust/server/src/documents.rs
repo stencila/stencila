@@ -336,10 +336,7 @@ pub async fn serve_path(
     // if there are Websocket issues (the page would be blank).
     let root_type = doc.root_type().await;
     let root_html = doc
-        .dump(Some(EncodeOptions {
-            format: Some(Format::Dom),
-            ..Default::default()
-        }))
+        .dump(Format::Dom, None)
         .await
         .map_err(InternalError::new)?;
     let body = format!("<stencila-{view}-view doc={doc_id} type={root_type} view={view} access={access} theme={theme} format={format}>{root_html}</stencila-{view}-view>");
@@ -521,14 +518,20 @@ async fn export_document(
         return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
     };
 
-    let format = query.get("format").map(|format| Format::from_name(format));
+    let format = query
+        .get("format")
+        .map(|format| Format::from_name(format))
+        .unwrap_or(Format::Json);
 
-    let options = EncodeOptions {
-        format,
+    let options = Some(EncodeOptions {
+        format: Some(format.clone()),
         ..Default::default()
-    };
+    });
 
-    let content = doc.dump(Some(options)).await.map_err(InternalError::new)?;
+    let content = doc
+        .dump(format, options)
+        .await
+        .map_err(InternalError::new)?;
 
     Ok(content.into_response())
 }

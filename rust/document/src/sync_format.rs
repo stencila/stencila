@@ -533,10 +533,9 @@ mod tests {
         // Note: this is NOT the Markdown in the buffer (but it should be the same as)
         let md = || async {
             let md = document
-                .export(
-                    None,
+                .dump(
+                    Format::Markdown,
                     Some(EncodeOptions {
-                        format: Some(Format::Markdown),
                         strip_scopes: vec![StripScope::Authors, StripScope::Provenance],
                         ..Default::default()
                     }),
