@@ -544,7 +544,7 @@ Publish one or more documents
 
 Publish to Ghost
 
-**Usage:** `stencila publish ghost [OPTIONS] [PATH]`
+**Usage:** `stencila publish ghost [OPTIONS] --ghost <GHOST> --key <KEY> [PATH]`
 
 ###### **Arguments:**
 
@@ -556,10 +556,19 @@ Publish to Ghost
 
 ###### **Options:**
 
-* `--domain` — The Ghost domain
-* `--key` — The Ghost Admin API key
-* `--post` — Create a post
+* `--dry-run` — Dry run test
+
+   When set, stencila will perform the document conversion but skip the publication to Ghost.
+
+  Default value: `false`
+* `--ghost <GHOST>` — The Ghost domain
+
+   This is the domain name of your Ghost instance, with an optional port.
+* `--key <KEY>` — The Ghost Admin API key
+
+   To create one, create a new Custom Integration under the Integrations screen in Ghost Admin. Use the Admin API Key, rather than the Content API Key.
 * `--page` — Create a page
+* `--post` — Create a post
 
 
 
