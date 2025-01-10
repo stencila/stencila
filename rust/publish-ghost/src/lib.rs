@@ -4,12 +4,7 @@ use codec::{Codec, EncodeOptions};
 // use codec_html::HtmlCodec;
 use codec_text::TextCodec;
 use common::{
-    clap::{self, Parser},
-    eyre::{bail, eyre, Context, Result}, 
-    reqwest::Client,
-    serde::{Deserialize, Serialize},
-    serde_json::{self, json},
-    tracing,
+    clap::{self, Parser}, eyre::{bail, eyre, Context, Result}, reqwest::{Client, StatusCode}, serde::{Deserialize, Serialize}, serde_json::{self, json}, tracing
 };
 use document::{CommandWait, Document};
 
@@ -133,12 +128,6 @@ pub struct Cli {
     #[arg(long, default_value_t = false)]
     dry_run: bool,
 
-    /// Dry run test
-    /// 
-    /// When set, stencila will perform the document conversion but skip the publication to Ghost.
-    #[arg(long, default_value_t = false)]
-    dry_run: bool,
-
     /// The Ghost domain
     /// 
     /// This is the domain name of your Ghost instance, with an optional port. 
@@ -177,28 +166,34 @@ impl Cli {
         doc.compile(CommandWait::Yes).await?;
 
         let theme = doc.config().await?.theme;
-        let node = &*doc.root_read().await;
 
         let mut title = String::from("Untitled");
-        if let schema::Node::Article(article) = node {
-             if let Some(title_parts) = &article.title {
-                title = title_parts.iter().map(|x| x.to_string()).collect();
-                println!("{title}");
-             }
+        let content;
+
+        {
+            let node = &*doc.root_read().await;
+
+            if let schema::Node::Article(article) = node {
+                 if let Some(title_parts) = &article.title {
+                    title = title_parts.iter().map(|x| x.to_string()).collect();
+                    println!("{title}");
+                 }
+            }
+    
+            // Convert it to Lexical
+            // TODO: use codec-lexical 
+    
+            let options = EncodeOptions {
+                theme,
+                standalone: Some(false),
+                ..Default::default()
+            };
+    
+            let codec = TextCodec;        
+            let (doc_as_text, _encode_info) = codec.to_string(node, Some(options)).await?;
+            content = format!("<!--kg-card-begin: html-->\r\n<pre>{doc_as_text}</pre>\r\n<!--kg-card-end: html-->");
         }
 
-        // Convert it to Lexical
-        // TODO: use codec-lexical 
-
-        let options = EncodeOptions {
-            theme,
-            standalone: Some(false),
-            ..Default::default()
-        };
-
-        let codec = TextCodec;        
-        let (content, _encode_info) = codec.to_string(node, Some(options)).await?;
-        let content = format!("<!--kg-card-begin: html-->\r\n<pre>{content}</pre>\r\n<!--kg-card-end: html-->");
 
         // Send content to Ghost
         let token = generate_jwt(&self.key).context("generating JWT")?;
@@ -229,16 +224,33 @@ impl Cli {
         }
 
         let response = Client::new()
-            .post(url)
+            .post(&url)
             .header("Authorization", format!("Ghost {token}"))
             .query(&[("source", "html")])
             .json(&payload)
             .send()
             .await?;
     
-        if response.status().is_success() {
+        if let StatusCode::CREATED = response.status() {
+            let Some(location) = response.headers().get("location") else {
+                tracing::error!(resp = ?response, "post succeeded, but Location header unavailable");
+                bail!("Uploading the document to Ghost appears to have succeeded, but Ghost did not provide the new URL. Check Ghost Admin for the new draft.");
+            };
+
+            let location = location.to_str().context("interpreting Location HTTP header")?;
+            let ghost_id = location.strip_prefix(&url).and_then(|fragment| fragment.strip_suffix('/'));
+
+            {
+                tracing::debug!("acquiring doc write lock");
+                let node: &mut schema::Node = &mut *doc.root_write().await;
+                if let schema::Node::Article(article) = node {
+                    article.id = ghost_id.map(|id| id.to_string()); // TODO: check where ghost's ID should go
+                }
+            }
+
             Ok(())
         } else {
+            tracing::error!(resp = ?response, "post failed");
             let code= response.status().as_u16();
             let err: serde_json::Value = response.json().await?;
             bail!("HTTP {code}: {msg}:\n{err}", msg = err["errors"][0]["message"])
