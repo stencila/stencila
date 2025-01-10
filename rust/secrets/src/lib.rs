@@ -15,7 +15,12 @@ pub mod cli;
 #[derive(Clone, Serialize)]
 #[serde(crate = "common::serde")]
 enum SecretCategory {
+    /// Used to access external services for creating content, esp. LLMs.
     AiApiKey,
+    
+    /// Used to publish Stencila documents to an external service, 
+    /// and/or to update a document based on externally-hosted content.
+    ReadWriteApiKey,
 }
 
 #[skip_serializing_none]
@@ -82,6 +87,12 @@ static SECRETS: Lazy<Vec<Secret>> = Lazy::new(|| {
             "MISTRAL_API_KEY",
             "Mistral API Key",
             "Used to access the Mistral API",
+        ),
+        Secret::new(
+            SecretCategory::ReadWriteApiKey,
+            "GHOST_ADMIN_API_KEY",
+            "Ghost Admin API Key",
+            "Used to read from and publish to Ghost",
         ),
     ]
 });
