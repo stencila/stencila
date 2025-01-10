@@ -17,8 +17,8 @@ pub mod cli;
 enum SecretCategory {
     /// Used to access external services for creating content, esp. LLMs.
     AiApiKey,
-    
-    /// Used to publish Stencila documents to an external service, 
+
+    /// Used to publish Stencila documents to an external service,
     /// and/or to update a document based on externally-hosted content.
     ReadWriteApiKey,
 }
