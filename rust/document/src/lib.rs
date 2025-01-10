@@ -15,7 +15,7 @@ use common::{
     strum::{Display, EnumString},
     tokio::{
         self,
-        sync::{broadcast, mpsc, watch, RwLock, RwLockReadGuard, RwLockWriteGuard},
+        sync::{broadcast, mpsc, watch, RwLock, RwLockReadGuard},
         time::sleep,
     },
     tracing,
@@ -532,7 +532,7 @@ impl Document {
             bail!("File does not exist: {}", path.display());
         }
 
-        let mut doc = Self::at(path)?;
+        let doc = Self::at(path)?;
 
         let mut import = true;
 
@@ -549,7 +549,7 @@ impl Document {
         }
 
         if import {
-            doc.import(path, None).await?;
+            doc.import(path, None, None).await?;
         }
 
         Ok(doc)
@@ -580,20 +580,27 @@ impl Document {
         self.root.read().await
     }
 
-    /// Get a write guard to the document's root node
-    pub async fn root_write(&self) -> RwLockWriteGuard<Node> {
-        self.root.write().await
+    /// Mutate the root node of the document using a function or closure
+    pub async fn mutate<F, R>(&self, func: F) -> R
+    where
+        F: Fn(&mut Node) -> R,
+    {
+        func(&mut *self.root.write().await)
     }
 
-    /// Import a file into a new, or existing, document
+    /// Merge a node into the root of a document.
     ///
-    /// By default the format of the `source` file is inferred from its extension but
-    /// this can be overridden by providing the `format` option.
+    /// If the root node is `Null` is will be overwritten by the new
+    /// node. Otherwise, the new node will be merged into the root.
+    /// The `format` and `authors` arguments will be used when recording authorship
+    /// for the merge.
     #[tracing::instrument(skip(self))]
-    pub async fn import(&mut self, source: &Path, options: Option<DecodeOptions>) -> Result<()> {
-        let node = codecs::from_path(source, options).await?;
-        let format = Format::from_path(source);
-
+    pub async fn merge(
+        &self,
+        node: Node,
+        format: Option<Format>,
+        authors: Option<Vec<AuthorRole>>,
+    ) -> Result<()> {
         let root = &mut *self.root.write().await;
         if matches!(root, Node::Null(..)) {
             // If document is currently empty (e.g. just opened), then just
@@ -601,32 +608,78 @@ impl Document {
             *root = node;
         } else {
             // Otherwise, merge the node into the root
-            schema::merge(root, &node, Some(format), None)?;
+            schema::merge(root, &node, format, authors)?;
         }
 
         Ok(())
     }
 
-    /// Export a document to a file in another format
+    /// Load a string, in a given format, into a new, or existing, document
+    ///
+    /// The format must be specified in the `format` option.
+    #[tracing::instrument(skip(self))]
+    pub async fn load(
+        &self,
+        source: &str,
+        options: Option<DecodeOptions>,
+        authors: Option<Vec<AuthorRole>>,
+    ) -> Result<()> {
+        let Some(format) = options.as_ref().and_then(|opts| opts.format.clone()) else {
+            bail!("The `format` option must be provided")
+        };
+
+        let node = codecs::from_str(source, options).await?;
+
+        self.merge(node, Some(format), authors).await
+    }
+
+    /// Import a file into a new, or existing, document
+    ///
+    /// By default, the format of the `source` file is inferred from its extension but
+    /// this can be overridden by providing the `format` option.
+    #[tracing::instrument(skip(self))]
+    pub async fn import(
+        &self,
+        source: &Path,
+        options: Option<DecodeOptions>,
+        authors: Option<Vec<AuthorRole>>,
+    ) -> Result<()> {
+        let format = options
+            .as_ref()
+            .and_then(|opts| opts.format.clone())
+            .or_else(|| Some(Format::from_path(source)));
+        let node = codecs::from_path(source, options).await?;
+
+        self.merge(node, format, authors).await
+    }
+
+    /// Dump a document to a string in a specified format
+    ///
+    /// The format must be specified in the `format` option.
+    #[tracing::instrument(skip(self))]
+    pub async fn dump(&self, options: Option<EncodeOptions>) -> Result<String> {
+        if options
+            .as_ref()
+            .and_then(|opts| opts.format.as_ref())
+            .is_none()
+        {
+            bail!("The `format` option must be provided")
+        }
+
+        let root = self.root.read().await;
+
+        codecs::to_string(&root, options).await
+    }
+
+    /// Export a document to a file
     ///
     /// By default the format is inferred from the extension
     /// of the `dest` file but this can be overridden by providing the `format` option.
-    /// If `dest` is `None`, then the root node is encoded as a string and returned. This
-    /// is usually only desireable for text-based formats (e.g. JSON, Markdown).
     #[tracing::instrument(skip(self))]
-    pub async fn export(
-        &self,
-        dest: Option<&Path>,
-        options: Option<EncodeOptions>,
-    ) -> Result<String> {
+    pub async fn export(&self, dest: &Path, options: Option<EncodeOptions>) -> Result<()> {
         let root = self.root.read().await;
 
-        if let Some(dest) = dest {
-            codecs::to_path(&root, dest, options).await?;
-            Ok(String::new())
-        } else {
-            codecs::to_string(&root, options).await
-        }
+        codecs::to_path(&root, dest, options).await
     }
 
     /// Subscribe to updates to the document's root node
@@ -634,17 +687,17 @@ impl Document {
         self.watch_receiver.clone()
     }
 
-    /// Update the root node of the document
+    /// Update the root node of the document with a new node value
     pub async fn update(
         &self,
         node: Node,
         format: Option<Format>,
         authors: Option<Vec<AuthorRole>>,
     ) -> Result<()> {
-        Ok(self
-            .update_sender
+        self.update_sender
             .send(Update::new(node, format, authors))
-            .await?)
+            .await?;
+        Ok(())
     }
 
     /// Perform a command on the document and optionally wait for it to complete

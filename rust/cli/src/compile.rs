@@ -83,12 +83,12 @@ impl Cli {
                 passthrough_args.clone(),
             );
 
-            let content = doc
-                .export(output.as_deref(), Some(encode_options.clone()))
-                .await?;
-
-            if !content.is_empty() {
-                Code::new(encode_options.format.unwrap_or_default(), &content).to_stdout();
+            if let Some(dest) = &output {
+                doc.export(dest, Some(encode_options)).await?;
+            } else {
+                let format = encode_options.format.clone().unwrap_or_default();
+                let content = doc.dump(Some(encode_options)).await?;
+                Code::new(format, &content).to_stdout();
             }
         }
 

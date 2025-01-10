@@ -103,7 +103,7 @@ pub async fn subscribe(
     }
 
     // Return the current content
-    match doc.export(None, options).await {
+    match doc.dump(options).await {
         Ok(content) => Ok(content),
         Err(error) => {
             let message = format!("When encoding document to {format}: {error}");

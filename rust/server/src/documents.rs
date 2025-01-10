@@ -336,13 +336,10 @@ pub async fn serve_path(
     // if there are Websocket issues (the page would be blank).
     let root_type = doc.root_type().await;
     let root_html = doc
-        .export(
-            None,
-            Some(EncodeOptions {
-                format: Some(Format::Dom),
-                ..Default::default()
-            }),
-        )
+        .dump(Some(EncodeOptions {
+            format: Some(Format::Dom),
+            ..Default::default()
+        }))
         .await
         .map_err(InternalError::new)?;
     let body = format!("<stencila-{view}-view doc={doc_id} type={root_type} view={view} access={access} theme={theme} format={format}>{root_html}</stencila-{view}-view>");
@@ -531,10 +528,7 @@ async fn export_document(
         ..Default::default()
     };
 
-    let content = doc
-        .export(None, Some(options))
-        .await
-        .map_err(InternalError::new)?;
+    let content = doc.dump(Some(options)).await.map_err(InternalError::new)?;
 
     Ok(content.into_response())
 }
