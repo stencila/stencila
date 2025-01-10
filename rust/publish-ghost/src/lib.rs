@@ -19,6 +19,7 @@ use document::{
     CommandWait, DecodeOptions, Document, EncodeOptions, Format,
 };
 
+const KEY_ENV_VAR: &str = "STENCILA_GHOST_KEY";
 const SECRET_NAME: &str = "GHOST_ADMIN_API_KEY";
 
 #[derive(Debug, Default, Clone, Copy, ValueEnum)]
@@ -54,8 +55,11 @@ pub struct Cli {
     /// To create one, create a new Custom Integration under
     /// the Integrations screen in Ghost Admin. Use the Admin API Key,
     /// rather than the Content API Key.
-    #[arg(long, env = "STENCILA_GHOST_KEY", value_parser = parse_key)]
-    key: String,
+    /// 
+    /// You can also set the key as a secret so that it does not need to
+    /// be entered here each time: `stencila secrets set GHOST_ADMIN_API_KEY`.
+    #[arg(long, env = KEY_ENV_VAR, value_parser = parse_key)]
+    key: Option<String>,
 
     /// Create a page
     #[arg(long, conflicts_with = "post", default_value_t = true)]
@@ -357,12 +361,13 @@ fn parse_key(arg: &str) -> Result<String> {
     }
 
     // If not, check if it's provided as an environment variable
-    if let Ok(env_key) = std::env::var("STENCILA_GHOST_KEY") {
+    if let Ok(env_key) = std::env::var(KEY_ENV_VAR) {
         return validate_key(&env_key);
     }
 
-    // Lastly, check the keyring.
-    secrets::get(SECRET_NAME)
+    // Should not happen because this function is only called if
+    // an argument is provided
+    bail!("No key provided")
 }
 
 // Validate that a key looks like a Ghost Admin API key
@@ -401,9 +406,15 @@ struct Claims {
 }
 
 /// Generate a Ghost JWT
-fn generate_jwt(key: &str) -> Result<String> {
+fn generate_jwt(key: &Option<String>) -> Result<String> {
+    // Use the key provided on CLI or in env, otherwise try to get secret from env or store
+    let key = key
+        .clone()
+        .or_else(|| secrets::env_or_get(SECRET_NAME).ok())
+        .ok_or_eyre("Ghost Admin API key not provided and not set as a secret")?;
+
     let Some((id, secret)) = key.split_once(':') else {
-        return Err(eyre!("invalid Ghost Admin API key")); // should never happen because validated on entry
+        bail!("Invalid Ghost Admin API key"); // should never happen because validated on entry
     };
 
     let iat = SystemTime::now()
