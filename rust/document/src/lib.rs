@@ -7,7 +7,6 @@ use std::{
     time::{Duration, SystemTime},
 };
 
-use codecs::{DecodeOptions, EncodeOptions};
 use common::{
     clap::{self, ValueEnum},
     eyre::{bail, eyre, Result},
@@ -21,7 +20,6 @@ use common::{
     tracing,
     type_safe_id::{StaticType, TypeSafeId},
 };
-use format::Format;
 use kernels::Kernels;
 use node_execute::ExecuteOptions;
 use node_find::find;
@@ -38,6 +36,9 @@ mod sync_object;
 mod task_command;
 mod task_update;
 
+// Re-exports for convenience of consuming crates
+pub use codecs::{DecodeOptions, EncodeOptions, Format};
+pub use schema;
 pub use sync_dom::DomPatch;
 
 #[derive(Default)]
