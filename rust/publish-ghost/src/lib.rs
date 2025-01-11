@@ -7,27 +7,22 @@ use jsonwebtoken as jwt;
 use url::Host;
 
 use common::{
-    clap::{self, Parser, ValueEnum},
+    clap::{self, Parser},
     eyre::{bail, eyre, Context, OptionExt, Result},
     reqwest::{Client, Response, StatusCode},
     serde::{Deserialize, Serialize},
-    serde_json::{self, json},
+    serde_json,
+    serde_with::skip_serializing_none,
+    strum::Display,
     tracing,
 };
 use document::{
-    schema::{Node, PropertyValueOrString},
+    schema::{shortcuts::t, Node, PropertyValueOrString},
     CommandWait, DecodeOptions, Document, EncodeOptions, Format,
 };
 
 const KEY_ENV_VAR: &str = "STENCILA_GHOST_KEY";
 const SECRET_NAME: &str = "GHOST_ADMIN_API_KEY";
-
-#[derive(Debug, Default, Clone, Copy, ValueEnum)]
-enum PublishAction {
-    #[default]
-    Push,
-    Pull,
-}
 
 /// Publish to Ghost
 #[derive(Debug, Parser)]
@@ -38,36 +33,48 @@ pub struct Cli {
     #[arg(default_value = ".")]
     path: PathBuf,
 
-    /// The action to perform with the file
-    ///
-    /// Defaults to push (i.e. create if not yet published, update if does).
-    /// Use `pull` to update a file that has already been published.
-    action: Option<PublishAction>,
-
     /// The Ghost domain
     ///
     /// This is the domain name of your Ghost instance, with an optional port.
+    ///
+    /// Not required when pushing or pulling an existing post or page from
+    /// Ghost but if supplied only document `identifiers` with this host
+    /// will be used.
     #[arg(long, env = "STENCILA_GHOST_DOMAIN", value_parser = parse_host)]
-    ghost: Host,
+    ghost: Option<Host>,
 
     /// The Ghost Admin API key
     ///
     /// To create one, create a new Custom Integration under
     /// the Integrations screen in Ghost Admin. Use the Admin API Key,
     /// rather than the Content API Key.
-    /// 
+    ///
     /// You can also set the key as a secret so that it does not need to
     /// be entered here each time: `stencila secrets set GHOST_ADMIN_API_KEY`.
     #[arg(long, env = KEY_ENV_VAR, value_parser = parse_key)]
     key: Option<String>,
 
     /// Create a page
+    ///
+    /// Does not apply when pushing to, or pulling from, and existing
+    /// Ghost resource.
     #[arg(long, conflicts_with = "post", default_value_t = true)]
     page: bool,
 
     /// Create a post
+    ///
+    /// Does not apply when pushing to, or pulling from, and existing
+    /// Ghost resource.
     #[arg(long, conflicts_with = "page")]
     post: bool,
+
+    /// Create or update Ghost post or page from a file
+    #[arg(long, conflicts_with = "pull", default_value_t = true)]
+    push: bool,
+
+    /// Update file from an existing Ghost post or page
+    #[arg(long, conflicts_with = "push")]
+    pull: bool,
 
     /// Dry run test
     ///
@@ -91,77 +98,77 @@ impl Cli {
         let doc = Document::open(&self.path).await?;
         doc.compile(CommandWait::Yes).await?;
 
-        let base_url = format!("https://{}/ghost/api/admin/", self.ghost);
-
         // Get Ghost URL of the document, if any.
-        // Must be a URL on the current Ghost host
         let doc_url = doc
             .inspect(|root| {
-                let mut doc_url = None;
-                if let Node::Article(article) = root {
-                    if let Some(ids) = &article.options.identifiers {
-                        for id in ids {
-                            if let PropertyValueOrString::String(id) = id {
-                                if id.starts_with(&base_url) {
-                                    doc_url = Some(id.clone())
-                                }
+                let Node::Article(article) = root else {
+                    return None;
+                };
+
+                let Some(ids) = &article.options.identifiers else {
+                    return None;
+                };
+
+                for id in ids {
+                    if let PropertyValueOrString::String(id) = id {
+                        if let Some(host) = &self.ghost {
+                            // If a host is provided then return the first URL on that host
+                            if id.starts_with(&format!("https://{host}/ghost/api/admin/")) {
+                                return Some(id.clone());
                             }
+                        } else if id.starts_with("https://") && id.contains("/ghost/api/admin/") {
+                            // Otherwise, return the first URL on any Ghost host
+                            return Some(id.clone());
                         }
                     }
                 }
-                doc_url
+
+                None
             })
             .await;
 
         // Dispatch to method based on action and presence of existing doc URL
-        let action = self.action.unwrap_or_default();
-        match (action, doc_url) {
-            (PublishAction::Push, None) => self.post(doc, base_url).await,
-            (PublishAction::Push, Some(doc_url)) => self.put(doc, doc_url).await,
-            (PublishAction::Pull, Some(doc_url)) => self.get(doc, doc_url).await,
-            (PublishAction::Pull, None) => bail!(
-                "Unable to pull document, does not have document on Ghost host `{}`",
-                self.ghost
-            ),
+        match (self.push, self.pull, doc_url) {
+            // Pull (first, because push defaults to true)
+            (_, true, Some(doc_url)) => self.get(doc, doc_url).await,
+            (_, true, None) => {
+                bail!("Unable to pull document, does not have corresponding Ghost identifier")
+            }
+
+            // Push
+            (true, _, None) => self.create(doc).await,
+            (true, _, Some(doc_url)) => self.put(doc, doc_url).await,
+
+            _ => bail!("UNexpected combination of --pull and --push"),
         }
     }
 
-    /// POST a document (ie publish post or page for first time)
+    /// Create a post or page by POSTing it to the Ghost API
     #[tracing::instrument(skip(doc))]
-    async fn post(&self, doc: Document, base_url: String) -> Result<()> {
+    async fn create(&self, doc: Document) -> Result<()> {
+        // Require a host
+        let Some(host) = &self.ghost else {
+            bail!("File does not have an identifier for Ghost so the ---ghost option must be provided");
+        };
+        let base_url = format!("https://{host}/ghost/api/admin/");
+
         tracing::trace!("Publishing document to {base_url}");
 
-        // Get document title and other metadata
-        let (title,) = doc_metadata(&doc).await;
-
-        // Dump document to a Lexical (Ghost's Dialect) string
-        let lexical = doc
-            .dump(
-                Format::Koenig,
-                Some(EncodeOptions {
-                    // TODO: The option for "just one big HTML card" so go here
-                    standalone: Some(false),
-                    ..Default::default()
-                }),
-            )
-            .await?;
+        // Determine the type of resource
+        let resource_type = if self.post {
+            ResourceType::Post
+        } else if self.page {
+            ResourceType::Page
+        } else {
+            // Default is `--post = true` so this should not occur
+            bail!("Please use either the --post or --page flag");
+        };
 
         // Generate JWT for request
         let token = generate_jwt(&self.key).context("generating JWT")?;
 
-        // Construct JSON payload
-        // See https://ghost.org/docs/admin-api/#creating-a-post
-        // and https://github.com/stencila/stencila/issues/2481 for how they map to CLI args
-        let root_key = self.root_key()?;
-        let payload = serde_json::json!({
-            root_key : [
-                json!({
-                    "title": title,
-                    "lexical": lexical,
-                    "status": "draft",
-                })
-            ]
-        });
+        // Construct the POST payload
+        let payload = Payload::from_doc(resource_type, &doc, None).await?;
 
         // Return early if this is just a dry run
         if self.dry_run {
@@ -170,103 +177,91 @@ impl Cli {
 
         // Send the request
         let response = Client::new()
-            .post(format!("{}{}/", base_url, root_key))
+            .post(format!("{}{}s/", base_url, resource_type))
             .header("Authorization", format!("Ghost {token}"))
             .json(&payload)
             .send()
             .await?;
 
-        // Handle the response...
-        if let StatusCode::CREATED = response.status() {
-            // Get the URL of the newly created Ghost page/post
-            let Some(location) = response.headers().get("location") else {
-                tracing::error!(resp = ?response, "POST succeeded, but Location header unavailable");
-                bail!("Uploading the document to Ghost appears to have succeeded, but Ghost did not provide the new URL. Check Ghost Admin for the new draft.");
-            };
-            let url = location
-                .to_str()
-                .context("interpreting Location HTTP header")?
-                .to_string();
-
-            // Add the URL to the article's identifiers
-            doc.mutate(move |root| {
-                if let Node::Article(article) = root {
-                    let identifier = PropertyValueOrString::String(url.clone());
-                    match article.options.identifiers.as_mut() {
-                        Some(ids) => ids.push(identifier),
-                        None => article.options.identifiers = Some(vec![identifier]),
-                    }
-                }
-            })
-            .await;
-
-            // Save the document to disk
-            doc.save(CommandWait::Yes).await
-        } else {
-            error_for_response(response).await
+        // Error early if not created
+        if response.status() != StatusCode::CREATED {
+            return error_for_response(response).await;
         }
+
+        // Get the URL of the newly created Ghost page/post
+        let Some(location) = response.headers().get("location") else {
+            tracing::error!(resp = ?response, "POST succeeded, but Location header unavailable");
+            bail!("Uploading the document to Ghost appears to have succeeded, but Ghost did not provide the new URL. Check Ghost Admin for the new draft.");
+        };
+        let doc_url = location
+            .to_str()
+            .context("interpreting Location HTTP header")?
+            .to_string();
+
+        // Add the URL to the article's identifiers
+        let url = doc_url.clone();
+        doc.mutate(move |root| {
+            let Node::Article(article) = root else { return };
+
+            let identifier = PropertyValueOrString::String(url.clone());
+            match article.options.identifiers.as_mut() {
+                Some(ids) => ids.push(identifier),
+                None => article.options.identifiers = Some(vec![identifier]),
+            }
+        })
+        .await;
+
+        // Save the document to disk
+        doc.save(CommandWait::Yes).await?;
+
+        tracing::info!(
+            "Successfully created {doc_url} from {}",
+            doc.file_name().unwrap_or("document")
+        );
+
+        Ok(())
     }
 
-    /// PUT a document (ie update post or page from local file)
+    /// Update a Ghost post or page from local file
     #[tracing::instrument(skip(doc))]
     async fn put(&self, doc: Document, doc_url: String) -> Result<()> {
         tracing::trace!("Updating document {doc_url}");
 
-        // Get document title and other metadata
-        let (title,) = doc_metadata(&doc).await;
+        // Determine the type of payload from the document URL
+        let resource_type = if doc_url.contains("/posts/") {
+            ResourceType::Post
+        } else if doc_url.contains("/pages/") {
+            ResourceType::Page
+        } else {
+            bail!("Unable to determine whether to update post or page from URL: {doc_url}");
+        };
 
-        // Dump document to a Lexical (Ghost's Dialect) string
-        let lexical = doc
-            .dump(
-                Format::Koenig,
-                Some(EncodeOptions {
-                    // TODO: The option for "just one big HTML card" so go here
-                    standalone: Some(false),
-                    ..Default::default()
-                }),
-            )
-            .await?;
-
-        // Generate JWT for request
+        // Generate JWT for requests
         let token = generate_jwt(&self.key).context("generating JWT")?;
 
-        // Get the most recent updated_at to avoid a "Saving failed! Someone else is editing this post." error
+        // Return early if this is just a dry run
+        if self.dry_run {
+            return Ok(());
+        }
+
+        // Get the most recent `updated_at`` to avoid the error
+        // "Saving failed! Someone else is editing this post."
         let response = Client::new()
             .get(&doc_url)
             .header("Authorization", format!("Ghost {token}"))
             .send()
             .await?;
 
-        let json: serde_json::Value = if let StatusCode::OK = response.status() {
+        // Parse response to get `updated_at`
+        let mut payload: Payload = if let StatusCode::OK = response.status() {
             response.json().await?
         } else {
             return error_for_response(response).await;
         };
+        let Resource { updated_at, .. } = payload.resource()?;
 
-        let root_key = self.root_key()?;
-        let updated_at = json
-            .get(root_key)
-            .and_then(|value| value.get(0))
-            .and_then(|value| value.get("updated_at"))
-            .and_then(|value| value.as_str())
-            .ok_or_eyre("Response has unexpected structure")?;
-
-        // Construct JSON payload
-        let root_key = self.root_key()?;
-        let payload = serde_json::json!({
-            root_key : [
-                json!({
-                    "title": title,
-                    "lexical": lexical,
-                    "updated_at": updated_at,
-                })
-            ]
-        });
-
-        // Return early if this is just a dry run
-        if self.dry_run {
-            return Ok(());
-        }
+        // Construct the PUT payload with the latest `updated_at`
+        let payload = Payload::from_doc(resource_type, &doc, updated_at).await?;
 
         // Send the request
         let response = Client::new()
@@ -276,15 +271,19 @@ impl Cli {
             .send()
             .await?;
 
+        // Handle response
         if response.status().is_success() {
-            tracing::debug!("Update succeeded");
+            tracing::info!(
+                "Successfully updated {doc_url} from {}",
+                doc.file_name().unwrap_or("document")
+            );
             Ok(())
         } else {
             error_for_response(response).await
         }
     }
 
-    /// GET a document (ie update a local file from remote)
+    /// Update a local file from a Ghost post or page
     #[tracing::instrument(skip(doc))]
     async fn get(&self, doc: Document, doc_url: String) -> Result<()> {
         tracing::trace!("Getting document {doc_url}");
@@ -304,46 +303,47 @@ impl Cli {
             .send()
             .await?;
 
-        let json: serde_json::Value = if let StatusCode::OK = response.status() {
+        // Parse the response into a resource
+        let mut payload: Payload = if let StatusCode::OK = response.status() {
             response.json().await?
         } else {
             return error_for_response(response).await;
         };
+        let Resource { title, lexical, .. } = payload.resource()?;
 
-        let root_key = self.root_key()?;
-        let lexical = json
-            .get(root_key)
-            .and_then(|value| value.get(0))
-            .and_then(|value| value.get("lexical"))
-            .and_then(|value| value.as_str())
-            .ok_or_eyre("Response has unexpected structure")?;
+        // Update title etc
+        // TODO: consider other properties that might be appropriate to update from Ghost
+        doc.mutate(|root| {
+            let Node::Article(article) = root else { return };
+
+            article.title = title.as_ref().map(|title| vec![t(title)]);
+        })
+        .await;
 
         // Merge the Lexical into the document
-        doc.load(
-            lexical,
-            Some(DecodeOptions {
-                format: Some(Format::Koenig),
-                ..Default::default()
-            }),
-            // TODO: consider constructing a Vec<AuthorRole> here so
-            // that authorship can be assigned for the merge
-            None,
-        )
-        .await?;
+        if let Some(lexical) = &lexical {
+            doc.load(
+                lexical,
+                Some(DecodeOptions {
+                    format: Some(Format::Koenig),
+                    ..Default::default()
+                }),
+                // TODO: consider constructing a Vec<AuthorRole> here so
+                // that authorship can be assigned for the merge
+                None,
+            )
+            .await?;
+        }
 
         // Save the document to disk
-        doc.save(CommandWait::Yes).await
-    }
+        doc.save(CommandWait::Yes).await?;
 
-    /// Get the "root_key" for the page or post
-    fn root_key(&self) -> Result<&str> {
-        if self.post {
-            Ok("posts")
-        } else if self.page {
-            Ok("pages")
-        } else {
-            bail!("Please use --post or --page flag");
-        }
+        tracing::info!(
+            "Successfully updated {} from {doc_url}",
+            doc.file_name().unwrap_or("document")
+        );
+
+        Ok(())
     }
 }
 
@@ -468,21 +468,106 @@ async fn error_for_response(response: Response) -> Result<()> {
     }
 }
 
-/// Get document metadata
+/// A Ghost page or post
 ///
-/// TODO: other metadata such as authors, excerpt (from abstract?)
-/// could be obtained in a similar way and returned from this function
-async fn doc_metadata(doc: &Document) -> (String,) {
-    doc.inspect(|root: &Node| {
-        let mut title = String::from("Untitled");
+/// This schema for this is available at:
+///
+/// https://github.com/TryGhost/SDK/blob/main/packages/admin-api-schema/lib/schemas/posts.json
+/// https://github.com/TryGhost/SDK/blob/main/packages/admin-api-schema/lib/schemas/pages.json
+///
+/// Note also that there are `*.-add.json` (for creating) and `*-edit.json` (for updating).
+/// At present we are keeping things simple and using one `struct` for all these use
+/// cases but some specialization may be required in the future.
+#[skip_serializing_none]
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
+struct Resource {
+    title: Option<String>, // Required for creating
+    lexical: Option<String>,
+    status: Option<Status>,
+    updated_at: Option<String>, // Required for updating
+}
 
-        if let Node::Article(article) = root {
-            if let Some(inlines) = &article.title {
-                title = codec_text::to_text(inlines);
-            }
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
+enum Status {
+    Draft,
+    Published,
+    Scheduled,
+}
+
+#[derive(Clone, Copy, Display)]
+#[strum(serialize_all = "lowercase")]
+enum ResourceType {
+    Post,
+    Page,
+}
+
+/// A payload from the Ghost Admin API
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "lowercase", crate = "common::serde")]
+enum Payload {
+    Posts(Vec<Resource>),
+    Pages(Vec<Resource>),
+}
+
+impl Payload {
+    /// Create a payload from a document
+    async fn from_doc(
+        resource_type: ResourceType,
+        doc: &Document,
+        updated_at: Option<String>,
+    ) -> Result<Self> {
+        // Get document title and other metadata
+        // TODO: other metadata such as authors, excerpt (from abstract?)
+        // could be obtained in a similar way and returned from this function
+        let (title,) = doc
+            .inspect(|root: &Node| {
+                let mut title = None;
+
+                if let Node::Article(article) = root {
+                    if let Some(inlines) = &article.title {
+                        title = Some(codec_text::to_text(inlines));
+                    }
+                }
+
+                (title,)
+            })
+            .await;
+
+        // Dump document to a Lexical (Ghost's Dialect) string
+        let lexical = doc
+            .dump(
+                Format::Koenig,
+                Some(EncodeOptions {
+                    // TODO: The option for "just one big HTML card" so go here
+                    standalone: Some(false),
+                    ..Default::default()
+                }),
+            )
+            .await?;
+
+        let resource = Resource {
+            title: title.or_else(|| Some("Untitled".into())),
+            lexical: Some(lexical),
+            updated_at,
+            ..Default::default()
+        };
+
+        Ok(match resource_type {
+            ResourceType::Post => Payload::Posts(vec![resource]),
+            ResourceType::Page => Payload::Pages(vec![resource]),
+        })
+    }
+
+    /// Get the first resource from a payload
+    ///
+    /// Used when GETing from the API to extract the page or post.
+    fn resource(&mut self) -> Result<Resource> {
+        match self {
+            Payload::Posts(posts) => posts.pop(),
+            Payload::Pages(pages) => pages.pop(),
         }
-
-        (title,)
-    })
-    .await
+        .ok_or_eyre("Payload does not have any page or post")
+    }
 }
