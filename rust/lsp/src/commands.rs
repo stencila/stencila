@@ -347,7 +347,7 @@ pub(super) async fn execute_command(
                     files,
                 },
                 false,
-                false,
+                true,
             )
         }
         RUN_DOC => (
