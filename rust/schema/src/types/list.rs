@@ -34,7 +34,7 @@ pub struct List {
     #[serde(alias = "item")]
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "lexical", format = "koenig")]
     #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec(ListItem::arbitrary(), size_range(1..=1))"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec(ListItem::arbitrary(), size_range(1..=2))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec(ListItem::arbitrary(), size_range(1..=4))"#))]
@@ -43,7 +43,7 @@ pub struct List {
     pub items: Vec<ListItem>,
 
     /// The ordering of the list.
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "lexical", format = "koenig")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"ListOrder::Unordered"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"prop_oneof![Just(ListOrder::Unordered),Just(ListOrder::Ascending)]"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"ListOrder::arbitrary()"#))]

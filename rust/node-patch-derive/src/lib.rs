@@ -152,6 +152,8 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                     Format::Myst => Some(quote!(Format::Myst)),
                     Format::Ipynb => Some(quote!(Format::Ipynb)),
                     Format::Qmd => Some(quote!(Format::Qmd)),
+                    Format::Lexical => Some(quote!(Format::Lexical)),
+                    Format::Koenig => Some(quote!(Format::Koenig)),
                     _ => None
                 } {
                     if !tokens.is_empty() {

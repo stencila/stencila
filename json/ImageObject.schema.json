@@ -717,7 +717,9 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "lexical",
+          "koenig"
         ]
       },
       "dom": {
