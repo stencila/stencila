@@ -18,7 +18,7 @@ use common::{
 };
 use document::{
     schema::{shortcuts::t, Node, PropertyValueOrString},
-    CommandWait, DecodeOptions, Document, EncodeOptions, Format,
+    CommandWait, DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
 };
 
 const KEY_ENV_VAR: &str = "STENCILA_GHOST_KEY";
@@ -326,6 +326,7 @@ impl Cli {
                 lexical,
                 Some(DecodeOptions {
                     format: Some(Format::Koenig),
+                    losses: LossesResponse::Debug,
                     ..Default::default()
                 }),
                 // TODO: consider constructing a Vec<AuthorRole> here so

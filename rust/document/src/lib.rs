@@ -37,7 +37,7 @@ mod task_command;
 mod task_update;
 
 // Re-exports for convenience of consuming crates
-pub use codecs::{DecodeOptions, EncodeOptions, Format};
+pub use codecs::{DecodeOptions, EncodeOptions, Format, LossesResponse};
 pub use schema;
 pub use sync_dom::DomPatch;
 
@@ -653,7 +653,7 @@ impl Document {
     /// Load a string, in a given format, into a new, or existing, document
     ///
     /// The format must be specified in the `format` option.
-    #[tracing::instrument(skip(self))]
+    #[tracing::instrument(skip(self, source))]
     pub async fn load(
         &self,
         source: &str,
