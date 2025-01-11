@@ -490,7 +490,7 @@ mod tests {
     use node_strip::StripScope;
     use schema::{
         shortcuts::{art, p, t},
-        Article, Node, NodeType,
+        NodeType,
     };
 
     use super::*;

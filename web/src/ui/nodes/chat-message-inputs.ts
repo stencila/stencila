@@ -63,7 +63,7 @@ export class UIChatMessageInputs extends UIBaseClass {
   private onTextKeyDown(event: KeyboardEvent) {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault()
-  
+
       const textarea = event.target as HTMLTextAreaElement
       if (textarea.value.trim().length > 0) {
         this.onSend()

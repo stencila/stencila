@@ -9,7 +9,7 @@ use async_lsp::{
     ErrorCode, ResponseError,
 };
 use common::{inflector::Inflector, itertools::Itertools, serde_json::json, tokio::sync::RwLock};
-use schema::{ExecutionStatus, NodeType};
+use schema::NodeType;
 
 use crate::{
     commands::{
@@ -58,8 +58,6 @@ pub(crate) async fn request(
                  index_of,
                  is_active,
                  provenance,
-                 detail,
-                 execution,
                  ..
              }| {
                 // Do not show lenses for nodes that are not encoded into the document

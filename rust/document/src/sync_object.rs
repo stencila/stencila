@@ -184,7 +184,7 @@ mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use schema::{
         shortcuts::{art, p, t},
-        Article,
+        NodeType,
     };
 
     use super::*;
