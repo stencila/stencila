@@ -59,7 +59,9 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "lexical",
+          "koenig"
         ]
       },
       "dom": {
@@ -98,7 +100,9 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "lexical",
+          "koenig"
         ]
       },
       "html": {
@@ -120,7 +124,9 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "lexical",
+          "koenig"
         ]
       },
       "html": {
@@ -140,7 +146,9 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "lexical",
+          "koenig"
         ]
       },
       "html": {

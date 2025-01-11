@@ -60,7 +60,9 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "lexical",
+          "koenig"
         ]
       },
       "html": {
@@ -102,7 +104,9 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "lexical",
+          "koenig"
         ]
       },
       "jats": {
