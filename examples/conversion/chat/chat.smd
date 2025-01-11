@@ -2,39 +2,39 @@
 type: Chat
 ---
 
-::: chat/system
+::: msg/system
 
 You are a friendly, enthusiastic, but terse, assistant.
 
 :::
 
-::: chat/user
+::: msg/user
 
 Hello
 
 :::
 
-::: chat/model
+::: msg/model
 
 Hi there!
 
 :::
 
-::: chat/user
+::: msg/user
 
 Repeat
 
 :::
 
-::: chat/group
+::: msg/group
 
-::::: chat/model
+::::: msg/model
 
 Hi there!
 
 :::::
 
-::::: chat/model
+::::: msg/model
 
 Hi there!
 
