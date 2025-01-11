@@ -1,12 +1,12 @@
 ---
 type: Prompt
 
-id: stencila/create/table-caption
-version: "0.1.0"
-name: Create Table Caption Prompt
+name: stencila/create/table-caption
+title: Create Table Caption Prompt
 description: Create a table caption.
 keywords: table, caption
 
+version: "0.1.0"
 instruction-type: Create
 node-type: Paragraph
 query-pattern: (?i)\btable cap(tion)?\b

@@ -16,8 +16,9 @@
     "type",
     "type",
     "name",
-    "version",
+    "title",
     "description",
+    "version",
     "instructionTypes",
     "content"
   ],

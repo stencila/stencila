@@ -92,7 +92,7 @@ impl Codec for DomCodec {
 
             let title = match node {
                 Node::Article(article) => article.title.as_ref().map(to_text),
-                Node::Prompt(prompt) => prompt.id.as_ref().map(to_text),
+                Node::Prompt(prompt) => Some(to_text(&prompt.title)),
                 _ => None,
             };
             let og_title = title

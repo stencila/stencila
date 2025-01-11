@@ -241,11 +241,11 @@ export class PromptBlock extends Executable {
 
     // Render the prompt options
     const promptOption = (prompt: Prompt) => html`
-      <sl-option value=${prompt.id} style="--sl-spacing-x-small: 0.25rem;">
-        <div class="text-sm text-[${textColour}]">${prompt.id}</div>
-        <div class="mt-0 text-xs text-[${textColour}]/70 max-w-72 truncate">
-          ${prompt.description}
-        </div>
+      <sl-option value=${prompt.name} style="--sl-spacing-x-small: 0.25rem;">
+        <span class="text-sm text-[${textColour}]">${prompt.name}</span>
+        <span class="text-xs text-[${textColour}]/70 max-w-60 truncate">
+          ${prompt.description}</span
+        >
       </sl-option>
     `
 
@@ -287,15 +287,15 @@ export class PromptBlock extends Executable {
 
     // If target is not in options, add one for it
     if (target) {
-      const matched = prompts.find((prompt) => prompt.id == target)
+      const matched = prompts.find((prompt) => prompt.name == target)
       if (!matched) {
         // Use original, since not matched
         target = this.target
 
         options.unshift(
           promptOption({
-            id: target,
-            name: '',
+            name: target,
+            title: '',
             description: '',
             version: '',
             instructionTypes: [],

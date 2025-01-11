@@ -1,12 +1,12 @@
 ---
 type: Prompt
 
-id: stencila/create/list-ordered
-version: "0.1.0"
-name: Create Ordered List Prompt
+name: stencila/create/list-ordered
+title: Create Ordered List Prompt
 description: Create an ordered list.
 keywords: list, ordered
 
+version: "0.1.0"
 instruction-type: Create
 node-type: List
 query-patterns:

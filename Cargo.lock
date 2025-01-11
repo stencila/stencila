@@ -4914,7 +4914,7 @@ dependencies = [
  "app",
  "cached",
  "cli-utils",
- "codec-markdown-trait",
+ "codec-markdown",
  "codecs",
  "common",
  "flate2",

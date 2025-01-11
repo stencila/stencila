@@ -17,7 +17,8 @@ use codec::{
     },
     format::Format,
     schema::{
-        Article, Block, Chat, Inline, Node, NodeId, NodeType, Null, Prompt, VisitorMut, WalkControl,
+        shortcuts::t, Article, Block, Chat, Inline, Node, NodeId, NodeType, Null, Prompt,
+        VisitorMut, WalkControl,
     },
     DecodeInfo, DecodeOptions, Losses, Mapping,
 };
@@ -425,6 +426,12 @@ impl Context {
             (None, None)
         };
 
+        // Prompts require a title and the above stanza remove it, so add a placeholder
+        // (replaced below) to ensure value gets deserialized as a prompt
+        if let Some("Prompt") = value.get("type").and_then(|typ| typ.as_str()) {
+            value["title"] = json!([]);
+        }
+
         // Deserialize to a `Node`: note that `type` is ensured to be present
         let Ok(mut node) = serde_json::from_value::<Node>(value) else {
             tracing::warn!("Error while parsing YAML frontmatter, will be ignored",);
@@ -438,7 +445,7 @@ impl Context {
                 article.r#abstract = abs;
             }
             Node::Prompt(prompt) => {
-                prompt.options.title = title;
+                prompt.title = title.unwrap_or_else(|| vec![t("Untitled")]);
                 prompt.options.r#abstract = abs;
             }
             Node::Chat(chat) => {
