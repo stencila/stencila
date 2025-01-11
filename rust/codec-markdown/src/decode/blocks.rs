@@ -17,13 +17,14 @@ use codec::{
     },
     format::Format,
     schema::{
-        shortcuts, Admonition, AdmonitionType, Block, CallArgument, CallBlock, Chat, ChatMessage,
-        ChatMessageGroup, Claim, CodeBlock, CodeChunk, DeleteBlock, ExecutionMode, Figure,
-        ForBlock, Heading, IfBlock, IfBlockClause, IncludeBlock, Inline, InsertBlock,
-        InstructionBlock, InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock,
-        ModifyBlock, Node, Paragraph, PromptBlock, QuoteBlock, RawBlock, ReplaceBlock, Section,
-        StyledBlock, SuggestionBlock, SuggestionStatus, Table, TableCell, TableRow, TableRowType,
-        Text, ThematicBreak, Walkthrough, WalkthroughStep,
+        shortcuts, Admonition, AdmonitionType, Author, Block, CallArgument, CallBlock, Chat,
+        ChatMessage, ChatMessageGroup, ChatMessageOptions, Claim, CodeBlock, CodeChunk,
+        DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
+        IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage, LabelType, List,
+        ListItem, ListOrder, MathBlock, ModifyBlock, Node, Paragraph, PromptBlock, QuoteBlock,
+        RawBlock, ReplaceBlock, Section, SoftwareApplication, StyledBlock, SuggestionBlock,
+        SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text, ThematicBreak,
+        Walkthrough, WalkthroughStep,
     },
 };
 
@@ -790,9 +791,9 @@ fn chat(input: &mut Located<&str>) -> PResult<Block> {
 
 /// Parse a [`ChatMessage`] or [`ChatMessageGroup`] node
 fn chat_message(input: &mut Located<&str>) -> PResult<Block> {
-    terminated(
+    (
         preceded(
-            Caseless("chat/"),
+            Caseless("msg/"),
             alt((
                 Caseless("system"),
                 Caseless("user"),
@@ -800,21 +801,36 @@ fn chat_message(input: &mut Located<&str>) -> PResult<Block> {
                 Caseless("group"),
             )),
         ),
-        multispace0,
+        opt(delimited(
+            (multispace0, '['),
+            take_until(0.., ']'),
+            (']', multispace0),
+        )),
     )
-    .map(|role: &str| {
-        if role == "group" {
-            Block::ChatMessageGroup(ChatMessageGroup {
-                ..Default::default()
-            })
-        } else {
-            Block::ChatMessage(ChatMessage {
-                role: role.parse().ok().unwrap_or_default(),
-                ..Default::default()
-            })
-        }
-    })
-    .parse_next(input)
+        .map(|(role, author): (&str, Option<&str>)| {
+            if role == "group" {
+                Block::ChatMessageGroup(ChatMessageGroup {
+                    ..Default::default()
+                })
+            } else {
+                let author = author.map(|author| {
+                    Author::SoftwareApplication(SoftwareApplication {
+                        id: Some(author.into()),
+                        ..Default::default()
+                    })
+                });
+
+                Block::ChatMessage(ChatMessage {
+                    role: role.parse().ok().unwrap_or_default(),
+                    options: Box::new(ChatMessageOptions {
+                        author,
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                })
+            }
+        })
+        .parse_next(input)
 }
 
 /// Parse a [`Figure`] node with a label and/or caption

@@ -404,12 +404,17 @@ repository:
       ^
         (:{3,})
         \s*
-        (chat)\/(system|user|model|group)
+        (msg)\/(system|user|model|group)
+        (?:
+          \s+
+          (\[[^]]*\])
+        )?
       $
     captures:
       "1": { name: markup.heading.stencila } # semicolons
-      "2": { name: keyword.control.stencila } # chat
+      "2": { name: keyword.control.stencila } # msg
       "3": { name: support.function } # role
+      "4": { name: string.quoted } # model ids
 
   ########## Suggestions: Block & Inline ##########
 

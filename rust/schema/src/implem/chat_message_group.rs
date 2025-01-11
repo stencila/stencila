@@ -33,7 +33,7 @@ impl MarkdownCodec for ChatMessageGroup {
         context
             .enter_node(self.node_type(), self.node_id())
             .push_colons()
-            .push_str(" chat/group")
+            .push_str(" msg/group")
             .newline()
             .newline()
             .increase_depth()
