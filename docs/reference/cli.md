@@ -201,6 +201,8 @@ Convert a document to another format
     Strip temporary properties of a node
   - `code`:
     Strip code properties of executable nodes
+  - `compilation`:
+    Strip compilation related properties of executable nodes
   - `execution`:
     Strip execution related properties of executable nodes
   - `output`:
@@ -262,6 +264,8 @@ The direction of synchronization can be specified by appending the to the file p
     Strip temporary properties of a node
   - `code`:
     Strip code properties of executable nodes
+  - `compilation`:
+    Strip compilation related properties of executable nodes
   - `execution`:
     Strip execution related properties of executable nodes
   - `output`:
@@ -321,6 +325,8 @@ Compile a document
     Strip temporary properties of a node
   - `code`:
     Strip code properties of executable nodes
+  - `compilation`:
+    Strip compilation related properties of executable nodes
   - `execution`:
     Strip execution related properties of executable nodes
   - `output`:
@@ -403,6 +409,8 @@ Execute a document
     Strip temporary properties of a node
   - `code`:
     Strip code properties of executable nodes
+  - `compilation`:
+    Strip compilation related properties of executable nodes
   - `execution`:
     Strip execution related properties of executable nodes
   - `output`:
@@ -487,6 +495,8 @@ Equivalent to the `execute` command with the `--render` flag.
     Strip temporary properties of a node
   - `code`:
     Strip code properties of executable nodes
+  - `compilation`:
+    Strip compilation related properties of executable nodes
   - `execution`:
     Strip execution related properties of executable nodes
   - `output`:
