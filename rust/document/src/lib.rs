@@ -572,6 +572,19 @@ impl Document {
         &self.id
     }
 
+    /// Get the path of the document
+    pub fn path(&self) -> Option<&Path> {
+        self.path.as_deref()
+    }
+
+    /// Get the file name of the document
+    pub fn file_name(&self) -> Option<&str> {
+        self.path
+            .as_ref()
+            .and_then(|path| path.file_name())
+            .and_then(|name| name.to_str())
+    }
+
     /// Inspect the root node of the document using a function or closure
     ///
     /// See [`Document::mutate`] for an alternative if it is necessary to have
