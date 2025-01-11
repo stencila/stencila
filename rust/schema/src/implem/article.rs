@@ -50,6 +50,7 @@ impl MarkdownCodec for Article {
         header.strip(&StripTargets {
             scopes: vec![
                 StripScope::Provenance,
+                StripScope::Compilation,
                 StripScope::Execution,
                 StripScope::Code,
                 StripScope::Output,

@@ -23,6 +23,7 @@ impl MarkdownCodec for Prompt {
         header.strip(&StripTargets {
             scopes: vec![
                 StripScope::Provenance,
+                StripScope::Compilation,
                 StripScope::Execution,
                 StripScope::Code,
                 StripScope::Output,
