@@ -71,7 +71,7 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
   vscode.commands.registerCommand(`stencila.new-prompt`, async () => {
     // TODO: ask user for required fields, e.g instruction types, node types
 
-    event("chat_create");
+    event("prompt_create");
 
     await vscode.workspace.openTextDocument({
       language: "smd",
