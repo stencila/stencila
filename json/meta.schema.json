@@ -855,6 +855,7 @@
         "archive",
         "temporary",
         "code",
+        "compilation",
         "execution",
         "output",
         "timestamps"

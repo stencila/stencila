@@ -25,14 +25,14 @@ properties:
   compilationDigest:
     '@id': stencila:compilationDigest
     description: A digest of the content, semantics and dependencies of the node.
-    strip: [execution]
+    strip: [compilation]
     $ref: CompilationDigest
     dom:
       skip: true
   compilationMessages:
     '@id': stencila:compilationMessages
     description: Messages generated while compiling the code.
-    strip: [execution]
+    strip: [compilation]
     type: array
     items:
       $ref: CompilationMessage

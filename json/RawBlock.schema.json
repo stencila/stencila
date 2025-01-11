@@ -115,6 +115,9 @@
         "compilation-digest",
         "compilation_digest"
       ],
+      "strip": [
+        "compilation"
+      ],
       "$ref": "CompilationDigest.schema.json"
     },
     "compilationMessages": {
@@ -127,6 +130,9 @@
         "compilation-message",
         "compilation_message"
       ],
+      "strip": [
+        "compilation"
+      ],
       "type": "array",
       "items": {
         "$ref": "CompilationMessage.schema.json"
@@ -136,6 +142,9 @@
       "@id": "stencila:css",
       "description": "A Cascading Style Sheet (CSS) generated from the `content`.",
       "$comment": "When the format is HTML, this property is the CSS generated for any Tailwind classes in\n\"class\" attributes. When the format is CSS, this property is the CSS transpiled to support\nmodern features such as nesting and custom media queries and minified.\n",
+      "strip": [
+        "output"
+      ],
       "type": "string"
     },
     "authors": {

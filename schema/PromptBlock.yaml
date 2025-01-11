@@ -69,6 +69,7 @@ properties:
     "@id": stencila:directory
     description: The home directory of the prompt
     type: string
+    strip: [compilation]
     patch:
       # Do not merge content because it is derived
       formats: []
