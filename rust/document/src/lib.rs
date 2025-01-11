@@ -24,7 +24,8 @@ use kernels::Kernels;
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
-    Article, AuthorRole, File, Node, NodeId, NodeProperty, NodeType, Null, Patch, Prompt,
+    authorship, Article, AuthorRole, File, Node, NodeId, NodeProperty, NodeType, Null, Patch,
+    Prompt,
 };
 
 mod config;
@@ -624,26 +625,43 @@ impl Document {
         find(&*self.root.read().await, node_id)
     }
 
-    /// Merge a node into the root of a document.
+    /// Assign a node to the root of a document
     ///
-    /// If the root node is `Null` is will be overwritten by the new
+    /// The `authors` arguments will be used when recording authorship
+    /// of the assigned node.
+    #[tracing::instrument(skip(self, node))]
+    pub async fn assign(&self, mut node: Node, authors: Option<Vec<AuthorRole>>) -> Result<()> {
+        if let Some(authors) = authors {
+            authorship(&mut node, authors)?;
+        }
+
+        let root = &mut *self.root.write().await;
+        *root = node;
+
+        Ok(())
+    }
+
+    /// Merge a node into the root of a document
+    ///
+    /// If the root node is `Null` it will be overwritten by the new
     /// node. Otherwise, the new node will be merged into the root.
-    /// The `format` and `authors` arguments will be used when recording authorship
-    /// for the merge.
-    #[tracing::instrument(skip(self))]
+    ///
+    /// The `authors` arguments will be used when recording authorship
+    /// of the assigned node or the merge.
+    #[tracing::instrument(skip(self, node))]
     pub async fn merge(
         &self,
-        node: Node,
+        mut node: Node,
         format: Option<Format>,
         authors: Option<Vec<AuthorRole>>,
     ) -> Result<()> {
         let root = &mut *self.root.write().await;
         if matches!(root, Node::Null(..)) {
-            // If document is currently empty (e.g. just opened), then just
-            // set the root to the node
+            if let Some(authors) = authors {
+                authorship(&mut node, authors)?;
+            }
             *root = node;
         } else {
-            // Otherwise, merge the node into the root
             schema::merge(root, &node, format, authors)?;
         }
 
