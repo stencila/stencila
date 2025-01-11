@@ -95,7 +95,9 @@ export async function createDocumentViewPanel(
   documentUri: vscode.Uri,
   editor?: vscode.TextEditor,
   nodeId?: string,
-  expandAuthors?: boolean
+  expandAuthors?: boolean,
+  viewColumn: vscode.ViewColumn = vscode.ViewColumn.Beside,
+  titlePrefix = "Preview"
 ): Promise<vscode.WebviewPanel> {
   const uriString = documentUri.toString();
 
@@ -116,11 +118,13 @@ export async function createDocumentViewPanel(
     return panel;
   }
 
+  const title = `${titlePrefix} ${path.basename(documentUri.fsPath)}`;
+
   // Create the panel
   const panel = vscode.window.createWebviewPanel(
     "document-view",
-    `Preview ${path.basename(documentUri.fsPath)}`,
-    vscode.ViewColumn.Beside,
+    title,
+    viewColumn,
     {
       enableScripts: true,
       retainContextWhenHidden: true,
