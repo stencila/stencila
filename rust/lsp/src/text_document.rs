@@ -844,7 +844,7 @@ pub(super) fn did_open(
 ) -> ControlFlow<Result<(), Error>> {
     let uri = params.text_document.uri;
     let format = params.text_document.language_id;
-    let mut source = params.text_document.text;
+    let source = params.text_document.text;
 
     let node_type = if source.starts_with("---\ntype: Chat\n") {
         NodeType::Chat
