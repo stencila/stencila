@@ -18,7 +18,6 @@ use common::{
         time::sleep,
     },
     tracing,
-    type_safe_id::{StaticType, TypeSafeId},
 };
 use kernels::Kernels;
 use node_execute::ExecuteOptions;
@@ -41,15 +40,6 @@ mod task_update;
 pub use codecs::{DecodeOptions, EncodeOptions, Format, LossesResponse};
 pub use schema;
 pub use sync_dom::DomPatch;
-
-#[derive(Default)]
-pub struct Document_;
-
-impl StaticType for Document_ {
-    const TYPE: &'static str = "doc";
-}
-
-pub type DocumentId = TypeSafeId<Document_>;
 
 /// The synchronization mode between documents and external resources
 ///
@@ -302,9 +292,6 @@ type DocumentCommandStatusReceiver = broadcast::Receiver<(u64, CommandStatus)>;
 #[allow(unused)]
 #[derive(Debug)]
 pub struct Document {
-    /// The document's id
-    id: DocumentId,
-
     /// The document's home directory
     home: PathBuf,
 
@@ -368,8 +355,6 @@ impl Document {
     /// starts the corresponding background tasks.
     #[tracing::instrument]
     pub fn init(home: PathBuf, path: Option<PathBuf>, node_type: Option<NodeType>) -> Result<Self> {
-        let id = DocumentId::new();
-
         // Create the document's kernels with the same home directory
         let kernels = Arc::new(RwLock::new(Kernels::new(&home)));
 
@@ -453,7 +438,6 @@ impl Document {
         }
 
         Ok(Self {
-            id,
             home,
             path,
             root,
@@ -576,11 +560,6 @@ impl Document {
         doc.sync_file(path, sync, None, None).await?;
 
         Ok(doc)
-    }
-
-    /// Get the id of the document
-    pub fn id(&self) -> &DocumentId {
-        &self.id
     }
 
     /// Get the path of the document

@@ -102,7 +102,7 @@ pub async fn subscribe(
     let (in_sender, in_receiver) = mpsc::channel(256);
     let (out_sender, mut out_receiver) = mpsc::channel(256);
 
-    let subscription_id = Uuid::now_v7().to_string();
+    let subscription_id = Uuid::new_v4().to_string();
 
     tracing::debug!("Starting subscription `{subscription_id}`");
 

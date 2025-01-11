@@ -169,12 +169,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "arrayvec"
-version = "0.7.6"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7c02d123df017efcdfbd739ef81735b36c5ba83ec3c59c80a9d7ecc718f92e50"
-
-[[package]]
 name = "async-broadcast"
 version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1507,7 +1501,6 @@ dependencies = [
  "tokio",
  "toml",
  "tracing",
- "type-safe-id",
  "uuid",
  "which",
  "zip",
@@ -7011,18 +7004,6 @@ dependencies = [
  "sha1",
  "thiserror 2.0.9",
  "utf-8",
-]
-
-[[package]]
-name = "type-safe-id"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0026bba31b3eb27b07671702a74e9a04657527316c069681aee4f0a60b353c4a"
-dependencies = [
- "arrayvec",
- "rand",
- "thiserror 2.0.9",
- "uuid",
 ]
 
 [[package]]
