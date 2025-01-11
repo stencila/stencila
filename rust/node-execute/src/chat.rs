@@ -40,9 +40,10 @@ impl Executable for Chat {
         let node_id = self.node_id();
         tracing::trace!("Preparing Chat {node_id}");
 
-        // Check if this chat is to be executed i.e. node ids contain this chat,
-        // or there are no node ids and this is not an embedded chat (`is_temporary` is None),
-        // or force_all is on.
+        // Check if this chat is to be executed:
+        // - force_all is on
+        // - no node ids and this is not an embedded chat (`is_temporary` is None)
+        // - node ids contain this chat
         let is_pending = executor.options.force_all
             || (executor.node_ids.is_none() && self.is_temporary.is_none())
             || executor.node_ids.iter().flatten().any(|id| id == &node_id);
