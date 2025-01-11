@@ -67,7 +67,7 @@ pub struct ImageObject {
 
     /// The caption for this image.
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "lexical", format = "koenig")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "alt")]
     pub caption: Option<Vec<Inline>>,

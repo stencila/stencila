@@ -38,7 +38,6 @@ use document::{
     SaveDocumentSource,
 };
 use node_execute::ExecuteOptions;
-use node_find::find;
 use schema::{
     replicate, Article, AuthorRole, AuthorRoleName, Block, Chat, ChatOptions, InstructionBlock,
     InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodeProperty, NodeType,
@@ -180,9 +179,12 @@ pub(super) async fn execute_command(
             let value = match command {
                 PATCH_CLONE | PATCH_CHAT_FOCUS => {
                     let node_id = node_id_arg(args.next())?;
-                    let doc = doc.read().await;
-                    let root = doc.root_read().await;
-                    let clone = find(&*root, node_id)
+
+                    let clone = doc
+                        .read()
+                        .await
+                        .find(node_id)
+                        .await
                         .ok_or_eyre("Node not found in source document")
                         .and_then(|node| replicate(&node))
                         .map_err(invalid_request)?;
@@ -611,9 +613,11 @@ pub(super) async fn execute_command(
             // Get the node from the source document
             let source_doc = source_doc
                 .ok_or_else(|| invalid_request("Source document URI missing or invalid"))?;
-            let source_doc = source_doc.read().await;
-            let source_root = source_doc.root_read().await;
-            let source_node = find(&*source_root, node_id)
+            let source_node = source_doc
+                .read()
+                .await
+                .find(node_id.clone())
+                .await
                 .ok_or_else(|| invalid_request("Node not found in source document"))?;
 
             // Convert the node into a block, replicate it (to avoid having duplicate ids)
@@ -718,9 +722,7 @@ pub(super) async fn execute_command(
                 {
                     // Check if the node has warnings or errors and
                     if let Some(node_id) = node_ids.first() {
-                        let doc = doc.read().await;
-                        let root = doc.root_read().await;
-                        if match find(&*root, node_id.clone()) {
+                        if match doc.read().await.find(node_id.clone()).await {
                             Some(Node::CodeChunk(node)) => node.has_warnings_errors_or_exceptions(),
                             Some(Node::MathBlock(node)) => node.has_warnings_errors_or_exceptions(),
                             _ => false,
@@ -746,13 +748,20 @@ pub(super) async fn execute_command(
                 // If any, add them to the suggestions as the original
                 let suggestions = if !node_ids.is_empty() {
                     // Get clones of the blocks
-                    let doc = doc.read().await;
-                    let root = &*doc.root_read().await;
-                    let content = node_ids
-                        .into_iter()
-                        .filter_map(|node_id| find(root, node_id))
-                        .filter_map(|node| Block::try_from(node).ok())
-                        .collect_vec();
+                    let content = {
+                        let doc = doc.read().await;
+                        let mut content = Vec::new();
+                        for node_id in node_ids {
+                            if let Some(block) = doc
+                                .find(node_id)
+                                .await
+                                .and_then(|node| Block::try_from(node).ok())
+                            {
+                                content.push(block);
+                            }
+                        }
+                        content
+                    };
 
                     // Replicate to avoid duplicate ids
                     let content = replicate(&content).map_err(internal_error)?;
@@ -827,29 +836,31 @@ pub(super) async fn execute_command(
             // factored out into a command or patch op.
 
             let doc = doc.write().await;
-            let root = &mut *doc.root_write().await;
+            return doc
+                .mutate(move |root| {
+                    if let Node::Article(Article {
+                        temporary: Some(temporary),
+                        ..
+                    }) = root
+                    {
+                        tracing::debug!("Deleting temporary chat {node_id}");
 
-            if let Node::Article(Article {
-                temporary: Some(temporary),
-                ..
-            }) = root
-            {
-                tracing::debug!("Deleting temporary chat {node_id}");
+                        let len_before = temporary.len();
+                        let node_id = Some(node_id.clone());
+                        temporary.retain(|node| node.node_id() != node_id);
 
-                let len_before = temporary.len();
-                let node_id = Some(node_id);
-                temporary.retain(|node| node.node_id() != node_id);
-
-                return if temporary.len() == len_before {
-                    Err(invalid_request(format!(
-                        "Chat with id not found in temporaries: {node_id:?}"
-                    )))
-                } else {
-                    Ok(None)
-                };
-            } else {
-                return Err(invalid_request("Root node is not an article"));
-            }
+                        if temporary.len() == len_before {
+                            Err(invalid_request(format!(
+                                "Chat with id not found in temporaries: {node_id:?}"
+                            )))
+                        } else {
+                            Ok(None)
+                        }
+                    } else {
+                        Err(invalid_request("Root node is not an article"))
+                    }
+                })
+                .await;
         }
         SAVE_DOC => (
             "Saving document with sidecar".to_string(),

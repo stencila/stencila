@@ -64,7 +64,9 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "lexical",
+          "koenig"
         ]
       },
       "walk": true,
@@ -103,7 +105,9 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "lexical",
+          "koenig"
         ]
       },
       "jats": {

@@ -33,7 +33,7 @@ properties:
     minimum: 0
     maximum: 6
     patch:
-      formats: [md, smd, myst, ipynb, qmd]
+      formats: [md, smd, myst, ipynb, qmd, lexical, koenig]
     proptest:
       min:
         description: Fixed value of 1

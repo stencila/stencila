@@ -7,7 +7,6 @@ use std::{
     time::{Duration, SystemTime},
 };
 
-use codecs::{DecodeOptions, EncodeOptions};
 use common::{
     clap::{self, ValueEnum},
     eyre::{bail, eyre, Result},
@@ -15,17 +14,18 @@ use common::{
     strum::{Display, EnumString},
     tokio::{
         self,
-        sync::{broadcast, mpsc, watch, RwLock, RwLockReadGuard, RwLockWriteGuard},
+        sync::{broadcast, mpsc, watch, RwLock},
         time::sleep,
     },
     tracing,
     type_safe_id::{StaticType, TypeSafeId},
 };
-use format::Format;
 use kernels::Kernels;
 use node_execute::ExecuteOptions;
+use node_find::find;
 use schema::{
-    Article, AuthorRole, File, Node, NodeId, NodeProperty, NodeType, Null, Patch, Prompt,
+    authorship, Article, AuthorRole, File, Node, NodeId, NodeProperty, NodeType, Null, Patch,
+    Prompt,
 };
 
 mod config;
@@ -37,6 +37,9 @@ mod sync_object;
 mod task_command;
 mod task_update;
 
+// Re-exports for convenience of consuming crates
+pub use codecs::{DecodeOptions, EncodeOptions, Format, LossesResponse};
+pub use schema;
 pub use sync_dom::DomPatch;
 
 #[derive(Default)]
@@ -532,7 +535,7 @@ impl Document {
             bail!("File does not exist: {}", path.display());
         }
 
-        let mut doc = Self::at(path)?;
+        let doc = Self::at(path)?;
 
         let mut import = true;
 
@@ -549,7 +552,7 @@ impl Document {
         }
 
         if import {
-            doc.import(path, None).await?;
+            doc.import(path, None, None).await?;
         }
 
         Ok(doc)
@@ -570,63 +573,164 @@ impl Document {
         &self.id
     }
 
-    /// Get the [`NodeType`] of the root node
-    pub async fn root_type(&self) -> NodeType {
-        self.root.read().await.node_type()
+    /// Get the path of the document
+    pub fn path(&self) -> Option<&Path> {
+        self.path.as_deref()
     }
 
-    /// Get a read guard to the document's root node
-    pub async fn root_read(&self) -> RwLockReadGuard<Node> {
-        self.root.read().await
+    /// Get the file name of the document
+    pub fn file_name(&self) -> Option<&str> {
+        self.path
+            .as_ref()
+            .and_then(|path| path.file_name())
+            .and_then(|name| name.to_str())
     }
 
-    /// Get a write guard to the document's root node
-    pub async fn root_write(&self) -> RwLockWriteGuard<Node> {
-        self.root.write().await
-    }
-
-    /// Import a file into a new, or existing, document
+    /// Inspect the root node of the document using a function or closure
     ///
-    /// By default the format of the `source` file is inferred from its extension but
-    /// this can be overridden by providing the `format` option.
-    #[tracing::instrument(skip(self))]
-    pub async fn import(&mut self, source: &Path, options: Option<DecodeOptions>) -> Result<()> {
-        let node = codecs::from_path(source, options).await?;
-        let format = Format::from_path(source);
+    /// See [`Document::mutate`] for an alternative if it is necessary to have
+    /// a mutable reference to the root node.
+    pub async fn inspect<F, R>(&self, func: F) -> R
+    where
+        F: Fn(&Node) -> R,
+    {
+        func(&*self.root.read().await)
+    }
+
+    /// Mutate the root node of the document using a function or closure
+    ///
+    /// See [`Document::inspect`] for an alternative if it is not necessary to have
+    /// a mutable reference to the root node.
+    pub async fn mutate<F, R>(&self, func: F) -> R
+    where
+        F: Fn(&mut Node) -> R,
+    {
+        func(&mut *self.root.write().await)
+    }
+
+    /// Get a clone of the root node of the document
+    ///
+    /// Clone's the entire root node, so should only be used when necessary.
+    /// Consider using [`Document::inspect`] when you just need to obtain
+    /// some part of the document tree.
+    pub async fn root(&self) -> Node {
+        self.root.read().await.clone()
+    }
+
+    /// Find and clone a node within the root node of the document
+    ///
+    /// Consider using [`Document::inspect`] if it is not necessary to
+    /// obtain a clone of the entire node.
+    pub async fn find(&self, node_id: NodeId) -> Option<Node> {
+        find(&*self.root.read().await, node_id)
+    }
+
+    /// Assign a node to the root of a document
+    ///
+    /// The `authors` arguments will be used when recording authorship
+    /// of the assigned node.
+    #[tracing::instrument(skip(self, node))]
+    pub async fn assign(&self, mut node: Node, authors: Option<Vec<AuthorRole>>) -> Result<()> {
+        if let Some(authors) = authors {
+            authorship(&mut node, authors)?;
+        }
 
         let root = &mut *self.root.write().await;
+        *root = node;
+
+        Ok(())
+    }
+
+    /// Merge a node into the root of a document
+    ///
+    /// If the root node is `Null` it will be overwritten by the new
+    /// node. Otherwise, the new node will be merged into the root.
+    ///
+    /// The `authors` arguments will be used when recording authorship
+    /// of the assigned node or the merge.
+    #[tracing::instrument(skip(self, node))]
+    pub async fn merge(
+        &self,
+        mut node: Node,
+        format: Option<Format>,
+        authors: Option<Vec<AuthorRole>>,
+    ) -> Result<()> {
+        let root = &mut *self.root.write().await;
         if matches!(root, Node::Null(..)) {
-            // If document is currently empty (e.g. just opened), then just
-            // set the root to the node
+            if let Some(authors) = authors {
+                authorship(&mut node, authors)?;
+            }
             *root = node;
         } else {
-            // Otherwise, merge the node into the root
-            schema::merge(root, &node, Some(format), None)?;
+            schema::merge(root, &node, format, authors)?;
         }
 
         Ok(())
     }
 
-    /// Export a document to a file in another format
+    /// Load a string, in a given format, into a new, or existing, document
+    ///
+    /// The format must be specified in the `format` option.
+    #[tracing::instrument(skip(self, source))]
+    pub async fn load(
+        &self,
+        source: &str,
+        options: Option<DecodeOptions>,
+        authors: Option<Vec<AuthorRole>>,
+    ) -> Result<()> {
+        let Some(format) = options.as_ref().and_then(|opts| opts.format.clone()) else {
+            bail!("The `format` option must be provided")
+        };
+
+        let node = codecs::from_str(source, options).await?;
+
+        self.merge(node, Some(format), authors).await
+    }
+
+    /// Import a file into a new, or existing, document
+    ///
+    /// By default, the format of the `source` file is inferred from its extension but
+    /// this can be overridden by providing the `format` option.
+    #[tracing::instrument(skip(self))]
+    pub async fn import(
+        &self,
+        source: &Path,
+        options: Option<DecodeOptions>,
+        authors: Option<Vec<AuthorRole>>,
+    ) -> Result<()> {
+        let format = options
+            .as_ref()
+            .and_then(|opts| opts.format.clone())
+            .or_else(|| Some(Format::from_path(source)));
+        let node = codecs::from_path(source, options).await?;
+
+        self.merge(node, format, authors).await
+    }
+
+    /// Dump a document to a string in a specified format
+    ///
+    /// The format argument is required (rather than using the `format` in `options`)
+    /// because it is probably an error to call this without a format specified.
+    #[tracing::instrument(skip(self))]
+    pub async fn dump(&self, format: Format, options: Option<EncodeOptions>) -> Result<String> {
+        let root = self.root.read().await;
+
+        let options = EncodeOptions {
+            format: Some(format),
+            ..options.unwrap_or_default()
+        };
+        codecs::to_string(&root, Some(options)).await
+    }
+
+    /// Export a document to a file
     ///
     /// By default the format is inferred from the extension
     /// of the `dest` file but this can be overridden by providing the `format` option.
-    /// If `dest` is `None`, then the root node is encoded as a string and returned. This
-    /// is usually only desireable for text-based formats (e.g. JSON, Markdown).
     #[tracing::instrument(skip(self))]
-    pub async fn export(
-        &self,
-        dest: Option<&Path>,
-        options: Option<EncodeOptions>,
-    ) -> Result<String> {
+    pub async fn export(&self, dest: &Path, options: Option<EncodeOptions>) -> Result<()> {
         let root = self.root.read().await;
 
-        if let Some(dest) = dest {
-            codecs::to_path(&root, dest, options).await?;
-            Ok(String::new())
-        } else {
-            codecs::to_string(&root, options).await
-        }
+        codecs::to_path(&root, dest, options).await
     }
 
     /// Subscribe to updates to the document's root node
@@ -634,17 +738,17 @@ impl Document {
         self.watch_receiver.clone()
     }
 
-    /// Update the root node of the document
+    /// Update the root node of the document with a new node value
     pub async fn update(
         &self,
         node: Node,
         format: Option<Format>,
         authors: Option<Vec<AuthorRole>>,
     ) -> Result<()> {
-        Ok(self
-            .update_sender
+        self.update_sender
             .send(Update::new(node, format, authors))
-            .await?)
+            .await?;
+        Ok(())
     }
 
     /// Perform a command on the document and optionally wait for it to complete
