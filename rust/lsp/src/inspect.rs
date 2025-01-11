@@ -412,6 +412,27 @@ impl Inspect for ChatMessage {
     }
 }
 
+impl Inspect for ChatMessageGroup {
+    fn inspect(&self, inspector: &mut Inspector) {
+        inspector.enter_node(
+            self.node_type(),
+            self.node_id(),
+            Some("Message Group".into()),
+            None,
+            None,
+            None,
+        );
+
+        // Although messages are walked over there is no visitor method
+        // to visit them so do it here explicitly
+        for message in self.messages.iter() {
+            message.inspect(inspector);
+        }
+
+        inspector.exit_node();
+    }
+}
+
 impl Inspect for CodeChunk {
     fn inspect(&self, inspector: &mut Inspector) {
         let name = match &self.label_type {
@@ -744,7 +765,6 @@ default!(
     Chat,
     // Blocks
     Admonition,
-    ChatMessageGroup,
     Claim,
     CodeBlock,
     DeleteBlock,

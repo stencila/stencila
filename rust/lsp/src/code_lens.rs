@@ -109,7 +109,7 @@ pub(crate) async fn request(
                         vec![lens(RUN_NODE), lens(VIEW_NODE)]
                     }
                     NodeType::ChatMessage => {
-                        if detail.as_deref() == Some("User") && 
+                        if matches!(parent_type, NodeType::Chat) && detail.as_deref() == Some("User") && 
                             execution.as_ref().map(|exec| {
                                 !matches!(exec.status, Some(ExecutionStatus::Pending | ExecutionStatus::Running | ExecutionStatus::Succeeded))
                             }).unwrap_or_default()
