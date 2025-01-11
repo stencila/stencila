@@ -61,16 +61,13 @@ export class UIChatMessageInputs extends UIBaseClass {
    * On <textarea> keydown send if enter key, but not Shift+Enter
    */
   private onTextKeyDown(event: KeyboardEvent) {
-    switch (event.key) {
-      case 'Enter':
-        if (event.shiftKey) {
-          return
-        }
-        event.preventDefault()
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault()
+  
+      const textarea = event.target as HTMLTextAreaElement
+      if (textarea.value.trim().length > 0) {
         this.onSend()
-        return
-      default:
-        return
+      }
     }
   }
 
