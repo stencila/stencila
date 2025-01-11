@@ -490,7 +490,7 @@ mod tests {
     use node_strip::StripScope;
     use schema::{
         shortcuts::{art, p, t},
-        Article, Node,
+        Article, Node, NodeType,
     };
 
     use super::*;
@@ -504,11 +504,7 @@ mod tests {
     #[timeout(1000)]
     async fn receive_patches() -> Result<()> {
         // Create a document and start syncing with Markdown buffer
-        let document = Document::new()?;
-        {
-            let mut root = document.root.write().await;
-            *root = Node::Article(Article::default());
-        }
+        let document = Document::new(NodeType::Article)?;
 
         let (patch_sender, patch_receiver) = channel::<FormatPatch>(1);
         document
@@ -584,11 +580,7 @@ mod tests {
     #[tokio::test]
     async fn send_patches() -> Result<()> {
         // Create a document and start syncing with Markdown buffer
-        let document = Document::new()?;
-        {
-            let mut root = document.root.write().await;
-            *root = Node::Article(Article::default());
-        }
+        let document = Document::new(NodeType::Article)?;
 
         let (patch_sender, mut patch_receiver) = channel::<FormatPatch>(4);
         document

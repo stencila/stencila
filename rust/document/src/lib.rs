@@ -24,7 +24,7 @@ use kernels::Kernels;
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
-    authorship, Article, AuthorRole, File, Node, NodeId, NodeProperty, NodeType, Null, Patch,
+    authorship, Article, AuthorRole, Chat, File, Node, NodeId, NodeProperty, NodeType, Null, Patch,
     Prompt,
 };
 
@@ -367,11 +367,21 @@ impl Document {
     /// Initializes the document's "watch", "update", "patch", and "command" channels, and
     /// starts the corresponding background tasks.
     #[tracing::instrument]
-    pub fn init(home: PathBuf, path: Option<PathBuf>) -> Result<Self> {
+    pub fn init(home: PathBuf, path: Option<PathBuf>, node_type: Option<NodeType>) -> Result<Self> {
         let id = DocumentId::new();
 
         // Create the document's kernels with the same home directory
         let kernels = Arc::new(RwLock::new(Kernels::new(&home)));
+
+        // Create the default root node type, if there is no sidecar file
+        // The default node type itself defaults to none, because that is used in the
+        // merge function to signal that root should be written over.
+        let root_default = || match node_type.unwrap_or(NodeType::Null) {
+            NodeType::Article => Node::Article(Article::default()),
+            NodeType::Chat => Node::Chat(Chat::default()),
+            NodeType::Prompt => Node::Prompt(Prompt::default()),
+            _ => Node::Null(Null),
+        };
 
         // Create the root node from the sidecar file or an empty article
         let root = match &path {
@@ -385,14 +395,14 @@ impl Document {
                                 "Unable to read sidecar file {}: {error}",
                                 sidecar.display()
                             );
-                            Node::Null(Null)
+                            root_default()
                         }
                     }
                 } else {
-                    Node::Null(Null)
+                    root_default()
                 }
             }
-            None => Node::Null(Null),
+            None => root_default(),
         };
         let (watch_sender, watch_receiver) = watch::channel(root.clone());
         let root = Arc::new(RwLock::new(root));
@@ -458,9 +468,9 @@ impl Document {
     }
 
     /// Create a new in-memory document
-    pub fn new() -> Result<Self> {
+    pub fn new(node_type: NodeType) -> Result<Self> {
         let home = std::env::current_dir()?;
-        Self::init(home, None)
+        Self::init(home, None, Some(node_type))
     }
 
     /// Initialize a document at a path
@@ -473,7 +483,7 @@ impl Document {
             .ok_or_else(|| eyre!("path has no parent; is it a file?"))?
             .to_path_buf();
 
-        Self::init(home, Some(path.to_path_buf()))
+        Self::init(home, Some(path.to_path_buf()), None)
     }
 
     /// Create a new document at a path

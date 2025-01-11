@@ -486,6 +486,7 @@ impl TextDocument {
     /// Create a new text document with an initial source
     fn new(
         uri: Url,
+        node_type: NodeType,
         format: String,
         source: String,
         client: ClientSocket,
@@ -498,7 +499,7 @@ impl TextDocument {
         let Some(home) = path.parent() else {
             bail!("File does not have a parent dir")
         };
-        let doc = Document::init(home.into(), Some(path))?;
+        let doc = Document::init(home.into(), Some(path), Some(node_type))?;
 
         let format = Format::from_name(&format);
 
@@ -845,10 +846,11 @@ pub(super) fn did_open(
     let format = params.text_document.language_id;
     let mut source = params.text_document.text;
 
-    // Ensure if the document is a new chat document, that is it well formed
-    if uri.path().ends_with(".chat") && source.is_empty() {
-        source.push_str("---\ntype: Chat\n---");
-    }
+    let node_type = if source.starts_with("---\ntype: Chat\n") {
+        NodeType::Chat
+    } else {
+        NodeType::Article
+    };
 
     let client = state.client.clone();
     let user = state
@@ -857,7 +859,7 @@ pub(super) fn did_open(
         .as_ref()
         .and_then(|user| user.object.clone());
 
-    let text_doc = match TextDocument::new(uri.clone(), format, source, client, user) {
+    let text_doc = match TextDocument::new(uri.clone(), node_type, format, source, client, user) {
         Ok(doc) => doc,
         Err(error) => {
             return ControlFlow::Break(Err(Error::Response(ResponseError::new(
