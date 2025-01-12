@@ -12,7 +12,7 @@ use common::{
     chrono::TimeDelta,
     chrono_humanize,
     clap::{self, Parser},
-    eyre::Result,
+    eyre::{bail, Result},
     futures::future::try_join_all,
     indexmap::IndexMap,
     itertools::Itertools,
@@ -66,14 +66,23 @@ pub struct Status {
 impl Status {
     pub async fn run(self) -> Result<()> {
         let statuses = if self.paths.is_empty() {
-            let dir = current_dir()?;
-            Document::status_tracked(&dir).await?
+            // No paths provided, so get statuses from tracking dir
+            Document::status_tracked(&current_dir()?).await?
         } else {
+            // Check that each path exists
+            for path in self.paths.iter() {
+                if !path.exists() {
+                    bail!("Path does not exist: {}", path.display())
+                }
+            }
+
+            // Get status of each file
             let futures = self.paths.iter().map(|path| Document::status_path(path));
             try_join_all(futures).await?
         };
 
         if let Some(format) = self.r#as {
+            // Return early with formatted list
             Code::new_from(format.into(), &statuses)?.to_stdout();
             return Ok(());
         }
