@@ -5,7 +5,6 @@ use common::{
     eyre::Result,
 };
 use document::Document;
-use format::Format;
 use schema::NodeType;
 
 /// Create a new document with sidecar file
@@ -21,38 +20,26 @@ pub struct Cli {
     /// The type of document to create
     #[arg(long, short, default_value = "article")]
     r#type: RootType,
-
-    /// The format of the sidecar file
-    #[arg(long, short)]
-    sidecar: Option<SidecarFormat>,
 }
 
 #[derive(Debug, Clone, ValueEnum)]
 pub enum RootType {
     #[clap(alias = "article")]
     Article,
+    #[clap(alias = "chat")]
+    Chat,
     #[clap(alias = "prompt")]
     Prompt,
-}
-
-#[derive(Debug, Clone, ValueEnum)]
-pub enum SidecarFormat {
-    #[clap(name = "json.zip", alias = "json-zip")]
-    JsonZip,
-    Json,
 }
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
         let node_type = match self.r#type {
             RootType::Article => NodeType::Article,
+            RootType::Chat => NodeType::Chat,
             RootType::Prompt => NodeType::Prompt,
         };
-        let sidecar = self.sidecar.map(|format| match format {
-            SidecarFormat::JsonZip => Format::JsonZip,
-            SidecarFormat::Json => Format::Json,
-        });
-        Document::create(&self.path, self.force, node_type, sidecar).await?;
+        Document::create(&self.path, self.force, node_type).await?;
 
         Ok(())
     }

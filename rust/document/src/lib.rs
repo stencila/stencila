@@ -27,6 +27,7 @@ use schema::{
     Prompt,
 };
 
+pub mod cli;
 mod config;
 mod sync_directory;
 mod sync_dom;
@@ -35,6 +36,7 @@ mod sync_format;
 mod sync_object;
 mod task_command;
 mod task_update;
+mod track;
 
 // Re-exports for convenience of consuming crates
 pub use codecs::{DecodeOptions, EncodeOptions, Format, LossesResponse};
@@ -459,60 +461,36 @@ impl Document {
 
     /// Initialize a document at a path
     ///
-    /// Note that this does not read the document from the path. Use `open`
+    /// Note that this simply associates the document with the path.
+    /// It does not read the document from the path. Use `open`
     /// or `synced` for that.
-    fn at(path: &Path) -> Result<Self> {
+    fn at(path: &Path, node_type: Option<NodeType>) -> Result<Self> {
         let home = path
             .parent()
             .ok_or_else(|| eyre!("path has no parent; is it a file?"))?
             .to_path_buf();
 
-        Self::init(home, Some(path.to_path_buf()), None)
+        Self::init(home, Some(path.to_path_buf()), node_type)
     }
 
     /// Create a new document at a path
     #[tracing::instrument]
-    pub async fn create(
-        path: &Path,
-        force: bool,
-        node_type: NodeType,
-        sidecar_format: Option<Format>,
-    ) -> Result<Self> {
+    pub async fn create(path: &Path, force: bool, node_type: NodeType) -> Result<Self> {
         // Check for existing file
-        if path.exists() && !force {
-            bail!("File already exists; remove the file or use the `--force` option")
+        if path.exists() {
+            if !force {
+                bail!("File already exists; remove the file or use the `--force` option")
+            } else {
+                // TODO: untrack and delete the existing file
+            }
         }
 
-        // Check for existing sidecar (regardless of its format)
-        let sidecar = Self::sidecar_path(path);
-        if sidecar.exists() && !force {
-            bail!(
-                "Sidecar file already exists at `{}`; remove the file or use the `--force` option",
-                sidecar.display()
-            )
-        }
-
-        // If a sidecar format was specified then use that
-        let sidecar = if let Some(format) = sidecar_format {
-            let mut path = path.to_path_buf();
-            path.set_extension(format.extension());
-            path
-        } else {
-            sidecar
-        };
-
-        // Create the empty article and write to path
-        let node = match node_type {
-            NodeType::Article => Node::Article(Article::default()),
-            NodeType::Prompt => Node::Prompt(Prompt::default()),
-            _ => bail!("Unsupported document type: {node_type}"),
-        };
-        codecs::to_path(&node, path, None).await?;
-
-        // Create the sidecar file
-        codecs::to_path(&node, &sidecar, None).await?;
-
-        Self::at(path)
+        // Create a document at the path and track it (which will create a tracking file)
+        // and save it (which create the file itself)
+        let doc = Self::at(path, Some(node_type))?;
+        doc.track().await?;
+        doc.save().await?;
+        Ok(doc)
     }
 
     /// Open an existing document
@@ -529,7 +507,7 @@ impl Document {
             bail!("File does not exist: {}", path.display());
         }
 
-        let doc = Self::at(path)?;
+        let doc = Self::at(path, None)?;
 
         let mut import = true;
 
@@ -815,7 +793,7 @@ impl Document {
 
     /// Save the document
     #[tracing::instrument(skip(self))]
-    pub async fn save(&self, wait: CommandWait) -> Result<()> {
+    pub async fn save(&self) -> Result<()> {
         tracing::trace!("Saving document");
 
         self.command(
@@ -823,7 +801,7 @@ impl Document {
                 SaveDocumentSource::default(),
                 SaveDocumentSidecar::default(),
             )),
-            wait,
+            CommandWait::Yes,
         )
         .await
     }

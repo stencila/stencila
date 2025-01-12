@@ -76,6 +76,14 @@ impl NodeId {
         }
     }
 
+    /// Create a new random id for a nick
+    pub fn random(nick: [u8; 3]) -> Self {
+        Self {
+            nick,
+            uid: NodeUid::default().0,
+        }
+    }
+
     /// Get the node type nickname of the node id
     pub fn nick(&self) -> &str {
         str::from_utf8(&self.nick).expect("node type nicknames should always be utf8")

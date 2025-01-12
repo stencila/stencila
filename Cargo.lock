@@ -2010,6 +2010,7 @@ dependencies = [
 name = "document"
 version = "0.0.0"
 dependencies = [
+ "cli-utils",
  "codec-json",
  "codecs",
  "common",

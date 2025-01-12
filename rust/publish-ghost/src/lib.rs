@@ -212,7 +212,7 @@ impl Cli {
         .await;
 
         // Save the document to disk
-        doc.save(CommandWait::Yes).await?;
+        doc.save().await?;
 
         tracing::info!(
             "Successfully created {doc_url} from {}",
@@ -337,7 +337,7 @@ impl Cli {
         }
 
         // Save the document to disk
-        doc.save(CommandWait::Yes).await?;
+        doc.save().await?;
 
         tracing::info!(
             "Successfully updated {} from {doc_url}",

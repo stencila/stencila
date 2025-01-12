@@ -90,6 +90,18 @@ pub fn get(
     }
 }
 
+/// Determine whether [`from_path`] is supported for a path
+pub fn from_path_is_supported(path: &Path) -> bool {
+    let format = Format::from_path(path);
+    get(None, Some(&format), Some(CodecDirection::Decode)).is_ok()
+}
+
+/// Determine whether [`to_path`] is supported for a path
+pub fn to_path_is_supported(path: &Path) -> bool {
+    let format = Format::from_path(path);
+    get(None, Some(&format), Some(CodecDirection::Encode)).is_ok()
+}
+
 /// Decode a Stencila Schema node from a string
 #[tracing::instrument]
 pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node> {
