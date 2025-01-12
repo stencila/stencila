@@ -8,12 +8,13 @@ use fs4::tokio::AsyncFileExt;
 
 use common::{
     eyre::{bail, Result},
+    futures::future::try_join_all,
     itertools::Itertools,
     serde::Serialize,
     serde_with::skip_serializing_none,
     strum::Display,
     tokio::{
-        fs::{create_dir_all, remove_file, File, OpenOptions},
+        fs::{create_dir_all, read_dir, read_to_string, remove_file, File, OpenOptions},
         io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt, SeekFrom},
     },
     tracing,
@@ -25,6 +26,7 @@ use crate::Document;
 #[derive(Default, Display, Serialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub enum DocumentStatusFlag {
+    Deleted,
     #[default]
     Unsupported,
     Untracked,
@@ -49,6 +51,14 @@ impl DocumentStatus {
     fn unsaved() -> Self {
         Self {
             status: DocumentStatusFlag::Unsaved,
+            ..Default::default()
+        }
+    }
+
+    fn deleted(path: &Path) -> Self {
+        Self {
+            status: DocumentStatusFlag::Deleted,
+            path: Some(path.to_path_buf()),
             ..Default::default()
         }
     }
@@ -148,19 +158,20 @@ impl Document {
             bail!("Can't track document, it has no path yet")
         };
 
-        // Get the tracking files for the id. The paths file is locked for
+        // Get the tracking files for the id. The tracked paths file is locked for
         // exclusive access
-        let (paths, json) = tracking_files(&path, &id).await?;
-        let mut paths_file = tracking_paths_lock(&paths).await?;
+        let tracking_dir = tracking_dir(path).await?;
+        let (tracked_paths, tracked_json) = tracking_files(&tracking_dir, &id).await?;
+        let mut tracked_paths_file = tracked_paths_lock(&tracked_paths).await?;
 
         // Write JSON
-        self.export(&json, None).await?;
+        self.export(&tracked_json, None).await?;
 
         // Add path of document
-        tracking_paths_add(&mut paths_file, path).await?;
+        tracked_paths_add(&mut tracked_paths_file, path).await?;
 
         // Unlock the paths file
-        tracking_paths_unlock(paths_file).await
+        tracked_paths_unlock(tracked_paths_file).await
     }
 
     /// Untrack a document
@@ -211,29 +222,77 @@ impl Document {
             return Ok(());
         };
 
-        // Get the tracking files for the id. The paths file is locked for
-        // exclusive access
-        let (paths, json) = tracking_files(&path, &id).await?;
-        let mut paths_file = tracking_paths_lock(&paths).await?;
+        // Get the tracking files for the id. The tracked paths file is locked for
+        // exclusive access.
+        let tracking_dir = tracking_dir(path).await?;
+        let (tracked_paths, tracked_json) = tracking_files(&tracking_dir, &id).await?;
+        let mut tracked_paths_file = tracked_paths_lock(&tracked_paths).await?;
 
         // Remove path of document
-        let has_paths = tracking_paths_remove(&mut paths_file, path).await?;
+        let has_paths = tracked_paths_remove(&mut tracked_paths_file, path).await?;
 
-        // Remove the tracking files if no more entries in the tracking list
+        // Remove the tracking files if no more paths in the tracked paths
         if !has_paths {
-            if json.exists() {
-                remove_file(&json).await?
+            if tracked_json.exists() {
+                remove_file(&tracked_json).await?
             };
-            if paths.exists() {
-                remove_file(paths).await?
+            if tracked_paths.exists() {
+                remove_file(tracked_paths).await?
             }
         }
 
         // Unlock the paths file
-        tracking_paths_unlock(paths_file).await
+        tracked_paths_unlock(tracked_paths_file).await
     }
 
-    /// Get the status of a tracked document
+    /// Untrack the path
+    pub async fn untrack_path(path: &Path) -> Result<()> {
+        if path.exists() && path.is_file() && codecs::from_path_is_supported(path) {
+            // Untrack the document
+            let doc = Document::open(path).await?;
+            doc.untrack().await?;
+            doc.save().await?;
+
+            return Ok(());
+        }
+
+        // Given that we can't open the path to get the id we need
+        // to iterate over all the tracked paths files and remove the path from each
+        let tracking_dir = tracking_dir(path).await?;
+        let mut dir_entries = read_dir(&tracking_dir).await?;
+        while let Ok(Some(entry)) = dir_entries.next_entry().await {
+            // For each `.paths` file
+            let tracking_paths = entry.path();
+            if tracking_paths.extension().unwrap_or_default() == "paths" {
+                // Remove the path form the tracked paths
+                let mut tracked_paths_file = tracked_paths_lock(&tracking_paths).await?;
+                let has_paths = tracked_paths_remove(&mut tracked_paths_file, path).await?;
+
+                // Remove both tracking files if no more entries in the tracking paths
+                if !has_paths {
+                    let id = tracking_paths
+                        .file_stem()
+                        .unwrap_or_default()
+                        .to_string_lossy();
+                    let json = tracking_dir.join(format!("{id}.json"));
+                    if json.exists() {
+                        remove_file(&json).await?
+                    };
+
+                    if tracking_paths.exists() {
+                        remove_file(tracking_paths).await?
+                    }
+                }
+
+                // Unlock the tracked paths file
+                tracked_paths_unlock(tracked_paths_file).await?;
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Get the tracking status of a document
     pub async fn status(&self) -> Result<DocumentStatus> {
         // Get the path of the source file, returning early if not exists
         let Some(source) = &self.path else {
@@ -251,24 +310,56 @@ impl Document {
         };
 
         // Get the path to the tracking file, returning early if not exists
-        let (.., json) = tracking_files(source, &id).await?;
-        if !json.exists() {
+        let tracking_dir = tracking_dir(source).await?;
+        let (.., tracked_json) = tracking_files(&tracking_dir, &id).await?;
+        if !tracked_json.exists() {
             return Ok(DocumentStatus::untracked(source, modified_at));
         }
 
         // Get the modification time of both files
-        let tracked_at = modification_time(&json)?;
+        let tracked_at = modification_time(&tracked_json)?;
 
         Ok(DocumentStatus::new(&source, modified_at, tracked_at, id))
     }
 
-    pub async fn status_of(path: &Path) -> Result<DocumentStatus> {
+    /// Get the tracking status of a path
+    pub async fn status_path(path: &Path) -> Result<DocumentStatus> {
+        if !path.exists() {
+            return Ok(DocumentStatus::deleted(path));
+        }
+
         if !path.is_file() || !codecs::from_path_is_supported(path) {
             return Ok(DocumentStatus::unsupported(path));
         }
 
         let doc = Self::open(path).await?;
         doc.status().await
+    }
+
+    /// Get the tracking status of all known tracked files
+    pub async fn status_tracked(path: &Path) -> Result<Vec<DocumentStatus>> {
+        let tracking_dir = tracking_dir(path).await?;
+
+        // Get a list of all unique tracked paths
+        let mut tracked_paths = Vec::new();
+        let mut dir_entries = read_dir(&tracking_dir).await?;
+        while let Ok(Some(entry)) = dir_entries.next_entry().await {
+            let path = entry.path();
+            if path.extension().unwrap_or_default() == "paths" {
+                for line in read_to_string(path).await?.lines() {
+                    let path = PathBuf::from(line);
+                    if !tracked_paths.contains(&path) {
+                        tracked_paths.push(path)
+                    }
+                }
+            }
+        }
+
+        // Get the the status of each
+        let futures = tracked_paths.iter().map(|path| Self::status_path(&path));
+        let statuses = try_join_all(futures).await?;
+
+        Ok(statuses)
     }
 }
 
@@ -277,7 +368,7 @@ fn id_random() -> String {
     NodeId::random([b'd', b'o', b'c']).to_string()
 }
 
-/// Get the directory of tracked documents
+/// Get the path of the closes tracking directory
 async fn tracking_dir(path: &Path) -> Result<PathBuf> {
     // TODO: walk up directory tree from path, until first '.stencila' directory
     // is found. If none found then use current dir.
@@ -291,24 +382,22 @@ async fn tracking_dir(path: &Path) -> Result<PathBuf> {
 }
 
 /// Get the path of the tracking files for the document id
-async fn tracking_files(path: &Path, id: &str) -> Result<(PathBuf, PathBuf)> {
-    let dir = tracking_dir(path).await?;
-
+async fn tracking_files(tracking_dir: &Path, id: &str) -> Result<(PathBuf, PathBuf)> {
     // TODO: handle characters that are invalid - hash id?
 
-    let paths = dir.join(format!("{id}.paths"));
-    let json = dir.join(format!("{id}.json"));
+    let tracked_paths = tracking_dir.join(format!("{id}.paths"));
+    let tracked_json = tracking_dir.join(format!("{id}.json"));
 
-    Ok((paths, json))
+    Ok((tracked_paths, tracked_json))
 }
 
-/// Lock a paths tracking file
-async fn tracking_paths_lock(path: &Path) -> Result<File> {
+/// Open and lock a tracked paths file
+async fn tracked_paths_lock(tracking_paths: &Path) -> Result<File> {
     let file = OpenOptions::new()
         .read(true)
         .write(true)
         .create(true)
-        .open(path)
+        .open(tracking_paths)
         .await?;
 
     file.lock_exclusive()?;
@@ -316,13 +405,13 @@ async fn tracking_paths_lock(path: &Path) -> Result<File> {
     Ok(file)
 }
 
-/// Unlock a paths tracking file
-async fn tracking_paths_unlock(file: File) -> Result<()> {
+/// Unlock a tracked paths file
+async fn tracked_paths_unlock(file: File) -> Result<()> {
     Ok(file.unlock_async().await?)
 }
 
-/// Add a path to the paths tracking file if it does not yet exist there
-async fn tracking_paths_add(file: &mut File, path: &Path) -> Result<()> {
+/// Add a path to the tracked paths if it does not yet exist there
+async fn tracked_paths_add(file: &mut File, path: &Path) -> Result<()> {
     let path = path.to_string_lossy();
 
     // Read the file and if none of the lines equal the path, append it
@@ -339,8 +428,8 @@ async fn tracking_paths_add(file: &mut File, path: &Path) -> Result<()> {
     Ok(())
 }
 
-/// Remove a path from the paths tracking file
-async fn tracking_paths_remove(file: &mut File, path: &Path) -> Result<bool> {
+/// Remove a path from the tracked paths
+async fn tracked_paths_remove(file: &mut File, path: &Path) -> Result<bool> {
     let path = path.to_string_lossy();
 
     // Read the file and filter out the lines that equal the path

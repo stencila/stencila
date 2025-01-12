@@ -1,4 +1,5 @@
 use std::{
+    env::current_dir,
     path::PathBuf,
     time::{SystemTime, UNIX_EPOCH},
 };
@@ -47,11 +48,7 @@ pub struct Untrack {
 
 impl Untrack {
     pub async fn run(self) -> Result<()> {
-        let doc = Document::open(&self.path).await?;
-        doc.untrack().await?;
-        doc.save().await?;
-
-        Ok(())
+        Document::untrack_path(&self.path).await
     }
 }
 
@@ -68,12 +65,13 @@ pub struct Status {
 
 impl Status {
     pub async fn run(self) -> Result<()> {
-        let futures = self
-            .paths
-            .iter()
-            .map(|path| async { Document::status_of(path).await });
-
-        let statuses = try_join_all(futures).await?;
+        let statuses = if self.paths.is_empty() {
+            let dir = current_dir()?;
+            Document::status_tracked(&dir).await?
+        } else {
+            let futures = self.paths.iter().map(|path| Document::status_path(path));
+            try_join_all(futures).await?
+        };
 
         if let Some(format) = self.r#as {
             Code::new_from(format.into(), &statuses)?.to_stdout();
@@ -119,6 +117,7 @@ impl Status {
 
             use DocumentStatusFlag::*;
             let (attr, color) = match status {
+                Deleted => (Attribute::Bold, Color::Magenta),
                 Unsaved => (Attribute::Dim, Color::DarkGrey),
                 Unsupported => (Attribute::Dim, Color::DarkGrey),
                 Untracked => (Attribute::Reset, Color::Blue),
