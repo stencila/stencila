@@ -7,7 +7,7 @@ use std::{
 use fs4::tokio::AsyncFileExt;
 
 use common::{
-    eyre::{bail, Result},
+    eyre::{bail, OptionExt, Result},
     futures::future::try_join_all,
     itertools::Itertools,
     serde::Serialize,
@@ -158,10 +158,11 @@ impl Document {
             bail!("Can't track document, it has no path yet")
         };
 
-        // Get the tracking files for the id. The tracked paths file is locked for
-        // exclusive access
-        let tracking_dir = tracking_dir(path).await?;
+        // Get the tracking files for the id.
+        let tracking_dir = tracking_dir(path, true).await?;
         let (tracked_paths, tracked_json) = tracking_files(&tracking_dir, &id).await?;
+
+        // Lock tracked paths file for exclusive access
         let mut tracked_paths_file = tracked_paths_lock(&tracked_paths).await?;
 
         // Write JSON
@@ -170,7 +171,7 @@ impl Document {
         // Add path of document
         tracked_paths_add(&mut tracked_paths_file, path).await?;
 
-        // Unlock the paths file
+        // Unlock the tracked paths file
         tracked_paths_unlock(tracked_paths_file).await
     }
 
@@ -222,16 +223,22 @@ impl Document {
             return Ok(());
         };
 
-        // Get the tracking files for the id. The tracked paths file is locked for
-        // exclusive access.
-        let tracking_dir = tracking_dir(path).await?;
+        // Get the closest tracking dir and return early if none found
+        let tracking_dir = tracking_dir(path, false).await?;
+        if !tracking_dir.exists() {
+            return Ok(());
+        }
+
+        // Get the tracking files for the id.
         let (tracked_paths, tracked_json) = tracking_files(&tracking_dir, &id).await?;
+
+        // Lock tracked paths file for exclusive access
         let mut tracked_paths_file = tracked_paths_lock(&tracked_paths).await?;
 
         // Remove path of document
         let has_paths = tracked_paths_remove(&mut tracked_paths_file, path).await?;
 
-        // Remove the tracking files if no more paths in the tracked paths
+        // Remove both tracking files if no more paths in the tracked paths
         if !has_paths {
             if tracked_json.exists() {
                 remove_file(&tracked_json).await?
@@ -241,7 +248,7 @@ impl Document {
             }
         }
 
-        // Unlock the paths file
+        // Unlock the tracked paths file
         tracked_paths_unlock(tracked_paths_file).await
     }
 
@@ -256,9 +263,16 @@ impl Document {
             return Ok(());
         }
 
-        // Given that we can't open the path to get the id we need
-        // to iterate over all the tracked paths files and remove the path from each
-        let tracking_dir = tracking_dir(path).await?;
+        // Get the closest tracking dir and return early if none found
+        let tracking_dir = tracking_dir(path, false).await?;
+        if !tracking_dir.exists() {
+            return Ok(());
+        }
+
+        // Given that we can't open the path to get the id (it doesn't exist of is not
+        // a file) we need to iterate over all the tracked paths files and remove the
+        // path from each. We could stop at the first file it is found in, but not
+        // doing so is "safer".
         let mut dir_entries = read_dir(&tracking_dir).await?;
         while let Ok(Some(entry)) = dir_entries.next_entry().await {
             // For each `.paths` file
@@ -309,8 +323,11 @@ impl Document {
             return Ok(DocumentStatus::untracked(source, modified_at));
         };
 
-        // Get the path to the tracking file, returning early if not exists
-        let tracking_dir = tracking_dir(source).await?;
+        // Get the path to the tracked JSON, returning early if not exists
+        let tracking_dir = tracking_dir(source, false).await?;
+        if !tracking_dir.exists() {
+            return Ok(DocumentStatus::untracked(source, modified_at));
+        }
         let (.., tracked_json) = tracking_files(&tracking_dir, &id).await?;
         if !tracked_json.exists() {
             return Ok(DocumentStatus::untracked(source, modified_at));
@@ -338,7 +355,12 @@ impl Document {
 
     /// Get the tracking status of all known tracked files
     pub async fn status_tracked(path: &Path) -> Result<Vec<DocumentStatus>> {
-        let tracking_dir = tracking_dir(path).await?;
+        let tracking_dir = tracking_dir(path, false).await?;
+
+        // Return early if no tracking file found
+        if !tracking_dir.exists() {
+            return Ok(Vec::new());
+        }
 
         // Get a list of all unique tracked paths
         let mut tracked_paths = Vec::new();
@@ -368,17 +390,55 @@ fn id_random() -> String {
     NodeId::random([b'd', b'o', b'c']).to_string()
 }
 
-/// Get the path of the closes tracking directory
-async fn tracking_dir(path: &Path) -> Result<PathBuf> {
-    // TODO: walk up directory tree from path, until first '.stencila' directory
-    // is found. If none found then use current dir.
-    let dir = PathBuf::from(".stencila/tracked");
+/// Get the path of the closest `.stencila` directory
+///
+/// If the `path` is a file then starts with the parent directory of that file.
+/// Walks up the directory tree until a `.stencila` directory is found.
+/// If none is found, and `ensure` is true, then creates one in the starting directory.
+async fn stencila_dir(path: &Path, ensure: bool) -> Result<PathBuf> {
+    const STENCILA_DIR: &str = ".stencila";
 
-    if !dir.exists() {
-        create_dir_all(&dir).await?;
+    let starting_dir = if path.is_file() {
+        path.parent().ok_or_eyre("File has no parent directory")?
+    } else {
+        path
+    }
+    .to_path_buf();
+
+    // Walk up dir tree
+    let mut current_dir = starting_dir.clone();
+    loop {
+        let stencila_dir = current_dir.join(STENCILA_DIR);
+        if stencila_dir.exists() {
+            return Ok(stencila_dir);
+        }
+
+        let Some(parent_dir) = current_dir.parent() else {
+            break;
+        };
+        current_dir = parent_dir.to_path_buf();
     }
 
-    Ok(dir)
+    // Not found so create one in starting dir
+    let stencila_dir = starting_dir.join(STENCILA_DIR);
+    if ensure {
+        create_dir_all(&stencila_dir).await?;
+    }
+
+    Ok(stencila_dir)
+}
+
+/// Get the path of the closest tracking directory
+async fn tracking_dir(path: &Path, ensure: bool) -> Result<PathBuf> {
+    const TRACKING_DIR: &str = "tracked";
+
+    let tracking_dir = stencila_dir(path, false).await?.join(TRACKING_DIR);
+
+    if ensure && !tracking_dir.exists() {
+        create_dir_all(&tracking_dir).await?;
+    }
+
+    Ok(tracking_dir)
 }
 
 /// Get the path of the tracking files for the document id
