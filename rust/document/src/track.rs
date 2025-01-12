@@ -360,8 +360,11 @@ impl Document {
 
         // Return early if no tracking dir found
         if !tracking_dir.exists() {
+            tracing::debug!("No tracking dir found for {path:?}");
             return Ok(Vec::new());
         }
+
+        tracing::debug!("Tracking dir for {path:?}: {tracking_dir:?}");
 
         // Paths need to be made relative to the parent of the `.stencila` directory
         let tracked_dir = tracked_dir(&tracking_dir)?;
@@ -408,8 +411,9 @@ fn id_random() -> String {
 /// Get the path of the closest `.stencila` directory
 ///
 /// If the `path` is a file then starts with the parent directory of that file.
-/// Walks up the directory tree until a `.stencila` directory is found.
-/// If none is found, and `ensure` is true, then creates one in the starting directory.
+/// Walks up the directory tree until a `.stencila` or `.git` directory is found.
+/// If none is found, and `ensure` is true, then creates one, next to the `.git`
+/// directory if any, or in the starting directory.
 async fn stencila_dir(path: &Path, ensure: bool) -> Result<PathBuf> {
     const STENCILA_DIR: &str = ".stencila";
 
@@ -431,6 +435,14 @@ async fn stencila_dir(path: &Path, ensure: bool) -> Result<PathBuf> {
             return Ok(stencila_dir);
         }
 
+        if ensure {
+            let git_dir = current_dir.join(".git");
+            if git_dir.exists() {
+                create_dir_all(&stencila_dir).await?;
+                return Ok(stencila_dir);
+            }
+        }
+
         let Some(parent_dir) = current_dir.parent() else {
             break;
         };
@@ -446,24 +458,26 @@ async fn stencila_dir(path: &Path, ensure: bool) -> Result<PathBuf> {
     Ok(stencila_dir)
 }
 
-/// Get the path of the tracked directory from the path of the tracking directory
-fn tracked_dir(path: &Path) -> Result<&Path> {
-    path.parent()
-        .and_then(|path| path.parent())
-        .ok_or_eyre("Unable to get tracked dir")
-}
-
 /// Get the path of the closest tracking directory
 async fn tracking_dir(path: &Path, ensure: bool) -> Result<PathBuf> {
     const TRACKING_DIR: &str = "tracked";
 
-    let tracking_dir = stencila_dir(path, false).await?.join(TRACKING_DIR);
+    // Note: must call `stencila_dir` with ensure even through checking for ensure
+    // below, to ensure that walk stops at closes Git repo
+    let tracking_dir = stencila_dir(path, true).await?.join(TRACKING_DIR);
 
     if ensure && !tracking_dir.exists() {
         create_dir_all(&tracking_dir).await?;
     }
 
     Ok(tracking_dir)
+}
+
+/// Get the path of the tracked directory from the path of the tracking directory
+fn tracked_dir(path: &Path) -> Result<&Path> {
+    path.parent()
+        .and_then(|path| path.parent())
+        .ok_or_eyre("Unable to get tracked directory")
 }
 
 /// Get the path of the tracking files for the document id
