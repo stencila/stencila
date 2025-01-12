@@ -158,7 +158,7 @@ impl Document {
             bail!("Can't track document, it has no path yet")
         };
 
-        // Get the tracking files for the id.
+        // Get the tracking files for the id
         let tracking_dir = tracking_dir(path, true).await?;
         let (tracked_paths, tracked_json) = tracking_files(&tracking_dir, &id).await?;
 
@@ -309,34 +309,35 @@ impl Document {
     /// Get the tracking status of a document
     pub async fn status(&self) -> Result<DocumentStatus> {
         // Get the path of the source file, returning early if not exists
-        let Some(source) = &self.path else {
+        let Some(path) = &self.path else {
             return Ok(DocumentStatus::unsaved());
         };
-        if !source.exists() {
+        if !path.exists() {
             return Ok(DocumentStatus::unsaved());
         }
 
-        let modified_at = modification_time(&source)?;
+        // Get the modification time of file
+        let modified_at = modification_time(&path)?;
 
         // Get the document id, returning early if none
         let Some(id) = self.id().await else {
-            return Ok(DocumentStatus::untracked(source, modified_at));
+            return Ok(DocumentStatus::untracked(path, modified_at));
         };
 
-        // Get the path to the tracked JSON, returning early if not exists
-        let tracking_dir = tracking_dir(source, false).await?;
+        // Get the path to the tracked JSON, returning early if it does not exist
+        let tracking_dir = tracking_dir(path, false).await?;
         if !tracking_dir.exists() {
-            return Ok(DocumentStatus::untracked(source, modified_at));
+            return Ok(DocumentStatus::untracked(path, modified_at));
         }
         let (.., tracked_json) = tracking_files(&tracking_dir, &id).await?;
         if !tracked_json.exists() {
-            return Ok(DocumentStatus::untracked(source, modified_at));
+            return Ok(DocumentStatus::untracked(path, modified_at));
         }
 
-        // Get the modification time of both files
+        // Get the modification time of tracked JSON
         let tracked_at = modification_time(&tracked_json)?;
 
-        Ok(DocumentStatus::new(&source, modified_at, tracked_at, id))
+        Ok(DocumentStatus::new(&path, modified_at, tracked_at, id))
     }
 
     /// Get the tracking status of a path
@@ -357,10 +358,13 @@ impl Document {
     pub async fn status_tracked(path: &Path) -> Result<Vec<DocumentStatus>> {
         let tracking_dir = tracking_dir(path, false).await?;
 
-        // Return early if no tracking file found
+        // Return early if no tracking dir found
         if !tracking_dir.exists() {
             return Ok(Vec::new());
         }
+
+        // Paths need to be made relative to the parent of the `.stencila` directory
+        let tracked_dir = tracked_dir(&tracking_dir)?;
 
         // Get a list of all unique tracked paths
         let mut tracked_paths = Vec::new();
@@ -369,17 +373,28 @@ impl Document {
             let path = entry.path();
             if path.extension().unwrap_or_default() == "paths" {
                 for line in read_to_string(path).await?.lines() {
-                    let path = PathBuf::from(line);
+                    let path = tracked_dir.join(line);
                     if !tracked_paths.contains(&path) {
                         tracked_paths.push(path)
                     }
                 }
             }
         }
+        tracked_paths.sort();
 
-        // Get the the status of each
+        // Get the the status of each tracked path
         let futures = tracked_paths.iter().map(|path| Self::status_path(&path));
-        let statuses = try_join_all(futures).await?;
+        let mut statuses = try_join_all(futures).await?;
+
+        // Make the paths in the statuses relative to the tracked dir
+        for status in statuses.iter_mut() {
+            if let Some(path) = status.path.clone() {
+                status.path = path
+                    .strip_prefix(tracked_dir)
+                    .map(|path| path.to_path_buf())
+                    .ok();
+            }
+        }
 
         Ok(statuses)
     }
@@ -398,12 +413,15 @@ fn id_random() -> String {
 async fn stencila_dir(path: &Path, ensure: bool) -> Result<PathBuf> {
     const STENCILA_DIR: &str = ".stencila";
 
+    let path = path.canonicalize()?;
+
     let starting_dir = if path.is_file() {
-        path.parent().ok_or_eyre("File has no parent directory")?
+        path.parent()
+            .ok_or_eyre("File has no parent directory")?
+            .to_path_buf()
     } else {
         path
-    }
-    .to_path_buf();
+    };
 
     // Walk up dir tree
     let mut current_dir = starting_dir.clone();
@@ -426,6 +444,13 @@ async fn stencila_dir(path: &Path, ensure: bool) -> Result<PathBuf> {
     }
 
     Ok(stencila_dir)
+}
+
+/// Get the path of the tracked directory from the path of the tracking directory
+fn tracked_dir(path: &Path) -> Result<&Path> {
+    path.parent()
+        .and_then(|path| path.parent())
+        .ok_or_eyre("Unable to get tracked dir")
 }
 
 /// Get the path of the closest tracking directory
