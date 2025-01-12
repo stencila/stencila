@@ -181,6 +181,23 @@ expression: specs
     "supports_to_string": true,
     "supports_to_path": true
   },
+  "lexical": {
+    "status": "alpha",
+    "supports_from_formats": {
+      "lexical": "LowLoss",
+      "koenig": "LowLoss"
+    },
+    "supports_from_bytes": false,
+    "supports_from_string": true,
+    "supports_from_path": true,
+    "supports_to_formats": {
+      "lexical": "LowLoss",
+      "koenig": "LowLoss"
+    },
+    "supports_to_bytes": false,
+    "supports_to_string": true,
+    "supports_to_path": true
+  },
   "markdown": {
     "status": "beta",
     "supports_from_formats": {

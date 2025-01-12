@@ -84,16 +84,12 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
         .iter()
         .filter_map(|prompt| {
             let Prompt {
-                id: Some(id),
                 name,
                 version,
                 description,
                 instruction_types,
                 ..
-            } = prompt.deref()
-            else {
-                return None;
-            };
+            } = prompt.deref();
 
             if let Some(instruction_type) = &instruction_type {
                 if !instruction_types.contains(instruction_type) {
@@ -103,21 +99,21 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
 
             // This attempts to maintain consistency with the symbols used for
             // `DocumentSymbols` for various node types
-            let kind = if id.contains("code") {
+            let kind = if name.contains("code") {
                 CompletionItemKind::EVENT
-            } else if id.contains("math") {
+            } else if name.contains("math") {
                 CompletionItemKind::OPERATOR
-            } else if id.contains("styled") {
+            } else if name.contains("styled") {
                 CompletionItemKind::COLOR
-            } else if id.contains("table") {
+            } else if name.contains("table") {
                 CompletionItemKind::STRUCT
-            } else if id.contains("block") {
+            } else if name.contains("block") {
                 CompletionItemKind::CONSTRUCTOR
             } else {
                 CompletionItemKind::INTERFACE
             };
 
-            let label = prompts::shorten(id, &instruction_type);
+            let label = prompts::shorten(name, &instruction_type);
 
             let version = match version {
                 StringOrNumber::String(version) => version.to_string(),
@@ -128,7 +124,7 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
 
             let documentation = Some(Documentation::MarkupContent(MarkupContent {
                 kind: MarkupKind::Markdown,
-                value: format!("{description}\n\n{id} v{version}"),
+                value: format!("{description}\n\n{name} v{version}"),
             }));
 
             Some(CompletionItem {

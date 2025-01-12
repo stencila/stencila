@@ -1,7 +1,31 @@
-use common::serde_yaml;
+use codec_markdown_trait::to_markdown;
+use common::serde_yaml::{self, Value};
 use node_strip::{StripNode, StripTargets};
 
-use crate::{prelude::*, Prompt};
+use crate::{
+    prelude::*, AuthorRole, AuthorRoleAuthor, AuthorRoleName, Prompt, SoftwareApplication,
+};
+
+impl From<Prompt> for AuthorRole {
+    fn from(prompt: Prompt) -> Self {
+        AuthorRole {
+            role_name: AuthorRoleName::Prompter,
+            author: AuthorRoleAuthor::SoftwareApplication(prompt.into()),
+            ..Default::default()
+        }
+    }
+}
+
+impl From<Prompt> for SoftwareApplication {
+    fn from(prompt: Prompt) -> Self {
+        SoftwareApplication {
+            id: prompt.id,
+            name: prompt.name,
+            version: Some(prompt.version),
+            ..Default::default()
+        }
+    }
+}
 
 impl MarkdownCodec for Prompt {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
@@ -23,6 +47,7 @@ impl MarkdownCodec for Prompt {
         header.strip(&StripTargets {
             scopes: vec![
                 StripScope::Provenance,
+                StripScope::Compilation,
                 StripScope::Execution,
                 StripScope::Code,
                 StripScope::Output,
@@ -32,10 +57,15 @@ impl MarkdownCodec for Prompt {
         });
         header.options.authors = None;
 
+        let title = to_markdown(&header.title);
+
         let mut yaml = serde_yaml::to_value(header).unwrap_or_default();
         if let Some(yaml) = yaml.as_mapping_mut() {
             // Remove the (now empty) content array
             yaml.remove("content");
+
+            // Represent title as Markdown
+            yaml.insert(Value::from("title"), Value::from(title));
 
             // Encode YAML header
             let yaml = serde_yaml::to_string(&yaml).unwrap_or_default();

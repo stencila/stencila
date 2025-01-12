@@ -169,7 +169,7 @@
         "compilation_digest"
       ],
       "strip": [
-        "execution"
+        "compilation"
       ],
       "$ref": "CompilationDigest.schema.json"
     },
@@ -184,7 +184,7 @@
         "compilation_message"
       ],
       "strip": [
-        "execution"
+        "compilation"
       ],
       "type": "array",
       "items": {

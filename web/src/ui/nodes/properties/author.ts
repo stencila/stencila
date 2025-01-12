@@ -152,6 +152,10 @@ export class UINodeAuthor extends LitElement {
   }
 
   private renderName() {
+    if (this.name?.length === 0 && this.$id?.length > 0) {
+      return this.$id
+    }
+
     const [provider] = this.$id?.trim().split('/') ?? []
 
     if (provider && provider.length > 0) {

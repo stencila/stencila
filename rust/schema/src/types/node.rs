@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::admonition::Admonition;
+use super::annotation::Annotation;
 use super::array::Array;
 use super::array_hint::ArrayHint;
 use super::array_validator::ArrayValidator;
@@ -167,6 +168,8 @@ pub enum Node {
     Array(Array),
 
     Admonition(Admonition),
+
+    Annotation(Annotation),
 
     ArrayHint(ArrayHint),
 

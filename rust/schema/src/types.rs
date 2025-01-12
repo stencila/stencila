@@ -1,6 +1,7 @@
 // Generated file; do not edit. See `schema-gen` crate.
 mod admonition;
 mod admonition_type;
+mod annotation;
 mod array;
 mod array_hint;
 mod array_validator;
@@ -194,6 +195,7 @@ mod walkthrough_step;
 
 pub use admonition::*;
 pub use admonition_type::*;
+pub use annotation::*;
 pub use array::*;
 pub use array_hint::*;
 pub use array_validator::*;

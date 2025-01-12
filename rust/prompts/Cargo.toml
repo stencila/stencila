@@ -7,7 +7,7 @@ edition = "2021"
 app = { path = "../app" }
 cached = { workspace = true }
 cli-utils = { path = "../cli-utils" }
-codec-markdown-trait = {path = "../codec-markdown-trait" }
+codec-markdown = {path = "../codec-markdown" }
 codecs = {path = "../codecs" }
 common = { path = "../common" }
 flate2 = { workspace = true }

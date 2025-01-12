@@ -1,12 +1,12 @@
 ---
 type: Prompt
 
-id: stencila/create/table-filled
-version: "0.1.0"
-name: Create Filled Table Prompt
+name: stencila/create/table-filled
+title: Create Filled Table Prompt
 description: Create a table with a caption and filled cells.
 keywords: table, filled
 
+version: "0.1.0"
 instruction-type: Create
 node-type: Table
 query-patterns:

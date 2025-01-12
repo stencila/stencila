@@ -9,6 +9,7 @@
 The `Block` type has these members:
 
 - [`Admonition`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/admonition.md)
+- [`AudioObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio-object.md)
 - [`CallBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call-block.md)
 - [`Chat`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat.md)
 - [`ChatMessage`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat-message.md)
@@ -18,10 +19,12 @@ The `Block` type has these members:
 - [`CodeChunk`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-chunk.md)
 - [`DeleteBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/delete-block.md)
 - [`Figure`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/figure.md)
+- [`File`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/file.md)
 - [`ForBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for-block.md)
 - [`Form`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/form.md)
 - [`Heading`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/heading.md)
 - [`IfBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if-block.md)
+- [`ImageObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image-object.md)
 - [`IncludeBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include-block.md)
 - [`InsertBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/insert-block.md)
 - [`InstructionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction-block.md)
@@ -38,6 +41,7 @@ The `Block` type has these members:
 - [`SuggestionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-block.md)
 - [`Table`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table.md)
 - [`ThematicBreak`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/thematic-break.md)
+- [`VideoObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/video-object.md)
 - [`Walkthrough`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/walkthrough.md)
 
 ## Bindings
@@ -58,6 +62,7 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 | ------------------ | ---------- | ---------------------------------------------------------- | ----------------- |
 | `Admonition`       | Min+       | Do not generate `Admonition` nodes in block content.       | -                 |
 |                    | Low+       | Generate `Admonition` nodes in block content.              | Default for level |
+| `AudioObject`      | Min+       | Do not generate `AudioObject` nodes in block content.      | -                 |
 | `CallBlock`        | Min+       | Do not generate `CallBlock` nodes in block content.        | -                 |
 |                    | Low+       | Generate `CallBlock` nodes in block content.               | Default for level |
 | `Chat`             | Min+       | Do not generate `Chat` nodes in block content.             | -                 |
@@ -70,11 +75,13 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 | `DeleteBlock`      | Min+       | Do not generate `DeleteBlock` nodes in block content.      | -                 |
 | `Figure`           | Min+       | Do not generate `Figure` nodes in block content.           | -                 |
 |                    | Low+       | Generate `Figure` nodes in block content.                  | Default for level |
+| `File`             | Min+       | Do not generate `File` nodes in block content.             | -                 |
 | `ForBlock`         | Min+       | Do not generate `ForBlock` nodes in block content.         | -                 |
 |                    | Low+       | Generate `ForBlock` nodes in block content.                | Default for level |
 | `Form`             | Min+       | Do not generate `Form` nodes in block content.             | -                 |
 | `IfBlock`          | Min+       | Do not generate `IfBlock` nodes in block content.          | -                 |
 |                    | Low+       | Generate `IfBlock` nodes in block content.                 | Default for level |
+| `ImageObject`      | Min+       | Do not generate `ImageObject` nodes in block content.      | -                 |
 | `IncludeBlock`     | Min+       | Do not generate `IncludeBlock` nodes in block content.     | -                 |
 |                    | Low+       | Generate `IncludeBlock` nodes in block content.            | Default for level |
 | `InsertBlock`      | Min+       | Do not generate `InsertBlock` nodes in block content.      | -                 |
@@ -85,6 +92,7 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 | `Section`          | Min+       | Do not generate `Section` nodes in block content.          | -                 |
 |                    | Low+       | Generate `Section` nodes in block content.                 | Default for level |
 | `SuggestionBlock`  | Min+       | Do not generate `SuggestionBlock` nodes in block content.  | -                 |
+| `VideoObject`      | Min+       | Do not generate `VideoObject` nodes in block content.      | -                 |
 | `Walkthrough`      | Min+       | Do not generate `Walkthrough` nodes in block content.      | -                 |
 
 ## Source

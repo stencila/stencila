@@ -74,14 +74,14 @@ pub struct Form {
 pub struct FormOptions {
     /// A digest of the content, semantics and dependencies of the node.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
-    #[strip(execution)]
+    #[strip(compilation)]
     #[dom(skip)]
     pub compilation_digest: Option<CompilationDigest>,
 
     /// Messages generated while compiling the code.
     #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[strip(execution)]
+    #[strip(compilation)]
     #[dom(elem = "span")]
     pub compilation_messages: Option<Vec<CompilationMessage>>,
 

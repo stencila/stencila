@@ -475,6 +475,7 @@ pub enum StripScopes {
     Archive,
     Temporary,
     Code,
+    Compilation,
     Execution,
     Output,
     Timestamps,

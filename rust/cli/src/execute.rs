@@ -79,22 +79,22 @@ impl Cli {
         }
 
         if output.is_some() || to.is_some() {
-            let encode_options = encode_options.build(
+            let encode_options = Some(encode_options.build(
                 Some(input.as_ref()),
                 output.as_deref(),
-                to,
+                to.clone(),
                 Format::Json,
                 strip_options,
                 LossesResponse::Debug,
                 passthrough_args.clone(),
-            );
+            ));
 
-            let content = doc
-                .export(output.as_deref(), Some(encode_options.clone()))
-                .await?;
-
-            if !content.is_empty() {
-                Code::new(encode_options.format.unwrap_or_default(), &content).to_stdout();
+            if let Some(dest) = &output {
+                doc.export(dest, encode_options).await?;
+            } else if let Some(format) = to {
+                let format = Format::from_name(&format);
+                let content = doc.dump(format.clone(), encode_options).await?;
+                Code::new(format, &content).to_stdout();
             }
         }
 

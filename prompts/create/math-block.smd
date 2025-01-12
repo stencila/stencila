@@ -1,12 +1,12 @@
 ---
 type: Prompt
 
-id: stencila/create/math-block
-version: "0.1.1"
-name: Create Math Block Prompt
+name: stencila/create/math-block
+title: Create Math Block Prompt
 description: Create a math equation in TeX, AsciiMath or MathML.
 keywords: math, block, display
 
+version: "0.1.1"
 instruction-type: Create
 node-type: MathBlock
 query-patterns:

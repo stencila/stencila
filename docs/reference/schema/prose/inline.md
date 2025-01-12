@@ -8,6 +8,7 @@
 
 The `Inline` type has these members:
 
+- [`Annotation`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/annotation.md)
 - [`AudioObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio-object.md)
 - [`Button`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/button.md)
 - [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)
@@ -63,6 +64,7 @@ During property-based (a.k.a generative) testing, the variants of the `Inline` t
 
 | Variant             | Complexity | Description                                                                                                                                                                                       | Strategy                                         |
 | ------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
+| `Annotation`        | Min+       | Do not generate `Annotation` nodes in inline content.                                                                                                                                             | -                                                |
 | `AudioObject`       | Min+       | Do not generate `AudioObject` nodes in inline content.                                                                                                                                            | -                                                |
 |                     | High+      | Generate `AudioObject` nodes in inline content.                                                                                                                                                   | Default for level                                |
 | `Button`            | Min+       | Do not generate `Button` nodes in inline content.                                                                                                                                                 | -                                                |

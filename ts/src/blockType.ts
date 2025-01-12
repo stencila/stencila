@@ -2,6 +2,7 @@
 
 export type BlockType =
   | "Admonition"
+  | "AudioObject"
   | "CallBlock"
   | "Chat"
   | "ChatMessage"
@@ -11,10 +12,12 @@ export type BlockType =
   | "CodeChunk"
   | "DeleteBlock"
   | "Figure"
+  | "File"
   | "ForBlock"
   | "Form"
   | "Heading"
   | "IfBlock"
+  | "ImageObject"
   | "IncludeBlock"
   | "InsertBlock"
   | "InstructionBlock"
@@ -31,10 +34,12 @@ export type BlockType =
   | "SuggestionBlock"
   | "Table"
   | "ThematicBreak"
+  | "VideoObject"
   | "Walkthrough";
 
 export const BlockTypeList = [
   "Admonition",
+  "AudioObject",
   "CallBlock",
   "Chat",
   "ChatMessage",
@@ -44,10 +49,12 @@ export const BlockTypeList = [
   "CodeChunk",
   "DeleteBlock",
   "Figure",
+  "File",
   "ForBlock",
   "Form",
   "Heading",
   "IfBlock",
+  "ImageObject",
   "IncludeBlock",
   "InsertBlock",
   "InstructionBlock",
@@ -64,5 +71,6 @@ export const BlockTypeList = [
   "SuggestionBlock",
   "Table",
   "ThematicBreak",
+  "VideoObject",
   "Walkthrough",
 ];

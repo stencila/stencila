@@ -1009,6 +1009,18 @@ class Admonition(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
+class Annotation(Mark):
+    """
+    Annotated content.
+    """
+
+    type: Literal["Annotation"] = "Annotation"
+
+    annotation: list[Block] | None = None
+    """The annotation, usually a paragraph."""
+
+
+@dataclass(kw_only=True, repr=False)
 class ArrayHint(Entity):
     """
     A hint to the content of an `Array`.
@@ -3137,6 +3149,7 @@ Union type for things that can be an author in `AuthorRole`.
 
 Block = Union[
     Admonition,
+    AudioObject,
     CallBlock,
     Chat,
     ChatMessage,
@@ -3146,10 +3159,12 @@ Block = Union[
     CodeChunk,
     DeleteBlock,
     Figure,
+    File,
     ForBlock,
     Form,
     Heading,
     IfBlock,
+    ImageObject,
     IncludeBlock,
     InsertBlock,
     InstructionBlock,
@@ -3166,6 +3181,7 @@ Block = Union[
     SuggestionBlock,
     Table,
     ThematicBreak,
+    VideoObject,
     Walkthrough,
 ]
 """
@@ -3246,6 +3262,7 @@ Union type for hints of the value and/or structure of data.
 
 
 Inline = Union[
+    Annotation,
     AudioObject,
     Button,
     Cite,
@@ -3311,6 +3328,7 @@ Node = Union[
     Cord,
     Array,
     Admonition,
+    Annotation,
     ArrayHint,
     ArrayValidator,
     Article,
@@ -3556,6 +3574,7 @@ TYPES = [
     SuggestionBlock,
     SuggestionInline,
     Admonition,
+    Annotation,
     ArrayHint,
     ArrayValidator,
     Article,

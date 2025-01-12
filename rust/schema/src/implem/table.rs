@@ -223,7 +223,9 @@ impl MarkdownCodec for Table {
                 encode_rows(&self.rows, context);
             }
         } else {
-            let wrapped = if self.label.is_some() || self.caption.is_some() || self.notes.is_some()
+            let wrapped = if (self.label.is_some() && !self.label_automatically.unwrap_or(true))
+                || self.caption.is_some()
+                || self.notes.is_some()
             {
                 context.push_colons().push_str(" table");
 

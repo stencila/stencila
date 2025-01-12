@@ -17,10 +17,10 @@ export interface Kernel {
  * See `stencila prompts list --as json` for available fields.
  */
 export interface Prompt {
-  id: string
   name: string
-  version: string
+  title: string
   description: string
+  version: string
   instructionTypes: InstructionType[]
   instructionPatterns: string[]
   nodeTypes: NodeType[]

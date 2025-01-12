@@ -43,6 +43,9 @@ struct FieldAttr {
     code: bool,
 
     #[darling(default)]
+    compilation: bool,
+
+    #[darling(default)]
     execution: bool,
 
     #[darling(default)]
@@ -165,6 +168,14 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             if field.code {
                 fields.extend(quote! {
                     if targets.scopes.contains(&StripScope::Code) {
+                        self.#field_name #strip;
+                    }
+                })
+            }
+
+            if field.compilation {
+                fields.extend(quote! {
+                    if targets.scopes.contains(&StripScope::Compilation) {
                         self.#field_name #strip;
                     }
                 })

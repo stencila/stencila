@@ -334,15 +334,9 @@ pub async fn serve_path(
     // root HTML. This is somewhat redundant, but is necessary, given that we need to have a known version of the
     // HTML as the basis for patching. We could skip including the HTML here (we used to) but then that is unsafe
     // if there are Websocket issues (the page would be blank).
-    let root_type = doc.root_type().await;
+    let root_type = doc.inspect(|root| root.node_type()).await;
     let root_html = doc
-        .export(
-            None,
-            Some(EncodeOptions {
-                format: Some(Format::Dom),
-                ..Default::default()
-            }),
-        )
+        .dump(Format::Dom, None)
         .await
         .map_err(InternalError::new)?;
     let body = format!("<stencila-{view}-view doc={doc_id} type={root_type} view={view} access={access} theme={theme} format={format}>{root_html}</stencila-{view}-view>");
@@ -524,15 +518,18 @@ async fn export_document(
         return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
     };
 
-    let format = query.get("format").map(|format| Format::from_name(format));
+    let format = query
+        .get("format")
+        .map(|format| Format::from_name(format))
+        .unwrap_or(Format::Json);
 
-    let options = EncodeOptions {
-        format,
+    let options = Some(EncodeOptions {
+        format: Some(format.clone()),
         ..Default::default()
-    };
+    });
 
     let content = doc
-        .export(None, Some(options))
+        .dump(format, options)
         .await
         .map_err(InternalError::new)?;
 

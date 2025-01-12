@@ -9,7 +9,7 @@ use async_lsp::{
     ErrorCode, ResponseError,
 };
 use common::{inflector::Inflector, itertools::Itertools, serde_json::json, tokio::sync::RwLock};
-use schema::{ExecutionStatus, NodeType};
+use schema::NodeType;
 
 use crate::{
     commands::{
@@ -58,8 +58,6 @@ pub(crate) async fn request(
                  index_of,
                  is_active,
                  provenance,
-                 detail,
-                 execution,
                  ..
              }| {
                 // Do not show lenses for nodes that are not encoded into the document
@@ -107,17 +105,6 @@ pub(crate) async fn request(
                         // TODO: A cancel lens is not provided because this is currently
                         // not fully implemented
                         vec![lens(RUN_NODE), lens(VIEW_NODE)]
-                    }
-                    NodeType::ChatMessage => {
-                        if detail.as_deref() == Some("User") && 
-                            execution.as_ref().map(|exec| {
-                                !matches!(exec.status, Some(ExecutionStatus::Pending | ExecutionStatus::Running | ExecutionStatus::Succeeded))
-                            }).unwrap_or_default()
-                        {
-                            vec![lens(RUN_NODE)]
-                        } else {
-                            vec![]
-                        }
                     }
                     NodeType::InstructionBlock => {
                         let mut lenses = vec![lens(RUN_NODE), lens(VIEW_NODE)];

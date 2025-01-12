@@ -61,6 +61,14 @@ pub struct Prompt {
     #[strip(metadata)]
     pub name: String,
 
+    /// The title of the creative work.
+    #[serde(alias = "headline")]
+    #[serde(deserialize_with = "one_or_many")]
+    #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[dom(elem = "h1")]
+    pub title: Vec<Inline>,
+
     /// The version of the creative work.
     #[strip(metadata)]
     pub version: StringOrNumber,
@@ -287,24 +295,16 @@ pub struct PromptOptions {
     #[strip(content)]
     pub text: Option<Text>,
 
-    /// The title of the creative work.
-    #[serde(alias = "headline")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    #[strip(metadata)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
-    #[dom(elem = "h1")]
-    pub title: Option<Vec<Inline>>,
-
     /// A digest of the content, semantics and dependencies of the node.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
-    #[strip(execution)]
+    #[strip(compilation)]
     #[dom(skip)]
     pub compilation_digest: Option<CompilationDigest>,
 
     /// Messages generated while compiling the code.
     #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[strip(execution)]
+    #[strip(compilation)]
     #[dom(elem = "span")]
     pub compilation_messages: Option<Vec<CompilationMessage>>,
 

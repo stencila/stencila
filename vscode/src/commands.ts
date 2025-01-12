@@ -47,23 +47,22 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
   vscode.commands.registerCommand(`stencila.new-chat`, async () => {
     event("chat_create");
 
-    const regex = new RegExp(`untitled:untitled-(\\d+)\\.chat$`);
-    let maxIndex = 0;
-    vscode.workspace.textDocuments.forEach((doc) => {
-      const uri = doc.uri.toString();
-      const match = regex.exec(uri);
-      if (match) {
-        const index = parseInt(match[1], 10);
-        if (!isNaN(index) && index > maxIndex) {
-          maxIndex = index;
-        }
-      }
+    const doc = await vscode.workspace.openTextDocument({
+      language: "smd",
+      content: `---
+type: Chat
+---
+`,
     });
 
-    await vscode.commands.executeCommand(
-      "vscode.openWith",
-      vscode.Uri.parse(`untitled:untitled-${maxIndex + 1}.chat`),
-      "stencila.chat-editor"
+    await createDocumentViewPanel(
+      context,
+      doc.uri,
+      undefined,
+      undefined,
+      false,
+      vscode.ViewColumn.Active,
+      "Chat"
     );
   });
 
@@ -71,7 +70,7 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
   vscode.commands.registerCommand(`stencila.new-prompt`, async () => {
     // TODO: ask user for required fields, e.g instruction types, node types
 
-    event("chat_create");
+    event("prompt_create");
 
     await vscode.workspace.openTextDocument({
       language: "smd",

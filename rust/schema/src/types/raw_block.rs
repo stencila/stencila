@@ -48,16 +48,19 @@ pub struct RawBlock {
 
     /// A digest of the `format` and `content` properties.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
+    #[strip(compilation)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub compilation_digest: Option<CompilationDigest>,
 
     /// Messages generated while parsing and transpiling the `content` into the `css` property.
     #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
     #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(compilation)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub compilation_messages: Option<Vec<CompilationMessage>>,
 
     /// A Cascading Style Sheet (CSS) generated from the `content`.
+    #[strip(output)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub css: Option<String>,
 

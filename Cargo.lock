@@ -1260,6 +1260,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-lexical"
+version = "0.0.0"
+dependencies = [
+ "bitflags 2.6.0",
+ "codec",
+ "codec-dom",
+ "codec-markdown",
+ "codec-text",
+ "common-dev",
+ "monostate",
+ "serde",
+ "smart-default",
+]
+
+[[package]]
 name = "codec-markdown"
 version = "0.0.0"
 dependencies = [
@@ -1376,6 +1391,7 @@ dependencies = [
  "codec-json5",
  "codec-jsonld",
  "codec-latex",
+ "codec-lexical",
  "codec-markdown",
  "codec-odt",
  "codec-pandoc",
@@ -3204,6 +3220,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "jsonwebtoken"
+version = "9.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b9ae10193d25051e74945f1ea2d0b42e03cc3b890f7e4cc5faa44997d808193f"
+dependencies = [
+ "base64 0.21.7",
+ "js-sys",
+ "ring",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "jupyter-protocol"
 version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3596,7 +3625,6 @@ dependencies = [
  "kernels",
  "models",
  "node-execute",
- "node-find",
  "percent-encoding",
  "prompts",
  "schema",
@@ -4886,7 +4914,7 @@ dependencies = [
  "app",
  "cached",
  "cli-utils",
- "codec-markdown-trait",
+ "codec-markdown",
  "codecs",
  "common",
  "flate2",
@@ -4995,7 +5023,12 @@ dependencies = [
 name = "publish-ghost"
 version = "0.0.0"
 dependencies = [
+ "codec-text",
  "common",
+ "document",
+ "jsonwebtoken",
+ "secrets",
+ "url",
 ]
 
 [[package]]

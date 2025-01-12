@@ -62,6 +62,10 @@ fn symbol(node: &TextNode) -> Option<DocumentSymbol> {
             StyledBlock | StyledInline => SymbolKind::CONSTANT,
             Table => SymbolKind::STRUCT,
 
+            // Chat messages
+            ChatMessageGroup => SymbolKind::ARRAY,
+            ChatMessage => SymbolKind::FIELD,
+
             // Skip generating symbols for table cells and text nodes
             // (of which there are likely to be many)
             TableCell | Text => return None,

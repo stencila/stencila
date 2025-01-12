@@ -26,7 +26,6 @@ import { cliPath } from "./cli";
 import { registerWalkthroughCommands } from "./walkthroughs";
 import { registerStencilaShell } from "./shell";
 import { registerSetupView } from "./setup";
-import { registerChatEditor } from "./editors";
 import { event, registerEventing } from "./events";
 
 let client: LanguageClient | undefined;
@@ -60,7 +59,6 @@ export async function activate(context: vscode.ExtensionContext) {
   registerWalkthroughCommands(context);
   registerStatusBar(context);
   registerStencilaShell(context);
-  registerChatEditor(context);
   registerOtherCommands(context);
 
   // Check status of extension

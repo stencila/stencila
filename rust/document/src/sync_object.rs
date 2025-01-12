@@ -184,7 +184,7 @@ mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use schema::{
         shortcuts::{art, p, t},
-        Article,
+        NodeType,
     };
 
     use super::*;
@@ -193,11 +193,7 @@ mod tests {
     #[tokio::test]
     async fn send_patches() -> Result<()> {
         // Create a document and start syncing with Markdown buffer
-        let document = Document::new()?;
-        {
-            let mut root = document.root.write().await;
-            *root = Node::Article(Article::default());
-        }
+        let document = Document::new(NodeType::Article)?;
 
         let (.., in_receiver) = channel(1);
         let (out_sender, mut out_receiver) = channel(4);

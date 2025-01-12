@@ -201,6 +201,8 @@ Convert a document to another format
     Strip temporary properties of a node
   - `code`:
     Strip code properties of executable nodes
+  - `compilation`:
+    Strip compilation related properties of executable nodes
   - `execution`:
     Strip execution related properties of executable nodes
   - `output`:
@@ -262,6 +264,8 @@ The direction of synchronization can be specified by appending the to the file p
     Strip temporary properties of a node
   - `code`:
     Strip code properties of executable nodes
+  - `compilation`:
+    Strip compilation related properties of executable nodes
   - `execution`:
     Strip execution related properties of executable nodes
   - `output`:
@@ -321,6 +325,8 @@ Compile a document
     Strip temporary properties of a node
   - `code`:
     Strip code properties of executable nodes
+  - `compilation`:
+    Strip compilation related properties of executable nodes
   - `execution`:
     Strip execution related properties of executable nodes
   - `output`:
@@ -403,6 +409,8 @@ Execute a document
     Strip temporary properties of a node
   - `code`:
     Strip code properties of executable nodes
+  - `compilation`:
+    Strip compilation related properties of executable nodes
   - `execution`:
     Strip execution related properties of executable nodes
   - `output`:
@@ -487,6 +495,8 @@ Equivalent to the `execute` command with the `--render` flag.
     Strip temporary properties of a node
   - `code`:
     Strip code properties of executable nodes
+  - `compilation`:
+    Strip compilation related properties of executable nodes
   - `execution`:
     Strip execution related properties of executable nodes
   - `output`:
@@ -556,10 +566,33 @@ Publish to Ghost
 
 ###### **Options:**
 
-* `--domain` — The Ghost domain
-* `--key` — The Ghost Admin API key
-* `--post` — Create a post
+* `--ghost <GHOST>` — The Ghost domain
+
+   This is the domain name of your Ghost instance, with an optional port.
+
+   Not required when pushing or pulling an existing post or page from Ghost but if supplied only document `identifiers` with this host will be used.
+* `--key <KEY>` — The Ghost Admin API key
+
+   To create one, create a new Custom Integration under the Integrations screen in Ghost Admin. Use the Admin API Key, rather than the Content API Key.
+
+   You can also set the key as a secret so that it does not need to be entered here each time: `stencila secrets set GHOST_ADMIN_API_KEY`.
 * `--page` — Create a page
+
+   Does not apply when pushing to, or pulling from, and existing Ghost resource.
+
+  Default value: `true`
+* `--post` — Create a post
+
+   Does not apply when pushing to, or pulling from, and existing Ghost resource.
+* `--push` — Create or update Ghost post or page from a file
+
+  Default value: `true`
+* `--pull` — Update file from an existing Ghost post or page
+* `--dry-run` — Dry run test
+
+   When set, stencila will perform the document conversion but skip the publication to Ghost.
+
+  Default value: `false`
 
 
 

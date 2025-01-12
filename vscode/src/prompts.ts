@@ -44,7 +44,7 @@ export function registerPromptsView(
   const use = vscode.commands.registerCommand(
     "stencila.prompts.use",
     ({ prompt }: { prompt: PromptInstance }) => {
-      event("prompts_use", { id: prompt?.id });
+      event("prompts_use", { name: prompt?.title });
 
       const editor = vscode.window.activeTextEditor;
       if (editor) {
@@ -119,26 +119,26 @@ type InstructionType = "Create" | "Edit" | "Fix" | "Describe";
 interface PromptInstance {
   path: string;
 
-  id: string;
   name: string;
-  version: string;
+  title: string;
   description: string;
+  version: string;
   instructionTypes: InstructionType[];
 }
 
 /**
- * Get the shorthand id for a prompt (if possible)
+ * Get the shorthand name for a prompt (if possible)
  */
-function promptId(prompt: PromptInstance): string {
-  const parts = prompt.id.split("/");
-  return parts[0] === "stencila" ? parts[parts.length - 1] : prompt.id;
+function promptShortName(prompt: PromptInstance): string {
+  const parts = prompt.name.split("/");
+  return parts[0] === "stencila" ? parts[parts.length - 1] : prompt.name;
 }
 
 /**
  * Get the icon for a prompt
  */
 function promptIcon(prompt: PromptInstance): string {
-  const label = promptId(prompt);
+  const label = promptShortName(prompt);
   switch (prompt?.instructionTypes[0]) {
     case "Create": {
       switch (label) {
@@ -185,12 +185,12 @@ function promptIcon(prompt: PromptInstance): string {
  */
 function smdSnippet(prompt: PromptInstance, selected?: string): string {
   const type = prompt.instructionTypes[0].toLowerCase();
-  const id = promptId(prompt);
+  const name = promptShortName(prompt);
 
   let snippet = `::: ${type}`;
 
-  if (id !== "block") {
-    snippet += ` @${id}`;
+  if (name !== "block") {
+    snippet += ` @${name}`;
   }
 
   snippet += " ${0}";
@@ -219,12 +219,12 @@ function smdSnippet(prompt: PromptInstance, selected?: string): string {
  */
 function mystSnippet(prompt: PromptInstance, selected?: string): string {
   const type = prompt.instructionTypes[0].toLowerCase();
-  const id = promptId(prompt);
+  const name = promptShortName(prompt);
 
   let snippet = `:::{${type}} \${0}\n`;
 
-  if (id !== "block") {
-    snippet += `:prompt: ${id}\n`;
+  if (name !== "block") {
+    snippet += `:prompt: ${name}\n`;
   }
 
   if (selected) {
@@ -249,12 +249,12 @@ function qmdSnippet(prompt: PromptInstance, selected?: string): string {
   // TODO: This needs to be updated to the syntax for QMD
 
   const type = prompt.instructionTypes[0].toLowerCase();
-  const id = promptId(prompt);
+  const name = promptShortName(prompt);
 
   let snippet = `::: ${type}`;
 
-  if (id !== "block") {
-    snippet += ` @${id}`;
+  if (name !== "block") {
+    snippet += ` @${name}`;
   }
 
   snippet += " ${0}";
@@ -283,7 +283,7 @@ class PromptPickerItem implements vscode.QuickPickItem {
   description: string;
 
   constructor(public prompt: PromptInstance) {
-    this.label = `$(${promptIcon(prompt)}) ${prompt.id}`;
+    this.label = `$(${promptIcon(prompt)}) ${prompt.name}`;
     this.description = prompt.description;
   }
 }
@@ -297,7 +297,7 @@ class PromptTreeItem extends vscode.TreeItem {
     if (library) {
       label = library;
     } else if (prompt) {
-      label = promptId(prompt);
+      label = promptShortName(prompt);
     }
 
     super(
@@ -307,9 +307,9 @@ class PromptTreeItem extends vscode.TreeItem {
         : vscode.TreeItemCollapsibleState.None
     );
 
-    this.id = prompt?.id;
-    this.description = prompt?.name;
-    this.tooltip = prompt && `${prompt.id}: ${prompt.description}`;
+    this.id = prompt?.name;
+    this.description = prompt?.title;
+    this.tooltip = prompt && `${prompt.name}: ${prompt.description}`;
 
     const icon = library ? "folder" : promptIcon(prompt!);
     this.iconPath = new vscode.ThemeIcon(icon);

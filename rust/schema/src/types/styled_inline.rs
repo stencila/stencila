@@ -94,16 +94,19 @@ pub struct StyledInline {
 pub struct StyledInlineOptions {
     /// A digest of the `code` and `styleLanguage`.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
+    #[strip(compilation)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub compilation_digest: Option<CompilationDigest>,
 
     /// Messages generated while parsing and transpiling the style.
     #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
     #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(compilation)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub compilation_messages: Option<Vec<CompilationMessage>>,
 
     /// A Cascading Style Sheet (CSS) transpiled from the `code` property.
+    #[strip(output)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub css: Option<String>,
 

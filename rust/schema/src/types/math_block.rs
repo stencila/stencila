@@ -94,14 +94,14 @@ pub struct MathBlock {
 pub struct MathBlockOptions {
     /// A digest of the `code` and `mathLanguage`.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
-    #[strip(execution)]
+    #[strip(compilation)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub compilation_digest: Option<CompilationDigest>,
 
     /// Messages generated while parsing and compiling the math expression.
     #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[strip(execution)]
+    #[strip(compilation)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub compilation_messages: Option<Vec<CompilationMessage>>,
 

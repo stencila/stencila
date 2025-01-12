@@ -4,7 +4,12 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+codec-text = { "path" = "../codec-text" }
 common = { "path" = "../common" }
+document = { path = "../document" }
+jsonwebtoken = { version = "9.3.0", default-features = false }
+secrets = { "path" = "../secrets" }
+url = "2.5.4"
 
 [lints]
 workspace = true

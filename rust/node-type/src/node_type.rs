@@ -21,6 +21,7 @@ pub enum NodeType {
     Cord,
     Array,
     Admonition,
+    Annotation,
     ArrayHint,
     ArrayValidator,
     Article,
@@ -164,6 +165,7 @@ impl TryFrom<&NodeId> for NodeType {
         use NodeType::*;
         Ok(match value.nick() {
             "adm" => Admonition,
+            "ann" => Annotation,
             "arr" => Array,
             "arh" => ArrayHint,
             "arv" => ArrayValidator,

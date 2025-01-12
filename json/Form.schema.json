@@ -88,7 +88,7 @@
         "compilation_digest"
       ],
       "strip": [
-        "execution"
+        "compilation"
       ],
       "dom": {
         "skip": true
@@ -106,7 +106,7 @@
         "compilation_message"
       ],
       "strip": [
-        "execution"
+        "compilation"
       ],
       "dom": {
         "elem": "span"
