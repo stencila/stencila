@@ -9,6 +9,7 @@ codec-json = { path = "../codec-json" }
 codecs = { path = "../codecs" }
 common = { path = "../common" }
 format = { path = "../format" }
+fs4 = { workspace = true }
 kernels = { path = "../kernels" }
 json-patch = "1.2.0"
 node-execute = { path = "../node-execute" }

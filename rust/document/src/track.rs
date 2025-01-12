@@ -4,12 +4,18 @@ use std::{
     time::UNIX_EPOCH,
 };
 
+use fs4::tokio::AsyncFileExt;
+
 use common::{
     eyre::{bail, Result},
+    itertools::Itertools,
     serde::Serialize,
     serde_with::skip_serializing_none,
     strum::Display,
-    tokio::fs::{create_dir_all, remove_file},
+    tokio::{
+        fs::{create_dir_all, remove_file, File, OpenOptions},
+        io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt, SeekFrom},
+    },
     tracing,
 };
 use schema::{Node, NodeId};
@@ -138,15 +144,23 @@ impl Document {
             })
             .await?;
 
-        // Ensure that there is a tracking file
-        let file = tracking_file(&id).await?;
-        if !file.exists() {
-            self.export(&file, None).await?;
-        }
+        let Some(path) = &self.path else {
+            bail!("Can't track document, it has no path yet")
+        };
 
-        // TODO: add the path to the tracking list
+        // Get the tracking files for the id. The paths file is locked for
+        // exclusive access
+        let (paths, json) = tracking_files(&path, &id).await?;
+        let mut paths_file = tracking_paths_lock(&paths).await?;
 
-        Ok(())
+        // Write JSON
+        self.export(&json, None).await?;
+
+        // Add path of document
+        tracking_paths_add(&mut paths_file, path).await?;
+
+        // Unlock the paths file
+        tracking_paths_unlock(paths_file).await
     }
 
     /// Untrack a document
@@ -188,19 +202,35 @@ impl Document {
                 }
             })
             .await;
+
+        // Early return if no path or id
         let Some(id) = id else {
             return Ok(());
         };
+        let Some(path) = &self.path else {
+            return Ok(());
+        };
 
-        // TODO: remove path from the tracking list
+        // Get the tracking files for the id. The paths file is locked for
+        // exclusive access
+        let (paths, json) = tracking_files(&path, &id).await?;
+        let mut paths_file = tracking_paths_lock(&paths).await?;
 
-        // Remove the tracking file if no more entries in the tracking list
-        let file = tracking_file(&id).await?;
-        if file.exists() {
-            remove_file(&file).await?;
+        // Remove path of document
+        let has_paths = tracking_paths_remove(&mut paths_file, path).await?;
+
+        // Remove the tracking files if no more entries in the tracking list
+        if !has_paths {
+            if json.exists() {
+                remove_file(&json).await?
+            };
+            if paths.exists() {
+                remove_file(paths).await?
+            }
         }
 
-        Ok(())
+        // Unlock the paths file
+        tracking_paths_unlock(paths_file).await
     }
 
     /// Get the status of a tracked document
@@ -221,13 +251,13 @@ impl Document {
         };
 
         // Get the path to the tracking file, returning early if not exists
-        let tracking = tracking_file(&id).await?;
-        if !tracking.exists() {
+        let (.., json) = tracking_files(source, &id).await?;
+        if !json.exists() {
             return Ok(DocumentStatus::untracked(source, modified_at));
         }
 
         // Get the modification time of both files
-        let tracked_at = modification_time(&tracking)?;
+        let tracked_at = modification_time(&json)?;
 
         Ok(DocumentStatus::new(&source, modified_at, tracked_at, id))
     }
@@ -248,7 +278,9 @@ fn id_random() -> String {
 }
 
 /// Get the directory of tracked documents
-async fn tracking_dir() -> Result<PathBuf> {
+async fn tracking_dir(path: &Path) -> Result<PathBuf> {
+    // TODO: walk up directory tree from path, until first '.stencila' directory
+    // is found. If none found then use current dir.
     let dir = PathBuf::from(".stencila/tracked");
 
     if !dir.exists() {
@@ -258,10 +290,73 @@ async fn tracking_dir() -> Result<PathBuf> {
     Ok(dir)
 }
 
-/// Get the path of the tracking file
-async fn tracking_file(id: &str) -> Result<PathBuf> {
+/// Get the path of the tracking files for the document id
+async fn tracking_files(path: &Path, id: &str) -> Result<(PathBuf, PathBuf)> {
+    let dir = tracking_dir(path).await?;
+
     // TODO: handle characters that are invalid - hash id?
-    Ok(tracking_dir().await?.join(format!("{id}.json")))
+
+    let paths = dir.join(format!("{id}.paths"));
+    let json = dir.join(format!("{id}.json"));
+
+    Ok((paths, json))
+}
+
+/// Lock a paths tracking file
+async fn tracking_paths_lock(path: &Path) -> Result<File> {
+    let file = OpenOptions::new()
+        .read(true)
+        .write(true)
+        .create(true)
+        .open(path)
+        .await?;
+
+    file.lock_exclusive()?;
+
+    Ok(file)
+}
+
+/// Unlock a paths tracking file
+async fn tracking_paths_unlock(file: File) -> Result<()> {
+    Ok(file.unlock_async().await?)
+}
+
+/// Add a path to the paths tracking file if it does not yet exist there
+async fn tracking_paths_add(file: &mut File, path: &Path) -> Result<()> {
+    let path = path.to_string_lossy();
+
+    // Read the file and if none of the lines equal the path, append it
+    let mut content = String::new();
+    file.read_to_string(&mut content).await?;
+    let has_path = content.lines().any(|line| line == path);
+
+    // Append line if missing
+    if !has_path {
+        file.seek(SeekFrom::End(0)).await?;
+        file.write_all([&path, "\n"].concat().as_bytes()).await?;
+    }
+
+    Ok(())
+}
+
+/// Remove a path from the paths tracking file
+async fn tracking_paths_remove(file: &mut File, path: &Path) -> Result<bool> {
+    let path = path.to_string_lossy();
+
+    // Read the file and filter out the lines that equal the path
+    let mut old = String::new();
+    file.read_to_string(&mut old).await?;
+    let new = old.lines().filter(|&line| line != path).join("\n");
+
+    let has_paths = !new.is_empty();
+    if has_paths {
+        // Truncate and write file
+        file.set_len(0).await?;
+        file.seek(SeekFrom::Start(0)).await?;
+        file.write_all([&new, "\n"].concat().as_bytes()).await?;
+    }
+
+    Ok(has_paths)
 }
 
 /// Get the modification time of a path
