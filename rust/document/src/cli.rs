@@ -52,7 +52,7 @@ impl Untrack {
     }
 }
 
-/// Get the tracking status of a document
+/// Get the tracking status documents
 #[derive(Debug, Parser)]
 pub struct Status {
     /// The paths of the files to get status for

@@ -1,5 +1,6 @@
 use std::{
     cmp::Ordering,
+    env::current_dir,
     path::{Path, PathBuf},
     time::UNIX_EPOCH,
 };
@@ -169,7 +170,7 @@ impl Document {
         self.export(&tracked_json, None).await?;
 
         // Add path of document
-        tracked_paths_add(&mut tracked_paths_file, path).await?;
+        tracked_paths_add(&tracking_dir, &mut tracked_paths_file, path).await?;
 
         // Unlock the tracked paths file
         tracked_paths_unlock(tracked_paths_file).await
@@ -236,7 +237,7 @@ impl Document {
         let mut tracked_paths_file = tracked_paths_lock(&tracked_paths).await?;
 
         // Remove path of document
-        let has_paths = tracked_paths_remove(&mut tracked_paths_file, path).await?;
+        let has_paths = tracked_paths_remove(&tracking_dir, &mut tracked_paths_file, path).await?;
 
         // Remove both tracking files if no more paths in the tracked paths
         if !has_paths {
@@ -280,7 +281,8 @@ impl Document {
             if tracking_paths.extension().unwrap_or_default() == "paths" {
                 // Remove the path form the tracked paths
                 let mut tracked_paths_file = tracked_paths_lock(&tracking_paths).await?;
-                let has_paths = tracked_paths_remove(&mut tracked_paths_file, path).await?;
+                let has_paths =
+                    tracked_paths_remove(&tracking_dir, &mut tracked_paths_file, path).await?;
 
                 // Remove both tracking files if no more entries in the tracking paths
                 if !has_paths {
@@ -417,14 +419,33 @@ fn id_random() -> String {
 async fn stencila_dir(path: &Path, ensure: bool) -> Result<PathBuf> {
     const STENCILA_DIR: &str = ".stencila";
 
-    let path = path.canonicalize()?;
+    // Get a canonicalized starting path
+    // This allows for accepting files that do not exist by finding the
+    // closest ancestor dir that does exist. This is necessary when a
+    // user wants to untrack a deleted file, possibly in a subdir of the current dir
+    let mut starting_path = path.to_path_buf();
+    loop {
+        match starting_path.canonicalize() {
+            Ok(path) => {
+                starting_path = path;
+                break;
+            }
+            Err(..) => {
+                starting_path = match starting_path.parent() {
+                    Some(path) => path.to_path_buf(),
+                    None => current_dir()?,
+                }
+            }
+        }
+    }
 
-    let starting_dir = if path.is_file() {
-        path.parent()
+    let starting_dir = if starting_path.is_file() {
+        starting_path
+            .parent()
             .ok_or_eyre("File has no parent directory")?
             .to_path_buf()
     } else {
-        path
+        starting_path
     };
 
     // Walk up dir tree
@@ -510,38 +531,57 @@ async fn tracked_paths_unlock(file: File) -> Result<()> {
 }
 
 /// Add a path to the tracked paths if it does not yet exist there
-async fn tracked_paths_add(file: &mut File, path: &Path) -> Result<()> {
-    let path = path.to_string_lossy();
+async fn tracked_paths_add(tracking_dir: &Path, file: &mut File, path: &Path) -> Result<()> {
+    // Get the path relative to the tracked directory
+    let tracked_dir = tracked_dir(tracking_dir)?;
+    let relative_path = path
+        .canonicalize()?
+        .strip_prefix(tracked_dir)?
+        .to_path_buf();
+    let relative_path = relative_path.to_string_lossy();
 
     // Read the file and if none of the lines equal the path, append it
     let mut content = String::new();
     file.read_to_string(&mut content).await?;
-    let has_path = content.lines().any(|line| line == path);
+    let has_path = content.lines().any(|line| line == relative_path);
 
     // Append line if missing
     if !has_path {
         file.seek(SeekFrom::End(0)).await?;
-        file.write_all([&path, "\n"].concat().as_bytes()).await?;
+        file.write_all([&relative_path, "\n"].concat().as_bytes())
+            .await?;
     }
 
     Ok(())
 }
 
 /// Remove a path from the tracked paths
-async fn tracked_paths_remove(file: &mut File, path: &Path) -> Result<bool> {
-    let path = path.to_string_lossy();
+async fn tracked_paths_remove(tracking_dir: &Path, file: &mut File, path: &Path) -> Result<bool> {
+    // Get the path relative to the tracked directory
+    // Note: this allows for paths that no longer exist i.e. removing a tracked file
+    // that has been deleted
+    let tracked_dir = tracked_dir(tracking_dir)?;
+    let relative_path = match path.canonicalize() {
+        Ok(path) => path.strip_prefix(tracked_dir)?.to_path_buf(),
+        Err(..) => path.to_path_buf(),
+    };
+    let relative_path = relative_path.to_string_lossy();
 
     // Read the file and filter out the lines that equal the path
-    let mut old = String::new();
-    file.read_to_string(&mut old).await?;
-    let new = old.lines().filter(|&line| line != path).join("\n");
+    let mut old_paths = String::new();
+    file.read_to_string(&mut old_paths).await?;
+    let new_paths = old_paths
+        .lines()
+        .filter(|&line| line != relative_path)
+        .join("\n");
 
-    let has_paths = !new.is_empty();
+    let has_paths = !new_paths.is_empty();
     if has_paths {
         // Truncate and write file
         file.set_len(0).await?;
         file.seek(SeekFrom::Start(0)).await?;
-        file.write_all([&new, "\n"].concat().as_bytes()).await?;
+        file.write_all([&new_paths, "\n"].concat().as_bytes())
+            .await?;
     }
 
     Ok(has_paths)
