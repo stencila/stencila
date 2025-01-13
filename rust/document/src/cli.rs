@@ -54,11 +54,7 @@ pub struct Track {
 
 impl Track {
     pub async fn run(self) -> Result<()> {
-        let doc = Document::open(&self.path).await?;
-        doc.track().await?;
-        doc.save().await?;
-
-        Ok(())
+        Document::track_path(&self.path).await
     }
 }
 
@@ -100,7 +96,10 @@ impl Status {
             }
 
             // Get status of each file
-            let futures = self.paths.iter().map(|path| Document::status_path(path));
+            let futures = self
+                .paths
+                .into_iter()
+                .map(|path| Document::status_path(path, None));
             try_join_all(futures).await?
         };
 
@@ -149,13 +148,20 @@ impl Status {
 
             use DocumentStatusFlag::*;
             let (attr, color) = match status {
-                Deleted => (Attribute::Bold, Color::Magenta),
-                Unsaved => (Attribute::Dim, Color::DarkGrey),
                 Unsupported => (Attribute::Dim, Color::DarkGrey),
                 Untracked => (Attribute::Reset, Color::Blue),
+                Unsaved => (Attribute::Dim, Color::DarkGrey),
+                IdMissing(..) => (Attribute::Bold, Color::Magenta),
+                IdDifferent(..) => (Attribute::Bold, Color::Magenta),
+                Deleted => (Attribute::Bold, Color::Red),
                 Synced => (Attribute::Reset, Color::Green),
                 Ahead => (Attribute::Bold, Color::Yellow),
                 Behind => (Attribute::Bold, Color::Red),
+            };
+            let status = match status {
+                IdMissing(id) => format!("Missing id ({id})"),
+                IdDifferent(id1, id2) => format!("Different ids ({id1} != {id2})"),
+                _ => status.to_string(),
             };
 
             let modified_at = humanize_timestamp(modified_at)?;

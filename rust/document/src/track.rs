@@ -31,13 +31,41 @@ use crate::Document;
 #[derive(Default, Display, Serialize)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub enum DocumentStatusFlag {
-    Deleted,
+    /// The file is of a format that does not support tracking
     #[default]
     Unsupported,
+
+    /// The file is not tracked: it does not have a document id,
+    /// or if it does there is no tracking file for it
     Untracked,
+
+    /// The document is currently in-memory only so it can not
+    /// yet be tracked
     Unsaved,
+
+    /// There is an entry for the file in a tracked paths file
+    /// but that path no longer exists in the tracked directory
+    Deleted,
+
+    /// There is an entry for the file in a tracked paths file,
+    /// and the file exists, but it is has no document Id(String),
+    IdMissing(String),
+
+    /// There is an entry for the file in a tracked paths file,
+    /// and the file exists, but it is has a different document id.
+    IdDifferent(String, String),
+
+    /// The file is ahead of the tracking file: it has changed
+    /// to it since it was last synced
     Ahead,
+
+    /// The file is behind the tracking file: there have been
+    /// changes to a linked file which have not been propagated
+    /// to the file
     Behind,
+
+    /// The file is synced with the tracking file: they have the
+    /// same modification time
     Synced,
 }
 
@@ -60,6 +88,22 @@ impl DocumentStatus {
         }
     }
 
+    fn id_missing(path: &Path, doc_id: &str) -> Self {
+        Self {
+            status: DocumentStatusFlag::IdMissing(doc_id.into()),
+            path: Some(path.to_path_buf()),
+            ..Default::default()
+        }
+    }
+
+    fn id_different(path: &Path, doc_id: &str, found_doc_id: &str) -> Self {
+        Self {
+            status: DocumentStatusFlag::IdDifferent(doc_id.into(), found_doc_id.into()),
+            path: Some(path.to_path_buf()),
+            ..Default::default()
+        }
+    }
+
     fn deleted(path: &Path) -> Self {
         Self {
             status: DocumentStatusFlag::Deleted,
@@ -76,11 +120,12 @@ impl DocumentStatus {
         }
     }
 
-    fn untracked(path: &Path, modified_at: u64) -> Self {
+    fn untracked(path: &Path, modified_at: u64, doc_id: Option<String>) -> Self {
         Self {
             status: DocumentStatusFlag::Untracked,
             path: Some(path.to_path_buf()),
             modified_at: Some(modified_at),
+            doc_id,
             ..Default::default()
         }
     }
@@ -180,6 +225,16 @@ impl Document {
         tracked_paths_unlock(tracked_paths_file).await
     }
 
+    /// Track a document
+    #[tracing::instrument]
+    pub async fn track_path(path: &Path) -> Result<()> {
+        let doc = Document::open(path).await?;
+        doc.track().await?;
+        doc.save().await?;
+
+        Ok(())
+    }
+
     /// Untrack a document
     #[tracing::instrument(skip(self))]
     pub async fn untrack(&self) -> Result<()> {
@@ -258,6 +313,10 @@ impl Document {
     }
 
     /// Untrack the path
+    ///
+    /// This is called from outside the document and so allows for more
+    /// removing tracking files for document files that have been deleted or
+    /// have broken ids.
     pub async fn untrack_path(path: &Path) -> Result<()> {
         if path.exists() && path.is_file() && codecs::from_path_is_supported(path) {
             // Untrack the document
@@ -265,7 +324,9 @@ impl Document {
             doc.untrack().await?;
             doc.save().await?;
 
-            return Ok(());
+            // It is tempting to return early here, but for documents with
+            // missing or different ids from those in the tracking directory
+            // we need to continue so that can be cleaned up.
         }
 
         // Get the closest tracking dir and return early if none found
@@ -327,17 +388,17 @@ impl Document {
 
         // Get the document id, returning early if none
         let Some(id) = self.id().await else {
-            return Ok(DocumentStatus::untracked(path, modified_at));
+            return Ok(DocumentStatus::untracked(path, modified_at, None));
         };
 
         // Get the path to the tracked JSON, returning early if it does not exist
         let tracking_dir = tracking_dir(path, false).await?;
         if !tracking_dir.exists() {
-            return Ok(DocumentStatus::untracked(path, modified_at));
+            return Ok(DocumentStatus::untracked(path, modified_at, Some(id)));
         }
         let (.., tracked_json) = tracking_files(&tracking_dir, &id).await?;
         if !tracked_json.exists() {
-            return Ok(DocumentStatus::untracked(path, modified_at));
+            return Ok(DocumentStatus::untracked(path, modified_at, Some(id)));
         }
 
         // Get the modification time of tracked JSON
@@ -347,17 +408,42 @@ impl Document {
     }
 
     /// Get the tracking status of a path
-    pub async fn status_path(path: &Path) -> Result<DocumentStatus> {
+    ///
+    /// This is called from outside the document and so allows for more
+    /// granularity of status flags such a `Deleted`.
+    ///
+    /// If an expected document id is provided it can also return
+    /// `IdMissing` or `IdDifferent`.
+    pub async fn status_path(
+        path: PathBuf,
+        expected_doc_id: Option<String>,
+    ) -> Result<DocumentStatus> {
         if !path.exists() {
-            return Ok(DocumentStatus::deleted(path));
+            return Ok(DocumentStatus::deleted(&path));
         }
 
-        if !path.is_file() || !codecs::from_path_is_supported(path) {
-            return Ok(DocumentStatus::unsupported(path));
+        if !path.is_file() || !codecs::from_path_is_supported(&path) {
+            return Ok(DocumentStatus::unsupported(&path));
         }
 
-        let doc = Self::open(path).await?;
-        doc.status().await
+        let doc = Self::open(&path).await?;
+        let status = doc.status().await?;
+
+        if let Some(expected_doc_id) = &expected_doc_id {
+            if let Some(found_doc_id) = &status.doc_id {
+                if found_doc_id != expected_doc_id {
+                    return Ok(DocumentStatus::id_different(
+                        &path,
+                        expected_doc_id,
+                        found_doc_id,
+                    ));
+                }
+            } else {
+                return Ok(DocumentStatus::id_missing(&path, expected_doc_id));
+            }
+        }
+
+        Ok(status)
     }
 
     /// Get the tracking status of all known tracked files
@@ -375,24 +461,28 @@ impl Document {
         // Paths need to be made relative to the parent of the `.stencila` directory
         let tracked_dir = tracked_dir(&tracking_dir)?;
 
-        // Get a list of all unique tracked paths
+        // Get a list of all tracked path / doc id combinations
         let mut tracked_paths = Vec::new();
         let mut dir_entries = read_dir(&tracking_dir).await?;
         while let Ok(Some(entry)) = dir_entries.next_entry().await {
             let path = entry.path();
             if path.extension().unwrap_or_default() == "paths" {
+                let Some(doc_id) = path.file_stem() else {
+                    continue;
+                };
+                let doc_id = doc_id.to_string_lossy().to_string();
                 for line in read_to_string(path).await?.lines() {
                     let path = tracked_dir.join(line);
-                    if !tracked_paths.contains(&path) {
-                        tracked_paths.push(path)
-                    }
+                    tracked_paths.push((path, doc_id.clone()))
                 }
             }
         }
         tracked_paths.sort();
 
         // Get the the status of each tracked path
-        let futures = tracked_paths.iter().map(|path| Self::status_path(&path));
+        let futures = tracked_paths
+            .into_iter()
+            .map(|(path, doc_id)| async move { Self::status_path(path, Some(doc_id)).await });
         let mut statuses = try_join_all(futures).await?;
 
         // Make the paths in the statuses relative to the tracked dir
