@@ -27,6 +27,7 @@ use super::integer::Integer;
 use super::integer_or_string::IntegerOrString;
 use super::list::List;
 use super::node::Node;
+use super::object::Object;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
@@ -464,6 +465,14 @@ pub struct ArticleOptions {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub pagination: Option<String>,
+
+    /// Additional metadata for the article.
+    #[serde(flatten, deserialize_with = "empty_object_is_none")]
+    #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(skip)]
+    pub extra: Option<Object>,
 }
 
 impl Article {

@@ -1103,6 +1103,9 @@ class Article(CreativeWork, Executable):
     temporary: list[Node] | None = None
     """Temporary nodes on document"""
 
+    extra: Object | None = None
+    """Additional metadata for the article."""
+
 
 @dataclass(kw_only=True, repr=False)
 class AudioObject(MediaObject):

@@ -49,7 +49,6 @@
         "metadata"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",

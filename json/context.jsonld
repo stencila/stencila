@@ -296,6 +296,7 @@
     "executionRequired": "stencila:executionRequired",
     "executionStatus": "stencila:executionStatus",
     "executionTags": "stencila:executionTags",
+    "extra": "stencila:extra",
     "familyNames": "schema:familyName",
     "feedback": "stencila:feedback",
     "files": "stencila:files",

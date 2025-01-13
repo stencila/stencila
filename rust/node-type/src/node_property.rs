@@ -104,6 +104,7 @@ pub enum NodeProperty {
     ExecutionRequired,
     ExecutionStatus,
     ExecutionTags,
+    Extra,
     FamilyNames,
     Feedback,
     Files,

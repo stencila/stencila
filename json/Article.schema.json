@@ -82,7 +82,6 @@
         "metadata"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -196,7 +195,6 @@
         "authors"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -231,7 +229,6 @@
         "metadata"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -253,7 +250,6 @@
         "metadata"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -275,7 +271,6 @@
         "metadata"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -321,7 +316,6 @@
         "metadata"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -337,7 +331,6 @@
         "metadata"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -354,7 +347,6 @@
         "metadata"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -370,7 +362,6 @@
         "metadata"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -387,7 +378,6 @@
         "metadata"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
@@ -402,7 +392,6 @@
         "metadata"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -462,7 +451,6 @@
         ]
       },
       "serde": {
-        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -489,7 +477,6 @@
         ]
       },
       "serde": {
-        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -558,7 +545,6 @@
         "metadata"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_string_or_object"
       },
       "dom": {
@@ -1060,6 +1046,31 @@
       "items": {
         "$ref": "Node.schema.json"
       }
+    },
+    "extra": {
+      "@id": "stencila:extra",
+      "description": "Additional metadata for the article.",
+      "$comment": "A catch-all for object properties of articles that are not in the Stencila schema.\n",
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "serde": {
+        "flatten": true,
+        "deserializeWith": "empty_object_is_none"
+      },
+      "dom": {
+        "skip": true
+      },
+      "type": "object"
     }
   }
 }

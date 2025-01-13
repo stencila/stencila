@@ -426,6 +426,9 @@
       "patch": {
         "formats": []
       },
+      "dom": {
+        "skip": true
+      },
       "type": "string"
     },
     "content": {

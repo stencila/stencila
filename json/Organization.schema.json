@@ -51,7 +51,6 @@
         "metadata"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_csv_or_array"
       },
       "type": "array",
@@ -185,7 +184,6 @@
         "funder"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "type": "array",
@@ -222,7 +220,6 @@
         "member"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "type": "array",

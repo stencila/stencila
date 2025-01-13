@@ -185,6 +185,7 @@ pub struct PromptBlockOptions {
     /// The home directory of the prompt
     #[strip(compilation)]
     #[patch()]
+    #[dom(skip)]
     pub directory: Option<String>,
 }
 
