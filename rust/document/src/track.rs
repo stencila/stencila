@@ -627,11 +627,13 @@ async fn tracked_paths_unlock(file: File) -> Result<()> {
 /// Add a path to the tracked paths if it does not yet exist there
 async fn tracked_paths_add(tracking_dir: &Path, file: &mut File, path: &Path) -> Result<()> {
     // Get the path relative to the tracked directory
+    // Note: this allows for paths that do not yet exist i.e. files that are being
+    // created but not yet saved
     let tracked_dir = tracked_dir(tracking_dir)?;
-    let relative_path = path
-        .canonicalize()?
-        .strip_prefix(tracked_dir)?
-        .to_path_buf();
+    let relative_path = match path.canonicalize() {
+        Ok(path) => path.strip_prefix(tracked_dir)?.to_path_buf(),
+        Err(..) => path.to_path_buf(),
+    };
     let relative_path = relative_path.to_string_lossy();
 
     // Read the file and if none of the lines equal the path, append it
