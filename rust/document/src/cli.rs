@@ -1,5 +1,6 @@
 use std::{
     env::current_dir,
+    fs::create_dir_all,
     path::PathBuf,
     time::{SystemTime, UNIX_EPOCH},
 };
@@ -21,6 +22,28 @@ use common::{
 use crate::track::DocumentStatus;
 
 use super::{track::DocumentStatusFlag, Document};
+
+/// Initialize tracking in a folder
+#[derive(Debug, Parser)]
+pub struct Init {
+    /// The directory to start document tracking in
+    ///
+    /// Defaults to the current directory.
+    #[arg(default_value = ".")]
+    dir: PathBuf,
+}
+
+impl Init {
+    pub async fn run(self) -> Result<()> {
+        let path = self.dir.canonicalize()?.join(".stencila").join("tracked");
+
+        if !path.exists() {
+            create_dir_all(&path)?
+        }
+
+        Ok(())
+    }
+}
 
 /// Start tracking a document
 #[derive(Debug, Parser)]

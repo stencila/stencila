@@ -98,6 +98,7 @@ impl Cli {
 pub enum Command {
     New(new::Cli),
 
+    Init(document::cli::Init),
     Track(document::cli::Track),
     Untrack(document::cli::Untrack),
     Status(document::cli::Status),
@@ -151,6 +152,7 @@ impl Cli {
         match self.command {
             Command::New(new) => new.run().await?,
 
+            Command::Init(init) => init.run().await?,
             Command::Track(track) => track.run().await?,
             Command::Untrack(untrack) => untrack.run().await?,
             Command::Status(status) => status.run().await?,
