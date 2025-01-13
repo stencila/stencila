@@ -391,7 +391,7 @@ impl Cli {
         } else {
             return error_for_response(response).await;
         };
-        let Resource { title, lexical, .. } = payload.resource()?;
+        let Resource { title, lexical, custom_excerpt, .. } = payload.resource()?;
 
         // Update title etc
         // TODO: consider other properties that might be appropriate to update from Ghost
@@ -399,6 +399,7 @@ impl Cli {
             let Node::Article(article) = root else { return };
 
             article.title = title.as_ref().map(|title| vec![t(title)]);
+            article.description = custom_excerpt.clone();
         })
         .await;
 
