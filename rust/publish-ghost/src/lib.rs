@@ -192,6 +192,9 @@ impl Cli {
         let status = if self.publish {
             Some(Status::Published)
         } else if self.schedule {
+            if self.schedule_date <= Some(Utc::now()) {
+                bail!("Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",self.schedule_date,Utc::now());
+            }
             Some(Status::Scheduled)
         } else if self.draft {
             Some(Status::Draft)
@@ -296,6 +299,9 @@ impl Cli {
         let status = if self.publish {
             Some(Status::Published)
         } else if self.schedule {
+            if self.schedule_date <= Some(Utc::now()) {
+                bail!("Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",self.schedule_date,Utc::now());
+            }
             Some(Status::Scheduled)
         } else if self.draft {
             Some(Status::Draft)
