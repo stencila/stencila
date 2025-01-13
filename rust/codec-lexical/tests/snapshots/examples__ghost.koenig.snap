@@ -189,7 +189,7 @@ snapshot_kind: text
       },
       {
         "type": "list",
-        "listType": "number",
+        "listType": "bullet",
         "start": 1,
         "children": [
           {

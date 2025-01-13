@@ -340,7 +340,7 @@ snapshot_kind: text
           ]
         }
       ],
-      "order": "Unordered"
+      "order": "Ascending"
     },
     {
       "type": "ThematicBreak"
