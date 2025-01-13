@@ -7,6 +7,7 @@ use jsonwebtoken as jwt;
 use url::Host;
 
 use common::{
+    chrono::{DateTime, Utc},
     clap::{self, Parser},
     eyre::{bail, eyre, Context, OptionExt, Result},
     reqwest::{multipart::Form, Client, Response, StatusCode},
@@ -21,8 +22,6 @@ use document::{
     schema::{shortcuts::t, Node, PropertyValueOrString},
     CommandWait, DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
 };
-
-
 
 const KEY_ENV_VAR: &str = "STENCILA_GHOST_KEY";
 const SECRET_NAME: &str = "GHOST_ADMIN_API_KEY";
@@ -82,15 +81,22 @@ pub struct Cli {
     // Push as draft
     #[arg(
         long,
-        conflicts_with = "publish",
+        group = "publish_type",
         requires = "push",
         default_value_t = true
     )]
     draft: bool,
 
-    // Publish pushed page or post
-    #[arg(long, conflicts_with = "draft", requires = "push")]
+    // Publish pushed, page or post
+    #[arg(long, group = "publish_type", requires = "push")]
     publish: bool,
+
+    // schedule pushed, page or post
+    #[arg(long, group = "publish_type", requires = "push")]
+    schedule: bool,
+
+    #[arg(long, requires = "schedule")]
+    schedule_date: Option<DateTime<Utc>>,
 
     /// Dry run test
     ///
@@ -186,6 +192,8 @@ impl Cli {
         // Status of page or post
         let status = if self.publish {
             Some(Status::Published)
+        } else if self.schedule {
+            Some(Status::Scheduled)
         } else if self.draft {
             Some(Status::Draft)
         } else {
@@ -288,6 +296,8 @@ impl Cli {
         // Status of page or post
         let status = if self.publish {
             Some(Status::Published)
+        } else if self.schedule {
+            Some(Status::Scheduled)
         } else if self.draft {
             Some(Status::Draft)
         } else {
@@ -669,6 +679,7 @@ struct Resource {
     lexical: Option<String>,
     status: Option<Status>,
     updated_at: Option<String>, // Required for updating
+    published_at: Option<DateTime<Utc>>, // Required for scheduling
 
     // fields for images & media
     /// URL field
