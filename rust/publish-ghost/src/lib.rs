@@ -91,9 +91,13 @@ pub struct Cli {
     #[arg(long, group = "publish_type", requires = "push")]
     publish: bool,
 
-    /// schedule pushed, page or post
+    /// Schedule pushed, page or post
     #[arg(long, group = "publish_type", requires = "push")]
     schedule: Option<DateTime<Utc>>,
+
+    ///
+    #[arg(long, requires = "push")]
+    description: Option<String>,
 
     /// Dry run test
     ///
@@ -691,6 +695,7 @@ struct Resource {
     status: Option<Status>,
     updated_at: Option<String>,          // Required for updating
     published_at: Option<DateTime<Utc>>, // Required for scheduling
+    custom_excerpt: Option<String>,
 
     // fields for images & media
     /// URL field
@@ -734,6 +739,73 @@ enum Payload {
 }
 
 impl Payload {
+    /// Create a payload from a document
+    async fn from_doc(
+        resource_type: ResourceType,
+        doc: &Document,
+        updated_at: Option<String>,
+        status: Option<Status>,
+        published_at: Option<DateTime<Utc>>,
+        excerpt: Option<String>,
+    ) -> Result<Self> {
+        // Get document title and other metadata
+        // TODO: other metadata such as authors, excerpt (from abstract?)
+        // could be obtained in a similar way and returned from this function
+        let (title,) = doc
+            .inspect(|root: &Node| {
+                let mut title = None;
+
+                if let Node::Article(article) = root {
+                    if let Some(inlines) = &article.title {
+                        title = Some(codec_text::to_text(inlines));
+                    }
+                }
+
+                (title,)
+            })
+            .await;
+
+        let custom_excerpt = if excerpt.is_none() {
+            doc.inspect(|root: &Node| {
+                let mut description = None;
+                if let Node::Article(article) = root {
+                    description = article.description.clone();
+                }
+                description
+            })
+            .await
+        } else {
+            excerpt
+        };
+
+        // Dump document to a Lexical (Ghost's Dialect) string
+        let lexical = doc
+            .dump(
+                Format::Koenig,
+                Some(EncodeOptions {
+                    // TODO: The option for "just one big HTML card" so go here
+                    standalone: Some(false),
+                    ..Default::default()
+                }),
+            )
+            .await?;
+
+        let resource = Resource {
+            title: title.or_else(|| Some("Untitled".into())),
+            lexical: Some(lexical),
+            updated_at,
+            status,
+            published_at,
+            custom_excerpt,
+            ..Default::default()
+        };
+
+        Ok(match resource_type {
+            ResourceType::Post => Payload::Posts(vec![resource]),
+            ResourceType::Page => Payload::Pages(vec![resource]),
+        })
+    }
+
     /// Get the first resource from a payload
     ///
     /// Used when GETing from the API to extract the content from within the nested JSON
