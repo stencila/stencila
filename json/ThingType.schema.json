@@ -3,16 +3,10 @@
   "description": "Union type for all types that are descended from `Thing`",
   "anyOf": [
     {
-      "$ref": "AdmonitionType.schema.json"
-    },
-    {
       "$ref": "Article.schema.json"
     },
     {
       "$ref": "AudioObject.schema.json"
-    },
-    {
-      "$ref": "AuthorRoleName.schema.json"
     },
     {
       "$ref": "Brand.schema.json"
@@ -21,16 +15,7 @@
       "$ref": "Chat.schema.json"
     },
     {
-      "$ref": "CitationIntent.schema.json"
-    },
-    {
-      "$ref": "CitationMode.schema.json"
-    },
-    {
       "$ref": "Claim.schema.json"
-    },
-    {
-      "$ref": "ClaimType.schema.json"
     },
     {
       "$ref": "Collection.schema.json"
@@ -54,28 +39,7 @@
       "$ref": "Enumeration.schema.json"
     },
     {
-      "$ref": "ExecutionBounds.schema.json"
-    },
-    {
-      "$ref": "ExecutionDependantRelation.schema.json"
-    },
-    {
-      "$ref": "ExecutionDependencyRelation.schema.json"
-    },
-    {
-      "$ref": "ExecutionMode.schema.json"
-    },
-    {
-      "$ref": "ExecutionRequired.schema.json"
-    },
-    {
-      "$ref": "ExecutionStatus.schema.json"
-    },
-    {
       "$ref": "Figure.schema.json"
-    },
-    {
-      "$ref": "FormDeriveAction.schema.json"
     },
     {
       "$ref": "Grant.schema.json"
@@ -84,31 +48,13 @@
       "$ref": "ImageObject.schema.json"
     },
     {
-      "$ref": "InstructionType.schema.json"
-    },
-    {
-      "$ref": "LabelType.schema.json"
-    },
-    {
       "$ref": "ListItem.schema.json"
-    },
-    {
-      "$ref": "ListOrder.schema.json"
     },
     {
       "$ref": "MediaObject.schema.json"
     },
     {
-      "$ref": "MessageLevel.schema.json"
-    },
-    {
-      "$ref": "MessageRole.schema.json"
-    },
-    {
       "$ref": "MonetaryGrant.schema.json"
-    },
-    {
-      "$ref": "NoteType.schema.json"
     },
     {
       "$ref": "Organization.schema.json"
@@ -132,22 +78,13 @@
       "$ref": "PropertyValue.schema.json"
     },
     {
-      "$ref": "ProvenanceCategory.schema.json"
-    },
-    {
       "$ref": "PublicationIssue.schema.json"
     },
     {
       "$ref": "PublicationVolume.schema.json"
     },
     {
-      "$ref": "RelativePosition.schema.json"
-    },
-    {
       "$ref": "Review.schema.json"
-    },
-    {
-      "$ref": "SectionType.schema.json"
     },
     {
       "$ref": "SoftwareApplication.schema.json"
@@ -156,19 +93,7 @@
       "$ref": "SoftwareSourceCode.schema.json"
     },
     {
-      "$ref": "SuggestionStatus.schema.json"
-    },
-    {
       "$ref": "Table.schema.json"
-    },
-    {
-      "$ref": "TableCellType.schema.json"
-    },
-    {
-      "$ref": "TableRowType.schema.json"
-    },
-    {
-      "$ref": "TimeUnit.schema.json"
     },
     {
       "$ref": "VideoObject.schema.json"

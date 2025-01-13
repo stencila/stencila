@@ -133,6 +133,9 @@ impl Schemas {
                     base: &str,
                     nest: &Schema,
                 ) -> bool {
+                    if nest.is_union() {
+                        return false;
+                    }
                     if nest.extends.contains(&base.to_string()) {
                         return true;
                     }
