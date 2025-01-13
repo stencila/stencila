@@ -22,6 +22,8 @@ use document::{
     CommandWait, DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
 };
 
+
+
 const KEY_ENV_VAR: &str = "STENCILA_GHOST_KEY";
 const SECRET_NAME: &str = "GHOST_ADMIN_API_KEY";
 
@@ -76,6 +78,19 @@ pub struct Cli {
     /// Update file from an existing Ghost post or page
     #[arg(long, conflicts_with = "push")]
     pull: bool,
+
+    // Push as draft
+    #[arg(
+        long,
+        conflicts_with = "publish",
+        requires = "push",
+        default_value_t = true
+    )]
+    draft: bool,
+
+    // Publish pushed page or post
+    #[arg(long, conflicts_with = "draft", requires = "push")]
+    publish: bool,
 
     /// Dry run test
     ///
@@ -167,6 +182,15 @@ impl Cli {
 
         // Generate JWT for request
         let token = generate_jwt(&self.key).context("generating JWT")?;
+
+        // Status of page or post
+        let status = if self.publish {
+            Some(Status::Published)
+        } else if self.draft {
+            Some(Status::Draft)
+        } else {
+            None
+        };
 
         // Construct the POST payload
         let payload = self.payload(resource_type, &doc, None).await?;
@@ -260,6 +284,15 @@ impl Cli {
             return error_for_response(response).await;
         };
         let Resource { updated_at, .. } = payload.resource()?;
+
+        // Status of page or post
+        let status = if self.publish {
+            Some(Status::Published)
+        } else if self.draft {
+            Some(Status::Draft)
+        } else {
+            None
+        };
 
         // Construct the PUT payload with the latest `updated_at`
         let payload = self.payload(resource_type, &doc, updated_at).await?;
