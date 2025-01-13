@@ -14,9 +14,12 @@ use common::{
     serde_json,
     serde_with::skip_serializing_none,
     strum::Display,
+    tempfile,
+    tokio::fs::remove_dir_all,
     tracing,
 };
 use document::{
+    codecs,
     schema::{shortcuts::t, Node, PropertyValueOrString},
     CommandWait, DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
 };
@@ -536,17 +539,42 @@ impl Payload {
             })
             .await;
 
-        // Dump document to a Lexical (Ghost's Dialect) string
-        let lexical = doc
-            .dump(
-                Format::Koenig,
-                Some(EncodeOptions {
-                    // TODO: The option for "just one big HTML card" so go here
-                    standalone: Some(false),
-                    ..Default::default()
-                }),
-            )
-            .await?;
+        // Get the root node of the document, extract images (and other media in the future)
+        // and rewrite their URLs to be their URLs on the Ghost server
+        let mut root = doc.root().await;
+
+        //let temp_dir = tempfile::tempdir()?;
+        //let media_dir = temp_dir.path();
+        // TODO: Use temp dir; this local media dir just for testing
+        let media_dir = PathBuf::from("media");
+        if media_dir.exists() {
+            remove_dir_all(&media_dir).await?;
+        }
+        node_media::extract_media(
+            &mut root,
+            doc.directory(),
+            &media_dir,
+            |_old_url, file_name| {
+                // Construct a new URL for the media file
+                // TODO: make this what it should be
+                format!("images/{file_name}")
+            },
+        );
+
+        // TODO: Upload images to Ghost. This should check that files don't already
+        // exist on the server
+
+        // Dump root node to a Lexical (Ghost's Dialect) string
+        let lexical = codecs::to_string(
+            &root,
+            Some(EncodeOptions {
+                format: Some(Format::Koenig),
+                // TODO: The option for "just one big HTML card" so go here
+                standalone: Some(false),
+                ..Default::default()
+            }),
+        )
+        .await?;
 
         let resource = Resource {
             title: title.or_else(|| Some("Untitled".into())),
