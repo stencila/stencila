@@ -90,9 +90,13 @@ pub struct Cli {
     #[arg(long, group = "publish_type", requires = "push")]
     publish: bool,
 
-    /// schedule pushed, page or post
+    /// Schedule pushed, page or post
     #[arg(long, group = "publish_type", requires = "push")]
     schedule: Option<DateTime<Utc>>,
+
+    ///
+    #[arg(long, requires = "push")]
+    description: Option<String>,
 
     /// Dry run test
     ///
@@ -204,8 +208,15 @@ impl Cli {
         };
 
         // Construct the POST payload
-        let payload =
-            Payload::from_doc(resource_type, &doc, None, status, self.schedule).await?;
+        let payload = Payload::from_doc(
+            resource_type,
+            &doc,
+            None,
+            status,
+            self.schedule,
+            self.description.clone(),
+        )
+        .await?;
 
         // Return early if this is just a dry run
         if self.dry_run {
@@ -316,8 +327,15 @@ impl Cli {
         };
 
         // Construct the PUT payload with the latest `updated_at`
-        let payload =
-            Payload::from_doc(resource_type, &doc, updated_at, status, self.schedule).await?;
+        let payload = Payload::from_doc(
+            resource_type,
+            &doc,
+            updated_at,
+            status,
+            self.schedule,
+            self.description.clone(),
+        )
+        .await?;
 
         // Send the request
         let response = Client::new()
@@ -544,6 +562,7 @@ struct Resource {
     status: Option<Status>,
     updated_at: Option<String>,          // Required for updating
     published_at: Option<DateTime<Utc>>, // Required for scheduling
+    custom_excerpt: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -577,6 +596,7 @@ impl Payload {
         updated_at: Option<String>,
         status: Option<Status>,
         published_at: Option<DateTime<Utc>>,
+        excerpt: Option<String>,
     ) -> Result<Self> {
         // Get document title and other metadata
         // TODO: other metadata such as authors, excerpt (from abstract?)
@@ -594,6 +614,19 @@ impl Payload {
                 (title,)
             })
             .await;
+
+        let custom_excerpt = if excerpt.is_none() {
+            doc.inspect(|root: &Node| {
+                let mut description = None;
+                if let Node::Article(article) = root {
+                    description = article.description.clone();
+                }
+                description
+            })
+            .await
+        } else {
+            excerpt
+        };
 
         // Dump document to a Lexical (Ghost's Dialect) string
         let lexical = doc
@@ -613,6 +646,7 @@ impl Payload {
             updated_at,
             status,
             published_at,
+            custom_excerpt,
             ..Default::default()
         };
 
