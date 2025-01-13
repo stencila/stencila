@@ -105,6 +105,14 @@ pub struct Cli {
     #[arg(long, requires = "push")]
     featured: bool,
 
+    /// inject HTML header
+    #[arg(long, requires = "push")]
+    inject_code_header: Option<String>,
+
+    /// inject HTML footer
+    #[arg(long, requires = "push")]
+    inject_code_footer: Option<String>,
+
     /// Dry run test
     ///
     /// When set, stencila will perform the document conversion but skip the publication to Ghost.
@@ -423,7 +431,12 @@ impl Cli {
         } else {
             return error_for_response(response).await;
         };
-        let Resource { title, lexical, custom_excerpt, .. } = payload.resource()?;
+        let Resource {
+            title,
+            lexical,
+            custom_excerpt,
+            ..
+        } = payload.resource()?;
 
         // Update title etc
         // TODO: consider other properties that might be appropriate to update from Ghost
@@ -704,6 +717,8 @@ struct Resource {
     published_at: Option<DateTime<Utc>>, // Required for scheduling
     custom_excerpt: Option<String>,
     featured: Option<bool>,
+    codeinjection_head: Option<String>,
+    codeinjection_foot: Option<String>,
 
     // fields for images & media
     /// URL field
@@ -756,6 +771,8 @@ impl Payload {
         published_at: Option<DateTime<Utc>>,
         excerpt: Option<String>,
         featured: bool,
+        codeinjection_head: Option<String>,
+        codeinjection_foot: Option<String>,
     ) -> Result<Self> {
         // Get document title and other metadata
         // TODO: other metadata such as authors, excerpt (from abstract?)
@@ -806,7 +823,9 @@ impl Payload {
             status,
             published_at,
             custom_excerpt,
-            featured:Some(featured),
+            featured: Some(featured),
+            codeinjection_head,
+            codeinjection_foot,
             ..Default::default()
         };
 
