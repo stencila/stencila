@@ -38,6 +38,7 @@ use document::{
     SaveDocumentSource,
 };
 use node_execute::ExecuteOptions;
+use node_find::find;
 use schema::{
     replicate, Article, AuthorRole, AuthorRoleName, Block, Chat, ChatOptions, InstructionBlock,
     InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodeProperty, NodeType,
@@ -615,19 +616,22 @@ pub(super) async fn execute_command(
             // Get the root node from the source document
             let source_doc = source_doc
                 .ok_or_else(|| invalid_request("Source document URI missing or invalid"))?;
-            let source_node = source_doc
-                .read()
-                .await
-                .find(node_id.clone())
-                .await
-                .ok_or_else(|| invalid_request("Node not found in source document"))?;
+            let source_doc = source_doc.read().await;
 
             // Clone the nodes from the source
-            let nodes: Vec<Node> = node_ids
-                .into_iter()
-                .map(|node_id| find(&*source_root, node_id).ok_or_eyre("Node not found"))
-                .try_collect()
-                .map_err(invalid_request)?;
+            // Using the `.inspect()` method with `find()`, rather than using `.find()`
+            // methods meads we only need to take read lock once.
+            let nodes = source_doc
+                .inspect(|root| {
+                    let mut nodes: Vec<Node> = Vec::new();
+                    for node_id in node_ids.clone() {
+                        if let Some(node) = find(root, node_id) {
+                            nodes.push(node)
+                        }
+                    }
+                    nodes
+                })
+                .await;
 
             // Convert the nodes into blocks (if necessary) and replicate (to avoid having duplicate ids)
             let blocks: Vec<Block> = nodes
