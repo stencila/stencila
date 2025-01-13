@@ -159,18 +159,18 @@ impl DomCodec for ImageObject {
         }
 
         if img {
-            // If the document is being encoded standalone, and the image URL is data URI
+            // If the document is being encoded standalone, and the image URL is a data URI
             // or file system path (possibly with a relative URL) the ensure that we have
-            // create an on disk copy
+            // created an on disk copy
             if context.standalone
                 && !(self.content_url.starts_with("http://")
                     || self.content_url.starts_with("https://"))
             {
                 let images_dir = context.images_dir();
 
-                let image_path = if self.content_url.starts_with("data:") {
+                let image_name = if self.content_url.starts_with("data:") {
                     // Encode the data URI to a file
-                    match images::data_uri_to_path(&self.content_url, &images_dir) {
+                    match images::data_uri_to_file(&self.content_url, &images_dir) {
                         Ok(path) => Some(path),
                         Err(error) => {
                             tracing::warn!("While encoding image data URI to file: {error}");
@@ -178,10 +178,9 @@ impl DomCodec for ImageObject {
                         }
                     }
                 } else {
-                    match images::file_uri_to_path(
+                    match images::file_uri_to_file(
                         &self.content_url,
                         context.from_path.as_deref(),
-                        context.to_path.as_deref(),
                         &images_dir,
                     ) {
                         Ok(path) => Some(path),
@@ -193,8 +192,8 @@ impl DomCodec for ImageObject {
                 };
 
                 // Fallback to encoding the original URL
-                let src = match image_path {
-                    Some(image_path) => image_path.to_string_lossy().to_string(),
+                let src = match image_name {
+                    Some(image_name) => images_dir.join(image_name).to_string_lossy().to_string(),
                     None => self.content_url.to_string(),
                 };
 

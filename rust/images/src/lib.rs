@@ -68,13 +68,13 @@ pub fn path_to_data_uri(path: &Path) -> Result<String> {
  * # Arguments
  *
  * - `data_uri`: the data URI
- * - `dest_dir`: the destination directory
+ * - `images_dir`: the destination images directory
  *
  * # Returns
  *
- * The path of the generated file (including the `dest_dir`).
+ * The file name of the image within `images_dir`.
  */
-pub fn data_uri_to_path(data_uri: &str, dest_dir: &Path) -> Result<PathBuf> {
+pub fn data_uri_to_file(data_uri: &str, images_dir: &Path) -> Result<String> {
     // Parse the data URI
     let Some((header, data)) = data_uri.split(',').collect_tuple() else {
         bail!("Invalid data URI format");
@@ -103,40 +103,41 @@ pub fn data_uri_to_path(data_uri: &str, dest_dir: &Path) -> Result<PathBuf> {
     let mut hash = SeaHasher::new();
     data_uri.hash(&mut hash);
     let hash = hash.finish();
+    let image_name = format!("{:x}.{}", hash, extension);
 
-    // Create the path to the file
-    let dest_path = dest_dir.join(format!("{:x}.{}", hash, extension));
+    // Ensure the images directory exists
+    if !images_dir.exists() {
+        create_dir_all(images_dir)?;
+    }
 
     // Write the decoded data to the file
-    let mut file = File::create(&dest_path)?;
+    let mut file = File::create(images_dir.join(&image_name))?;
     file.write_all(&decoded_data)?;
 
-    Ok(dest_path)
+    Ok(image_name)
 }
 
 /**
  * Convert a file URI to a filesystem path to an image
  *
  * The absolute path of the source image will be resolved
- * from `file_uri` and `src_path` and the image copied to `dest_dir`.
+ * from `file_uri` and `src_path` and the image copied to `images_dir`.
  *
  * # Arguments
  *
  * - `file_uri`: an absolute or relative filesystem path, which may be prefixed with `file://`
  * - `src_path`: the path that any relative paths are relative to
- * - `dest_path`: the path that destination paths should be relative to
- * - `images_dir`: the destination directory
+ * - `images_dir`: the destination images directory
  *
  * # Returns
  *
- * The path of the generated file (including the `images_dir`).
+ * The file name of the image within `images_dir`.
  */
-pub fn file_uri_to_path(
+pub fn file_uri_to_file(
     file_uri: &str,
     src_path: Option<&Path>,
-    dest_path: Option<&Path>,
     images_dir: &Path,
-) -> Result<PathBuf> {
+) -> Result<String> {
     // Handle the file URI, stripping the "file://" prefix if present
     let path_str = file_uri.strip_prefix("file://").unwrap_or(file_uri);
     let path = PathBuf::from(path_str);
@@ -147,6 +148,13 @@ pub fn file_uri_to_path(
     } else {
         match src_path {
             Some(src) => {
+                // If the src path is empty then it implies current dir
+                let src = if src == PathBuf::new() {
+                    std::env::current_dir()?
+                } else {
+                    src.to_path_buf()
+                };
+
                 if src.is_dir() {
                     src.join(path)
                 } else {
@@ -164,34 +172,24 @@ pub fn file_uri_to_path(
         bail!("Source file does not exist: {:?}", src_path);
     }
 
-    // Generate a unique filename for the destination
+    // Generate a unique filename for the image
     let mut hash = SeaHasher::new();
     src_path.hash(&mut hash);
     let hash = hash.finish();
     let ext = src_path
         .extension()
         .ok_or_eyre("Invalid source file name")?;
-    let image_path = images_dir.join(format!("{:x}.{}", hash, ext.to_string_lossy()));
+    let image_name = format!("{:x}.{}", hash, ext.to_string_lossy());
 
-    // Ensure the destination directory exists
+    // Ensure the images directory exists
     if !images_dir.exists() {
         create_dir_all(images_dir)?;
     }
 
-    // Copy the file to the destination directory
-    copy(&src_path, &image_path)?;
+    // Copy the file to the images directory
+    copy(&src_path, &images_dir.join(&image_name))?;
 
-    // Make the image path relative to the destination file
-    let image_path = match dest_path.as_ref() {
-        Some(to_path) => to_path
-            .parent()
-            .and_then(|dir| image_path.strip_prefix(dir).ok())
-            .map(PathBuf::from)
-            .unwrap_or(image_path),
-        None => image_path,
-    };
-
-    Ok(image_path)
+    Ok(image_name)
 }
 
 /// Transform all the <img> `src` attributes in a string, which are not HTTP, to paths
@@ -199,15 +197,27 @@ pub fn img_srcs_to_paths(
     html: &str,
     src_path: Option<&Path>,
     dest_path: Option<&Path>,
-    dest_dir: &Path,
+    images_dir: &Path,
 ) -> String {
     img_srcs_transform(html, |src| {
         if src.starts_with("http://") || src.starts_with("https://") {
             return src.to_string();
         }
 
-        match file_uri_to_path(src, src_path, dest_path, dest_dir) {
-            Ok(path) => path.to_string_lossy().to_string(),
+        match file_uri_to_file(src, src_path, images_dir) {
+            Ok(image_name) => {
+                let image_path = images_dir.join(image_name);
+                match dest_path {
+                    Some(to_path) => to_path
+                        .parent()
+                        .and_then(|dir| image_path.strip_prefix(dir).ok())
+                        .map(PathBuf::from)
+                        .unwrap_or(image_path),
+                    None => image_path,
+                }
+                .to_string_lossy()
+                .to_string()
+            }
             Err(..) => src.to_string(),
         }
     })
