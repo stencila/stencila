@@ -7,6 +7,7 @@ use jsonwebtoken as jwt;
 use url::Host;
 
 use common::{
+    chrono::{DateTime, Utc},
     clap::{self, Parser},
     eyre::{bail, eyre, Context, OptionExt, Result},
     reqwest::{Client, Response, StatusCode},
@@ -20,8 +21,6 @@ use document::{
     schema::{shortcuts::t, Node, PropertyValueOrString},
     CommandWait, DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
 };
-
-
 
 const KEY_ENV_VAR: &str = "STENCILA_GHOST_KEY";
 const SECRET_NAME: &str = "GHOST_ADMIN_API_KEY";
@@ -81,15 +80,22 @@ pub struct Cli {
     // Push as draft
     #[arg(
         long,
-        conflicts_with = "publish",
+        group = "publish_type",
         requires = "push",
         default_value_t = true
     )]
     draft: bool,
 
-    // Publish pushed page or post
-    #[arg(long, conflicts_with = "draft", requires = "push")]
+    // Publish pushed, page or post
+    #[arg(long, group = "publish_type", requires = "push")]
     publish: bool,
+
+    // schedule pushed, page or post
+    #[arg(long, group = "publish_type", requires = "push")]
+    schedule: bool,
+
+    #[arg(long, requires = "schedule")]
+    schedule_date: Option<DateTime<Utc>>,
 
     /// Dry run test
     ///
@@ -185,6 +191,8 @@ impl Cli {
         // Status of page or post
         let status = if self.publish {
             Some(Status::Published)
+        } else if self.schedule {
+            Some(Status::Scheduled)
         } else if self.draft {
             Some(Status::Draft)
         } else {
@@ -192,7 +200,7 @@ impl Cli {
         };
 
         // Construct the POST payload
-        let payload = Payload::from_doc(resource_type, &doc, None, status).await?;
+        let payload = Payload::from_doc(resource_type, &doc, None, status, self.schedule_date).await?;
 
         // Return early if this is just a dry run
         if self.dry_run {
@@ -287,6 +295,8 @@ impl Cli {
         // Status of page or post
         let status = if self.publish {
             Some(Status::Published)
+        } else if self.schedule {
+            Some(Status::Scheduled)
         } else if self.draft {
             Some(Status::Draft)
         } else {
@@ -294,7 +304,7 @@ impl Cli {
         };
 
         // Construct the PUT payload with the latest `updated_at`
-        let payload = Payload::from_doc(resource_type, &doc, updated_at, status).await?;
+        let payload = Payload::from_doc(resource_type, &doc, updated_at, status, self.schedule_date).await?;
 
         // Send the request
         let response = Client::new()
@@ -520,6 +530,7 @@ struct Resource {
     lexical: Option<String>,
     status: Option<Status>,
     updated_at: Option<String>, // Required for updating
+    published_at: Option<DateTime<Utc>>, // Required for scheduling
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -552,6 +563,7 @@ impl Payload {
         doc: &Document,
         updated_at: Option<String>,
         status: Option<Status>,
+        published_at: Option<DateTime<Utc>>
     ) -> Result<Self> {
         // Get document title and other metadata
         // TODO: other metadata such as authors, excerpt (from abstract?)
@@ -582,11 +594,13 @@ impl Payload {
             )
             .await?;
 
+
         let resource = Resource {
             title: title.or_else(|| Some("Untitled".into())),
             lexical: Some(lexical),
             updated_at,
             status,
+            published_at,
             ..Default::default()
         };
 
