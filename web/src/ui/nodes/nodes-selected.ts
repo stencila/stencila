@@ -1,6 +1,7 @@
 import '@shoelace-style/shoelace/dist/components/button/button.js'
 import '@shoelace-style/shoelace/dist/components/popup/popup.js'
 
+import { css } from '@twind/core'
 import { html } from 'lit'
 import { customElement, state } from 'lit/decorators'
 
@@ -29,6 +30,9 @@ export class UINodesSelected extends UIBaseClass {
    * when `selectedNodes` is updated.
    */
   private anchorPosition = { x: 0, y: 0 }
+
+  @state()
+  active: boolean = false
 
   /**
    * Checks the element is the right container for the selection functionality,
@@ -66,6 +70,7 @@ export class UINodesSelected extends UIBaseClass {
    * Handle a change in the selection
    */
   handleSelectionChange() {
+    this.active = false
     const selection = window.getSelection()
     if (!selection.rangeCount) {
       this.selectedNodes = []
@@ -74,6 +79,7 @@ export class UINodesSelected extends UIBaseClass {
 
     // Get the common ancestor of the selected range
     const range = selection.getRangeAt(0)
+
     let container =
       range.commonAncestorContainer.nodeType == Node.TEXT_NODE
         ? range.commonAncestorContainer.parentElement
@@ -107,6 +113,7 @@ export class UINodesSelected extends UIBaseClass {
         x: rect.left,
         y: rect.bottom,
       }
+      this.active = true
     }
 
     this.selectedNodes = selectedNodes
@@ -125,11 +132,18 @@ export class UINodesSelected extends UIBaseClass {
   }
 
   override render() {
+    const tagStyles = css`
+      &::part(base) {
+        display: flex;
+        justify-content: space-between;
+      }
+    `
+
     return html`
       <div
         id="stencila-nodes-selected-anchor"
         style="
-          position:absolute;
+          position:fixed;
           left:${this.anchorPosition.x}px;
           top:${this.anchorPosition.y}px"
       ></div>
@@ -138,18 +152,38 @@ export class UINodesSelected extends UIBaseClass {
         anchor="stencila-nodes-selected-anchor"
         placement="bottom-start"
         distance="10"
-        ?active=${this.selectedNodes.length > 0}
+        ?active=${this.active}
       >
         <div
           class="p-3 bg-brand-blue text-white font-sans text-sm border border-white rounded"
         >
-          <div>
+          <div class="flex justify-center mb-2">
+            <button class="flex flex-col items-center" @click=${this.insertIds}>
+              <stencila-ui-icon
+                name="boxArrowInLeft"
+                class="text-lg"
+              ></stencila-ui-icon>
+              Insert
+            </button>
+          </div>
+          <div class="flex flex-col gap-y-2">
             ${this.selectedNodes.map(
-              ([type, id]) => html`<div>${type}: ${id}</div>`
+              ([_type, nodeId]) => html`
+                <sl-tag
+                  size="small"
+                  class=${tagStyles}
+                  removable
+                  @sl-remove=${() => {
+                    this.selectedNodes = this.selectedNodes.filter(
+                      ([_, id]) => id !== nodeId
+                    )
+                  }}
+                >
+                  ${nodeId}
+                </sl-tag>
+              `
             )}
           </div>
-
-          <sl-button @click=${this.insertIds}> Insert </sl-button>
         </div>
       </sl-popup>
     `
