@@ -1,6 +1,7 @@
 use std::{
     cmp::Ordering,
     env::current_dir,
+    hash::{Hash, Hasher},
     path::{Path, PathBuf},
     time::UNIX_EPOCH,
 };
@@ -11,6 +12,9 @@ use common::{
     eyre::{bail, OptionExt, Result},
     futures::future::try_join_all,
     itertools::Itertools,
+    once_cell::sync::Lazy,
+    regex::Regex,
+    seahash::SeaHasher,
     serde::Serialize,
     serde_with::skip_serializing_none,
     strum::Display,
@@ -503,10 +507,10 @@ fn tracked_dir(path: &Path) -> Result<&Path> {
 
 /// Get the path of the tracking files for the document id
 async fn tracking_files(tracking_dir: &Path, id: &str) -> Result<(PathBuf, PathBuf)> {
-    // TODO: handle characters that are invalid - hash id?
+    let file_stem = file_stem_for_id(id);
 
-    let tracked_paths = tracking_dir.join(format!("{id}.paths"));
-    let tracked_json = tracking_dir.join(format!("{id}.json"));
+    let tracked_paths = tracking_dir.join(format!("{file_stem}.paths"));
+    let tracked_json = tracking_dir.join(format!("{file_stem}.json"));
 
     Ok((tracked_paths, tracked_json))
 }
@@ -591,4 +595,62 @@ async fn tracked_paths_remove(tracking_dir: &Path, file: &mut File, path: &Path)
 fn modification_time(path: &Path) -> Result<u64> {
     let metadata = std::fs::File::open(path)?.metadata()?;
     Ok(metadata.modified()?.duration_since(UNIX_EPOCH)?.as_secs())
+}
+
+/// Generate a valid filename for an id
+///
+/// If an invalid characters replaces them with hyphen and
+/// add a hash for uniqueness.
+pub fn file_stem_for_id(id: &str) -> String {
+    static INVALID_CHARS: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r#"[\s.<>:"/\\|?*\x00-\x1F]"#).expect("invalid regex"));
+
+    // Sanitize by replacing invalid chars with hyphens
+    let sanitized = INVALID_CHARS.replace_all(id, "-");
+
+    // If no sanitation, just return original
+    if sanitized == id {
+        return id.to_string();
+    }
+
+    // Create hash for uniqueness
+    let mut hasher = SeaHasher::new();
+    id.as_bytes().hash(&mut hasher);
+    let hash = format!("{:.8x}", hasher.finish());
+
+    // Combine parts with length limit
+    let filename = if sanitized.len() > 32 {
+        format!("{}-{}", &sanitized[..32], hash)
+    } else {
+        format!("{}-{}", sanitized, hash)
+    };
+
+    filename
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_filename_sanitization() {
+        assert_eq!(file_stem_for_id("doc_123"), "doc_123");
+
+        assert_eq!(file_stem_for_id(""), "");
+        assert_eq!(file_stem_for_id(" "), "--7d017dd9b4dd6a17");
+        assert_eq!(file_stem_for_id("  "), "---bc60483fa376d879");
+
+        assert_eq!(
+            file_stem_for_id("hello/world"),
+            "hello-world-98441892c2bff380"
+        );
+        assert_eq!(
+            file_stem_for_id("file*name?foo.bar"),
+            "file-name-foo-bar-f2d200db1d4eff93"
+        );
+        assert_eq!(
+            file_stem_for_id("file/name\\foo\"bar"),
+            "file-name-foo-bar-1e8631e402c9df43"
+        );
+    }
 }
