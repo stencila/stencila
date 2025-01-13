@@ -92,10 +92,7 @@ pub struct Cli {
 
     /// schedule pushed, page or post
     #[arg(long, group = "publish_type", requires = "push")]
-    schedule: bool,
-
-    #[arg(long, requires = "schedule")]
-    schedule_date: Option<DateTime<Utc>>,
+    schedule: Option<DateTime<Utc>>,
 
     /// Dry run test
     ///
@@ -191,9 +188,13 @@ impl Cli {
         // Status of page or post
         let status = if self.publish {
             Some(Status::Published)
-        } else if self.schedule {
-            if self.schedule_date <= Some(Utc::now()) {
-                bail!("Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",self.schedule_date,Utc::now());
+        } else if self.schedule.is_some() {
+            if self.schedule <= Some(Utc::now()) {
+                bail!(
+                    "Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",
+                    self.schedule,
+                    Utc::now()
+                );
             }
             Some(Status::Scheduled)
         } else if self.draft {
@@ -203,7 +204,8 @@ impl Cli {
         };
 
         // Construct the POST payload
-        let payload = Payload::from_doc(resource_type, &doc, None, status, self.schedule_date).await?;
+        let payload =
+            Payload::from_doc(resource_type, &doc, None, status, self.schedule).await?;
 
         // Return early if this is just a dry run
         if self.dry_run {
@@ -298,9 +300,13 @@ impl Cli {
         // Status of page or post
         let status = if self.publish {
             Some(Status::Published)
-        } else if self.schedule {
-            if self.schedule_date <= Some(Utc::now()) {
-                bail!("Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",self.schedule_date,Utc::now());
+        } else if self.schedule.is_some() {
+            if self.schedule <= Some(Utc::now()) {
+                bail!(
+                    "Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",
+                    self.schedule,
+                    Utc::now()
+                );
             }
             Some(Status::Scheduled)
         } else if self.draft {
@@ -310,7 +316,8 @@ impl Cli {
         };
 
         // Construct the PUT payload with the latest `updated_at`
-        let payload = Payload::from_doc(resource_type, &doc, updated_at, status, self.schedule_date).await?;
+        let payload =
+            Payload::from_doc(resource_type, &doc, updated_at, status, self.schedule).await?;
 
         // Send the request
         let response = Client::new()
@@ -535,7 +542,7 @@ struct Resource {
     title: Option<String>, // Required for creating
     lexical: Option<String>,
     status: Option<Status>,
-    updated_at: Option<String>, // Required for updating
+    updated_at: Option<String>,          // Required for updating
     published_at: Option<DateTime<Utc>>, // Required for scheduling
 }
 
@@ -569,7 +576,7 @@ impl Payload {
         doc: &Document,
         updated_at: Option<String>,
         status: Option<Status>,
-        published_at: Option<DateTime<Utc>>
+        published_at: Option<DateTime<Utc>>,
     ) -> Result<Self> {
         // Get document title and other metadata
         // TODO: other metadata such as authors, excerpt (from abstract?)
@@ -599,7 +606,6 @@ impl Payload {
                 }),
             )
             .await?;
-
 
         let resource = Resource {
             title: title.or_else(|| Some("Untitled".into())),
