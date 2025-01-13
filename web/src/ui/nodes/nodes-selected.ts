@@ -30,6 +30,22 @@ export class UINodesSelected extends UIBaseClass {
    */
   private anchorPosition = { x: 0, y: 0 }
 
+  /**
+   * Checks the element is the right container for the selection functionality,
+   *
+   * Should be a div with a slot="content" attibute,
+   * Must have a parent element like so: `stencila-chat-message[message-role="Model"]`.
+   */
+  private isTargetContainer(element: Element | null) {
+    return (
+      element?.tagName === 'DIV' &&
+      element.getAttribute('slot') === 'content' &&
+      element.parentElement?.tagName.toLowerCase() ===
+        'stencila-chat-message' &&
+      element.parentElement?.getAttribute('message-role') === 'Model'
+    )
+  }
+
   override connectedCallback() {
     super.connectedCallback()
     document.addEventListener(
@@ -65,13 +81,7 @@ export class UINodesSelected extends UIBaseClass {
 
     // Walk up out of the ancestor element until we get
     // to a node type that has block content
-    while (
-      container &&
-      !(
-        container?.tagName === 'DIV' &&
-        container?.getAttribute?.('slot') === 'content'
-      )
-    ) {
+    while (container && !this.isTargetContainer(container)) {
       container = container.parentElement
     }
 
@@ -130,7 +140,9 @@ export class UINodesSelected extends UIBaseClass {
         distance="10"
         ?active=${this.selectedNodes.length > 0}
       >
-        <div class="bg-white p-3 font-sans text-sm rounded border">
+        <div
+          class="p-3 bg-brand-blue text-white font-sans text-sm border border-white rounded"
+        >
           <div>
             ${this.selectedNodes.map(
               ([type, id]) => html`<div>${type}: ${id}</div>`
