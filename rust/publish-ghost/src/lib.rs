@@ -94,9 +94,15 @@ pub struct Cli {
     #[arg(long, group = "publish_type", requires = "push")]
     schedule: Option<DateTime<Utc>>,
 
+    /// excerpt in ghost
     ///
+    /// Defaults to the article description
     #[arg(long, requires = "push")]
     description: Option<String>,
+
+    /// Feature post or page
+    #[arg(long, requires = "push")]
+    featured: bool,
 
     /// Dry run test
     ///
@@ -215,6 +221,7 @@ impl Cli {
             status,
             self.schedule,
             self.description.clone(),
+            self.featured,
         )
         .await?;
 
@@ -334,6 +341,7 @@ impl Cli {
             status,
             self.schedule,
             self.description.clone(),
+            self.featured,
         )
         .await?;
 
@@ -563,6 +571,7 @@ struct Resource {
     updated_at: Option<String>,          // Required for updating
     published_at: Option<DateTime<Utc>>, // Required for scheduling
     custom_excerpt: Option<String>,
+    featured: Option<bool>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -597,6 +606,7 @@ impl Payload {
         status: Option<Status>,
         published_at: Option<DateTime<Utc>>,
         excerpt: Option<String>,
+        featured: bool,
     ) -> Result<Self> {
         // Get document title and other metadata
         // TODO: other metadata such as authors, excerpt (from abstract?)
@@ -647,6 +657,7 @@ impl Payload {
             status,
             published_at,
             custom_excerpt,
+            featured:Some(featured),
             ..Default::default()
         };
 
