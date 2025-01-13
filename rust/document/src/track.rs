@@ -19,7 +19,7 @@ use common::{
     serde_with::skip_serializing_none,
     strum::Display,
     tokio::{
-        fs::{create_dir_all, read_dir, read_to_string, remove_file, File, OpenOptions},
+        fs::{create_dir_all, read_dir, read_to_string, remove_file, rename, File, OpenOptions},
         io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt, SeekFrom},
     },
     tracing,
@@ -329,7 +329,7 @@ impl Document {
             // we need to continue so that can be cleaned up.
         }
 
-        // Get the closest tracking dir and return early if none found
+        // Get the closest tracking dir, returning early if none found
         let tracking_dir = tracking_dir(path, false).await?;
         if !tracking_dir.exists() {
             return Ok(());
@@ -342,16 +342,16 @@ impl Document {
         let mut dir_entries = read_dir(&tracking_dir).await?;
         while let Ok(Some(entry)) = dir_entries.next_entry().await {
             // For each `.paths` file
-            let tracking_paths = entry.path();
-            if tracking_paths.extension().unwrap_or_default() == "paths" {
-                // Remove the path form the tracked paths
-                let mut tracked_paths_file = tracked_paths_lock(&tracking_paths).await?;
+            let tracked_paths = entry.path();
+            if tracked_paths.extension().unwrap_or_default() == "paths" {
+                // Remove the path from the tracked paths
+                let mut tracked_paths_file = tracked_paths_lock(&tracked_paths).await?;
                 let has_paths =
                     tracked_paths_remove(&tracking_dir, &mut tracked_paths_file, path).await?;
 
                 // Remove both tracking files if no more entries in the tracking paths
                 if !has_paths {
-                    let id = tracking_paths
+                    let id = tracked_paths
                         .file_stem()
                         .unwrap_or_default()
                         .to_string_lossy();
@@ -360,8 +360,8 @@ impl Document {
                         remove_file(&json).await?
                     };
 
-                    if tracking_paths.exists() {
-                        remove_file(tracking_paths).await?
+                    if tracked_paths.exists() {
+                        remove_file(tracked_paths).await?
                     }
                 }
 
@@ -497,6 +497,64 @@ impl Document {
 
         Ok(statuses)
     }
+
+    /// Move a file and update any tracking information
+    pub async fn move_path(from: &Path, to: &Path) -> Result<()> {
+        // Move the file if necessary
+        if from.exists() {
+            rename(from, to).await?
+        }
+
+        // Get the closest tracking dir, returning early if none found
+        let tracking_dir = tracking_dir(from, false).await?;
+        if !tracking_dir.exists() {
+            return Ok(());
+        }
+
+        // Make the paths relative to the tracking directory
+        let tracked_dir = tracked_dir(&tracking_dir)?;
+        let old_relative_path = match from.canonicalize() {
+            Ok(path) => path.strip_prefix(tracked_dir)?.to_path_buf(),
+            Err(..) => from.to_path_buf(),
+        };
+        let new_relative_path = match to.canonicalize() {
+            Ok(path) => path.strip_prefix(tracked_dir)?.to_path_buf(),
+            Err(..) => to.to_path_buf(),
+        };
+
+        // Updated all tracked paths files by replacing the old path with the new one.
+        let mut dir_entries = read_dir(&tracking_dir).await?;
+        while let Ok(Some(entry)) = dir_entries.next_entry().await {
+            // For each `.paths` file
+            let tracked_paths = entry.path();
+            if tracked_paths.extension().unwrap_or_default() == "paths" {
+                // Replace matching lines in the file
+                let mut tracked_paths_file = tracked_paths_lock(&tracked_paths).await?;
+                tracked_paths_replace(
+                    &mut tracked_paths_file,
+                    &old_relative_path,
+                    &new_relative_path,
+                )
+                .await?;
+
+                // Unlock the tracked paths file
+                tracked_paths_unlock(tracked_paths_file).await?;
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Remove a file and any associated tracking information
+    pub async fn remove_path(path: &Path) -> Result<()> {
+        // Remove the file if necessary
+        if path.exists() {
+            remove_file(path).await?;
+        }
+
+        // Untrack the file
+        Document::untrack_path(path).await
+    }
 }
 
 /// Generate a new random document id
@@ -606,12 +664,12 @@ async fn tracking_files(tracking_dir: &Path, id: &str) -> Result<(PathBuf, PathB
 }
 
 /// Open and lock a tracked paths file
-async fn tracked_paths_lock(tracking_paths: &Path) -> Result<File> {
+async fn tracked_paths_lock(tracked_paths: &Path) -> Result<File> {
     let file = OpenOptions::new()
         .read(true)
         .write(true)
         .create(true)
-        .open(tracking_paths)
+        .open(tracked_paths)
         .await?;
 
     file.lock_exclusive()?;
@@ -620,12 +678,16 @@ async fn tracked_paths_lock(tracking_paths: &Path) -> Result<File> {
 }
 
 /// Unlock a tracked paths file
-async fn tracked_paths_unlock(file: File) -> Result<()> {
-    Ok(file.unlock_async().await?)
+async fn tracked_paths_unlock(tracked_paths_file: File) -> Result<()> {
+    Ok(tracked_paths_file.unlock_async().await?)
 }
 
 /// Add a path to the tracked paths if it does not yet exist there
-async fn tracked_paths_add(tracking_dir: &Path, file: &mut File, path: &Path) -> Result<()> {
+async fn tracked_paths_add(
+    tracking_dir: &Path,
+    tracked_paths_file: &mut File,
+    path: &Path,
+) -> Result<()> {
     // Get the path relative to the tracked directory
     // Note: this allows for paths that do not yet exist i.e. files that are being
     // created but not yet saved
@@ -638,13 +700,14 @@ async fn tracked_paths_add(tracking_dir: &Path, file: &mut File, path: &Path) ->
 
     // Read the file and if none of the lines equal the path, append it
     let mut content = String::new();
-    file.read_to_string(&mut content).await?;
+    tracked_paths_file.read_to_string(&mut content).await?;
     let has_path = content.lines().any(|line| line == relative_path);
 
     // Append line if missing
     if !has_path {
-        file.seek(SeekFrom::End(0)).await?;
-        file.write_all([&relative_path, "\n"].concat().as_bytes())
+        tracked_paths_file.seek(SeekFrom::End(0)).await?;
+        tracked_paths_file
+            .write_all([&relative_path, "\n"].concat().as_bytes())
             .await?;
     }
 
@@ -652,7 +715,11 @@ async fn tracked_paths_add(tracking_dir: &Path, file: &mut File, path: &Path) ->
 }
 
 /// Remove a path from the tracked paths
-async fn tracked_paths_remove(tracking_dir: &Path, file: &mut File, path: &Path) -> Result<bool> {
+async fn tracked_paths_remove(
+    tracking_dir: &Path,
+    tracked_paths_file: &mut File,
+    path: &Path,
+) -> Result<bool> {
     // Get the path relative to the tracked directory
     // Note: this allows for paths that no longer exist i.e. removing a tracked file
     // that has been deleted
@@ -665,7 +732,7 @@ async fn tracked_paths_remove(tracking_dir: &Path, file: &mut File, path: &Path)
 
     // Read the file and filter out the lines that equal the path
     let mut old_paths = String::new();
-    file.read_to_string(&mut old_paths).await?;
+    tracked_paths_file.read_to_string(&mut old_paths).await?;
     let new_paths = old_paths
         .lines()
         .filter(|&line| line != relative_path)
@@ -674,13 +741,45 @@ async fn tracked_paths_remove(tracking_dir: &Path, file: &mut File, path: &Path)
     let has_paths = !new_paths.is_empty();
     if has_paths {
         // Truncate and write file
-        file.set_len(0).await?;
-        file.seek(SeekFrom::Start(0)).await?;
-        file.write_all([&new_paths, "\n"].concat().as_bytes())
+        tracked_paths_file.set_len(0).await?;
+        tracked_paths_file.seek(SeekFrom::Start(0)).await?;
+        tracked_paths_file
+            .write_all([&new_paths, "\n"].concat().as_bytes())
             .await?;
     }
 
     Ok(has_paths)
+}
+
+/// Replace a path in the tracked paths
+async fn tracked_paths_replace(
+    tracked_paths_file: &mut File,
+    old_relative_path: &Path,
+    new_relative_path: &Path,
+) -> Result<()> {
+    // Read the file
+    let mut old_paths = String::new();
+    tracked_paths_file.read_to_string(&mut old_paths).await?;
+
+    let old_relative_path = old_relative_path.to_string_lossy();
+    let new_relative_path = new_relative_path.to_string_lossy();
+
+    // Filter out the lines that equal the old path and add the new one
+    let mut new_paths = old_paths
+        .lines()
+        .filter(|&line| line != old_relative_path)
+        .collect_vec();
+    new_paths.push(&new_relative_path);
+    let new_paths = new_paths.join("\n");
+
+    // Truncate and write file
+    tracked_paths_file.set_len(0).await?;
+    tracked_paths_file.seek(SeekFrom::Start(0)).await?;
+    tracked_paths_file
+        .write_all([&new_paths, "\n"].concat().as_bytes())
+        .await?;
+
+    Ok(())
 }
 
 /// Get the modification time of a path

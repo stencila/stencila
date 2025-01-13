@@ -6,6 +6,7 @@ use std::{
 };
 
 use cli_utils::{
+    confirm,
     table::{self, Attribute, Cell, Color},
     AsFormat, Code, ToStdout,
 };
@@ -23,7 +24,7 @@ use crate::track::DocumentStatus;
 
 use super::{track::DocumentStatusFlag, Document};
 
-/// Initialize tracking in a folder
+/// Initialize document tracking in a folder
 #[derive(Debug, Parser)]
 pub struct Init {
     /// The directory to start document tracking in
@@ -45,29 +46,89 @@ impl Init {
     }
 }
 
-/// Start tracking a document
+/// Start tracking a file
 #[derive(Debug, Parser)]
 pub struct Track {
     /// The path of the file to track
-    path: PathBuf,
+    file: PathBuf,
 }
 
 impl Track {
     pub async fn run(self) -> Result<()> {
-        Document::track_path(&self.path).await
+        Document::track_path(&self.file).await
     }
 }
 
-/// Stop tracking a document
+/// Stop tracking a file
 #[derive(Debug, Parser)]
 pub struct Untrack {
-    /// The path of the file to track
-    path: PathBuf,
+    /// The path of the file to stop tracking
+    file: PathBuf,
 }
 
 impl Untrack {
     pub async fn run(self) -> Result<()> {
-        Document::untrack_path(&self.path).await
+        Document::untrack_path(&self.file).await
+    }
+}
+
+/// Move a tracked file
+///
+/// Moves the file to the new path (if it still exists at the
+/// old path) and updates any tracking information.
+#[derive(Debug, Parser)]
+#[clap(alias = "mv")]
+pub struct Move {
+    /// The old path of the file
+    from: PathBuf,
+
+    /// The new path of the file
+    to: PathBuf,
+
+    /// Overwrite the destination path if it already exists
+    #[arg(long, short)]
+    force: bool,
+}
+
+impl Move {
+    pub async fn run(self) -> Result<()> {
+        if self.to.exists() && !self.force {
+            if !confirm("Destination path already exists, overwrite it?")? {
+                return Ok(());
+            }
+        }
+
+        Document::move_path(&self.from, &self.to).await
+    }
+}
+
+/// Remove a tracked file
+///
+/// Deletes the file (if it still exists) and removes
+/// any tracking data from the `.stencila` directory.
+#[derive(Debug, Parser)]
+#[clap(alias = "rm")]
+pub struct Remove {
+    /// The path of the file to remove
+    file: PathBuf,
+
+    /// Do not
+    #[arg(long, short)]
+    force: bool,
+}
+
+impl Remove {
+    pub async fn run(self) -> Result<()> {
+        if self.file.exists() && !self.force {
+            if !confirm(&format!(
+                "Are you sure you want to remove {}?",
+                self.file.display()
+            ))? {
+                return Ok(());
+            }
+        }
+
+        Document::remove_path(&self.file).await
     }
 }
 
@@ -75,7 +136,7 @@ impl Untrack {
 #[derive(Debug, Parser)]
 pub struct Status {
     /// The paths of the files to get status for
-    paths: Vec<PathBuf>,
+    files: Vec<PathBuf>,
 
     /// Output the status as JSON or YAML
     #[arg(long, short)]
@@ -84,12 +145,12 @@ pub struct Status {
 
 impl Status {
     pub async fn run(self) -> Result<()> {
-        let statuses = if self.paths.is_empty() {
+        let statuses = if self.files.is_empty() {
             // No paths provided, so get statuses from tracking dir
             Document::status_tracked(&current_dir()?).await?
         } else {
             // Check that each path exists
-            for path in self.paths.iter() {
+            for path in self.files.iter() {
                 if !path.exists() {
                     bail!("Path does not exist: {}", path.display())
                 }
@@ -97,7 +158,7 @@ impl Status {
 
             // Get status of each file
             let futures = self
-                .paths
+                .files
                 .into_iter()
                 .map(|path| Document::status_path(path, None));
             try_join_all(futures).await?
