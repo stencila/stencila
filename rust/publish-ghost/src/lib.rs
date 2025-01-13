@@ -77,7 +77,7 @@ pub struct Cli {
     #[arg(long, conflicts_with = "push")]
     pull: bool,
 
-    // Push as draft
+    /// Push as draft
     #[arg(
         long,
         group = "publish_type",
@@ -86,11 +86,11 @@ pub struct Cli {
     )]
     draft: bool,
 
-    // Publish pushed, page or post
+    /// Publish pushed, page or post
     #[arg(long, group = "publish_type", requires = "push")]
     publish: bool,
 
-    // schedule pushed, page or post
+    /// schedule pushed, page or post
     #[arg(long, group = "publish_type", requires = "push")]
     schedule: bool,
 
