@@ -849,7 +849,6 @@ impl Payload {
             )
             .await?;
 
-
         let resource = Resource {
             title: title.clone().or_else(|| Some("Untitled".into())),
             lexical: Some(lexical),
