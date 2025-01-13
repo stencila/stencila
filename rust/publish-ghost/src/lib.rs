@@ -23,6 +23,8 @@ use document::{
     CommandWait, DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
 };
 
+
+
 const KEY_ENV_VAR: &str = "STENCILA_GHOST_KEY";
 const SECRET_NAME: &str = "GHOST_ADMIN_API_KEY";
 
@@ -77,6 +79,19 @@ pub struct Cli {
     /// Update file from an existing Ghost post or page
     #[arg(long, conflicts_with = "push")]
     pull: bool,
+
+    // Push as draft
+    #[arg(
+        long,
+        conflicts_with = "publish",
+        requires = "push",
+        default_value_t = true
+    )]
+    draft: bool,
+
+    // Publish pushed page or post
+    #[arg(long, conflicts_with = "draft", requires = "push")]
+    publish: bool,
 
     /// Set slug(URL slug the page or post will be avalible at)
     #[arg(long,requires = "push")]
