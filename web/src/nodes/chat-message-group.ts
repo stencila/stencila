@@ -24,12 +24,21 @@ type ModelData = {
 @customElement('stencila-chat-message-group')
 @withTwind()
 export class ChatMessageGroup extends Entity {
+  /**
+   * Array of chat messages in the group
+   */
   @state()
   messages: ChatMessage[] = []
 
+  /**
+   * Index of tahe currently selected message in the `messages` array
+   */
   @state()
   selectedMessage: number = 0
 
+  /**
+   * Array of models used for the messages in the group
+   */
   @state()
   models: ModelData[] = []
 
@@ -63,14 +72,15 @@ export class ChatMessageGroup extends Entity {
 
   private setSelected(index: number) {
     if (this.messages.length > 0) {
+      // return if selected index is already selected
       if (index === this.selectedMessage) {
         return
       }
-      this.messages[this.selectedMessage].deselect()
-      this.messages[index].select()
 
+      // update properties and dispatch event
+      this.messages[this.selectedMessage].isSelected = false
+      this.messages[index].isSelected = true
       this.selectedMessage = index
-
       this.dispatchEvent(
         patchValue(
           'ChatMessageGroup',
@@ -132,12 +142,12 @@ export class ChatMessageGroup extends Entity {
 
     return html`
       <button
-        class="flex items-center rounded-sm p-1 ${isCurrent
+        class="flex items-center rounded-sm p-2 ${isCurrent
           ? 'text-brand-blue'
-          : ''} ${style}"
+          : 'text-gray-500'} ${style}"
         @click=${() => this.setSelected(index)}
       >
-        <stencila-ui-icon name=${icon} class="text-xl"></stencila-ui-icon>
+        <stencila-ui-icon name=${icon} class="text-2xl"></stencila-ui-icon>
         <span class="text-sm ml-1">${model.version}</span>
       </button>
     `

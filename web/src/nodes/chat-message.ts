@@ -1,6 +1,6 @@
 import { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
-import { html } from 'lit'
+import { html, PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
@@ -33,49 +33,7 @@ export class ChatMessage extends Executable {
     attribute: 'is-selected',
     converter: booleanConverter,
   })
-  isSelected?: boolean
-
-  public select() {
-    this.isSelected = true
-  }
-
-  public deselect() {
-    this.isSelected = false
-  }
-
-  /**
-   * When the message is selected send a patch to the message group.
-   * In Rust, this is handled by a custom patch operation handler so that only one
-   * message is ever selected.
-   */
-  // private onSelected() {
-  //   const group = this.closestGlobally('stencila-chat-message-group')
-  //   if (!group) {
-  //     return
-  //   }
-
-  //   // Set `isSelected` on all siblings (and this) and determine the
-  //   // index of this in the messages for the patch
-  //   let thisIndex
-  //   Array.from(this.parentNode.children).forEach(
-  //     (message: ChatMessage, index) => {
-  //       const selected = message.isSameNode(this)
-  //       message.isSelected = selected
-  //       if (selected) {
-  //         thisIndex = index
-  //       }
-  //     }
-  //   )
-
-  //   this.dispatchEvent(
-  //     patchValue(
-  //       'ChatMessageGroup',
-  //       group.id,
-  //       ['messages', thisIndex, 'isSelected'],
-  //       true
-  //     )
-  //   )
-  // }
+  isSelected?: boolean = false
 
   /**
    * Should a node card, possibly within a chat message, be expanded?
@@ -101,6 +59,14 @@ export class ChatMessage extends Executable {
       closestGlobally(card, 'stencila-chat-message[message-role="Model"]') !==
         null
     )
+  }
+
+  protected override firstUpdated(changedProperties: PropertyValues): void {
+    super.firstUpdated(changedProperties)
+    // set first message in group as selected by default
+    if (this.isWithin('ChatMessageGroup')) {
+      this.isSelected = this.parentNode.children[0].isSameNode(this)
+    }
   }
 
   override render() {

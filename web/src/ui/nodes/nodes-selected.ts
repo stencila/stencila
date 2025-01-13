@@ -168,7 +168,7 @@ export class UINodesSelected extends UIBaseClass {
           </div>
           <div class="flex flex-col gap-y-2">
             ${this.selectedNodes.map(
-              ([_type, nodeId]) => html`
+              ([type, nodeId]) => html`
                 <sl-tag
                   size="small"
                   class=${tagStyles}
@@ -179,7 +179,7 @@ export class UINodesSelected extends UIBaseClass {
                     )
                   }}
                 >
-                  ${nodeId}
+                  ${type}
                 </sl-tag>
               `
             )}
