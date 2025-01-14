@@ -80,6 +80,20 @@ export class PromptBlock extends Executable {
   }
 
   /**
+   * When the user clears the prompt set it to inferred locally an in Rust
+   */
+  private onPromptCleared(event: InputEvent) {
+    event.stopPropagation() // Avoid opening select options
+
+    const select = event.target as HTMLInputElement
+    select.value = ''
+
+    this.target = '?'
+
+    this.dispatchEvent(patchValue('PromptBlock', this.id, 'target', null))
+  }
+
+  /**
    * Shorten a prompt id if possible
    *
    * Equivalent to the Rust `prompts::shorten` function.
@@ -312,6 +326,28 @@ export class PromptBlock extends Executable {
       }
     }
 
+    // Add a prefix icon to indicate that the prompt is inferred
+    const prefix = this.target?.endsWith('?')
+      ? html`<sl-tooltip
+          content="Prompt is guessed from message"
+          placement="right"
+          slot="prefix"
+          ><stencila-ui-icon
+            class="text-lg text-[${textColour}] mr-2"
+            name="questionCircle"
+          ></stencila-ui-icon
+        ></sl-tooltip>`
+      : html`<sl-tooltip
+          content="Guess prompt from message"
+          placement="right"
+          slot="prefix"
+          ><stencila-ui-icon-button
+            class="text-lg text-[${textColour}] mr-2"
+            name="dashCircle"
+            @click=${this.onPromptCleared}
+          ></stencila-ui-icon-button
+        ></sl-tooltip>`
+
     const style = css`
       &::part(combobox) {
         border-color: ${borderColour};
@@ -329,9 +365,9 @@ export class PromptBlock extends Executable {
       class="w-full ${style}"
       size="small"
       value=${target}
-      @sl-change=${(e: InputEvent) => this.onPromptChanged(e)}
+      @sl-change=${this.onPromptChanged}
     >
-      ${options}
+      ${prefix} ${options}
     </sl-select>`
   }
 
