@@ -80,6 +80,20 @@ export class PromptBlock extends Executable {
   }
 
   /**
+   * When the user clears the prompt set it to inferred locally an in Rust
+   */
+  private onPromptCleared(event: InputEvent) {
+    event.stopPropagation() // Avoid opening select options
+
+    const select = event.target as HTMLInputElement
+    select.value = ''
+
+    this.target = '?'
+
+    this.dispatchEvent(patchValue('PromptBlock', this.id, 'target', null))
+  }
+
+  /**
    * Shorten a prompt id if possible
    *
    * Equivalent to the Rust `prompts::shorten` function.
@@ -312,15 +326,27 @@ export class PromptBlock extends Executable {
       }
     }
 
-    // Add a suffix icon to indicate that the prompt is inferred
-    const suffix = this.target?.endsWith('?')
+    // Add a prefix icon to indicate that the prompt is inferred
+    const prefix = this.target?.endsWith('?')
       ? html`<sl-tooltip
-          content="Prompt is being guessed from your current message"
-          placement="left"
-          slot="suffix"
-          ><stencila-ui-icon name="questionCircle"></stencila-ui-icon
+          content="Prompt is guessed from message"
+          placement="right"
+          slot="prefix"
+          ><stencila-ui-icon
+            class="text-lg text-[${textColour}] mr-2"
+            name="questionCircle"
+          ></stencila-ui-icon
         ></sl-tooltip>`
-      : ''
+      : html`<sl-tooltip
+          content="Guess prompt from message"
+          placement="right"
+          slot="prefix"
+          ><stencila-ui-icon-button
+            class="text-lg text-[${textColour}] mr-2"
+            name="dashCircle"
+            @click=${this.onPromptCleared}
+          ></stencila-ui-icon-button
+        ></sl-tooltip>`
 
     const style = css`
       &::part(combobox) {
@@ -335,16 +361,14 @@ export class PromptBlock extends Executable {
       }
     `
 
-    return html`<sl-tooltip content="Prompt to use" placement="top-start"
-      ><sl-select
-        class="w-full ${style}"
-        size="small"
-        value=${target}
-        @sl-change=${(e: InputEvent) => this.onPromptChanged(e)}
-      >
-        ${suffix} ${options}
-      </sl-select></sl-tooltip
-    >`
+    return html`<sl-select
+      class="w-full ${style}"
+      size="small"
+      value=${target}
+      @sl-change=${this.onPromptChanged}
+    >
+      ${prefix} ${options}
+    </sl-select>`
   }
 
   private renderShowHideContent() {
