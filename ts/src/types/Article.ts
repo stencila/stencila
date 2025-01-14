@@ -6,7 +6,7 @@ import { CreativeWork } from "./CreativeWork.js";
 import { IntegerOrString } from "./IntegerOrString.js";
 import { List } from "./List.js";
 import { Node } from "./Node.js";
-import { Object } from "./Object.js";
+import { type Object } from "./Object.js";
 
 /**
  * An article, including news and scholarly articles.

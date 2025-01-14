@@ -38,7 +38,10 @@ content: []
     let article: Article = serde_yaml::from_str(yaml)?;
 
     assert_eq!(article.date_published, Date::from_str("2025-01-01").ok());
-    assert_eq!(article.options.page_start, Some(IntegerOrString::Integer(1)));
+    assert_eq!(
+        article.options.page_start,
+        Some(IntegerOrString::Integer(1))
+    );
     assert_eq!(article.options.page_end, Some(IntegerOrString::Integer(2)));
 
     let Some(extra) = article.options.extra else {

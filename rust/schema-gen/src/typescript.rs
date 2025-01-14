@@ -533,7 +533,12 @@ export function {name}({required_args}options?: Partial<{title}>): {title} {{
                 used_type != title && !NATIVE_TYPES.contains(&used_type.to_lowercase().as_str())
             })
             .sorted()
-            .map(|used_type| format!("import {{ {used_type} }} from \"./{used_type}.js\";"))
+            .map(|used_type| {
+                format!(
+                    "import {{ {}{used_type} }} from \"./{used_type}.js\";",
+                    if used_type == "Object" { "type " } else { "" }
+                )
+            })
             .join("\n");
         if !imports.is_empty() {
             imports.push_str("\n\n");

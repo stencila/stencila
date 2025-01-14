@@ -3,8 +3,8 @@ use codec::{
     schema::{
         shortcuts::{art, p, t},
         transforms::blocks_to_inlines,
-        AudioObject, Block, CodeBlock, File, Heading, ImageObject, Inline, List, ListItem, ListOrder, 
-        Paragraph, QuoteBlock, RawBlock, Table, Text, ThematicBreak, VideoObject,
+        AudioObject, Block, CodeBlock, File, Heading, ImageObject, Inline, List, ListItem,
+        ListOrder, Paragraph, QuoteBlock, RawBlock, Table, Text, ThematicBreak, VideoObject,
     },
 };
 use codec_text::to_text;
@@ -198,7 +198,7 @@ fn list_from_lexical(list: lexical::ListNode, context: &mut LexicalDecodeContext
         .map(|child| ListItem::new(vec![p(inlines_from_lexical(child.children, context))]))
         .collect();
 
-    let order = match list.list_type{
+    let order = match list.list_type {
         lexical::ListType::Number => ListOrder::Ascending,
         lexical::ListType::Bullet => ListOrder::Unordered,
     };
@@ -217,7 +217,7 @@ fn list_to_lexical(list: &List, context: &mut LexicalEncodeContext) -> lexical::
         .map(|item| list_item_to_lexical(item, context))
         .collect();
 
-    let list_type = match list.order{
+    let list_type = match list.order {
         ListOrder::Ascending | ListOrder::Descending => lexical::ListType::Number,
         ListOrder::Unordered => lexical::ListType::Bullet,
     };
