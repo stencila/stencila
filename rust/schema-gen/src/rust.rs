@@ -653,6 +653,10 @@ pub enum NodeProperty {{
                     args.push("default".to_string());
                 }
 
+                if serde.flatten {
+                    args.push("flatten".to_string());
+                }
+
                 if let Some(deserialize_with) = &serde.deserialize_with {
                     // This maintains consistency with previous implementation
                     // when `default` could nto be specified. But adding this here may

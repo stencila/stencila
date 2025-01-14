@@ -601,7 +601,14 @@ pub struct SerdeOptions {
     /// Set the `default` attribute of a field
     ///
     /// See https://serde.rs/field-attrs.html#default
+    #[serde(skip_serializing_if = "is_false")]
     pub default: bool,
+
+    /// Set the `flatten` attribute of a field
+    ///
+    /// See https://serde.rs/field-attrs.html#flatten
+    #[serde(skip_serializing_if = "is_false")]
+    pub flatten: bool,
 
     /// Set the `deserialize_with` attribute of a field
     ///

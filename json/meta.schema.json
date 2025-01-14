@@ -823,12 +823,15 @@
       "properties": {
         "default": {
           "description": "Set the `default` attribute of a field\n\nSee https://serde.rs/field-attrs.html#default",
-          "default": false,
           "type": "boolean"
         },
         "deserializeWith": {
           "description": "Set the `deserialize_with` attribute of a field\n\nSee https://serde.rs/field-attrs.html#deserialize_with",
           "type": "string"
+        },
+        "flatten": {
+          "description": "Set the `flatten` attribute of a field\n\nSee https://serde.rs/field-attrs.html#flatten",
+          "type": "boolean"
         }
       },
       "additionalProperties": false

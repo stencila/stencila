@@ -118,3 +118,17 @@ properties:
     walk: true
     dom:
       skip: true
+  extra:
+    "@id": stencila:extra
+    description: Additional metadata for the article.
+    $comment: |
+      A catch-all for object properties of articles that are not in the Stencila schema.
+    type: object
+    strip: [metadata]
+    serde:
+      flatten: true
+      deserializeWith: empty_object_is_none
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+    dom:
+      skip: true

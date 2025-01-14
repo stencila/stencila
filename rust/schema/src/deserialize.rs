@@ -7,6 +7,8 @@ use common::serde::{
     Deserialize, Deserializer,
 };
 
+use crate::Object;
+
 #[derive(Debug, Deserialize)]
 #[serde(untagged, crate = "common::serde")]
 enum StringOrArray<T> {
@@ -171,4 +173,17 @@ where
             None => None,
         },
     )
+}
+
+/// Deserialize an optional [`Object`] into an object or `None` if it is empty
+pub fn empty_object_is_none<'de, D>(deserializer: D) -> Result<Option<Object>, D::Error>
+where
+    D: common::serde::Deserializer<'de>,
+{
+    let obj: Object = common::serde::Deserialize::deserialize(deserializer)?;
+    if obj.is_empty() {
+        Ok(None)
+    } else {
+        Ok(Some(obj))
+    }
 }

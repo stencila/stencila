@@ -5,7 +5,7 @@ use codec::{
         serde_yaml::{self, Value},
     },
     format::Format,
-    schema::{Node, NodeType},
+    schema::{Article, Node, NodeType},
     status::Status,
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
@@ -37,7 +37,18 @@ impl Codec for YamlCodec {
         }
     }
 
+    fn supports_to_format(&self, format: &Format) -> CodecSupport {
+        match format {
+            Format::Yaml => CodecSupport::NoLoss,
+            _ => CodecSupport::None,
+        }
+    }
+
     fn supports_from_type(&self, _node_type: NodeType) -> CodecSupport {
+        CodecSupport::NoLoss
+    }
+
+    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
         CodecSupport::NoLoss
     }
 
@@ -46,20 +57,24 @@ impl Codec for YamlCodec {
         str: &str,
         _options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        let node = Node::from_yaml(str)?;
+        let mut node = Node::from_yaml(str)?;
+
+        // If the node is a type with a catch-all `extra` property, remove any special
+        // keys that may have been added during encoding (see below) which will end up in extras
+        if let Node::Article(Article { options, .. }) = &mut node {
+            let is_empty = if let Some(extra) = options.extra.as_mut() {
+                extra.swap_remove("$schema");
+                extra.swap_remove("@context");
+                extra.is_empty()
+            } else {
+                false
+            };
+            if is_empty {
+                options.extra = None;
+            }
+        }
 
         Ok((node, DecodeInfo::none()))
-    }
-
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Yaml => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::NoLoss
     }
 
     async fn to_string(

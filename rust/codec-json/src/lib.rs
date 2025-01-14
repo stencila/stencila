@@ -12,7 +12,7 @@ use codec::{
         zip::{self, write::FileOptions, ZipArchive},
     },
     format::Format,
-    schema::{Node, NodeType},
+    schema::{Article, Node, NodeType},
     status::Status,
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
@@ -102,9 +102,7 @@ impl Codec for JsonCodec {
     }
 }
 
-/**
- * Decode a node from a JSON or JSON+zip file
- */
+/// Decode a node from a JSON or JSON+zip file
 pub fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
     if !path.exists() {
         bail!("Path `{}` does not exist", path.display());
@@ -122,9 +120,7 @@ pub fn from_path(path: &Path, options: Option<DecodeOptions>) -> Result<(Node, D
     from_bytes(&content, Some(options))
 }
 
-/**
- * Decode a node from JSON or JSON+zip bytes
- */
+/// Decode a node from JSON or JSON+zip bytes
 pub fn from_bytes(bytes: &[u8], options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
     let string = if let Some(Format::JsonZip) =
         options.as_ref().and_then(|options| options.format.as_ref())
@@ -143,18 +139,29 @@ pub fn from_bytes(bytes: &[u8], options: Option<DecodeOptions>) -> Result<(Node,
     from_str(&string)
 }
 
-/**
- * Decode a node from a JSON string
- */
+/// Decode a node from a JSON string
 pub fn from_str(str: &str) -> Result<(Node, DecodeInfo)> {
-    let node = Node::from_json(str)?;
+    let mut node = Node::from_json(str)?;
+
+    // If the node is a type with a catch-all `extra` property, remove any special
+    // keys that may have been added during encoding (see below) which will end up in extras
+    if let Node::Article(Article { options, .. }) = &mut node {
+        let is_empty = if let Some(extra) = options.extra.as_mut() {
+            extra.swap_remove("$schema");
+            extra.swap_remove("@context");
+            extra.is_empty()
+        } else {
+            false
+        };
+        if is_empty {
+            options.extra = None;
+        }
+    }
 
     Ok((node, DecodeInfo::none()))
 }
 
-/**
- * Encode a node to a JSON or JSON+zip file
- */
+/// Encode a node to a JSON or JSON+zip file
 pub fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Result<EncodeInfo> {
     // Implement `to_path, rather than `to_bytes`, so that, if encoding to `json.zip`,
     // the single file in the Zip archive can have the name minus `.zip`
@@ -191,9 +198,7 @@ pub fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Resu
     Ok(EncodeInfo::none())
 }
 
-/**
- * Encode a node to a JSON string
- */
+/// Encode a node to a JSON string
 pub fn to_string(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {
     let EncodeOptions {
         standalone,

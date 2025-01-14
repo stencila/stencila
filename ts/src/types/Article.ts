@@ -6,6 +6,7 @@ import { CreativeWork } from "./CreativeWork.js";
 import { IntegerOrString } from "./IntegerOrString.js";
 import { List } from "./List.js";
 import { Node } from "./Node.js";
+import { Object } from "./Object.js";
 
 /**
  * An article, including news and scholarly articles.
@@ -53,6 +54,11 @@ export class Article extends CreativeWork {
    * Temporary nodes on document
    */
   temporary?: Node[];
+
+  /**
+   * Additional metadata for the article.
+   */
+  extra?: Object;
 
   constructor(content: Block[], options?: Partial<Article>) {
     super();
