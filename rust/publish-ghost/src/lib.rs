@@ -78,6 +78,10 @@ pub struct Cli {
     #[arg(long, conflicts_with = "push")]
     pull: bool,
 
+    /// Set slug(URL slug the page or post will be avalible at)
+    #[arg(long,requires = "push")]
+    slug: Option<String>,
+
     /// Push as draft
     #[arg(
         long,
@@ -162,6 +166,7 @@ impl Cli {
                 let Node::Article(article) = root else {
                     return None;
                 };
+                tracing::trace!("{:?}",article.options.identifiers.clone());
 
                 let Some(ids) = &article.options.identifiers else {
                     return None;
