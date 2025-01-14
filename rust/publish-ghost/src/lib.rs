@@ -98,6 +98,10 @@ pub struct Cli {
     #[arg(long, group = "publish_type", requires = "push")]
     schedule: Option<DateTime<Utc>>,
 
+    /// Tags for ghost page or post
+    #[arg(long, value_delimiter = ',', requires = "push")]
+    tags: Option<Vec<String>>,
+
     /// excerpt in ghost
     ///
     /// Defaults to the article description
@@ -144,7 +148,6 @@ impl Cli {
                 let Node::Article(article) = root else {
                     return None;
                 };
-                tracing::trace!("{:?}",article.options.identifiers.clone());
 
                 let Some(ids) = &article.options.identifiers else {
                     return None;
@@ -238,6 +241,7 @@ impl Cli {
             self.inject_code_header.clone(),
             self.inject_code_footer.clone(),
             self.slug.clone(),
+            self.tags.clone(),
         )
         .await?;
 
@@ -361,6 +365,7 @@ impl Cli {
             self.inject_code_header.clone(),
             self.inject_code_footer.clone(),
             self.slug.clone(),
+            self.tags.clone(),
         )
         .await?;
 
@@ -600,6 +605,15 @@ struct Resource {
     codeinjection_head: Option<String>,
     codeinjection_foot: Option<String>,
     slug: Option<String>,
+    tags: Option<Vec<Tag>>,
+}
+
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
+struct Tag{
+    // TODO: can add description and so on from https://ghost.org/docs/admin-api/
+    name:String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -638,6 +652,7 @@ impl Payload {
         codeinjection_head: Option<String>,
         codeinjection_foot: Option<String>,
         slug: Option<String>,
+        tags:Option<Vec<String>>,
     ) -> Result<Self> {
         // Get document title and other metadata
         // TODO: other metadata such as authors, excerpt (from abstract?)
@@ -692,6 +707,7 @@ impl Payload {
             codeinjection_head,
             codeinjection_foot,
             slug: slug.or_else(|| title),
+            tags: tags.map(|tag| tag.into_iter().map(|name| Tag{name,}).collect()),
             ..Default::default()
         };
 
