@@ -249,7 +249,7 @@ export class ModelParameters extends Entity {
     const { textColour } = this.parentNodeUI
 
     const styles = apply(
-      'flex flex-row items-center gap-x-2 w-full',
+      'flex flex-row items-center w-full',
       `text-[${textColour}] text-xs leading-tight font-sans`
     )
 
@@ -309,16 +309,23 @@ export class ModelParameters extends Entity {
     `
 
     return html`
-      <sl-select
-        class="w-full ${selectStyles}"
-        multiple
-        max-options-visible="2"
-        size="small"
-        value=${modelIds.join(' ')}
-        @sl-change=${(e: InputEvent) => this.onModelIdsChanged(e)}
-      >
-        ${this.modelOptions}
-      </sl-select>
+      <sl-tooltip content="Models to use" placement="top-start">
+        <sl-select
+          class="w-full ${selectStyles}"
+          multiple
+          max-options-visible="2"
+          size="small"
+          value=${modelIds.join(' ')}
+          @sl-change=${(e: InputEvent) => this.onModelIdsChanged(e)}
+        >
+          <stencila-ui-icon
+            class="text-lg text-[${textColour}]"
+            name="robot"
+            slot="prefix"
+          ></stencila-ui-icon>
+          ${this.modelOptions}
+        </sl-select>
+      </sl-tooltip>
     `
   }
 
