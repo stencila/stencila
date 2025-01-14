@@ -454,11 +454,7 @@ try:
         # Use `b64encode` instead of `encodebytes` to avoid newlines every 76 characters
         url = "data:image/png;base64," + base64.b64encode(image.getvalue()).decode()
 
-        return {
-            "type": "ImageObject",
-            "contentUrl": url,
-            "mediaType": "image/png"
-        }
+        return {"type": "ImageObject", "contentUrl": url, "mediaType": "image/png"}
 
 except ImportError:
     MATPLOTLIB_AVAILABLE = False
@@ -530,9 +526,9 @@ class MimeBundleJSONEncoder(json.JSONEncoder):
 
     def default(self, o: Any) -> Any:
         if NUMPY_AVAILABLE:
-            if isinstance(o, (np.integer, np.int_)): # type: ignore
+            if isinstance(o, (np.integer, np.int_)):  # type: ignore
                 return int(o)
-            if isinstance(o, (np.floating, np.float_)): # type: ignore
+            if isinstance(o, (np.floating, np.float_)):  # type: ignore
                 return float(o)
             if isinstance(o, np.ndarray):
                 return o.tolist()
@@ -638,35 +634,50 @@ def execute(lines: list[str], file: str) -> None:
     value = None
     buffer = ""
     for index, line in enumerate(lines):
-        buffer += line + "\n"
-
-        # Try to compile the current buffer to see if it's complete
-        # and just continue to accumulate to buffer if not
-        try:
-            compile(buffer, file, "exec")
-        except Exception:
+        # If the current line is empty, indented, or starts with
+        # `elif` or `else`, continue to accumulate to buffer.
+        if (
+            line.startswith(("elif", "else", " ", "\t"))
+            or len(line.strip()) == 0
+        ):
+            buffer += line + "\n"
             continue
 
-        # Code is complete, execute it
+        # If any code in buffer try to execute it
+        if len(buffer.strip()) > 0:
+            try:
+                # First, try to compile and evaluate as an expression
+                compiled = compile(buffer, file, "eval")
+                value = eval(compiled, CONTEXT)
+            except SyntaxError:
+                # Not an expression, try to execute as statements
+                try:
+                    compiled = compile(buffer, file, "exec")
+                    exec(compiled, CONTEXT)
+                except Exception:
+                    # Failed so just add this line to buffer and continue
+                    buffer += line + "\n"
+                    continue
+
+        # If successfully executed, reset buffer to empty
+        # lines (so line numbering works) plus this line
+        buffer = ("\n" * index) + line + "\n"
+
+    # If any buffer remains, evaluate or execute it.
+    if len(buffer.strip()) > 0:
         try:
             # First, try to compile and evaluate as an expression
             compiled = compile(buffer, file, "eval")
             value = eval(compiled, CONTEXT)
         except SyntaxError:
-            # Not an expression, execute as statements
+            # Not an expression, try to execute as statements
+            # If there is an exception it will be thrown from here (as intended)
             compiled = compile(buffer, file, "exec")
             exec(compiled, CONTEXT)
-
-        # Reset buffer
-        buffer = "\n" * (index + 1)
 
     # Output the last value (if any)
     if value is not None:
         sys.stdout.write(to_json(value) + END + "\n")
-
-    # If any buffer remaining then compile to raise the syntax error
-    compiled = compile(buffer, file, "exec")
-    exec(compiled, CONTEXT)
 
 
 # Evaluate an expression

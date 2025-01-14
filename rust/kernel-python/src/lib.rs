@@ -169,6 +169,71 @@ print(a, b)",
         .await
     }
 
+    /// Custom test for indented code
+    ///
+    /// Regression test to ensure that if/elif blocks and function definitions are not prematurely executed.
+    #[test_log::test(tokio::test)]
+    async fn execution_indented() -> Result<()> {
+        let Some(mut instance) = start_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        let (outputs, messages) = instance
+            .execute(
+                r"
+if False:
+  x = 1
+elif False:
+  x = 2
+else:
+  x = 3
+
+x",
+            )
+            .await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs, vec![Node::Integer(3)]);
+
+        let (outputs, messages) = instance
+            .execute(
+                r"
+x = 0 
+for i in range(10):
+
+  if i < 5:
+    continue
+
+  else:
+    x = i
+    break
+
+x",
+            )
+            .await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs, vec![Node::Integer(5)]);
+
+        let (outputs, messages) = instance
+            .execute(
+                r"
+def func(x):
+  '''With empty lines and
+    blank lines'''
+
+  
+  return x * 7
+
+func(
+  1
+)",
+            )
+            .await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs, vec![Node::Integer(7)]);
+
+        Ok(())
+    }
+
     /// Standard kernel test for evaluation of expressions
     #[test_log::test(tokio::test)]
     async fn evaluation() -> Result<()> {
