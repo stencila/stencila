@@ -49,7 +49,15 @@ interface SystemDataMessage {
  * TODO: This needs to be made consistent with the messages sent
  * by the other clients, in particular the WebSocket client.
  */
-type SentMessage = DomResetMessage | CommandMessage | ScrollSyncMessage
+type SentMessage =
+  | ClientReadyMessage
+  | DomResetMessage
+  | CommandMessage
+  | ScrollSyncMessage
+
+interface ClientReadyMessage {
+  type: 'client-ready'
+}
 
 interface DomResetMessage {
   type: 'dom-reset'
@@ -139,6 +147,7 @@ export class VSCodeClient {
     this.failedMorph = 0
     this.setWindowListener()
     this.setupObservers()
+    this.notifyReady()
   }
 
   /**
@@ -235,6 +244,37 @@ export class VSCodeClient {
   }
 
   /**
+   * Notify VSCode that this client is ready to receive patches
+   */
+  private notifyReady() {
+    const notify = () => {
+      if (typeof vscode !== 'undefined') {
+        vscode.postMessage({ type: 'client-ready' })
+      }
+    }
+
+    // Initial notification
+    notify()
+
+    // Schedule further notifications, with exponential backoff,
+    // until a patch has been received
+    let delay = 100
+    const scheduleNext = () => {
+      if (this.version > 0) {
+        return
+      }
+
+      setTimeout(() => {
+        notify()
+        delay *= 2
+        scheduleNext()
+      }, delay)
+    }
+
+    scheduleNext()
+  }
+
+  /**
    * Receive a 'message' event sent from VSCode to the web view `window`
    *
    * Note: must be an arrow function!
@@ -251,10 +291,6 @@ export class VSCodeClient {
         return this.handleViewNodeMessage(data)
       case 'scroll-sync':
         return this.handleScrollSyncMessage(data)
-      case 'system-data':
-        return this.handleSystemDataMessage(data)
-      default:
-        throw new Error(`Unhandled received message type: ${type}`)
     }
   }
 
@@ -267,6 +303,9 @@ export class VSCodeClient {
     // Check for non-sequential patch and request a reset patch if necessary
     const isReset = ops.length >= 1 && ops[0].type === 'reset'
     if (!isReset && version > this.version + 1) {
+      console.warn(
+        `Out of sequence DOM patch, will reset: ${version} > ${this.version} + 1`
+      )
       this.requestReset()
     }
 
@@ -306,7 +345,9 @@ export class VSCodeClient {
     // Get the target element
     const documentRoot = this.renderRoot.querySelector('[root]')
     if (!documentRoot) {
-      console.error('No document root found')
+      console.error(
+        `No document root found when attempting to apply patch version ${version}`
+      )
       return
     }
 
@@ -314,6 +355,7 @@ export class VSCodeClient {
     if (isReset && this.failedMorph >= 2) {
       // If this is a reset patch and there was already two attempts
       // using morphing, then resort to replacing innerHTML of root
+      console.warn('Reinitializing DOM')
       documentRoot.innerHTML = new DOMParser().parseFromString(
         this.html,
         'text/html'
@@ -326,11 +368,13 @@ export class VSCodeClient {
       } catch (error) {
         // Any errors during morphing (i.e if somehow the HTML is invalid)
         // result in a reset request being sent to the server.
-        console.log('While morphing DOM', error)
+        console.error('Error while morphing DOM, will reset', error)
         this.failedMorph += 1
         this.requestReset()
       }
     }
+
+    console.debug(`✅ Applied DOM patch v${version}, ops ${ops.length}`)
   }
 
   /**
@@ -413,15 +457,24 @@ export class VSCodeClient {
       }
     }
   }
+}
 
-  /**
-   * Handle a received `SystemDataMessage` message
-   */
-  private handleSystemDataMessage({
-    kernels,
-    prompts,
-    models,
-  }: SystemDataMessage) {
+/**
+ * Handle messages that update system data
+ *
+ * This listener is not on the `VSCodeClient` because these messages
+ * are not related to a particular document and may arrive before
+ * any `VSCodeClient` has been instantiated.
+ */
+window.addEventListener(
+  'message',
+  ({ data: message }: Event & { data: ReceivedMessage }) => {
+    if (message.type !== 'system-data') {
+      return
+    }
+
+    const { kernels, prompts, models }: SystemDataMessage = message
+
     if (kernels) {
       data.kernels = kernels
     }
@@ -432,4 +485,4 @@ export class VSCodeClient {
       data.models = models
     }
   }
-}
+)
