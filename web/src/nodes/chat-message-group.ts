@@ -50,6 +50,8 @@ export class ChatMessageGroup extends Entity {
     ) as ChatMessage[]
 
     if (messageElements.length > 0) {
+      // fetch the model info by getting attributes from the author slot of message
+      // TODO: add model info to attributes of chat-group?
       const models: ModelData[] = []
       messageElements.forEach((msg) => {
         const softwareAppElement =
@@ -94,7 +96,7 @@ export class ChatMessageGroup extends Entity {
 
   override render() {
     return html`
-      <div>
+      <div class="mt-4">
         ${this.renderGroupHeader()}
         <div class="min-w-[45ch] max-w-prose mx-auto mb-3">
           <slot
@@ -117,6 +119,8 @@ export class ChatMessageGroup extends Entity {
   }
 
   renderModelTab(model: ModelData, index: number) {
+    const [provider, name] = model.id.trim().split('/') ?? []
+
     let icon = iconMaybe(model.id.toLowerCase())
 
     // Fallback to using name
@@ -125,7 +129,6 @@ export class ChatMessageGroup extends Entity {
     }
 
     if (!icon) {
-      const [provider] = model.id?.trim().split('/') ?? []
       icon = iconMaybe(provider.toLowerCase())
     }
 
@@ -148,7 +151,7 @@ export class ChatMessageGroup extends Entity {
         @click=${() => this.setSelected(index)}
       >
         <stencila-ui-icon name=${icon} class="text-2xl"></stencila-ui-icon>
-        <span class="text-sm ml-1">${model.version}</span>
+        <span class="text-sm ml-1">${name}</span>
       </button>
     `
   }

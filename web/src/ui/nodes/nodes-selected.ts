@@ -1,9 +1,8 @@
 import '@shoelace-style/shoelace/dist/components/button/button.js'
-import '@shoelace-style/shoelace/dist/components/popup/popup.js'
-
+import SlPopup from '@shoelace-style/shoelace/dist/components/popup/popup.js'
 import { css } from '@twind/core'
 import { html } from 'lit'
-import { customElement, state } from 'lit/decorators'
+import { customElement, query, state } from 'lit/decorators'
 
 import { insertClones } from '../../clients/commands'
 import { Entity } from '../../nodes/entity'
@@ -11,9 +10,17 @@ import { withTwind } from '../../twind'
 
 import { UIBaseClass } from './mixins/ui-base-class'
 
+type SelectedNodeTuple = [string, string]
+
 @customElement('stencila-ui-nodes-selected')
 @withTwind()
 export class UINodesSelected extends UIBaseClass {
+  /**
+   * Shoelace popup element
+   */
+  @query('sl-popup')
+  popupElement: SlPopup
+
   /**
    * The selected nodes
    *
@@ -21,7 +28,7 @@ export class UINodesSelected extends UIBaseClass {
    * the popup changes.
    */
   @state()
-  private selectedNodes: string[][] = []
+  private selectedNodes: SelectedNodeTuple[] = []
 
   /**
    * The position of the anchor for the popup
@@ -31,8 +38,13 @@ export class UINodesSelected extends UIBaseClass {
    */
   private anchorPosition = { x: 0, y: 0 }
 
-  @state()
-  active: boolean = false
+  /**
+   * reset the selected nodes and popup
+   */
+  public reset() {
+    this.selectedNodes = []
+    this.anchorPosition = { x: 0, y: 0 }
+  }
 
   /**
    * Checks the element is the right container for the selection functionality,
@@ -70,8 +82,8 @@ export class UINodesSelected extends UIBaseClass {
    * Handle a change in the selection
    */
   handleSelectionChange() {
-    this.active = false
     const selection = window.getSelection()
+
     if (!selection.rangeCount) {
       this.selectedNodes = []
       return
@@ -97,7 +109,7 @@ export class UINodesSelected extends UIBaseClass {
     }
 
     // Get selected nodes from direct children
-    const selectedNodes = []
+    const selectedNodes: SelectedNodeTuple[] = []
     const children = container.children
     for (const child of children) {
       if (range.intersectsNode(child) && child instanceof Entity && child.id) {
@@ -113,7 +125,7 @@ export class UINodesSelected extends UIBaseClass {
         x: rect.left,
         y: rect.bottom,
       }
-      this.active = true
+      this.popupElement.reposition()
     }
 
     this.selectedNodes = selectedNodes
@@ -139,6 +151,13 @@ export class UINodesSelected extends UIBaseClass {
       }
     `
 
+    const popupStyles = css`
+      &::part(popup) {
+        z-index: 20;
+        box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+      }
+    `
+
     return html`
       <div
         id="stencila-nodes-selected-anchor"
@@ -152,11 +171,11 @@ export class UINodesSelected extends UIBaseClass {
         anchor="stencila-nodes-selected-anchor"
         placement="bottom-start"
         distance="10"
-        ?active=${this.active}
+        ?active=${this.selectedNodes.length > 0}
+        strategy="fixed"
+        class=${popupStyles}
       >
-        <div
-          class="p-3 bg-brand-blue text-white font-sans text-sm border border-white rounded"
-        >
+        <div class="p-3 bg-brand-blue text-white font-sans text-sm rounded">
           <div class="flex justify-center mb-2">
             <button class="flex flex-col items-center" @click=${this.insertIds}>
               <stencila-ui-icon
