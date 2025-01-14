@@ -117,7 +117,7 @@ pub struct Cli {
     schedule: Option<DateTime<Utc>>,
 
     /// Tags for ghost page or post
-    #[arg(long, value_delimiter = ',', requires = "push")]
+    #[arg(long = "tag", value_delimiter = ',', requires = "push")]
     tags: Option<Vec<String>>,
 
     /// excerpt in ghost
@@ -278,6 +278,8 @@ impl Cli {
             .context("interpreting Location HTTP header")?
             .to_string();
 
+        // TODO: decide if args such as tags should be writen to sidecar file
+
         // Add the URL to the article's identifiers
         let url = doc_url.clone();
         doc.mutate(move |root| {
@@ -360,6 +362,8 @@ impl Cli {
 
         // Construct the PUT payload with the latest `updated_at`
         let payload = self.payload(resource_type, &doc, updated_at).await?;
+
+        // TODO: decide if args such as tags should be writen to sidecar file
 
         // Send the request
         let response = Client::new()
@@ -839,6 +843,36 @@ impl Payload {
             .await
         } else {
             excerpt
+        };
+
+
+        // Get tags from yaml header if it's Array of Strings
+        let tags = if tags.is_none() {
+            doc.inspect(|root: &Node| {
+                let mut tags = None;
+                if let Node::Article(article) = root {
+                    if let Some(extra) = article.options.extra.clone() {
+                        if let Some(Primitive::Array(vector)) = extra.get("tags") {
+                            tags = Some(
+                                vector
+                                    .iter()
+                                    .map(|primitive| {
+                                        if let Primitive::String(string) = primitive {
+                                            string.into()
+                                        } else {
+                                            "".into()
+                                        }
+                                    })
+                                    .collect(),
+                            );
+                        }
+                    }
+                }
+                tags
+            })
+            .await
+        } else {
+            tags
         };
 
         // Dump document to a Lexical (Ghost's Dialect) string
