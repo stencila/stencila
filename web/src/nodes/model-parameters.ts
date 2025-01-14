@@ -112,7 +112,7 @@ export class ModelParameters extends Entity {
                 value=${model.id}
                 style="--sl-spacing-x-small: 0.25rem;"
               >
-                <span class="text-xs text-[${textColour}]">${model.id}</span>
+                <span class="text-sm text-[${textColour}]">${model.id}</span>
               </sl-option>
             `
           )}
@@ -313,7 +313,7 @@ export class ModelParameters extends Entity {
         <sl-select
           class="w-full ${selectStyles}"
           multiple
-          max-options-visible="2"
+          max-options-visible="3"
           size="small"
           value=${modelIds.join(' ')}
           @sl-change=${(e: InputEvent) => this.onModelIdsChanged(e)}
