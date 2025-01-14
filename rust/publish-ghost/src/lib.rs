@@ -166,7 +166,6 @@ impl Cli {
                 let Node::Article(article) = root else {
                     return None;
                 };
-                tracing::trace!("{:?}",article.options.identifiers.clone());
 
                 let Some(ids) = &article.options.identifiers else {
                     return None;
