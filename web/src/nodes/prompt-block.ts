@@ -312,6 +312,16 @@ export class PromptBlock extends Executable {
       }
     }
 
+    // Add a suffix icon to indicate that the prompt is inferred
+    const suffix = this.target?.endsWith('?')
+      ? html`<sl-tooltip
+          content="Prompt is being guessed from your current message"
+          placement="left"
+          slot="suffix"
+          ><stencila-ui-icon name="questionCircle"></stencila-ui-icon
+        ></sl-tooltip>`
+      : ''
+
     const style = css`
       &::part(combobox) {
         border-color: ${borderColour};
@@ -325,14 +335,16 @@ export class PromptBlock extends Executable {
       }
     `
 
-    return html`<sl-select
-      class="w-full ${style}"
-      size="small"
-      value=${target}
-      @sl-change=${(e: InputEvent) => this.onPromptChanged(e)}
-    >
-      ${options}
-    </sl-select>`
+    return html`<sl-tooltip content="Prompt to use" placement="top-start"
+      ><sl-select
+        class="w-full ${style}"
+        size="small"
+        value=${target}
+        @sl-change=${(e: InputEvent) => this.onPromptChanged(e)}
+      >
+        ${suffix} ${options}
+      </sl-select></sl-tooltip
+    >`
   }
 
   private renderShowHideContent() {
