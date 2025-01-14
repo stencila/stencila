@@ -78,6 +78,10 @@ pub struct Cli {
     #[arg(long, conflicts_with = "push")]
     pull: bool,
 
+    /// Set slug(URL slug the page or post will be avalible at)
+    #[arg(long,requires = "push")]
+    slug: Option<String>,
+
     /// Push as draft
     #[arg(
         long,
@@ -141,6 +145,7 @@ impl Cli {
                 let Node::Article(article) = root else {
                     return None;
                 };
+                tracing::trace!("{:?}",article.options.identifiers.clone());
 
                 let Some(ids) = &article.options.identifiers else {
                     return None;
@@ -719,6 +724,7 @@ struct Resource {
     featured: Option<bool>,
     codeinjection_head: Option<String>,
     codeinjection_foot: Option<String>,
+    slug: Option<String>,
 
     // fields for images & media
     /// URL field
@@ -773,6 +779,7 @@ impl Payload {
         featured: bool,
         codeinjection_head: Option<String>,
         codeinjection_foot: Option<String>,
+        slug: Option<String>,
     ) -> Result<Self> {
         // Get document title and other metadata
         // TODO: other metadata such as authors, excerpt (from abstract?)
@@ -817,7 +824,7 @@ impl Payload {
             .await?;
 
         let resource = Resource {
-            title: title.or_else(|| Some("Untitled".into())),
+            title: title.clone().or_else(|| Some("Untitled".into())),
             lexical: Some(lexical),
             updated_at,
             status,
@@ -826,6 +833,7 @@ impl Payload {
             featured: Some(featured),
             codeinjection_head,
             codeinjection_foot,
+            slug: slug.or_else(|| title),
             ..Default::default()
         };
 
