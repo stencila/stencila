@@ -79,7 +79,7 @@ pub struct Cli {
     pull: bool,
 
     /// Set slug(URL slug the page or post will be avalible at)
-    #[arg(long,requires = "push")]
+    #[arg(long, requires = "push")]
     slug: Option<String>,
 
     /// Push as draft
@@ -117,7 +117,7 @@ pub struct Cli {
     schedule: Option<DateTime<Utc>>,
 
     /// Tags for ghost page or post
-    #[arg(long = "tag", value_delimiter = ',', requires = "push")]
+    #[arg(long = "tag", requires = "push")]
     tags: Option<Vec<String>>,
 
     /// excerpt in ghost
@@ -766,12 +766,11 @@ struct Resource {
     reference: Option<String>,
 }
 
-
 #[derive(Debug, Default, Serialize, Deserialize)]
 #[serde(crate = "common::serde")]
-struct Tag{
+struct Tag {
     // TODO: can add description and so on from https://ghost.org/docs/admin-api/
-    name:String,
+    name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -813,7 +812,7 @@ impl Payload {
         codeinjection_head: Option<String>,
         codeinjection_foot: Option<String>,
         slug: Option<String>,
-        tags:Option<Vec<String>>,
+        tags: Option<Vec<String>>,
     ) -> Result<Self> {
         // Get document title and other metadata
         // TODO: other metadata such as authors, excerpt (from abstract?)
@@ -844,7 +843,6 @@ impl Payload {
         } else {
             excerpt
         };
-
 
         // Get tags from yaml header if it's Array of Strings
         let tags = if tags.is_none() {
@@ -898,7 +896,7 @@ impl Payload {
             codeinjection_head,
             codeinjection_foot,
             slug: slug.or_else(|| title),
-            tags: tags.map(|tag| tag.into_iter().map(|name| Tag{name,}).collect()),
+            tags: tags.map(|tag| tag.into_iter().map(|name| Tag { name }).collect()),
             ..Default::default()
         };
 
