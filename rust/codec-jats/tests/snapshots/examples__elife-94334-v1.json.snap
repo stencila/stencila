@@ -1,7 +1,6 @@
 ---
 source: rust/codec-jats/tests/examples.rs
 expression: article
-snapshot_kind: text
 ---
 {
   "type": "Article",
@@ -10758,8 +10757,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -10776,8 +10773,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -10794,8 +10789,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -10812,8 +10805,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -10830,8 +10821,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -10848,8 +10837,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -10872,8 +10859,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -10896,8 +10881,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -10931,8 +10914,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -10949,8 +10930,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -10967,8 +10946,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -10985,8 +10962,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11008,8 +10983,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11026,8 +10999,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11044,8 +11015,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11062,8 +11031,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11085,8 +11052,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11103,8 +11068,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11121,8 +11084,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11139,8 +11100,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11162,8 +11121,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11180,8 +11137,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11198,8 +11153,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11216,8 +11169,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11239,8 +11190,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11257,8 +11206,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11275,8 +11222,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11293,8 +11238,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11316,8 +11259,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11340,8 +11281,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11375,8 +11314,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11393,8 +11330,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11411,8 +11346,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11429,8 +11362,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11452,8 +11383,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11470,8 +11399,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11488,8 +11415,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11506,8 +11431,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11529,8 +11452,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11547,8 +11468,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11565,8 +11484,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11583,8 +11500,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11606,8 +11521,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11624,8 +11537,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11642,8 +11553,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11660,8 +11569,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11683,8 +11590,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11701,8 +11606,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11719,8 +11622,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11737,8 +11638,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11760,8 +11659,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11784,8 +11681,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11819,8 +11714,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11837,8 +11730,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11855,8 +11746,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11873,8 +11762,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11896,8 +11783,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11914,8 +11799,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11932,8 +11815,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11950,8 +11831,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11973,8 +11852,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -11991,8 +11868,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12009,8 +11884,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12027,8 +11900,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12050,8 +11921,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12068,8 +11937,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12086,8 +11953,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12104,8 +11969,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12127,8 +11990,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12145,8 +12006,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12163,8 +12022,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12181,8 +12038,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12204,8 +12059,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12228,8 +12081,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12263,8 +12114,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12281,8 +12130,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12299,8 +12146,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12317,8 +12162,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12340,8 +12183,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12358,8 +12199,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12376,8 +12215,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12394,8 +12231,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12417,8 +12252,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12435,8 +12268,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12453,8 +12284,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12471,8 +12300,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12494,8 +12321,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12518,8 +12343,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12553,8 +12376,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12571,8 +12392,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12589,8 +12408,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12607,8 +12424,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12630,8 +12445,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12648,8 +12461,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12666,8 +12477,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12684,8 +12493,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12707,8 +12514,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12725,8 +12530,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12743,8 +12546,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12761,8 +12562,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12784,8 +12583,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12802,8 +12599,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12820,8 +12615,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12838,8 +12631,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12861,8 +12652,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12879,8 +12668,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12897,8 +12684,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12915,8 +12700,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12938,8 +12721,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12962,8 +12743,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -12997,8 +12776,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13015,8 +12792,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13033,8 +12808,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13051,8 +12824,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13074,8 +12845,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13092,8 +12861,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13110,8 +12877,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13128,8 +12893,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13151,8 +12914,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13169,8 +12930,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13187,8 +12946,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13205,8 +12962,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13228,8 +12983,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13252,8 +13005,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13281,8 +13032,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13299,8 +13048,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13317,8 +13064,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13335,8 +13080,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13358,8 +13101,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13376,8 +13117,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13394,8 +13133,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13412,8 +13149,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13435,8 +13170,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13453,8 +13186,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13471,8 +13202,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13489,8 +13218,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13512,8 +13239,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13536,8 +13261,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13571,8 +13294,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13589,8 +13310,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13607,8 +13326,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13625,8 +13342,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13648,8 +13363,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13666,8 +13379,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13684,8 +13395,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13702,8 +13411,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13725,8 +13432,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13743,8 +13448,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13761,8 +13464,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13779,8 +13480,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13802,8 +13501,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13826,8 +13523,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13861,8 +13556,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13879,8 +13572,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13897,8 +13588,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13915,8 +13604,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13938,8 +13625,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13956,8 +13641,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13974,8 +13657,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -13992,8 +13673,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -14015,8 +13694,6 @@ snapshot_kind: text
                   "cells": [
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -14033,8 +13710,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignCharacter",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -14051,8 +13726,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
@@ -14069,8 +13742,6 @@ snapshot_kind: text
                     },
                     {
                       "type": "TableCell",
-                      "horizontalAlignment": "AlignLeft",
-                      "verticalAlignment": "AlignTop",
                       "content": [
                         {
                           "type": "Paragraph",
