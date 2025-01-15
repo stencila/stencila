@@ -158,6 +158,9 @@ fn preprocess_md(input: &str) -> String {
                     output.push_str("\n``````````\n\n");
                     continue;
                 }
+            } else if line == "<hr>" {
+                output.push_str("***\n\n");
+                continue;
             } else {
                 if line.starts_with("<div") {
                     html_tag = Some("div")
@@ -176,7 +179,7 @@ fn preprocess_md(input: &str) -> String {
             }
         }
 
-        /// See issue #2438 for why this is necessary.
+        // See issue #2438 for why this is necessary.
         if empty_line_needed && !line.is_empty() {
             output.push('\n');
         }
