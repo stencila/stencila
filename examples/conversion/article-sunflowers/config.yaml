@@ -6,11 +6,6 @@ dom.html:
 compact.jats.xml:
   canonical: true
 
-jats.xml:
-  decode:
-    # TODO: Enable when Cite nodes are supported
-    skip: true
-
 smd:
   decode:
     # TODO: Enable when Cite nodes are supported

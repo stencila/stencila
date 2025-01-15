@@ -17,17 +17,6 @@
     },
     {
       type: "Figure",
-      content: [
-        {
-          type: "Paragraph",
-          content: [
-            {
-              type: "ImageObject",
-              contentUrl: "https:\/\/example.org\/dog.jpg"
-            }
-          ]
-        }
-      ],
       label: "2",
       labelAutomatically: false,
       caption: [
@@ -40,6 +29,17 @@
             }
           ]
         }
+      ],
+      content: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "ImageObject",
+              contentUrl: "https:\/\/example.org\/dog.jpg"
+            }
+          ]
+        }
       ]
     },
     {
@@ -47,17 +47,6 @@
       content: [
         {
           type: "Figure",
-          content: [
-            {
-              type: "Paragraph",
-              content: [
-                {
-                  type: "ImageObject",
-                  contentUrl: "https:\/\/example.org\/mouse.jpg"
-                }
-              ]
-            }
-          ],
           caption: [
             {
               type: "Paragraph",
@@ -65,6 +54,17 @@
                 {
                   type: "Text",
                   value: { string: "A figure of a mouse inside a section." }
+                }
+              ]
+            }
+          ],
+          content: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "ImageObject",
+                  contentUrl: "https:\/\/example.org\/mouse.jpg"
                 }
               ]
             }

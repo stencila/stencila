@@ -15,6 +15,7 @@
     "@arethetypeswrong/cli": "0.17.2",
     "@cloudflare/workers-types": "4.20241230.0",
     "@eslint/js": "9.17.0",
+    "@prettier/plugin-xml": "3.4.1",
     "@types/benchmark": "2.1.5",
     "@types/jest": "29.5.14",
     "@types/node": "22.10.5",

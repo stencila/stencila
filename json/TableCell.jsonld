@@ -98,6 +98,42 @@
       }
     },
     {
+      "@id": "stencila:horizontalAlignment",
+      "@type": "rdfs:Property",
+      "rdfs:label": "horizontalAlignment",
+      "rdfs:comment": "The horizontal alignment of the content of a table cell.",
+      "schema:domainIncludes": {
+        "@id": "stencila:TableCell"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:HorizontalAlignment"
+      }
+    },
+    {
+      "@id": "stencila:horizontalAlignmentCharacter",
+      "@type": "rdfs:Property",
+      "rdfs:label": "horizontalAlignmentCharacter",
+      "rdfs:comment": "The character to be used in horizontal alignment of the content of a table cell.",
+      "schema:domainIncludes": {
+        "@id": "stencila:TableCell"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:verticalAlignment",
+      "@type": "rdfs:Property",
+      "rdfs:label": "verticalAlignment",
+      "rdfs:comment": "The vertical alignment of the content of a table cell.",
+      "schema:domainIncludes": {
+        "@id": "stencila:TableCell"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:VerticalAlignment"
+      }
+    },
+    {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",

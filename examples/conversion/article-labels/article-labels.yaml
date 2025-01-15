@@ -35,17 +35,17 @@ content:
     value:
       string: A figure, it should be labelled as Figure one.
 - type: Figure
-  content:
-  - type: Paragraph
-    content:
-    - type: ImageObject
-      contentUrl: https://placehold.co/300x200/orange/white
   caption:
   - type: Paragraph
     content:
     - type: Text
       value:
         string: Some white text on orange an background.
+  content:
+  - type: Paragraph
+    content:
+    - type: ImageObject
+      contentUrl: https://placehold.co/300x200/orange/white
 - type: Paragraph
   content:
   - type: Text
