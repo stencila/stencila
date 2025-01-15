@@ -175,7 +175,7 @@ fn paragraph_to_lexical(
     if let (1, Some(Inline::ImageObject(image))) =
         (paragraph.content.len(), paragraph.content.first())
     {
-        return image_to_lexical(&image, context);
+        return image_to_lexical(image, context);
     }
 
     let children = inlines_to_lexical(&paragraph.content, context);

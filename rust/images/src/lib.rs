@@ -187,7 +187,7 @@ pub fn file_uri_to_file(
     }
 
     // Copy the file to the images directory
-    copy(&src_path, &images_dir.join(&image_name))?;
+    copy(&src_path, images_dir.join(&image_name))?;
 
     Ok(image_name)
 }
