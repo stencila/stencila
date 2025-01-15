@@ -88,12 +88,23 @@ export class Paragraph extends Entity {
   }
 
   override render() {
+    // render just the content in on of the following conditions
     if (
       Paragraph.parentNodeTypesSubscribedTo.includes(this.parentNodeType) ||
       this.isWithin('StyledBlock') ||
       this.isWithinUserChatMessage()
     ) {
       return html`<slot name="content"></slot>`
+    }
+
+    // render with the `insert` chip in model chat response
+    if (this.isWithinModelChatMessage()) {
+      return html`
+        <div class="group relative">
+          ${this.renderInsertChip()}
+          <slot name="content"></slot>
+        </div>
+      `
     }
 
     return html`

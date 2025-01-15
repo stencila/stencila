@@ -1,16 +1,26 @@
 import '@shoelace-style/shoelace/dist/components/button/button.js'
 import SlPopup from '@shoelace-style/shoelace/dist/components/popup/popup.js'
 import { css } from '@twind/core'
-import { html } from 'lit'
+import { html, PropertyValues } from 'lit'
 import { customElement, query, state } from 'lit/decorators'
 
 import { insertClones } from '../../clients/commands'
+import { ChatMessage } from '../../nodes/chat-message'
 import { Entity } from '../../nodes/entity'
 import { withTwind } from '../../twind'
 
 import { UIBaseClass } from './mixins/ui-base-class'
 
-type SelectedNodeTuple = [string, string]
+type NodeTuple = [string, string]
+
+// type NodeEventDetails = {
+//   node: NodeTuple
+//   position: {
+//     x: number
+//     y: number
+//   }
+//   chatMessage: ChatMessage
+// }
 
 @customElement('stencila-ui-nodes-selected')
 @withTwind()
@@ -28,7 +38,12 @@ export class UINodesSelected extends UIBaseClass {
    * the popup changes.
    */
   @state()
-  private selectedNodes: SelectedNodeTuple[] = []
+  private selectedNodes: NodeTuple[] = []
+
+  /**
+   * The parent 'stencila-chat-message' element of the current selected nodes
+   */
+  private targetChatMessageElement: ChatMessage | null
 
   /**
    * The position of the anchor for the popup
@@ -41,10 +56,37 @@ export class UINodesSelected extends UIBaseClass {
   /**
    * reset the selected nodes and popup
    */
-  public reset() {
+  private reset() {
     this.selectedNodes = []
+    this.targetChatMessageElement = null
     this.anchorPosition = { x: 0, y: 0 }
   }
+
+  private resetSelectionClickHandler(event: Event) {
+    if (
+      this.selectedNodes.length &&
+      this.targetChatMessageElement &&
+      !this.targetChatMessageElement.contains(event.target as Element)
+    ) {
+      this.reset()
+    }
+  }
+
+  // private handleNodeHover(event: Event & { detail: NodeEventDetails }) {
+  //   if (!this.selectedNodes.length) {
+  //     const { node, position, chatMessage } = event.detail
+
+  //     this.hoveredNode = node
+  //     this.targetChatMessageElement = chatMessage
+  //     this.anchorPosition = position
+
+  //     chatMessage.addEventListener('mouseout', () => {
+  //       if (this.hoveredNode) {
+  //         this.reset()
+  //       }
+  //     })
+  //   }
+  // }
 
   /**
    * Checks the element is the right container for the selection functionality,
@@ -62,19 +104,37 @@ export class UINodesSelected extends UIBaseClass {
     )
   }
 
+  private getTargetChatMessage(element: Element) {
+    return element.closest('stencila-chat-message') as ChatMessage
+  }
+
   override connectedCallback() {
     super.connectedCallback()
     document.addEventListener(
       'selectionchange',
       this.handleSelectionChange.bind(this)
     )
+    // close the insert popup on the escape key
+    document.addEventListener('keydown', (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && this.popupElement.active) {
+        this.selectedNodes = []
+      }
+    })
+
+    window.addEventListener('click', this.resetSelectionClickHandler.bind(this))
   }
+
+  protected override firstUpdated(_changedProperties: PropertyValues): void {}
 
   override disconnectedCallback() {
     super.disconnectedCallback()
     document.removeEventListener(
       'selectionchange',
       this.handleSelectionChange.bind(this)
+    )
+    window.removeEventListener(
+      'click',
+      this.resetSelectionClickHandler.bind(this)
     )
   }
 
@@ -84,21 +144,22 @@ export class UINodesSelected extends UIBaseClass {
   handleSelectionChange() {
     const selection = window.getSelection()
 
-    if (!selection.rangeCount) {
+    if (!selection.rangeCount || selection.isCollapsed) {
       this.selectedNodes = []
       return
     }
 
-    // Get the common ancestor of the selected range
     const range = selection.getRangeAt(0)
 
-    let container =
+    // Get the common ancestor of the selected range
+    const rangeAncestor =
       range.commonAncestorContainer.nodeType == Node.TEXT_NODE
         ? range.commonAncestorContainer.parentElement
         : (range.commonAncestorContainer as Element)
 
     // Walk up out of the ancestor element until we get
     // to a node type that has block content
+    let container = rangeAncestor
     while (container && !this.isTargetContainer(container)) {
       container = container.parentElement
     }
@@ -108,8 +169,10 @@ export class UINodesSelected extends UIBaseClass {
       return
     }
 
+    this.targetChatMessageElement = this.getTargetChatMessage(container)
+
     // Get selected nodes from direct children
-    const selectedNodes: SelectedNodeTuple[] = []
+    const selectedNodes: NodeTuple[] = []
     const children = container.children
     for (const child of children) {
       if (range.intersectsNode(child) && child instanceof Entity && child.id) {
@@ -118,12 +181,12 @@ export class UINodesSelected extends UIBaseClass {
       }
     }
 
-    if (selectedNodes.length > 0) {
-      // Position anchor element near the selection
+    if (selectedNodes.length > 1) {
+      // Position anchor element on top of
       const rect = range.getBoundingClientRect()
       this.anchorPosition = {
-        x: rect.left,
-        y: rect.bottom,
+        x: rect.left + rect.width / 2,
+        y: rect.top,
       }
       this.popupElement.reposition()
     }
@@ -162,25 +225,25 @@ export class UINodesSelected extends UIBaseClass {
       <div
         id="stencila-nodes-selected-anchor"
         style="
-          position:fixed;
+          position:absolute;
           left:${this.anchorPosition.x}px;
           top:${this.anchorPosition.y}px"
       ></div>
 
       <sl-popup
         anchor="stencila-nodes-selected-anchor"
-        placement="bottom-start"
+        placement="top"
         distance="10"
-        ?active=${this.selectedNodes.length > 0}
-        strategy="fixed"
+        ?active=${this.selectedNodes.length > 1}
+        strategy="absolute"
         class=${popupStyles}
       >
         <div class="p-3 bg-brand-blue text-white font-sans text-sm rounded">
           <div class="flex justify-center mb-2">
-            <button class="flex flex-col items-center" @click=${this.insertIds}>
+            <button class="flex flex-row items-center" @click=${this.insertIds}>
               <stencila-ui-icon
                 name="boxArrowInLeft"
-                class="text-lg"
+                class="text-lg mr-1"
               ></stencila-ui-icon>
               Insert
             </button>

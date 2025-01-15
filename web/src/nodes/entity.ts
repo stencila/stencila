@@ -8,6 +8,9 @@ import { DocumentAccess, DocumentView, NodeId } from '../types'
 import { EntityContext, entityContext } from '../ui/nodes/entity-context'
 import { closestGlobally } from '../utilities/closestGlobally'
 
+import '../ui/nodes/node-insert'
+import { apply } from '@twind/core'
+
 /**
  * Abstract base class for web components representing Stencila Schema `Entity` node types
  *
@@ -63,6 +66,11 @@ export abstract class Entity extends LitElement {
   protected parentNodeType: NodeType
 
   /**
+   * An element property to be used if the Enity requires a tooltip
+   */
+  protected tooltipElement: Element | null = null
+
+  /**
    * The Id of a child node that is/or contains,
    * a currently selected node in the sourceView
    */
@@ -115,12 +123,23 @@ export abstract class Entity extends LitElement {
   }
 
   /**
-   * Whether the node is within a chat message
+   * Whether the node is within a user chat message
    */
   protected isWithinUserChatMessage() {
     return (
       this.isWithin('ChatMessage') &&
       this.closestGlobally('stencila-chat-message[message-role="User"]') !==
+        null
+    )
+  }
+
+  /**
+   *  Whether the node is within a model chat message
+   */
+  protected isWithinModelChatMessage() {
+    return (
+      this.isWithin('ChatMessage') &&
+      this.closestGlobally('stencila-chat-message[message-role="Model"]') !==
         null
     )
   }
@@ -167,5 +186,35 @@ export abstract class Entity extends LitElement {
 
   override render() {
     return html`<slot></slot>`
+  }
+
+  /**
+   * Renders the chip control for the particular entity
+   *
+   * To use correctly this must be inside a non-static positioned element
+   * with the `"group"` utitly class applied.
+   *
+   * eg:
+   *  ```
+   *  <div class="group relative">
+   *    ${this.renderInsertChip()}
+   *    <slot></slot>
+   *  </div>
+   *  ```
+   */
+  protected renderInsertChip() {
+    const classes = apply([
+      'absolute -left-[40px] top-0',
+      'opacity-0 group-hover:opacity-100',
+    ])
+
+    const nodeTuple = [this.nodeName, this.id]
+
+    return html`
+      <div class="${classes}">
+        <stencila-ui-node-insert .selectedNodes=${[nodeTuple]}>
+        </stencila-ui-node-insert>
+      </div>
+    `
   }
 }

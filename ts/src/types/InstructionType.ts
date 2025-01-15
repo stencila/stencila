@@ -3,9 +3,10 @@
  * The type of an instruction describing the operation to be performed.
  */
 export type InstructionType =
+  'Discuss' |
   'Create' |
+  'Describe' |
   'Edit' |
-  'Fix' |
-  'Describe';
+  'Fix';
 
 

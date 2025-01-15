@@ -689,6 +689,9 @@ pub(super) async fn execute_command(
             let instruction_type = args
                 .next()
                 .and_then(|value| serde_json::from_value(value).ok());
+            let prompt = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok());
             let execute_chat: bool = args
                 .next()
                 .and_then(|value| serde_json::from_value(value).ok())
@@ -735,7 +738,7 @@ pub(super) async fn execute_command(
                 let instruction_type = if instruction_type.is_some() {
                     instruction_type
                 } else if node_types.is_empty() {
-                    Some(InstructionType::Create)
+                    None
                 } else if let (1, Some(NodeType::CodeChunk | NodeType::MathBlock)) =
                     (node_types.len(), node_types.first())
                 {
@@ -805,6 +808,7 @@ pub(super) async fn execute_command(
                     prompt: PromptBlock {
                         instruction_type,
                         node_types,
+                        target: prompt,
                         ..Default::default()
                     },
                     is_temporary: Some(true),
@@ -855,31 +859,21 @@ pub(super) async fn execute_command(
             // factored out into a command or patch op.
 
             let doc = doc.write().await;
-            return doc
-                .mutate(move |root| {
-                    if let Node::Article(Article {
-                        temporary: Some(temporary),
-                        ..
-                    }) = root
-                    {
-                        tracing::debug!("Deleting temporary chat {node_id}");
+            doc.mutate(move |root| {
+                if let Node::Article(Article {
+                    temporary: Some(temporary),
+                    ..
+                }) = root
+                {
+                    tracing::debug!("Deleting temporary chat {node_id}");
 
-                        let len_before = temporary.len();
-                        let node_id = Some(node_id.clone());
-                        temporary.retain(|node| node.node_id() != node_id);
+                    let node_id = Some(node_id.clone());
+                    temporary.retain(|node| node.node_id() != node_id);
+                }
+            })
+            .await;
 
-                        if temporary.len() == len_before {
-                            Err(invalid_request(format!(
-                                "Chat with id not found in temporaries: {node_id:?}"
-                            )))
-                        } else {
-                            Ok(None)
-                        }
-                    } else {
-                        Err(invalid_request("Root node is not an article"))
-                    }
-                })
-                .await;
+            return Ok(None);
         }
         SAVE_DOC => (
             "Saving document with sidecar".to_string(),
