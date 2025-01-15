@@ -195,7 +195,7 @@ impl Cli {
                 }
 
                 // need to do some gymnastics to get back into async land from a closure
-                let new_url = tokio::task::block_in_place(move || {
+                tokio::task::block_in_place(move || {
                     let rt = tokio::runtime::Handle::current();
                     
                     // upload files one at a time to prevent overloading the server
@@ -207,9 +207,7 @@ impl Cli {
                             file_name.to_string()
                         }
                     })
-                });
-
-                new_url
+                })
             },
         );
 
