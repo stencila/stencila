@@ -142,7 +142,7 @@ fn decode_article_id(path: &str, node: &Node, article: &mut Article, losses: &mu
     }
 }
 
-/// Decode an `<title-group>` element
+/// Decode a `<title-group>` element
 fn decode_title_group(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     record_attrs_lost(path, node, [], losses);
 
@@ -228,7 +228,7 @@ fn decode_date(path: &str, node: &Node, article: &mut Article, losses: &mut Loss
     }
 }
 
-/// Decode an `<volume>` element
+/// Decode a `<volume>` element
 fn decode_volume(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     record_attrs_lost(path, node, [], losses);
 
@@ -244,7 +244,7 @@ fn decode_volume(path: &str, node: &Node, article: &mut Article, losses: &mut Lo
     }
 }
 
-/// Decode an `<funding-group>` element
+/// Decode a `<funding-group>` element
 fn decode_funding_group(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     record_attrs_lost(path, node, [], losses);
 
@@ -264,7 +264,7 @@ fn decode_funding_group(path: &str, node: &Node, article: &mut Article, losses: 
     article.options.funders = Some(funders);
 }
 
-/// Decode an `<funding-source>` element
+/// Decode a `<funding-source>` element
 fn decode_funding_source(path: &str, node: &Node, losses: &mut Losses) -> PersonOrOrganization {
     record_attrs_lost(path, node, [], losses);
 
@@ -292,7 +292,7 @@ fn decode_funding_source(path: &str, node: &Node, losses: &mut Losses) -> Person
     })
 }
 
-/// Decode an `<contrib-group>` element
+/// Decode a `<contrib-group>` element
 fn decode_contrib_group(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     record_attrs_lost(path, node, [], losses);
 
@@ -309,7 +309,7 @@ fn decode_contrib_group(path: &str, node: &Node, article: &mut Article, losses: 
     }
 }
 
-/// Decode an `<contrib-id>, <email> and <name>` elements
+/// Decode `<contrib-id>, <email> and <name>` elements
 fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> Author {
     record_attrs_lost(path, node, [], losses);
 
@@ -367,7 +367,7 @@ fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> Author {
     })
 }
 
-/// Decode an `<journal-meta>` tag to properties on an [`Article`]
+/// Decode a `<journal-meta>` tag to properties on an [`Article`]
 fn decode_journal_meta(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     for child in node.children() {
         let tag = child.tag_name().name();
@@ -379,7 +379,7 @@ fn decode_journal_meta(path: &str, node: &Node, article: &mut Article, losses: &
     }
 }
 
-/// Decode an `<publisher>` element
+/// Decode a `<publisher>` element
 fn decode_publisher(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     record_attrs_lost(path, node, [], losses);
 
@@ -394,7 +394,7 @@ fn decode_publisher(path: &str, node: &Node, article: &mut Article, losses: &mut
     }));
 }
 
-/// Decode an `<kwd-group>` element
+/// Decode a `<kwd-group>` element
 fn decode_kwd_group(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     record_attrs_lost(path, node, [], losses);
 
@@ -411,7 +411,7 @@ fn decode_kwd_group(path: &str, node: &Node, article: &mut Article, losses: &mut
     }
 }
 
-/// Decode an `<kwd>` element
+/// Decode a `<kwd>` element
 fn decode_kwd(path: &str, node: &Node, losses: &mut Losses) -> String {
     record_attrs_lost(path, node, [], losses);
 
@@ -420,9 +420,12 @@ fn decode_kwd(path: &str, node: &Node, losses: &mut Losses) -> String {
     for child in node.children() {
         if node.text().is_none() {
             keyword.push_str(&decode_kwd(path, &child, losses))
-        } else if !child.text().unwrap().trim().is_empty() {
-            keyword.push_str(child.text().unwrap())
+        } else if let Some(text) = child.text() {
+            if !text.trim().is_empty() {
+                keyword.push_str(text)
+            }
         }
     }
+
     keyword
 }
