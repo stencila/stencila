@@ -50,6 +50,7 @@ pub(super) enum InlineNode {
     Text(TextNode),
     ExtendedText(ExtendedTextNode),
     Link(LinkNode),
+    LineBreak(LineBreakNode),
     HashTag(HashTagNode),
     Unknown(UnknownNode),
 }
@@ -133,6 +134,11 @@ pub(super) struct ListNode {
     pub start: u32,
 
     pub children: Vec<ListItemNode>,
+}
+
+#[derive(Default, Serialize, Deserialize)]
+pub(super) struct LineBreakNode{
+    pub r#type: MustBe!("linebreak"),
 }
 
 #[derive(Default, Serialize, Deserialize)]

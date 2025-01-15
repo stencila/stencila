@@ -334,6 +334,19 @@
                 "text": "List item 1",
                 "type": "extended-text",
                 "version": 1
+              },
+              {
+              "type": "linebreak",
+              "version": 1
+              },
+              {
+                "detail": 0,
+                "format": 0,
+                "mode": "normal",
+                "style": "",
+                "text": "  This is a paragraph under the bullet",
+                "type": "extended-text",
+                "version": 1
               }
             ],
             "direction": "ltr",

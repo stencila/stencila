@@ -282,6 +282,17 @@ snapshot_kind: text
                   }
                 }
               ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "  This is a paragraph under the bullet"
+                  }
+                }
+              ]
             }
           ]
         },

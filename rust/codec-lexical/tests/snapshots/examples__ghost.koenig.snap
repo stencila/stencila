@@ -199,6 +199,14 @@ snapshot_kind: text
                 "type": "extended-text",
                 "format": 0,
                 "text": "List item 1"
+              },
+              {
+                "type": "linebreak"
+              },
+              {
+                "type": "extended-text",
+                "format": 0,
+                "text": "  This is a paragraph under the bullet"
               }
             ]
           },

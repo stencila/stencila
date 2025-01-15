@@ -195,7 +195,34 @@ fn list_from_lexical(list: lexical::ListNode, context: &mut LexicalDecodeContext
     let items = list
         .children
         .into_iter()
-        .map(|child| ListItem::new(vec![p(inlines_from_lexical(child.children, context))]))
+        .map(|child| {
+            ListItem::new(
+                child
+                    .children
+                    .into_iter()
+                    .fold(Vec::new(), |mut inlines, inline| { // split on linebreaks
+                        match inline {
+                            lexical::InlineNode::LineBreak(..) => {
+                                inlines.push(Vec::new());
+                            }
+                            _ => {
+                                if inlines.is_empty() {
+                                    inlines.push(Vec::new());
+                                }
+                                match inlines.last_mut(){
+                                    Some(vec) => vec.push(inline),
+                                    None => inlines.push(Vec::new()),
+                                };
+                            }
+                        }
+                        inlines
+                    })
+                    .into_iter()
+                    .map(|inlines| p(inlines_from_lexical(inlines, context))) 
+                    // wrap each split in a paragraph
+                    .collect(),
+            )
+        })
         .collect();
 
     let order = match list.list_type {
@@ -233,7 +260,22 @@ fn list_item_to_lexical(
     list_item: &ListItem,
     context: &mut LexicalEncodeContext,
 ) -> lexical::ListItemNode {
-    let children = inlines_to_lexical(&blocks_to_inlines(list_item.content.clone()), context);
+    let mut children = Vec::new();
+
+    for (i, paragraph) in list_item.content.clone().into_iter().enumerate() {
+        if i != 0 {
+            children.push(vec![lexical::InlineNode::LineBreak(
+                lexical::LineBreakNode {
+                    ..Default::default()
+                },
+            )]);
+        }
+        children.push(inlines_to_lexical(
+            &blocks_to_inlines(vec![paragraph]),
+            context,
+        ));
+    }
+    let children = children.into_iter().flatten().collect();
 
     lexical::ListItemNode {
         children,
