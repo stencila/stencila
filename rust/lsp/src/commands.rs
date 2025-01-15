@@ -855,34 +855,21 @@ pub(super) async fn execute_command(
             // factored out into a command or patch op.
 
             let doc = doc.write().await;
-            return doc
-                .mutate(move |root| {
-                    if let Node::Article(Article {
-                        temporary: Some(temporary),
-                        ..
-                    }) = root
-                    {
-                        tracing::debug!("Deleting temporary chat {node_id}");
+            doc.mutate(move |root| {
+                if let Node::Article(Article {
+                    temporary: Some(temporary),
+                    ..
+                }) = root
+                {
+                    tracing::debug!("Deleting temporary chat {node_id}");
 
-                        let len_before = temporary.len();
-                        let node_id = Some(node_id.clone());
-                        temporary.retain(|node| node.node_id() != node_id);
+                    let node_id = Some(node_id.clone());
+                    temporary.retain(|node| node.node_id() != node_id);
+                }
+            })
+            .await;
 
-                let len_before = temporary.len();
-                let node_id = Some(node_id);
-                temporary.retain(|node| node.node_id() != node_id);
-
-                return if temporary.len() == len_before {
-                    Err(invalid_request(format!(
-                        "Chat with id not found in temporaries: {node_id:?}"
-                    )))
-                } else {
-                    Ok(None)
-                };
-            } else {
-                tracing::warn!("Root node is not an article");
-                return Ok(None);
-            }
+            return Ok(None);
         }
         SAVE_DOC => (
             "Saving document with sidecar".to_string(),
