@@ -387,7 +387,10 @@ nodeTypes: []
 
       const chatId = await vscode.commands.executeCommand<string>(
         "stencila.create-chat",
-        editor.document.uri.toString()
+        editor.document.uri.toString(),
+        null,
+        null,
+        "stencila/discuss/document"
       );
 
       const panel = await createNodeViewPanel(
@@ -415,7 +418,7 @@ nodeTypes: []
   context.subscriptions.push(
     vscode.commands.registerCommand(
       `stencila.insert-chat`,
-      async (instructionType, executeChat) => {
+      async (instructionType, prompt, executeChat) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
           vscode.window.showErrorMessage("No active editor");
@@ -433,6 +436,7 @@ nodeTypes: []
           editor.document.uri.toString(),
           editor.selection,
           instructionType,
+          prompt,
           executeChat ?? true
         );
 
@@ -461,6 +465,7 @@ nodeTypes: []
       await vscode.commands.executeCommand(
         "stencila.insert-chat",
         "Create",
+        undefined,
         false
       );
     })
@@ -472,6 +477,7 @@ nodeTypes: []
       await vscode.commands.executeCommand(
         "stencila.insert-chat",
         "Edit",
+        undefined,
         false
       );
     })
@@ -483,6 +489,7 @@ nodeTypes: []
       await vscode.commands.executeCommand(
         "stencila.insert-chat",
         "Fix",
+        undefined,
         false
       );
     })

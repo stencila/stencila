@@ -689,6 +689,9 @@ pub(super) async fn execute_command(
             let instruction_type = args
                 .next()
                 .and_then(|value| serde_json::from_value(value).ok());
+            let prompt = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok());
             let execute_chat: bool = args
                 .next()
                 .and_then(|value| serde_json::from_value(value).ok())
@@ -735,7 +738,7 @@ pub(super) async fn execute_command(
                 let instruction_type = if instruction_type.is_some() {
                     instruction_type
                 } else if node_types.is_empty() {
-                    Some(InstructionType::Create)
+                    None
                 } else if let (1, Some(NodeType::CodeChunk | NodeType::MathBlock)) =
                     (node_types.len(), node_types.first())
                 {
@@ -805,6 +808,7 @@ pub(super) async fn execute_command(
                     prompt: PromptBlock {
                         instruction_type,
                         node_types,
+                        target: prompt,
                         ..Default::default()
                     },
                     is_temporary: Some(true),
