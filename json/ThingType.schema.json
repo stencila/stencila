@@ -45,9 +45,6 @@
       "$ref": "Grant.schema.json"
     },
     {
-      "$ref": "HorizontalAlignment.schema.json"
-    },
-    {
       "$ref": "ImageObject.schema.json"
     },
     {

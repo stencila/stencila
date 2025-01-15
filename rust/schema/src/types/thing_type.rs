@@ -16,7 +16,6 @@ use super::defined_term::DefinedTerm;
 use super::enumeration::Enumeration;
 use super::figure::Figure;
 use super::grant::Grant;
-use super::horizontal_alignment::HorizontalAlignment;
 use super::image_object::ImageObject;
 use super::list_item::ListItem;
 use super::media_object::MediaObject;
@@ -68,8 +67,6 @@ pub enum ThingType {
     Figure(Figure),
 
     Grant(Grant),
-
-    HorizontalAlignment(HorizontalAlignment),
 
     ImageObject(ImageObject),
 

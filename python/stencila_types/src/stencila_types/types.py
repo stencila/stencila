@@ -3518,7 +3518,6 @@ ThingType = Union[
     Enumeration,
     Figure,
     Grant,
-    HorizontalAlignment,
     ImageObject,
     ListItem,
     MediaObject,
