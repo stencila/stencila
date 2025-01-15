@@ -462,6 +462,9 @@
           "ipynb"
         ]
       },
+      "jats": {
+        "attr": "label-type"
+      },
       "proptest": {
         "min": {
           "description": "No label type",
@@ -486,6 +489,9 @@
           "qmd",
           "ipynb"
         ]
+      },
+      "jats": {
+        "elem": "label"
       },
       "proptest": {
         "min": {
@@ -519,6 +525,9 @@
           "qmd"
         ]
       },
+      "jats": {
+        "attr": "label-automatically"
+      },
       "type": "boolean"
     },
     "caption": {
@@ -536,6 +545,9 @@
       "walk": true,
       "dom": {
         "elem": "div"
+      },
+      "jats": {
+        "elem": "caption"
       },
       "proptest": {
         "min": {

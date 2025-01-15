@@ -1,13 +1,14 @@
 <div align="center">
   <img src="docs/images/stencila.png" alt="Stencila" width=300>
 </div>
+
 <br>
 
-<p align="center">
+<div align="center">
 	<strong>Documents with Scientific Intelligence</strong>
-</p>
+</div>
 
-<p align="center">
+<div align="center">
   <a href="#-introduction">
     👋 Intro
   </a> •
@@ -23,8 +24,9 @@
   <a href="#%EF%B8%8F-develop">
     🛠️ Develop
   </a>
-</p>
-<p align="center">
+</div>
+
+<div align="center">
   <a href="#-acknowledgements">
     🙏 Acknowledgements
   </a> •
@@ -34,7 +36,8 @@
   <a href="#-contributors">
     🙌 Contributors
   </a>
-</p>
+</div>
+
 <br>
 
 <div align="center">
@@ -60,6 +63,7 @@
     <img src="https://img.shields.io/npm/v/%40stencila%2Ftypes.svg?logo=npm&label=%40stencila%2Ftypes&style=for-the-badge&color=1d3bd1&logoColor=66ff66&labelColor=3219a8">
   </a>
 </div>
+
 <br>
 
 ## 👋 Introduction
@@ -165,7 +169,7 @@ Kernels are what executes the code in Stencila `CodeChunk`s and `CodeExpression`
 | Style                                                                      | Transpile [Tailwind]() and CSS for styling                 | 🔶 Beta                                                                          |
 | HTTP                                                                       | Interact with RESTful APIs                                 | ❔ Maybe; [`v1`](https://github.com/stencila/stencila/tree/v1/rust/kernel-http)  |
 
-> [TIP]
+> [!TIP]
 > Run `stencila kernels` (or `cargo run -p cli kernels` in development) for an up to date list of kernels, including those available through plugins.
 
 ### Tools
@@ -406,15 +410,17 @@ Stencila is built on the shoulders of many open source projects. Our sincere tha
 
 We wouldn’t be doing this without the support of these forward looking organizations.
 
-<p align="center"><a href="https://astera.org/"><img src="docs/images/astera.png" height="70"></img></a><p>
-<p align="center"><a href="https://sloan.org/"><img src="docs/images/sloan.png" height="70"></img></a><p>
-<p align="center"><a href="https://elifesciences.org/"><img src="docs/images/elife.svg" height="70"></img></a><p>
-<p align="center"><a href="https://nlnet.nl/"><img src="docs/images/nlnet.svg" height="70"></img></a><p>
-<p align="center"><a href="https://coko.foundation/"><img src="docs/images/coko.png" height="70"></img></a><p>
-<p align="center"><a href="https://www.codeforsociety.org/"><img src="docs/images/css.png" height="70"></img></a><p>
-<p align="center"><a href="https://www.callaghaninnovation.govt.nz/"><img src="docs/images/callaghan.png" height="70"></img></a><p>
-<p align="center"><a href="https://www.mbie.govt.nz"><img src="docs/images/mbie.jpeg" height="70"></img></a><p>
-<p align="center"><a href="https://volcanica/"><img src="docs/images/volcanica.png" height="70"></img></a><p>
+<div>
+  <p align="center"><a href="https://astera.org/"><img src="docs/images/astera.png" height="70"></img></a><p>
+  <p align="center"><a href="https://sloan.org/"><img src="docs/images/sloan.png" height="70"></img></a><p>
+  <p align="center"><a href="https://elifesciences.org/"><img src="docs/images/elife.svg" height="70"></img></a><p>
+  <p align="center"><a href="https://nlnet.nl/"><img src="docs/images/nlnet.svg" height="70"></img></a><p>
+  <p align="center"><a href="https://coko.foundation/"><img src="docs/images/coko.png" height="70"></img></a><p>
+  <p align="center"><a href="https://www.codeforsociety.org/"><img src="docs/images/css.png" height="70"></img></a><p>
+  <p align="center"><a href="https://www.callaghaninnovation.govt.nz/"><img src="docs/images/callaghan.png" height="70"></img></a><p>
+  <p align="center"><a href="https://www.mbie.govt.nz"><img src="docs/images/mbie.jpeg" height="70"></img></a><p>
+  <p align="center"><a href="https://volcanica/"><img src="docs/images/volcanica.png" height="70"></img></a><p>
+</div>
 
 ## 🙌 Contributors
 

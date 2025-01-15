@@ -8,10 +8,19 @@
     <p>With language and execution mode:</p>
     <code executable="yes" language="js">// Javascript</code>
     <p>With label:</p>
-    <code executable="yes"># Chunk 1A</code>
+    <code executable="yes" label-automatically="false"># Chunk 1A<label>1A</label>
+    </code>
     <p>Code figure with caption:</p>
-    <code executable="yes" language="r">plot(y~x)</code>
+    <code executable="yes" language="r" label-type="FigureLabel" label-automatically="false">plot(y~x)<label>1</label>
+      <caption>
+        <p>Y against X.</p>
+      </caption>
+    </code>
     <p>Code table with caption:</p>
-    <code executable="yes" language="r">head(mtcars)</code>
+    <code executable="yes" language="r" label-type="TableLabel" label-automatically="false">head(mtcars)<label>1</label>
+      <caption>
+        <p>Some cars.</p>
+      </caption>
+    </code>
   </body>
 </article>
