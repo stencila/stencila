@@ -641,27 +641,6 @@ impl Payload {
         // and rewrite their URLs to be their URLs on the Ghost server
         let root = doc.root().await;
 
-        // //let temp_dir = tempfile::tempdir()?;
-        // //let media_dir = temp_dir.path();
-        // // TODO: Use temp dir; this local media dir just for testing
-        // let media_dir = PathBuf::from("media");
-        // if media_dir.exists() {
-        //     remove_dir_all(&media_dir).await?;
-        // }
-        // node_media::extract_media(
-        //     &mut root,
-        //     doc.directory(),
-        //     &media_dir,
-        //     |_old_url, file_name| {
-        //         // Construct a new URL for the media file
-        //         // TODO: make this what it should be
-        //         format!("images/{file_name}")
-        //     },
-        // );
-
-        // // TODO: Upload images to Ghost. This should check that files don't already
-        // // exist on the server
-
         // Dump root node to a Lexical (Ghost's Dialect) string
         let lexical = codecs::to_string(
             &root,
