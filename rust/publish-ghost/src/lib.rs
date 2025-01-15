@@ -212,7 +212,7 @@ impl Cli {
         );
 
         // Construct the POST payload
-        let payload: Payload = Payload::from_doc(resource_type, &doc, None).await?;
+        let payload = Payload::from_doc(resource_type, &doc, None).await?;
 
         // Return early if this is just a dry run
         if self.dry_run {
