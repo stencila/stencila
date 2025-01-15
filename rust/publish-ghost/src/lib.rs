@@ -1,5 +1,5 @@
 use std::{
-    path::PathBuf,
+    path::{Path, PathBuf},
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -9,14 +9,12 @@ use url::Host;
 use common::{
     clap::{self, Parser},
     eyre::{bail, eyre, Context, OptionExt, Result},
-    reqwest::{Client, Response, StatusCode},
+    reqwest::{multipart::Form, Client, Response, StatusCode},
     serde::{Deserialize, Serialize},
     serde_json,
     serde_with::skip_serializing_none,
     strum::Display,
-    tempfile,
-    tokio::fs::remove_dir_all,
-    tracing,
+    tempfile, tokio, tracing,
 };
 use document::{
     codecs,
@@ -147,7 +145,7 @@ impl Cli {
     }
 
     /// Create a post or page by POSTing it to the Ghost API
-    #[tracing::instrument(skip(doc))]
+    #[tracing::instrument(skip(self, doc))]
     async fn create(&self, doc: Document) -> Result<()> {
         let Some(host) = &self.ghost else {
             bail!("File does not have an identifier for Ghost so the ---ghost option must be provided");
@@ -167,52 +165,11 @@ impl Cli {
             bail!("Please use either the --post or --page flag");
         };
 
-        // Generate JWT for request(s)
+        // Generate JWT for request
         let token = generate_jwt(&self.key).context("generating JWT")?;
 
-        let mut root = doc.root().await;
-
-        //let temp_dir = tempfile::tempdir()?;
-        //let media_dir = temp_dir.path();
-        // TODO: Use temp dir; this local media dir just for testing
-        let media_dir = PathBuf::from("media");
-        if media_dir.exists() {
-            remove_dir_all(&media_dir).await?;
-        }
-
-        node_media::extract_media(
-            &mut root,
-            doc.directory(),
-            &media_dir,
-            |old_url, file_name| {
-                tracing::info!(old = ?old_url, file_name = ?file_name, "rewriting URL");
-                if old_url.contains(&host) {
-                    return old_url.to_string();
-                }
-                
-                if self.dry_run {
-                    return file_name.to_string();
-                }
-
-                // need to do some gymnastics to get back into async land from a closure
-                tokio::task::block_in_place(move || {
-                    let rt = tokio::runtime::Handle::current();
-                    
-                    // upload files one at a time to prevent overloading the server
-                    rt.block_on(async move {
-                        tracing::info!("Uploading image {file_name}");
-                        if let Ok(Resource {url: Some(url), ..}) = self.post_image(file_name).await {
-                            url
-                        } else {
-                            file_name.to_string()
-                        }
-                    })
-                })
-            },
-        );
-
         // Construct the POST payload
-        let payload = Payload::from_doc(resource_type, &doc, None).await?;
+        let payload = self.payload(resource_type, &doc, None).await?;
 
         // Return early if this is just a dry run
         if self.dry_run {
@@ -266,46 +223,6 @@ impl Cli {
         Ok(())
     }
 
-    #[tracing::instrument]
-    async fn post_image(&self, image_path: &str) -> Result<Resource> {
-        let Some(ref host) = self.ghost else {
-            bail!("Provide the hostname of the Ghost instance with --ghost");
-        };
-        let url: String = format!("https://{host}/ghost/api/admin/images/upload");
-        tracing::trace!("Uploading image {image_path}");
-        let token = generate_jwt(&self.key).context("generating JWT")?;
-
-        // ensure that only the file name is provided to Ghost
-        let image_path = std::path::Path::new(image_path);
-        let Some(file_name) = image_path.file_name() else {
-            bail!("image_path must be to a file");
-        };
-        let file_name = file_name.to_string_lossy().into_owned();
-
-        let form = reqwest::multipart::Form::new()
-            .file("file", &image_path).await.context("reading {image_url}")?
-            .text("ref", file_name);
-
-        if self.dry_run {
-            return Ok(Resource { url: Some("#".to_string()), ..Default::default()});
-        }
-
-        let response = Client::new()
-            .post(url)
-            .header("Authorization", format!("Ghost {token}"))
-            .multipart(form)
-            .send()
-            .await?;
-        tracing::debug!(resp = ?response, "Image upload response");
-
-        if let StatusCode::CREATED = response.status() {
-            let mut payload: Payload = response.json().await?;
-            Ok(payload.resource()?)
-        } else {
-            error_for_response::<Resource>(response).await
-        }
-    }
-
     /// Update a Ghost post or page from local file
     #[tracing::instrument(skip(doc))]
     async fn put(&self, doc: Document, doc_url: String) -> Result<()> {
@@ -345,7 +262,7 @@ impl Cli {
         let Resource { updated_at, .. } = payload.resource()?;
 
         // Construct the PUT payload with the latest `updated_at`
-        let payload = Payload::from_doc(resource_type, &doc, updated_at).await?;
+        let payload = self.payload(resource_type, &doc, updated_at).await?;
 
         // Send the request
         let response = Client::new()
@@ -364,6 +281,55 @@ impl Cli {
             Ok(())
         } else {
             error_for_response(response).await
+        }
+    }
+
+    /// Post an image and return the image `Resource`
+    ///
+    /// This is used when creating and updating posts or pages.
+    #[tracing::instrument]
+    async fn post_image(&self, image_path: &Path) -> Result<Resource> {
+        let Some(ref host) = self.ghost else {
+            bail!("Provide the hostname of the Ghost instance with --ghost");
+        };
+
+        // Ensure that only the file name is provided to Ghost as a ref
+        let Some(file_name) = image_path.file_name() else {
+            bail!("image_path must be to a file");
+        };
+        let file_name = file_name.to_string_lossy().into_owned();
+
+        tracing::info!("Uploading image `{file_name}` to Ghost",);
+
+        let form = Form::new()
+            .file("file", image_path)
+            .await
+            .context(format!("reading {}", image_path.display()))?
+            .text("ref", file_name);
+
+        if self.dry_run {
+            return Ok(Resource {
+                url: Some("#".to_string()),
+                ..Default::default()
+            });
+        }
+
+        // TODO: Generating token for each image (and then for payload) seems wasteful. Can we cache?
+        let token = generate_jwt(&self.key).context("generating JWT")?;
+
+        let response = Client::new()
+            .post(format!("https://{host}/ghost/api/admin/images/upload"))
+            .header("Authorization", format!("Ghost {token}"))
+            .multipart(form)
+            .send()
+            .await?;
+        tracing::debug!(resp = ?response, "Image upload response");
+
+        if let StatusCode::CREATED = response.status() {
+            let mut payload: Payload = response.json().await?;
+            Ok(payload.resource()?)
+        } else {
+            error_for_response::<Resource>(response).await
         }
     }
 
@@ -429,6 +395,105 @@ impl Cli {
         );
 
         Ok(())
+    }
+
+    /// Create a payload for a [`ResourceType`] from a document
+    async fn payload(
+        &self,
+        resource_type: ResourceType,
+        doc: &Document,
+        updated_at: Option<String>,
+    ) -> Result<Payload> {
+        // Get document title and other metadata
+        // TODO: other metadata such as authors, excerpt (from abstract?)
+        // could be obtained in a similar way and returned from this function
+        let (title,) = doc
+            .inspect(|root: &Node| {
+                let mut title = None;
+
+                if let Node::Article(article) = root {
+                    if let Some(inlines) = &article.title {
+                        title = Some(codec_text::to_text(inlines));
+                    }
+                }
+
+                (title,)
+            })
+            .await;
+
+        // Get the root node of the document
+        let mut root = doc.root().await;
+
+        // Temporary directory to extract media files into before uploading
+        let temp_dir = tempfile::tempdir()?;
+        let media_dir = temp_dir.path();
+
+        // Extract images (and other media in the future) and upload to Ghost
+        // and rewrite their URLs to be their URLs on the Ghost server
+        node_media::extract_media(
+            &mut root,
+            doc.directory(),
+            &media_dir,
+            |old_url, file_name| {
+                tracing::debug!(old = ?old_url, file_name = ?file_name, "rewriting URL");
+
+                // If  dry run or if it looks like this is already a Ghost URL, do not do
+                // change the URL
+                if self.dry_run && old_url.contains("/ghost/api/admin/") {
+                    return old_url.to_string();
+                }
+
+                let image_path = media_dir.join(file_name);
+
+                // need to do some gymnastics to get back into async land from a closure
+                tokio::task::block_in_place(move || {
+                    let rt = tokio::runtime::Handle::current();
+
+                    // upload files one at a time to prevent overloading the server
+                    rt.block_on(async move {
+                        match self.post_image(&image_path).await {
+                            Ok(Resource { url: Some(url), .. }) => url,
+                            Ok(_) => {
+                                tracing::error!("Did not get URL for image");
+                                file_name.into()
+                            }
+                            Err(error) => {
+                                tracing::error!("While uploading {file_name}: {error}");
+                                file_name.into()
+                            }
+                        }
+                    })
+                })
+            },
+        );
+
+        // Dump root node to a Lexical (Ghost's Dialect) string.
+        // Important: this version of the root node has rewritten URLs
+        let lexical = codecs::to_string(
+            &root,
+            Some(EncodeOptions {
+                format: Some(Format::Koenig),
+                // TODO: The option for "just one big HTML card" so go here
+                standalone: Some(false),
+                ..Default::default()
+            }),
+        )
+        .await?;
+
+        let resource = Resource {
+            title: title.or_else(|| Some("Untitled".into())),
+            lexical: Some(lexical),
+            updated_at,
+            ..Default::default()
+        };
+
+        let payload = match resource_type {
+            ResourceType::Post => Payload::Posts(vec![resource]),
+            ResourceType::Page => Payload::Pages(vec![resource]),
+            ResourceType::Image => Payload::Images(vec![resource]),
+        };
+
+        Ok(payload)
     }
 }
 
@@ -573,13 +638,13 @@ struct Resource {
     updated_at: Option<String>, // Required for updating
 
     // fields for images & media
-
     /// URL field
-    /// 
+    ///
     /// Used by Ghost to refer User-Agents to the correct place to GET the content.
     url: Option<String>, // Required for images & media
+
     /// Reference field
-    /// 
+    ///
     /// Used by Stencila to point to the original file. Used to determine whether the file
     /// needs to be stored on disk and/or uploaded. `None` indicates that an image was uploaded
     /// directly into Ghost.
@@ -614,61 +679,6 @@ enum Payload {
 }
 
 impl Payload {
-    /// Create a payload from a document
-    async fn from_doc(
-        resource_type: ResourceType,
-        doc: &Document,
-        updated_at: Option<String>,
-    ) -> Result<Self> {
-        // Get document title and other metadata
-        // TODO: other metadata such as authors, excerpt (from abstract?)
-        // could be obtained in a similar way and returned from this function
-        let (title,) = doc
-            .inspect(|root: &Node| {
-                let mut title = None;
-
-                if let Node::Article(article) = root {
-                    if let Some(inlines) = &article.title {
-                        title = Some(codec_text::to_text(inlines));
-                    }
-                }
-
-                (title,)
-            })
-            .await;
-
-        // Get the root node of the document, extract images (and other media in the future)
-        // and rewrite their URLs to be their URLs on the Ghost server
-        let root = doc.root().await;
-
-        // Dump root node to a Lexical (Ghost's Dialect) string
-        let lexical = codecs::to_string(
-            &root,
-            Some(EncodeOptions {
-                format: Some(Format::Koenig),
-                // TODO: The option for "just one big HTML card" so go here
-                standalone: Some(false),
-                ..Default::default()
-            }),
-        )
-        .await?;
-
-        let resource = Resource {
-            title: title.or_else(|| Some("Untitled".into())),
-            lexical: Some(lexical),
-            updated_at,
-            ..Default::default()
-        };
-
-        let payload =  match resource_type {
-            ResourceType::Post => Payload::Posts(vec![resource]),
-            ResourceType::Page => Payload::Pages(vec![resource]),
-            ResourceType::Image => Payload::Images(vec![resource]),
-        };
-
-        Ok(payload)
-    }
-
     /// Get the first resource from a payload
     ///
     /// Used when GETing from the API to extract the content from within the nested JSON
