@@ -8,6 +8,7 @@ codec-text = { "path" = "../codec-text" }
 common = { "path" = "../common" }
 document = { path = "../document" }
 jsonwebtoken = { version = "9.3.0", default-features = false }
+node-media = { "path" = "../node-media" }
 secrets = { "path" = "../secrets" }
 url = "2.5.4"
 
