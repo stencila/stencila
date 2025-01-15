@@ -326,27 +326,36 @@ export class PromptBlock extends Executable {
       }
     }
 
-    // Add a prefix icon to indicate that the prompt is inferred
-    const prefix = this.target?.endsWith('?')
+    const prefix = this.parentNodeIs('Chat')
       ? html`<sl-tooltip
-          content="Prompt is guessed from message"
+          content="Prompt used for chat"
           placement="right"
           slot="prefix"
           ><stencila-ui-icon
             class="text-lg text-[${textColour}] mr-2"
-            name="questionCircle"
+            name="cardText"
           ></stencila-ui-icon
         ></sl-tooltip>`
-      : html`<sl-tooltip
-          content="Guess prompt from message"
-          placement="right"
-          slot="prefix"
-          ><stencila-ui-icon-button
-            class="text-lg text-[${textColour}] mr-2"
-            name="dashCircle"
-            @click=${this.onPromptCleared}
-          ></stencila-ui-icon-button
-        ></sl-tooltip>`
+      : this.target?.endsWith('?')
+        ? html`<sl-tooltip
+            content="Prompt is guessed from message"
+            placement="right"
+            slot="prefix"
+            ><stencila-ui-icon
+              class="text-lg text-[${textColour}] mr-2"
+              name="questionCircle"
+            ></stencila-ui-icon
+          ></sl-tooltip>`
+        : html`<sl-tooltip
+            content="Guess prompt from message"
+            placement="right"
+            slot="prefix"
+            ><stencila-ui-icon-button
+              class="text-lg text-[${textColour}] mr-2"
+              name="dashCircle"
+              @click=${this.onPromptCleared}
+            ></stencila-ui-icon-button
+          ></sl-tooltip>`
 
     const style = css`
       &::part(combobox) {
