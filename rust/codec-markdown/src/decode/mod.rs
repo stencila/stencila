@@ -142,13 +142,41 @@ fn decode_inlines(md: &str, context: &mut Context) -> Vec<Inline> {
 }
 
 /// Preprocess Markdown
-///
-/// See issue #2438 for why this is necessary.
 fn preprocess_md(input: &str) -> String {
     let mut output = String::new();
 
     let mut empty_line_needed = false;
+    let mut html_tag = None;
     for line in input.lines() {
+        // Wrap certain top level HTML tags in `RawBlock`s
+        if line.starts_with("<") && line.ends_with(">") {
+            if let Some(tag) = html_tag {
+                if line.starts_with(&["</", tag].concat()) {
+                    html_tag = None;
+
+                    output.push_str(line);
+                    output.push_str("\n``````````\n\n");
+                    continue;
+                }
+            } else {
+                if line.starts_with("<div") {
+                    html_tag = Some("div")
+                } else if line.starts_with("<table") {
+                    html_tag = Some("table")
+                } else if line.starts_with("<details") {
+                    html_tag = Some("details")
+                }
+
+                if html_tag.is_some() {
+                    output.push_str("``````````html raw\n");
+                    output.push_str(line);
+                    output.push('\n');
+                    continue;
+                }
+            }
+        }
+
+        /// See issue #2438 for why this is necessary.
         if empty_line_needed && !line.is_empty() {
             output.push('\n');
         }
