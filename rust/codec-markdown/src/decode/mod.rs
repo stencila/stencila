@@ -142,13 +142,41 @@ fn decode_inlines(md: &str, context: &mut Context) -> Vec<Inline> {
 }
 
 /// Preprocess Markdown
-///
-/// See issue #2438 for why this is necessary.
 fn preprocess_md(input: &str) -> String {
     let mut output = String::new();
 
     let mut empty_line_needed = false;
+    let mut html_tag = None;
     for line in input.lines() {
+        // Wrap certain top level HTML tags in `RawBlock`s
+        if line.starts_with("<") && line.ends_with(">") {
+            if let Some(tag) = html_tag {
+                if line.starts_with(&["</", tag].concat()) {
+                    html_tag = None;
+
+                    output.push_str(line);
+                    output.push_str("\n``````````\n\n");
+                    continue;
+                }
+            } else {
+                if line.starts_with("<div") {
+                    html_tag = Some("div")
+                } else if line.starts_with("<table") {
+                    html_tag = Some("table")
+                } else if line.starts_with("<details") {
+                    html_tag = Some("details")
+                }
+
+                if html_tag.is_some() {
+                    output.push_str("``````````html raw\n");
+                    output.push_str(line);
+                    output.push('\n');
+                    continue;
+                }
+            }
+        }
+
+        /// See issue #2438 for why this is necessary.
         if empty_line_needed && !line.is_empty() {
             output.push('\n');
         }
@@ -253,6 +281,9 @@ fn parse_options() -> ParseOptions {
     let mut options = ParseOptions::gfm();
     options.constructs.frontmatter = true;
 
+    // Enable block math
+    options.constructs.math_flow = true;
+
     // Do not parse inline code since we have a custom parser for that
     options.constructs.code_text = false;
 
@@ -264,8 +295,9 @@ fn parse_options() -> ParseOptions {
     // Do not parse GFM single strikethrough since we use that for subscripts
     options.constructs.gfm_strikethrough = false;
 
-    // Enable block math
-    options.constructs.math_flow = true;
+    // Do not parse GFM autolinks because this interferes with our parsing
+    // of <a> and <img> HTML tags. Instead we implement that separately.
+    options.constructs.gfm_autolink_literal = false;
 
     // Do not handle embedded HTML, instead parse manually
     options.constructs.html_text = false;
@@ -426,7 +458,7 @@ impl Context {
             (None, None)
         };
 
-        // Prompts require a title and the above stanza remove it, so add a placeholder
+        // Prompts require a title but the above stanza removes it, so add a placeholder
         // (replaced below) to ensure value gets deserialized as a prompt
         if let Some("Prompt") = value.get("type").and_then(|typ| typ.as_str()) {
             value["title"] = json!([]);

@@ -1,5 +1,6 @@
 use std::{collections::HashMap, ops::Range};
 
+use codec_text_trait::to_text;
 use markdown::{mdast, unist::Position};
 use winnow::{
     ascii::{multispace0, multispace1, space0},
@@ -25,7 +26,7 @@ use codec::{
 
 use super::{
     shared::{
-        attrs, instruction_type, name, node_to_from_str, node_to_option_date,
+        attrs, attrs_list, instruction_type, name, node_to_from_str, node_to_option_date,
         node_to_option_datetime, node_to_option_duration, node_to_option_i64,
         node_to_option_number, node_to_option_time, node_to_option_timestamp, node_to_string,
         prompt, take_until_unbalanced,
@@ -323,9 +324,9 @@ pub(super) fn inlines(input: &str) -> Vec<(Inline, Range<usize>)> {
             subscript,
             superscript,
             underline,
-            instruction_inline,
-            suggestion_inline,
+            html,
             // Nested in another alt to avoid going over max size of tuple
+            alt((instruction_inline, suggestion_inline)),
             alt((insert_inline, delete_inline, replace_inline)),
             alt((edit_with, edit_end)),
             string,
@@ -792,28 +793,49 @@ fn styled_inline(input: &mut Located<&str>) -> PResult<Inline> {
 
 /// Parse a string into a `Strikeout` node
 fn strikeout(input: &mut Located<&str>) -> PResult<Inline> {
-    delimited("~~", take_until(0.., "~~"), "~~")
-        .map(|content: &str| Inline::Strikeout(Strikeout::new(inlines_only(content))))
-        .parse_next(input)
+    alt((
+        delimited("~~", take_until(0.., "~~"), "~~"),
+        delimited("<s>", take_until(0.., "</s>"), "</s>"),
+        delimited("<del>", take_until(0.., "</del>"), "</del>"),
+    ))
+    .map(|content: &str| Inline::Strikeout(Strikeout::new(inlines_only(content))))
+    .parse_next(input)
 }
 
 /// Parse a string into a `Subscript` node
 fn subscript(input: &mut Located<&str>) -> PResult<Inline> {
-    delimited(
-        // Only match single tilde, because doubles are for `Strikeout`
-        ('~', peek(not('~'))),
-        take_until(1.., '~'),
-        '~',
-    )
+    alt((
+        delimited(
+            // Only match single tilde, because doubles are for `Strikeout`
+            ('~', peek(not('~'))),
+            take_until(1.., '~'),
+            '~',
+        ),
+        delimited("<sub>", take_until(0.., "</sub>"), "</sub>"),
+    ))
     .map(|content: &str| Inline::Subscript(Subscript::new(inlines_only(content))))
     .parse_next(input)
 }
 
 /// Parse a string into a `Superscript` node
 fn superscript(input: &mut Located<&str>) -> PResult<Inline> {
-    delimited('^', take_until(0.., '^'), '^')
-        .map(|content: &str| Inline::Superscript(Superscript::new(inlines_only(content))))
-        .parse_next(input)
+    alt((
+        delimited('^', take_until(0.., '^'), '^'),
+        delimited("<sup>", take_until(0.., "</sup>"), "</sup>"),
+    ))
+    .map(|content: &str| Inline::Superscript(Superscript::new(inlines_only(content))))
+    .parse_next(input)
+}
+
+/// Nest HTML tag only parsers under a peek for performance (avoids trying each one in the input does not start with <)
+fn html(input: &mut Located<&str>) -> PResult<Inline> {
+    preceded(
+        peek("<"),
+        alt((
+            quote, underline, emphasis, strong, code, image, link, html_tag,
+        )),
+    )
+    .parse_next(input)
 }
 
 /// Parse <q> tags into a `QuoteInline` node
@@ -828,6 +850,93 @@ fn underline(input: &mut Located<&str>) -> PResult<Inline> {
     delimited("<u>", take_until(0.., "</u>"), "</u>")
         .map(|content: &str| Inline::Underline(Underline::new(inlines_only(content))))
         .parse_next(input)
+}
+
+/// Parse <em> tags into a `Emphasis` node
+fn emphasis(input: &mut Located<&str>) -> PResult<Inline> {
+    delimited("<em>", take_until(0.., "</em>"), "</em>")
+        .map(|content: &str| Inline::Emphasis(Emphasis::new(inlines_only(content))))
+        .parse_next(input)
+}
+
+/// Parse <strong> tags into a `Strong` node
+fn strong(input: &mut Located<&str>) -> PResult<Inline> {
+    delimited("<strong>", take_until(0.., "</strong>"), "</strong>")
+        .map(|content: &str| Inline::Strong(Strong::new(inlines_only(content))))
+        .parse_next(input)
+}
+
+/// Parse <code> tags into a `CodeInline` node
+fn code(input: &mut Located<&str>) -> PResult<Inline> {
+    delimited("<code>", take_until(0.., "</code>"), "</code>")
+        .map(|code: &str| Inline::CodeInline(CodeInline::new(code.into())))
+        .parse_next(input)
+}
+
+/// Parse <img> tags into a `Image` node
+fn image(input: &mut Located<&str>) -> PResult<Inline> {
+    delimited("<img ", attrs_list, ">")
+        .map(|attrs| {
+            let mut content_url = String::new();
+            let mut title = None;
+            for (key, value) in attrs {
+                if key == "src" {
+                    content_url = to_text(&value);
+                } else if key == "title" {
+                    title = Some(inlines_only(&to_text(&value)));
+                }
+            }
+
+            Inline::ImageObject(ImageObject {
+                content_url,
+                title,
+                ..Default::default()
+            })
+        })
+        .parse_next(input)
+}
+
+/// Parse <a> tags into a `Link` node
+fn link(input: &mut Located<&str>) -> PResult<Inline> {
+    delimited(
+        "<a ",
+        (terminated(attrs_list, ">"), take_until(0.., "</a>")),
+        "</a>",
+    )
+    .map(|(attrs, content)| {
+        let mut target = String::new();
+        let mut title = None;
+        for (key, value) in attrs {
+            if key == "href" {
+                target = to_text(&value);
+            } else if key == "title" {
+                title = Some(to_text(&value));
+            }
+        }
+
+        Inline::Link(Link {
+            target,
+            title,
+            content: inlines_only(content),
+            ..Default::default()
+        })
+    })
+    .parse_next(input)
+}
+
+/// Ignore other inline HTML start and end tags. The content between them will still be parsed elsewhere
+/// so this does not try to balance them
+fn html_tag(input: &mut Located<&str>) -> PResult<Inline> {
+    alt((
+        delimited(
+            "</",
+            take_while(1.., |c: char| c.is_ascii_alphabetic()),
+            ">",
+        ),
+        delimited("<", take_while(1.., |c: char| c != '>'), ">"),
+    ))
+    .map(|_| Inline::Text(Text::from("")))
+    .parse_next(input)
 }
 
 /// Parse a string into a `InstructionInline` node
