@@ -603,7 +603,7 @@ impl Cli {
             lexical: Some(lexical),
             status,
             updated_at,
-            published_at: self.schedule.clone(),
+            published_at: self.schedule,
             featured: Some(self.featured),
             codeinjection_head: self.inject_code_header.clone(),
             codeinjection_foot: self.inject_code_footer.clone(),
