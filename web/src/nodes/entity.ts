@@ -1,6 +1,6 @@
 import { provide } from '@lit/context'
 import { NodeType } from '@stencila/types'
-import { apply } from '@twind/core'
+import { apply, css } from '@twind/core'
 import { html, LitElement } from 'lit'
 import { property, state } from 'lit/decorators'
 
@@ -206,12 +206,17 @@ export abstract class Entity extends LitElement {
     const classes = apply([
       'absolute -left-[40px] top-0',
       'opacity-0 group-hover:opacity-100',
+      'transition-opacity duration-300',
     ])
+
+    const styles = css`
+      box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+    `
 
     const nodeTuple = [this.nodeName, this.id]
 
     return html`
-      <div class="${classes}">
+      <div class="${classes} ${styles}">
         <stencila-ui-node-insert .selectedNodes=${[nodeTuple]}>
         </stencila-ui-node-insert>
       </div>

@@ -4,23 +4,15 @@ import { css } from '@twind/core'
 import { html, PropertyValues } from 'lit'
 import { customElement, query, state } from 'lit/decorators'
 
-import { insertClones } from '../../clients/commands'
 import { ChatMessage } from '../../nodes/chat-message'
 import { Entity } from '../../nodes/entity'
 import { withTwind } from '../../twind'
 
 import { UIBaseClass } from './mixins/ui-base-class'
 
-type NodeTuple = [string, string]
+import './node-insert'
 
-// type NodeEventDetails = {
-//   node: NodeTuple
-//   position: {
-//     x: number
-//     y: number
-//   }
-//   chatMessage: ChatMessage
-// }
+type NodeTuple = [string, string]
 
 @customElement('stencila-ui-nodes-selected')
 @withTwind()
@@ -72,22 +64,6 @@ export class UINodesSelected extends UIBaseClass {
     }
   }
 
-  // private handleNodeHover(event: Event & { detail: NodeEventDetails }) {
-  //   if (!this.selectedNodes.length) {
-  //     const { node, position, chatMessage } = event.detail
-
-  //     this.hoveredNode = node
-  //     this.targetChatMessageElement = chatMessage
-  //     this.anchorPosition = position
-
-  //     chatMessage.addEventListener('mouseout', () => {
-  //       if (this.hoveredNode) {
-  //         this.reset()
-  //       }
-  //     })
-  //   }
-  // }
-
   /**
    * Checks the element is the right container for the selection functionality,
    *
@@ -121,7 +97,7 @@ export class UINodesSelected extends UIBaseClass {
       }
     })
 
-    window.addEventListener('click', this.resetSelectionClickHandler.bind(this))
+    // window.addEventListener('click', this.resetSelectionClickHandler.bind(this))
   }
 
   protected override firstUpdated(_changedProperties: PropertyValues): void {}
@@ -152,14 +128,13 @@ export class UINodesSelected extends UIBaseClass {
     const range = selection.getRangeAt(0)
 
     // Get the common ancestor of the selected range
-    const rangeAncestor =
+    let container =
       range.commonAncestorContainer.nodeType == Node.TEXT_NODE
         ? range.commonAncestorContainer.parentElement
         : (range.commonAncestorContainer as Element)
 
     // Walk up out of the ancestor element until we get
     // to a node type that has block content
-    let container = rangeAncestor
     while (container && !this.isTargetContainer(container)) {
       container = container.parentElement
     }
@@ -182,38 +157,26 @@ export class UINodesSelected extends UIBaseClass {
     }
 
     if (selectedNodes.length > 1) {
-      // Position anchor element on top of
+      // Position anchor element on top
       const rect = range.getBoundingClientRect()
       this.anchorPosition = {
         x: rect.left + rect.width / 2,
         y: rect.top,
       }
       this.popupElement.reposition()
+      this.selectedNodes = selectedNodes
     }
-
-    this.selectedNodes = selectedNodes
   }
 
-  async insertIds() {
-    // Send command to insert nodes into document
-    const ids = this.selectedNodes.map(([_, id]) => id)
-    this.dispatchEvent(insertClones(ids))
-
-    // Clear selection after successful insertion
-    window.getSelection().removeAllRanges()
-
-    // Clear the selected nodes so popup is hidden
-    this.selectedNodes = []
+  /**
+   * Handle the `stencla-node-insert` element's @sl-remove event.
+   */
+  private handleTagRemove(id: string) {
+    const updatedSelection = this.selectedNodes.filter((node) => node[1] !== id)
+    this.selectedNodes = updatedSelection
   }
 
   override render() {
-    const tagStyles = css`
-      &::part(base) {
-        display: flex;
-        justify-content: space-between;
-      }
-    `
-
     const popupStyles = css`
       &::part(popup) {
         z-index: 20;
@@ -234,39 +197,16 @@ export class UINodesSelected extends UIBaseClass {
         anchor="stencila-nodes-selected-anchor"
         placement="top"
         distance="10"
-        ?active=${this.selectedNodes.length > 1}
+        ?active=${this.selectedNodes.length > 0}
         strategy="absolute"
         class=${popupStyles}
       >
-        <div class="p-3 bg-brand-blue text-white font-sans text-sm rounded">
-          <div class="flex justify-center mb-2">
-            <button class="flex flex-row items-center" @click=${this.insertIds}>
-              <stencila-ui-icon
-                name="boxArrowInLeft"
-                class="text-lg mr-1"
-              ></stencila-ui-icon>
-              Insert
-            </button>
-          </div>
-          <div class="flex flex-col gap-y-2">
-            ${this.selectedNodes.map(
-              ([type, nodeId]) => html`
-                <sl-tag
-                  size="small"
-                  class=${tagStyles}
-                  removable
-                  @sl-remove=${() => {
-                    this.selectedNodes = this.selectedNodes.filter(
-                      ([_, id]) => id !== nodeId
-                    )
-                  }}
-                >
-                  ${type}
-                </sl-tag>
-              `
-            )}
-          </div>
-        </div>
+        <stencila-ui-node-insert
+          .selectedNodes=${this.selectedNodes}
+          size="large"
+          .handleTagRemove=${this.handleTagRemove.bind(this)}
+        >
+        </stencila-ui-node-insert>
       </sl-popup>
     `
   }
