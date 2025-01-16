@@ -42,15 +42,6 @@ export class List extends Entity {
         node-id=${this.id}
         depth=${this.depth}
       >
-        <div slot="header-right">
-          <stencila-ui-node-chat-commands
-            type="List"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-chat-commands>
-        </div>
-
         <div slot="body">
           <stencila-ui-node-authors type="List">
             <stencila-ui-node-provenance slot="provenance">

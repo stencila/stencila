@@ -56,13 +56,6 @@ export class IfBlock extends Executable {
         ?noVisibleContent=${!this.hasClauses}
       >
         <div slot="header-right">
-          <stencila-ui-node-chat-commands
-            type="IfBlock"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-chat-commands>
-
           <stencila-ui-node-execution-commands
             type="IfBlock"
             node-id=${this.id}

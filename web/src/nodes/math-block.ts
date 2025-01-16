@@ -38,15 +38,6 @@ export class MathBlock extends Math {
         node-id=${this.id}
         depth=${this.depth}
       >
-        <div slot="header-right">
-          <stencila-ui-node-chat-commands
-            type="MathBlock"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-chat-commands>
-        </div>
-
         <div slot="body">
           <stencila-ui-node-authors type="MathBlock">
             <stencila-ui-node-provenance slot="provenance">

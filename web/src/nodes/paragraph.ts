@@ -113,15 +113,6 @@ export class Paragraph extends Entity {
         node-id=${this.id}
         depth=${this.depth}
       >
-        <div slot="header-right">
-          <stencila-ui-node-chat-commands
-            type="Paragraph"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-chat-commands>
-        </div>
-
         <div slot="body">
           <stencila-ui-node-authors type="Paragraph">
             <stencila-ui-node-provenance slot="provenance">

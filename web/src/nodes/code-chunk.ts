@@ -77,13 +77,6 @@ export class CodeChunk extends CodeExecutable {
       ?noVisibleContent=${!this.hasOutputs}
     >
       <span slot="header-right" class="flex flex-row items-center gap-3">
-        <stencila-ui-node-chat-commands
-          type="CodeChunk"
-          node-id=${this.id}
-          depth=${this.depth}
-        >
-        </stencila-ui-node-chat-commands>
-
         <stencila-ui-node-execution-commands
           type="CodeChunk"
           node-id=${this.id}

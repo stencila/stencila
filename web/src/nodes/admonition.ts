@@ -88,15 +88,6 @@ export class Admonition extends Entity {
         node-id=${this.id}
         depth=${this.depth}
       >
-        <div slot="header-right">
-          <stencila-ui-node-chat-commands
-            type="Admonition"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-chat-commands>
-        </div>
-
         <div slot="body">
           <stencila-ui-node-authors type="Admonition">
             <stencila-ui-node-provenance slot="provenance">

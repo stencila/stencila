@@ -45,15 +45,6 @@ export class CodeBlock extends CodeStatic {
         header-icon=${icon}
         header-title=${title}
       >
-        <div slot="header-right">
-          <stencila-ui-node-chat-commands
-            type="CodeBlock"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-chat-commands>
-        </div>
-
         <div slot="body">
           <stencila-ui-node-authors type="CodeBlock">
             <stencila-ui-node-provenance slot="provenance">
