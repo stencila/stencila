@@ -269,7 +269,7 @@ export class Chat extends Executable {
           >
             <div slot="start" class="h-full overflow-y-hidden flex flex-col">
               <div class="flex-grow overflow-y-hidden">
-                <div class="h-full overflow-scroll">
+                <div class="h-full overflow-auto">
                   <div class="px-3 pb-6">
                     <slot
                       name="content"
@@ -304,7 +304,7 @@ export class Chat extends Executable {
               </div>
             </div>
 
-            <div slot="end" class="h-full overflow-scroll px-1 py-2">
+            <div slot="end" class="h-full overflow-auto px-1 py-2">
               <slot
                 name="suggestions"
                 @slotchange=${this.onSuggestionsSlotChange}
