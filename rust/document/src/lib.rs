@@ -38,7 +38,7 @@ mod task_command;
 mod task_update;
 
 // Re-exports for convenience of consuming crates
-pub use codecs::{DecodeOptions, EncodeOptions, Format, LossesResponse};
+pub use codecs::{self, DecodeOptions, EncodeOptions, Format, LossesResponse};
 pub use schema;
 pub use sync_dom::DomPatch;
 
@@ -586,6 +586,14 @@ impl Document {
     /// Get the path of the document
     pub fn path(&self) -> Option<&Path> {
         self.path.as_deref()
+    }
+
+    /// Get the parent directory of the document
+    pub fn directory(&self) -> &Path {
+        self.path
+            .as_ref()
+            .and_then(|path| path.parent())
+            .unwrap_or_else(|| self.home.as_ref())
     }
 
     /// Get the file name of the document

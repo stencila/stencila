@@ -4074,6 +4074,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "node-media"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "images",
+ "schema",
+]
+
+[[package]]
 name = "node-patch-derive"
 version = "0.0.0"
 dependencies = [
@@ -5028,6 +5037,7 @@ dependencies = [
  "common",
  "document",
  "jsonwebtoken",
+ "node-media",
  "secrets",
  "url",
 ]

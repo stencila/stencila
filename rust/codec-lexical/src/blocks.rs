@@ -171,6 +171,13 @@ fn paragraph_to_lexical(
     paragraph: &Paragraph,
     context: &mut LexicalEncodeContext,
 ) -> lexical::BlockNode {
+    // If the paragraph only has an image, then create a Lexical image, rather than a paragraph
+    if let (1, Some(Inline::ImageObject(image))) =
+        (paragraph.content.len(), paragraph.content.first())
+    {
+        return image_to_lexical(image, context);
+    }
+
     let children = inlines_to_lexical(&paragraph.content, context);
 
     lexical::BlockNode::Paragraph(lexical::ParagraphNode {
