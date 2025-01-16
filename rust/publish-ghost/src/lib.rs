@@ -79,47 +79,53 @@ pub struct Cli {
     #[arg(long, conflicts_with = "push")]
     pull: bool,
 
-    /// Push as draft
+    #[rustfmt::skip]
+    // The following options are applicable only to pushes.
+    // Using `conflicts_with = "pull"` for these is better than
+    // using `requires = "push"` because with the latter the user
+    // always has to enter `--push` even though it is the default.
+
+    /// Mark page or post as draft
     #[arg(
         long,
         group = "publish_type",
-        requires = "push",
+        conflicts_with = "pull",
         default_value_t = true
     )]
     draft: bool,
 
     /// Publish page or post
-    #[arg(long, group = "publish_type", requires = "push")]
+    #[arg(long, group = "publish_type", conflicts_with = "pull")]
     publish: bool,
 
     /// Schedule page or post
-    #[arg(long, group = "publish_type", requires = "push")]
+    #[arg(long, group = "publish_type", conflicts_with = "pull")]
     schedule: Option<DateTime<Utc>>,
 
     /// Set slug(URL slug the page or post will be available at)
-    #[arg(long, requires = "push")]
+    #[arg(long, conflicts_with = "pull")]
     slug: Option<String>,
 
     /// Tags for page or post
-    #[arg(long = "tag", requires = "push")]
+    #[arg(long = "tag", conflicts_with = "pull")]
     tags: Option<Vec<String>>,
 
     /// Excerpt for page or post
     ///
     /// Defaults to the article description
-    #[arg(long, requires = "push")]
+    #[arg(long, conflicts_with = "pull")]
     excerpt: Option<String>,
 
     /// Feature post or page
-    #[arg(long, requires = "push")]
+    #[arg(long, conflicts_with = "pull")]
     featured: bool,
 
     /// Inject HTML header
-    #[arg(long, requires = "push")]
+    #[arg(long, conflicts_with = "pull")]
     inject_code_header: Option<String>,
 
     /// Inject HTML footer
-    #[arg(long, requires = "push")]
+    #[arg(long, conflicts_with = "pull")]
     inject_code_footer: Option<String>,
 
     /// Dry run test
