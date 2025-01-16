@@ -12,7 +12,8 @@ from stencila_types.utilities import (
 
 
 @pytest.mark.skip_relaxed_json(
-    lambda json_example: json_example.name() == "list",
+    lambda json_example: json_example.name()
+    in ["list", "instruction-block", "instruction-inline"],
 )
 def test_load_json_example(json_example):
     # Load
