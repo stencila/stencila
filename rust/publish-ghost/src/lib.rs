@@ -496,7 +496,7 @@ impl Cli {
                 None
             })
             .await
-        }else{
+        } else {
             self.title.clone()
         };
 
