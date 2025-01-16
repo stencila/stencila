@@ -119,7 +119,7 @@ export class ChatMessageGroup extends Entity {
   }
 
   renderModelTab(model: ModelData, index: number) {
-    const [provider, name] = model.id.trim().split('/') ?? []
+    const [provider, _name] = model.id.trim().split('/') ?? []
 
     let icon = iconMaybe(model.id.toLowerCase())
 
@@ -140,19 +140,31 @@ export class ChatMessageGroup extends Entity {
     const style = twindCss`
       box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
     `
+    const providerTitle =
+      provider === 'openai'
+        ? 'OpenAi'
+        : `${provider.charAt(0).toUpperCase()}${provider.slice(1)}`
 
     const isCurrent = this.selectedMessage === index
 
     return html`
       <button
-        class="flex items-center rounded-sm p-2 ${isCurrent
+        class="flex items-center font-sans rounded-sm p-2 ${isCurrent
           ? 'text-brand-blue'
           : 'text-gray-500'} ${style}"
         @click=${() => this.setSelected(index)}
       >
         <stencila-ui-icon name=${icon} class="text-2xl"></stencila-ui-icon>
-        <span class="text-sm ml-1">${name}</span>
+        <div class="flex flex-col justify-center ml-2">
+          <span class="text-xs leading-5">${providerTitle} ${model.name}</span>
+          <span class="text-2xs text-left inline-block leading-none">
+            ${model.version ?? '1.0.1'}
+          </span>
+        </div>
       </button>
     `
   }
 }
+
+// <stencila-ui-icon name=${icon} class="text-2xl"></stencila-ui-icon>
+// <span class="text-sm ml-1">${name}</span>
