@@ -10,6 +10,7 @@ use common::{
     chrono::{DateTime, Utc},
     clap::{self, Parser},
     eyre::{bail, eyre, Context, OptionExt, Result},
+    itertools::Itertools,
     reqwest::{multipart::Form, Client, Response, StatusCode},
     serde::{Deserialize, Serialize},
     serde_json,
@@ -19,7 +20,7 @@ use common::{
 };
 use document::{
     codecs,
-    schema::{shortcuts::t, Node, PropertyValueOrString},
+    schema::{shortcuts::t, Node, Primitive, PropertyValueOrString},
     CommandWait, DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
 };
 
@@ -78,10 +79,6 @@ pub struct Cli {
     #[arg(long, conflicts_with = "push")]
     pull: bool,
 
-    /// Set slug(URL slug the page or post will be avalible at)
-    #[arg(long, requires = "push")]
-    slug: Option<String>,
-
     /// Push as draft
     #[arg(
         long,
@@ -91,56 +88,43 @@ pub struct Cli {
     )]
     draft: bool,
 
-    /// Publish pushed, page or post
+    /// Publish page or post
     #[arg(long, group = "publish_type", requires = "push")]
     publish: bool,
 
-    /// Set slug(URL slug the page or post will be avalible at)
-    #[arg(long,requires = "push")]
-    slug: Option<String>,
-
-    /// Push as draft
-    #[arg(
-        long,
-        group = "publish_type",
-        requires = "push",
-        default_value_t = true
-    )]
-    draft: bool,
-
-    /// Publish pushed, page or post
-    #[arg(long, group = "publish_type", requires = "push")]
-    publish: bool,
-
-    /// Schedule pushed, page or post
+    /// Schedule page or post
     #[arg(long, group = "publish_type", requires = "push")]
     schedule: Option<DateTime<Utc>>,
 
-    /// Tags for ghost page or post
+    /// Set slug(URL slug the page or post will be available at)
+    #[arg(long, requires = "push")]
+    slug: Option<String>,
+
+    /// Tags for page or post
     #[arg(long = "tag", requires = "push")]
     tags: Option<Vec<String>>,
 
-    /// excerpt in ghost
+    /// Excerpt for page or post
     ///
     /// Defaults to the article description
     #[arg(long, requires = "push")]
-    description: Option<String>,
+    excerpt: Option<String>,
 
     /// Feature post or page
     #[arg(long, requires = "push")]
     featured: bool,
 
-    /// inject HTML header
+    /// Inject HTML header
     #[arg(long, requires = "push")]
     inject_code_header: Option<String>,
 
-    /// inject HTML footer
+    /// Inject HTML footer
     #[arg(long, requires = "push")]
     inject_code_footer: Option<String>,
 
     /// Dry run test
     ///
-    /// When set, stencila will perform the document conversion but skip the publication to Ghost.
+    /// When set, Stencila will perform the document conversion but skip the publication to Ghost.
     #[arg(long, default_value_t = false)]
     dry_run: bool,
 }
@@ -228,24 +212,6 @@ impl Cli {
 
         // Generate JWT for request
         let token = generate_jwt(&self.key).context("generating JWT")?;
-
-        // Status of page or post
-        let status = if self.publish {
-            Some(Status::Published)
-        } else if self.schedule.is_some() {
-            if self.schedule <= Some(Utc::now()) {
-                bail!(
-                    "Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",
-                    self.schedule,
-                    Utc::now()
-                );
-            }
-            Some(Status::Scheduled)
-        } else if self.draft {
-            Some(Status::Draft)
-        } else {
-            None
-        };
 
         // Construct the POST payload
         let payload = self.payload(resource_type, &doc, None).await?;
@@ -342,28 +308,8 @@ impl Cli {
         };
         let Resource { updated_at, .. } = payload.resource()?;
 
-        // Status of page or post
-        let status = if self.publish {
-            Some(Status::Published)
-        } else if self.schedule.is_some() {
-            if self.schedule <= Some(Utc::now()) {
-                bail!(
-                    "Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",
-                    self.schedule,
-                    Utc::now()
-                );
-            }
-            Some(Status::Scheduled)
-        } else if self.draft {
-            Some(Status::Draft)
-        } else {
-            None
-        };
-
         // Construct the PUT payload with the latest `updated_at`
         let payload = self.payload(resource_type, &doc, updated_at).await?;
-
-        // TODO: decide if args such as tags should be writen to sidecar file
 
         // Send the request
         let response = Client::new()
@@ -511,22 +457,78 @@ impl Cli {
         doc: &Document,
         updated_at: Option<String>,
     ) -> Result<Payload> {
-        // Get document title and other metadata
-        // TODO: other metadata such as authors, excerpt (from abstract?)
-        // could be obtained in a similar way and returned from this function
-        let (title,) = doc
-            .inspect(|root: &Node| {
-                let mut title = None;
+        // Status of page or post
+        let status = if self.publish {
+            Some(Status::Published)
+        } else if self.schedule.is_some() {
+            if self.schedule <= Some(Utc::now()) {
+                bail!(
+                    "Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",
+                    self.schedule,
+                    Utc::now()
+                );
+            }
+            Some(Status::Scheduled)
+        } else if self.draft {
+            Some(Status::Draft)
+        } else {
+            None
+        };
 
+        // Get document title and other metadata
+        let title = doc
+            .inspect(|root: &Node| {
                 if let Node::Article(article) = root {
                     if let Some(inlines) = &article.title {
-                        title = Some(codec_text::to_text(inlines));
+                        return Some(codec_text::to_text(inlines));
                     }
                 }
-
-                (title,)
+                None
             })
             .await;
+
+        // If no custom excerpt provided, use the article description
+        let excerpt = if self.excerpt.is_none() {
+            doc.inspect(|root: &Node| {
+                if let Node::Article(article) = root {
+                    article.description.clone()
+                } else {
+                    None
+                }
+            })
+            .await
+        } else {
+            self.excerpt.clone()
+        };
+
+        // If no tags provided, use the tags in the custom `tags` field of the YAML header
+        let tags = if self.tags.is_none() {
+            doc.inspect(|root: &Node| {
+                if let Node::Article(article) = root {
+                    if let Some(extra) = article.options.extra.clone() {
+                        if let Some(Primitive::Array(vector)) = extra.get("tags") {
+                            return Some(
+                                vector
+                                    .iter()
+                                    .filter_map(|primitive| {
+                                        if let Primitive::String(string) = primitive {
+                                            Some(string.into())
+                                        } else {
+                                            None
+                                        }
+                                    })
+                                    .collect_vec(),
+                            );
+                        }
+                    }
+                }
+                None
+            })
+            .await
+        } else {
+            self.tags.clone()
+        };
+        let tags = tags.map(|tag| tag.into_iter().map(|name| Tag { name }).collect());
 
         // Get the root node of the document
         let mut root = doc.root().await;
@@ -540,7 +542,7 @@ impl Cli {
         node_media::extract_media(
             &mut root,
             doc.directory(),
-            &media_dir,
+            media_dir,
             |old_url, file_name| {
                 tracing::debug!(old = ?old_url, file_name = ?file_name, "rewriting URL");
 
@@ -588,9 +590,17 @@ impl Cli {
         .await?;
 
         let resource = Resource {
-            title: title.or_else(|| Some("Untitled".into())),
+            title: title.clone().or_else(|| Some("Untitled".into())),
+            slug: self.slug.clone().or(title),
+            tags,
+            custom_excerpt: excerpt,
             lexical: Some(lexical),
+            status,
             updated_at,
+            published_at: self.schedule.clone(),
+            featured: Some(self.featured),
+            codeinjection_head: self.inject_code_header.clone(),
+            codeinjection_foot: self.inject_code_footer.clone(),
             ..Default::default()
         };
 
@@ -751,7 +761,7 @@ struct Resource {
     slug: Option<String>,
     tags: Option<Vec<Tag>>,
 
-    // fields for images & media
+    // Fields for images & media
     /// URL field
     ///
     /// Used by Ghost to refer User-Agents to the correct place to GET the content.
@@ -760,8 +770,8 @@ struct Resource {
     /// Reference field
     ///
     /// Used by Stencila to point to the original file. Used to determine whether the file
-    /// needs to be stored on disk and/or uploaded. `None` indicates that an image was uploaded
-    /// directly into Ghost.
+    /// needs to be stored on disk and/or uploaded. `None` indicates that an image was
+    /// uploaded directly into Ghost.
     #[serde(rename = "ref")]
     reference: Option<String>,
 }
@@ -800,112 +810,6 @@ enum Payload {
 }
 
 impl Payload {
-    /// Create a payload from a document
-    async fn from_doc(
-        resource_type: ResourceType,
-        doc: &Document,
-        updated_at: Option<String>,
-        status: Option<Status>,
-        published_at: Option<DateTime<Utc>>,
-        excerpt: Option<String>,
-        featured: bool,
-        codeinjection_head: Option<String>,
-        codeinjection_foot: Option<String>,
-        slug: Option<String>,
-        tags: Option<Vec<String>>,
-    ) -> Result<Self> {
-        // Get document title and other metadata
-        // TODO: other metadata such as authors, excerpt (from abstract?)
-        // could be obtained in a similar way and returned from this function
-        let (title,) = doc
-            .inspect(|root: &Node| {
-                let mut title = None;
-
-                if let Node::Article(article) = root {
-                    if let Some(inlines) = &article.title {
-                        title = Some(codec_text::to_text(inlines));
-                    }
-                }
-
-                (title,)
-            })
-            .await;
-
-        let custom_excerpt = if excerpt.is_none() {
-            doc.inspect(|root: &Node| {
-                let mut description = None;
-                if let Node::Article(article) = root {
-                    description = article.description.clone();
-                }
-                description
-            })
-            .await
-        } else {
-            excerpt
-        };
-
-        // Get tags from yaml header if it's Array of Strings
-        let tags = if tags.is_none() {
-            doc.inspect(|root: &Node| {
-                let mut tags = None;
-                if let Node::Article(article) = root {
-                    if let Some(extra) = article.options.extra.clone() {
-                        if let Some(Primitive::Array(vector)) = extra.get("tags") {
-                            tags = Some(
-                                vector
-                                    .iter()
-                                    .map(|primitive| {
-                                        if let Primitive::String(string) = primitive {
-                                            string.into()
-                                        } else {
-                                            "".into()
-                                        }
-                                    })
-                                    .collect(),
-                            );
-                        }
-                    }
-                }
-                tags
-            })
-            .await
-        } else {
-            tags
-        };
-
-        // Dump document to a Lexical (Ghost's Dialect) string
-        let lexical = doc
-            .dump(
-                Format::Koenig,
-                Some(EncodeOptions {
-                    // TODO: The option for "just one big HTML card" so go here
-                    standalone: Some(false),
-                    ..Default::default()
-                }),
-            )
-            .await?;
-
-        let resource = Resource {
-            title: title.clone().or_else(|| Some("Untitled".into())),
-            lexical: Some(lexical),
-            updated_at,
-            status,
-            published_at,
-            custom_excerpt,
-            featured: Some(featured),
-            codeinjection_head,
-            codeinjection_foot,
-            slug: slug.or_else(|| title),
-            tags: tags.map(|tag| tag.into_iter().map(|name| Tag { name }).collect()),
-            ..Default::default()
-        };
-
-        Ok(match resource_type {
-            ResourceType::Post => Payload::Posts(vec![resource]),
-            ResourceType::Page => Payload::Pages(vec![resource]),
-        })
-    }
-
     /// Get the first resource from a payload
     ///
     /// Used when GETing from the API to extract the content from within the nested JSON
