@@ -7,8 +7,10 @@ use jsonwebtoken as jwt;
 use url::Host;
 
 use common::{
+    chrono::{DateTime, Utc},
     clap::{self, Parser},
     eyre::{bail, eyre, Context, OptionExt, Result},
+    itertools::Itertools,
     reqwest::{multipart::Form, Client, Response, StatusCode},
     serde::{Deserialize, Serialize},
     serde_json,
@@ -18,7 +20,7 @@ use common::{
 };
 use document::{
     codecs,
-    schema::{shortcuts::t, Node, PropertyValueOrString},
+    schema::{shortcuts::t, Node, Primitive, PropertyValueOrString},
     CommandWait, DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
 };
 
@@ -77,9 +79,58 @@ pub struct Cli {
     #[arg(long, conflicts_with = "push")]
     pull: bool,
 
+    #[rustfmt::skip]
+    // The following options are applicable only to pushes.
+    // Using `conflicts_with = "pull"` for these is better than
+    // using `requires = "push"` because with the latter the user
+    // always has to enter `--push` even though it is the default.
+
+    /// Mark page or post as draft
+    #[arg(
+        long,
+        group = "publish_type",
+        conflicts_with = "pull",
+        default_value_t = true
+    )]
+    draft: bool,
+
+    /// Publish page or post
+    #[arg(long, group = "publish_type", conflicts_with = "pull")]
+    publish: bool,
+
+    /// Schedule page or post
+    #[arg(long, group = "publish_type", conflicts_with = "pull")]
+    schedule: Option<DateTime<Utc>>,
+
+    /// Set slug(URL slug the page or post will be available at)
+    #[arg(long, conflicts_with = "pull")]
+    slug: Option<String>,
+
+    /// Tags for page or post
+    #[arg(long = "tag", conflicts_with = "pull")]
+    tags: Option<Vec<String>>,
+
+    /// Excerpt for page or post
+    ///
+    /// Defaults to the article description
+    #[arg(long, conflicts_with = "pull")]
+    excerpt: Option<String>,
+
+    /// Feature post or page
+    #[arg(long, conflicts_with = "pull")]
+    featured: bool,
+
+    /// Inject HTML header
+    #[arg(long, conflicts_with = "pull")]
+    inject_code_header: Option<String>,
+
+    /// Inject HTML footer
+    #[arg(long, conflicts_with = "pull")]
+    inject_code_footer: Option<String>,
+
     /// Dry run test
     ///
-    /// When set, stencila will perform the document conversion but skip the publication to Ghost.
+    /// When set, Stencila will perform the document conversion but skip the publication to Ghost.
     #[arg(long, default_value_t = false)]
     dry_run: bool,
 }
@@ -198,6 +249,8 @@ impl Cli {
             .to_str()
             .context("interpreting Location HTTP header")?
             .to_string();
+
+        // TODO: decide if args such as tags should be writen to sidecar file
 
         // Add the URL to the article's identifiers
         let url = doc_url.clone();
@@ -359,7 +412,12 @@ impl Cli {
         } else {
             return error_for_response(response).await;
         };
-        let Resource { title, lexical, .. } = payload.resource()?;
+        let Resource {
+            title,
+            lexical,
+            custom_excerpt,
+            ..
+        } = payload.resource()?;
 
         // Update title etc
         // TODO: consider other properties that might be appropriate to update from Ghost
@@ -367,6 +425,7 @@ impl Cli {
             let Node::Article(article) = root else { return };
 
             article.title = title.as_ref().map(|title| vec![t(title)]);
+            article.description = custom_excerpt.clone();
         })
         .await;
 
@@ -404,22 +463,78 @@ impl Cli {
         doc: &Document,
         updated_at: Option<String>,
     ) -> Result<Payload> {
-        // Get document title and other metadata
-        // TODO: other metadata such as authors, excerpt (from abstract?)
-        // could be obtained in a similar way and returned from this function
-        let (title,) = doc
-            .inspect(|root: &Node| {
-                let mut title = None;
+        // Status of page or post
+        let status = if self.publish {
+            Some(Status::Published)
+        } else if self.schedule.is_some() {
+            if self.schedule <= Some(Utc::now()) {
+                bail!(
+                    "Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",
+                    self.schedule,
+                    Utc::now()
+                );
+            }
+            Some(Status::Scheduled)
+        } else if self.draft {
+            Some(Status::Draft)
+        } else {
+            None
+        };
 
+        // Get document title and other metadata
+        let title = doc
+            .inspect(|root: &Node| {
                 if let Node::Article(article) = root {
                     if let Some(inlines) = &article.title {
-                        title = Some(codec_text::to_text(inlines));
+                        return Some(codec_text::to_text(inlines));
                     }
                 }
-
-                (title,)
+                None
             })
             .await;
+
+        // If no custom excerpt provided, use the article description
+        let excerpt = if self.excerpt.is_none() {
+            doc.inspect(|root: &Node| {
+                if let Node::Article(article) = root {
+                    article.description.clone()
+                } else {
+                    None
+                }
+            })
+            .await
+        } else {
+            self.excerpt.clone()
+        };
+
+        // If no tags provided, use the tags in the custom `tags` field of the YAML header
+        let tags = if self.tags.is_none() {
+            doc.inspect(|root: &Node| {
+                if let Node::Article(article) = root {
+                    if let Some(extra) = article.options.extra.clone() {
+                        if let Some(Primitive::Array(vector)) = extra.get("tags") {
+                            return Some(
+                                vector
+                                    .iter()
+                                    .filter_map(|primitive| {
+                                        if let Primitive::String(string) = primitive {
+                                            Some(string.into())
+                                        } else {
+                                            None
+                                        }
+                                    })
+                                    .collect_vec(),
+                            );
+                        }
+                    }
+                }
+                None
+            })
+            .await
+        } else {
+            self.tags.clone()
+        };
+        let tags = tags.map(|tag| tag.into_iter().map(|name| Tag { name }).collect());
 
         // Get the root node of the document
         let mut root = doc.root().await;
@@ -433,7 +548,7 @@ impl Cli {
         node_media::extract_media(
             &mut root,
             doc.directory(),
-            &media_dir,
+            media_dir,
             |old_url, file_name| {
                 tracing::debug!(old = ?old_url, file_name = ?file_name, "rewriting URL");
 
@@ -481,9 +596,17 @@ impl Cli {
         .await?;
 
         let resource = Resource {
-            title: title.or_else(|| Some("Untitled".into())),
+            title: title.clone().or_else(|| Some("Untitled".into())),
+            slug: self.slug.clone().or(title),
+            tags,
+            custom_excerpt: excerpt,
             lexical: Some(lexical),
+            status,
             updated_at,
+            published_at: self.schedule.clone(),
+            featured: Some(self.featured),
+            codeinjection_head: self.inject_code_header.clone(),
+            codeinjection_foot: self.inject_code_footer.clone(),
             ..Default::default()
         };
 
@@ -635,9 +758,16 @@ struct Resource {
     title: Option<String>, // Required for creating
     lexical: Option<String>,
     status: Option<Status>,
-    updated_at: Option<String>, // Required for updating
+    updated_at: Option<String>,          // Required for updating
+    published_at: Option<DateTime<Utc>>, // Required for scheduling
+    custom_excerpt: Option<String>,
+    featured: Option<bool>,
+    codeinjection_head: Option<String>,
+    codeinjection_foot: Option<String>,
+    slug: Option<String>,
+    tags: Option<Vec<Tag>>,
 
-    // fields for images & media
+    // Fields for images & media
     /// URL field
     ///
     /// Used by Ghost to refer User-Agents to the correct place to GET the content.
@@ -646,10 +776,17 @@ struct Resource {
     /// Reference field
     ///
     /// Used by Stencila to point to the original file. Used to determine whether the file
-    /// needs to be stored on disk and/or uploaded. `None` indicates that an image was uploaded
-    /// directly into Ghost.
+    /// needs to be stored on disk and/or uploaded. `None` indicates that an image was
+    /// uploaded directly into Ghost.
     #[serde(rename = "ref")]
     reference: Option<String>,
+}
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
+struct Tag {
+    // TODO: can add description and so on from https://ghost.org/docs/admin-api/
+    name: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
