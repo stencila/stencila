@@ -34,6 +34,19 @@ export class IfBlock extends Executable {
       return html`<slot name="clauses"></slot>`
     }
 
+    // render with the `insert` chip in model chat response
+    if (this.isWithinModelChatMessage()) {
+      return html`
+        <div class="group relative">
+          ${this.renderInsertChip()} ${this.renderCard()}
+        </div>
+      `
+    }
+
+    return this.renderCard()
+  }
+
+  private renderCard() {
     return html`
       <stencila-ui-block-on-demand
         type="IfBlock"

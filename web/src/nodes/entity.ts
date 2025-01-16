@@ -1,5 +1,6 @@
 import { provide } from '@lit/context'
 import { NodeType } from '@stencila/types'
+import { apply } from '@twind/core'
 import { html, LitElement } from 'lit'
 import { property, state } from 'lit/decorators'
 
@@ -9,7 +10,6 @@ import { EntityContext, entityContext } from '../ui/nodes/entity-context'
 import { closestGlobally } from '../utilities/closestGlobally'
 
 import '../ui/nodes/node-insert'
-import { apply } from '@twind/core'
 
 /**
  * Abstract base class for web components representing Stencila Schema `Entity` node types

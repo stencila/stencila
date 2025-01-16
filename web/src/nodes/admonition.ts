@@ -70,6 +70,18 @@ export class Admonition extends Entity {
       `
     }
 
+    // render with the `insert` chip in model chat response
+    if (this.isWithinModelChatMessage()) {
+      return html`
+        <div class="group relative">
+          ${this.renderInsertChip()}
+          <div class=${styles}>
+            ${this.renderHeader()} ${this.renderContent()}
+          </div>
+        </div>
+      `
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="Admonition"

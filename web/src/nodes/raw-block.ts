@@ -1,16 +1,18 @@
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
+import { withTwind } from '../twind'
 import { getTitleIcon } from '../ui/nodes/properties/programming-language'
+
+import { Entity } from './entity'
 
 import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/provenance'
 
-import { Entity } from './entity'
-
 @customElement('stencila-raw-block')
+@withTwind()
 export class RawBlock extends Entity {
   @property()
   format: string
@@ -26,6 +28,18 @@ export class RawBlock extends Entity {
       return html`<slot name="content"></slot>`
     }
 
+    if (this.isWithinModelChatMessage()) {
+      return html`
+        <div class="group relative">
+          ${this.renderInsertChip()} ${this.renderCard()}
+        </div>
+      `
+    }
+
+    return this.renderCard()
+  }
+
+  private renderCard() {
     const { title, icon } = getTitleIcon(this.format) ?? {
       title: this.format,
       icon: 'fileTypeRaw',
