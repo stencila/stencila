@@ -95,6 +95,7 @@ export class UIBaseCard extends UIBaseClass {
       'rounded-t-sm',
       `bg-[${borderColour}]`,
       'font-medium',
+      'select-none',
       'transition duration-100 ease-in',
       this.canCollapse && `cursor-pointer hover:bg-[${borderColour}]/90`,
       ...additionalStyles,

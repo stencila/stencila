@@ -184,7 +184,8 @@ export class PromptBlock extends Executable {
       'w-full',
       `bg-[${colour}]`,
       `text-[${textColour}] text-xs leading-tight font-sans`,
-      inChat ? '' : `px-3 py-1 border-t border-[${borderColour}]`
+      inChat ? '' : `px-3 py-1 border-t border-[${borderColour}]`,
+      'select-none'
     )
 
     // Render as the property of a chat or instruction block

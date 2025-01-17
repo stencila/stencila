@@ -64,6 +64,7 @@ export class UINodeExecutionDetails extends UIBaseClass {
       `bg-[${colour}]`,
       `border-t border-[${borderColour}]`,
       'font-sans',
+      'select-none',
     ])
 
     return html`
