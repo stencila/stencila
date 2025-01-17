@@ -10,6 +10,7 @@ import { UIBaseClass } from '../mixins/ui-base-class'
 
 import '../../animation/collapsible'
 import '../../buttons/chevron'
+import { InlineTypeList } from '@stencila/types'
 
 /**
  * UI Base Card
@@ -100,11 +101,12 @@ export class UIBaseCard extends UIBaseClass {
     ])
 
     const canClose =
-      this.depth > 0 &&
-      !(
-        ChatMessage.shouldExpand(this, this.type) ||
-        SuggestionBlock.shouldExpand(this, this.type)
-      )
+      (this.depth > 0 &&
+        !(
+          ChatMessage.shouldExpand(this, this.type) ||
+          SuggestionBlock.shouldExpand(this, this.type)
+        )) ||
+      InlineTypeList.includes(this.type)
 
     const icon = this.headerIcon ?? this.ui.icon
 

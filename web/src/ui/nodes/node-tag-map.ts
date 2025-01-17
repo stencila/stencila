@@ -24,7 +24,7 @@ export const tagNameToNodeTypeMap: { [k: string]: NodeType } = {
   'stencila-instruction-inline': 'InstructionInline',
   'stencila-integer': 'Integer',
   'stencila-list': 'List',
-  'stencial-math-block': 'MathBlock',
+  'stencila-math-block': 'MathBlock',
   'stencila-math-inline': 'MathInline',
   'stencila-number': 'Number',
   'stencila-paragraph': 'Paragraph',
