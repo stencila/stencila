@@ -159,9 +159,18 @@ export class UINodesSelected extends UIBaseClass {
     if (selectedNodes.length > 1) {
       // Position anchor element on top
       const rect = range.getBoundingClientRect()
+
+      let top = rect.top
+
+      const scrollContainer = this.closest('#chat-scroll-container')
+
+      if (scrollContainer) {
+        top = top + scrollContainer.scrollTop
+      }
+
       this.anchorPosition = {
         x: rect.left + rect.width / 2,
-        y: rect.top,
+        y: top,
       }
       this.popupElement.reposition()
       this.selectedNodes = selectedNodes
@@ -190,7 +199,7 @@ export class UINodesSelected extends UIBaseClass {
         style="
           position:absolute;
           left:${this.anchorPosition.x}px;
-          top:${this.anchorPosition.y}px"
+          top:${this.anchorPosition.y}px;"
       ></div>
 
       <sl-popup

@@ -289,7 +289,10 @@ export class Chat extends Executable {
           >
             <div slot="start" class="h-full overflow-y-hidden flex flex-col">
               <div class="flex-grow overflow-y-hidden">
-                <div class="h-full overflow-auto">
+                <div
+                  class="relative h-full overflow-auto"
+                  id="chat-scroll-container"
+                >
                   <div class="px-3 pb-6">
                     <slot
                       name="content"
