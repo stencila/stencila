@@ -135,29 +135,49 @@ export class Chat extends Executable {
       let first: ChatMessage | ChatMessageGroup | undefined
       let last: ChatMessage | ChatMessageGroup | undefined
       for (const mutation of mutations) {
-        let elem
         if (
-          mutation.target instanceof ChatMessage ||
-          mutation.target instanceof ChatMessageGroup
+          mutation.target instanceof ChatMessage &&
+          mutation.type === 'attributes' &&
+          mutation.attributeName === 'is-selected'
         ) {
-          elem = mutation.target
-        } else if (
-          mutation.target.parentElement instanceof ChatMessage ||
-          mutation.target.parentElement instanceof ChatMessageGroup
-        ) {
-          elem = mutation.target.parentElement
-        } else if (
-          mutation.addedNodes[0] instanceof ChatMessage ||
-          mutation.addedNodes[0] instanceof ChatMessageGroup
-        ) {
-          elem = mutation.addedNodes[0]
-        }
-
-        if (!first) {
-          first = elem
-          last = elem
+          // if mutation is chat group selection change,
+          // scroll to top of chat message group.
+          if (mutation.target.isSelected) {
+            const targetEl =
+              (mutation.target.closest(
+                'stencila-chat-message-group'
+              ) as ChatMessageGroup) ?? mutation.target
+            targetEl.scrollIntoView({
+              block: 'start',
+              behavior: 'smooth',
+            })
+            return
+          }
         } else {
-          last = elem
+          let elem
+          if (
+            mutation.target instanceof ChatMessage ||
+            mutation.target instanceof ChatMessageGroup
+          ) {
+            elem = mutation.target
+          } else if (
+            mutation.target.parentElement instanceof ChatMessage ||
+            mutation.target.parentElement instanceof ChatMessageGroup
+          ) {
+            elem = mutation.target.parentElement
+          } else if (
+            mutation.addedNodes[0] instanceof ChatMessage ||
+            mutation.addedNodes[0] instanceof ChatMessageGroup
+          ) {
+            elem = mutation.addedNodes[0]
+          }
+
+          if (!first) {
+            first = elem
+            last = elem
+          } else {
+            last = elem
+          }
         }
       }
 
