@@ -68,7 +68,7 @@ impl Codec for OdtCodec {
                 .unwrap_or_default(),
         )
         .await?;
-        root_from_pandoc(pandoc)
+        root_from_pandoc(pandoc, Format::Odt)
     }
 
     async fn to_path(
@@ -77,7 +77,7 @@ impl Codec for OdtCodec {
         path: &Path,
         options: Option<EncodeOptions>,
     ) -> Result<EncodeInfo> {
-        let (pandoc, info) = root_to_pandoc(node)?;
+        let (pandoc, info) = root_to_pandoc(node, Format::Odt)?;
         pandoc_to_format(
             &pandoc,
             Some(path),

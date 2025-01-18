@@ -24,14 +24,14 @@ impl Codec for LatexCodec {
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {
         match format {
-            Format::Latex => CodecSupport::LowLoss,
+            Format::Latex | Format::Tex => CodecSupport::LowLoss,
             _ => CodecSupport::None,
         }
     }
 
     fn supports_to_format(&self, format: &Format) -> CodecSupport {
         match format {
-            Format::Latex => CodecSupport::LowLoss,
+            Format::Latex | Format::Tex => CodecSupport::LowLoss,
             _ => CodecSupport::None,
         }
     }
@@ -58,7 +58,7 @@ impl Codec for LatexCodec {
                 .unwrap_or_default(),
         )
         .await?;
-        root_from_pandoc(pandoc)
+        root_from_pandoc(pandoc, Format::Latex)
     }
 
     async fn to_string(
@@ -66,7 +66,7 @@ impl Codec for LatexCodec {
         node: &Node,
         options: Option<EncodeOptions>,
     ) -> Result<(String, EncodeInfo)> {
-        let (pandoc, info) = root_to_pandoc(node)?;
+        let (pandoc, info) = root_to_pandoc(node, Format::Latex)?;
         let output = pandoc_to_format(
             &pandoc,
             None,

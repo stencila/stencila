@@ -4,6 +4,7 @@ use pandoc_types::definition::{self as pandoc};
 
 use codec::{
     common::eyre::{bail, Result},
+    format::Format,
     schema::*,
     DecodeInfo, EncodeInfo,
 };
@@ -17,8 +18,11 @@ use crate::{
     shared::{PandocDecodeContext, PandocEncodeContext},
 };
 
-pub fn root_to_pandoc(root: &Node) -> Result<(pandoc::Pandoc, EncodeInfo)> {
-    let mut context = PandocEncodeContext::default();
+pub fn root_to_pandoc(root: &Node, format: Format) -> Result<(pandoc::Pandoc, EncodeInfo)> {
+    let mut context = PandocEncodeContext {
+        format,
+        ..Default::default()
+    };
     let pandoc = node_to_pandoc(root, &mut context)?;
 
     Ok((
@@ -30,8 +34,11 @@ pub fn root_to_pandoc(root: &Node) -> Result<(pandoc::Pandoc, EncodeInfo)> {
     ))
 }
 
-pub fn root_from_pandoc(pandoc: pandoc::Pandoc) -> Result<(Node, DecodeInfo)> {
-    let mut context = PandocDecodeContext::default();
+pub fn root_from_pandoc(pandoc: pandoc::Pandoc, format: Format) -> Result<(Node, DecodeInfo)> {
+    let mut context = PandocDecodeContext {
+        format,
+        ..Default::default()
+    };
     let node = node_from_pandoc(pandoc, &mut context)?;
 
     Ok((
