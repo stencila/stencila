@@ -64,14 +64,23 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) -> Result<()> {
             }
         });
 
-        router.request::<request::Completion, _>(|state, params| {
-            let uri = &params.text_document_position.text_document.uri;
-            let source = state
-                .documents
-                .get(uri)
-                .map(|text_doc| text_doc.source.clone());
-            async move { completion::request(params, source).await }
-        });
+        router
+            .request::<request::Completion, _>(|state, params| {
+                let uri = &params.text_document_position.text_document.uri;
+                let doc = state
+                    .documents
+                    .get(uri)
+                    .map(|text_doc| (text_doc.format.clone(), text_doc.source.clone()));
+                async move {
+                    match doc {
+                        Some((format, source)) => completion::request(params, format, source).await,
+                        None => Ok(None),
+                    }
+                }
+            })
+            .request::<request::ResolveCompletionItem, _>(|_state, params| {
+                completion::resolve_item(params)
+            });
 
         router
             .request::<request::CodeLensRequest, _>(|state, params| {
