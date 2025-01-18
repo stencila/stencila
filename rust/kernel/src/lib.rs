@@ -469,7 +469,7 @@ pub mod tests {
         instance.start_here().await?;
         assert_eq!(instance.status().await?, KernelStatus::Ready);
 
-        for (code, expected_outputs, expected_messages) in cases {
+        for (index, (code, expected_outputs, expected_messages)) in cases.into_iter().enumerate() {
             let (outputs, messages) = instance.execute(code).await?;
             assert_eq!(
                 messages
@@ -482,7 +482,7 @@ pub mod tests {
                     .collect_vec(),
                 "with code: {code}"
             );
-            assert_eq!(outputs, expected_outputs, "with code: {code}");
+            assert_eq!(outputs, expected_outputs, "case #{index} with code: {code}");
         }
 
         Ok(())
