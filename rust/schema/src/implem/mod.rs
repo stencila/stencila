@@ -58,6 +58,7 @@ mod node;
 mod note;
 mod null;
 mod object;
+mod paragraph;
 mod parameter;
 mod person;
 mod person_or_organization;

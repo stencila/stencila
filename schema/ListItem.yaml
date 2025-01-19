@@ -17,6 +17,8 @@ html:
   elem: li
 jats:
   elem: list-item
+latex:
+  derive: false
 markdown:
   derive: false
 proptest: {}

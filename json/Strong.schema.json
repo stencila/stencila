@@ -18,6 +18,9 @@
   "jats": {
     "elem": "bold"
   },
+  "latex": {
+    "command": "textbf"
+  },
   "markdown": {
     "template": "**{{content}}**",
     "escape": "*"

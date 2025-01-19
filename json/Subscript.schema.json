@@ -17,6 +17,9 @@
   "jats": {
     "elem": "sub"
   },
+  "latex": {
+    "command": "textsubscript"
+  },
   "markdown": {
     "template": "~{{content}}~",
     "escape": "~"

@@ -1,0 +1,13 @@
+[package]
+name = "codec-latex-trait"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+codec-info = { path = "../codec-info" }
+codec-latex-derive = { path = "../codec-latex-derive" }
+common = { path = "../common" }
+format = { path = "../format" }
+
+[lints]
+workspace = true

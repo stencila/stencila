@@ -19,6 +19,9 @@
   "jats": {
     "elem": "strike"
   },
+  "latex": {
+    "command": "st"
+  },
   "markdown": {
     "template": "~~{{content}}~~",
     "escape": "~"

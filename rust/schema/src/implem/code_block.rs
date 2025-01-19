@@ -33,6 +33,33 @@ impl DomCodec for CodeBlock {
     }
 }
 
+impl LatexCodec for CodeBlock {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        const ENVIRON: &str = "lstlisting";
+
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id))
+            .environ_begin(ENVIRON);
+
+        if let Some(lang) = &self.programming_language {
+            context.str("[language=");
+            context.property_str(NodeProperty::ProgrammingLanguage, lang);
+            context.str("]");
+        }
+
+        context
+            .newline()
+            .property_fn(NodeProperty::Code, |context| self.code.to_latex(context));
+
+        if !self.code.ends_with('\n') {
+            context.newline();
+        }
+
+        context.environ_end(ENVIRON).exit_node().newline();
+    }
+}
+
 impl MarkdownCodec for CodeBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context

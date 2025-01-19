@@ -10,6 +10,8 @@ html:
   elem: pre
 jats:
   elem: code
+latex:
+  derive: false
 markdown:
   derive: false
 proptest: {}

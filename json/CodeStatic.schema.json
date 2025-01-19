@@ -49,6 +49,7 @@
           "myst",
           "ipynb",
           "qmd",
+          "latex",
           "lexical",
           "koenig"
         ]
@@ -93,6 +94,7 @@
           "myst",
           "ipynb",
           "qmd",
+          "latex",
           "lexical",
           "koenig"
         ]

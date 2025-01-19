@@ -1256,7 +1256,26 @@ name = "codec-latex"
 version = "0.0.0"
 dependencies = [
  "codec",
+ "codec-latex-trait",
  "codec-pandoc",
+]
+
+[[package]]
+name = "codec-latex-derive"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "darling",
+]
+
+[[package]]
+name = "codec-latex-trait"
+version = "0.0.0"
+dependencies = [
+ "codec-info",
+ "codec-latex-derive",
+ "common",
+ "format",
 ]
 
 [[package]]
@@ -5801,6 +5820,7 @@ dependencies = [
  "codec-info",
  "codec-jats-trait",
  "codec-json5-trait",
+ "codec-latex-trait",
  "codec-markdown",
  "codec-markdown-trait",
  "codec-text-trait",

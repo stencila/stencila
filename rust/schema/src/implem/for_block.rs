@@ -1,6 +1,42 @@
-use codec_info::lost_exec_options;
+use codec_info::{lost_exec_options, lost_options};
 
 use crate::{prelude::*, Block, ForBlock, Section};
+
+impl LatexCodec for ForBlock {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        const ENVIRON: &str = "for";
+
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(
+                self,
+                id,
+                programming_language,
+                otherwise,
+                execution_mode,
+                execution_bounds
+            ))
+            .merge_losses(lost_exec_options!(self))
+            .environ_begin(ENVIRON)
+            .char('{')
+            .property_str(NodeProperty::Variable, &self.variable)
+            .char('}')
+            .char('{')
+            .property_str(NodeProperty::Code, &self.code)
+            .char('}')
+            .newline()
+            .increase_depth()
+            .property_fn(NodeProperty::Content, |context| {
+                self.content.to_latex(context)
+            })
+            .decrease_depth()
+            .trim_end()
+            .newline()
+            .environ_end(ENVIRON)
+            .exit_node()
+            .newline();
+    }
+}
 
 impl MarkdownCodec for ForBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {

@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 codec = { path = "../codec" }
+codec-latex-trait = { path = "../codec-latex-trait" }
 codec-pandoc = { path = "../codec-pandoc" }
 
 [lints]

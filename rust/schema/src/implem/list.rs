@@ -40,6 +40,38 @@ impl DomCodec for List {
     }
 }
 
+impl LatexCodec for List {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        context.enter_node(self.node_type(), self.node_id());
+
+        let unordered = matches!(self.order, ListOrder::Unordered);
+        let environ = if unordered { "itemize" } else { "enumerate" };
+
+        context.environ_begin(environ).newline();
+
+        if !unordered {
+            context.str(r"\def\labelenumi{\arabic{enumi}.}").newline();
+        }
+
+        let tight = self.items.iter().all(|item| item.content.len() == 1);
+
+        for item in self.items.iter() {
+            item.to_latex(context);
+
+            if tight {
+                context.trim_end().newline();
+            }
+        }
+
+        context
+            .trim_end()
+            .newline()
+            .environ_end(environ)
+            .exit_node()
+            .newline();
+    }
+}
+
 impl MarkdownCodec for List {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context

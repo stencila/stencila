@@ -19,6 +19,9 @@
   "jats": {
     "elem": "list"
   },
+  "latex": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },
@@ -65,6 +68,7 @@
           "myst",
           "ipynb",
           "qmd",
+          "latex",
           "lexical",
           "koenig"
         ]
@@ -106,6 +110,7 @@
           "myst",
           "ipynb",
           "qmd",
+          "latex",
           "lexical",
           "koenig"
         ]

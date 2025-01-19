@@ -58,6 +58,16 @@ impl Article {
     }
 }
 
+impl LatexCodec for Article {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        context.enter_node(self.node_type(), self.node_id());
+        
+        self.content.to_latex(context);
+
+        context.exit_node_final();
+    }
+}
+
 impl MarkdownCodec for Article {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context.enter_node(self.node_type(), self.node_id());

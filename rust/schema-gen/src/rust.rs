@@ -413,6 +413,15 @@ pub enum NodeProperty {{
             derives.append(&mut vec!["HtmlCodec", "JatsCodec"]);
 
             if schema
+                .latex
+                .as_ref()
+                .map(|spec| spec.derive)
+                .unwrap_or(true)
+            {
+                derives.push("LatexCodec");
+            }
+
+            if schema
                 .markdown
                 .as_ref()
                 .map(|spec| spec.derive)
@@ -564,6 +573,21 @@ pub enum NodeProperty {{
             attrs.push(format!("#[jats({})]", args.join(", ")));
         }
 
+        // Add #[latex] attribute for main struct if necessary
+        if let Some(latex) = &schema.latex {
+            if latex.derive {
+                let mut args = Vec::new();
+
+                if let Some(command) = &latex.command {
+                    args.push(format!("command = \"{command}\""));
+                }
+
+                if !args.is_empty() {
+                    attrs.push(format!("#[latex({})]", args.join(", ")))
+                }
+            }
+        }
+
         // Add #[markdown] attribute for main struct if necessary
         if let Some(markdown) = &schema.markdown {
             if markdown.derive {
@@ -576,7 +600,9 @@ pub enum NodeProperty {{
                     args.push(format!("escape = \"{escape}\""));
                 }
 
-                attrs.push(format!("#[markdown({})]", args.join(", ")))
+                if !args.is_empty() {
+                    attrs.push(format!("#[markdown({})]", args.join(", ")))
+                }
             }
         }
 
@@ -1186,6 +1212,15 @@ impl {title} {{
             }
 
             derives.append(&mut vec!["HtmlCodec", "JatsCodec"]);
+
+            if schema
+                .latex
+                .as_ref()
+                .map(|spec| spec.derive)
+                .unwrap_or(true)
+            {
+                derives.push("LatexCodec");
+            }
 
             if schema
                 .markdown

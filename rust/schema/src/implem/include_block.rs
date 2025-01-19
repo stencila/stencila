@@ -2,6 +2,31 @@ use codec_info::{lost_exec_options, lost_options};
 
 use crate::{prelude::*, IncludeBlock};
 
+impl LatexCodec for IncludeBlock {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        const ENVIRON: &str = "include";
+
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(
+                self,
+                id,
+                media_type,
+                select,
+                execution_mode,
+                execution_bounds
+            ))
+            .merge_losses(lost_exec_options!(self))
+            .environ_begin(ENVIRON)
+            .char('{')
+            .property_str(NodeProperty::Source, &self.source)
+            .char('}')
+            .newline()
+            .environ_end(ENVIRON)
+            .exit_node();
+    }
+}
+
 impl MarkdownCodec for IncludeBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         if context.render || matches!(context.format, Format::Llmd) {
