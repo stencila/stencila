@@ -310,7 +310,7 @@ ggplot(data.frame(x=c(1, 2, NA), y=c(2, 4, NA)), aes(x=x,y=y)) + geom_point()
         let Some(base64) = content_url.strip_prefix("data:image/png;base64,") else {
             bail!("expected an data URI");
         };
-        assert!(base64.len() > 0);
+        assert!(!base64.is_empty());
 
         let (output, messages) = kernel
             .evaluate(r#"base::warning("another warning"); 6*7"#)
@@ -715,7 +715,7 @@ df1 = data.frame(
                 let Some(base64) = content_url.strip_prefix("data:image/png;base64,") else {
                     bail!("expected an data URI");
                 };
-                assert!(base64.len() > 0);
+                assert!(!base64.is_empty());
             } else {
                 bail!("Expected an image, got: {outputs:?}")
             }
@@ -750,7 +750,7 @@ df1 = data.frame(
                 let Some(base64) = content_url.strip_prefix("data:image/png;base64,") else {
                     bail!("expected an data URI");
                 };
-                assert!(base64.len() > 0);
+                assert!(!base64.is_empty());
             } else {
                 bail!("Expected an image, got: {outputs:?}")
             }
