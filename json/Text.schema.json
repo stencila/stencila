@@ -54,11 +54,7 @@
       "description": "The value of the text content",
       "patch": {
         "formats": [
-          "md",
-          "smd",
-          "myst",
-          "ipynb",
-          "qmd"
+          "all"
         ]
       },
       "dom": {
