@@ -127,6 +127,7 @@ async function startServer(context: vscode.ExtensionContext) {
       { language: "smd" },
       { language: "myst" },
       { language: "qmd" },
+      { language: "latex" },
     ],
     markdown: {
       isTrusted: true,

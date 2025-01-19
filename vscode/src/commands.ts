@@ -16,7 +16,7 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
     vscode.window.onDidChangeActiveTextEditor((editor) => {
       if (
         editor?.document.languageId &&
-        ["smd", "myst", "qmd"].includes(editor?.document.languageId)
+        ["smd", "myst", "qmd", "latex"].includes(editor?.document.languageId)
       ) {
         lastTextEditor = editor;
       }
@@ -24,7 +24,7 @@ export function registerDocumentCommands(context: vscode.ExtensionContext) {
   );
 
   // Create document commands
-  for (const format of ["smd", "myst", "qmd"]) {
+  for (const format of ["smd", "myst", "qmd", "latex"]) {
     context.subscriptions.push(
       vscode.commands.registerCommand(`stencila.new-${format}`, async () => {
         event("doc_create", { format });
