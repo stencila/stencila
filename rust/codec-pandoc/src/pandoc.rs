@@ -28,11 +28,15 @@ pub async fn pandoc_from_format(
     input: &str,
     path: Option<&Path>,
     format: &str,
-    args: Vec<String>,
+    mut args: Vec<String>,
 ) -> Result<Pandoc> {
     let json = if format == "pandoc" {
         input.to_string()
     } else {
+        // Some codecs use the `--pandoc` to indicate that pandoc should be used
+        // instead of the default decoding so remove that.
+        args.retain(|arg| arg != "--pandoc");
+
         let mut command = Command::new("pandoc");
         command
             .args(["--from", format, "--to", "json"])
@@ -72,13 +76,17 @@ pub async fn pandoc_to_format(
     pandoc: &Pandoc,
     path: Option<&Path>,
     format: &str,
-    args: Vec<String>,
+    mut args: Vec<String>,
 ) -> Result<String> {
     let json = serde_json::to_string(&pandoc)?;
 
     if format == "pandoc" {
         return Ok(json.to_string());
     }
+
+    // Some codecs use the `--pandoc` to indicate that pandoc should be used
+    // instead of the default encoding so remove that.
+    args.retain(|arg| arg != "--pandoc");
 
     let mut command = Command::new("pandoc");
     command.args(["--from", "json", "--to", format]);
