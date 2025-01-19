@@ -344,8 +344,12 @@ pub async fn convert(
 
     match output {
         Some(output) => {
-            to_path(&node, output, encode_options).await?;
-            Ok(String::new())
+            if output == PathBuf::from("-") {
+                to_string(&node, encode_options).await
+            } else {
+                to_path(&node, output, encode_options).await?;
+                Ok(String::new())
+            }
         }
         None => to_string(&node, encode_options).await,
     }
