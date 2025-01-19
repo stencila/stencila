@@ -85,6 +85,10 @@ pub struct Cli {
     // using `requires = "push"` because with the latter the user
     // always has to enter `--push` even though it is the default.
 
+    /// Title for page or post
+    #[arg(long,conflicts_with = "pull")]
+    title: Option<String>,
+
     /// Mark page or post as draft
     #[arg(
         long,
@@ -482,8 +486,8 @@ impl Cli {
         };
 
         // Get document title and other metadata
-        let title = doc
-            .inspect(|root: &Node| {
+        let title = if self.title.is_none() {
+            doc.inspect(|root: &Node| {
                 if let Node::Article(article) = root {
                     if let Some(inlines) = &article.title {
                         return Some(codec_text::to_text(inlines));
@@ -491,7 +495,10 @@ impl Cli {
                 }
                 None
             })
-            .await;
+            .await
+        } else {
+            self.title.clone()
+        };
 
         // If no custom excerpt provided, use the article description
         let excerpt = if self.excerpt.is_none() {
