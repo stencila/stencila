@@ -196,17 +196,27 @@ snapshot_kind: text
             "type": "listitem",
             "children": [
               {
-                "type": "extended-text",
-                "format": 0,
-                "text": "List item 1"
+                "type": "paragraph",
+                "children": [
+                  {
+                    "type": "extended-text",
+                    "format": 0,
+                    "text": "List item 1"
+                  }
+                ]
               },
               {
                 "type": "linebreak"
               },
               {
-                "type": "extended-text",
-                "format": 0,
-                "text": "  This is a paragraph under the bullet"
+                "type": "paragraph",
+                "children": [
+                  {
+                    "type": "extended-text",
+                    "format": 0,
+                    "text": "  This is a paragraph under the bullet"
+                  }
+                ]
               }
             ]
           },
@@ -214,9 +224,54 @@ snapshot_kind: text
             "type": "listitem",
             "children": [
               {
-                "type": "extended-text",
-                "format": 0,
-                "text": "List item 2"
+                "type": "list",
+                "listType": "bullet",
+                "start": 1,
+                "children": [
+                  {
+                    "type": "listitem",
+                    "children": [
+                      {
+                        "type": "paragraph",
+                        "children": [
+                          {
+                            "type": "extended-text",
+                            "format": 0,
+                            "text": "List item 1"
+                          }
+                        ]
+                      },
+                      {
+                        "type": "linebreak"
+                      },
+                      {
+                        "type": "paragraph",
+                        "children": [
+                          {
+                            "type": "extended-text",
+                            "format": 0,
+                            "text": "  This is a paragraph under the bullet"
+                          }
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "listitem",
+                    "children": [
+                      {
+                        "type": "paragraph",
+                        "children": [
+                          {
+                            "type": "extended-text",
+                            "format": 0,
+                            "text": "List item 2"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           }
@@ -231,9 +286,14 @@ snapshot_kind: text
             "type": "listitem",
             "children": [
               {
-                "type": "extended-text",
-                "format": 0,
-                "text": "Numbered list item 1"
+                "type": "paragraph",
+                "children": [
+                  {
+                    "type": "extended-text",
+                    "format": 0,
+                    "text": "Numbered list item 1"
+                  }
+                ]
               }
             ]
           },
@@ -241,9 +301,14 @@ snapshot_kind: text
             "type": "listitem",
             "children": [
               {
-                "type": "extended-text",
-                "format": 0,
-                "text": "Numbered list item 2"
+                "type": "paragraph",
+                "children": [
+                  {
+                    "type": "extended-text",
+                    "format": 0,
+                    "text": "Numbered list item 2"
+                  }
+                ]
               }
             ]
           }

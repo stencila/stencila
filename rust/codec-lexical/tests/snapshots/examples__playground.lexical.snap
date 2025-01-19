@@ -107,26 +107,47 @@ snapshot_kind: text
             "type": "listitem",
             "children": [
               {
-                "type": "text",
-                "format": 0,
-                "text": "Visit the "
-              },
-              {
-                "type": "link",
+                "type": "paragraph",
                 "children": [
                   {
                     "type": "text",
                     "format": 0,
-                    "text": "Lexical website"
+                    "text": "Visit the "
                   }
-                ],
-                "format": "",
-                "url": "https://lexical.dev/"
+                ]
               },
               {
-                "type": "text",
-                "format": 0,
-                "text": " for documentation and more information."
+                "type": "linebreak"
+              },
+              {
+                "type": "paragraph",
+                "children": [
+                  {
+                    "type": "link",
+                    "children": [
+                      {
+                        "type": "text",
+                        "format": 0,
+                        "text": "Lexical website"
+                      }
+                    ],
+                    "format": "",
+                    "url": "https://lexical.dev/"
+                  }
+                ]
+              },
+              {
+                "type": "linebreak"
+              },
+              {
+                "type": "paragraph",
+                "children": [
+                  {
+                    "type": "text",
+                    "format": 0,
+                    "text": " for documentation and more information."
+                  }
+                ]
               }
             ]
           },
@@ -134,26 +155,47 @@ snapshot_kind: text
             "type": "listitem",
             "children": [
               {
-                "type": "text",
-                "format": 0,
-                "text": "Check out the code on our "
-              },
-              {
-                "type": "link",
+                "type": "paragraph",
                 "children": [
                   {
                     "type": "text",
                     "format": 0,
-                    "text": "GitHub repository"
+                    "text": "Check out the code on our "
                   }
-                ],
-                "format": "",
-                "url": "https://github.com/facebook/lexical"
+                ]
               },
               {
-                "type": "text",
-                "format": 0,
-                "text": "."
+                "type": "linebreak"
+              },
+              {
+                "type": "paragraph",
+                "children": [
+                  {
+                    "type": "link",
+                    "children": [
+                      {
+                        "type": "text",
+                        "format": 0,
+                        "text": "GitHub repository"
+                      }
+                    ],
+                    "format": "",
+                    "url": "https://github.com/facebook/lexical"
+                  }
+                ]
+              },
+              {
+                "type": "linebreak"
+              },
+              {
+                "type": "paragraph",
+                "children": [
+                  {
+                    "type": "text",
+                    "format": 0,
+                    "text": "."
+                  }
+                ]
               }
             ]
           },
@@ -161,26 +203,47 @@ snapshot_kind: text
             "type": "listitem",
             "children": [
               {
-                "type": "text",
-                "format": 0,
-                "text": "Playground code can be found "
-              },
-              {
-                "type": "link",
+                "type": "paragraph",
                 "children": [
                   {
                     "type": "text",
                     "format": 0,
-                    "text": "here"
+                    "text": "Playground code can be found "
                   }
-                ],
-                "format": "",
-                "url": "https://github.com/facebook/lexical/tree/main/packages/lexical-playground"
+                ]
               },
               {
-                "type": "text",
-                "format": 0,
-                "text": "."
+                "type": "linebreak"
+              },
+              {
+                "type": "paragraph",
+                "children": [
+                  {
+                    "type": "link",
+                    "children": [
+                      {
+                        "type": "text",
+                        "format": 0,
+                        "text": "here"
+                      }
+                    ],
+                    "format": "",
+                    "url": "https://github.com/facebook/lexical/tree/main/packages/lexical-playground"
+                  }
+                ]
+              },
+              {
+                "type": "linebreak"
+              },
+              {
+                "type": "paragraph",
+                "children": [
+                  {
+                    "type": "text",
+                    "format": 0,
+                    "text": "."
+                  }
+                ]
               }
             ]
           },
@@ -188,26 +251,47 @@ snapshot_kind: text
             "type": "listitem",
             "children": [
               {
-                "type": "text",
-                "format": 0,
-                "text": "Join our "
-              },
-              {
-                "type": "link",
+                "type": "paragraph",
                 "children": [
                   {
                     "type": "text",
                     "format": 0,
-                    "text": "Discord Server"
+                    "text": "Join our "
                   }
-                ],
-                "format": "",
-                "url": "https://discord.com/invite/KmG4wQnnD9"
+                ]
               },
               {
-                "type": "text",
-                "format": 0,
-                "text": " and chat with the team."
+                "type": "linebreak"
+              },
+              {
+                "type": "paragraph",
+                "children": [
+                  {
+                    "type": "link",
+                    "children": [
+                      {
+                        "type": "text",
+                        "format": 0,
+                        "text": "Discord Server"
+                      }
+                    ],
+                    "format": "",
+                    "url": "https://discord.com/invite/KmG4wQnnD9"
+                  }
+                ]
+              },
+              {
+                "type": "linebreak"
+              },
+              {
+                "type": "paragraph",
+                "children": [
+                  {
+                    "type": "text",
+                    "format": 0,
+                    "text": " and chat with the team."
+                  }
+                ]
               }
             ]
           }

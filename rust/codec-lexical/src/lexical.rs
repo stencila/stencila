@@ -29,6 +29,7 @@ pub(super) enum BlockNode {
     ExtendedHeading(ExtendedHeadingNode),
     Paragraph(ParagraphNode),
     List(ListNode),
+    LineBreak(LineBreakNode),
     Quote(QuoteNode),
     Aside(AsideNode),
     ExtendedQuote(ExtendedQuoteNode),
@@ -50,7 +51,6 @@ pub(super) enum InlineNode {
     Text(TextNode),
     ExtendedText(ExtendedTextNode),
     Link(LinkNode),
-    LineBreak(LineBreakNode),
     HashTag(HashTagNode),
     Unknown(UnknownNode),
 }
@@ -161,7 +161,7 @@ pub(super) struct ListItemNode {
 
     /// Assumes that only inline nodes are expected here
     /// (whereas in Stencila, block nodes are expected)
-    pub children: Vec<InlineNode>,
+    pub children: Vec<BlockNode>,
 }
 
 #[skip_serializing_none]

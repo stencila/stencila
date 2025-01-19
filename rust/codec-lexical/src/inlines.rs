@@ -77,8 +77,6 @@ fn inline_from_lexical(inline: lexical::InlineNode, context: &mut LexicalDecodeC
         lexical::InlineNode::Link(link) => link_from_lexical(link, context),
         lexical::InlineNode::HashTag(..) => loss!("HashTag"),
 
-        lexical::InlineNode::LineBreak(..) => loss!("LineBreak"),
-
         lexical::InlineNode::Unknown(inline) => {
             let typename = inline
                 .get("type")

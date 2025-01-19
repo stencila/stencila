@@ -1,4 +1,5 @@
 use codec::{
+    common::serde_json::from_value,
     format::Format,
     schema::{
         shortcuts::{art, p, t},
@@ -56,6 +57,7 @@ fn block_from_lexical(block: lexical::BlockNode, context: &mut LexicalDecodeCont
         lexical::BlockNode::Paragraph(paragraph) => paragraph_from_lexical(paragraph, context),
 
         lexical::BlockNode::List(list) => list_from_lexical(list, context),
+        lexical::BlockNode::LineBreak(..) => loss!("LineBreak"),
 
         lexical::BlockNode::Quote(lexical::QuoteNode { children, .. })
         | lexical::BlockNode::ExtendedQuote(lexical::ExtendedQuoteNode { children, .. })
@@ -200,25 +202,57 @@ fn list_from_lexical(list: lexical::ListNode, context: &mut LexicalDecodeContext
                 child
                     .children
                     .into_iter()
-                    .fold(Vec::new(), |mut inlines, inline| { // split on linebreaks
-                        match inline {
-                            lexical::InlineNode::LineBreak(..) => {
-                                inlines.push(Vec::new());
+                    .fold(Vec::new(), |mut blocks, block| {
+                        // split on linebreaks
+                        match block {
+                            lexical::BlockNode::LineBreak(..) => {
+                                blocks.push(Vec::new());
                             }
                             _ => {
-                                if inlines.is_empty() {
-                                    inlines.push(Vec::new());
+                                if blocks.is_empty() {
+                                    blocks.push(Vec::new());
                                 }
-                                match inlines.last_mut(){
-                                    Some(vec) => vec.push(inline),
-                                    None => inlines.push(Vec::new()),
+                                match blocks.last_mut() {
+                                    Some(vec) => vec.push(block),
+                                    None => blocks.push(Vec::new()),
                                 };
                             }
                         }
-                        inlines
+                        blocks
                     })
                     .into_iter()
-                    .map(|inlines| p(inlines_from_lexical(inlines, context))) 
+                    .flat_map(|blocks| {
+                        blocks
+                            .into_iter()
+                            .flat_map(|block| {
+                                if let lexical::BlockNode::Unknown(value) = block {
+                                    let inlines = if let Ok(text_node) =
+                                        from_value::<lexical::TextNode>(value.clone())
+                                    {
+                                        vec![lexical::InlineNode::Text(text_node)]
+                                    } else if let Ok(extended_text) =
+                                        from_value::<lexical::ExtendedTextNode>(value.clone())
+                                    {
+                                        vec![lexical::InlineNode::ExtendedText(extended_text)]
+                                    } else if let Ok(link) =
+                                        from_value::<lexical::LinkNode>(value.clone())
+                                    {
+                                        vec![lexical::InlineNode::Link(link)]
+                                    } else if let Ok(hashtag) =
+                                        from_value::<lexical::HashTagNode>(value.clone())
+                                    {
+                                        vec![lexical::InlineNode::HashTag(hashtag)]
+                                    } else {
+                                        vec![lexical::InlineNode::Unknown(value)]
+                                    };
+
+                                    vec![p(inlines_from_lexical(inlines, context))]
+                                } else {
+                                    blocks_from_lexical(vec![block], context)
+                                }
+                            })
+                            .collect::<Vec<Block>>()
+                    })
                     // wrap each split in a paragraph
                     .collect(),
             )
@@ -262,20 +296,14 @@ fn list_item_to_lexical(
 ) -> lexical::ListItemNode {
     let mut children = Vec::new();
 
-    for (i, paragraph) in list_item.content.clone().into_iter().enumerate() {
+    for (i, block) in list_item.content.clone().into_iter().enumerate() {
         if i != 0 {
-            children.push(vec![lexical::InlineNode::LineBreak(
-                lexical::LineBreakNode {
-                    ..Default::default()
-                },
-            )]);
+            children.push(lexical::BlockNode::LineBreak(lexical::LineBreakNode {
+                ..Default::default()
+            }));
         }
-        children.push(inlines_to_lexical(
-            &blocks_to_inlines(vec![paragraph]),
-            context,
-        ));
+        children.push(block_to_lexical(&block, context));
     }
-    let children = children.into_iter().flatten().collect();
 
     lexical::ListItemNode {
         children,

@@ -300,15 +300,53 @@ snapshot_kind: text
           "type": "ListItem",
           "content": [
             {
-              "type": "Paragraph",
-              "content": [
+              "type": "List",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "List item 2"
-                  }
+                  "type": "ListItem",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "List item 1"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "  This is a paragraph under the bullet"
+                          }
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": "ListItem",
+                  "content": [
+                    {
+                      "type": "Paragraph",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "List item 2"
+                          }
+                        }
+                      ]
+                    }
+                  ]
                 }
-              ]
+              ],
+              "order": "Unordered"
             }
           ]
         }
