@@ -3,6 +3,7 @@ use common_dev::insta::assert_snapshot;
 use codec_markdown::preprocess;
 
 /// Check of preprocessing for ensuring empty lines between fenced divs
+#[rustfmt::skip]
 #[test]
 fn colon_divs() {
     // Does not add unnecessary empty lines for lines that are not colon divs
