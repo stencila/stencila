@@ -4,6 +4,7 @@ use codec::common::{
     eyre::{bail, Result},
     serde_json,
     tokio::{io::AsyncWriteExt, process::Command},
+    tracing,
 };
 use pandoc_types::definition::Pandoc;
 
@@ -24,6 +25,7 @@ use pandoc_types::definition::Pandoc;
 /// or `pandoc_types` crate updated and the lower bound raised)
 
 /// Call Pandoc binary to convert some input content to Pandoc JSON.
+#[tracing::instrument(skip(input))]
 pub async fn pandoc_from_format(
     input: &str,
     path: Option<&Path>,
@@ -33,6 +35,8 @@ pub async fn pandoc_from_format(
     let json = if format == "pandoc" {
         input.to_string()
     } else {
+        tracing::debug!("Spawning pandoc to parse `{format}`");
+
         // Some codecs use the `--pandoc` to indicate that pandoc should be used
         // instead of the default decoding so remove that.
         args.retain(|arg| arg != "--pandoc");
@@ -72,6 +76,7 @@ pub async fn pandoc_from_format(
 }
 
 /// Call Pandoc binary to convert Pandoc JSON to some output format
+#[tracing::instrument(skip(pandoc))]
 pub async fn pandoc_to_format(
     pandoc: &Pandoc,
     path: Option<&Path>,
@@ -83,6 +88,8 @@ pub async fn pandoc_to_format(
     if format == "pandoc" {
         return Ok(json.to_string());
     }
+
+    tracing::debug!("Spawning pandoc to generate `{format}`");
 
     // Some codecs use the `--pandoc` to indicate that pandoc should be used
     // instead of the default encoding so remove that.

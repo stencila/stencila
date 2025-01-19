@@ -91,7 +91,7 @@ pub fn get(
 }
 
 /// Decode a Stencila Schema node from a string
-#[tracing::instrument]
+#[tracing::instrument(skip(str))]
 pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node> {
     let (node, DecodeInfo { losses, .. }) = from_str_with_info(str, options.clone()).await?;
     if !losses.is_empty() {
@@ -110,7 +110,7 @@ pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node>
 }
 
 /// Decode a Stencila Schema node from a string with decoding losses
-#[tracing::instrument]
+#[tracing::instrument(skip(str))]
 pub async fn from_str_with_info(
     str: &str,
     options: Option<DecodeOptions>,
