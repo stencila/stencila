@@ -50,7 +50,8 @@ pub trait Microkernel: Sync + Send + Kernel {
     /// Use the `{{script}}` placeholder for path of the microkernel
     /// script. This default implementation has that placeholder as
     /// the only argument; override it to add more arguments.
-    fn executable_arguments(&self) -> Vec<String> {
+    #[allow(unused_variables)]
+    fn executable_arguments(&self, executable_name: &str) -> Vec<String> {
         vec!["{{script}}".to_string()]
     }
 
@@ -148,7 +149,7 @@ pub trait Microkernel: Sync + Send + Kernel {
 
         // Get args to the executable and replace placeholder in args with the script path
         let executable_args: Vec<String> = self
-            .executable_arguments()
+            .executable_arguments(&executable_name)
             .into_iter()
             .map(|arg| {
                 if arg == "{{script}}" {
@@ -371,7 +372,7 @@ impl KernelInstance for MicrokernelInstance {
         let mut exec_args = self.executable_args.clone();
         let mut exec_path = None;
 
-        // Search for an environment in the current, or a parent, directories
+        // Search for an environment in the current, or ancestor, directories
         let mut current_dir = directory.to_path_buf();
         loop {
             // Check for devbox.json

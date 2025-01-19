@@ -1,6 +1,8 @@
 use kernel_micro::{
-    common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, KernelProvider, KernelTerminate, Microkernel,
+    common::{eyre::Result, which::which},
+    format::Format,
+    Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
+    KernelProvider, KernelTerminate, Microkernel,
 };
 
 /// A kernel for executing Python code
@@ -50,7 +52,19 @@ impl Kernel for PythonKernel {
 
 impl Microkernel for PythonKernel {
     fn executable_name(&self) -> String {
-        "python3".to_string()
+        if which("uv").is_ok() {
+            "uv".into()
+        } else {
+            "python3".into()
+        }
+    }
+
+    fn executable_arguments(&self, executable_name: &str) -> Vec<String> {
+        if executable_name == "uv" {
+            vec!["run".into(), "python".into(), "{{script}}".into()]
+        } else {
+            vec!["{{script}}".into()]
+        }
     }
 
     fn microkernel_script(&self) -> String {
