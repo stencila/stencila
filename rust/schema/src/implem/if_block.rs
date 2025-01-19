@@ -12,7 +12,7 @@ impl LatexCodec for IfBlock {
             context
                 .environ_begin("if")
                 .char('{')
-                .property_str(NodeProperty::Code, &code)
+                .property_str(NodeProperty::Code, code)
                 .char('}')
                 .newline()
                 .increase_depth()
@@ -35,7 +35,7 @@ impl LatexCodec for IfBlock {
                 context
                     .environ_begin(environ)
                     .char('{')
-                    .property_str(NodeProperty::Code, &code)
+                    .property_str(NodeProperty::Code, code)
                     .char('}')
                     .newline()
                     .increase_depth()

@@ -728,7 +728,6 @@ pub struct JatsOptions {
     pub content: bool,
 }
 
-
 /// Options for deriving the `LatexCodec` trait
 #[skip_serializing_none]
 #[derive(Debug, Clone, SmartDefault, Deserialize, Serialize, JsonSchema)]
@@ -747,7 +746,6 @@ pub struct LatexOptions {
     /// The name of the command to wrap the node in
     pub command: Option<String>,
 }
-
 
 /// Options for deriving the `MarkdownCodec` trait
 #[skip_serializing_none]

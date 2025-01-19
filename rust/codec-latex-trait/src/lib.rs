@@ -137,7 +137,7 @@ impl LatexEncodeContext {
         if self.depth > 0 && matches!(self.content.chars().last(), None | Some('\n')) {
             self.content.push_str(&"    ".repeat(self.depth));
         }
-        self.content.push_str(&value);
+        self.content.push_str(value);
         self
     }
 
