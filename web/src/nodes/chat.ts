@@ -321,6 +321,8 @@ export class Chat extends Executable {
           type="Chat"
           node-id=${this.id}
           depth=${this.depth}
+          status=${this.executionStatus}
+          required=${this.executionRequired}
         >
         </stencila-ui-node-execution-commands>
       </div>

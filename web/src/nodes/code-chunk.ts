@@ -55,69 +55,73 @@ export class CodeChunk extends CodeExecutable {
       icon: 'code',
     }
 
-    return html`<stencila-ui-block-on-demand
-      type="CodeChunk"
-      node-id=${this.id}
-      depth=${this.depth}
-      header-icon=${icon}
-      header-title=${title}
-      ?noVisibleContent=${!this.hasOutputs}
-    >
-      <span slot="header-right" class="flex flex-row items-center gap-3">
-        <stencila-ui-node-chat-commands
-          type="CodeChunk"
-          node-id=${this.id}
-          depth=${this.depth}
-        >
-        </stencila-ui-node-chat-commands>
+    return html`
+      <stencila-ui-block-on-demand
+        type="CodeChunk"
+        node-id=${this.id}
+        depth=${this.depth}
+        header-icon=${icon}
+        header-title=${title}
+        ?noVisibleContent=${!this.hasOutputs}
+      >
+        <span slot="header-right" class="flex flex-row items-center gap-3">
+          <stencila-ui-node-chat-commands
+            type="CodeChunk"
+            node-id=${this.id}
+            depth=${this.depth}
+          >
+          </stencila-ui-node-chat-commands>
 
-        <stencila-ui-node-execution-commands
-          type="CodeChunk"
-          node-id=${this.id}
-          depth=${this.depth}
-        >
-        </stencila-ui-node-execution-commands>
-      </span>
+          <stencila-ui-node-execution-commands
+            type="CodeChunk"
+            node-id=${this.id}
+            depth=${this.depth}
+            status=${this.executionStatus}
+            required=${this.executionRequired}
+          >
+          </stencila-ui-node-execution-commands>
+        </span>
 
-      <div slot="body">
-        <stencila-ui-node-execution-details
-          type="CodeChunk"
-          node-id=${this.id}
-          mode=${this.executionMode}
-          bounds=${this.executionBounds}
-          .tags=${this.executionTags}
-          status=${this.executionStatus}
-          required=${this.executionRequired}
-          count=${this.executionCount}
-          bounded=${this.executionBounded}
-          ended=${this.executionEnded}
-          duration=${this.executionDuration}
-        >
-          <slot name="execution-dependencies"></slot>
-          <slot name="execution-dependants"></slot>
-        </stencila-ui-node-execution-details>
+        <div slot="body">
+          <stencila-ui-node-execution-details
+            type="CodeChunk"
+            node-id=${this.id}
+            mode=${this.executionMode}
+            bounds=${this.executionBounds}
+            .tags=${this.executionTags}
+            status=${this.executionStatus}
+            required=${this.executionRequired}
+            count=${this.executionCount}
+            bounded=${this.executionBounded}
+            ended=${this.executionEnded}
+            duration=${this.executionDuration}
+          >
+            <slot name="execution-dependencies"></slot>
+            <slot name="execution-dependants"></slot>
+          </stencila-ui-node-execution-details>
 
-        <stencila-ui-node-authors type="CodeChunk">
-          <stencila-ui-node-provenance slot="provenance">
-            <slot name="provenance"></slot>
-          </stencila-ui-node-provenance>
-          <slot name="authors"></slot>
-        </stencila-ui-node-authors>
+          <stencila-ui-node-authors type="CodeChunk">
+            <stencila-ui-node-provenance slot="provenance">
+              <slot name="provenance"></slot>
+            </stencila-ui-node-provenance>
+            <slot name="authors"></slot>
+          </stencila-ui-node-authors>
 
-        <stencila-ui-node-code
-          type="CodeChunk"
-          code=${this.code}
-          code-authorship=${this.codeAuthorship}
-          language=${this.programmingLanguage}
-          execution-required=${this.executionRequired}
-          read-only
-        >
-          <slot name="execution-messages" slot="messages"></slot>
-        </stencila-ui-node-code>
-      </div>
+          <stencila-ui-node-code
+            type="CodeChunk"
+            code=${this.code}
+            code-authorship=${this.codeAuthorship}
+            language=${this.programmingLanguage}
+            execution-required=${this.executionRequired}
+            read-only
+          >
+            <slot name="execution-messages" slot="messages"></slot>
+          </stencila-ui-node-code>
+        </div>
 
-      <div slot="content">${this.renderContent()}</div>
-    </stencila-ui-block-on-demand>`
+        <div slot="content">${this.renderContent()}</div>
+      </stencila-ui-block-on-demand>
+    `
   }
 
   /*

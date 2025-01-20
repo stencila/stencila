@@ -1,7 +1,8 @@
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
+import { ExecutionRequired, ExecutionStatus } from '@stencila/types'
 import { apply, css } from '@twind/core'
 import { html } from 'lit'
-import { customElement } from 'lit/decorators'
+import { customElement, property } from 'lit/decorators'
 
 import { runNode } from '../../../clients/commands'
 import { withTwind } from '../../../twind'
@@ -19,6 +20,12 @@ import '../../buttons/icon'
 @customElement('stencila-ui-node-execution-commands')
 @withTwind()
 export class UINodeExecutionCommands extends UIBaseClass {
+  @property({ type: String })
+  status?: ExecutionStatus
+
+  @property({ type: String })
+  required?: ExecutionRequired
+
   private onRun(event: Event) {
     event.stopImmediatePropagation()
 
