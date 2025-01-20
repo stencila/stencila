@@ -137,7 +137,7 @@ pub(super) struct ListNode {
 }
 
 #[derive(Default, Serialize, Deserialize)]
-pub(super) struct LineBreakNode{
+pub(super) struct LineBreakNode {
     pub r#type: MustBe!("linebreak"),
 }
 
