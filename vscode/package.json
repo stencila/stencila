@@ -1029,7 +1029,7 @@
     ],
     "themes": [
       {
-        "id": "StencilaLight",
+        "id": "Stencila Light",
         "label": "Stencila Light",
         "uiTheme": "vs",
         "path": "./themes/stencila-light-color-theme.json"
