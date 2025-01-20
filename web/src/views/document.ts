@@ -20,6 +20,25 @@ export abstract class DocumentView extends LitElement {
     showAuthorProvenance: false,
   }
 
+  menu: HTMLElement
+
+  observer: MutationObserver
+
+  private observeRootElement: MutationCallback = (_mutations) => {
+    const rootNode = this.querySelector('[root]')
+
+    if (rootNode) {
+      const rootTag = rootNode.tagName.toLowerCase()
+      if (!this.menu && rootTag === 'stencila-article') {
+        this.menu = document.createElement('stencila-document-menu')
+        this.appendChild(this.menu)
+      } else if (this.menu && rootTag !== 'stencila-article') {
+        // remove menu in unlikely event of root node changing from article to another type
+        this.menu.remove()
+      }
+    }
+  }
+
   /**
    * Override so that this component has a Light DOM so that
    * theme styles apply to it.
@@ -52,10 +71,15 @@ export abstract class DocumentView extends LitElement {
       }
     )
 
-    // Append the document menu
-    const menu = document.createElement('stencila-document-menu')
-    this.appendChild(menu)
+    this.observer = new MutationObserver(this.observeRootElement)
+
+    this.observer.observe(this, { childList: true })
 
     return this
+  }
+
+  override disconnectedCallback(): void {
+    super.disconnectedCallback()
+    this.observer.disconnect()
   }
 }

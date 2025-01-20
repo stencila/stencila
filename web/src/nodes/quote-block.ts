@@ -23,21 +23,22 @@ export class QuoteBlock extends Entity {
       return html`<slot name="content"></slot>`
     }
 
+    // render with the `insert` chip in model chat response
+    if (this.isWithinModelChatMessage()) {
+      return html`
+        <div class="group relative">
+          ${this.renderInsertChip()}
+          <slot name="content"></slot>
+        </div>
+      `
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="QuoteBlock"
         node-id=${this.id}
         depth=${this.depth}
       >
-        <div slot="header-right">
-          <stencila-ui-node-chat-commands
-            type="QuoteBlock"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-chat-commands>
-        </div>
-
         <div slot="body">
           <stencila-ui-node-authors type="QuoteBlock">
             <stencila-ui-node-provenance slot="provenance">

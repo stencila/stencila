@@ -1,0 +1,14 @@
+---
+type: Prompt
+
+name: stencila/discuss/anything
+title: Discuss Anything Prompt
+description: Discuss anything.
+
+version: "0.1.0"
+instruction-type: Discuss
+---
+
+# Instructions
+
+You are an assistant helping a user with their queries.

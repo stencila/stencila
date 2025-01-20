@@ -50,6 +50,18 @@ export class Section extends Entity {
       return html`<slot name="content"></slot>`
     }
 
+    // render with the `insert` chip in model chat response
+    if (this.isWithinModelChatMessage()) {
+      return html`
+        <div class="group relative">
+          ${this.renderInsertChip()}
+          ${this.sectionType === 'Iteration'
+            ? this.renderIteration()
+            : this.renderSection()}
+        </div>
+      `
+    }
+
     return this.sectionType === 'Iteration'
       ? this.renderIteration()
       : this.renderSection()
@@ -65,15 +77,6 @@ export class Section extends Entity {
         node-id=${this.id}
         depth=${this.depth}
       >
-        <div slot="header-right">
-          <stencila-ui-node-chat-commands
-            type="Section"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-chat-commands>
-        </div>
-
         <div slot="body">
           <stencila-ui-node-authors type="Section">
             <stencila-ui-node-provenance slot="provenance">

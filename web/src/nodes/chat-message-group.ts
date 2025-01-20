@@ -1,9 +1,20 @@
-import { html, css } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { css as twindCss } from '@twind/core'
+import { html } from 'lit'
+import { customElement, state } from 'lit/decorators.js'
 
+import { patchValue } from '../clients/commands'
 import { withTwind } from '../twind'
+import { iconMaybe } from '../ui/icons/icon'
 
+import { ChatMessage } from './chat-message'
 import { Entity } from './entity'
+import { SoftwareApplication } from './software-application'
+
+type ModelData = {
+  id: string
+  name: string
+  version: string
+}
 
 /**
  * Web component representing a Stencila `ChatMessageGroup`
@@ -13,19 +24,147 @@ import { Entity } from './entity'
 @customElement('stencila-chat-message-group')
 @withTwind()
 export class ChatMessageGroup extends Entity {
-  static override styles = css`
-    ::slotted([slot='messages']) {
-      display: flex;
-      flex-direction: row;
-      align-items: flex-start;
-      justify-items: center;
-      gap: 2rem;
+  /**
+   * Array of chat messages in the group
+   */
+  @state()
+  messages: ChatMessage[] = []
+
+  /**
+   * Index of tahe currently selected message in the `messages` array
+   */
+  @state()
+  selectedMessage: number = 0
+
+  /**
+   * Array of models used for the messages in the group
+   */
+  @state()
+  models: ModelData[] = []
+
+  private handleMessageSlotChange(e: Event) {
+    const slotEl = e.target as HTMLSlotElement
+
+    const messageElements = Array.from(
+      slotEl.assignedElements()[0].children
+    ) as ChatMessage[]
+
+    if (messageElements.length > 0) {
+      // fetch the model info by getting attributes from the author slot of message
+      // TODO: add model info to attributes of chat-group?
+      const models: ModelData[] = []
+      messageElements.forEach((msg) => {
+        const softwareAppElement =
+          msg.querySelector('[slot="author"]').firstElementChild
+
+        if (softwareAppElement instanceof SoftwareApplication) {
+          const model = {
+            id: softwareAppElement.$id,
+            name: softwareAppElement.name,
+            version: softwareAppElement.version,
+          }
+          models.push(model)
+        }
+      })
+      this.messages = messageElements
+      this.models = models
+      this.setSelected(this.selectedMessage)
     }
-  `
+  }
+
+  private setSelected(index: number) {
+    if (this.messages.length > 0) {
+      // return if selected index is already selected
+      if (index === this.selectedMessage) {
+        return
+      }
+
+      // update properties and dispatch event
+      this.messages[this.selectedMessage].isSelected = false
+      this.messages[index].isSelected = true
+      this.selectedMessage = index
+      this.dispatchEvent(
+        patchValue(
+          'ChatMessageGroup',
+          this.id,
+          ['messages', index, 'isSelected'],
+          true
+        )
+      )
+    }
+  }
 
   override render() {
-    return html`<div class="flex justify-center overflow-x-auto mb-3">
-      <slot name="messages"></slot>
-    </div>`
+    return html`
+      <div class="mt-4">
+        ${this.renderGroupHeader()}
+        <div class="min-w-[45ch] max-w-prose mx-auto mb-3">
+          <slot
+            name="messages"
+            @slotchange=${this.handleMessageSlotChange}
+          ></slot>
+        </div>
+      </div>
+    `
+  }
+
+  renderGroupHeader() {
+    return html`
+      <div class="flex flex-row justify-center gap-4 w-full">
+        ${this.models.map((m, i) => {
+          return html`${this.renderModelTab(m, i)}`
+        })}
+      </div>
+    `
+  }
+
+  renderModelTab(model: ModelData, index: number) {
+    const [provider, _name] = model.id.trim().split('/') ?? []
+
+    let icon = iconMaybe(model.id.toLowerCase())
+
+    // Fallback to using name
+    if (!icon) {
+      icon = iconMaybe(model.name.toLowerCase())
+    }
+
+    if (!icon) {
+      icon = iconMaybe(provider.toLowerCase())
+    }
+
+    // Fallback to using prompt icon if appropriate
+    if (!icon) {
+      icon = 'chatSquareText'
+    }
+
+    const style = twindCss`
+      box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+    `
+    const providerTitle =
+      provider === 'openai'
+        ? 'OpenAi'
+        : `${provider.charAt(0).toUpperCase()}${provider.slice(1)}`
+
+    const isCurrent = this.selectedMessage === index
+
+    return html`
+      <button
+        class="flex items-center font-sans rounded-sm p-2 ${isCurrent
+          ? 'text-brand-blue'
+          : 'text-gray-500'} ${style}"
+        @click=${() => this.setSelected(index)}
+      >
+        <stencila-ui-icon name=${icon} class="text-2xl"></stencila-ui-icon>
+        <div class="flex flex-col justify-center ml-2">
+          <span class="text-xs leading-5">${providerTitle} ${model.name}</span>
+          <span class="text-2xs text-left inline-block leading-none">
+            ${model.version ?? '1.0.1'}
+          </span>
+        </div>
+      </button>
+    `
   }
 }
+
+// <stencila-ui-icon name=${icon} class="text-2xl"></stencila-ui-icon>
+// <span class="text-sm ml-1">${name}</span>

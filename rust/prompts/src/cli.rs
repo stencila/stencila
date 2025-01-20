@@ -82,10 +82,11 @@ impl List {
             };
 
             let color = match instruction_types.first() {
+                Some(InstructionType::Discuss) => Color::Magenta,
                 Some(InstructionType::Create) => Color::Green,
-                Some(InstructionType::Edit) => Color::Blue,
-                Some(InstructionType::Fix) => Color::Cyan,
-                Some(InstructionType::Describe) => Color::Yellow,
+                Some(InstructionType::Describe) => Color::Blue,
+                Some(InstructionType::Edit) => Color::Cyan,
+                Some(InstructionType::Fix) => Color::Yellow,
                 None => Color::Grey,
             };
 
