@@ -365,7 +365,7 @@ rl.on("line", (task) => {
           // Filter out lines related to evaluation
           if (
             !(
-              line.includes("kernels/nodejs:") ||
+              line.includes("kernels/kernel.js:") ||
               line.includes("node:vm:") ||
               line.includes("node:internal/readline/interface:") ||
               line.includes("node:events:")

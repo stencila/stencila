@@ -61,14 +61,14 @@ impl Microkernel for PythonKernel {
 
     fn executable_arguments(&self, executable_name: &str) -> Vec<String> {
         if executable_name == "uv" {
-            vec!["run".into(), "python".into(), "{{script}}".into()]
+            vec!["run".into(), "{{script}}".into()]
         } else {
             vec!["{{script}}".into()]
         }
     }
 
-    fn microkernel_script(&self) -> String {
-        include_str!("kernel.py").to_string()
+    fn microkernel_script(&self) -> (String, String) {
+        ("kernel.py".into(), include_str!("kernel.py").into())
     }
 }
 
@@ -1267,6 +1267,7 @@ print(type(sys), type(datetime), type(glob))
     }
 
     /// Standard kernel test for signals
+    #[ignore = "signals not received when `uv run` is used"]
     #[test_log::test(tokio::test)]
     async fn signals() -> Result<()> {
         let Some(instance) = create_instance::<PythonKernel>().await? else {

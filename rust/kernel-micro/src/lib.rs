@@ -72,7 +72,7 @@ pub trait Microkernel: Sync + Send + Kernel {
     ///
     /// If you want to break the microkernel implementation into more than one
     /// file then include them and concat them in this method.
-    fn microkernel_script(&self) -> String;
+    fn microkernel_script(&self) -> (String, String);
 
     /// Whether the executable used by this microkernel is available on this machine
     ///
@@ -144,8 +144,9 @@ pub trait Microkernel: Sync + Send + Kernel {
         // Always write the script file, even if it already exists, to allow for changes
         // to the microkernel's script
         let kernels_dir = app::get_app_dir(app::DirType::Kernels, true)?;
-        let script_file = kernels_dir.join(self.name());
-        write(&script_file, self.microkernel_script())?;
+        let (script_name, script) = self.microkernel_script();
+        let script_file = kernels_dir.join(script_name);
+        write(&script_file, script)?;
 
         // Get args to the executable and replace placeholder in args with the script path
         let executable_args: Vec<String> = self

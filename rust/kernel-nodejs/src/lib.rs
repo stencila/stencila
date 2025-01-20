@@ -54,8 +54,8 @@ impl Microkernel for NodeJsKernel {
         "node".to_string()
     }
 
-    fn microkernel_script(&self) -> String {
-        include_str!("kernel.js").to_string()
+    fn microkernel_script(&self) -> (String, String) {
+        ("kernel.js".into(), include_str!("kernel.js").into())
     }
 }
 

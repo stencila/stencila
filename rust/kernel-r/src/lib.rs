@@ -53,8 +53,8 @@ impl Microkernel for RKernel {
         "Rscript".to_string()
     }
 
-    fn microkernel_script(&self) -> String {
-        include_str!("kernel.r").to_string()
+    fn microkernel_script(&self) -> (String, String) {
+        ("kernel.r".into(), include_str!("kernel.r").into())
     }
 
     fn default_message_level(&self) -> MessageLevel {

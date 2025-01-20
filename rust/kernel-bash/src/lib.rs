@@ -54,8 +54,8 @@ impl Microkernel for BashKernel {
         "bash".to_string()
     }
 
-    fn microkernel_script(&self) -> String {
-        include_str!("kernel.bash").to_string()
+    fn microkernel_script(&self) -> (String, String) {
+        ("kernel.bash".into(), include_str!("kernel.bash").into())
     }
 }
 
