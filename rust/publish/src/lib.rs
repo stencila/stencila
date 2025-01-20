@@ -14,6 +14,7 @@ pub struct Cli {
 pub enum Publisher {
     Ghost(publish_ghost::Cli),
     Stencila(publish_stencila::Cli),
+    Zenodo(publish_zenodo::Cli),
 }
 
 impl Cli {
@@ -22,6 +23,7 @@ impl Cli {
         match self.publisher {
             Ghost(cli) => cli.run().await,
             Stencila(cli) => cli.run().await,
+            Zenodo(cli) => cli.run().await,
         }
     }
 }

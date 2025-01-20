@@ -1,0 +1,16 @@
+[package]
+name = "publish-zenodo"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+cli-utils = { path = "../cli-utils" }
+codec = { path = "../codec" }
+codec-swb = { path = "../codec-swb" }
+codec-text = { path = "../codec-text" }
+common = { "path" = "../common" }
+document = { path = "../document" }
+url = "2.5.4"
+
+[lints]
+workspace = true

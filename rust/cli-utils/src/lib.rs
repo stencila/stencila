@@ -15,6 +15,9 @@ pub use code::*;
 mod message;
 pub use message::*;
 
+mod parsers;
+pub use parsers::*;
+
 pub mod table;
 
 /// A trait for displaying an object to stdout
