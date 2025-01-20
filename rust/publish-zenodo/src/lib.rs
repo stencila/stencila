@@ -4,7 +4,9 @@
 use std::{path::PathBuf, str::FromStr, sync::{Arc, Mutex}};
 
 use codec::{schema::{Primitive, PropertyValue, PropertyValueOrString}, Codec};
+use cli_utils::{parse_host, ToStdout};
 use cli_utils::parse_host;
+use cli_utils::{parse_host, ToStdout};
 use common::{
     clap::{self, Parser}, eyre::{bail, OptionExt, Result}, reqwest::Client, serde, serde_json::{json, Value}, tempfile, tokio, tracing,
 };
@@ -537,8 +539,8 @@ impl Cli {
                 msg.push_str(&format!(" with the doi:{doi} pre-reserved"));
             }
             msg.push('.');
-            println!("{msg}");
-            println!("Review and publish manually, or use --force to publish directly");
+            cli_utils::message!("{}", msg).to_stdout();
+            cli_utils::message!("Review and publish manually, or use --force to publish directly");
         }
 
         Ok(())
