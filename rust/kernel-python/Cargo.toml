@@ -8,7 +8,7 @@ kernel-micro = { path = "../kernel-micro" }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
-test-log = { version = "0.2.15", default-features = false, features = ["trace"] }
+test-log = { workspace = true }
 
 [lints]
 workspace = true
