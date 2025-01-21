@@ -340,23 +340,6 @@ export class Chat extends Executable {
   }
 
   private renderCard() {
-<<<<<<< HEAD
-    return html`<stencila-ui-block-on-demand
-      type="Chat"
-      node-id=${this.id}
-      depth=${this.depth}
-    >
-      <div slot="header-right">
-        <stencila-ui-node-execution-commands
-          type="Chat"
-          node-id=${this.id}
-          depth=${this.depth}
-          status=${this.executionStatus}
-          required=${this.executionRequired}
-        >
-        </stencila-ui-node-execution-commands>
-      </div>
-=======
     return html`
       <stencila-ui-block-on-demand
         type="Chat"
@@ -371,7 +354,6 @@ export class Chat extends Executable {
           >
           </stencila-ui-node-execution-commands>
         </div>
->>>>>>> 35048d74f1b0065aabb4a072ec14926a85a203c4
 
         <div slot="body">
           <stencila-ui-node-execution-details
