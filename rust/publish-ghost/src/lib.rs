@@ -79,6 +79,10 @@ pub struct Cli {
     #[arg(long, conflicts_with = "push")]
     pull: bool,
 
+    /// Ghost id of the page or post
+    #[arg(long)]
+    id: Option<String>,
+
     #[rustfmt::skip]
     // The following options are applicable only to pushes.
     // Using `conflicts_with = "pull"` for these is better than
@@ -168,8 +172,16 @@ impl Cli {
                 for id in ids {
                     if let PropertyValueOrString::String(id) = id {
                         if let Some(host) = &self.ghost {
+                            if let Some(id) = self.id.clone() {
+                                let page_or_post = if self.post{
+                                    "posts"
+                                } else {
+                                    "pages"
+                                };
+                                return Some(format!("https://{host}/ghost/api/admin/{page_or_post}/{id}"));
+                            }
                             // If a host is provided then return the first URL on that host
-                            if id.starts_with(&format!("https://{host}/ghost/api/admin/")) {
+                            else if id.starts_with(&format!("https://{host}/ghost/api/admin/")) {
                                 return Some(id.clone());
                             }
                         } else if id.starts_with("https://") && id.contains("/ghost/api/admin/") {
