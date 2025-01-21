@@ -388,8 +388,9 @@ nodeTypes: []
       const chatId = await vscode.commands.executeCommand<string>(
         "stencila.create-chat",
         editor.document.uri.toString(),
-        null,
-        null,
+        null, // range
+        "Discuss", // instruction type
+        null, // node type
         "stencila/discuss/document"
       );
 
@@ -411,24 +412,26 @@ nodeTypes: []
     })
   );
 
-  // Create a temporary chat
+  // Create a temporary chat in the current document
   //
   // If the instruction type is not supplied it is inferred from the selected node
   // types (if any). Defaults to running the chat straightaway.
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      `stencila.insert-chat`,
-      async (instructionType, prompt, executeChat) => {
+      `stencila.invoke.create-chat`,
+      async ({ instructionType, nodeType, prompt, executeChat }) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
           vscode.window.showErrorMessage("No active editor");
           return;
         }
 
-        event("doc_chat_insert", {
+        event("doc_chat_create", {
           format: editor.document.languageId,
-          type: instructionType,
-          execute: executeChat,
+          instructionType,
+          nodeType,
+          prompt,
+          executeChat,
         });
 
         const chatId = await vscode.commands.executeCommand<string>(
@@ -436,8 +439,9 @@ nodeTypes: []
           editor.document.uri.toString(),
           editor.selection,
           instructionType,
+          nodeType,
           prompt,
-          executeChat ?? true
+          executeChat
         );
 
         const panel = await createNodeViewPanel(
@@ -459,40 +463,54 @@ nodeTypes: []
     )
   );
 
+  // Typed wrapper to the `invoke.create-chat` command for convenience
+  // of following commands
+  async function insertChat(options: {
+    instructionType: "Create" | "Edit" | "Fix";
+    nodeType?: string;
+    prompt?: string;
+    executeChat?: boolean;
+  }) {
+    await vscode.commands.executeCommand(
+      "stencila.invoke.create-chat",
+      options
+    );
+  }
+
   // Create a `Create` chat but do not run it straightaway
   context.subscriptions.push(
-    vscode.commands.registerCommand(`stencila.insert-chat-create`, async () => {
-      await vscode.commands.executeCommand(
-        "stencila.insert-chat",
-        "Create",
-        undefined,
-        false
-      );
-    })
+    vscode.commands.registerCommand(
+      `stencila.insert-chat.suggest`,
+      async () => await insertChat({ instructionType: "Create" })
+    )
   );
+  for (const nodeType of ["Paragraph", "Table", "CodeChunk"]) {
+    context.subscriptions.push(
+      vscode.commands.registerCommand(
+        `stencila.insert-chat.create.${nodeType}`,
+        async () =>
+          await insertChat({
+            instructionType: "Create",
+            nodeType,
+          })
+      )
+    );
+  }
 
   // Create a `Edit` chat but do not run it straightaway
   context.subscriptions.push(
-    vscode.commands.registerCommand(`stencila.insert-chat-edit`, async () => {
-      await vscode.commands.executeCommand(
-        "stencila.insert-chat",
-        "Edit",
-        undefined,
-        false
-      );
-    })
+    vscode.commands.registerCommand(
+      `stencila.insert-chat.edit`,
+      async () => await insertChat({ instructionType: "Edit" })
+    )
   );
 
   // Create a `Fix` chat but do not run it straightaway
   context.subscriptions.push(
-    vscode.commands.registerCommand(`stencila.insert-chat-fix`, async () => {
-      await vscode.commands.executeCommand(
-        "stencila.insert-chat",
-        "Fix",
-        undefined,
-        false
-      );
-    })
+    vscode.commands.registerCommand(
+      `stencila.insert-chat.fix`,
+      async () => await insertChat({ instructionType: "Fix" })
+    )
   );
 
   // Insert a `create` command

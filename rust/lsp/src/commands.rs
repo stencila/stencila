@@ -689,12 +689,13 @@ pub(super) async fn execute_command(
             let instruction_type = args
                 .next()
                 .and_then(|value| serde_json::from_value(value).ok());
+            let node_type = node_type_arg(args.next()).ok();
             let prompt = args
                 .next()
-                .and_then(|value| serde_json::from_value(value).ok());
+                .and_then(|value| serde_json::from_value::<String>(value).ok());
             let execute_chat: bool = args
                 .next()
-                .and_then(|value| serde_json::from_value(value).ok())
+                .and_then(|value| serde_json::from_value::<bool>(value).ok())
                 .unwrap_or_default();
 
             let root = root.read().await;
@@ -705,7 +706,12 @@ pub(super) async fn execute_command(
                     // If an explicit create instruction, then ignore nodes spanning
                     // range (likely that cursor accidentally on boundary and user does not
                     // want to use them as suggestions etc)
-                    (Vec::new(), Vec::new())
+                    (
+                        Vec::new(),
+                        node_type
+                            .map(|node_type| vec![node_type])
+                            .unwrap_or_default(),
+                    )
                 } else if let Some(range) = range {
                     // Get any blocks spanning the range
                     let node_ids = root.block_ids_spanning(range);
@@ -804,11 +810,19 @@ pub(super) async fn execute_command(
                     None => (None, None),
                 };
 
+                // If no prompt provided then infer one from the instruction type, node type etc
+                let target = match prompt {
+                    Some(prompt) => Some(prompt),
+                    None => prompts::infer(&instruction_type, &node_types, &None)
+                        .await
+                        .map(|prompt| prompt.name.clone()),
+                };
+
                 let chat = Chat {
                     prompt: PromptBlock {
                         instruction_type,
                         node_types,
-                        target: prompt,
+                        target,
                         ..Default::default()
                     },
                     is_temporary: Some(true),
