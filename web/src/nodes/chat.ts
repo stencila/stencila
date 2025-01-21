@@ -8,7 +8,7 @@ import { customElement, state } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
-import '../ui/nodes/chat-message-inputs'
+import '../ui/nodes/chat/chat-message-inputs'
 import '../ui/nodes/nodes-selected'
 
 import { ChatMessage } from './chat-message'

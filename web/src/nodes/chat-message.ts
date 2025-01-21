@@ -9,7 +9,7 @@ import { closestGlobally } from '../utilities/closestGlobally'
 
 import { Executable } from './executable'
 
-import '../ui/nodes/chat-message-inputs'
+import '../ui/nodes/chat/chat-message-inputs'
 
 /**
  * Web component representing a Stencila `ChatMessage` node

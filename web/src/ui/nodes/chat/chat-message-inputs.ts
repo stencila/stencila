@@ -3,12 +3,11 @@ import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { createRef, ref, Ref } from 'lit/directives/ref'
 
-import { runChat } from '../../clients/commands'
-import { withTwind } from '../../twind'
-import { debounce } from '../../utilities/debounce'
-import { fileToStencilaFile } from '../inputs/file-input'
-
-import { UIBaseClass } from './mixins/ui-base-class'
+import { runChat } from '../../../clients/commands'
+import { withTwind } from '../../../twind'
+import { debounce } from '../../../utilities/debounce'
+import { fileToStencilaFile } from '../../inputs/file-input'
+import { UIBaseClass } from '../mixins/ui-base-class'
 
 @customElement('stencila-ui-chat-message-inputs')
 @withTwind()
