@@ -1,3 +1,4 @@
+import { InlineTypeList } from '@stencila/types'
 import { apply } from '@twind/core'
 import { html, PropertyValueMap } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
@@ -10,7 +11,6 @@ import { UIBaseClass } from '../mixins/ui-base-class'
 
 import '../../animation/collapsible'
 import '../../buttons/chevron'
-import { InlineTypeList } from '@stencila/types'
 
 /**
  * UI Base Card
