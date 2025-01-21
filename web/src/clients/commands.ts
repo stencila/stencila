@@ -98,6 +98,15 @@ export const runNode = (
   })
 
 /**
+ * Create a `cancel-node` command event
+ */
+export const cancelNode = (nodeType: NodeType, nodeId: NodeId) =>
+  documentCommandEvent({
+    command: 'cancel-node',
+    args: [nodeType, nodeId],
+  })
+
+/**
  * Create a `run-chat` command event
  */
 export const runChat = (nodeId: NodeId, text: string, files: Array<File>) =>

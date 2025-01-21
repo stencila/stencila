@@ -4,7 +4,7 @@ import { apply, css } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { runNode } from '../../../clients/commands'
+import { cancelNode, runNode } from '../../../clients/commands'
 import { withTwind } from '../../../twind'
 import { closestGlobally } from '../../../utilities/closestGlobally'
 import { UIBaseClass } from '../mixins/ui-base-class'
@@ -32,16 +32,10 @@ export class UINodeExecutionCommands extends UIBaseClass {
     this.dispatchEvent(runNode(this.type, this.nodeId))
   }
 
-  private onStop(event: Event) {
-    event.stopImmediatePropagation()
-
-    void 0
-  }
-
   private onCancel(event: Event) {
     event.stopImmediatePropagation()
 
-    void 0
+    this.dispatchEvent(cancelNode(this.type, this.nodeId))
   }
 
   private onRunAbove(event: Event) {
@@ -96,7 +90,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
           <stencila-ui-icon-button
             name=${icon}
             class="text-2xl"
-            @click=${this.onRun}
+            @click=${executionInProgress ? this.onCancel : this.onRun}
           ></stencila-ui-icon-button>
         </sl-tooltip>
 
