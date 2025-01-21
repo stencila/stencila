@@ -32,6 +32,18 @@ export class UINodeExecutionCommands extends UIBaseClass {
     this.dispatchEvent(runNode(this.type, this.nodeId))
   }
 
+  private onStop(event: Event) {
+    event.stopImmediatePropagation()
+
+    void 0
+  }
+
+  private onCancel(event: Event) {
+    event.stopImmediatePropagation()
+
+    void 0
+  }
+
   private onRunAbove(event: Event) {
     event.stopImmediatePropagation()
 
@@ -44,6 +56,24 @@ export class UINodeExecutionCommands extends UIBaseClass {
     this.dispatchEvent(runNode(this.type, this.nodeId, 'plus-after'))
   }
 
+  private getButtonIcon() {
+    switch (this.status) {
+      case 'Pending':
+        return ['xCircle', 'Cancel node execution']
+      case 'Running':
+        return ['squareFill', 'Stop node execution']
+      default:
+        // return 'filled' play button for node to be executed
+        // else return 'empty' play button
+        if (this.required === 'NeverExecuted') {
+          return ['playFill', 'Run node, not executed']
+        } else if (this.required === 'StateChanged') {
+          return ['playFill', 'Run node, changes since last executed']
+        }
+        return ['play', 'Run node']
+    }
+  }
+
   override render() {
     const classes = apply([
       'flex flex-row items-center flex-shrink-0',
@@ -53,13 +83,18 @@ export class UINodeExecutionCommands extends UIBaseClass {
     const showDropdown =
       this.depth > 0 && closestGlobally(this, 'stencila-chat-message') === null
 
+    const executionInProgress =
+      this.status === 'Pending' || this.status === 'Running'
+
+    const [icon, text] = this.getButtonIcon()
+
     return html`
       <div class=${classes}>
-        ${showDropdown ? this.renderDropdown() : ''}
+        ${showDropdown && !executionInProgress ? this.renderDropdown() : ''}
 
-        <sl-tooltip content="Run this node">
+        <sl-tooltip content=${text}>
           <stencila-ui-icon-button
-            name="play"
+            name=${icon}
             class="text-2xl"
             @click=${this.onRun}
           ></stencila-ui-icon-button>
@@ -119,7 +154,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
 
     return html`
       <sl-dropdown
-        class=${containerStyles}
+        class="${containerStyles} mr-1"
         @click=${(event: Event) => event.stopImmediatePropagation()}
         placement="bottom-end"
         hoist

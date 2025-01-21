@@ -15,24 +15,29 @@ export class UINodeSimpleProperty extends LitElement {
   @property({ attribute: 'icon' })
   iconName: IconName
 
+  @property({ type: String, attribute: 'icon-classes' })
+  iconClasses?: string
+
   @property({ attribute: 'tooltip' })
   tooltip?: string
 
   override render() {
-    return html`<sl-tooltip
-      content=${this.tooltip}
-      placement="top-start"
-      .disabled=${(this.tooltip?.length ?? 0) === 0}
-    >
-      <div class="flex flex-row w-full h-full items-center gap-x-1">
-        <stencila-ui-icon
-          name=${this.iconName}
-          class="text-base"
-        ></stencila-ui-icon>
-        <div class="grow">
-          <slot></slot>
+    return html`
+      <sl-tooltip
+        content=${this.tooltip}
+        placement="top-start"
+        .disabled=${(this.tooltip?.length ?? 0) === 0}
+      >
+        <div class="flex flex-row w-full h-full items-center gap-x-1">
+          <stencila-ui-icon
+            name=${this.iconName}
+            class="text-base ${this.iconClasses ?? ''}"
+          ></stencila-ui-icon>
+          <div class="grow">
+            <slot></slot>
+          </div>
         </div>
-      </div>
-    </sl-tooltip>`
+      </sl-tooltip>
+    `
   }
 }
