@@ -5,7 +5,7 @@ use markdown::{mdast, unist::Position};
 use winnow::{
     ascii::{multispace0, multispace1, space0},
     combinator::{alt, delimited, not, opt, peek, preceded, repeat, separated, terminated},
-    stream::{Located, Stream},
+    stream::{LocatingSlice as Located, Stream},
     token::{take, take_until, take_while},
     PResult, Parser,
 };
