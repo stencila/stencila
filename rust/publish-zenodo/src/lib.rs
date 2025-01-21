@@ -5,21 +5,74 @@ use std::{path::PathBuf, str::FromStr, sync::{Arc, Mutex}};
 
 use codec::{schema::{Primitive, PropertyValue, PropertyValueOrString}, Codec};
 use cli_utils::{parse_host, ToStdout};
-use cli_utils::parse_host;
-use cli_utils::{parse_host, ToStdout};
 use common::{
     clap::{self, Parser}, eyre::{bail, OptionExt, Result}, reqwest::Client, serde, serde_json::{json, Value}, tempfile, tokio, tracing,
 };
 
 use document::{schema, CommandWait, Document, EncodeOptions, Format, schema::Node};
 use codec_swb::SwbCodec;
+use color_print::cstr;
 
 mod metadata_extraction;
+
+pub static AFTER_HELP: &str = cstr!("
+<bold>Usage Instructions</bold>
+
+Detailed usage information provided in long-form help page, available by <cyan>stencila help publish zenodo</cyan>.
+"); 
+
+pub static AFTER_LONG_HELP: &str = cstr!("
+<bold>Further information</bold>
+
+<i>Authentication</i>
+
+To deposit a document at Zenodo, you must first have an authentication token that has the <blue>deposit:actions</> scope enabled.
+
+To create an authentication token, log into Zenodo, visit your account's dashboard, then click <bold>Applications</>, followed by <bold>+ New Token</bold> within the <bold>Personal access tokens</>  section. Give the token a name and enable the <blue>deposit:actions</> the scope. Enable the <blue>deposit:write</> scope to enable the <cyan>--force</> flag.
+
+To inform Stencila about the new token, add it as the STENCILA_ZENODO_TOKEN environment variable or include it as the <cyan>--token</> <green><<TOKEN>></> option.
+
+<i>Recommended workflow</i>
+
+We recommend starting with the Zenodo Sandbox at <<https://sandbox.zenodo.org/>>. 
+
+    <dim>$</> export STENCILA_ZENODO_TOKEN=\"<green><<TOKEN>></>\" <dim># from https://sandbox.zenodo.org/</>
+    <dim>$</> stencila publish zenodo <green><<DOCUMENT_PATH>></>
+    <blue>Successfully uploaded a draft deposit to https://sandbox.zenodo.org/deposit/<i><<deposit-id>></> with the DOI 10.5282/zenodo.<i><<deposit-id>></> pre-reserved.</>
+    <blue>Note: This deposit has been submitted to the Zenodo Sandbox. Use the --zenodo flag to resubmit to the production Zenodo server.</>
+
+You should now review the deposit, make any corrections and then click publish from Zenodo's web interface when you're happy. If you wish to skip the review process and publish immediately, then use the <cyan>--force</> flag.
+
+Now that you have an understanding of the process, you should move to the Zenodo production server at <<https://zenodo.org/>>. This involves creating an authentication token there, informing Stencila about it and then adding the <cyan>--zenodo</> flag as a command-line argument.
+
+    <dim>$</> export STENCILA_ZENODO_TOKEN=\"<green><<TOKEN>></>\" <dim># from https://zenodo.org/</>
+    <dim>$</> stencila publish zenodo <bold>--zenodo</> <green><<DOCUMENT_PATH>></>
+    <blue>Successfully uploaded a draft deposit to https://zenodo.org/deposit/<i><<deposit-id>></> with the DOI 10.5281/zenodo.<i><<deposit-id>></> pre-reserved.</> 
+
+<i>Metadata</i>
+
+Metadata for the deposition is provided by command-line arguments, falling back to metadata found within the document, then Stencila's defaults.
+
+Zenodo requires that deposits have metadata such as <blue>title</> and <blue>description</>. It also requires that you describe which resource type and/or publication type the deposit is.
+
+By default, Stencila describes your document as a publication, with the <i>preprint</i> sub-type. You can use the <cyan>--lesson</> flag to describe your document as a lesson. To use another publication sub-type, review the list in the documentation above and provide it as the <cyan>--publication=[<green><<PUBLICATION_TYPE>></>]</> option.
+
+Every source format has its own mechanism for providing metadata. For example, within Stencila Markdown (.smd files), you add YAML front matter:
+
+  <dim>---</>
+  <cyan>title:</> <dim>Example Stencila Markdown</>
+  <cyan>description:</> <dim>An example of a Stencila Markdown document with embedded metadata</>
+  <dim>---</>
+
+   <dim># First Heading</>
+
+   <dim>Content...</>
+
+");
 
 fn parse_date(input: &str) -> Result<schema::Date> {
     Ok(schema::Date::from_str(input)?)
 }
-
 
 /// Items within Zenodo's controlled vocabulary of accepted types of publication
 #[derive(Debug, Clone, Copy, Default, serde::Deserialize, serde::Serialize, clap::ValueEnum)]
@@ -47,20 +100,6 @@ enum PublicationType {
 }
 
 /// Publish to Zenodo
-/// 
-/// Metadata for the deposition is extracted from the metadata within the
-/// document.
-/// 
-/// Once uploaded, you will prompted to review the deposition and publish from
-/// Zenodo's web interface. If you wish to skip the review process and publish
-/// immediately, then use the `--force` flag.
-/// 
-/// By default, Zenodo's testing server is used. This means that DOIs created
-/// will not resolve. To upload to Zenodo's public-facing production server, use
-/// the `--zenodo` flag. To upload to a specific server instance, use
-/// `--server`.
-/// 
-/// Unless told otherwise, your deposit will be given the publication type "preprint".
 #[derive(Debug, Parser)]
 pub struct Cli {
     /// Path to location of what to publish
@@ -76,38 +115,50 @@ pub struct Cli {
     /// 
     /// Enable the "deposit:write" scope to enable the `--force` flag.
     #[arg(long, env = "STENCILA_ZENODO_TOKEN")]
-    #[arg(help_heading("Zenodo Settings"))]
-    #[arg(display_order(1))]
+    #[arg(help_heading("Zenodo Settings"), display_order(1))]
+    #[arg(hide_env_values(true))]
     token: Option<String>,
 
     // Server selection options
 
-    /// Publish to Zenodo's testing server
+    /// Publish to the Zenodo Sandbox for testing
+    /// 
+    /// The Zenodo Sandbox is available at https://sandbox.zenodo.org. It
+    /// requires its own access key that is independent from the Zenodo
+    /// production server.
+    /// 
+    /// [default]
     #[arg(group = "zenodo_server")]
     #[arg(long, default_value_t = true)]
     #[arg(help_heading("Zenodo Settings"), display_order(1))]
     sandbox: bool,
 
-    /// Publish to Zenodo's public-facing server
-    /// 
-    /// [default]
-    #[arg(group = "zenodo_server")]
-    #[arg(long)]
-    #[arg(help_heading("Zenodo Settings"), display_order(1))]
-    zenodo: bool,
+    // /// Publish to Zenodo's public-facing production server
+    // #[arg(group = "zenodo_server")]
+    // #[arg(long)]
+    // #[arg(help_heading("Zenodo Settings"), display_order(1))]
+    // zenodo: bool,
 
-    /// Publish to a specific Zenodo server
+    /// Specify Zenodo instance, defaults to the public-facing production server
+    /// 
+    /// Use this option to publish to a custom Zenodo instance. Provide just the
+    /// domain name or IP address with an optional port, e.g.
+    /// `zenodo.example.org` or `zenodo.example.org:8000`.
+    /// 
+    /// Overwritten by `--sandbox`.
     #[arg(group = "zenodo_server")]
     #[arg(long, value_parser = parse_host)]
     #[arg(help_heading("Zenodo Settings"), display_order(1))]
-    server: Option<url::Host>,
+    #[arg(num_args(0..=1), require_equals=true, default_missing_value("zenodo.org"))]
+    #[arg(default_value("zenodo.org"))] // This isn't actually used, but is useful for auto-generated documentation.
+    zenodo: url::Host,
 
     // Resource type options
 
     /// Upload document as a "lesson"
     #[arg(group = "resource_type")]
     #[arg(long)]
-    #[arg(conflicts_with_all = ["publication", "publication_type"])]
+    #[arg(conflicts_with_all = ["is_publication", "publication"])]
     #[arg(help_heading("Deposition Settings"), display_order(2))]
     lesson: bool,
 
@@ -117,8 +168,10 @@ pub struct Cli {
     #[arg(group = "resource_type")]
     #[arg(long, default_value_t = true)]
     #[arg(default_value_if("lesson", common::clap::builder::ArgPredicate::IsPresent, "false"))]
-    #[arg(help_heading("Deposition Settings"), display_order(2))]
-    publication: bool,
+    #[arg(default_value_if("publication", common::clap::builder::ArgPredicate::IsPresent, "true"))]
+    // #[arg(help_heading("Deposition Settings"), display_order(2))]
+    #[arg(hide(true))] // needed for logic later, but not exposed to the user
+    is_publication: bool,
 
     /// Reserve a DOI for the deposition
     #[arg(long)]
@@ -128,7 +181,7 @@ pub struct Cli {
     /// Publication date
     /// 
     /// When omitted, Zenodo will use today's date.
-    #[arg(long)]
+    #[arg(long, value_name="YYYY-MM-DD")]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
     #[arg(value_parser = parse_date)]
     publication_date: Option<schema::Date>,
@@ -147,14 +200,15 @@ pub struct Cli {
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
     description: Option<String>,
 
-    ///  One of the publication types from Zenodo's controlled vocabulary.
+    /// Upload document as a "publication"
     /// 
-    /// [default: preprint]
-    #[arg(long)]
-    #[arg(required_if_eq("publication", "true"))]
-    #[arg(default_value_if("publication", "true", "preprint"))]
+    /// Provide one of the publication types from Zenodo's controlled vocabulary.
+    #[arg(long, value_name="PUBLICATION_TYPE")]
+    #[arg(default_value("preprint"))]
+    #[arg(default_value_if("lesson", "true", ""))]
     #[arg(help_heading("Deposition Settings"), display_order(2))]
-    publication_type: Option<PublicationType>,
+    #[arg(num_args(0..=1), require_equals=true, default_missing_value("preprint"))]
+    publication: Option<PublicationType>,
 
     /// Force publish the deposition immediately
     /// 
@@ -286,12 +340,10 @@ impl Cli {
         };
 
         // Determine server URL
-        let server_url = if let Some(server) = self.server {
-            server
-        } else if self.zenodo {
-            url::Host::parse("zenodo.org")?
-        } else {
+        let server_url = if self.sandbox {
             url::Host::parse("sandbox.zenodo.org")?
+        } else {
+            self.zenodo
         };
 
         let metadata_from_doc = doc.inspect(|root| {
@@ -367,12 +419,11 @@ impl Cli {
 
         if self.lesson {
             deposit["metadata"]["upload_type"] = json!("lesson");
-        } else {
-            deposit["metadata"]["upload_type"] = json!("publication");
-        };
+        }
 
-        if self.publication {
-            deposit["metadata"]["publication_type"] = json!(self.publication_type.unwrap_or_default());
+        if self.is_publication {
+            deposit["metadata"]["upload_type"] = json!("publication");
+            deposit["metadata"]["publication_type"] = json!(self.publication.unwrap_or_default());
         }
 
         match (doi, self.reserve_doi) {
@@ -382,7 +433,7 @@ impl Cli {
             (None, false) => (),
         }
 
-        tracing::debug!(metadata = ?deposit, "Deposit metadata provided to Zenodo");
+        tracing::debug!(metadata_provided = ?deposit, "Creating deposit");
 
         // Create HTTP client
         let client = Client::new();
@@ -395,7 +446,7 @@ impl Cli {
             .send()
             .await?;
 
-        tracing::info!(response = ?deposition_response, "Deposit creation response");
+        tracing::debug!(response = ?deposition_response, "Deposit creation response");
 
         // permissions error
         if deposition_response.status().as_u16() == 403 {
@@ -533,14 +584,24 @@ impl Cli {
 
             tracing::info!("Created published deposition at {deposition_url}.");
         } else {
-
-            let mut msg = format!("Successfully published document as a draft deposit to {deposition_url}");
+            let mut msg = format!("Successfully uploaded a draft deposit to {deposition_url}");
             if let Some(doi) = reserved_doi {
                 msg.push_str(&format!(" with the doi:{doi} pre-reserved"));
             }
             msg.push('.');
+            
+            if self.sandbox {
+                if cfg!(target_os = "windows") {
+                    msg.push_str("\r\n");
+                } else {
+                    msg.push_str("\n");
+                };
+                
+                msg.push_str("Note: This deposit has been submitted to the Zenodo Sandbox. Use the --zenodo flag to resubmit to the production Zenodo server.");
+            }
             cli_utils::message!("{}", msg).to_stdout();
-            cli_utils::message!("Review and publish manually, or use --force to publish directly");
+            
+            
         }
 
         Ok(())
@@ -562,7 +623,7 @@ mod cli_tests {
     fn publication_type_defaults_to_preprint() {
         let args = Cli::parse_from(&["publish-zenodo", "--publication", "some.smd"]);
         println!("{args:#?}");
-        assert!(matches!(args.publication_type, Some(PublicationType::Preprint)));
+        assert!(matches!(args.publication, Some(PublicationType::Preprint)));
     }
 
     /// Tests that the publication type defaults to pre-print when --publication is set
@@ -571,7 +632,7 @@ mod cli_tests {
         let args = Cli::parse_from(&["publish-zenodo", "--lesson", "some.smd"]);
         println!("{args:#?}");
         assert!(args.sandbox);
-        assert!(matches!(args.publication_type, None));
-        assert!(!args.publication);
+        assert!(matches!(args.publication, None));
+        assert!(!args.is_publication);
     }
 }

@@ -14,6 +14,8 @@ pub struct Cli {
 pub enum Publisher {
     Ghost(publish_ghost::Cli),
     Stencila(publish_stencila::Cli),
+    #[command(after_help(publish_zenodo::AFTER_HELP))]
+    #[command(after_long_help(publish_zenodo::AFTER_LONG_HELP))]
     Zenodo(publish_zenodo::Cli),
 }
 
