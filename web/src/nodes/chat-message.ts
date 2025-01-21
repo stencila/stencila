@@ -1,9 +1,8 @@
 import { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
-import { html } from 'lit'
+import { html, PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
-import { patchValue } from '../clients/commands'
 import { withTwind } from '../twind'
 import { booleanConverter } from '../utilities/booleanConverter'
 import { closestGlobally } from '../utilities/closestGlobally'
@@ -34,41 +33,7 @@ export class ChatMessage extends Executable {
     attribute: 'is-selected',
     converter: booleanConverter,
   })
-  isSelected?: boolean
-
-  /**
-   * When the message is selected send a patch to the message group.
-   * In Rust, this is handled by a custom patch operation handler so that only one
-   * message is ever selected.
-   */
-  private onSelected() {
-    const group = this.closestGlobally('stencila-chat-message-group')
-    if (!group) {
-      return
-    }
-
-    // Set `isSelected` on all siblings (and this) and determine the
-    // index of this in the messages for the patch
-    let thisIndex
-    Array.from(this.parentNode.children).forEach(
-      (message: ChatMessage, index) => {
-        const selected = message.isSameNode(this)
-        message.isSelected = selected
-        if (selected) {
-          thisIndex = index
-        }
-      }
-    )
-
-    this.dispatchEvent(
-      patchValue(
-        'ChatMessageGroup',
-        group.id,
-        ['messages', thisIndex, 'isSelected'],
-        true
-      )
-    )
-  }
+  isSelected?: boolean = false
 
   /**
    * Should a node card, possibly within a chat message, be expanded?
@@ -94,6 +59,14 @@ export class ChatMessage extends Executable {
       closestGlobally(card, 'stencila-chat-message[message-role="Model"]') !==
         null
     )
+  }
+
+  protected override firstUpdated(changedProperties: PropertyValues): void {
+    super.firstUpdated(changedProperties)
+    // set first message in group as selected by default
+    if (this.isWithin('ChatMessageGroup')) {
+      this.isSelected = this.parentNode.children[0].isSameNode(this)
+    }
   }
 
   override render() {
@@ -132,17 +105,28 @@ export class ChatMessage extends Executable {
   }
 
   private renderModelMessage(style: string) {
-    return html`<div class="${style} my-3 p-3">
-      <slot name="author" class="text-blue-900"></slot>
-      ${this.executionStatus === 'Running'
-        ? this.renderRunningIndicator()
-        : html`
-            <slot name="content"></slot>
-            ${this.isWithin('ChatMessageGroup')
-              ? this.renderSelectButton()
-              : ''}
-          `}
-    </div>`
+    const inGroup = this.isWithin('ChatMessageGroup')
+
+    if (!inGroup) {
+      return html`
+        <div class="${style} my-3">
+          <slot name="author" class="text-blue-900"></slot>
+          ${this.executionStatus === 'Running'
+            ? this.renderRunningIndicator()
+            : html`<slot name="content"></slot>`}
+        </div>
+      `
+    }
+
+    return this.isSelected
+      ? html`
+          <div class="${style} my-3">
+            ${this.executionStatus === 'Running'
+              ? this.renderRunningIndicator()
+              : html`<slot name="content"></slot>`}
+          </div>
+        `
+      : html``
   }
 
   private renderRunningIndicator() {
@@ -155,20 +139,6 @@ export class ChatMessage extends Executable {
         <div class=${dotClasses} style="animation-delay: 0ms"></div>
         <div class=${dotClasses} style="animation-delay: 250ms"></div>
         <div class=${dotClasses} style="animation-delay: 500ms"></div>
-      </div>
-    `
-  }
-
-  private renderSelectButton() {
-    return html`
-      <div class="flex justify-center w-full">
-        <sl-tooltip content="Select this response">
-          <stencila-ui-icon-button
-            name=${this.isSelected ? 'checkCircleFill' : 'checkCircle'}
-            ?disabled=${this.isSelected}
-            @click=${this.onSelected}
-          ></stencila-ui-icon-button>
-        </sl-tooltip>
       </div>
     `
   }

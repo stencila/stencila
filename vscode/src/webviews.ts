@@ -65,7 +65,15 @@ export function registerSubscriptionNotifications(
   context.subscriptions.push(handler);
 }
 
-type ReceivedMessage = DomResetMessage | CommandMessage | ScrollSyncMessage;
+type ReceivedMessage =
+  | ClientReadyMessage
+  | DomResetMessage
+  | CommandMessage
+  | ScrollSyncMessage;
+
+interface ClientReadyMessage {
+  type: "client-ready";
+}
 
 interface DomResetMessage {
   type: "dom-reset";
@@ -221,6 +229,8 @@ export async function initializeWebViewPanel(
   );
 
   // Subscribe to updates of DOM HTML for document
+  let clientIsReady = false;
+  const patchBuffer: DomPatch[] = [];
   const [subscriptionId, themeName, viewHtml] = await subscribeToDom(
     uri,
     (patch) => {
@@ -229,11 +239,18 @@ export async function initializeWebViewPanel(
         return panel.dispose();
       }
 
-      // Otherwise, forward the patch to the panel
-      panel.webview.postMessage({
-        type: "dom-patch",
-        patch,
-      });
+      // Buffer the patch in case the client is not ready
+      patchBuffer.push(patch);
+
+      // If client is ready forward all patches in the order received
+      if (clientIsReady) {
+        while (patchBuffer.length > 0) {
+          panel.webview.postMessage({
+            type: "dom-patch",
+            patch: patchBuffer.shift(),
+          });
+        }
+      }
     }
   );
 
@@ -249,27 +266,33 @@ export async function initializeWebViewPanel(
     vscode.Uri.joinPath(webDist, "views", "vscode.js")
   );
 
+  // The order of the <script>s is important:
+  //
+  // 1. Load the Stencila Web bundle first because it starts listeners
+  //    for messages from the `vscode` API
+  // 2. Instantiate the `vscode` API early so it is ready to ready to
+  //    receive `postMessage` messages from here as soon as possible
   panel.webview.html = `
     <!DOCTYPE html>
       <html lang="en">
         <head>
-            <title>Stencila: Document Preview</title>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <link rel="preconnect" href="https://fonts.googleapis.com">
-            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-            <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-            <link title="theme:${themeName}" rel="stylesheet" type="text/css" href="${themeCss}">
-            <link rel="stylesheet" type="text/css" href="${viewCss}">
-            <script type="text/javascript" src="${viewJs}"></script>
+          <title>Stencila: Document Preview</title>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+          <link title="theme:${themeName}" rel="stylesheet" type="text/css" href="${themeCss}">
+          <link rel="stylesheet" type="text/css" href="${viewCss}">
+          <script type="text/javascript" src="${viewJs}"></script>
+          <script>
+            const vscode = acquireVsCodeApi()
+          </script>
         </head>
         <body style="background: white;">
           <stencila-vscode-view theme="${themeName}">
             ${viewHtml}
           </stencila-vscode-view>
-          <script>
-            const vscode = acquireVsCodeApi()
-          </script>
         </body>
     </html>
   `;
@@ -324,6 +347,11 @@ export async function initializeWebViewPanel(
   const documentUri = uri.with({ fragment: "" }).toString();
   panel.webview.onDidReceiveMessage(
     (message: ReceivedMessage) => {
+      if (message.type === "client-ready") {
+        clientIsReady = true;
+        return;
+      }
+
       if (message.type === "dom-reset") {
         resetDom(subscriptionId);
         return;

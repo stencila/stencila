@@ -25,6 +25,15 @@ export class CallBlock extends IncludeBlock {
       return this.renderContent()
     }
 
+    // render with the `insert` chip in model chat response
+    if (this.isWithinModelChatMessage()) {
+      return html`
+        <div class="group relative">
+          ${this.renderInsertChip()} ${this.renderContent()}
+        </div>
+      `
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="CallBlock"
@@ -32,13 +41,6 @@ export class CallBlock extends IncludeBlock {
         depth=${this.depth}
       >
         <div slot="header-right">
-          <stencila-ui-node-chat-commands
-            type="CallBlock"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-chat-commands>
-
           <stencila-ui-node-execution-commands
             type="CallBlock"
             node-id=${this.id}

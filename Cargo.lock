@@ -3644,6 +3644,7 @@ dependencies = [
  "kernels",
  "models",
  "node-execute",
+ "node-find",
  "percent-encoding",
  "prompts",
  "schema",

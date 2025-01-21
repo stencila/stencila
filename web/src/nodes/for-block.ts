@@ -35,11 +35,24 @@ export class ForBlock extends CodeExecutable {
   }
 
   override render() {
-    const { colour, borderColour } = nodeUi('ForBlock')
-
     if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return html`<slot name="iterations"></slot>`
     }
+
+    // render with the `insert` chip in model chat response
+    if (this.isWithinModelChatMessage()) {
+      return html`
+        <div class="group relative">
+          ${this.renderInsertChip()} ${this.renderCard()}
+        </div>
+      `
+    }
+
+    return this.renderCard()
+  }
+
+  private renderCard() {
+    const { colour, borderColour } = nodeUi('ForBlock')
 
     return html`
       <stencila-ui-block-on-demand
@@ -50,13 +63,6 @@ export class ForBlock extends CodeExecutable {
         ?noVisibleContent=${!this.hasIterations}
       >
         <div slot="header-right">
-          <stencila-ui-node-chat-commands
-            type="ForBlock"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-chat-commands>
-
           <stencila-ui-node-execution-commands
             type="ForBlock"
             node-id=${this.id}
