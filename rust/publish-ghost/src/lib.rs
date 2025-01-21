@@ -34,6 +34,7 @@ pub struct Cli {
     ///
     /// Defaults to the current directory.
     #[arg(default_value = ".")]
+    #[arg(display_order(0))]
     path: PathBuf,
 
     /// The Ghost domain
@@ -93,6 +94,7 @@ pub struct Cli {
 
     /// Title for page or post
     #[arg(long,conflicts_with = "pull")]
+    #[arg(help_heading("Post/Page Settings"),display_order(2))]
     title: Option<String>,
 
     /// Mark page or post as draft
