@@ -273,9 +273,7 @@ export class ModelParameters extends Entity {
     )
 
     return html`
-      <div class=${styles}>
-        Model ${this.renderSelect()} ${this.renderSliders()}
-      </div>
+      <div class=${styles}>${this.renderSelect()} ${this.renderSliders()}</div>
     `
   }
 
@@ -454,7 +452,7 @@ export class ModelParameters extends Entity {
             class="w-full"
             style=${rangeStyle}
             min="1"
-            max="10"
+            max="5"
             value=${this.replicates ?? 1}
             @sl-change=${(e: InputEvent) =>
               this.onPropertyChanged(e, 'replicates')}
