@@ -194,7 +194,7 @@ export class PromptBlock extends Executable {
         <div>
           <div class=${headerClasses}>
             <label class=${inChat ? 'hidden' : ''}>Prompt </label>
-            ${this.renderPromptSelect(borderColour, textColour)}
+            ${this.renderPromptSelect(inChat, borderColour, textColour)}
             ${this.renderShowHideContent()}
           </div>
 
@@ -244,7 +244,7 @@ export class PromptBlock extends Executable {
         </stencila-ui-node-execution-messages>
 
         <div class=${headerClasses}>
-          Prompt ${this.renderPromptSelect(borderColour, textColour)}
+          ${this.renderPromptSelect(inChat, borderColour, textColour)}
         </div>
       </div>
 
@@ -252,7 +252,11 @@ export class PromptBlock extends Executable {
     </stencila-ui-block-in-flow>`
   }
 
-  private renderPromptSelect(borderColour: string, textColour: string) {
+  private renderPromptSelect(
+    inChat: boolean,
+    borderColour: string,
+    textColour: string
+  ) {
     // Filter prompts if necessary
     const prompts = this.instructionType
       ? data.prompts.filter(
@@ -271,7 +275,7 @@ export class PromptBlock extends Executable {
     `
 
     let options
-    if (this.instructionType) {
+    if (!inChat && this.instructionType) {
       // Only show prompts for the instruction type
       options = prompts.map(promptOption)
     } else {
@@ -327,7 +331,7 @@ export class PromptBlock extends Executable {
       }
     }
 
-    const prefix = this.parentNodeIs('Chat')
+    const prefix = inChat
       ? html`<sl-tooltip
           content="Prompt used for chat"
           placement="right"
