@@ -676,7 +676,7 @@ pub(super) async fn execute_command(
             };
 
             (
-                format!("Cloning nodes"),
+                "Cloning nodes".to_string(),
                 Command::PatchNode(patch),
                 false,
                 true,
