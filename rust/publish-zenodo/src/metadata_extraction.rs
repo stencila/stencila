@@ -170,7 +170,6 @@ mod test_helpers {
         ];
         
         for (pattern, expected_outcome) in patterns {
-            println!("testing {pattern:?}, expected outcome: {expected_outcome:?}");
             assert_eq!(find_orcid(pattern).as_deref(), expected_outcome);
         }
     }
