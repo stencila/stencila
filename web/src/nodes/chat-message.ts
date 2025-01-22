@@ -110,7 +110,14 @@ export class ChatMessage extends Executable {
     if (!inGroup) {
       return html`
         <div class="${style} my-3">
-          <slot name="author" class="text-blue-900"></slot>
+          <div class="mb-4">
+            <slot
+              name="author"
+              class=${this.executionStatus === 'Running'
+                ? 'text-gray-400'
+                : 'text-brand-blue'}
+            ></slot>
+          </div>
           ${this.executionStatus === 'Running'
             ? this.renderRunningIndicator()
             : html`<slot name="content"></slot>`}

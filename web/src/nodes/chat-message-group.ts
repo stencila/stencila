@@ -3,13 +3,13 @@ import { customElement, state } from 'lit/decorators.js'
 
 import { patchValue } from '../clients/commands'
 import { withTwind } from '../twind'
-import { type ModelData } from '../ui/nodes/chat/chat-model-selector'
+import { type ModelData } from '../ui/nodes/chat/chat-group-model-tab'
 
 import { ChatMessage } from './chat-message'
 import { Entity } from './entity'
 import { SoftwareApplication } from './software-application'
 
-import '../ui/nodes/chat/chat-model-selector'
+import '../ui/nodes/chat/chat-group-model-tab'
 
 /**
  * Web component representing a Stencila `ChatMessageGroup`
