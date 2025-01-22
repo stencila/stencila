@@ -216,10 +216,14 @@ pub struct Cli {
     #[arg(num_args(0..=1), require_equals=true, default_missing_value("preprint"))]
     publication: Option<PublicationType>,
 
-    /// Force publish the deposition immediately
+    /// Publish the deposition immediately
     ///
     /// Requires that access token provided by the `--token` option has the "deposit:write" scope.
+    /// 
+    /// WARNING: This is permanent. It will be impossible to review the deposition or make changes 
+    ///          to it before it is publicly viewable. Publication cannot be revoked.
     #[arg(long)]
+    #[arg(help("Publish the deposition immediately (use with care"))]
     force: bool,
 
     /// Dry run mode - no actual upload
