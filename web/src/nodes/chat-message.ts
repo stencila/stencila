@@ -88,6 +88,9 @@ export class ChatMessage extends Executable {
   private renderSystemMessage(style: string) {
     return html`
       <div class="${style} my-3 p-3 bg-indigo-100 rounded">
+        <div class="bg-gray-100 rounded">
+          <slot name="execution-messages"></slot>
+        </div>
         <slot name="content"></slot>
       </div>
     `
@@ -96,6 +99,9 @@ export class ChatMessage extends Executable {
   private renderUserMessage(style: string) {
     return html`
       <div class="${style} flex justify-end">
+        <div class="bg-gray-100 rounded">
+          <slot name="execution-messages"></slot>
+        </div>
         <div class="my-3 p-3 bg-blue-50 rounded w-content">
           <slot name="content"></slot>
           <slot name="files"></slot>
@@ -118,6 +124,9 @@ export class ChatMessage extends Executable {
                 : 'text-brand-blue'}
             ></slot>
           </div>
+          <div class="bg-gray-200 rounded">
+            <slot name="execution-messages"></slot>
+          </div>
           ${this.executionStatus === 'Running'
             ? this.renderRunningIndicator()
             : html`<slot name="content"></slot>`}
@@ -128,6 +137,9 @@ export class ChatMessage extends Executable {
     return this.isSelected
       ? html`
           <div class="${style} my-3">
+            <div class="bg-gray-100 rounded">
+              <slot name="execution-messages"></slot>
+            </div>
             ${this.executionStatus === 'Running'
               ? this.renderRunningIndicator()
               : html`<slot name="content"></slot>`}
