@@ -6,7 +6,7 @@ use std::{path::PathBuf, str::FromStr, sync::{Arc, Mutex}};
 use codec::{schema::{Primitive, PropertyValue, PropertyValueOrString}, Codec};
 use cli_utils::{parse_host, ToStdout};
 use common::{
-    clap::{self, Parser}, eyre::{bail, OptionExt, Result}, reqwest::Client, serde, serde_json::{json, Value}, tempfile, tokio, tracing,
+    clap::{self, Parser, builder::ArgPredicate}, eyre::{bail, OptionExt, Result}, reqwest::Client, serde, serde_json::{json, Value}, tempfile, tokio, tracing,
 };
 
 use document::{schema, CommandWait, Document, EncodeOptions, Format, schema::Node};
@@ -150,7 +150,9 @@ pub struct Cli {
     #[arg(help_heading("Zenodo Settings"), display_order(1))]
     #[arg(num_args(0..=1), require_equals=true, default_missing_value("zenodo.org"))]
     #[arg(default_value("zenodo.org"))] // This isn't actually used, but is useful for auto-generated documentation.
+    #[arg(default_value_if("sandbox", ArgPredicate::IsPresent, "sandbox.zenodo.org"))] // Just in case
     #[arg(default_value_if("sandbox", common::clap::builder::ArgPredicate::IsPresent, "sandbox.zenodo.org"))] // Just in case
+    #[arg(default_value_if("sandbox", ArgPredicate::IsPresent, "sandbox.zenodo.org"))] // Just in case
     zenodo: url::Host,
 
     // Resource type options
@@ -167,8 +169,12 @@ pub struct Cli {
     /// [default]
     #[arg(group = "resource_type")]
     #[arg(long, default_value_t = true)]
+    #[arg(default_value_if("lesson", ArgPredicate::IsPresent, "false"))]
+    #[arg(default_value_if("publication", ArgPredicate::IsPresent, "true"))]
     #[arg(default_value_if("lesson", common::clap::builder::ArgPredicate::IsPresent, "false"))]
     #[arg(default_value_if("publication", common::clap::builder::ArgPredicate::IsPresent, "true"))]
+    #[arg(default_value_if("lesson", ArgPredicate::IsPresent, "false"))]
+    #[arg(default_value_if("publication", ArgPredicate::IsPresent, "true"))]
     // #[arg(help_heading("Deposition Settings"), display_order(2))]
     #[arg(hide(true))] // needed for logic later, but not exposed to the user
     is_publication: bool,
