@@ -145,11 +145,6 @@ pub struct Cli {
     #[arg(conflicts_with("zenodo"))]
     sandbox: bool,
 
-    // /// Publish to Zenodo's public-facing production server
-    // #[arg(group = "zenodo_server")]
-    // #[arg(long)]
-    // #[arg(help_heading("Zenodo Settings"), display_order(1))]
-    // zenodo: bool,
     /// Specify Zenodo instance, defaults to the public-facing production server
     ///
     /// Use this option to publish to a custom Zenodo instance. Provide just the
@@ -161,7 +156,6 @@ pub struct Cli {
     #[arg(num_args(0..=1), require_equals=true, default_missing_value("zenodo.org"))]
     #[arg(default_value("zenodo.org"))] // This isn't actually used, but is useful for auto-generated documentation.
     #[arg(default_value_if("sandbox", ArgPredicate::IsPresent, "sandbox.zenodo.org"))]
-    // Just in case
     zenodo: url::Host,
 
     // Resource type options
