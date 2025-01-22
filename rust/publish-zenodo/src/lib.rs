@@ -131,6 +131,7 @@ pub struct Cli {
     #[arg(group = "zenodo_server")]
     #[arg(long, default_value_t = true)]
     #[arg(help_heading("Zenodo Settings"), display_order(1))]
+    #[arg(conflicts_with("zenodo"))]
     sandbox: bool,
 
     // /// Publish to Zenodo's public-facing production server
@@ -144,13 +145,12 @@ pub struct Cli {
     /// Use this option to publish to a custom Zenodo instance. Provide just the
     /// domain name or IP address with an optional port, e.g.
     /// `zenodo.example.org` or `zenodo.example.org:8000`.
-    /// 
-    /// Overwritten by `--sandbox`.
     #[arg(group = "zenodo_server")]
     #[arg(long, value_parser = parse_host)]
     #[arg(help_heading("Zenodo Settings"), display_order(1))]
     #[arg(num_args(0..=1), require_equals=true, default_missing_value("zenodo.org"))]
     #[arg(default_value("zenodo.org"))] // This isn't actually used, but is useful for auto-generated documentation.
+    #[arg(default_value_if("sandbox", common::clap::builder::ArgPredicate::IsPresent, "sandbox.zenodo.org"))] // Just in case
     zenodo: url::Host,
 
     // Resource type options
