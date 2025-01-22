@@ -48,8 +48,6 @@ export class UINodeExecutionState extends LitElement {
 
     const icon = this.getIconName()
 
-    // TODO: Decide how best to coalesce (or not) `status` and `required` including
-    // labels and iconography. Currently, only status is being shown.
     return html`
       <stencila-ui-node-simple-property
         icon=${icon}

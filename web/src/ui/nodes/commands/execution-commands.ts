@@ -53,18 +53,17 @@ export class UINodeExecutionCommands extends UIBaseClass {
   private getButtonIcon() {
     switch (this.status) {
       case 'Pending':
-        return ['xCircle', 'Cancel node execution']
+        return ['xCircle', 'Cancel execution']
       case 'Running':
-        return ['squareFill', 'Stop node execution']
+        return ['squareFill', 'Stop execution']
       default:
-        // return 'filled' play button for node to be executed
-        // else return 'empty' play button
         if (this.required === 'NeverExecuted') {
-          return ['playFill', 'Run node, not executed']
+          return ['playFill', 'Run (not yet executed)']
         } else if (this.required === 'StateChanged') {
-          return ['playFill', 'Run node, changes since last executed']
+          return ['playFill', 'Run (changes since last executed)']
+        } else {
+          return ['play', 'Run']
         }
-        return ['play', 'Run node']
     }
   }
 
