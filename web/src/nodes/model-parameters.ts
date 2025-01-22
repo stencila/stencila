@@ -136,31 +136,39 @@ export class ModelParameters extends Entity {
                 >
                   <div class="text-sm">${model.name} ${model.version}</div>
                   <div class="flex flex-row items-center gap-2 text-[10px]">
-                    <div class=${iconGroupStyle}>
-                      ${scoreIcons(
-                        html`<stencila-ui-icon
-                          name="starFill"
-                        ></stencila-ui-icon>`,
-                        model.qualityScore
-                      )}
-                    </div>
-                    <div class=${iconGroupStyle}>
-                      ${scoreIcons(
-                        html`<stencila-ui-icon
-                          name="currencyDollar"
-                        ></stencila-ui-icon>`,
-                        model.costScore,
-                        true
-                      )}
-                    </div>
-                    <div class=${iconGroupStyle}>
-                      ${scoreIcons(
-                        html`<stencila-ui-icon
-                          name="lightningChargeFill"
-                        ></stencila-ui-icon>`,
-                        model.speedScore
-                      )}
-                    </div>
+                    <sl-tooltip
+                      content="Overall quality score: ${model.qualityScore}/100"
+                    >
+                      <div class=${iconGroupStyle}>
+                        ${scoreIcons(
+                          html`<stencila-ui-icon
+                            name="starFill"
+                          ></stencila-ui-icon>`,
+                          model.qualityScore
+                        )}
+                      </div>
+                    </sl-tooltip>
+                    <sl-tooltip content="Cost score: ${model.costScore}/100">
+                      <div class=${iconGroupStyle}>
+                        ${scoreIcons(
+                          html`<stencila-ui-icon
+                            name="currencyDollar"
+                          ></stencila-ui-icon>`,
+                          model.costScore,
+                          true
+                        )}
+                      </div>
+                    </sl-tooltip>
+                    <sl-tooltip content="Speed score: ${model.speedScore}/100">
+                      <div class=${iconGroupStyle}>
+                        ${scoreIcons(
+                          html`<stencila-ui-icon
+                            name="lightningChargeFill"
+                          ></stencila-ui-icon>`,
+                          model.speedScore
+                        )}
+                      </div>
+                    </sl-tooltip>
                   </div>
                 </div>
               </sl-option>
