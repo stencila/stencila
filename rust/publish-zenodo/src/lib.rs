@@ -1,7 +1,7 @@
 // TODO: use the [Research Organization Registry (ROR)](https://ror.org/) database to gather affiliations for authors
 
 
-use std::{path::PathBuf, str::FromStr, sync::{Arc, Mutex}};
+use std::{io::IsTerminal, path::PathBuf, str::FromStr, sync::{Arc, Mutex}};
 
 use codec::{schema::{Primitive, PropertyValue, PropertyValueOrString}, Codec};
 use cli_utils::{parse_host, ToStdout};
@@ -476,7 +476,15 @@ impl Cli {
                         if field == "metadata.description" {
                             for message in messages.iter().filter_map(|msg| msg.as_str()) {
                                 if message == "Field may not be null." {
+                                    tracing::error!("Description missing from article.");
+                                    if std::io::stdout().is_terminal() {
+                                        cli_utils::message!("hint: Provide a description with the --description flag.");
+                                    }
                                     tracing::info!("hint: Provide a description with the --description flag.");
+                                    tracing::error!("Description missing from article.");
+                                    if std::io::stdout().is_terminal() {
+                                        cli_utils::message!("hint: Provide a description with the --description flag.");
+                                    }
                                 }
                             }
                         };
