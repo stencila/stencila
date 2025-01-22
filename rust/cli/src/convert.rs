@@ -10,6 +10,12 @@ use format::Format;
 use crate::options::{DecodeOptions, EncodeOptions, StripOptions};
 
 /// Convert a document to another format
+///
+/// Examples:
+///
+/// `stecila convert article.smd article.docx`
+///
+/// `stecila convert file.txt --from markdown --to json --pretty`
 #[derive(Debug, Parser)]
 pub struct Cli {
     /// The path of the input file

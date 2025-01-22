@@ -14,14 +14,17 @@ use node_strip::StripScope;
 pub struct StripOptions {
     /// Scopes defining which properties of nodes should be stripped
     #[arg(long)]
+    #[arg(help_heading("Strip Options"), display_order(3))]
     strip_scopes: Vec<StripScope>,
 
     /// A list of node types to strip
     #[arg(long)]
+    #[arg(help_heading("Strip Options"), display_order(3))]
     strip_types: Vec<String>,
 
     /// A list of node properties to strip
     #[arg(long)]
+    #[arg(help_heading("Strip Options"), display_order(3))]
     strip_props: Vec<String>,
 }
 
@@ -61,14 +64,17 @@ impl DecodeOptions {
 pub struct EncodeOptions {
     /// Encode as a standalone document
     #[arg(long, conflicts_with = "not_standalone")]
+    #[arg(help_heading("Encode Options"), display_order(2))]
     standalone: bool,
 
     /// Do not encode as a standalone document when writing to file
     #[arg(long, conflicts_with = "standalone")]
+    #[arg(help_heading("Encode Options"), display_order(2))]
     not_standalone: bool,
 
     /// For executable nodes, only encode outputs, not source properties
     #[arg(long, short)]
+    #[arg(help_heading("Encode Options"), display_order(2))]
     render: bool,
 
     /// Use compact form of encoding if possible
@@ -76,6 +82,7 @@ pub struct EncodeOptions {
     /// Use this flag to produce the compact forms of encoding (e.g. no indentation)
     /// which are supported by some formats (e.g. JSON, HTML).
     #[arg(long, short, conflicts_with = "pretty")]
+    #[arg(help_heading("Encode Options"), display_order(2))]
     compact: bool,
 
     /// Use a "pretty" form of encoding if possible
@@ -83,6 +90,7 @@ pub struct EncodeOptions {
     /// Use this flag to produce pretty forms of encoding (e.g. indentation)
     /// which are supported by some formats (e.g. JSON, HTML).
     #[arg(long, short, conflicts_with = "compact")]
+    #[arg(help_heading("Encode Options"), display_order(2))]
     pretty: bool,
 }
 

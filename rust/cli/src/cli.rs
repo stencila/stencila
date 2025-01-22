@@ -97,6 +97,7 @@ pub enum Command {
     New(new::Cli),
 
     Convert(convert::Cli),
+    #[command(hide=true)]
     Sync(sync::Cli),
 
     Compile(compile::Cli),

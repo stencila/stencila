@@ -9,9 +9,14 @@ use format::Format;
 use schema::NodeType;
 
 /// Create a new document with sidecar file
+///
+/// Supported exstentions can be seen with `stencila codecs list`
+/// 
+/// Example: `stencila new article.smd`
 #[derive(Debug, Parser)]
 pub struct Cli {
-    /// The path of the document to create
+    /// The path of the document to create with a supported extension 
+    #[arg(value_name="File")]
     path: PathBuf,
 
     /// Overwrite the document, and any sidecar file, if they already exist
