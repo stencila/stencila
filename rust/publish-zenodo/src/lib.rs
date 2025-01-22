@@ -665,13 +665,13 @@ mod cli_tests {
     }
 
     // TODO: check if there is a bug to file with clap (this works in practice but not under test conditions)
-    // 
+    //
     // #[test]
     // fn publication_type_defaults_to_preprint() {
     //     let args = Cli::parse_from(["publish-zenodo", "--publication", "some.smd"]);
     //     assert!(matches!(args.publication, Some(PublicationType::Preprint)));
     // }
-    
+
     #[test]
     fn publication_type_can_be_specified() {
         let args = Cli::parse_from(["publish-zenodo", "--publication=report", "some.smd"]);
@@ -691,7 +691,12 @@ mod cli_tests {
     #[test]
     fn production_server_enabled_with_zenodo_flag() {
         let args = Cli::parse_from(["publish-zenodo", "--zenodo", "some.smd"]);
-        assert_eq!(&format!("{}", args.zenodo), "zenodo.org", "--zenodo parsed as {}", args.zenodo);
+        assert_eq!(
+            &format!("{}", args.zenodo),
+            "zenodo.org",
+            "--zenodo parsed as {}",
+            args.zenodo
+        );
         assert!(!args.sandbox, "CLI {args:#?}");
         assert!(matches!(args.publication, Some(PublicationType::Preprint)));
     }
@@ -699,7 +704,12 @@ mod cli_tests {
     #[test]
     fn sandbox_flag_is_triggered_if_manually_specified() {
         let args = Cli::parse_from(["publish-zenodo", "--zenodo=sandbox.zenodo.org", "some.smd"]);
-        assert_eq!(&format!("{}", args.zenodo), "sandbox.zenodo.org", "--zenodo parsed as {}", args.zenodo);
+        assert_eq!(
+            &format!("{}", args.zenodo),
+            "sandbox.zenodo.org",
+            "--zenodo parsed as {}",
+            args.zenodo
+        );
         assert!(args.sandbox, "CLI {args:#?}");
     }
 }

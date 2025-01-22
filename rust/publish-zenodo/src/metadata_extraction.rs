@@ -137,10 +137,8 @@ pub(crate) fn find_orcid(text: &str) -> Option<Cow<str>> {
     static ORCID_REGEX: OnceLock<regex::Regex> = OnceLock::new();
 
     #[allow(clippy::unwrap_used)]
-    let searcher = ORCID_REGEX.get_or_init(|| {
-        regex::Regex::new(r"(\d{4})-?(\d{4})-?(\d{4})-?(\d{3}[0-9X])")
-            .unwrap()
-    });
+    let searcher = ORCID_REGEX
+        .get_or_init(|| regex::Regex::new(r"(\d{4})-?(\d{4})-?(\d{4})-?(\d{3}[0-9X])").unwrap());
 
     let cap = searcher.captures(text)?;
     let (full, [a, b, c, d]) = cap.extract();
@@ -150,7 +148,7 @@ pub(crate) fn find_orcid(text: &str) -> Option<Cow<str>> {
     if bytes[4] == b'-' && bytes[9] == b'-' && bytes[14] == b'-' {
         return Some(Cow::Borrowed(full));
     }
-    
+
     // ... otherwise insert them
     Some(Cow::Owned(format!("{}-{}-{}-{}", a, b, c, d)))
 }
@@ -161,15 +159,16 @@ mod test_helpers {
 
     #[test]
     fn find_orcid_detects_correctly_formatted_orcids() {
-        let orcids = [
-            "0000-0002-1825-1111",
-            "0000-0002-1825-009X"
-        ];
+        let orcids = ["0000-0002-1825-1111", "0000-0002-1825-009X"];
 
         for orcid in orcids {
             let expected = Some(orcid);
             let actual = find_orcid(orcid);
-            assert_eq!(actual.as_deref(), expected, "input: {orcid:?} failed to produce {expected:?}");
+            assert_eq!(
+                actual.as_deref(),
+                expected,
+                "input: {orcid:?} failed to produce {expected:?}"
+            );
         }
     }
 
@@ -178,7 +177,11 @@ mod test_helpers {
         let orcid = "0000000218253333";
         let actual = find_orcid(orcid);
         let expected = Some("0000-0002-1825-3333");
-        assert_eq!(actual.as_deref(), expected, "input: {orcid:?} failed to produce {expected:?}")
+        assert_eq!(
+            actual.as_deref(),
+            expected,
+            "input: {orcid:?} failed to produce {expected:?}"
+        )
     }
 
     #[test]
@@ -192,17 +195,21 @@ mod test_helpers {
                 "https://orcid.org/0000-0002-1825-2222",
                 Some("0000-0002-1825-2222"),
             ),
+            ("https://orcid.org/0000-0002-1825-009X/other", None),
             (
-                "https://orcid.org/0000-0002-1825-009X/other",
-                None,
+                "https://orcid.org/0000-0002-1825-4444/",
+                Some("0000-0002-1825-4444"),
             ),
-            ("https://orcid.org/0000-0002-1825-4444/", Some("0000-0002-1825-4444")),
             ("https://orcid.org", None),
         ];
 
         for (url, expected) in urls {
             let actual = find_orcid(url);
-            assert_eq!(actual.as_deref(), expected, "input: {url:?} failed to produce {expected:?}");
+            assert_eq!(
+                actual.as_deref(),
+                expected,
+                "input: {url:?} failed to produce {expected:?}"
+            );
         }
     }
 }
