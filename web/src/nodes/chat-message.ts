@@ -133,9 +133,11 @@ export class ChatMessage extends Executable {
     return html`
       <div class="${style} flex justify-end">
         ${this.hasExecutionMessages
-          ? html` <div class="bg-gray-100 rounded">
-              <slot name="execution-messages"></slot>
-            </div>`
+          ? html`
+              <div>
+                <slot name="execution-messages"></slot>
+              </div>
+            `
           : ''}
         <div class="my-3 p-3 bg-blue-50 rounded w-content">
           <slot name="content"></slot>
