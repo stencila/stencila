@@ -474,12 +474,10 @@ impl Cli {
                 for error in errors {
                     if let (Some(Value::String(field)), Some(Value::Array(messages))) = (error.get("field"), error.get("messages")) {
                         if field == "metadata.description" {
-                            for message in messages {
-                                message.as_str().map(|msg| {
-                                    if msg == "Field may not be null." {
-                                        tracing::info!("hint: Provide a description with the --description flag.");
-                                    }
-                                });
+                            for message in messages.iter().filter_map(|msg| msg.as_str()) {
+                                if message == "Field may not be null." {
+                                    tracing::info!("hint: Provide a description with the --description flag.");
+                                }
                             }
                         };
                     };
