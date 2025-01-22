@@ -42,6 +42,9 @@ export interface Model {
     | 'Installable'
     | 'Unavailable'
     | 'Disabled'
+  qualityScore?: number
+  costScore?: number
+  speedScore?: number
 }
 
 /**
@@ -91,7 +94,17 @@ class Data extends EventTarget {
   }
 
   get models(): Model[] {
-    return this._models
+    return this._models.map((model) => ({
+      ...model,
+      // TODO: Remove these temporary, random scores, used for mocks
+      ...(model.id === 'stencila/router'
+        ? {}
+        : {
+            qualityScore: Math.floor(Math.random() * 101),
+            costScore: Math.floor(Math.random() * 101),
+            speedScore: Math.floor(Math.random() * 101),
+          }),
+    }))
   }
 
   set models(models: Model[]) {
