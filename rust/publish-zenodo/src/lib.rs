@@ -68,11 +68,6 @@ Every source format has its own mechanism for providing metadata. For example, w
   <cyan>title:</> <dim>Example Stencila Markdown</>
   <cyan>description:</> <dim>An example of a Stencila Markdown document with embedded metadata</>
   <dim>---</>
-
-   <dim># First Heading</>
-
-   <dim>Content...</>
-
 ");
 
 fn parse_date(input: &str) -> Result<schema::Date> {
