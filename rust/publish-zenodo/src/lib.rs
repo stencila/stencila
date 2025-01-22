@@ -219,8 +219,8 @@ pub struct Cli {
     /// Publish the deposition immediately
     ///
     /// Requires that access token provided by the `--token` option has the "deposit:write" scope.
-    /// 
-    /// WARNING: This is permanent. It will be impossible to review the deposition or make changes 
+    ///
+    /// WARNING: This is permanent. It will be impossible to review the deposition or make changes
     ///          to it before it is publicly viewable. Publication cannot be revoked.
     #[arg(long)]
     #[arg(help("Publish the deposition immediately (use with care"))]
@@ -301,11 +301,11 @@ impl Cli {
                 };
 
                 // return the first DOI in the article's identifiers
-if let Some(ids) = &article.options.identifiers {
-    for id in ids.iter() {
-                    if let Some(doi) = metadata_extraction::extract_doi(id) {
-                        return Some(doi.to_string());
-        }
+                if let Some(ids) = &article.options.identifiers {
+                    for id in ids.iter() {
+                        if let Some(doi) = metadata_extraction::extract_doi(id) {
+                            return Some(doi.to_string());
+                        }
                     }
                 }
 
