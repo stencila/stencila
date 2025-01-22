@@ -626,7 +626,6 @@ mod cli_tests {
         assert!(matches!(args.publication, Some(PublicationType::Preprint)));
     }
 
-    /// Tests that the publication type defaults to preprint when --publication is set
     #[test]
     fn upload_type_lesson_does_not_require_publication_type() {
         let args = Cli::parse_from(&["publish-zenodo", "--lesson", "some.smd"]);
