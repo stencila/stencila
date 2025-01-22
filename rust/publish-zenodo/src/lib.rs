@@ -38,8 +38,11 @@ We recommend starting with the Zenodo Sandbox at <<https://sandbox.zenodo.org/>>
 
     <dim>$</> export STENCILA_ZENODO_TOKEN=\"<green><<TOKEN>></>\" <dim># from https://sandbox.zenodo.org/</>
     <dim>$</> stencila publish zenodo <green><<DOCUMENT_PATH>></>
-    <blue>Successfully uploaded a draft deposit to https://sandbox.zenodo.org/deposit/<i><<deposit-id>></> with the DOI 10.5282/zenodo.<i><<deposit-id>></> pre-reserved.</>
-    <blue>Note: This deposit has been submitted to the Zenodo Sandbox. Use the --zenodo flag to resubmit to the production Zenodo server.</>
+    <dim>🎉 Draft deposition submitted</>
+    <dim>🌐 URL: https://sandbox.zenodo.org/deposit/<i><<deposit-id>></> (visit to check details and publish)</>
+    <dim>📑 DOI: 10.5282/zenodo.<i><<deposit-id>></></>
+    <dim>Note: This deposit has been submitted to the Zenodo Sandbox.</>
+    <dim>Note: Use the --zenodo flag to resubmit to the production Zenodo server.</>
 
 You should now review the deposit, make any corrections and then click publish from Zenodo's web interface when you're happy. If you wish to skip the review process and publish immediately, then use the <cyan>--force</> flag.
 
@@ -47,7 +50,9 @@ Now that you have an understanding of the process, you should move to the Zenodo
 
     <dim>$</> export STENCILA_ZENODO_TOKEN=\"<green><<TOKEN>></>\" <dim># from https://zenodo.org/</>
     <dim>$</> stencila publish zenodo <bold>--zenodo</> <green><<DOCUMENT_PATH>></>
-    <blue>Successfully uploaded a draft deposit to https://zenodo.org/deposit/<i><<deposit-id>></> with the DOI 10.5281/zenodo.<i><<deposit-id>></> pre-reserved.</> 
+    <dim>🎉 Draft deposition submitted</>
+    <dim>🌐 URL: https://zenodo.org/deposit/<i><<deposit-id>></> (visit to check details and publish)</>
+    <dim>📑 DOI: 10.5281/zenodo.<i><<deposit-id>></></>
 
 <i>Metadata</i>
 
@@ -588,26 +593,21 @@ impl Cli {
                 bail!("Failed to publish deposition: {}", publish_response.text().await?);
             }
 
-            tracing::info!("Created published deposition at {deposition_url}.");
+            cli_utils::message!("🎉 Deposition published").to_stdout();
+            cli_utils::message!("🌐 URL: {}", deposition_url).to_stdout();
+            // TODO: supply DOI
         } else {
-            let mut msg = format!("Successfully uploaded a draft deposit to {deposition_url}");
+            cli_utils::message!("🎉 Draft deposition submitted").to_stdout();
+            cli_utils::message!("🌐 URL: {} (visit to check details and publish)", deposition_url).to_stdout();
+
             if let Some(doi) = reserved_doi {
-                msg.push_str(&format!(" with the doi:{doi} pre-reserved"));
+                cli_utils::message!("📑 DOI: {}", doi).to_stdout();
             }
-            msg.push('.');
             
             if self.sandbox {
-                if cfg!(target_os = "windows") {
-                    msg.push_str("\r\n");
-                } else {
-                    msg.push_str("\n");
-                };
-                
-                msg.push_str("Note: This deposit has been submitted to the Zenodo Sandbox. Use the --zenodo flag to resubmit to the production Zenodo server.");
-            }
-            cli_utils::message!("{}", msg).to_stdout();
-            
-            
+                cli_utils::message!("Note: This deposit has been submitted to the Zenodo Sandbox.").to_stdout();
+                cli_utils::message!("Note: Use the --zenodo flag to resubmit to the production Zenodo server.").to_stdout();
+            }            
         }
 
         Ok(())
