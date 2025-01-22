@@ -9,7 +9,7 @@ import { closestGlobally } from '../utilities/closestGlobally'
 
 import { Executable } from './executable'
 
-import '../ui/nodes/chat-message-inputs'
+import '../ui/nodes/chat/chat-message-inputs'
 
 /**
  * Web component representing a Stencila `ChatMessage` node
@@ -34,6 +34,13 @@ export class ChatMessage extends Executable {
     converter: booleanConverter,
   })
   isSelected?: boolean = false
+
+  /**
+   * Indicates whether to render the execution messages slot
+   */
+  private hasExecutionMessages: boolean = false
+
+  private observer: MutationObserver
 
   /**
    * Should a node card, possibly within a chat message, be expanded?
@@ -61,12 +68,33 @@ export class ChatMessage extends Executable {
     )
   }
 
+  override connectedCallback(): void {
+    super.connectedCallback()
+
+    // set up observer for changes in the execution message slot
+    this.observer = new MutationObserver(() => {
+      const messages = this.querySelector('[slot="execution-messages"]')
+      if (messages && messages.children.length > 0) {
+        this.hasExecutionMessages = true
+      } else {
+        this.hasExecutionMessages = false
+      }
+    })
+
+    this.observer.observe(this, { childList: true })
+  }
+
   protected override firstUpdated(changedProperties: PropertyValues): void {
     super.firstUpdated(changedProperties)
     // set first message in group as selected by default
     if (this.isWithin('ChatMessageGroup')) {
       this.isSelected = this.parentNode.children[0].isSameNode(this)
     }
+  }
+
+  override disconnectedCallback(): void {
+    super.disconnectedCallback()
+    this.observer.disconnect()
   }
 
   override render() {
@@ -88,6 +116,14 @@ export class ChatMessage extends Executable {
   private renderSystemMessage(style: string) {
     return html`
       <div class="${style} my-3 p-3 bg-indigo-100 rounded">
+        ${this.hasExecutionMessages
+          ? html` <div class="bg-gray-100 rounded">
+              <slot name="execution-messages"></slot>
+            </div>`
+          : ''}
+        <div class="bg-gray-100 rounded">
+          <slot name="execution-messages"></slot>
+        </div>
         <slot name="content"></slot>
       </div>
     `
@@ -96,6 +132,13 @@ export class ChatMessage extends Executable {
   private renderUserMessage(style: string) {
     return html`
       <div class="${style} flex justify-end">
+        ${this.hasExecutionMessages
+          ? html`
+              <div>
+                <slot name="execution-messages"></slot>
+              </div>
+            `
+          : ''}
         <div class="my-3 p-3 bg-blue-50 rounded w-content">
           <slot name="content"></slot>
           <slot name="files"></slot>
@@ -110,7 +153,19 @@ export class ChatMessage extends Executable {
     if (!inGroup) {
       return html`
         <div class="${style} my-3">
-          <slot name="author" class="text-blue-900"></slot>
+          <div class="mb-4">
+            <slot
+              name="author"
+              class=${this.executionStatus === 'Running'
+                ? 'text-gray-400'
+                : 'text-brand-blue'}
+            ></slot>
+          </div>
+          ${this.hasExecutionMessages
+            ? html` <div class="bg-gray-100 rounded">
+                <slot name="execution-messages"></slot>
+              </div>`
+            : ''}
           ${this.executionStatus === 'Running'
             ? this.renderRunningIndicator()
             : html`<slot name="content"></slot>`}
@@ -121,6 +176,9 @@ export class ChatMessage extends Executable {
     return this.isSelected
       ? html`
           <div class="${style} my-3">
+            <div class="bg-gray-100 rounded">
+              <slot name="execution-messages"></slot>
+            </div>
             ${this.executionStatus === 'Running'
               ? this.renderRunningIndicator()
               : html`<slot name="content"></slot>`}
