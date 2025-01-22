@@ -98,6 +98,8 @@ pub(crate) fn extract_doi(id: &PropertyValueOrString) -> Option<Cow<str>> {
 fn find_doi(text: &str) -> Option<Cow<str>> {
     static DOI_REGEX: OnceLock<regex::Regex> = OnceLock::new();
 
+    #[allow(clippy::unwrap_used)]
+    #[allow(clippy::unwrap_used)]
     let searcher = DOI_REGEX.get_or_init(|| {
         regex::Regex::new(r"\b(10\.\d{4,5}/\S+)\b").unwrap()
     });
@@ -122,7 +124,6 @@ pub(crate) fn extract_orcid(id: &PropertyValueOrString) -> Option<Cow<str>> {
 }
 
 #[common::tracing::instrument]
-#[allow(clippy::unwrap_in_result)]
 pub(crate) fn find_orcid(text: &str) -> Option<Cow<str>> {
     // this function is uglier than it should be because we permit people to specify ORCID
     // in a variety of ways, including with or without the orcid.org domain, with or without
@@ -130,6 +131,7 @@ pub(crate) fn find_orcid(text: &str) -> Option<Cow<str>> {
 
     static ORCID_REGEX: OnceLock<regex::Regex> = OnceLock::new();
 
+    #[allow(clippy::unwrap_used)]
     let searcher = ORCID_REGEX.get_or_init(|| {
         regex::Regex::new(r"(?:(?i:orcid\.org/)?)((\d{4})-?(\d{4})-?(\d{4})-(\d{3}[0-9X]))").unwrap()
     });
