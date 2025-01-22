@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::annotation::Annotation;
 use super::audio_object::AudioObject;
 use super::boolean::Boolean;
 use super::button::Button;
@@ -42,10 +43,16 @@ use super::unsigned_integer::UnsignedInteger;
 use super::video_object::VideoObject;
 
 /// Union type for valid inline content.
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, SmartDefault, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, SmartDefault, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(untagged, crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub enum Inline {
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    Annotation(Annotation),
+
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]
     AudioObject(AudioObject),

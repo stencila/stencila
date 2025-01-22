@@ -15,6 +15,8 @@ jats:
   special: true
 html:
   special: true
+latex:
+  derive: false
 markdown:
   derive: false
 proptest: {}
@@ -33,7 +35,7 @@ properties:
     minimum: 0
     maximum: 6
     patch:
-      formats: [md, smd, myst, ipynb, qmd]
+      formats: [md, smd, myst, ipynb, qmd, latex, lexical, koenig]
     proptest:
       min:
         description: Fixed value of 1

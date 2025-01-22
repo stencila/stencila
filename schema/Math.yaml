@@ -22,7 +22,7 @@ properties:
     $ref: Cord
     strip: [code]
     patch:
-      formats: [md, smd, myst, ipynb, qmd]
+      formats: [md, smd, myst, ipynb, qmd, latex]
     proptest:
       min:
         description: Generate a simple fixed string of math.
@@ -83,11 +83,11 @@ properties:
     description: A digest of the `code` and `mathLanguage`.
     $comment: Used to avoid unnecessary transpilation to MathML.
     $ref: CompilationDigest
-    strip: [execution]
+    strip: [compilation]
   compilationMessages:
     '@id': stencila:compilationMessages
     description: Messages generated while parsing and compiling the math expression.
-    strip: [execution]
+    strip: [compilation]
     type: array
     items:
       $ref: CompilationMessage

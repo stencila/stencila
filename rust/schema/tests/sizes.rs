@@ -30,6 +30,7 @@ macro_rules! sizes {
 }
 
 #[test]
+#[allow(clippy::print_stderr)]
 fn sizes() {
     sizes!(
         Block,
@@ -66,7 +67,7 @@ fn sizes() {
         Walkthrough
     );
 
-    println!("\n");
+    eprintln!("\n");
 
     sizes!(
         Inline,

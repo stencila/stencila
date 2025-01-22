@@ -17,6 +17,7 @@ pub use codec_dom_trait::{DomCodec, DomEncodeContext};
 pub use codec_html_trait::{HtmlCodec, HtmlEncodeContext};
 pub use codec_info::Losses;
 pub use codec_jats_trait::JatsCodec;
+pub use codec_latex_trait::{LatexCodec, LatexEncodeContext};
 pub use codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
 pub use codec_text_trait::TextCodec;
 pub use format::Format;

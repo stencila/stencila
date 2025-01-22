@@ -24,14 +24,14 @@ use super::thing_type::ThingType;
 /// Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display(fmt = "Figure")]
 #[patch(authors_on = "self")]
 #[html(elem = "figure")]
-#[jats(elem = "figure")]
+#[jats(elem = "fig")]
 pub struct Figure {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -56,28 +56,20 @@ pub struct Figure {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub provenance: Option<Vec<ProvenanceCount>>,
 
-    /// The content of the figure.
-    #[serde(deserialize_with = "one_or_many")]
-    #[walk]
-    #[patch(format = "all")]
-    #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_paragraphs(1)"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks_figure_content(2)"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_figure_content(2)"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
-    pub content: Vec<Block>,
-
     /// A short label for the figure.
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
+    #[jats(elem = "label")]
     pub label: Option<String>,
 
     /// Whether the label should be automatically updated.
     #[serde(alias = "label-automatically", alias = "label_automatically")]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[jats(attr = "label-automatically")]
     pub label_automatically: Option<Boolean>,
 
     /// A caption for the figure.
@@ -88,7 +80,18 @@ pub struct Figure {
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(vec_paragraphs(2))"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(vec_blocks_non_recursive(3))"#))]
+    #[jats(elem = "caption")]
     pub caption: Option<Vec<Block>>,
+
+    /// The content of the figure.
+    #[serde(deserialize_with = "one_or_many")]
+    #[walk]
+    #[patch(format = "all")]
+    #[cfg_attr(feature = "proptest-min", proptest(strategy = r#"vec_paragraphs(1)"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec_blocks_figure_content(2)"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec_blocks_figure_content(2)"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
+    pub content: Vec<Block>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -104,7 +107,7 @@ pub struct Figure {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct FigureOptions {

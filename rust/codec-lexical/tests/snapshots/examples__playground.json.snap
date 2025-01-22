@@ -1,0 +1,282 @@
+---
+source: rust/codec-lexical/tests/examples.rs
+expression: article
+snapshot_kind: text
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Welcome to the playground"
+          }
+        }
+      ]
+    },
+    {
+      "type": "QuoteBlock",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "In case you were wondering what the black box at the bottom is – it's the debug view, showing the current state of the editor. You can disable it by pressing on the settings control in the bottom-left of your screen and toggling the debug view setting."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The playground is a demo environment built with "
+          }
+        },
+        {
+          "type": "CodeInline",
+          "code": {
+            "string": "@lexical/react"
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": ". Try typing in "
+          }
+        },
+        {
+          "type": "Strong",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "some text"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " with "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "different"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " formats."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Make sure to check out the various plugins in the toolbar. You can also use "
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": "LOST HashTag"
+          }
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " or @-mentions too!"
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "If you'd like to find out more about Lexical, you can:"
+          }
+        }
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Visit the "
+                  }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Lexical website"
+                      }
+                    }
+                  ],
+                  "target": "https://lexical.dev/"
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " for documentation and more information."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Check out the code on our "
+                  }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "GitHub repository"
+                      }
+                    }
+                  ],
+                  "target": "https://github.com/facebook/lexical"
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Playground code can be found "
+                  }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "here"
+                      }
+                    }
+                  ],
+                  "target": "https://github.com/facebook/lexical/tree/main/packages/lexical-playground"
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Join our "
+                  }
+                },
+                {
+                  "type": "Link",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Discord Server"
+                      }
+                    }
+                  ],
+                  "target": "https://discord.com/invite/KmG4wQnnD9"
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": " and chat with the team."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "order": "Unordered"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Lastly, we're constantly adding cool new features to this playground. So make sure you check back here when you next get a chance 🙂."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -16,6 +16,8 @@ html:
   special: true
 jats:
   elem: list
+latex:
+  derive: false
 markdown:
   derive: false
 proptest: {}
@@ -34,7 +36,7 @@ properties:
       $ref: ListItem
     walk: true
     patch:
-      formats: [md, smd, myst, ipynb, qmd]
+      formats: [md, smd, myst, ipynb, qmd, latex, lexical, koenig]
     jats:
       content: true
     proptest:
@@ -55,7 +57,7 @@ properties:
     description: The ordering of the list.
     $ref: ListOrder
     patch:
-      formats: [md, smd, myst, ipynb, qmd]
+      formats: [md, smd, myst, ipynb, qmd, latex, lexical, koenig]
     jats:
       attr: list-type
     proptest:

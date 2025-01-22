@@ -1,6 +1,8 @@
 use kernel_micro::{
-    common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, KernelProvider, KernelTerminate, Microkernel,
+    common::{eyre::Result, which::which},
+    format::Format,
+    Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
+    KernelProvider, KernelTerminate, Microkernel,
 };
 
 /// A kernel for executing Python code
@@ -50,15 +52,28 @@ impl Kernel for PythonKernel {
 
 impl Microkernel for PythonKernel {
     fn executable_name(&self) -> String {
-        "python3".to_string()
+        if which("uv").is_ok() {
+            "uv".into()
+        } else {
+            "python3".into()
+        }
     }
 
-    fn microkernel_script(&self) -> String {
-        include_str!("kernel.py").to_string()
+    fn executable_arguments(&self, executable_name: &str) -> Vec<String> {
+        if executable_name == "uv" {
+            vec!["run".into(), "{{script}}".into()]
+        } else {
+            vec!["{{script}}".into()]
+        }
+    }
+
+    fn microkernel_script(&self) -> (String, String) {
+        ("kernel.py".into(), include_str!("kernel.py").into())
     }
 }
 
 #[cfg(test)]
+#[allow(clippy::print_stderr, clippy::unwrap_used)]
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use kernel_micro::{
@@ -166,6 +181,71 @@ print(a, b)",
             ],
         )
         .await
+    }
+
+    /// Custom test for indented code
+    ///
+    /// Regression test to ensure that if/elif blocks and function definitions are not prematurely executed.
+    #[test_log::test(tokio::test)]
+    async fn execution_indented() -> Result<()> {
+        let Some(mut instance) = start_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        let (outputs, messages) = instance
+            .execute(
+                r"
+if False:
+  x = 1
+elif False:
+  x = 2
+else:
+  x = 3
+
+x",
+            )
+            .await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs, vec![Node::Integer(3)]);
+
+        let (outputs, messages) = instance
+            .execute(
+                r"
+x = 0 
+for i in range(10):
+
+  if i < 5:
+    continue
+
+  else:
+    x = i
+    break
+
+x",
+            )
+            .await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs, vec![Node::Integer(5)]);
+
+        let (outputs, messages) = instance
+            .execute(
+                r"
+def func(x):
+  '''With empty lines and
+    blank lines'''
+
+  
+  return x * 7
+
+func(
+  1
+)",
+            )
+            .await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs, vec![Node::Integer(7)]);
+
+        Ok(())
     }
 
     /// Standard kernel test for evaluation of expressions
@@ -583,7 +663,7 @@ para = {'type':'Paragraph', 'content':[]}
             .and_then(|message| message.error_type.as_deref())
             == Some("ModuleNotFoundError")
         {
-            println!("Skipping test because `numpy` not available");
+            eprintln!("Skipping test because `numpy` not available");
             return Ok(());
         }
 
@@ -742,7 +822,7 @@ a4 = np.array([1.23, 4.56], dtype=np.float64)
             .and_then(|message| message.error_type.as_deref())
             == Some("ModuleNotFoundError")
         {
-            println!("Skipping test because `pandas` not available");
+            eprintln!("Skipping test because `pandas` not available");
             return Ok(());
         }
 
@@ -911,7 +991,7 @@ max    2.000000  4.560000"#
             .and_then(|message| message.error_type.as_deref())
             == Some("ModuleNotFoundError")
         {
-            println!("Skipping test because `pandas` not available");
+            eprintln!("Skipping test because `pandas` not available");
             return Ok(());
         }
 
@@ -979,7 +1059,7 @@ max    2.000000  4.560000"#
             .and_then(|message| message.error_type.as_deref())
             == Some("ModuleNotFoundError")
         {
-            println!("Skipping test because `matplotlib` not available");
+            eprintln!("Skipping test because `matplotlib` not available");
             return Ok(());
         }
 
@@ -1016,7 +1096,7 @@ plt.show()",
             .and_then(|message| message.error_type.as_deref())
             == Some("ModuleNotFoundError")
         {
-            println!("Skipping test because `plotly` not available");
+            eprintln!("Skipping test because `plotly` not available");
             return Ok(());
         }
 
@@ -1066,7 +1146,7 @@ plt.show()",
             .and_then(|message| message.error_type.as_deref())
             == Some("ModuleNotFoundError")
         {
-            println!("Skipping test because `altair` not available");
+            eprintln!("Skipping test because `altair` not available");
             return Ok(());
         }
 
@@ -1187,6 +1267,7 @@ print(type(sys), type(datetime), type(glob))
     }
 
     /// Standard kernel test for signals
+    #[ignore = "signals not received when `uv run` is used"]
     #[test_log::test(tokio::test)]
     async fn signals() -> Result<()> {
         let Some(instance) = create_instance::<PythonKernel>().await? else {

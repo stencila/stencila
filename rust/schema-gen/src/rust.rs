@@ -97,6 +97,7 @@ fn escape_keyword(input: &str) -> String {
 
 impl Schemas {
     /// Generate Rust modules for each schema
+    #[allow(clippy::print_stderr)]
     pub async fn rust(&self) -> Result<()> {
         eprintln!("Generating Rust types");
 
@@ -113,10 +114,10 @@ impl Schemas {
                 if NO_GENERATE_MODULE.contains(
                     &path
                         .file_name()
-                        .unwrap()
+                        .expect("should have filename")
                         .to_string_lossy()
                         .strip_suffix(".rs")
-                        .unwrap()
+                        .expect("should have suffix")
                         .to_pascal_case()
                         .as_str(),
                 ) {
@@ -144,10 +145,10 @@ impl Schemas {
                 entry
                     .path()
                     .file_name()
-                    .unwrap()
+                    .expect("should have filename")
                     .to_string_lossy()
                     .strip_suffix(".rs")
-                    .unwrap()
+                    .expect("should have suffix")
                     .to_string()
             })
             .sorted()
@@ -412,6 +413,15 @@ pub enum NodeProperty {{
             derives.append(&mut vec!["HtmlCodec", "JatsCodec"]);
 
             if schema
+                .latex
+                .as_ref()
+                .map(|spec| spec.derive)
+                .unwrap_or(true)
+            {
+                derives.push("LatexCodec");
+            }
+
+            if schema
                 .markdown
                 .as_ref()
                 .map(|spec| spec.derive)
@@ -563,6 +573,21 @@ pub enum NodeProperty {{
             attrs.push(format!("#[jats({})]", args.join(", ")));
         }
 
+        // Add #[latex] attribute for main struct if necessary
+        if let Some(latex) = &schema.latex {
+            if latex.derive {
+                let mut args = Vec::new();
+
+                if let Some(command) = &latex.command {
+                    args.push(format!("command = \"{command}\""));
+                }
+
+                if !args.is_empty() {
+                    attrs.push(format!("#[latex({})]", args.join(", ")))
+                }
+            }
+        }
+
         // Add #[markdown] attribute for main struct if necessary
         if let Some(markdown) = &schema.markdown {
             if markdown.derive {
@@ -575,7 +600,9 @@ pub enum NodeProperty {{
                     args.push(format!("escape = \"{escape}\""));
                 }
 
-                attrs.push(format!("#[markdown({})]", args.join(", ")))
+                if !args.is_empty() {
+                    attrs.push(format!("#[markdown({})]", args.join(", ")))
+                }
             }
         }
 
@@ -650,6 +677,10 @@ pub enum NodeProperty {{
 
                 if serde.default {
                     args.push("default".to_string());
+                }
+
+                if serde.flatten {
+                    args.push("flatten".to_string());
                 }
 
                 if let Some(deserialize_with) = &serde.deserialize_with {
@@ -1181,6 +1212,15 @@ impl {title} {{
             }
 
             derives.append(&mut vec!["HtmlCodec", "JatsCodec"]);
+
+            if schema
+                .latex
+                .as_ref()
+                .map(|spec| spec.derive)
+                .unwrap_or(true)
+            {
+                derives.push("LatexCodec");
+            }
 
             if schema
                 .markdown

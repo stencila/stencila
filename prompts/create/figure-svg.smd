@@ -1,12 +1,12 @@
 ---
 type: Prompt
 
-id: stencila/create/figure-svg
-version: "0.1.0"
-name: Create SVG Figure Prompt
+name: stencila/create/figure-svg
+title: Create SVG Figure Prompt
 description: Create a figure, using SVG, with a caption.
 keywords: figure, svg
 
+version: "0.1.0"
 instruction-type: Create
 node-type: Figure
 query-patterns:

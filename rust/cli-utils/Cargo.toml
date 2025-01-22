@@ -10,3 +10,6 @@ format = { path = "../format" }
 is-terminal = { workspace = true }
 rpassword = "7.3"
 syntect = "5.2.0"
+
+[lints]
+workspace = true

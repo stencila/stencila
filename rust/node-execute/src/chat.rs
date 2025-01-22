@@ -8,8 +8,8 @@ use schema::{
     authorship,
     shortcuts::{adm, p, t},
     AdmonitionType, Author, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ChatMessageGroup,
-    ChatMessageOptions, ExecutionBounds, InstructionMessage, MessagePart, MessageRole,
-    ModelParameters, SoftwareApplication,
+    ChatMessageOptions, ExecutionBounds, InstructionMessage, InstructionType, MessagePart,
+    MessageRole, ModelParameters, Patch, PatchPath, PatchSlot, SoftwareApplication,
 };
 
 use crate::{
@@ -27,6 +27,36 @@ impl Executable for Chat {
         let node_id = self.node_id();
         tracing::trace!("Compiling Chat {node_id}");
 
+        // If the prompt does not yet have a target then default to a general discussion prompt
+        // if not embedded in a document, otherwise a document focussed prompt. This is a fallback and
+        // it is better to set these at creation, if possible
+        if self.prompt.target.is_none()
+            && matches!(
+                self.prompt.instruction_type,
+                None | Some(InstructionType::Discuss)
+            )
+        {
+            let target = if self.is_temporary.is_some() {
+                "stencila/discuss/document"
+            } else {
+                "stencila/discuss/anything"
+            }
+            .to_string();
+
+            self.prompt.target = Some(target.clone());
+            executor.send_patch(Patch {
+                node_id: Some(node_id),
+                ops: vec![(
+                    PatchPath::from([
+                        PatchSlot::from(NodeProperty::Prompt),
+                        PatchSlot::from(NodeProperty::Target),
+                    ]),
+                    PatchOp::Set(PatchValue::String(target)),
+                )],
+                ..Default::default()
+            });
+        }
+
         // Call `prompt.compile` directly because a `PromptBlock` that
         // is not a `Block::PromptBlock` variant is not walked over
         self.prompt.compile(executor).await;
@@ -40,10 +70,13 @@ impl Executable for Chat {
         let node_id = self.node_id();
         tracing::trace!("Preparing Chat {node_id}");
 
-        // Check if this chat is to be executed i.e.node ids contain this chat.
-        // This is more restrictive than other nodes types: a chat is only executed
-        // explicitly.
-        let is_pending = executor.node_ids.iter().flatten().any(|id| id == &node_id);
+        // Check if this chat is to be executed:
+        // - force_all is on
+        // - no node ids and this is not an embedded chat (`is_temporary` is None)
+        // - node ids contain this chat
+        let is_pending = executor.options.force_all
+            || (executor.node_ids.is_none() && self.is_temporary.is_none())
+            || executor.node_ids.iter().flatten().any(|id| id == &node_id);
 
         // If not to be executed, then return early and continue walking document
         // to prepare nodes in the chat's `content`

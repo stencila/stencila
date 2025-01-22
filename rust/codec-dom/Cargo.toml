@@ -7,5 +7,8 @@ edition = "2021"
 codec = { path = "../codec" }
 codec-dom-trait = { path = "../codec-dom-trait" }
 codec-text-trait = { path = "../codec-text-trait" }
-lightningcss = "1.0.0-alpha.61"
+lightningcss = "1.0.0-alpha.63"
 quick-xml = { workspace = true }
+
+[lints]
+workspace = true

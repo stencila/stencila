@@ -482,6 +482,7 @@ fn extract_chars(content: &str, range: Range<usize>) -> &str {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use common::{eyre::Report, tokio::sync::mpsc::channel};
     use common_dev::{ntest::timeout, pretty_assertions::assert_eq};
@@ -489,7 +490,7 @@ mod tests {
     use node_strip::StripScope;
     use schema::{
         shortcuts::{art, p, t},
-        Article, Node,
+        NodeType,
     };
 
     use super::*;
@@ -503,11 +504,7 @@ mod tests {
     #[timeout(1000)]
     async fn receive_patches() -> Result<()> {
         // Create a document and start syncing with Markdown buffer
-        let document = Document::new()?;
-        {
-            let mut root = document.root.write().await;
-            *root = Node::Article(Article::default());
-        }
+        let document = Document::new(NodeType::Article)?;
 
         let (patch_sender, patch_receiver) = channel::<FormatPatch>(1);
         document
@@ -532,10 +529,9 @@ mod tests {
         // Note: this is NOT the Markdown in the buffer (but it should be the same as)
         let md = || async {
             let md = document
-                .export(
-                    None,
+                .dump(
+                    Format::Markdown,
                     Some(EncodeOptions {
-                        format: Some(Format::Markdown),
                         strip_scopes: vec![StripScope::Authors, StripScope::Provenance],
                         ..Default::default()
                     }),
@@ -584,11 +580,7 @@ mod tests {
     #[tokio::test]
     async fn send_patches() -> Result<()> {
         // Create a document and start syncing with Markdown buffer
-        let document = Document::new()?;
-        {
-            let mut root = document.root.write().await;
-            *root = Node::Article(Article::default());
-        }
+        let document = Document::new(NodeType::Article)?;
 
         let (patch_sender, mut patch_receiver) = channel::<FormatPatch>(4);
         document

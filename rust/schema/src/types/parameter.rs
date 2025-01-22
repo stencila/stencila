@@ -22,7 +22,7 @@ use super::validator::Validator;
 /// A parameter of a document.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -43,14 +43,14 @@ pub struct Parameter {
     /// Under which circumstances the node should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
 
     /// Under which circumstances child nodes should be executed.
     #[serde(alias = "execution-bounds", alias = "execution_bounds")]
     #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_bounds: Option<ExecutionBounds>,
 
@@ -81,13 +81,13 @@ pub struct Parameter {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct ParameterOptions {
     /// A digest of the content, semantics and dependencies of the node.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
-    #[strip(execution)]
+    #[strip(compilation)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(skip)]
     pub compilation_digest: Option<CompilationDigest>,
@@ -95,7 +95,7 @@ pub struct ParameterOptions {
     /// Messages generated while compiling the code.
     #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[strip(execution)]
+    #[strip(compilation)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     pub compilation_messages: Option<Vec<CompilationMessage>>,

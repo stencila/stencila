@@ -22,21 +22,25 @@ export class Table extends Entity {
       return this.renderContent()
     }
 
+    // render with the `insert` chip in model chat response
+    if (this.isWithinModelChatMessage()) {
+      return html`
+        <div class="group relative">
+          ${this.renderInsertChip()} ${this.renderCard()}
+        </div>
+      `
+    }
+
+    return this.renderCard()
+  }
+
+  private renderCard() {
     return html`
       <stencila-ui-block-on-demand
         type="Table"
         node-id=${this.id}
         depth=${this.depth}
       >
-        <div slot="header-right">
-          <stencila-ui-node-chat-commands
-            type="Table"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-chat-commands>
-        </div>
-
         <div slot="body">
           <stencila-ui-node-authors type="Table">
             <stencila-ui-node-provenance slot="provenance">

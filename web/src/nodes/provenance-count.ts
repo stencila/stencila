@@ -57,6 +57,7 @@ export class ProvenanceCount extends Entity {
       'px-2 py-1',
       `border border-[${textColour}]/0 rounded-full`,
       'transition-all duration-200 ease-in',
+      'select-none',
       `hover:bg-[${borderColour}] hover:border-[${colour}]`,
     ])
 

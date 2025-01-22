@@ -105,15 +105,6 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           ),
         },
         {
-          label: "New MyST Markdown",
-          description: "Create a new MyST Markdown file",
-          command: "stencila.new-myst",
-          iconPath: vscode.Uri.joinPath(
-            context.extensionUri,
-            "icons/myst-128.png"
-          ),
-        },
-        {
           label: "New Quarto Markdown",
           description: "Create a new Quarto Markdown file",
           command: "stencila.new-qmd",
@@ -122,11 +113,20 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
             "icons/quarto-128.png"
           ),
         },
+        {
+          label: "New MyST Markdown",
+          description: "Create a new MyST Markdown file",
+          command: "stencila.new-myst",
+          iconPath: vscode.Uri.joinPath(
+            context.extensionUri,
+            "icons/myst-128.png"
+          ),
+        },
       ];
 
       // Add commands related to the current document
       const langId = vscode.window.activeTextEditor?.document.languageId;
-      if (langId && ["md", "smd", "myst"].includes(langId)) {
+      if (langId && ["md", "smd", "qmd", "myst", "latex"].includes(langId)) {
         commands.push(
           {
             label: "$(run-all) Run",

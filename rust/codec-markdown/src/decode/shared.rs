@@ -9,7 +9,7 @@ use winnow::{
     error::{ErrMode, ErrorKind, ParserError},
     stream::Stream,
     token::{none_of, take_until, take_while},
-    Located, PResult, Parser,
+    LocatingSlice as Located, PResult, Parser,
 };
 
 use codec::{
@@ -459,6 +459,7 @@ pub fn string_to_instruction_message(md: &str) -> InstructionMessage {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use codec::common::eyre::Result;
     use common_dev::pretty_assertions::assert_eq;

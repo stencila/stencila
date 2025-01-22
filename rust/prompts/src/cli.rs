@@ -65,13 +65,13 @@ impl List {
         }
 
         let mut table = table::new();
-        table.set_header(["Id", "Version", "Description"]);
+        table.set_header(["Name", "Description", "Version"]);
 
         for prompt in list {
             let Prompt {
-                id,
-                version,
+                name,
                 description,
+                version,
                 instruction_types,
                 ..
             } = prompt.inner;
@@ -82,23 +82,22 @@ impl List {
             };
 
             let color = match instruction_types.first() {
+                Some(InstructionType::Discuss) => Color::Magenta,
                 Some(InstructionType::Create) => Color::Green,
-                Some(InstructionType::Edit) => Color::Blue,
-                Some(InstructionType::Fix) => Color::Cyan,
-                Some(InstructionType::Describe) => Color::Yellow,
+                Some(InstructionType::Describe) => Color::Blue,
+                Some(InstructionType::Edit) => Color::Cyan,
+                Some(InstructionType::Fix) => Color::Yellow,
                 None => Color::Grey,
             };
 
             table.add_row([
-                Cell::new(id.unwrap_or_default())
-                    .add_attribute(Attribute::Bold)
-                    .fg(color),
-                Cell::new(version),
+                Cell::new(name).add_attribute(Attribute::Bold).fg(color),
                 Cell::new(description.as_str()),
+                Cell::new(version),
             ]);
         }
 
-        println!("{table}");
+        table.to_stdout();
 
         Ok(())
     }
@@ -107,17 +106,17 @@ impl List {
 /// Show a prompt
 #[derive(Debug, Args)]
 struct Show {
-    /// The id of the prompt to show
-    id: String,
+    /// The name of the prompt to show
+    name: String,
 
     /// The format to show the prompt in
-    #[arg(long, short, default_value = "yaml")]
+    #[arg(long, short, default_value = "md")]
     to: Format,
 }
 
 impl Show {
     async fn run(self) -> Result<()> {
-        let prompt = super::get(&self.id).await?;
+        let prompt = super::get(&self.name).await?;
 
         let content = codecs::to_string(
             &Node::Prompt(prompt.inner),
@@ -153,13 +152,14 @@ struct Infer {
 }
 
 impl Infer {
+    #[allow(clippy::print_stdout)]
     async fn run(self) -> Result<()> {
         let node_types = self
             .node_types
             .map(|value| value.split(",").map(String::from).collect_vec());
 
         match super::infer(&self.instruction_type, &node_types, &self.query.as_deref()).await {
-            Some(prompt) => println!("{}", prompt.id.clone().unwrap_or_default()),
+            Some(prompt) => println!("{}", prompt.name),
             None => println!("Unable to infer prompt"),
         };
 

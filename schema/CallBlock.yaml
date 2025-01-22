@@ -5,6 +5,8 @@ extends: IncludeBlock
 category: flow
 description: Call another document, optionally with arguments, and include its executed content.
 status: under-development
+latex:
+  derive: false
 markdown:
   derive: false
 proptest: {}

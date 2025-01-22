@@ -13,6 +13,7 @@ use common_dev::insta::{assert_snapshot, assert_yaml_snapshot};
 
 /// Test that mapping of Unicode characters is correct: ie uses character indices, not bytes indices
 #[tokio::test]
+#[allow(clippy::unwrap_used)]
 async fn unicode() -> Result<()> {
     let codec = MarkdownCodec {};
 

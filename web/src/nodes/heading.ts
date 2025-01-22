@@ -2,13 +2,14 @@ import { IntersectionController } from '@lit-labs/observers/intersection-control
 import { html, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
+import { withTwind } from '../twind'
 import { NodeId } from '../types'
+
+import { Entity } from './entity'
 import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/authorship'
 import '../ui/nodes/properties/provenance'
-
-import { Entity } from './entity'
 
 /**
  * The name of the `CustomEvent` emitted when the visibility of a heading changes
@@ -30,6 +31,7 @@ export type HeadingVisibilityEvent = {
  * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/heading.md
  */
 @customElement('stencila-heading')
+@withTwind()
 export class Heading extends Entity {
   @property({ type: Number })
   level: number
@@ -61,21 +63,22 @@ export class Heading extends Entity {
       return html`<slot name="content"></slot>`
     }
 
+    // render with the `insert` chip in model chat response
+    if (this.isWithinModelChatMessage()) {
+      return html`
+        <div class="group relative">
+          ${this.renderInsertChip()}
+          <slot name="content"></slot>
+        </div>
+      `
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="Heading"
         node-id=${this.id}
         depth=${this.depth}
       >
-        <div slot="header-right">
-          <stencila-ui-node-chat-commands
-            type="Heading"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-chat-commands>
-        </div>
-
         <div slot="body">
           <stencila-ui-node-authors type="Heading">
             <stencila-ui-node-provenance slot="provenance">

@@ -9,3 +9,6 @@ kernel-jinja = { path = "../kernel-jinja" }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+
+[lints]
+workspace = true

@@ -57,7 +57,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "$ref": "ExecutionMode.schema.json"
@@ -78,7 +79,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "$ref": "ExecutionBounds.schema.json"
@@ -91,7 +93,7 @@
         "compilation_digest"
       ],
       "strip": [
-        "execution"
+        "compilation"
       ],
       "dom": {
         "skip": true
@@ -109,7 +111,7 @@
         "compilation_message"
       ],
       "strip": [
-        "execution"
+        "compilation"
       ],
       "dom": {
         "elem": "span"
@@ -324,7 +326,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "jats": {
@@ -366,7 +369,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "jats": {
@@ -402,7 +406,6 @@
         "authors"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {

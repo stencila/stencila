@@ -12,6 +12,8 @@ html:
   elem: u
 jats:
   elem: underline
+latex:
+  command: ul
 markdown:
   template: '<u>{{content}}</u>'
 proptest: {}

@@ -6,3 +6,6 @@ edition = "2021"
 [dependencies]
 codec = { path = "../codec" }
 codec-pandoc = { path = "../codec-pandoc" }
+
+[lints]
+workspace = true

@@ -136,6 +136,57 @@ impl DomCodec for CodeChunk {
     }
 }
 
+impl LatexCodec for CodeChunk {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        const ENVIRON: &str = "lstlisting";
+
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id))
+            .environ_begin(ENVIRON);
+
+        context.str("[");
+        if let Some(lang) = &self.programming_language {
+            context
+                .str("language=")
+                .property_str(NodeProperty::ProgrammingLanguage, lang)
+                .str(", exec");
+        } else {
+            context.str("exec");
+        }
+
+        if let Some(mode) = &self.execution_mode {
+            if !matches!(mode, ExecutionMode::Default) {
+                context.str(" ").property_str(
+                    NodeProperty::ExecutionMode,
+                    &mode.to_string().to_lowercase(),
+                );
+            }
+        }
+
+        if let Some(bounds) = &self.execution_bounds {
+            if !matches!(bounds, ExecutionBounds::Default) {
+                context.str(" ").property_str(
+                    NodeProperty::ExecutionBounds,
+                    &bounds.to_string().to_lowercase(),
+                );
+            }
+        }
+
+        context.str("]");
+
+        context
+            .newline()
+            .property_fn(NodeProperty::Code, |context| self.code.to_latex(context));
+
+        if !self.code.ends_with('\n') {
+            context.newline();
+        }
+
+        context.environ_end(ENVIRON).exit_node().newline();
+    }
+}
+
 impl MarkdownCodec for CodeChunk {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         let backticks = context.enclosing_backticks(&self.code);

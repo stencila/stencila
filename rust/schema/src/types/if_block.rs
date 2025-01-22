@@ -40,14 +40,14 @@ pub struct IfBlock {
     /// Under which circumstances the node should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
 
     /// Under which circumstances child nodes should be executed.
     #[serde(alias = "execution-bounds", alias = "execution_bounds")]
     #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_bounds: Option<ExecutionBounds>,
 
@@ -56,7 +56,7 @@ pub struct IfBlock {
     #[serde(deserialize_with = "one_or_many")]
     #[strip(code)]
     #[walk]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"vec![ibc("true", None::<String>, [p([t("If clause")])])]"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"vec(IfBlockClause::arbitrary(), size_range(1..=3))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"vec(IfBlockClause::arbitrary(), size_range(1..=10))"#))]
@@ -85,7 +85,7 @@ pub struct IfBlock {
 pub struct IfBlockOptions {
     /// A digest of the content, semantics and dependencies of the node.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
-    #[strip(execution)]
+    #[strip(compilation)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(skip)]
     pub compilation_digest: Option<CompilationDigest>,
@@ -93,7 +93,7 @@ pub struct IfBlockOptions {
     /// Messages generated while compiling the code.
     #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[strip(execution)]
+    #[strip(compilation)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     pub compilation_messages: Option<Vec<CompilationMessage>>,

@@ -35,7 +35,12 @@ export class UIInlineOnDemand extends ToggleMarkerMixin(UIBaseCard) {
   `
 
   override render() {
-    const cardStyles = apply(['group', 'transition duration-400', 'rounded'])
+    const cardStyles = apply([
+      'group',
+      'transition duration-400',
+      'rounded',
+      'select-none',
+    ])
 
     return html`<div class=${`ui-inline-on-demand ${cardStyles}`}>
       ${this.renderContentContainer()}

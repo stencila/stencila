@@ -2,6 +2,7 @@
 
 import { hydrate } from "../hydrate.js";
 
+import { type Annotation } from "./Annotation.js";
 import { type AudioObject } from "./AudioObject.js";
 import { type Button } from "./Button.js";
 import { type Cite } from "./Cite.js";
@@ -42,6 +43,7 @@ import { type VideoObject } from "./VideoObject.js";
  * Union type for valid inline content.
  */
 export type Inline =
+  Annotation |
   AudioObject |
   Button |
   Cite |
@@ -89,6 +91,7 @@ export function inline(other: Inline): Inline {
     return other as Inline;
   }
   switch(other.type) {
+    case "Annotation":
     case "AudioObject":
     case "Button":
     case "Cite":

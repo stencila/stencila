@@ -1,12 +1,12 @@
 ---
 type: Prompt
 
-id: stencila/create/quote-block
-version: "0.1.0"
-name: Create Quote Block Prompt
+name: stencila/create/quote-block
+title: Create Quote Block Prompt
 description: Create a quote block.
 keywords: quote, blockquote
 
+version: "0.1.0"
 instruction-type: Create
 node-type: QuoteBlock
 query-pattern: (?i)\bquote\b

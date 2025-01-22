@@ -47,14 +47,9 @@ impl Executable for PromptBlock {
             )
             .await
             {
-                let id = prompt
-                    .id
-                    .as_ref()
-                    .map(|id| prompts::shorten(id, &self.instruction_type))
-                    .map(|id| [&id, "?"].concat());
-
-                self.target = id.clone();
-                executor.patch(&node_id, [set(NodeProperty::Target, id)]);
+                let name = [&prompts::shorten(&prompt.name, &self.instruction_type), "?"].concat();
+                self.target = Some(name.clone());
+                executor.patch(&node_id, [set(NodeProperty::Target, name)]);
             }
         }
 

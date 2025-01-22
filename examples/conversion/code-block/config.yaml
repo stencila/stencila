@@ -1,5 +1,0 @@
-compact.jats.xml:
-  decode:
-    strip-types:
-      # TODO: Implement decoding of <code> into `CodeBlock`
-      - CodeBlock

@@ -86,6 +86,7 @@ Support and degree of loss for node types:
 | [VideoObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/video_object.md)                 | ⚠️ High loss |            | Encoded using implemented function                    |
 | **Prose**                                                                                                                 |
 | [Admonition](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/admonition.md)                    | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function                    |
+| [Annotation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/annotation.md)                    | ⚠️ High loss |            | Encoded as `=={{content}}==`                          |
 | [Cite](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)                                | ⚠️ High loss |            |                                                       |
 | [CiteGroup](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite_group.md)                     | ⚠️ High loss |            |                                                       |
 | [DefinedTerm](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/defined_term.md)                 | ⚠️ High loss |            |                                                       |

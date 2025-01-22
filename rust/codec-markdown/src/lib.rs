@@ -10,6 +10,7 @@ pub use codec_markdown_trait::to_markdown;
 
 mod decode;
 pub use decode::decode;
+pub use decode::preprocess;
 
 mod encode;
 pub use encode::encode;

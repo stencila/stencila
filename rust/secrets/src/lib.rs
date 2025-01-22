@@ -1,11 +1,6 @@
 use std::env;
 
-use cli_utils::{
-    table::{self, Attribute, Cell, CellAlignment, Color},
-    ToStdout,
-};
 use common::{
-    derive_more::Deref,
     eyre::{bail, Result},
     itertools::Itertools,
     once_cell::sync::Lazy,
@@ -20,7 +15,12 @@ pub mod cli;
 #[derive(Clone, Serialize)]
 #[serde(crate = "common::serde")]
 enum SecretCategory {
+    /// Used to access external services for creating content, esp. LLMs.
     AiApiKey,
+
+    /// Used to publish Stencila documents to an external service,
+    /// and/or to update a document based on externally-hosted content.
+    ReadWriteApiKey,
 }
 
 #[skip_serializing_none]
@@ -52,30 +52,6 @@ impl Secret {
             description: description.into(),
             redacted: None,
         }
-    }
-}
-
-/// A list of secrets
-#[derive(Deref, Serialize)]
-#[serde(crate = "common::serde")]
-pub struct SecretList(Vec<Secret>);
-
-impl ToStdout for SecretList {
-    fn to_terminal(&self) -> impl std::fmt::Display {
-        let mut table = table::new();
-        table.set_header(["Name", "Description", "Value"]);
-        for secret in self.iter() {
-            table.add_row([
-                Cell::new(&secret.name).add_attribute(Attribute::Bold),
-                Cell::new(&secret.description),
-                match &secret.redacted {
-                    Some(redacted) => Cell::new(redacted).fg(Color::Green),
-                    None => Cell::new(""),
-                }
-                .set_alignment(CellAlignment::Left),
-            ]);
-        }
-        table
     }
 }
 
@@ -112,6 +88,12 @@ static SECRETS: Lazy<Vec<Secret>> = Lazy::new(|| {
             "Mistral API Key",
             "Used to access the Mistral API",
         ),
+        Secret::new(
+            SecretCategory::ReadWriteApiKey,
+            "GHOST_ADMIN_API_KEY",
+            "Ghost Admin API Key",
+            "Used to read from and publish to Ghost",
+        ),
     ]
 });
 
@@ -137,7 +119,7 @@ fn entry(name: &str) -> Result<keyring::Entry> {
 }
 
 /// List secrets
-pub fn list() -> Result<SecretList> {
+pub fn list() -> Result<Vec<Secret>> {
     SECRETS
         .iter()
         .map(|secret| {
@@ -147,7 +129,6 @@ pub fn list() -> Result<SecretList> {
             })
         })
         .collect::<Result<Vec<Secret>>>()
-        .map(SecretList)
 }
 
 /// Redact a secret

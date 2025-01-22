@@ -32,6 +32,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(codec_json5::Json5Codec),
         Box::new(codec_jsonld::JsonLdCodec),
         Box::new(codec_latex::LatexCodec),
+        Box::new(codec_lexical::LexicalCodec),
         Box::new(codec_markdown::MarkdownCodec),
         Box::new(codec_odt::OdtCodec),
         Box::new(codec_pandoc::PandocCodec),
@@ -90,7 +91,7 @@ pub fn get(
 }
 
 /// Decode a Stencila Schema node from a string
-#[tracing::instrument]
+#[tracing::instrument(skip(str))]
 pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node> {
     let (node, DecodeInfo { losses, .. }) = from_str_with_info(str, options.clone()).await?;
     if !losses.is_empty() {
@@ -109,7 +110,7 @@ pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node>
 }
 
 /// Decode a Stencila Schema node from a string with decoding losses
-#[tracing::instrument]
+#[tracing::instrument(skip(str))]
 pub async fn from_str_with_info(
     str: &str,
     options: Option<DecodeOptions>,
@@ -343,8 +344,12 @@ pub async fn convert(
 
     match output {
         Some(output) => {
-            to_path(&node, output, encode_options).await?;
-            Ok(String::new())
+            if output == PathBuf::from("-") {
+                to_string(&node, encode_options).await
+            } else {
+                to_path(&node, output, encode_options).await?;
+                Ok(String::new())
+            }
         }
         None => to_string(&node, encode_options).await,
     }

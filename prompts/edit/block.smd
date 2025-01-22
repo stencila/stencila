@@ -1,12 +1,12 @@
 ---
 type: Prompt
 
-id: stencila/edit/block
-version: "0.1.0"
-name: Edit Block Prompt
+name: stencila/edit/block
+title: Edit Block Prompt
 description: Edit a block.
 keywords: edit
 
+version: "0.1.0"
 instruction-type: Edit
 ---
 

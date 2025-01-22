@@ -28,15 +28,6 @@ export class Figure extends Entity {
         node-id=${this.id}
         depth=${this.depth}
       >
-        <div slot="header-right">
-          <stencila-ui-node-chat-commands
-            type="Figure"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-chat-commands>
-        </div>
-
         <div slot="body">
           <stencila-ui-node-authors type="Figure">
             <stencila-ui-node-provenance slot="provenance">

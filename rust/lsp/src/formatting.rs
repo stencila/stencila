@@ -38,10 +38,9 @@ pub(crate) async fn format_doc(
     let formatted = match doc
         .read()
         .await
-        .export(
-            None,
+        .dump(
+            format.clone(),
             Some(EncodeOptions {
-                format: Some(format.clone()),
                 // Reduce log level for reporting encoding losses
                 losses: LossesResponse::Trace,
                 ..Default::default()

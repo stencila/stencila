@@ -68,7 +68,7 @@ impl Codec for DocxCodec {
                 .unwrap_or_default(),
         )
         .await?;
-        root_from_pandoc(pandoc)
+        root_from_pandoc(pandoc, Format::Docx)
     }
 
     async fn to_path(
@@ -77,7 +77,7 @@ impl Codec for DocxCodec {
         path: &Path,
         options: Option<EncodeOptions>,
     ) -> Result<EncodeInfo> {
-        let (pandoc, info) = root_to_pandoc(node)?;
+        let (pandoc, info) = root_to_pandoc(node, Format::Docx)?;
         pandoc_to_format(
             &pandoc,
             Some(path),

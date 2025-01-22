@@ -133,7 +133,6 @@
         "authors"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -166,6 +165,9 @@
         "compilation-digest",
         "compilation_digest"
       ],
+      "strip": [
+        "compilation"
+      ],
       "$ref": "CompilationDigest.schema.json"
     },
     "compilationMessages": {
@@ -178,6 +180,9 @@
         "compilation-message",
         "compilation_message"
       ],
+      "strip": [
+        "compilation"
+      ],
       "type": "array",
       "items": {
         "$ref": "CompilationMessage.schema.json"
@@ -186,6 +191,9 @@
     "css": {
       "@id": "stencila:css",
       "description": "A Cascading Style Sheet (CSS) transpiled from the `code` property.",
+      "strip": [
+        "output"
+      ],
       "type": "string"
     },
     "classList": {

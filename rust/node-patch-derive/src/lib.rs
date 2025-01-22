@@ -147,11 +147,14 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             let formats = field_attr.formats.iter().fold(TokenStream::new(), |mut tokens, format| {
                 let format = Format::from_name(format);
                 if let Some(format) = match format {
-                    Format::Markdown => Some(quote!(Format::Markdown)),
-                    Format::Smd => Some(quote!(Format::Smd)),
-                    Format::Myst => Some(quote!(Format::Myst)),
                     Format::Ipynb => Some(quote!(Format::Ipynb)),
+                    Format::Koenig => Some(quote!(Format::Koenig)),
+                    Format::Latex => Some(quote!(Format::Latex)),
+                    Format::Lexical => Some(quote!(Format::Lexical)),
+                    Format::Markdown => Some(quote!(Format::Markdown)),
+                    Format::Myst => Some(quote!(Format::Myst)),
                     Format::Qmd => Some(quote!(Format::Qmd)),
+                    Format::Smd => Some(quote!(Format::Smd)),
                     _ => None
                 } {
                     if !tokens.is_empty() {

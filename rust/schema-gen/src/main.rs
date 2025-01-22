@@ -31,6 +31,7 @@ enum What {
 }
 
 #[tokio::main]
+#[allow(clippy::print_stderr)]
 async fn main() -> Result<()> {
     let args = Args::parse();
     let whats = if args.what.is_empty() {

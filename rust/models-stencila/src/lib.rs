@@ -149,6 +149,7 @@ async fn list_stencila_models(_unused: u8) -> Result<Vec<StencilaModel>> {
 }
 
 #[cfg(test)]
+#[allow(clippy::print_stderr)]
 mod tests {
     use super::*;
     use model::{common::tokio, test_task_repeat_word};
@@ -156,7 +157,7 @@ mod tests {
     #[tokio::test]
     async fn list_models() -> Result<()> {
         if std::env::var("CI").is_ok() {
-            println!("Skipping test on CI until deployed");
+            eprintln!("Skipping test on CI until deployed");
             return Ok(());
         }
 

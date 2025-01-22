@@ -1,5 +1,6 @@
 import { provide } from '@lit/context'
 import { NodeType } from '@stencila/types'
+import { apply, css } from '@twind/core'
 import { html, LitElement } from 'lit'
 import { property, state } from 'lit/decorators'
 
@@ -8,6 +9,8 @@ import { DocumentAccess, DocumentView, NodeId } from '../types'
 import { EntityContext, entityContext } from '../ui/nodes/entity-context'
 import { closestGlobally } from '../utilities/closestGlobally'
 import { getModeParam } from '../utilities/getModeParam'
+
+import '../ui/nodes/node-insert'
 
 /**
  * Abstract base class for web components representing Stencila Schema `Entity` node types
@@ -62,6 +65,11 @@ export abstract class Entity extends LitElement {
    * The Stencila Schema node type of the parent node
    */
   protected parentNodeType: NodeType
+
+  /**
+   * An element property to be used if the Enity requires a tooltip
+   */
+  protected tooltipElement: Element | null = null
 
   /**
    * The Id of a child node that is/or contains,
@@ -122,12 +130,23 @@ export abstract class Entity extends LitElement {
   }
 
   /**
-   * Whether the node is within a chat message
+   * Whether the node is within a user chat message
    */
   protected isWithinUserChatMessage() {
     return (
       this.isWithin('ChatMessage') &&
       this.closestGlobally('stencila-chat-message[message-role="User"]') !==
+        null
+    )
+  }
+
+  /**
+   *  Whether the node is within a model chat message
+   */
+  protected isWithinModelChatMessage() {
+    return (
+      this.isWithin('ChatMessage') &&
+      this.closestGlobally('stencila-chat-message[message-role="Model"]') !==
         null
     )
   }
@@ -174,5 +193,40 @@ export abstract class Entity extends LitElement {
 
   override render() {
     return html`<slot></slot>`
+  }
+
+  /**
+   * Renders the chip control for the particular entity
+   *
+   * To use correctly this must be inside a non-static positioned element
+   * with the `"group"` utitly class applied.
+   *
+   * eg:
+   *  ```
+   *  <div class="group relative">
+   *    ${this.renderInsertChip()}
+   *    <slot></slot>
+   *  </div>
+   *  ```
+   */
+  protected renderInsertChip() {
+    const classes = apply([
+      'absolute -left-[40px] top-0',
+      'opacity-0 group-hover:opacity-100',
+      'transition-opacity duration-300',
+    ])
+
+    const styles = css`
+      box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
+    `
+
+    const nodeTuple = [this.nodeName, this.id]
+
+    return html`
+      <div class="${classes} ${styles}">
+        <stencila-ui-node-insert .selectedNodes=${[nodeTuple]}>
+        </stencila-ui-node-insert>
+      </div>
+    `
   }
 }

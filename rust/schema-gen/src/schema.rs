@@ -5,7 +5,7 @@ use std::{collections::BTreeMap, fmt::Display, path::PathBuf};
 use schemars::JsonSchema;
 
 use common::{
-    eyre::{bail, eyre, Context, Result},
+    eyre::{bail, eyre, Context, Report, Result},
     indexmap::IndexMap,
     inflector::Inflector,
     itertools::Itertools,
@@ -144,6 +144,9 @@ pub struct Schema {
 
     /// Options for encoding the type or property to/from JATS XML
     pub jats: Option<JatsOptions>,
+
+    /// Options for encoding the type or property to LaTeX
+    pub latex: Option<LatexOptions>,
 
     /// Options for encoding the type or property to Markdown
     pub markdown: Option<MarkdownOptions>,
@@ -475,6 +478,7 @@ pub enum StripScopes {
     Archive,
     Temporary,
     Code,
+    Compilation,
     Execution,
     Output,
     Timestamps,
@@ -600,7 +604,14 @@ pub struct SerdeOptions {
     /// Set the `default` attribute of a field
     ///
     /// See https://serde.rs/field-attrs.html#default
+    #[serde(skip_serializing_if = "is_false")]
     pub default: bool,
+
+    /// Set the `flatten` attribute of a field
+    ///
+    /// See https://serde.rs/field-attrs.html#flatten
+    #[serde(skip_serializing_if = "is_false")]
+    pub flatten: bool,
 
     /// Set the `deserialize_with` attribute of a field
     ///
@@ -706,7 +717,7 @@ pub struct JatsOptions {
     #[serde(skip_serializing_if = "is_false")]
     pub special: bool,
 
-    /// The HTML attribute name for a property
+    /// The name of the JATS attribute to use for a property
     ///
     /// Should only be used when `elem` is not `None`. When `elem` is `None`,
     /// the name of the attribute will be the name of the property.
@@ -715,6 +726,25 @@ pub struct JatsOptions {
     /// Whether a property should be encoded as content of the parent element
     #[serde(skip_serializing_if = "is_false")]
     pub content: bool,
+}
+
+/// Options for deriving the `LatexCodec` trait
+#[skip_serializing_none]
+#[derive(Debug, Clone, SmartDefault, Deserialize, Serialize, JsonSchema)]
+#[serde(
+    default,
+    rename_all = "camelCase",
+    deny_unknown_fields,
+    crate = "common::serde"
+)]
+pub struct LatexOptions {
+    /// Whether the `LatexCodec` trait should be derived for the type
+    #[serde(skip_serializing_if = "is_true")]
+    #[default = true]
+    pub derive: bool,
+
+    /// The name of the command to wrap the node in
+    pub command: Option<String>,
 }
 
 /// Options for deriving the `MarkdownCodec` trait
@@ -732,10 +762,10 @@ pub struct MarkdownOptions {
     #[default = true]
     pub derive: bool,
 
-    /// The Rust formatting string to use as a template to encode to Markdown
+    /// The template to use to encode to Markdown
     pub template: Option<String>,
 
-    /// Character to escape when using `format!` macro to encode to Markdown
+    /// Character to escape when using the template to encode to Markdown
     pub escape: Option<String>,
 }
 
@@ -802,15 +832,14 @@ impl Schema {
             .map(|extend| {
                 let mut parent = schemas
                     .get(extend)
-                    .ok_or_else(|| eyre!("no schema matching `extends` keyword: {}", extend))
-                    .unwrap()
+                    .ok_or_else(|| eyre!("no schema matching `extends` keyword: {}", extend))?
                     .clone();
                 if !parent.is_extended {
-                    parent = parent.extend(extend, schemas).unwrap();
+                    parent = parent.extend(extend, schemas)?;
                 }
-                parent
+                Ok::<_, Report>(parent)
             })
-            .collect();
+            .try_collect()?;
 
         let mut extended = self.clone();
 

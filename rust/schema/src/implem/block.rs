@@ -12,6 +12,7 @@ impl Block {
 
         variants!(
             Admonition,
+            AudioObject,
             CallBlock,
             Chat,
             ChatMessage,
@@ -21,10 +22,12 @@ impl Block {
             CodeChunk,
             DeleteBlock,
             Figure,
+            File,
             ForBlock,
             Form,
             Heading,
             IfBlock,
+            ImageObject,
             IncludeBlock,
             InsertBlock,
             InstructionBlock,
@@ -41,6 +44,7 @@ impl Block {
             SuggestionBlock,
             Table,
             ThematicBreak,
+            VideoObject,
             Walkthrough
         )
     }
@@ -50,6 +54,59 @@ impl Block {
             ($( $variant:ident ),*) => {
                 match self {
                     $(Block::$variant(node) => Some(node.node_id()),)*
+                }
+            };
+        }
+
+        variants!(
+            Admonition,
+            AudioObject,
+            CallBlock,
+            Chat,
+            ChatMessage,
+            ChatMessageGroup,
+            Claim,
+            CodeBlock,
+            CodeChunk,
+            DeleteBlock,
+            Figure,
+            File,
+            ForBlock,
+            Form,
+            Heading,
+            IfBlock,
+            ImageObject,
+            IncludeBlock,
+            InsertBlock,
+            InstructionBlock,
+            List,
+            MathBlock,
+            ModifyBlock,
+            Paragraph,
+            PromptBlock,
+            QuoteBlock,
+            RawBlock,
+            ReplaceBlock,
+            Section,
+            StyledBlock,
+            SuggestionBlock,
+            Table,
+            ThematicBreak,
+            VideoObject,
+            Walkthrough
+        )
+    }
+}
+
+impl TryFrom<Node> for Block {
+    type Error = ErrReport;
+
+    fn try_from(node: Node) -> Result<Self> {
+        macro_rules! variants {
+            ($( $variant:ident ),*) => {
+                match node {
+                    $(Node::$variant(node) => Ok(Block::$variant(node)),)*
+                    _ => bail!("Unable to convert node to block")
                 }
             };
         }
@@ -90,51 +147,32 @@ impl Block {
     }
 }
 
-impl TryFrom<Node> for Block {
+impl TryFrom<Node> for Vec<Block> {
     type Error = ErrReport;
 
     fn try_from(node: Node) -> Result<Self> {
-        macro_rules! variants {
-            ($( $variant:ident ),*) => {
-                match node {
-                    $(Node::$variant(node) => Ok(Block::$variant(node)),)*
-                    _ => bail!("Unable to convert node to block")
-                }
-            };
-        }
+        use Node::*;
+        Ok(match node {
+            // For creative works with block content, return that content
+            Article(node) => node.content,
+            Chat(node) => node.content,
+            Prompt(node) => node.content,
 
-        variants!(
-            Admonition,
-            CallBlock,
-            Chat,
-            ChatMessage,
-            Claim,
-            CodeBlock,
-            CodeChunk,
-            DeleteBlock,
-            Figure,
-            ForBlock,
-            Form,
-            Heading,
-            IfBlock,
-            IncludeBlock,
-            InsertBlock,
-            InstructionBlock,
-            List,
-            MathBlock,
-            ModifyBlock,
-            Paragraph,
-            PromptBlock,
-            QuoteBlock,
-            RawBlock,
-            ReplaceBlock,
-            Section,
-            StyledBlock,
-            SuggestionBlock,
-            Table,
-            ThematicBreak,
-            Walkthrough
-        )
+            // For block nodes with block content, return that content
+            Admonition(block) => block.content,
+            CallBlock(block) => block.content.unwrap_or_default(),
+            ChatMessage(block) => block.content,
+            Claim(block) => block.content,
+            Figure(block) => block.content,
+            ForBlock(block) => block.content,
+            QuoteBlock(block) => block.content,
+            Section(block) => block.content,
+            StyledBlock(block) => block.content,
+            SuggestionBlock(block) => block.content,
+
+            // For other node types, attempt to return a vector with a single block
+            _ => vec![Block::try_from(node)?],
+        })
     }
 }
 
@@ -206,6 +244,7 @@ impl MarkdownCodec for Block {
         }
         variants!(
             Admonition,
+            AudioObject,
             CallBlock,
             Chat,
             ChatMessage,
@@ -215,10 +254,12 @@ impl MarkdownCodec for Block {
             CodeChunk,
             DeleteBlock,
             Figure,
+            File,
             ForBlock,
             Form,
             Heading,
             IfBlock,
+            ImageObject,
             IncludeBlock,
             InsertBlock,
             InstructionBlock,
@@ -235,6 +276,7 @@ impl MarkdownCodec for Block {
             SuggestionBlock,
             Table,
             ThematicBreak,
+            VideoObject,
             Walkthrough
         )
     }

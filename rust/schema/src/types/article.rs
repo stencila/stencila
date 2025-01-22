@@ -27,6 +27,7 @@ use super::integer::Integer;
 use super::integer_or_string::IntegerOrString;
 use super::list::List;
 use super::node::Node;
+use super::object::Object;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
@@ -157,14 +158,14 @@ pub struct Article {
     /// Under which circumstances the node should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
 
     /// Under which circumstances child nodes should be executed.
     #[serde(alias = "execution-bounds", alias = "execution_bounds")]
     #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_bounds: Option<ExecutionBounds>,
 
@@ -352,7 +353,7 @@ pub struct ArticleOptions {
 
     /// A digest of the content, semantics and dependencies of the node.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
-    #[strip(execution)]
+    #[strip(compilation)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(skip)]
     pub compilation_digest: Option<CompilationDigest>,
@@ -360,7 +361,7 @@ pub struct ArticleOptions {
     /// Messages generated while compiling the code.
     #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[strip(execution)]
+    #[strip(compilation)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     pub compilation_messages: Option<Vec<CompilationMessage>>,
@@ -464,6 +465,14 @@ pub struct ArticleOptions {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub pagination: Option<String>,
+
+    /// Additional metadata for the article.
+    #[serde(flatten, deserialize_with = "empty_object_is_none")]
+    #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(skip)]
+    pub extra: Option<Object>,
 }
 
 impl Article {

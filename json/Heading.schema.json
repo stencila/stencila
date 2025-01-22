@@ -19,6 +19,9 @@
     "elem": "title",
     "special": true
   },
+  "latex": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },
@@ -61,7 +64,10 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex",
+          "lexical",
+          "koenig"
         ]
       },
       "proptest": {
@@ -123,7 +129,6 @@
         "authors"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {

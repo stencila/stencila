@@ -8,6 +8,8 @@ import { customElement, state } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
+import '../ui/nodes/chat-message-inputs'
+import '../ui/nodes/nodes-selected'
 
 import { ChatMessage } from './chat-message'
 import { ChatMessageGroup } from './chat-message-group'
@@ -133,29 +135,49 @@ export class Chat extends Executable {
       let first: ChatMessage | ChatMessageGroup | undefined
       let last: ChatMessage | ChatMessageGroup | undefined
       for (const mutation of mutations) {
-        let elem
         if (
-          mutation.target instanceof ChatMessage ||
-          mutation.target instanceof ChatMessageGroup
+          mutation.target instanceof ChatMessage &&
+          mutation.type === 'attributes' &&
+          mutation.attributeName === 'is-selected'
         ) {
-          elem = mutation.target
-        } else if (
-          mutation.target.parentElement instanceof ChatMessage ||
-          mutation.target.parentElement instanceof ChatMessageGroup
-        ) {
-          elem = mutation.target.parentElement
-        } else if (
-          mutation.addedNodes[0] instanceof ChatMessage ||
-          mutation.addedNodes[0] instanceof ChatMessageGroup
-        ) {
-          elem = mutation.addedNodes[0]
-        }
-
-        if (!first) {
-          first = elem
-          last = elem
+          // if mutation is chat group selection change,
+          // scroll to top of chat message group.
+          if (mutation.target.isSelected) {
+            const targetEl =
+              (mutation.target.closest(
+                'stencila-chat-message-group'
+              ) as ChatMessageGroup) ?? mutation.target
+            targetEl.scrollIntoView({
+              block: 'start',
+              behavior: 'smooth',
+            })
+            return
+          }
         } else {
-          last = elem
+          let elem
+          if (
+            mutation.target instanceof ChatMessage ||
+            mutation.target instanceof ChatMessageGroup
+          ) {
+            elem = mutation.target
+          } else if (
+            mutation.target.parentElement instanceof ChatMessage ||
+            mutation.target.parentElement instanceof ChatMessageGroup
+          ) {
+            elem = mutation.target.parentElement
+          } else if (
+            mutation.addedNodes[0] instanceof ChatMessage ||
+            mutation.addedNodes[0] instanceof ChatMessageGroup
+          ) {
+            elem = mutation.addedNodes[0]
+          }
+
+          if (!first) {
+            first = elem
+            last = elem
+          } else {
+            last = elem
+          }
         }
       }
 
@@ -267,38 +289,45 @@ export class Chat extends Executable {
           >
             <div slot="start" class="h-full overflow-y-hidden flex flex-col">
               <div class="flex-grow overflow-y-hidden">
-                <div class="h-full overflow-scroll">
+                <div
+                  class="relative h-full overflow-auto"
+                  id="chat-scroll-container"
+                >
                   <div class="px-3 pb-6">
                     <slot
                       name="content"
                       @slotchange=${this.onContentSlotChange}
                     ></slot>
+                    <stencila-ui-nodes-selected
+                      type="Chat"
+                      node-id=${this.id}
+                    ></stencila-ui-nodes-selected>
                   </div>
                 </div>
               </div>
 
-              <div class="bg-[${colour}] border-t border-[${borderColour}]">
-                <div class="p-1">
-                  <div class="max-w-prose mx-auto">
-                    <stencila-ui-chat-message-inputs
-                      type="Chat"
-                      node-id=${this.id}
-                      @stencila-message-input=${this.onMessageInput}
-                    ></stencila-ui-chat-message-inputs>
-                  </div>
+              <div
+                class="bg-[${colour}] border-t border-[${borderColour}] px-3 py-2"
+              >
+                <div class="pb-2">
+                  <slot name="prompt"></slot>
                 </div>
+
+                <stencila-ui-chat-message-inputs
+                  type="Chat"
+                  node-id=${this.id}
+                  @stencila-message-input=${this.onMessageInput}
+                >
+                  <slot name="model-parameters" slot="model-parameters"></slot>
+                </stencila-ui-chat-message-inputs>
 
                 <stencila-ui-node-execution-messages type="Chat">
                   <slot name="execution-messages"></slot>
                 </stencila-ui-node-execution-messages>
-
-                <slot name="model-parameters"></slot>
-
-                <slot name="prompt"></slot>
               </div>
             </div>
 
-            <div slot="end" class="h-full overflow-scroll px-1 py-2">
+            <div slot="end" class="h-full overflow-auto px-1 py-2">
               <slot
                 name="suggestions"
                 @slotchange=${this.onSuggestionsSlotChange}
@@ -311,44 +340,46 @@ export class Chat extends Executable {
   }
 
   private renderCard() {
-    return html`<stencila-ui-block-on-demand
-      type="Chat"
-      node-id=${this.id}
-      depth=${this.depth}
-    >
-      <div slot="header-right">
-        <stencila-ui-node-execution-commands
-          type="Chat"
-          node-id=${this.id}
-          depth=${this.depth}
-        >
-        </stencila-ui-node-execution-commands>
-      </div>
+    return html`
+      <stencila-ui-block-on-demand
+        type="Chat"
+        node-id=${this.id}
+        depth=${this.depth}
+      >
+        <div slot="header-right">
+          <stencila-ui-node-execution-commands
+            type="Chat"
+            node-id=${this.id}
+            depth=${this.depth}
+          >
+          </stencila-ui-node-execution-commands>
+        </div>
 
-      <div slot="body">
-        <stencila-ui-node-execution-details
-          type="Chat"
-          node-id=${this.id}
-          mode=${this.executionMode}
-          bounds=${this.executionBounds}
-          .tags=${this.executionTags}
-          status=${this.executionStatus}
-          required=${this.executionRequired}
-          count=${this.executionCount}
-          ended=${this.executionEnded}
-          duration=${this.executionDuration}
-        >
-        </stencila-ui-node-execution-details>
+        <div slot="body">
+          <stencila-ui-node-execution-details
+            type="Chat"
+            node-id=${this.id}
+            mode=${this.executionMode}
+            bounds=${this.executionBounds}
+            .tags=${this.executionTags}
+            status=${this.executionStatus}
+            required=${this.executionRequired}
+            count=${this.executionCount}
+            ended=${this.executionEnded}
+            duration=${this.executionDuration}
+          >
+          </stencila-ui-node-execution-details>
 
-        <stencila-ui-node-execution-messages type="Chat">
-          <slot name="execution-messages"></slot>
-        </stencila-ui-node-execution-messages>
+          <stencila-ui-node-execution-messages type="Chat">
+            <slot name="execution-messages"></slot>
+          </stencila-ui-node-execution-messages>
 
-        <slot name="model-parameters"></slot>
+          <slot name="model-parameters"></slot>
 
-        <slot name="prompt"></slot>
-      </div>
-    </stencila-ui-block-on-demand>`
+          <slot name="prompt"></slot>
+        </div>
+      </stencila-ui-block-on-demand>
+    `
   }
 }
 

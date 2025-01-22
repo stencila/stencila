@@ -61,16 +61,13 @@ export class UIChatMessageInputs extends UIBaseClass {
    * On <textarea> keydown send if enter key, but not Shift+Enter
    */
   private onTextKeyDown(event: KeyboardEvent) {
-    switch (event.key) {
-      case 'Enter':
-        if (event.shiftKey) {
-          return
-        }
-        event.preventDefault()
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault()
+
+      const textarea = event.target as HTMLTextAreaElement
+      if (textarea.value.trim().length > 0) {
         this.onSend()
-        return
-      default:
-        return
+      }
     }
   }
 
@@ -170,17 +167,17 @@ export class UIChatMessageInputs extends UIBaseClass {
           ${ref(this.textRef)}
         ></textarea>
 
-        <div class="flex flex-row items-start justify-between">
-          <div>
-            <sl-tooltip content="Add file">
-              <stencila-ui-file-input
-                class="text-xl text-[${textColour}]"
-                multiple
-                @stencila-files=${this.onFileInput}
-              ></stencila-ui-file-input>
-            </sl-tooltip>
+        <div class="flex flex-row items-center justify-between">
+          <sl-tooltip content="Add file">
+            <stencila-ui-file-input
+              class="text-xl text-[${textColour}]"
+              multiple
+              @stencila-files=${this.onFileInput}
+            ></stencila-ui-file-input>
+          </sl-tooltip>
 
-            ${files}
+          <div class="w-full ml-2 mr-4">
+            <slot name="model-parameters"></slot>
           </div>
 
           <sl-tooltip content=${hasInputs ? 'Send message' : 'Message is empty'}
@@ -194,6 +191,8 @@ export class UIChatMessageInputs extends UIBaseClass {
             ></stencila-ui-icon-button
           ></sl-tooltip>
         </div>
+
+        <div class="pt-1">${files}</div>
       </div>
     `
   }

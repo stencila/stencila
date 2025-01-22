@@ -19,6 +19,7 @@ impl Inline {
         }
 
         variants!(
+            Annotation,
             AudioObject,
             Button,
             Cite,
@@ -71,6 +72,7 @@ impl Inline {
         }
 
         variants!(
+            Annotation,
             AudioObject,
             Button,
             Cite,
@@ -317,6 +319,7 @@ impl MarkdownCodec for Inline {
             };
         }
         variants!(
+            Annotation,
             AudioObject,
             Button,
             Cite,

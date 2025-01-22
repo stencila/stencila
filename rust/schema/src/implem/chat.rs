@@ -151,6 +151,7 @@ impl MarkdownCodec for Chat {
         header.strip(&StripTargets {
             scopes: vec![
                 StripScope::Provenance,
+                StripScope::Compilation,
                 StripScope::Execution,
                 StripScope::Code,
                 StripScope::Output,

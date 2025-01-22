@@ -61,14 +61,13 @@ async fn publish_path(
         doc.compile(CommandWait::Yes).await?;
 
         let theme = doc.config().await?.theme;
-        let node = &*doc.root_read().await;
-
+        let root = doc.root().await;
         let options = EncodeOptions {
             theme,
             ..Default::default()
         };
 
-        publish_node(node, options, key, dry_run, swb).await
+        publish_node(&root, options, key, dry_run, swb).await
     } else {
         bail!("Publishing of directories is not currently supported")
     }

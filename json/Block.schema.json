@@ -25,6 +25,15 @@
     {
       "proptest": {
         "min": {
+          "description": "Do not generate `AudioObject` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "AudioObject.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
           "description": "Do not generate `CallBlock` nodes in block content.",
           "skip": true
         },
@@ -112,6 +121,15 @@
     {
       "proptest": {
         "min": {
+          "description": "Do not generate `File` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "File.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
           "description": "Do not generate `ForBlock` nodes in block content.",
           "skip": true
         },
@@ -144,6 +162,15 @@
         }
       },
       "$ref": "IfBlock.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `ImageObject` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "ImageObject.schema.json"
     },
     {
       "proptest": {
@@ -246,6 +273,15 @@
     },
     {
       "$ref": "ThematicBreak.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `VideoObject` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "VideoObject.schema.json"
     },
     {
       "proptest": {

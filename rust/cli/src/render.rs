@@ -82,7 +82,7 @@ impl Cli {
         let mut encode_options = encode_options.build(
             Some(input.as_ref()),
             output.as_deref(),
-            to,
+            to.clone(),
             Format::Markdown,
             strip_options,
             LossesResponse::Debug,
@@ -90,12 +90,12 @@ impl Cli {
         );
         encode_options.render = Some(true);
 
-        let content = doc
-            .export(output.as_deref(), Some(encode_options.clone()))
-            .await?;
-
-        if !content.is_empty() {
-            Code::new(encode_options.format.unwrap_or_default(), &content).to_stdout();
+        if let Some(dest) = &output {
+            doc.export(dest, Some(encode_options)).await?;
+        } else if let Some(format) = to {
+            let format = Format::from_name(&format);
+            let content = doc.dump(format.clone(), Some(encode_options)).await?;
+            Code::new(format, &content).to_stdout();
         }
 
         Ok(())

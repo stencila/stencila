@@ -13,7 +13,7 @@ use super::string::String;
 /// A block of math, e.g an equation, to be treated as block content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
@@ -34,7 +34,7 @@ pub struct MathBlock {
 
     /// The code of the equation in the `mathLanguage`.
     #[strip(code)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::from("math")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9]{1,10}".prop_map(Cord::from)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::from)"#))]
@@ -88,20 +88,20 @@ pub struct MathBlock {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub struct MathBlockOptions {
     /// A digest of the `code` and `mathLanguage`.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]
-    #[strip(execution)]
+    #[strip(compilation)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub compilation_digest: Option<CompilationDigest>,
 
     /// Messages generated while parsing and compiling the math expression.
     #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
     #[serde(default, deserialize_with = "option_one_or_many")]
-    #[strip(execution)]
+    #[strip(compilation)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub compilation_messages: Option<Vec<CompilationMessage>>,
 

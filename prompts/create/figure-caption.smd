@@ -1,12 +1,12 @@
 ---
 type: Prompt
 
-id: stencila/create/figure-caption
-version: "0.1.0"
-name: Create Figure Caption Prompt
+name: stencila/create/figure-caption
+title: Create Figure Caption Prompt
 description: Create a figure caption.
 keywords: figure
 
+version: "0.1.0"
 instruction-type: Create 
 node-type: Paragraph
 query-pattern: (?i)\bfig(ure)? cap(tion)?\b

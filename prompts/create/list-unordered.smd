@@ -1,12 +1,12 @@
 ---
 type: Prompt
 
-id: stencila/create/list-unordered
-version: "0.1.0"
-name: Create Unordered List Prompt
+name: stencila/create/list-unordered
+title: Create Unordered List Prompt
 description: Create an unordered list.
 keywords: list, unordered
 
+version: "0.1.0"
 instruction-type: Create
 node-type: List
 query-patterns:

@@ -1007,6 +1007,15 @@
       "schema:domainIncludes": {
         "@id": "schema:Article"
       }
+    },
+    {
+      "@id": "stencila:extra",
+      "@type": "rdfs:Property",
+      "rdfs:label": "extra",
+      "rdfs:comment": "Additional metadata for the article.",
+      "schema:domainIncludes": {
+        "@id": "schema:Article"
+      }
     }
   ]
 }

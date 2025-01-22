@@ -28,7 +28,7 @@ properties:
     items:
       $ref: Inline
     patch:
-      formats: [md, smd, myst, ipynb, qmd]
+      formats: [md, smd, myst, ipynb, qmd, lexical, koenig]
     dom:
       elem: span
   thumbnail:

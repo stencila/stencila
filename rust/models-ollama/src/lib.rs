@@ -162,6 +162,7 @@ impl Model for OllamaModel {
                     } else {
                         Some(images)
                     },
+                    tool_calls: Vec::new()
                 }
             })
             .collect();
@@ -225,12 +226,9 @@ impl Model for OllamaModel {
             .client
             .send_chat_messages(request)
             .await
-            .map_err(|error| eyre!(error))?;
+            .map_err(|error| eyre!(error.to_string()))?;
 
-        let text = response
-            .message
-            .map(|message| message.content)
-            .unwrap_or_default();
+        let text = response.message.content;
 
         ModelOutput::from_text(self, &task.format, text).await
     }
@@ -269,7 +267,10 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
 /// be started while allowing for new models to be pulled and to appear here.
 #[cached(time = 3000, result = true)]
 async fn list_ollama_models(_unused: u8) -> Result<Vec<LocalModel>> {
-    Ok(Ollama::default().list_local_models().await?)
+    Ollama::default()
+        .list_local_models()
+        .await
+        .map_err(|error| eyre!(error.to_string()))
 }
 
 #[cfg(test)]

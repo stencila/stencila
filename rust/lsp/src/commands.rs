@@ -76,7 +76,7 @@ pub(super) const ARCHIVE_NODE: &str = "stencila.archive-node";
 pub(super) const REVISE_NODE: &str = "stencila.revise-node";
 
 pub(super) const INSERT_NODE: &str = "stencila.insert-node";
-pub(super) const INSERT_CLONE: &str = "stencila.insert-clone";
+pub(super) const INSERT_CLONES: &str = "stencila.insert-clones";
 pub(super) const INSERT_INSTRUCTION: &str = "stencila.insert-instruction";
 
 pub(super) const CREATE_CHAT: &str = "stencila.create-chat";
@@ -111,7 +111,7 @@ pub(super) fn commands() -> Vec<String> {
         ARCHIVE_NODE,
         REVISE_NODE,
         INSERT_NODE,
-        INSERT_CLONE,
+        INSERT_CLONES,
         INSERT_INSTRUCTION,
         CREATE_CHAT,
         DELETE_CHAT,
@@ -180,9 +180,12 @@ pub(super) async fn execute_command(
             let value = match command {
                 PATCH_CLONE | PATCH_CHAT_FOCUS => {
                     let node_id = node_id_arg(args.next())?;
-                    let doc = doc.read().await;
-                    let root = doc.root_read().await;
-                    let clone = find(&*root, node_id)
+
+                    let clone = doc
+                        .read()
+                        .await
+                        .find(node_id)
+                        .await
                         .ok_or_eyre("Node not found in source document")
                         .and_then(|node| replicate(&node))
                         .map_err(invalid_request)?;
@@ -345,7 +348,7 @@ pub(super) async fn execute_command(
                     files,
                 },
                 false,
-                false,
+                true,
             )
         }
         RUN_DOC => (
@@ -595,11 +598,13 @@ pub(super) async fn execute_command(
                 true,
             )
         }
-        INSERT_CLONE | INSERT_INSTRUCTION => {
+        INSERT_CLONES | INSERT_INSTRUCTION => {
             let position = position_arg(args.next())?;
             args.next(); // Skip the argument for the URI of the source document (already used)
-            let node_type = node_type_arg(args.next())?;
-            let node_id = node_id_arg(args.next())?;
+            let node_ids: Vec<NodeId> = args
+                .next()
+                .and_then(|value| serde_json::from_value(value).ok())
+                .ok_or_else(|| invalid_request("node ids arg missing"))?;
             let instruction_type = args
                 .next()
                 .and_then(|value| serde_json::from_value(value).ok())
@@ -608,41 +613,59 @@ pub(super) async fn execute_command(
                 .next()
                 .and_then(|value| serde_json::from_value(value).ok());
 
-            // Get the node from the source document
+            // Get the root node from the source document
             let source_doc = source_doc
                 .ok_or_else(|| invalid_request("Source document URI missing or invalid"))?;
             let source_doc = source_doc.read().await;
-            let source_root = source_doc.root_read().await;
-            let source_node = find(&*source_root, node_id)
-                .ok_or_else(|| invalid_request("Node not found in source document"))?;
 
-            // Convert the node into a block, replicate it (to avoid having duplicate ids)
-            let block = Block::try_from(source_node)
-                .and_then(|block| replicate(&block))
-                .map_err(invalid_request)?;
+            // Clone the nodes from the source
+            // Using the `.inspect()` method with `find()`, rather than using `.find()`
+            // methods meads we only need to take read lock once.
+            let nodes = source_doc
+                .inspect(|root| {
+                    let mut nodes: Vec<Node> = Vec::new();
+                    for node_id in node_ids.clone() {
+                        if let Some(node) = find(root, node_id) {
+                            nodes.push(node)
+                        }
+                    }
+                    nodes
+                })
+                .await;
+
+            // Convert the nodes into blocks (if necessary) and replicate (to avoid having duplicate ids)
+            let blocks: Vec<Block> = nodes
+                .into_iter()
+                .map(|node| replicate(&Block::try_from(node)?))
+                .try_collect()
+                .map_err(internal_error)?;
 
             // If appropriate, wrap in a command
-            let block = if matches!(command, INSERT_INSTRUCTION) {
-                Block::InstructionBlock(InstructionBlock {
+            let blocks = if matches!(command, INSERT_INSTRUCTION) {
+                vec![Block::InstructionBlock(InstructionBlock {
                     instruction_type,
                     execution_mode,
-                    content: Some(vec![block]),
+                    content: Some(blocks),
                     ..Default::default()
-                })
+                })]
             } else {
-                block
+                blocks
             };
 
-            // and convert to a patch value
-            let value = replicate(&block)
-                .and_then(|block| block.to_value())
-                .map_err(invalid_request)?;
+            // Convert blocks to patch values
+            let values = blocks.into_iter().map(PatchValue::Block);
 
             // Find where to insert the block based on the position in the text document
             // falling back to appending to the end of the document's root node's content.
             let (node_id, op) = match root.read().await.block_content_index(position) {
-                Some((node_id, index)) => (Some(node_id), PatchOp::Insert(vec![(index, value)])),
-                None => (None, PatchOp::Push(value)),
+                Some((node_id, index)) => {
+                    let values = values
+                        .enumerate()
+                        .map(|(offset, value)| (index + offset, value))
+                        .collect_vec();
+                    (Some(node_id), PatchOp::Insert(values))
+                }
+                None => (None, PatchOp::Append(values.collect())),
             };
 
             // Patch the content of the destination document
@@ -653,7 +676,7 @@ pub(super) async fn execute_command(
             };
 
             (
-                format!("Cloning {node_type}"),
+                "Cloning nodes".to_string(),
                 Command::PatchNode(patch),
                 false,
                 true,
@@ -666,9 +689,13 @@ pub(super) async fn execute_command(
             let instruction_type = args
                 .next()
                 .and_then(|value| serde_json::from_value(value).ok());
+            let node_type = node_type_arg(args.next()).ok();
+            let prompt = args
+                .next()
+                .and_then(|value| serde_json::from_value::<String>(value).ok());
             let execute_chat: bool = args
                 .next()
-                .and_then(|value| serde_json::from_value(value).ok())
+                .and_then(|value| serde_json::from_value::<bool>(value).ok())
                 .unwrap_or_default();
 
             let root = root.read().await;
@@ -679,7 +706,12 @@ pub(super) async fn execute_command(
                     // If an explicit create instruction, then ignore nodes spanning
                     // range (likely that cursor accidentally on boundary and user does not
                     // want to use them as suggestions etc)
-                    (Vec::new(), Vec::new())
+                    (
+                        Vec::new(),
+                        node_type
+                            .map(|node_type| vec![node_type])
+                            .unwrap_or_default(),
+                    )
                 } else if let Some(range) = range {
                     // Get any blocks spanning the range
                     let node_ids = root.block_ids_spanning(range);
@@ -712,15 +744,13 @@ pub(super) async fn execute_command(
                 let instruction_type = if instruction_type.is_some() {
                     instruction_type
                 } else if node_types.is_empty() {
-                    Some(InstructionType::Create)
+                    None
                 } else if let (1, Some(NodeType::CodeChunk | NodeType::MathBlock)) =
                     (node_types.len(), node_types.first())
                 {
                     // Check if the node has warnings or errors and
                     if let Some(node_id) = node_ids.first() {
-                        let doc = doc.read().await;
-                        let root = doc.root_read().await;
-                        if match find(&*root, node_id.clone()) {
+                        if match doc.read().await.find(node_id.clone()).await {
                             Some(Node::CodeChunk(node)) => node.has_warnings_errors_or_exceptions(),
                             Some(Node::MathBlock(node)) => node.has_warnings_errors_or_exceptions(),
                             _ => false,
@@ -746,13 +776,20 @@ pub(super) async fn execute_command(
                 // If any, add them to the suggestions as the original
                 let suggestions = if !node_ids.is_empty() {
                     // Get clones of the blocks
-                    let doc = doc.read().await;
-                    let root = &*doc.root_read().await;
-                    let content = node_ids
-                        .into_iter()
-                        .filter_map(|node_id| find(root, node_id))
-                        .filter_map(|node| Block::try_from(node).ok())
-                        .collect_vec();
+                    let content = {
+                        let doc = doc.read().await;
+                        let mut content = Vec::new();
+                        for node_id in node_ids {
+                            if let Some(block) = doc
+                                .find(node_id)
+                                .await
+                                .and_then(|node| Block::try_from(node).ok())
+                            {
+                                content.push(block);
+                            }
+                        }
+                        content
+                    };
 
                     // Replicate to avoid duplicate ids
                     let content = replicate(&content).map_err(internal_error)?;
@@ -773,10 +810,19 @@ pub(super) async fn execute_command(
                     None => (None, None),
                 };
 
+                // If no prompt provided then infer one from the instruction type, node type etc
+                let target = match prompt {
+                    Some(prompt) => Some(prompt),
+                    None => prompts::infer(&instruction_type, &node_types, &None)
+                        .await
+                        .map(|prompt| prompt.name.clone()),
+                };
+
                 let chat = Chat {
                     prompt: PromptBlock {
                         instruction_type,
                         node_types,
+                        target,
                         ..Default::default()
                     },
                     is_temporary: Some(true),
@@ -827,29 +873,21 @@ pub(super) async fn execute_command(
             // factored out into a command or patch op.
 
             let doc = doc.write().await;
-            let root = &mut *doc.root_write().await;
+            doc.mutate(move |root| {
+                if let Node::Article(Article {
+                    temporary: Some(temporary),
+                    ..
+                }) = root
+                {
+                    tracing::debug!("Deleting temporary chat {node_id}");
 
-            if let Node::Article(Article {
-                temporary: Some(temporary),
-                ..
-            }) = root
-            {
-                tracing::debug!("Deleting temporary chat {node_id}");
+                    let node_id = Some(node_id.clone());
+                    temporary.retain(|node| node.node_id() != node_id);
+                }
+            })
+            .await;
 
-                let len_before = temporary.len();
-                let node_id = Some(node_id);
-                temporary.retain(|node| node.node_id() != node_id);
-
-                return if temporary.len() == len_before {
-                    Err(invalid_request(format!(
-                        "Chat with id not found in temporaries: {node_id:?}"
-                    )))
-                } else {
-                    Ok(None)
-                };
-            } else {
-                return Err(invalid_request("Root node is not an article"));
-            }
+            return Ok(None);
         }
         SAVE_DOC => (
             "Saving document with sidecar".to_string(),

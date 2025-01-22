@@ -65,7 +65,7 @@ impl Codec for PdfCodec {
                 .unwrap_or_default(),
         )
         .await?;
-        root_from_pandoc(pandoc)
+        root_from_pandoc(pandoc, Format::Pdf)
     }
 
     async fn to_path(
@@ -74,7 +74,7 @@ impl Codec for PdfCodec {
         path: &Path,
         options: Option<EncodeOptions>,
     ) -> Result<EncodeInfo> {
-        let (pandoc, info) = root_to_pandoc(node)?;
+        let (pandoc, info) = root_to_pandoc(node, Format::Pdf)?;
         pandoc_to_format(
             &pandoc,
             Some(path),

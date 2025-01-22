@@ -7,3 +7,6 @@ edition = "2021"
 codec-html-derive = { path = "../codec-html-derive" }
 common = { path = "../common" }
 html-escape = "0.2.13"
+
+[lints]
+workspace = true

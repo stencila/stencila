@@ -18,6 +18,9 @@
       "executable": "yes"
     }
   },
+  "latex": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },
@@ -75,7 +78,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "$ref": "ExecutionMode.schema.json"
@@ -96,7 +100,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "$ref": "ExecutionBounds.schema.json"
@@ -109,7 +114,7 @@
         "compilation_digest"
       ],
       "strip": [
-        "execution"
+        "compilation"
       ],
       "dom": {
         "skip": true
@@ -127,7 +132,7 @@
         "compilation_message"
       ],
       "strip": [
-        "execution"
+        "compilation"
       ],
       "dom": {
         "elem": "span"
@@ -342,7 +347,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "jats": {
@@ -384,7 +390,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "jats": {
@@ -420,7 +427,6 @@
         "authors"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -463,6 +469,9 @@
           "ipynb"
         ]
       },
+      "jats": {
+        "attr": "label-type"
+      },
       "proptest": {
         "min": {
           "description": "No label type",
@@ -487,6 +496,9 @@
           "qmd",
           "ipynb"
         ]
+      },
+      "jats": {
+        "elem": "label"
       },
       "proptest": {
         "min": {
@@ -520,6 +532,9 @@
           "qmd"
         ]
       },
+      "jats": {
+        "attr": "label-automatically"
+      },
       "type": "boolean"
     },
     "caption": {
@@ -537,6 +552,9 @@
       "walk": true,
       "dom": {
         "elem": "div"
+      },
+      "jats": {
+        "elem": "caption"
       },
       "proptest": {
         "min": {
@@ -568,7 +586,6 @@
         ]
       },
       "serde": {
-        "default": false,
         "deserializeWith": "none"
       },
       "dom": {

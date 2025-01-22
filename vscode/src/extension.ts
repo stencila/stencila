@@ -26,8 +26,8 @@ import { cliPath } from "./cli";
 import { registerWalkthroughCommands } from "./walkthroughs";
 import { registerStencilaShell } from "./shell";
 import { registerSetupView } from "./setup";
-import { registerChatEditor } from "./editors";
 import { event, registerEventing } from "./events";
+import { workspaceSetup } from "./workspace";
 
 let client: LanguageClient | undefined;
 
@@ -60,11 +60,13 @@ export async function activate(context: vscode.ExtensionContext) {
   registerWalkthroughCommands(context);
   registerStatusBar(context);
   registerStencilaShell(context);
-  registerChatEditor(context);
   registerOtherCommands(context);
 
   // Check status of extension
   checkExtensionStatus(context);
+
+  // Run any workspace setup
+  workspaceSetup(context);
 
   await startServer(context);
 }
@@ -129,6 +131,7 @@ async function startServer(context: vscode.ExtensionContext) {
       { language: "smd" },
       { language: "myst" },
       { language: "qmd" },
+      { language: "latex" },
     ],
     markdown: {
       isTrusted: true,

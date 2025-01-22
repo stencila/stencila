@@ -107,6 +107,7 @@ fn option() -> Result<()> {
 
 /// Test loading & dumping of `Text` nodes
 #[test]
+#[allow(clippy::unwrap_used)]
 fn text() -> Result<()> {
     type Root = HashMap<String, Text>;
 
@@ -161,6 +162,7 @@ fn text() -> Result<()> {
 
 /// Test loading & dumping of `Vec`s
 #[test]
+#[allow(clippy::unwrap_used)]
 fn vec() -> Result<()> {
     type Root = HashMap<String, Vec<Text>>;
 

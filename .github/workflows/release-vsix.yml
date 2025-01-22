@@ -27,7 +27,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          # Use the same version of Ubuntu as used to build the CLI
+          - os: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
             code-target: linux-x64
           - os: macos-latest

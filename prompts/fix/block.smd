@@ -1,12 +1,12 @@
 ---
 type: Prompt
 
-id: stencila/fix/block
-version: "0.1.0"
-name: Fix Block Prompt
+name: stencila/fix/block
+title: Fix Block Prompt
 description: Fix a block that has errors or warnings.
 keywords: fix
 
+version: "0.1.0"
 instruction-type: Fix
 ---
 

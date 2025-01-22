@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use syntect::{
     easy::HighlightLines, highlighting::ThemeSet, parsing::SyntaxSet,
     util::as_24_bit_terminal_escaped,
@@ -15,8 +17,6 @@ use format::Format;
 use crate::ToStdout;
 
 /// A message for a user
-#[derive(Serialize)]
-#[serde(crate = "common::serde")]
 pub struct Code {
     /// The format of the code
     format: Format,
@@ -63,6 +63,12 @@ impl Code {
     }
 }
 
+impl Display for Code {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "{}", self.content)
+    }
+}
+
 impl ToStdout for Code {
     fn to_terminal(&self) -> impl std::fmt::Display {
         // Consider whether to only bake in a subset of syntaxes and themes? See the following for examples of this
@@ -79,9 +85,11 @@ impl ToStdout for Code {
             _ => self.format.extension(),
         };
 
-        let syntax = SYNTAXES
-            .find_syntax_by_extension(&ext)
-            .unwrap_or_else(|| SYNTAXES.find_syntax_by_extension("txt").unwrap());
+        let syntax = SYNTAXES.find_syntax_by_extension(&ext).unwrap_or_else(|| {
+            SYNTAXES
+                .find_syntax_by_extension("txt")
+                .expect("should always be a txt theme")
+        });
 
         let mut highlighted = String::new();
         let mut highlighter = HighlightLines::new(syntax, &THEMES.themes["Solarized (light)"]);

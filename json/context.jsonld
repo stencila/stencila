@@ -12,6 +12,7 @@
   "@graph": {
     "Admonition": "stencila:Admonition",
     "AdmonitionType": "stencila:AdmonitionType",
+    "Annotation": "stencila:Annotation",
     "Array": "stencila:Array",
     "ArrayHint": "stencila:ArrayHint",
     "ArrayValidator": "stencila:ArrayValidator",
@@ -93,6 +94,7 @@
     "Grant": "schema:Grant",
     "Heading": "stencila:Heading",
     "Hint": "stencila:Hint",
+    "HorizontalAlignment": "stencila:HorizontalAlignment",
     "IfBlock": "stencila:IfBlock",
     "IfBlockClause": "stencila:IfBlockClause",
     "ImageObject": "schema:ImageObject",
@@ -194,6 +196,7 @@
     "UnsignedInteger": "stencila:UnsignedInteger",
     "Validator": "stencila:Validator",
     "Variable": "stencila:Variable",
+    "VerticalAlignment": "stencila:VerticalAlignment",
     "VideoObject": "schema:VideoObject",
     "Walkthrough": "stencila:Walkthrough",
     "WalkthroughStep": "stencila:WalkthroughStep",
@@ -208,6 +211,7 @@
     "affiliations": "schema:affiliation",
     "alternateNames": "schema:alternateName",
     "amounts": "schema:amount",
+    "annotation": "stencila:annotation",
     "archive": "stencila:archive",
     "arguments": "stencila:arguments",
     "author": "schema:author",
@@ -294,6 +298,7 @@
     "executionRequired": "stencila:executionRequired",
     "executionStatus": "stencila:executionStatus",
     "executionTags": "stencila:executionTags",
+    "extra": "stencila:extra",
     "familyNames": "schema:familyName",
     "feedback": "stencila:feedback",
     "files": "stencila:files",
@@ -307,6 +312,8 @@
     "hint": "stencila:hint",
     "honorificPrefix": "schema:honorificPrefix",
     "honorificSuffix": "schema:honorificSuffix",
+    "horizontalAlignment": "stencila:horizontalAlignment",
+    "horizontalAlignmentCharacter": "stencila:horizontalAlignmentCharacter",
     "identifiers": "schema:identifier",
     "images": "schema:image",
     "instructionType": "stencila:instructionType",
@@ -455,6 +462,7 @@
     "values": "stencila:values",
     "variable": "stencila:variable",
     "version": "schema:version",
+    "verticalAlignment": "stencila:verticalAlignment",
     "volumeNumber": "schema:volumeNumber"
   }
 }

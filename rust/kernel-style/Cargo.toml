@@ -10,3 +10,6 @@ railwind = { git = "https://github.com/nokome/railwind", rev = "e804d17b3f1e08ae
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
+
+[lints]
+workspace = true

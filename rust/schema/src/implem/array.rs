@@ -70,6 +70,14 @@ impl HtmlCodec for Array {
     }
 }
 
+impl LatexCodec for Array {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        let (text, losses) = self.to_text();
+        context.str(&text);
+        context.merge_losses(losses);
+    }
+}
+
 impl MarkdownCodec for Array {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         let (text, losses) = self.to_text();

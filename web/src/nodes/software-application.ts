@@ -26,7 +26,7 @@ export class SoftwareApplication extends Entity {
       type="SoftwareApplication"
       _id=${this.$id}
       name=${this.name}
-      details=${this.version ? `v${this.version}` : null}
+      details=${this.version}
     ></stencila-ui-node-author>`
   }
 }

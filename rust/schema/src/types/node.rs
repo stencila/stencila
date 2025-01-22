@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::admonition::Admonition;
+use super::annotation::Annotation;
 use super::array::Array;
 use super::array_hint::ArrayHint;
 use super::array_validator::ArrayValidator;
@@ -146,7 +147,7 @@ use super::walkthrough::Walkthrough;
 use super::walkthrough_step::WalkthroughStep;
 
 /// Union type for all types in this schema, including primitives and entities
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, SmartDefault, PatchNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, SmartDefault, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(untagged, crate = "common::serde")]
 pub enum Node {
     #[default]
@@ -167,6 +168,8 @@ pub enum Node {
     Array(Array),
 
     Admonition(Admonition),
+
+    Annotation(Annotation),
 
     ArrayHint(ArrayHint),
 

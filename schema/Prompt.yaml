@@ -7,8 +7,9 @@ markdown:
   derive: false
 required:
   - name
-  - version
+  - title
   - description
+  - version
   - instructionTypes
   - content
 core:

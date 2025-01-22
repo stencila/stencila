@@ -1,12 +1,12 @@
 ---
 type: Prompt
 
-id: stencila/describe/block
-version: "0.1.0"
-name: Describe Block Prompt
+name: stencila/describe/block
+title: Describe Block Prompt
 description: Describe a block.
 keywords: describe
 
+version: "0.1.0"
 instruction-type: Describe
 ---
 

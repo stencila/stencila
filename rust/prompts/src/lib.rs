@@ -10,7 +10,7 @@ use std::{
 };
 
 use app::{get_app_dir, DirType};
-use codec_markdown_trait::to_markdown;
+use codec_markdown::to_markdown;
 use codecs::{DecodeOptions, Format};
 use common::{
     derive_more::{Deref, DerefMut},
@@ -52,6 +52,9 @@ use version::stencila_version;
 ///
 /// A wrapper around an [`Prompt`] used to cache derived properties
 /// such as regexes / embeddings
+///
+/// Note: Deserialization is at required for the `stencila/listPrompts` command
+/// of the LSP but is not actually used there (?) or anywhere else.
 #[derive(Default, Clone, Deref, DerefMut, Deserialize)]
 #[serde(default, crate = "common::serde")]
 pub struct PromptInstance {
@@ -90,21 +93,27 @@ pub struct PromptInstance {
 }
 
 /// Custom serialization to flatten and avoid unnecessarily serializing content of prompt
+///
+/// This is lossy and only used for "display" purposes when running
+/// `stencila prompts list --as json`.
 impl Serialize for PromptInstance {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
         S: Serializer,
     {
         let mut state = serializer.serialize_struct("PromptInstance", 2)?;
+
         state.serialize_field("id", &self.inner.id)?;
-        state.serialize_field("version", &self.inner.version)?;
         state.serialize_field("name", &self.inner.name)?;
+        state.serialize_field("title", &to_markdown(&self.inner.title))?;
         state.serialize_field("description", &self.inner.description)?;
+        state.serialize_field("version", &self.inner.version)?;
         state.serialize_field("instructionTypes", &self.inner.instruction_types)?;
         state.serialize_field("nodeTypes", &self.inner.node_types)?;
         state.serialize_field("nodeCount", &self.inner.node_count)?;
         state.serialize_field("queryPatterns", &self.inner.query_patterns)?;
         state.serialize_field("path", &self.path)?;
+
         state.end()
     }
 }
@@ -204,7 +213,7 @@ pub async fn list() -> Vec<PromptInstance> {
                 .cmp(&b.instruction_types.first())
             {
                 Ordering::Equal => match a.generality.cmp(&b.generality) {
-                    Ordering::Equal => a.id.cmp(&b.id),
+                    Ordering::Equal => a.name.cmp(&b.name),
                     cmp => cmp,
                 },
                 cmp => cmp,
@@ -213,13 +222,13 @@ pub async fn list() -> Vec<PromptInstance> {
         .collect_vec()
 }
 
-/// Get a prompt by id
-pub async fn get(id: &str) -> Result<PromptInstance> {
+/// Get a prompt by name
+pub async fn get(name: &str) -> Result<PromptInstance> {
     list()
         .await
         .into_iter()
-        .find(|prompt| prompt.id.as_deref() == Some(id))
-        .ok_or_else(|| eyre!("Unable to find prompt with id `{id}`"))
+        .find(|prompt| prompt.name == name)
+        .ok_or_else(|| eyre!("Unable to find prompt with name `{name}`"))
 }
 
 /// Infer which prompt to use based on instruction type, node types, node count and/or query
@@ -273,25 +282,15 @@ pub async fn infer(
         // Get the prompt with the highest matches / lowest generality
         counts.map(|(prompt, ..)| prompt).next().take()
     } else if let Some(node_types) = node_types {
-        // Sort nodes by whether any of the lower case node types occur in the id of the prompt
+        // Sort nodes by whether any of the lower case node types occur in the name of the prompt
         prompts
             .sorted_by(|prompt_a, prompt_b| {
                 let mut node_types = node_types.iter().map(|node_type| node_type.to_kebab_case());
-                let a_id_has_node_type = node_types.clone().any(|node_type| {
-                    prompt_a
-                        .id
-                        .as_ref()
-                        .map(|id| id.contains(&node_type))
-                        .unwrap_or_default()
-                });
-                let b_id_has_node_type = node_types.any(|node_type| {
-                    prompt_b
-                        .id
-                        .as_ref()
-                        .map(|id| id.contains(&node_type))
-                        .unwrap_or_default()
-                });
-                match (a_id_has_node_type, b_id_has_node_type) {
+                let type_in_a = node_types
+                    .clone()
+                    .any(|node_type| prompt_a.name.contains(&node_type));
+                let type_in_b = node_types.any(|node_type| prompt_b.name.contains(&node_type));
+                match (type_in_a, type_in_b) {
                     (true, false) => Ordering::Less,
                     (false, true) => Ordering::Greater,
                     _ => prompt_a.generality.cmp(&prompt_b.generality),
@@ -308,12 +307,12 @@ pub async fn infer(
     }
 }
 
-/// Expand a prompt id by removing any "?"" suffix (used to indicate inferred prompt)
+/// Expand a prompt name by removing any "?"" suffix (used to indicate inferred prompt)
 /// and instruction type and "stencila/" prefixes if appropriate
-pub fn expand(id: &str, instruction_type: &Option<InstructionType>) -> String {
-    let id = id.strip_suffix("?").unwrap_or(id).to_string();
+pub fn expand(name: &str, instruction_type: &Option<InstructionType>) -> String {
+    let name = name.strip_suffix("?").unwrap_or(name).to_string();
 
-    let parts = id.split('/').count();
+    let parts = name.split('/').count();
     match parts {
         1 => {
             if let Some(instruction_type) = instruction_type {
@@ -321,21 +320,21 @@ pub fn expand(id: &str, instruction_type: &Option<InstructionType>) -> String {
                     "stencila/",
                     &instruction_type.to_string().to_lowercase(),
                     "/",
-                    &id,
+                    &name,
                 ]
                 .concat()
             } else {
-                ["stencila/create/", &id].concat()
+                ["stencila/create/", &name].concat()
             }
         }
-        2 => ["stencila/", &id].concat(),
-        _ => id,
+        2 => ["stencila/", &name].concat(),
+        _ => name,
     }
 }
 
-/// Attempt to shorten a prompt id, by removing "stencila/" and instruction type prefixes if possible
-pub fn shorten(id: &str, instruction_type: &Option<InstructionType>) -> String {
-    if let Some(rest) = id.strip_prefix("stencila/") {
+/// Attempt to shorten a prompt name, by removing "stencila/" and instruction type prefixes if possible
+pub fn shorten(name: &str, instruction_type: &Option<InstructionType>) -> String {
+    if let Some(rest) = name.strip_prefix("stencila/") {
         if let Some(instruction_type) = instruction_type {
             let prefix = [&instruction_type.to_string().to_lowercase(), "/"].concat();
             if let Some(name) = rest.strip_prefix(&prefix) {
@@ -347,7 +346,7 @@ pub fn shorten(id: &str, instruction_type: &Option<InstructionType>) -> String {
         return rest.into();
     }
 
-    id.into()
+    name.into()
 }
 
 /// Builtin prompts

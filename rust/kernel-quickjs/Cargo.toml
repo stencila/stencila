@@ -9,4 +9,7 @@ rquickjs = { version = "0.6.2", features = ["futures", "macro", "parallel"] }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
-test-log = { version = "0.2.15", default-features = false, features = ["trace"] }
+test-log = { workspace = true }
+
+[lints]
+workspace = true

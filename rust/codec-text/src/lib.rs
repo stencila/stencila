@@ -8,6 +8,8 @@ use codec::{
 
 use codec_text_trait::TextCodec as _;
 
+pub use codec_text_trait::to_text;
+
 /// A codec for plain text
 pub struct TextCodec;
 

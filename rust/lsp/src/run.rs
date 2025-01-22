@@ -14,17 +14,17 @@ use schema::NodeId;
 use tower::ServiceBuilder;
 use tracing_subscriber::filter::LevelFilter;
 
-use common::serde_json;
+use common::{eyre::Result, serde_json};
 
 use crate::{
     code_lens,
-    commands::{self, INSERT_CLONE, INSERT_INSTRUCTION},
+    commands::{self, INSERT_CLONES, INSERT_INSTRUCTION},
     completion, content, dom, formatting, hover, kernels_, lifecycle, logging, models_, node_ids,
     prompts_, symbols, text_document, ServerState, ServerStatus,
 };
 
 /// Run the language server
-pub async fn run(log_level: LevelFilter, log_filter: &str) {
+pub async fn run(log_level: LevelFilter, log_filter: &str) -> Result<()> {
     let (server, _) = MainLoop::new_server(|client| {
         logging::setup(log_level, log_filter, client.clone());
 
@@ -64,14 +64,23 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
             }
         });
 
-        router.request::<request::Completion, _>(|state, params| {
-            let uri = &params.text_document_position.text_document.uri;
-            let source = state
-                .documents
-                .get(uri)
-                .map(|text_doc| text_doc.source.clone());
-            async move { completion::request(params, source).await }
-        });
+        router
+            .request::<request::Completion, _>(|state, params| {
+                let uri = &params.text_document_position.text_document.uri;
+                let doc = state
+                    .documents
+                    .get(uri)
+                    .map(|text_doc| (text_doc.format.clone(), text_doc.source.clone()));
+                async move {
+                    match doc {
+                        Some((format, source)) => completion::request(params, format, source).await,
+                        None => Ok(None),
+                    }
+                }
+            })
+            .request::<request::ResolveCompletionItem, _>(|_state, params| {
+                completion::resolve_item(params)
+            });
 
         router
             .request::<request::CodeLensRequest, _>(|state, params| {
@@ -126,7 +135,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
                     });
 
                 let source_doc =
-                    if matches!(params.command.as_str(), INSERT_CLONE | INSERT_INSTRUCTION) {
+                    if matches!(params.command.as_str(), INSERT_CLONES | INSERT_INSTRUCTION) {
                         params
                             .arguments
                             .get(2)
@@ -284,8 +293,8 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
     // Prefer truly asynchronous piped stdin/stdout without blocking tasks.
     #[cfg(unix)]
     let (stdin, stdout) = (
-        async_lsp::stdio::PipeStdin::lock_tokio().unwrap(),
-        async_lsp::stdio::PipeStdout::lock_tokio().unwrap(),
+        async_lsp::stdio::PipeStdin::lock_tokio()?,
+        async_lsp::stdio::PipeStdout::lock_tokio()?,
     );
 
     // Fallback to spawn blocking read/write otherwise.
@@ -298,5 +307,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) {
         )
     };
 
-    server.run_buffered(stdin, stdout).await.unwrap();
+    server.run_buffered(stdin, stdout).await?;
+
+    Ok(())
 }

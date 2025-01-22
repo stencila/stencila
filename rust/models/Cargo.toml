@@ -13,3 +13,6 @@ models-ollama = { path = "../models-ollama" }
 models-openai = { path = "../models-openai" }
 models-stencila = { path = "../models-stencila" }
 plugins = { path = "../plugins" }
+
+[lints]
+workspace = true

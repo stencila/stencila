@@ -7,3 +7,6 @@ edition = "2021"
 codec = { path = "../codec" }
 ignore = "0.4.22"
 mime_guess = { workspace = true }
+
+[lints]
+workspace = true

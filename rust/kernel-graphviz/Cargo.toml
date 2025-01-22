@@ -12,3 +12,6 @@ common-dev = { path = "../common-dev" }
 
 [package.metadata.cargo-machete]
 ignored = ["layout-rs"]
+
+[lints]
+workspace = true

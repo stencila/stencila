@@ -21,17 +21,6 @@
     },
     {
       "@type": "stencila:Figure",
-      "stencila:content": [
-        {
-          "@type": "stencila:Paragraph",
-          "stencila:content": [
-            {
-              "@type": "ImageObject",
-              "contentUrl": "https://example.org/dog.jpg"
-            }
-          ]
-        }
-      ],
       "stencila:label": "2",
       "stencila:labelAutomatically": false,
       "caption": [
@@ -46,6 +35,17 @@
             }
           ]
         }
+      ],
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "ImageObject",
+              "contentUrl": "https://example.org/dog.jpg"
+            }
+          ]
+        }
       ]
     },
     {
@@ -53,17 +53,6 @@
       "stencila:content": [
         {
           "@type": "stencila:Figure",
-          "stencila:content": [
-            {
-              "@type": "stencila:Paragraph",
-              "stencila:content": [
-                {
-                  "@type": "ImageObject",
-                  "contentUrl": "https://example.org/mouse.jpg"
-                }
-              ]
-            }
-          ],
           "caption": [
             {
               "@type": "stencila:Paragraph",
@@ -73,6 +62,17 @@
                   "value": {
                     "string": "A figure of a mouse inside a section."
                   }
+                }
+              ]
+            }
+          ],
+          "stencila:content": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "ImageObject",
+                  "contentUrl": "https://example.org/mouse.jpg"
                 }
               ]
             }

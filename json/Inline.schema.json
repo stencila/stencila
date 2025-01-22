@@ -13,6 +13,15 @@
     {
       "proptest": {
         "min": {
+          "description": "Do not generate `Annotation` nodes in inline content.",
+          "skip": true
+        }
+      },
+      "$ref": "Annotation.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
           "description": "Do not generate `AudioObject` nodes in inline content.",
           "skip": true
         },

@@ -9,6 +9,8 @@ html:
   elem: sup
 jats:
   elem: sup
+latex:
+  command: textsuperscript
 markdown:
   template: '^{{content}}^'
   escape: '^'

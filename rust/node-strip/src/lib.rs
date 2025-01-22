@@ -48,6 +48,14 @@ pub enum StripScope {
     /// - `source` of a `Include` or `Call` node
     Code,
 
+    /// Strip compilation related properties of executable nodes
+    ///
+    /// Includes any properties that record the compilation state of a node e.g.
+    ///
+    /// - `compilationDigest` of any `Executable` node
+    /// - `directory` of a `PromptBlock` node
+    Compilation,
+
     /// Strip execution related properties of executable nodes
     ///
     /// Includes any properties that record the execution state of a node e.g.

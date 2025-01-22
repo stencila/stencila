@@ -2,6 +2,7 @@
 
 import { Block } from "./Block.js";
 import { CreativeWork } from "./CreativeWork.js";
+import { Inline } from "./Inline.js";
 import { InstructionType } from "./InstructionType.js";
 import { StringOrNumber } from "./StringOrNumber.js";
 import { UnsignedIntegerOrString } from "./UnsignedIntegerOrString.js";
@@ -22,6 +23,11 @@ export class Prompt extends CreativeWork {
    * The name of the item.
    */
   name: string;
+
+  /**
+   * The title of the creative work.
+   */
+  title: Inline[];
 
   /**
    * The version of the creative work.
@@ -53,12 +59,13 @@ export class Prompt extends CreativeWork {
    */
   content: Block[];
 
-  constructor(description: string, name: string, version: StringOrNumber, instructionTypes: InstructionType[], content: Block[], options?: Partial<Prompt>) {
+  constructor(description: string, name: string, title: Inline[], version: StringOrNumber, instructionTypes: InstructionType[], content: Block[], options?: Partial<Prompt>) {
     super();
     this.type = "Prompt";
     if (options) Object.assign(this, options);
     this.description = description;
     this.name = name;
+    this.title = title;
     this.version = version;
     this.instructionTypes = instructionTypes;
     this.content = content;
@@ -68,6 +75,6 @@ export class Prompt extends CreativeWork {
 /**
 * Create a new `Prompt`
 */
-export function prompt(description: string, name: string, version: StringOrNumber, instructionTypes: InstructionType[], content: Block[], options?: Partial<Prompt>): Prompt {
-  return new Prompt(description, name, version, instructionTypes, content, options);
+export function prompt(description: string, name: string, title: Inline[], version: StringOrNumber, instructionTypes: InstructionType[], content: Block[], options?: Partial<Prompt>): Prompt {
+  return new Prompt(description, name, title, version, instructionTypes, content, options);
 }

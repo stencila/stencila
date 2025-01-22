@@ -6,3 +6,6 @@ edition = "2021"
 [dependencies]
 codec-info = { path = "../codec-info" }
 codec-text-derive = { path = "../codec-text-derive" }
+
+[lints]
+workspace = true

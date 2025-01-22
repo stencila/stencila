@@ -304,15 +304,28 @@ class FormDeriveAction(StrEnum):
     UpdateOrDelete = "UpdateOrDelete"
 
 
+class HorizontalAlignment(StrEnum):
+    """
+    The horizontal alignment of content.
+    """
+
+    AlignLeft = "AlignLeft"
+    AlignRight = "AlignRight"
+    AlignJustify = "AlignJustify"
+    AlignCenter = "AlignCenter"
+    AlignCharacter = "AlignCharacter"
+
+
 class InstructionType(StrEnum):
     """
     The type of an instruction describing the operation to be performed.
     """
 
+    Discuss = "Discuss"
     Create = "Create"
+    Describe = "Describe"
     Edit = "Edit"
     Fix = "Fix"
-    Describe = "Describe"
 
 
 class LabelType(StrEnum):
@@ -468,6 +481,17 @@ class TimeUnit(StrEnum):
     Picosecond = "Picosecond"
     Femtosecond = "Femtosecond"
     Attosecond = "Attosecond"
+
+
+class VerticalAlignment(StrEnum):
+    """
+    The vertical alignment of content.
+    """
+
+    AlignBaseline = "AlignBaseline"
+    AlignBottom = "AlignBottom"
+    AlignTop = "AlignTop"
+    AlignMiddle = "AlignMiddle"
 
 
 
@@ -1009,6 +1033,18 @@ class Admonition(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
+class Annotation(Mark):
+    """
+    Annotated content.
+    """
+
+    type: Literal["Annotation"] = "Annotation"
+
+    annotation: list[Block] | None = None
+    """The annotation, usually a paragraph."""
+
+
+@dataclass(kw_only=True, repr=False)
 class ArrayHint(Entity):
     """
     A hint to the content of an `Array`.
@@ -1090,6 +1126,9 @@ class Article(CreativeWork, Executable):
 
     temporary: list[Node] | None = None
     """Temporary nodes on document"""
+
+    extra: Object | None = None
+    """Additional metadata for the article."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -1838,9 +1877,6 @@ class Figure(CreativeWork):
 
     type: Literal["Figure"] = "Figure"
 
-    content: list[Block]
-    """The content of the figure."""
-
     label: str | None = None
     """A short label for the figure."""
 
@@ -1849,6 +1885,9 @@ class Figure(CreativeWork):
 
     caption: list[Block] | None = None
     """A caption for the figure."""
+
+    content: list[Block]
+    """The content of the figure."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2906,6 +2945,15 @@ class TableCell(Entity):
     row_span: int | None = None
     """How many columns the cell extends."""
 
+    horizontal_alignment: HorizontalAlignment | None = None
+    """The horizontal alignment of the content of a table cell."""
+
+    horizontal_alignment_character: str | None = None
+    """The character to be used in horizontal alignment of the content of a table cell."""
+
+    vertical_alignment: VerticalAlignment | None = None
+    """The vertical alignment of the content of a table cell."""
+
     content: list[Block]
     """Contents of the table cell."""
 
@@ -3137,6 +3185,7 @@ Union type for things that can be an author in `AuthorRole`.
 
 Block = Union[
     Admonition,
+    AudioObject,
     CallBlock,
     Chat,
     ChatMessage,
@@ -3146,10 +3195,12 @@ Block = Union[
     CodeChunk,
     DeleteBlock,
     Figure,
+    File,
     ForBlock,
     Form,
     Heading,
     IfBlock,
+    ImageObject,
     IncludeBlock,
     InsertBlock,
     InstructionBlock,
@@ -3166,6 +3217,7 @@ Block = Union[
     SuggestionBlock,
     Table,
     ThematicBreak,
+    VideoObject,
     Walkthrough,
 ]
 """
@@ -3246,6 +3298,7 @@ Union type for hints of the value and/or structure of data.
 
 
 Inline = Union[
+    Annotation,
     AudioObject,
     Button,
     Cite,
@@ -3311,6 +3364,7 @@ Node = Union[
     Cord,
     Array,
     Admonition,
+    Annotation,
     ArrayHint,
     ArrayValidator,
     Article,
@@ -3451,16 +3505,11 @@ Union type for all types in this schema, including primitives and entities
 
 
 ThingType = Union[
-    AdmonitionType,
     Article,
     AudioObject,
-    AuthorRoleName,
     Brand,
     Chat,
-    CitationIntent,
-    CitationMode,
     Claim,
-    ClaimType,
     Collection,
     Comment,
     ContactPoint,
@@ -3468,25 +3517,12 @@ ThingType = Union[
     Datatable,
     DefinedTerm,
     Enumeration,
-    ExecutionBounds,
-    ExecutionDependantRelation,
-    ExecutionDependencyRelation,
-    ExecutionMode,
-    ExecutionRequired,
-    ExecutionStatus,
     Figure,
-    FormDeriveAction,
     Grant,
     ImageObject,
-    InstructionType,
-    LabelType,
     ListItem,
-    ListOrder,
     MediaObject,
-    MessageLevel,
-    MessageRole,
     MonetaryGrant,
-    NoteType,
     Organization,
     Periodical,
     Person,
@@ -3494,19 +3530,12 @@ ThingType = Union[
     Product,
     Prompt,
     PropertyValue,
-    ProvenanceCategory,
     PublicationIssue,
     PublicationVolume,
-    RelativePosition,
     Review,
-    SectionType,
     SoftwareApplication,
     SoftwareSourceCode,
-    SuggestionStatus,
     Table,
-    TableCellType,
-    TableRowType,
-    TimeUnit,
     VideoObject,
 ]
 """
@@ -3556,6 +3585,7 @@ TYPES = [
     SuggestionBlock,
     SuggestionInline,
     Admonition,
+    Annotation,
     ArrayHint,
     ArrayValidator,
     Article,

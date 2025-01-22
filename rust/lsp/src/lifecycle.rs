@@ -50,12 +50,16 @@ pub(super) async fn initialize() -> Result<InitializeResult, ResponseError> {
             })),
             completion_provider: Some(CompletionOptions {
                 trigger_characters: Some(vec![
+                    ".".into(),
                     "/".into(),
                     ":".into(),
                     "@".into(),
                     "[".into(),
+                    "(".into(),
                     ",".into(),
+                    " ".into(),
                 ]),
+                resolve_provider: Some(true),
                 ..Default::default()
             }),
             code_lens_provider: Some(CodeLensOptions {

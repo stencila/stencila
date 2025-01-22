@@ -66,7 +66,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "proptest": {
@@ -135,7 +136,6 @@
         "authors"
       ],
       "serde": {
-        "default": false,
         "deserializeWith": "option_one_or_many_string_or_object"
       },
       "dom": {
@@ -169,7 +169,7 @@
         "compilation_digest"
       ],
       "strip": [
-        "execution"
+        "compilation"
       ],
       "$ref": "CompilationDigest.schema.json"
     },
@@ -184,7 +184,7 @@
         "compilation_message"
       ],
       "strip": [
-        "execution"
+        "compilation"
       ],
       "type": "array",
       "items": {

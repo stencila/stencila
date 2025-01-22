@@ -7,3 +7,6 @@ edition = "2021"
 common = { path = "../common" }
 json5 = "0.4.1"
 json5format = "0.2.6"
+
+[lints]
+workspace = true

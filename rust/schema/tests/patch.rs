@@ -55,17 +55,17 @@ struct Summary {
 
 /// Snapshot tests of the `MergeNode::diff` method
 #[tokio::test]
+#[allow(clippy::print_stderr)]
 async fn fixtures() -> Result<()> {
     let mut ops_count = BTreeMap::new();
     let mut ops_total = 0;
     for path in glob("tests/fixtures/*.smd")?.flatten() {
         eprintln!("{}", path.display());
 
-        let name = path
-            .file_stem()
-            .and_then(|name| name.to_str())
-            .unwrap()
-            .to_string();
+        let Some(name) = path.file_stem() else {
+            continue;
+        };
+        let name = name.to_string_lossy().to_string();
 
         // Read in the fixture and split into old and new Stencila Markdown
         let content = read_to_string(path)?;
@@ -887,6 +887,7 @@ fn authorship_on_nodes() -> Result<()> {
 
 /// Test an archive patch for a new instruction
 #[test]
+#[allow(clippy::unwrap_used)]
 fn archive_patch_new() -> Result<()> {
     // Archive an instruction with no accepted suggestion
     let inb = InstructionBlock {
@@ -988,6 +989,38 @@ fn archive_patch_new() -> Result<()> {
         &Node::InstructionBlock(inb)
     );
     assert_eq!(&article.content, &blocks);
+
+    Ok(())
+}
+
+/// Test that expected formats are supported for simple content
+/// This checks that patching of Paragraph.content and Text.value
+/// are supported for these formats.
+#[test]
+fn formats_supported() -> Result<()> {
+    for format in [
+        Format::Json,
+        Format::Yaml,
+        Format::Markdown,
+        Format::Smd,
+        Format::Qmd,
+        Format::Myst,
+        Format::Ipynb,
+        Format::Latex,
+        Format::Lexical,
+        Format::Koenig,
+    ] {
+        let mut p1 = p([t("Hello!")]);
+        let p2 = p([t("Hello world")]);
+
+        merge(&mut p1, &p2, Some(format.clone()), None)?;
+        strip(
+            &mut p1,
+            StripTargets::scopes(vec![StripScope::Authors, StripScope::Provenance]),
+        );
+
+        assert_eq!(p1, p2, "Failed for format: {}", format);
+    }
 
     Ok(())
 }

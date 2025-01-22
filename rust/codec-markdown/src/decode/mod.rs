@@ -17,7 +17,8 @@ use codec::{
     },
     format::Format,
     schema::{
-        Article, Block, Chat, Inline, Node, NodeId, NodeType, Null, Prompt, VisitorMut, WalkControl,
+        shortcuts::t, Article, Block, Chat, Inline, Node, NodeId, NodeType, Null, Prompt,
+        VisitorMut, WalkControl,
     },
     DecodeInfo, DecodeOptions, Losses, Mapping,
 };
@@ -55,9 +56,8 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
 
     // Do any necessary pre-processing of Markdown
     let md = match format {
-        Format::Myst => myst_to_md(content),
-        Format::Qmd => qmd_to_md(content),
-        _ => preprocess_md(content),
+        Format::Myst => preprocess_myst(content),
+        _ => preprocess(content),
     };
 
     // Parse Markdown to a MDAST root node and get its children
@@ -141,22 +141,68 @@ fn decode_inlines(md: &str, context: &mut Context) -> Vec<Inline> {
 }
 
 /// Preprocess Markdown
-///
-/// See issue #2438 for why this is necessary.
-fn preprocess_md(input: &str) -> String {
+pub fn preprocess(input: &str) -> String {
     let mut output = String::new();
 
     let mut empty_line_needed = false;
+    let mut html_tag = None;
     for line in input.lines() {
+        // Wrap certain top level HTML tags in `RawBlock`s
+        if line.starts_with("<") && line.ends_with(">") {
+            if let Some(tag) = html_tag {
+                if line.starts_with(&["</", tag].concat()) {
+                    html_tag = None;
+
+                    output.push_str(line);
+                    output.push_str("\n``````````\n\n");
+                    continue;
+                }
+            } else if line == "<hr>" {
+                output.push_str("***\n\n");
+                continue;
+            } else {
+                if line.starts_with("<div") {
+                    html_tag = Some("div")
+                } else if line.starts_with("<table") {
+                    html_tag = Some("table")
+                } else if line.starts_with("<details") {
+                    html_tag = Some("details")
+                }
+
+                if html_tag.is_some() {
+                    output.push_str("``````````html raw\n");
+                    output.push_str(line);
+                    output.push('\n');
+                    continue;
+                }
+            }
+        }
+
+        // If the previous line needs an empty line after it ensure that
         if empty_line_needed && !line.is_empty() {
             output.push('\n');
         }
 
+        let colons = line.starts_with(":::");
+
+        if colons {
+            // Ensure that there is an empty line before this line but
+            // not if this is at the start of the document
+            if !output.is_empty() && !output.ends_with("\n\n") {
+                if output.ends_with('\n') {
+                    output.push('\n');
+                } else {
+                    output.push_str("\n\n");
+                }
+            }
+            // Signal that an empty line is required before any following line
+            empty_line_needed = true;
+        } else {
+            empty_line_needed = false;
+        }
+
         output.push_str(line);
         output.push('\n');
-
-        empty_line_needed = line.starts_with(":::")
-            && (line.trim_end().ends_with(":::") || line.trim_end().ends_with(">>>"));
     }
 
     output
@@ -166,7 +212,7 @@ fn preprocess_md(input: &str) -> String {
 ///
 /// This conversion allows for more straightforward decoding in subsequent
 /// decoding steps because all MyST directives become code blocks.
-fn myst_to_md(myst: &str) -> String {
+fn preprocess_myst(myst: &str) -> String {
     fn colons_to_backticks(line: &str) -> String {
         let chars = line.chars();
 
@@ -213,44 +259,13 @@ fn myst_to_md(myst: &str) -> String {
     md
 }
 
-/// Convert QMD to Markdown parsable by the main parser
-///
-/// Ensures all lines starting with `:::` are surrounded by a blank line.
-fn qmd_to_md(input: &str) -> String {
-    let mut output = String::new();
-
-    let mut empty_line_needed = false;
-    for line in input.lines() {
-        if empty_line_needed && !line.is_empty() {
-            output.push('\n');
-        }
-
-        let colons = line.starts_with(":::");
-
-        if colons {
-            if !output.ends_with("\n\n") {
-                if output.ends_with('\n') {
-                    output.push('\n');
-                } else {
-                    output.push_str("\n\n");
-                }
-            }
-            empty_line_needed = true;
-        } else {
-            empty_line_needed = false;
-        }
-
-        output.push_str(line);
-        output.push('\n');
-    }
-
-    output
-}
-
 /// Markdown parsing options
 fn parse_options() -> ParseOptions {
     let mut options = ParseOptions::gfm();
     options.constructs.frontmatter = true;
+
+    // Enable block math
+    options.constructs.math_flow = true;
 
     // Do not parse inline code since we have a custom parser for that
     options.constructs.code_text = false;
@@ -263,8 +278,9 @@ fn parse_options() -> ParseOptions {
     // Do not parse GFM single strikethrough since we use that for subscripts
     options.constructs.gfm_strikethrough = false;
 
-    // Enable block math
-    options.constructs.math_flow = true;
+    // Do not parse GFM autolinks because this interferes with our parsing
+    // of <a> and <img> HTML tags. Instead we implement that separately.
+    options.constructs.gfm_autolink_literal = false;
 
     // Do not handle embedded HTML, instead parse manually
     options.constructs.html_text = false;
@@ -425,6 +441,12 @@ impl Context {
             (None, None)
         };
 
+        // Prompts require a title but the above stanza removes it, so add a placeholder
+        // (replaced below) to ensure value gets deserialized as a prompt
+        if let Some("Prompt") = value.get("type").and_then(|typ| typ.as_str()) {
+            value["title"] = json!([]);
+        }
+
         // Deserialize to a `Node`: note that `type` is ensured to be present
         let Ok(mut node) = serde_json::from_value::<Node>(value) else {
             tracing::warn!("Error while parsing YAML frontmatter, will be ignored",);
@@ -438,7 +460,7 @@ impl Context {
                 article.r#abstract = abs;
             }
             Node::Prompt(prompt) => {
-                prompt.options.title = title;
+                prompt.title = title.unwrap_or_else(|| vec![t("Untitled")]);
                 prompt.options.r#abstract = abs;
             }
             Node::Chat(chat) => {

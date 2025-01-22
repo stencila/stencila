@@ -8,3 +8,6 @@ proc-macro = true
 
 [dependencies]
 common = { path = "../common" }
+
+[lints]
+workspace = true

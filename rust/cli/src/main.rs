@@ -22,7 +22,7 @@ async fn main() -> Result<()> {
     };
 
     if matches!(cli.command, Command::Lsp) {
-        lsp::run(log_level.into(), &cli.log_filter).await
+        lsp::run(log_level.into(), &cli.log_filter).await?
     } else {
         errors::setup(error_details, cli.error_link)?;
         logging::setup(log_level, &cli.log_filter, log_format)?;

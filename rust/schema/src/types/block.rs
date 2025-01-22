@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::admonition::Admonition;
+use super::audio_object::AudioObject;
 use super::call_block::CallBlock;
 use super::chat::Chat;
 use super::chat_message::ChatMessage;
@@ -12,10 +13,12 @@ use super::code_block::CodeBlock;
 use super::code_chunk::CodeChunk;
 use super::delete_block::DeleteBlock;
 use super::figure::Figure;
+use super::file::File;
 use super::for_block::ForBlock;
 use super::form::Form;
 use super::heading::Heading;
 use super::if_block::IfBlock;
+use super::image_object::ImageObject;
 use super::include_block::IncludeBlock;
 use super::insert_block::InsertBlock;
 use super::instruction_block::InstructionBlock;
@@ -32,15 +35,22 @@ use super::styled_block::StyledBlock;
 use super::suggestion_block::SuggestionBlock;
 use super::table::Table;
 use super::thematic_break::ThematicBreak;
+use super::video_object::VideoObject;
 use super::walkthrough::Walkthrough;
 
 /// Union type in block content node types.
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(untagged, crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub enum Block {
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Admonition(Admonition),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    AudioObject(AudioObject),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     CallBlock(CallBlock),
@@ -81,6 +91,12 @@ pub enum Block {
     Figure(Figure),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    File(File),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
     ForBlock(ForBlock),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
@@ -93,6 +109,12 @@ pub enum Block {
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     IfBlock(IfBlock),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    ImageObject(ImageObject),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     IncludeBlock(IncludeBlock),
@@ -152,6 +174,12 @@ pub enum Block {
     Table(Table),
 
     ThematicBreak(ThematicBreak),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    VideoObject(VideoObject),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]

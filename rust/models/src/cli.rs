@@ -123,7 +123,7 @@ impl List {
             ]);
         }
 
-        println!("{table}");
+        table.to_stdout();
 
         Ok(())
     }

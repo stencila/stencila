@@ -21,6 +21,7 @@ use crate::{
 
 impl Schemas {
     /// Generate JSON-LD context for the schemas
+    #[allow(clippy::print_stderr)]
     pub async fn json_ld(&self) -> Result<()> {
         eprintln!("Generating JSON-LD");
 

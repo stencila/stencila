@@ -1,12 +1,12 @@
 ---
 type: Prompt
 
-id: stencila/create/blocks
-version: "0.1.1"
-name: Create Blocks Prompt
+name: stencila/create/blocks
+title: Create Blocks Prompt
 description: Create one or more blocks.
 keywords: create, blocks
 
+version: "0.1.1"
 instruction-type: Create
 ---
 

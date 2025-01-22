@@ -18,6 +18,9 @@
   "jats": {
     "elem": "underline"
   },
+  "latex": {
+    "command": "ul"
+  },
   "markdown": {
     "template": "<u>{{content}}</u>"
   },

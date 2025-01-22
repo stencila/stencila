@@ -13,7 +13,6 @@ use codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
 use codecs::Format;
 use common::tokio::sync::RwLock;
 use document::Document;
-use node_find::find;
 use schema::{CodeChunk, CodeExpression, Node, NodeId};
 
 use crate::text_document::TextNode;
@@ -45,9 +44,7 @@ pub(super) async fn request(
     };
 
     // Find the node in the document
-    let doc = doc.read().await;
-    let root = doc.root_read().await;
-    let Some(node) = find(&*root, text_node.node_id.clone()) else {
+    let Some(node) = doc.read().await.find(text_node.node_id.clone()).await else {
         return Ok(None);
     };
 

@@ -18,6 +18,9 @@
   "jats": {
     "elem": "italic"
   },
+  "latex": {
+    "command": "emph"
+  },
   "markdown": {
     "template": "_{{content}}_",
     "escape": "_"

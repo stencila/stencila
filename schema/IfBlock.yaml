@@ -4,6 +4,8 @@ extends: Executable
 category: flow
 description: Show and execute alternative content conditional upon an executed expression.
 status: under-development
+latex:
+  derive: false
 markdown:
   derive: false
 proptest: {}
@@ -19,7 +21,7 @@ properties:
     strip: [code]
     walk: true
     patch:
-      formats: [md, smd, myst, ipynb, qmd]
+      formats: [md, smd, myst, ipynb, qmd, latex]
     dom:
       elem: div
     html:

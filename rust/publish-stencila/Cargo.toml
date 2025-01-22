@@ -10,3 +10,6 @@ codec-swb = { "path" = "../codec-swb" }
 common = { "path" = "../common" }
 document = { path = "../document" }
 schema = { "path" = "../schema" }
+
+[lints]
+workspace = true

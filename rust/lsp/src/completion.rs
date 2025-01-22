@@ -2,19 +2,19 @@
 //!
 //! https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#textDocument_completion
 
-use std::{ops::Deref, sync::Arc};
+use std::{ops::Deref, path::PathBuf, sync::Arc};
 
 use async_lsp::{
     lsp_types::{
-        CompletionItem, CompletionItemKind, CompletionItemLabelDetails, CompletionParams,
+        Command, CompletionItem, CompletionItemKind, CompletionItemLabelDetails, CompletionParams,
         CompletionResponse, CompletionTextEdit, Documentation, InsertTextFormat, MarkupContent,
         MarkupKind, Position, Range, TextEdit,
     },
     ResponseError,
 };
 
-use codecs::Positions;
-use common::tokio::sync::RwLock;
+use codecs::{Format, Positions};
+use common::tokio::{fs::read_dir, sync::RwLock};
 use kernels::KernelType;
 use schema::{InstructionType, Prompt, StringOrNumber};
 
@@ -22,15 +22,11 @@ use crate::utils::position_to_position16;
 
 pub(super) async fn request(
     params: CompletionParams,
-    source: Option<Arc<RwLock<String>>>,
+    _format: Format,
+    source: Arc<RwLock<String>>,
 ) -> Result<Option<CompletionResponse>, ResponseError> {
-    // Unable to proceed if no source available
-    let Some(source) = source else {
-        return Ok(None);
-    };
-    let source = source.read().await;
-
     // Get the source before the cursor (up to start of line)
+    let source = source.read().await;
     let position = params.text_document_position.position;
     let positions = Positions::new(&source);
     let end = positions
@@ -40,7 +36,6 @@ pub(super) async fn request(
     let take = end - start;
     let line: String = source.chars().skip(start).take(take).collect();
 
-    // Code chunk completions
     if line.starts_with("```") {
         if line.contains("exec") {
             return execution_keywords(&line);
@@ -49,7 +44,28 @@ pub(super) async fn request(
         }
     }
 
-    // Chat and command completions
+    let uri = params.text_document_position.text_document.uri;
+    if uri.scheme() == "file" {
+        let path = uri.path();
+
+        if line.starts_with(":::") {
+            if let Some(pos) = line.rfind("include ") {
+                return file_completions(path, &line[(pos + 8)..]).await;
+            }
+            if let Some(pos) = line.rfind("call ") {
+                return file_completions(path, &line[(pos + 5)..]).await;
+            }
+        }
+
+        if let Some(pos) = line.rfind("](") {
+            // Only provide completion if no closing parenthesis on line or within 24 chars of
+            // opening parenthesis
+            if line[pos..].find(')').is_none() || line.len().saturating_sub(pos) < 24 {
+                return file_completions(path, &line[(pos + 2)..]).await;
+            }
+        }
+    }
+
     if line.starts_with("/") || line.starts_with(":::") {
         if line.ends_with('@') {
             return prompt_completion(&line).await;
@@ -59,10 +75,29 @@ pub(super) async fn request(
         {
             return model_completion().await;
         }
+
+        return smd_snippets(&line, position.line);
     }
 
-    // Snippet completions
-    smd_snippets(&line, position.line)
+    Ok(None)
+}
+
+pub(super) async fn resolve_item(item: CompletionItem) -> Result<CompletionItem, ResponseError> {
+    let item = if matches!(item.kind, Some(CompletionItemKind::FOLDER)) {
+        // Trigger another completion request if the item is a folder
+        CompletionItem {
+            command: Some(Command {
+                title: "Re-trigger completion".into(),
+                command: "editor.action.triggerSuggest".into(),
+                ..Default::default()
+            }),
+            ..item
+        }
+    } else {
+        item
+    };
+
+    Ok(item)
 }
 
 /// Provide completion list of prompts
@@ -84,16 +119,12 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
         .iter()
         .filter_map(|prompt| {
             let Prompt {
-                id: Some(id),
                 name,
                 version,
                 description,
                 instruction_types,
                 ..
-            } = prompt.deref()
-            else {
-                return None;
-            };
+            } = prompt.deref();
 
             if let Some(instruction_type) = &instruction_type {
                 if !instruction_types.contains(instruction_type) {
@@ -103,21 +134,21 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
 
             // This attempts to maintain consistency with the symbols used for
             // `DocumentSymbols` for various node types
-            let kind = if id.contains("code") {
+            let kind = if name.contains("code") {
                 CompletionItemKind::EVENT
-            } else if id.contains("math") {
+            } else if name.contains("math") {
                 CompletionItemKind::OPERATOR
-            } else if id.contains("styled") {
+            } else if name.contains("styled") {
                 CompletionItemKind::COLOR
-            } else if id.contains("table") {
+            } else if name.contains("table") {
                 CompletionItemKind::STRUCT
-            } else if id.contains("block") {
+            } else if name.contains("block") {
                 CompletionItemKind::CONSTRUCTOR
             } else {
                 CompletionItemKind::INTERFACE
             };
 
-            let label = prompts::shorten(id, &instruction_type);
+            let label = prompts::shorten(name, &instruction_type);
 
             let version = match version {
                 StringOrNumber::String(version) => version.to_string(),
@@ -128,7 +159,7 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
 
             let documentation = Some(Documentation::MarkupContent(MarkupContent {
                 kind: MarkupKind::Markdown,
-                value: format!("{description}\n\n{id} v{version}"),
+                value: format!("{description}\n\n{name} v{version}"),
             }));
 
             Some(CompletionItem {
@@ -253,6 +284,70 @@ fn execution_keywords(line: &str) -> Result<Option<CompletionResponse>, Response
             })
             .collect(),
     );
+
+    Ok(Some(CompletionResponse::Array(items)))
+}
+
+/// Complete a file path relative to a document
+async fn file_completions(
+    doc_path: &str,
+    existing_path: &str,
+) -> Result<Option<CompletionResponse>, ResponseError> {
+    // Return early if the doc (weirdly) has not parent dir
+    let doc_path = PathBuf::from(doc_path);
+    let Some(doc_dir) = doc_path.parent() else {
+        return Ok(None);
+    };
+
+    // Determine the dir that items should be listed for
+    let target_path = doc_dir.join(existing_path);
+    let target_dir = if target_path.is_dir() {
+        &target_path
+    } else if target_path.is_file() || !target_path.exists() {
+        match target_path.parent() {
+            Some(path) => path,
+            None => return Ok(None),
+        }
+    } else {
+        return Ok(None);
+    };
+
+    let mut items = Vec::new();
+
+    // If the existing path is empty, is "." or "..", or only contains "../"
+    // and the directory has a parent then add an item for that
+    if (existing_path.is_empty()
+        || existing_path == "."
+        || existing_path == ".."
+        || existing_path.replace("../", "").is_empty())
+        && target_dir.parent().is_some()
+    {
+        items.push(CompletionItem {
+            kind: Some(CompletionItemKind::FOLDER),
+            label: "../".to_string(),
+            ..Default::default()
+        });
+    }
+
+    // List all the folders and files in the target dir
+    let Ok(mut entries) = read_dir(&target_dir).await else {
+        return Ok(None);
+    };
+    while let Ok(Some(entry)) = entries.next_entry().await {
+        let name = entry.file_name().to_string_lossy().to_string();
+
+        let (kind, label) = if entry.path().is_dir() {
+            (CompletionItemKind::FOLDER, [&name, "/"].concat())
+        } else {
+            (CompletionItemKind::FILE, name)
+        };
+
+        items.push(CompletionItem {
+            kind: Some(kind),
+            label,
+            ..Default::default()
+        });
+    }
 
     Ok(Some(CompletionResponse::Array(items)))
 }
@@ -514,7 +609,7 @@ are false.
         ),
         (
             "::: include ",
-            "::: include ${1:source}",
+            "::: include ${0}",
             "Include content from another document",
             "Include",
             "Insert content from another file, e.g.

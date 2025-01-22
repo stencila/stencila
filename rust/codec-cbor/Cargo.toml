@@ -7,3 +7,6 @@ edition = "2021"
 ciborium = "0.2.2"
 codec = { path = "../codec" }
 zstd = "0.13.2"
+
+[lints]
+workspace = true

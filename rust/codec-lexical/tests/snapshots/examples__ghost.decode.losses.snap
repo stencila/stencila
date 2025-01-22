@@ -1,0 +1,29 @@
+---
+source: rust/codec-lexical/tests/examples.rs
+expression: info.losses
+snapshot_kind: text
+---
+AudioNode.duration: 1
+CodeBlockNode.caption: 1
+FileNode.fileCaption: 1
+FileNode.fileTitle: 1
+HtmlNode.visibility: 1
+ImageNode.alt: 1
+ImageNode.caption: 1
+ImageNode.cardWidth: 1
+ImageNode.height: 1
+ImageNode.href: 1
+ImageNode.width: 1
+Unknown (bookmark): 1
+Unknown (callout): 1
+Unknown (toggle): 1
+VideoNode.cardWidth: 1
+VideoNode.customThumbnailSrc: 1
+VideoNode.duration: 1
+VideoNode.fileName: 1
+VideoNode.height: 1
+VideoNode.loop: 1
+VideoNode.thumbnailHeight: 1
+VideoNode.thumbnailSrc: 1
+VideoNode.thumbnailWidth: 1
+VideoNode.width: 1

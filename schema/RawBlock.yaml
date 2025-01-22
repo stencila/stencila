@@ -64,12 +64,14 @@ properties:
     description: A digest of the `format` and `content` properties.
     $comment: Used to avoid unnecessary parsing and transpiling of the `content`.
     $ref: CompilationDigest
+    strip: [compilation]
   compilationMessages:
     '@id': stencila:compilationMessages
     description: Messages generated while parsing and transpiling the `content` into the `css` property.
     type: array
     items:
       $ref: CompilationMessage
+    strip: [compilation]
   css:
     '@id': stencila:css
     description: A Cascading Style Sheet (CSS) generated from the `content`.
@@ -78,6 +80,7 @@ properties:
       "class" attributes. When the format is CSS, this property is the CSS transpiled to support
       modern features such as nesting and custom media queries and minified.
     type: string
+    strip: [output]
   authors:
     '@id': schema:author
     description: The authors of the content.

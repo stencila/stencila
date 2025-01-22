@@ -374,46 +374,44 @@ execute <- function(lines) {
     # Device control must be enabled for recordPlot() to work
     dev.control("enable")
 
-    # Execute the code
-    value <- tryCatch(
-      eval(compiled, envir, .GlobalEnv),
-      warning = warning,
-      error = exception,
-      interrupt = interrupt
-    )
+    value_and_visible <- NULL
+    for (expr in compiled) {
+      value_and_visible <- withCallingHandlers(
+        withVisible(eval(expr, envir, .GlobalEnv)),
+        warning = function(msg) {
+          warning(msg)
+          invokeRestart("muffleWarning")
+        },
+        error = exception,
+        interrupt = interrupt
+      )
+    }
 
-    # Ignore any values that are not visible
-    if (!withVisible(value)$visible) {
-      value <- NULL
+    # If the last value was a ggplot, explictly print it (withCallingHandlers will not do that
+    # implicitly like tryCatch does). This is where ggplot emits warnings associated with a plot
+    if (inherits(value_and_visible$value, "ggplot")) {
+      withCallingHandlers(
+        base::print(value_and_visible$value),
+        warning = function(msg) {
+          warning(msg)
+          invokeRestart("muffleWarning")
+        },
+        error = exception,
+        interrupt = interrupt
+      )
     }
 
     # Capture plot and clear device
     rec_plot <- recordPlot()
     if (!is.null(rec_plot[[1]])) {
-      value <- rec_plot
+      value_and_visible$value <- rec_plot
+      value_and_visible$visible <- TRUE
     }
     dev.off()
 
-    if (!is.null(value)) {
-      # Only return value if last line is not blank, a comment, or an assignment
-      last <- tail(lines, 1)
-      blank <- nchar(trimws(last)) == 0
-      comment <- startsWith(last, "#")
-      assignment <- grepl("^\\s*\\w+\\s*((<-)|=)", last)
-      if (assignment) {
-        # Check that assignment is not actually the last arg of a function
-        # call e.g. xlab = 'X')
-        count <- 0
-        for (char in strsplit(last, "")[[1]]) {
-          if (char == "(") count <- count + 1
-          if (char == ")") count <- count - 1
-          if (count < 0) {
-            assignment <- FALSE
-            break
-          }
-        }
-      }
-      if (!blank && !comment && !assignment) print(value)
+    # Ignore any values that are not visible
+    if (!is.null(value_and_visible) && value_and_visible$visible) {
+      print(value_and_visible$value)
     }
   }
 }
@@ -424,9 +422,12 @@ evaluate <- function(expression) {
   if (inherits(compiled, "simpleError")) {
     exception(compiled, "SyntaxError")
   } else {
-    value <- tryCatch(
+    value <- withCallingHandlers(
       eval(compiled, envir, .GlobalEnv),
-      warning = warning,
+      warning = function(msg) {
+        message(msg, "Warning")
+        invokeRestart("muffleWarning")
+      },
       error = exception,
       interrupt = interrupt
     )
