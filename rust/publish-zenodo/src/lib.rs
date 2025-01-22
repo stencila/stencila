@@ -441,7 +441,7 @@ impl Cli {
         // Create deposition
         let deposition_response = client
             .post(format!("https://{server_url}/api/deposit/depositions"))
-            .query(&[("access_token", &token)])
+            .bearer_auth(&token)
             .json(&deposit)
             .send()
             .await?;
@@ -555,7 +555,7 @@ impl Cli {
         tracing::info!(url = url, file = file_name, "Uploading deposit");
         let upload_response = client
             .put(&format!("{}/{}", bucket_url, file_name))
-            .query(&[("access_token", &token)])
+            .bearer_auth(&token)
             .body(tokio::fs::read(&swb_path).await?)
             .send()
             .await?;
@@ -574,7 +574,7 @@ impl Cli {
                     "{}/api/deposit/depositions/{}/actions/publish",
                     server_url, deposition_id
                 ))
-                .query(&[("access_token", &token)])
+                .bearer_auth(&token)
                 .send()
                 .await?;
 
