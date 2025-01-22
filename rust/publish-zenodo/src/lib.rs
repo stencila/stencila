@@ -367,8 +367,6 @@ impl Cli {
 
                             let name = metadata_extraction::extract_name(&person);
     
-                            // FIXME: for some reason, I can't find the ORCIDs or affiliations
-    
                             // find orcid in list of identifiers
                             person.options.identifiers.as_ref().map(|ids| {
                                 for id in ids {
