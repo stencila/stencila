@@ -101,7 +101,7 @@ export class UIChatModelTab extends LitElement {
       >
         <stencila-ui-icon name=${icon} class="text-2xl"></stencila-ui-icon>
         <div class="flex flex-col justify-center ml-2">
-          <span class="text-xs leading-5"
+          <span class="text-xs text-left leading-5"
             >${providerTitle} ${this.model.name}</span
           >
           <span class="text-2xs text-left inline-block leading-none">
