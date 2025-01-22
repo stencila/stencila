@@ -6,13 +6,28 @@ import { posthog } from "posthog-js";
 // while extension is running
 let isEnabled = false;
 
+// Initialize PostHog conservatively so any failure does not
+// prevent the the extension loading.
+try {
+  posthog.init("LeXA_J7NbIow0-mEejPwazN7WvZCj-mFKSvLL5oM4w0", {
+    api_host: "https://events.stencila.cloud",
+  });
+} catch (err) {
+  console.error(err);
+}
+
 /**
  * Capture an event (if eventing is enabled)
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function event(name: string, data?: any) {
   if (isEnabled) {
-    posthog.capture(`vsce_${name}`, data);
+    // Wrap in try to prevent an error preventing extension from functioning properly
+    try {
+      posthog.capture(`vsce_${name}`, data);
+    } catch (err) {
+      console.error(err);
+    }
   }
 }
 
@@ -23,12 +38,7 @@ export function event(name: string, data?: any) {
 export function registerEventing(context: vscode.ExtensionContext) {
   const onChange = (enabled: boolean, initial = false) => {
     if (enabled) {
-      posthog.init("LeXA_J7NbIow0-mEejPwazN7WvZCj-mFKSvLL5oM4w0", {
-        api_host: "https://events.stencila.cloud",
-      });
-
       isEnabled = true;
-
       if (!initial) {
         event("eventing_enabled");
       }
