@@ -37,37 +37,35 @@ pub(crate) fn extract_name(person: &Person) -> Option<Cow<str>> {
 
     // join multiple family names with a hyphen
     let family_names = person.family_names.as_ref()
-        .map(|names| {
+        .and_then(|names| {
             names.iter().map(Cow::from).reduce(|mut parts, s| {
                 let p = parts.to_mut();
                 p.push('-');
                 p.push_str(&s);
                 parts
             })
-        })
-        .flatten();
+        });
     
     // join multiple given names with a space
     let given_names = person.given_names.as_ref()
-        .map(|names| {
+        .and_then(|names| {
             names.iter().map(Cow::from).reduce(|mut parts, s| {
                 let p = parts.to_mut();
                 p.push(' ');
                 p.push_str(&s);
                 parts
             })
-        })
-        .flatten();
+        });
     
     match (family_names, given_names) {
         (Some(family), Some(given)) => {
             Some(format!("{}, {}", family, given).into())  // Format prescribed by Zenodo
         },
         (None, Some(given)) => {
-            Some(given.into())
+            Some(given)
         },
         (Some(family), None) => {
-            Some(family.into())
+            Some(family)
         },
         _ => {
             tracing::warn!("Author has no name");
@@ -98,7 +96,6 @@ pub(crate) fn extract_doi(id: &PropertyValueOrString) -> Option<Cow<str>> {
 fn find_doi(text: &str) -> Option<Cow<str>> {
     static DOI_REGEX: OnceLock<regex::Regex> = OnceLock::new();
 
-    #[allow(clippy::unwrap_used)]
     #[allow(clippy::unwrap_used)]
     let searcher = DOI_REGEX.get_or_init(|| {
         regex::Regex::new(r"\b(10\.\d{4,5}/\S+)\b").unwrap()
@@ -140,14 +137,14 @@ pub(crate) fn find_orcid(text: &str) -> Option<Cow<str>> {
         .split('/')
         .last()
         .and_then(|id| {
-            searcher.captures(id).and_then(|cap| { 
+            searcher.captures(id).map(|cap| { 
                 let (_incl_orcid_domain, [full, a, b, c, d]) = cap.extract();
 
                 if full.contains('-') {
-                    return Some(Cow::Borrowed(full));
+                    return Cow::Borrowed(full);
                 }
 
-                Some(Cow::Owned(format!("{}-{}-{}-{}", a, b, c, d)))
+                Cow::Owned(format!("{}-{}-{}-{}", a, b, c, d))
              })
         })
         .filter(|id| id != "0000-0002-1825-0097") // exclude test ORCID

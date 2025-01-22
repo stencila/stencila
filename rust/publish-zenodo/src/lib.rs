@@ -71,7 +71,7 @@ Every source format has its own mechanism for providing metadata. For example, w
 ");
 
 fn parse_date(input: &str) -> Result<schema::Date> {
-    Ok(schema::Date::from_str(input)?)
+    schema::Date::from_str(input)
 }
 
 /// Items within Zenodo's controlled vocabulary of accepted types of publication
@@ -151,8 +151,6 @@ pub struct Cli {
     #[arg(num_args(0..=1), require_equals=true, default_missing_value("zenodo.org"))]
     #[arg(default_value("zenodo.org"))] // This isn't actually used, but is useful for auto-generated documentation.
     #[arg(default_value_if("sandbox", ArgPredicate::IsPresent, "sandbox.zenodo.org"))] // Just in case
-    #[arg(default_value_if("sandbox", common::clap::builder::ArgPredicate::IsPresent, "sandbox.zenodo.org"))] // Just in case
-    #[arg(default_value_if("sandbox", ArgPredicate::IsPresent, "sandbox.zenodo.org"))] // Just in case
     zenodo: url::Host,
 
     // Resource type options
@@ -169,10 +167,6 @@ pub struct Cli {
     /// [default]
     #[arg(group = "resource_type")]
     #[arg(long, default_value_t = true)]
-    #[arg(default_value_if("lesson", ArgPredicate::IsPresent, "false"))]
-    #[arg(default_value_if("publication", ArgPredicate::IsPresent, "true"))]
-    #[arg(default_value_if("lesson", common::clap::builder::ArgPredicate::IsPresent, "false"))]
-    #[arg(default_value_if("publication", common::clap::builder::ArgPredicate::IsPresent, "true"))]
     #[arg(default_value_if("lesson", ArgPredicate::IsPresent, "false"))]
     #[arg(default_value_if("publication", ArgPredicate::IsPresent, "true"))]
     // #[arg(help_heading("Deposition Settings"), display_order(2))]
@@ -238,7 +232,7 @@ pub struct Cli {
 fn make_filename(title: &Option<Vec<schema::Inline>>) -> Result<String> {
     let title_text = title
         .as_ref()
-        .map(|t| codec_text::to_text(t))
+        .map(codec_text::to_text)
         .unwrap_or_else(|| "untitled".to_string());
 
     let mut result = String::new();
@@ -364,24 +358,23 @@ impl Cli {
         let metadata_from_doc = doc.inspect(|root| {
             let Node::Article(article) = root else { return None };
 
-            let title = article.title.as_ref().map(|t| codec_text::to_text(t)).or_else(|| self.title.clone()).unwrap_or_else(|| { "Untitled".to_string() });
-            let description = article.description.as_ref().map(|t| codec_text::to_text(t));
+            let title = article.title.as_ref().map(codec_text::to_text).or_else(|| self.title.clone()).unwrap_or_else(|| { "Untitled".to_string() });
+            let description = article.description.as_ref().map(codec_text::to_text);
             let mut creators = Vec::new();
 
             if let Some(authors) = &article.authors {
     
                 for author in authors {
-                    match author {
-                        schema::Author::Person(person) => {
-                            let mut affiliation = None;
-                            
-                            // Zenodo expects ORCIDs to be numbers and hyphens only, e.g,
-                            // 0000-0000-0000-0000, although it the last digit can be a trailing
-                            // X to indicate a checksum
-                            let mut orcid = None;
+                    if let schema::Author::Person(person) = author {
+                                            let mut affiliation = None;
+                                            
+                                            // Zenodo expects ORCIDs to be numbers and hyphens only, e.g,
+                                            // 0000-0000-0000-0000, although it the last digit can be a trailing
+                                            // X to indicate a checksum
+                                            let mut orcid = None;
 
-                            let name = metadata_extraction::extract_name(&person);
-    
+                                            let name = metadata_extraction::extract_name(person);
+                    
                                             // find orcid in list of identifiers
                                             if let Some(ids) = person.options.identifiers.as_ref() {
                                                 for id in ids {
@@ -392,28 +385,26 @@ impl Cli {
                                                     }
                                                 }
                                             };
-    
-                            if let Some(mut affs) = metadata_extraction::extract_affiliations(&person) {
-                                affiliation = affs.next();
-    
-                                if affiliation.is_some() && affs.next().is_some() {
-                                    let name_part = name.as_ref().map(|name| { format!("({name}) ") }).unwrap_or_default();
-                                    let org_part = affiliation.as_ref().map(|org| { format!("({org})") }).unwrap_or_default();
-    
-                                    tracing::warn!("The author {name_part}has multiple affiliations. Only the first {org_part}can be added programmatically by Stencila. Please edit the record within Zenodo before publication to make corrections.");
-                                    break;
-                                }
-                            }
+                    
+                                            if let Some(mut affs) = metadata_extraction::extract_affiliations(person) {
+                                                affiliation = affs.next();
+                    
+                                                if affiliation.is_some() && affs.next().is_some() {
+                                                    let name_part = name.as_ref().map(|name| { format!("({name}) ") }).unwrap_or_default();
+                                                    let org_part = affiliation.as_ref().map(|org| { format!("({org})") }).unwrap_or_default();
+                    
+                                                    tracing::warn!("The author {name_part}has multiple affiliations. Only the first {org_part}can be added programmatically by Stencila. Please edit the record within Zenodo before publication to make corrections.");
+                                                    break;
+                                                }
+                                            }
 
-                            let creator = json!({
-                                "name": name,
-                                "affiliation": affiliation,
-                                "orcid": orcid,
-                            });
-                            creators.push(creator);       
-                        },
-                        _ => (),
-                    }
+                                            let creator = json!({
+                                                "name": name,
+                                                "affiliation": affiliation,
+                                                "orcid": orcid,
+                                            });
+                                            creators.push(creator);       
+                                        }
                 }
             }
 
@@ -455,7 +446,7 @@ impl Cli {
         // Create deposition
         let deposition_response = client
             .post(format!("https://{server_url}/api/deposit/depositions"))
-            .bearer_auth(&token)
+            .bearer_auth(token)
             .json(&deposit)
             .send()
             .await?;
@@ -484,11 +475,6 @@ impl Cli {
                         if field == "metadata.description" {
                             for message in messages.iter().filter_map(|msg| msg.as_str()) {
                                 if message == "Field may not be null." {
-                                    tracing::error!("Description missing from article.");
-                                    if std::io::stdout().is_terminal() {
-                                        cli_utils::message!("hint: Provide a description with the --description flag.");
-                                    }
-                                    tracing::info!("hint: Provide a description with the --description flag.");
                                     tracing::error!("Description missing from article.");
                                     if std::io::stdout().is_terminal() {
                                         cli_utils::message!("hint: Provide a description with the --description flag.");
@@ -574,8 +560,8 @@ impl Cli {
         let url: String = format!("{}/{}", bucket_url, file_name);
         tracing::info!(url = url, file = file_name, "Uploading deposit");
         let upload_response = client
-            .put(&format!("{}/{}", bucket_url, file_name))
-            .bearer_auth(&token)
+            .put(format!("{}/{}", bucket_url, file_name))
+            .bearer_auth(token)
             .body(tokio::fs::read(&swb_path).await?)
             .send()
             .await?;
@@ -594,7 +580,7 @@ impl Cli {
                     "{}/api/deposit/depositions/{}/actions/publish",
                     server_url, deposition_id
                 ))
-                .bearer_auth(&token)
+                .bearer_auth(token)
                 .send()
                 .await?;
 
@@ -629,24 +615,22 @@ mod cli_tests {
 
     #[test]
     fn defaults_to_sandbox() {
-        let args = Cli::parse_from(&["publish-zenodo"]);
+        let args = Cli::parse_from(["publish-zenodo"]);
         assert!(args.sandbox);
     }
 
     /// Tests that the publication type defaults to preprint when --publication is set
     #[test]
     fn publication_type_defaults_to_preprint() {
-        let args = Cli::parse_from(&["publish-zenodo", "--publication", "some.smd"]);
-        println!("{args:#?}");
+        let args = Cli::parse_from(["publish-zenodo", "--publication", "some.smd"]);
         assert!(matches!(args.publication, Some(PublicationType::Preprint)));
     }
 
     #[test]
     fn upload_type_lesson_does_not_require_publication_type() {
-        let args = Cli::parse_from(&["publish-zenodo", "--lesson", "some.smd"]);
-        println!("{args:#?}");
+        let args = Cli::parse_from(["publish-zenodo", "--lesson", "some.smd"]);
         assert!(args.sandbox);
-        assert!(matches!(args.publication, None));
+        assert!(args.publication.is_none());
         assert!(!args.is_publication);
     }
 }
