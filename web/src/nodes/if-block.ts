@@ -60,6 +60,8 @@ export class IfBlock extends Executable {
             type="IfBlock"
             node-id=${this.id}
             depth=${this.depth}
+            status=${this.executionStatus}
+            required=${this.executionRequired}
           >
           </stencila-ui-node-execution-commands>
         </div>

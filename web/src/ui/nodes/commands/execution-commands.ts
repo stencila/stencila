@@ -1,9 +1,10 @@
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip'
+import { ExecutionRequired, ExecutionStatus } from '@stencila/types'
 import { apply, css } from '@twind/core'
 import { html } from 'lit'
-import { customElement } from 'lit/decorators'
+import { customElement, property } from 'lit/decorators'
 
-import { runNode } from '../../../clients/commands'
+import { cancelNode, runNode } from '../../../clients/commands'
 import { withTwind } from '../../../twind'
 import { closestGlobally } from '../../../utilities/closestGlobally'
 import { UIBaseClass } from '../mixins/ui-base-class'
@@ -19,10 +20,22 @@ import '../../buttons/icon'
 @customElement('stencila-ui-node-execution-commands')
 @withTwind()
 export class UINodeExecutionCommands extends UIBaseClass {
+  @property({ type: String })
+  status?: ExecutionStatus
+
+  @property({ type: String })
+  required?: ExecutionRequired
+
   private onRun(event: Event) {
     event.stopImmediatePropagation()
 
     this.dispatchEvent(runNode(this.type, this.nodeId))
+  }
+
+  private onCancel(event: Event) {
+    event.stopImmediatePropagation()
+
+    this.dispatchEvent(cancelNode(this.type, this.nodeId))
   }
 
   private onRunAbove(event: Event) {
@@ -37,6 +50,24 @@ export class UINodeExecutionCommands extends UIBaseClass {
     this.dispatchEvent(runNode(this.type, this.nodeId, 'plus-after'))
   }
 
+  private getButtonIcon() {
+    switch (this.status) {
+      case 'Pending':
+        return ['xCircle', 'Cancel node execution']
+      case 'Running':
+        return ['squareFill', 'Stop node execution']
+      default:
+        // return 'filled' play button for node to be executed
+        // else return 'empty' play button
+        if (this.required === 'NeverExecuted') {
+          return ['playFill', 'Run node, not executed']
+        } else if (this.required === 'StateChanged') {
+          return ['playFill', 'Run node, changes since last executed']
+        }
+        return ['play', 'Run node']
+    }
+  }
+
   override render() {
     const classes = apply([
       'flex flex-row items-center flex-shrink-0',
@@ -46,15 +77,20 @@ export class UINodeExecutionCommands extends UIBaseClass {
     const showDropdown =
       this.depth > 0 && closestGlobally(this, 'stencila-chat-message') === null
 
+    const executionInProgress =
+      this.status === 'Pending' || this.status === 'Running'
+
+    const [icon, text] = this.getButtonIcon()
+
     return html`
       <div class=${classes}>
-        ${showDropdown ? this.renderDropdown() : ''}
+        ${showDropdown && !executionInProgress ? this.renderDropdown() : ''}
 
-        <sl-tooltip content="Run this node">
+        <sl-tooltip content=${text}>
           <stencila-ui-icon-button
-            name="play"
+            name=${icon}
             class="text-2xl"
-            @click=${this.onRun}
+            @click=${executionInProgress ? this.onCancel : this.onRun}
           ></stencila-ui-icon-button>
         </sl-tooltip>
 
@@ -112,7 +148,7 @@ export class UINodeExecutionCommands extends UIBaseClass {
 
     return html`
       <sl-dropdown
-        class=${containerStyles}
+        class="${containerStyles} mr-1"
         @click=${(event: Event) => event.stopImmediatePropagation()}
         placement="bottom-end"
         hoist

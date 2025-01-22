@@ -219,6 +219,8 @@ export class PromptBlock extends Executable {
         <stencila-ui-node-execution-commands
           type="PromptBlock"
           node-id=${this.id}
+          status=${this.executionStatus}
+          required=${this.executionRequired}
         >
         </stencila-ui-node-execution-commands>
       </span>

@@ -81,6 +81,8 @@ export class CodeChunk extends CodeExecutable {
           type="CodeChunk"
           node-id=${this.id}
           depth=${this.depth}
+          status=${this.executionStatus}
+          required=${this.executionRequired}
         >
         </stencila-ui-node-execution-commands>
       </span>
@@ -123,7 +125,7 @@ export class CodeChunk extends CodeExecutable {
       </div>
 
       <div slot="content">${this.renderContent()}</div>
-    </stencila-ui-block-on-demand>`
+    </stencila-ui-block-on-demand> `
   }
 
   /*
