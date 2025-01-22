@@ -1,17 +1,29 @@
 // TODO: use the [Research Organization Registry (ROR)](https://ror.org/) database to gather affiliations for authors
 
-
-use std::{io::IsTerminal, path::PathBuf, str::FromStr, sync::{Arc, Mutex}};
-
-use codec::{schema::{Primitive, PropertyValue, PropertyValueOrString}, Codec};
-use cli_utils::{parse_host, ToStdout};
-use common::{
-    clap::{self, Parser, builder::ArgPredicate}, eyre::{bail, OptionExt, Result}, reqwest::Client, serde, serde_json::{json, Value}, tempfile, tokio, tracing,
+use std::{
+    io::IsTerminal,
+    path::PathBuf,
+    str::FromStr,
+    sync::{Arc, Mutex},
 };
 
-use document::{schema, CommandWait, Document, EncodeOptions, Format, schema::Node};
+use cli_utils::{parse_host, ToStdout};
+use codec::{
+    schema::{Primitive, PropertyValue, PropertyValueOrString},
+    Codec,
+};
+use common::{
+    clap::{self, builder::ArgPredicate, Parser},
+    eyre::{bail, OptionExt, Result},
+    reqwest::Client,
+    serde,
+    serde_json::{json, Value},
+    tempfile, tokio, tracing,
+};
+
 use codec_swb::SwbCodec;
 use color_print::cstr;
+use document::{schema, schema::Node, CommandWait, Document, EncodeOptions, Format};
 
 mod metadata_extraction;
 
@@ -19,7 +31,7 @@ pub static AFTER_HELP: &str = cstr!("
 <bold>Usage Instructions</bold>
 
 Detailed usage information provided in long-form help page, available by <cyan>stencila help publish zenodo</cyan>.
-"); 
+");
 
 pub static AFTER_LONG_HELP: &str = cstr!("
 <bold>Further information</bold>
@@ -34,7 +46,7 @@ To inform Stencila about the new token, add it as the STENCILA_ZENODO_TOKEN envi
 
 <i>Recommended workflow</i>
 
-We recommend starting with the Zenodo Sandbox at <<https://sandbox.zenodo.org/>>. 
+We recommend starting with the Zenodo Sandbox at <<https://sandbox.zenodo.org/>>.
 
     <dim>$</> export STENCILA_ZENODO_TOKEN=\"<green><<TOKEN>></>\" <dim># from https://sandbox.zenodo.org/</>
     <dim>$</> stencila publish zenodo <green><<DOCUMENT_PATH>></>
@@ -108,11 +120,11 @@ pub struct Cli {
     path: PathBuf,
 
     /// Zenodo authentication token
-    /// 
+    ///
     /// To create one, log into Zenodo, visit your account's page, then click
     /// "Applications", followed by "+ New Token" within the "Personal access
     /// tokens" section. Give the token a name and enable the "deposit:actions" the scope.
-    /// 
+    ///
     /// Enable the "deposit:write" scope to enable the `--force` flag.
     #[arg(long, env = "STENCILA_ZENODO_TOKEN")]
     #[arg(help_heading("Zenodo Settings"), display_order(1))]
@@ -120,13 +132,12 @@ pub struct Cli {
     token: Option<String>,
 
     // Server selection options
-
     /// Publish to the Zenodo Sandbox for testing
-    /// 
+    ///
     /// The Zenodo Sandbox is available at https://sandbox.zenodo.org. It
     /// requires its own access key that is independent from the Zenodo
     /// production server.
-    /// 
+    ///
     /// [default]
     #[arg(group = "zenodo_server")]
     #[arg(long, default_value_t = true)]
@@ -139,9 +150,8 @@ pub struct Cli {
     // #[arg(long)]
     // #[arg(help_heading("Zenodo Settings"), display_order(1))]
     // zenodo: bool,
-
     /// Specify Zenodo instance, defaults to the public-facing production server
-    /// 
+    ///
     /// Use this option to publish to a custom Zenodo instance. Provide just the
     /// domain name or IP address with an optional port, e.g.
     /// `zenodo.example.org` or `zenodo.example.org:8000`.
@@ -150,11 +160,11 @@ pub struct Cli {
     #[arg(help_heading("Zenodo Settings"), display_order(1))]
     #[arg(num_args(0..=1), require_equals=true, default_missing_value("zenodo.org"))]
     #[arg(default_value("zenodo.org"))] // This isn't actually used, but is useful for auto-generated documentation.
-    #[arg(default_value_if("sandbox", ArgPredicate::IsPresent, "sandbox.zenodo.org"))] // Just in case
+    #[arg(default_value_if("sandbox", ArgPredicate::IsPresent, "sandbox.zenodo.org"))]
+    // Just in case
     zenodo: url::Host,
 
     // Resource type options
-
     /// Upload document as a "lesson"
     #[arg(group = "resource_type")]
     #[arg(long)]
@@ -163,7 +173,7 @@ pub struct Cli {
     lesson: bool,
 
     /// Upload document as a "publication"
-    /// 
+    ///
     /// [default]
     #[arg(group = "resource_type")]
     #[arg(long, default_value_t = true)]
@@ -179,33 +189,33 @@ pub struct Cli {
     reserve_doi: bool,
 
     /// Publication date
-    /// 
-    /// Provide the date formatted as YYYY-MM-DD, e.g. 2012-03-10. 
-    /// 
+    ///
+    /// Provide the date formatted as YYYY-MM-DD, e.g. 2012-03-10.
+    ///
     /// When omitted, Zenodo will use today's date.
-    #[arg(long, value_name="YYYY-MM-DD")]
+    #[arg(long, value_name = "YYYY-MM-DD")]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
     #[arg(value_parser = parse_date)]
     publication_date: Option<schema::Date>,
 
     /// Title to use for the deposit
-    /// 
+    ///
     /// Required when the information is not available within the document.
     #[arg(long)]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
     title: Option<String>,
 
     /// Description to use within the deposition
-    /// 
+    ///
     /// Required when the information is not available within the document.
     #[arg(long)]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
     description: Option<String>,
 
     /// Upload document as a "publication"
-    /// 
+    ///
     /// Provide one of the publication types from Zenodo's controlled vocabulary.
-    #[arg(long, value_name="PUBLICATION_TYPE")]
+    #[arg(long, value_name = "PUBLICATION_TYPE")]
     #[arg(default_value("preprint"))]
     #[arg(default_value_if("lesson", "true", ""))]
     #[arg(help_heading("Deposition Settings"), display_order(2))]
@@ -213,7 +223,7 @@ pub struct Cli {
     publication: Option<PublicationType>,
 
     /// Force publish the deposition immediately
-    /// 
+    ///
     /// Requires that access token provided by the `--token` option has the "deposit:write" scope.
     #[arg(long)]
     force: bool,
@@ -237,7 +247,7 @@ fn make_filename(title: &Option<Vec<schema::Inline>>) -> Result<String> {
 
     let mut result = String::new();
     let mut last_was_hyphen = true; // To prevent starting with hyphen
-    
+
     for c in title_text.chars().flat_map(char::to_lowercase) {
         if c.is_alphanumeric() {
             result.push(c);
@@ -264,9 +274,10 @@ fn make_filename(title: &Option<Vec<schema::Inline>>) -> Result<String> {
 impl Cli {
     pub async fn run(self) -> Result<()> {
         // Check preconditions first
-        
-        // Validate API token is available 
-        let token = self.token
+
+        // Validate API token is available
+        let token = self
+            .token
             .as_ref()
             // .or_else(|| secrets::env_or_get("ZENODO_TOKEN").ok()) // TODO: use OS keyring via Stencila's secrets module
             .ok_or_eyre("Zenodo API token not provided and not set as a secret")?;
@@ -311,17 +322,17 @@ impl Cli {
             bail!("Document root must be an Article");
         };
 
-         let doc_updated = Arc::new(Mutex::new(false));
-         let doc_updated_ = Arc::clone(&doc_updated);
-         
-         doc.mutate(move |root| {
-             let Node::Article(article) = root else { return };
+        let doc_updated = Arc::new(Mutex::new(false));
+        let doc_updated_ = Arc::clone(&doc_updated);
 
-             let Ok(mut doc_updated) = doc_updated_.lock() else {
+        doc.mutate(move |root| {
+            let Node::Article(article) = root else { return };
+
+            let Ok(mut doc_updated) = doc_updated_.lock() else {
                 tracing::error!("internal error: failed to acquire lock");
                 return;
             };
-            
+
             if let Some(desc) = &self.description {
                 article.description = Some(desc.clone());
                 *doc_updated = true;
@@ -342,7 +353,7 @@ impl Cli {
             Err(_) => {
                 tracing::error!("internal error: failed to acquire write access to file. Proceeding without modifying document.");
                 false
-            },    
+            }
         };
         if save_doc {
             doc.save(CommandWait::Yes).await?
@@ -363,18 +374,18 @@ impl Cli {
             let mut creators = Vec::new();
 
             if let Some(authors) = &article.authors {
-    
+
                 for author in authors {
                     if let schema::Author::Person(person) = author {
                                             let mut affiliation = None;
-                                            
+
                                             // Zenodo expects ORCIDs to be numbers and hyphens only, e.g,
                                             // 0000-0000-0000-0000, although it the last digit can be a trailing
                                             // X to indicate a checksum
                                             let mut orcid = None;
 
                                             let name = metadata_extraction::extract_name(person);
-                    
+
                                             // find orcid in list of identifiers
                                             if let Some(ids) = person.options.identifiers.as_ref() {
                                                 for id in ids {
@@ -385,14 +396,14 @@ impl Cli {
                                                     }
                                                 }
                                             };
-                    
+
                                             if let Some(mut affs) = metadata_extraction::extract_affiliations(person) {
                                                 affiliation = affs.next();
-                    
+
                                                 if affiliation.is_some() && affs.next().is_some() {
                                                     let name_part = name.as_ref().map(|name| { format!("({name}) ") }).unwrap_or_default();
                                                     let org_part = affiliation.as_ref().map(|org| { format!("({org})") }).unwrap_or_default();
-                    
+
                                                     tracing::warn!("The author {name_part}has multiple affiliations. Only the first {org_part}can be added programmatically by Stencila. Please edit the record within Zenodo before publication to make corrections.");
                                                     break;
                                                 }
@@ -403,7 +414,7 @@ impl Cli {
                                                 "affiliation": affiliation,
                                                 "orcid": orcid,
                                             });
-                                            creators.push(creator);       
+                                            creators.push(creator);
                                         }
                 }
             }
@@ -432,7 +443,9 @@ impl Cli {
         }
 
         match (doi, self.reserve_doi) {
-            (Some(doi), true) => tracing::warn!("Document already has a DOI ({doi}). The --reserve-doi flag will be ignored."),
+            (Some(doi), true) => tracing::warn!(
+                "Document already has a DOI ({doi}). The --reserve-doi flag will be ignored."
+            ),
             (Some(doi), false) => deposit["metadata"]["doi"] = json!(doi),
             (None, true) => deposit["metadata"]["prereserve_doi"] = json!(true),
             (None, false) => (),
@@ -455,12 +468,14 @@ impl Cli {
 
         // permissions error
         if deposition_response.status().as_u16() == 403 {
-            let mut msg = String::from("hint: Check that the access token is correct and has the necessary scope");
+            let mut msg = String::from(
+                "hint: Check that the access token is correct and has the necessary scope",
+            );
 
             if self.force {
-                msg.push_str("s (`deposit:actions` and `deposit:write`) enabled." );
+                msg.push_str("s (`deposit:actions` and `deposit:write`) enabled.");
             } else {
-                msg.push_str(" (`deposit:actions`) enabled." );
+                msg.push_str(" (`deposit:actions`) enabled.");
             }
 
             tracing::info!(msg);
@@ -469,9 +484,11 @@ impl Cli {
         if !&deposition_response.status().is_success() {
             let data: Value = deposition_response.json().await?;
 
-            if let Some(Value::Array(errors))  = data.get("errors") {
+            if let Some(Value::Array(errors)) = data.get("errors") {
                 for error in errors {
-                    if let (Some(Value::String(field)), Some(Value::Array(messages))) = (error.get("field"), error.get("messages")) {
+                    if let (Some(Value::String(field)), Some(Value::Array(messages))) =
+                        (error.get("field"), error.get("messages"))
+                    {
                         if field == "metadata.description" {
                             for message in messages.iter().filter_map(|msg| msg.as_str()) {
                                 if message == "Field may not be null." {
@@ -496,7 +513,9 @@ impl Cli {
             .ok_or_eyre("No deposition ID in response in the response from Zenodo")?;
 
         let reserved_doi = deposition["metadata"]["prereserve_doi"]["doi"].as_str();
-        let deposition_url = deposition["links"]["self"].as_str().ok_or_eyre("No deposition URL provided in the response from Zenodo")?;
+        let deposition_url = deposition["links"]["self"]
+            .as_str()
+            .ok_or_eyre("No deposition URL provided in the response from Zenodo")?;
 
         doc.mutate(move |root| {
             let Node::Article(article) = root else { return };
@@ -513,7 +532,7 @@ impl Cli {
 
                 zenodo_ids.push(property);
             }
-        
+
             match article.options.identifiers.as_mut() {
                 Some(ids) => ids.extend(zenodo_ids.into_iter()),
                 None => article.options.identifiers = Some(zenodo_ids),
@@ -536,7 +555,7 @@ impl Cli {
         SwbCodec::default()
             .to_path(
                 &root,
-                &swb_path, 
+                &swb_path,
                 Some(EncodeOptions {
                     format: Some(Format::Swb),
                     standalone: Some(true),
@@ -546,7 +565,10 @@ impl Cli {
             .await?;
 
         if self.dry_run {
-            tracing::info!("Dry run complete - bundle created at {}", swb_path.display());
+            tracing::info!(
+                "Dry run complete - bundle created at {}",
+                swb_path.display()
+            );
             return Ok(());
         }
 
@@ -571,8 +593,10 @@ impl Cli {
             bail!("Failed to upload file: {}", upload_response.text().await?);
         }
 
-        let deposition_url = deposition["links"]["html"].as_str().ok_or_eyre("No deposit URL provided by Zenodo.")?;
-        
+        let deposition_url = deposition["links"]["html"]
+            .as_str()
+            .ok_or_eyre("No deposit URL provided by Zenodo.")?;
+
         if self.force {
             // Publish the deposition
             let publish_response = client
@@ -585,7 +609,10 @@ impl Cli {
                 .await?;
 
             if !publish_response.status().is_success() {
-                bail!("Failed to publish deposition: {}", publish_response.text().await?);
+                bail!(
+                    "Failed to publish deposition: {}",
+                    publish_response.text().await?
+                );
             }
 
             cli_utils::message!("🎉 Deposition published").to_stdout();
@@ -593,16 +620,24 @@ impl Cli {
             // TODO: supply DOI
         } else {
             cli_utils::message!("🎉 Draft deposition submitted").to_stdout();
-            cli_utils::message!("🌐 URL: {} (visit to check details and publish)", deposition_url).to_stdout();
+            cli_utils::message!(
+                "🌐 URL: {} (visit to check details and publish)",
+                deposition_url
+            )
+            .to_stdout();
 
             if let Some(doi) = reserved_doi {
                 cli_utils::message!("📑 DOI: {}", doi).to_stdout();
             }
-            
+
             if self.sandbox {
-                cli_utils::message!("Note: This deposit has been submitted to the Zenodo Sandbox.").to_stdout();
-                cli_utils::message!("Note: Use the --zenodo flag to resubmit to the production Zenodo server.").to_stdout();
-            }            
+                cli_utils::message!("Note: This deposit has been submitted to the Zenodo Sandbox.")
+                    .to_stdout();
+                cli_utils::message!(
+                    "Note: Use the --zenodo flag to resubmit to the production Zenodo server."
+                )
+                .to_stdout();
+            }
         }
 
         Ok(())
