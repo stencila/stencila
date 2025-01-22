@@ -1,4 +1,5 @@
 use codec::{
+    common::serde_json::from_value,
     format::Format,
     schema::{
         shortcuts::{art, p, t},
@@ -56,6 +57,7 @@ fn block_from_lexical(block: lexical::BlockNode, context: &mut LexicalDecodeCont
         lexical::BlockNode::Paragraph(paragraph) => paragraph_from_lexical(paragraph, context),
 
         lexical::BlockNode::List(list) => list_from_lexical(list, context),
+        lexical::BlockNode::LineBreak(..) => loss!("LineBreak"),
 
         lexical::BlockNode::Quote(lexical::QuoteNode { children, .. })
         | lexical::BlockNode::ExtendedQuote(lexical::ExtendedQuoteNode { children, .. })
@@ -202,7 +204,67 @@ fn list_from_lexical(list: lexical::ListNode, context: &mut LexicalDecodeContext
     let items = list
         .children
         .into_iter()
-        .map(|child| ListItem::new(vec![p(inlines_from_lexical(child.children, context))]))
+        .map(|child| {
+            ListItem {
+                content: child
+                    .children
+                    .into_iter()
+                    .fold(Vec::new(), |mut blocks, block| {
+                        // split on linebreaks
+                        match block {
+                            lexical::BlockNode::LineBreak(..) => {
+                                blocks.push(Vec::new());
+                            }
+                            _ => {
+                                if blocks.is_empty() {
+                                    blocks.push(Vec::new());
+                                }
+                                match blocks.last_mut() {
+                                    Some(vec) => vec.push(block),
+                                    None => blocks.push(Vec::new()),
+                                };
+                            }
+                        }
+                        blocks
+                    })
+                    .into_iter()
+                    .flat_map(|blocks| {
+                        blocks
+                            .into_iter()
+                            .flat_map(|block| {
+                                if let lexical::BlockNode::Unknown(value) = block {
+                                    let inlines = if let Ok(text_node) =
+                                        from_value::<lexical::TextNode>(value.clone())
+                                    {
+                                        vec![lexical::InlineNode::Text(text_node)]
+                                    } else if let Ok(extended_text) =
+                                        from_value::<lexical::ExtendedTextNode>(value.clone())
+                                    {
+                                        vec![lexical::InlineNode::ExtendedText(extended_text)]
+                                    } else if let Ok(link) =
+                                        from_value::<lexical::LinkNode>(value.clone())
+                                    {
+                                        vec![lexical::InlineNode::Link(link)]
+                                    } else if let Ok(hashtag) =
+                                        from_value::<lexical::HashTagNode>(value.clone())
+                                    {
+                                        vec![lexical::InlineNode::HashTag(hashtag)]
+                                    } else {
+                                        vec![lexical::InlineNode::Unknown(value)]
+                                    };
+
+                                    vec![p(inlines_from_lexical(inlines, context))]
+                                } else {
+                                    blocks_from_lexical(vec![block], context)
+                                }
+                            })
+                            .collect::<Vec<Block>>()
+                    })
+                    // wrap each split in a paragraph
+                    .collect(),
+                ..Default::default()
+            }
+        })
         .collect();
 
     let order = match list.list_type {
@@ -218,34 +280,20 @@ fn list_from_lexical(list: lexical::ListNode, context: &mut LexicalDecodeContext
 }
 
 fn list_to_lexical(list: &List, context: &mut LexicalEncodeContext) -> lexical::BlockNode {
-    let children = list
-        .items
-        .iter()
-        .map(|item| list_item_to_lexical(item, context))
-        .collect();
-
-    let list_type = match list.order {
-        ListOrder::Ascending | ListOrder::Descending => lexical::ListType::Number,
-        ListOrder::Unordered => lexical::ListType::Bullet,
+    let markdown = match codec_markdown::encode(&art([Block::List(list.clone())]), None) {
+        Ok((md, ..)) => md,
+        Err(error) => {
+            // If encoding fails (should very, rarely if at all)
+            // record loss and return empty string
+            context.losses.add(format!("Markdown: {error}"));
+            String::new()
+        }
     };
 
-    lexical::BlockNode::List(lexical::ListNode {
-        list_type,
-        children,
+    lexical::BlockNode::Markdown(lexical::MarkdownNode {
+        markdown,
         ..Default::default()
     })
-}
-
-fn list_item_to_lexical(
-    list_item: &ListItem,
-    context: &mut LexicalEncodeContext,
-) -> lexical::ListItemNode {
-    let children = inlines_to_lexical(&blocks_to_inlines(list_item.content.clone()), context);
-
-    lexical::ListItemNode {
-        children,
-        ..Default::default()
-    }
 }
 
 fn quote_to_lexical(quote: &QuoteBlock, context: &mut LexicalEncodeContext) -> lexical::BlockNode {
