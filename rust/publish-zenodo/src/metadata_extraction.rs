@@ -138,24 +138,21 @@ pub(crate) fn find_orcid(text: &str) -> Option<Cow<str>> {
 
     #[allow(clippy::unwrap_used)]
     let searcher = ORCID_REGEX.get_or_init(|| {
-        regex::Regex::new(r"(?:(?i:orcid\.org/)?)((\d{4})-?(\d{4})-?(\d{4})-(\d{3}[0-9X]))")
+        regex::Regex::new(r"(\d{4})-?(\d{4})-?(\d{4})-?(\d{3}[0-9X])")
             .unwrap()
     });
 
-    text.split('/')
-        .last()
-        .and_then(|id| {
-            searcher.captures(id).map(|cap| {
-                let (_incl_orcid_domain, [full, a, b, c, d]) = cap.extract();
+    let Some(cap) = searcher.captures(text) else { return None; };
+    let (full, [a, b, c, d]) = cap.extract();
 
-                if full.contains('-') {
-                    return Cow::Borrowed(full);
-                }
-
-                Cow::Owned(format!("{}-{}-{}-{}", a, b, c, d))
-            })
-        })
-        .filter(|id| id != "0000-0002-1825-0097") // exclude test ORCID
+    // if hyphens are all in the right place, then exit early
+    let bytes = full.as_bytes();
+    if bytes[4] == b'-' && bytes[9] == b'-' && bytes[14] == b'-' {
+        return Some(Cow::Borrowed(full));
+    }
+    
+    // ... otherwise insert them
+    Some(Cow::Owned(format!("{}-{}-{}-{}", a, b, c, d)))
 }
 
 #[cfg(test)]
