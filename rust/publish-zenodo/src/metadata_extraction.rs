@@ -23,7 +23,7 @@ pub(crate) fn extract_affiliations(author: &Person) -> Option<impl Iterator<Item
         .iter()
         .filter_map(|org| org.name.as_ref())
         .filter(|name| name.is_empty())
-        .map(|name| Cow::from(name));
+        .map(Cow::from);
 
     Some(aff)
 }
