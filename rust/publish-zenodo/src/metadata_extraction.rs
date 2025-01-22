@@ -142,7 +142,7 @@ pub(crate) fn find_orcid(text: &str) -> Option<Cow<str>> {
             .unwrap()
     });
 
-    let Some(cap) = searcher.captures(text) else { return None; };
+    let cap = searcher.captures(text)?;
     let (full, [a, b, c, d]) = cap.extract();
 
     // if hyphens are all in the right place, then exit early
