@@ -341,11 +341,18 @@ impl Cli {
         })
         .await;
 
-        match doc_updated.lock() {
-            Ok(update) if *update == true => doc.save(CommandWait::Yes).await?,
-            Ok(_) => (),
-            Err(_) => tracing::error!("internal error: failed to acquire lock. Proceeding without modifying document."),    
+        // Saving occurs in a second block to avoid holding a lock while calling await
+        let save_doc = match doc_updated.lock() {
+            Ok(update) if *update => true,
+            Ok(_) => false,
+            Err(_) => {
+                tracing::error!("internal error: failed to acquire write access to file. Proceeding without modifying document.");
+                false
+            },    
         };
+        if save_doc {
+            doc.save(CommandWait::Yes).await?
+        }
 
         // Determine server URL
         let server_url = if self.sandbox {
