@@ -180,6 +180,8 @@ pub struct Cli {
 
     /// Publication date
     /// 
+    /// Provide the date formatted as YYYY-MM-DD, e.g. 2012-03-10. 
+    /// 
     /// When omitted, Zenodo will use today's date.
     #[arg(long, value_name="YYYY-MM-DD")]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
