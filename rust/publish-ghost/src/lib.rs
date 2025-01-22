@@ -45,7 +45,7 @@ pub struct Cli {
     /// Ghost but if supplied only document `identifiers` with this host
     /// will be used.
     #[arg(long, env = "STENCILA_GHOST_DOMAIN", value_parser = parse_host)]
-    #[arg(help_heading("Ghost Settings"),display_order(1))]
+    #[arg(help_heading("Ghost Settings"), display_order(1))]
     ghost: Option<Host>,
 
     /// The Ghost Admin API key
@@ -57,7 +57,7 @@ pub struct Cli {
     /// You can also set the key as a secret so that it does not need to
     /// be entered here each time: `stencila secrets set GHOST_ADMIN_API_KEY`.
     #[arg(long, env = KEY_ENV_VAR, value_parser = parse_key)]
-    #[arg(help_heading("Ghost Settings"),display_order(1))]
+    #[arg(help_heading("Ghost Settings"), display_order(1))]
     key: Option<String>,
 
     /// Create a page
@@ -65,7 +65,7 @@ pub struct Cli {
     /// Does not apply when pushing to, or pulling from, and existing
     /// Ghost resource.
     #[arg(long, conflicts_with = "post", default_value_t = true)]
-    #[arg(help_heading("Ghost Settings"),display_order(1))]
+    #[arg(help_heading("Ghost Settings"), display_order(1))]
     page: bool,
 
     /// Create a post
@@ -73,17 +73,17 @@ pub struct Cli {
     /// Does not apply when pushing to, or pulling from, and existing
     /// Ghost resource.
     #[arg(long, conflicts_with = "page")]
-    #[arg(help_heading("Ghost Settings"),display_order(1))]
+    #[arg(help_heading("Ghost Settings"), display_order(1))]
     post: bool,
 
     /// Create or update Ghost post or page from a file
     #[arg(long, conflicts_with = "pull", default_value_t = true)]
-    #[arg(help_heading("Ghost Settings"),display_order(1))]
+    #[arg(help_heading("Ghost Settings"), display_order(1))]
     push: bool,
 
     /// Update file from an existing Ghost post or page
     #[arg(long, conflicts_with = "push")]
-    #[arg(help_heading("Ghost Settings"),display_order(1))]
+    #[arg(help_heading("Ghost Settings"), display_order(1))]
     pull: bool,
 
     /// Ghost id of the page or post
@@ -108,49 +108,49 @@ pub struct Cli {
         conflicts_with = "pull",
         default_value_t = true
     )]
-    #[arg(help_heading("Post/Page Settings"),display_order(2))]
+    #[arg(help_heading("Post/Page Settings"), display_order(2))]
     draft: bool,
 
     /// Publish page or post
-    #[arg(help_heading("Post/Page Settings"),display_order(2))]
+    #[arg(help_heading("Post/Page Settings"), display_order(2))]
     #[arg(long, group = "publish_type", conflicts_with = "pull")]
     publish: bool,
 
     /// Schedule page or post
     #[arg(long, group = "publish_type", conflicts_with = "pull")]
-    #[arg(help_heading("Post/Page Settings"),display_order(2))]
+    #[arg(help_heading("Post/Page Settings"), display_order(2))]
     schedule: Option<DateTime<Utc>>,
 
     /// Set slug(URL slug the page or post will be available at)
     #[arg(long, conflicts_with = "pull")]
-    #[arg(help_heading("Post/Page Settings"),display_order(2))]
+    #[arg(help_heading("Post/Page Settings"), display_order(2))]
     slug: Option<String>,
 
     /// Tags for page or post
     #[arg(long = "tag", conflicts_with = "pull")]
-    #[arg(help_heading("Document Metadata"),display_order(3))]
+    #[arg(help_heading("Document Metadata"), display_order(3))]
     tags: Option<Vec<String>>,
 
     /// Excerpt for page or post
     ///
     /// Defaults to the article description
     #[arg(long, conflicts_with = "pull")]
-    #[arg(help_heading("Document Metadata"),display_order(3))]
+    #[arg(help_heading("Document Metadata"), display_order(3))]
     excerpt: Option<String>,
 
     /// Feature post or page
     #[arg(long, conflicts_with = "pull")]
-    #[arg(help_heading("Document Metadata"),display_order(3))]
+    #[arg(help_heading("Document Metadata"), display_order(3))]
     featured: bool,
 
     /// Inject HTML header
     #[arg(long, conflicts_with = "pull")]
-    #[arg(help_heading("Document Metadata"),display_order(3))]
+    #[arg(help_heading("Document Metadata"), display_order(3))]
     inject_code_header: Option<String>,
 
     /// Inject HTML footer
     #[arg(long, conflicts_with = "pull")]
-    #[arg(help_heading("Document Metadata"),display_order(3))]
+    #[arg(help_heading("Document Metadata"), display_order(3))]
     inject_code_footer: Option<String>,
 
     /// Dry run test
@@ -190,12 +190,10 @@ impl Cli {
                     if let PropertyValueOrString::String(id) = id {
                         if let Some(host) = &self.ghost {
                             if let Some(id) = self.id.clone() {
-                                let page_or_post = if self.post{
-                                    "posts"
-                                } else {
-                                    "pages"
-                                };
-                                return Some(format!("https://{host}/ghost/api/admin/{page_or_post}/{id}"));
+                                let page_or_post = if self.post { "posts" } else { "pages" };
+                                return Some(format!(
+                                    "https://{host}/ghost/api/admin/{page_or_post}/{id}"
+                                ));
                             }
                             // If a host is provided then return the first URL on that host
                             else if id.starts_with(&format!("https://{host}/ghost/api/admin/")) {

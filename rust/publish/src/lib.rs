@@ -12,8 +12,8 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Publisher {
-    Ghost(publish_ghost::Cli),
-    Stencila(publish_stencila::Cli),
+    Ghost(Box<publish_ghost::Cli>),
+    Stencila(Box<publish_stencila::Cli>),
 }
 
 impl Cli {
