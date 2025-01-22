@@ -375,15 +375,16 @@ impl Cli {
 
                             let name = metadata_extraction::extract_name(&person);
     
-                            // find orcid in list of identifiers
-                            person.options.identifiers.as_ref().map(|ids| {
-                                for id in ids {
-                                    tracing::debug!(property_value = ?id, "extracting orcid from id");
-                                    if orcid.is_none() {
-                                        orcid = metadata_extraction::extract_orcid(&id);
-                                    }
-                                }
-                            });
+                                            // find orcid in list of identifiers
+                                            if let Some(ids) = person.options.identifiers.as_ref() {
+                                                for id in ids {
+                                                    orcid = metadata_extraction::extract_orcid(id);
+
+                                                    if orcid.is_some() {
+                                                        break
+                                                    }
+                                                }
+                                            };
     
                             if let Some(mut affs) = metadata_extraction::extract_affiliations(&person) {
                                 affiliation = affs.next();
