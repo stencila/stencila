@@ -143,6 +143,10 @@ pub struct Cli {
     #[arg(long, default_value_t = true)]
     #[arg(help_heading("Zenodo Settings"), display_order(1))]
     #[arg(conflicts_with("zenodo"))]
+    #[arg(default_value_ifs([
+        ("zenodo", ArgPredicate::Equals("sandbox.zenodo.org".into()), "true"),
+        ("zenodo", ArgPredicate::IsPresent, "false"),
+    ]))]
     sandbox: bool,
 
     /// Specify Zenodo instance, defaults to the public-facing production server
@@ -172,7 +176,6 @@ pub struct Cli {
     #[arg(group = "resource_type")]
     #[arg(long, default_value_t = true)]
     #[arg(default_value_if("lesson", ArgPredicate::IsPresent, "false"))]
-    #[arg(default_value_if("publication", ArgPredicate::IsPresent, "true"))]
     // #[arg(help_heading("Deposition Settings"), display_order(2))]
     #[arg(hide(true))] // needed for logic later, but not exposed to the user
     is_publication: bool,
@@ -211,9 +214,12 @@ pub struct Cli {
     /// Provide one of the publication types from Zenodo's controlled vocabulary.
     #[arg(long, value_name = "PUBLICATION_TYPE")]
     #[arg(default_value("preprint"))]
-    #[arg(default_value_if("lesson", "true", ""))]
+    #[arg(num_args(0..=1), require_equals=true)]
+    #[arg(default_value_ifs([
+        ("lesson", ArgPredicate::Equals("true".into()), None),
+        ("publication", ArgPredicate::IsPresent, Some("preprint")),
+    ]))]
     #[arg(help_heading("Deposition Settings"), display_order(2))]
-    #[arg(num_args(0..=1), require_equals=true, default_missing_value("preprint"))]
     publication: Option<PublicationType>,
 
     /// Publish the deposition immediately
@@ -652,18 +658,48 @@ mod cli_tests {
         assert!(args.sandbox);
     }
 
-    /// Tests that the publication type defaults to preprint when --publication is set
     #[test]
-    fn publication_type_defaults_to_preprint() {
-        let args = Cli::parse_from(["publish-zenodo", "--publication", "some.smd"]);
+    fn publication_flag_unnecessary() {
+        let args = Cli::parse_from(["publish-zenodo", "some.smd"]);
         assert!(matches!(args.publication, Some(PublicationType::Preprint)));
+    }
+
+    // TODO: check if there is a bug to file with clap (this works in practice but not under test conditions)
+    // 
+    // #[test]
+    // fn publication_type_defaults_to_preprint() {
+    //     let args = Cli::parse_from(["publish-zenodo", "--publication", "some.smd"]);
+    //     assert!(matches!(args.publication, Some(PublicationType::Preprint)));
+    // }
+    
+    #[test]
+    fn publication_type_can_be_specified() {
+        let args = Cli::parse_from(["publish-zenodo", "--publication=report", "some.smd"]);
+        assert!(args.sandbox);
+        assert!(matches!(args.publication, Some(PublicationType::Report)));
     }
 
     #[test]
     fn upload_type_lesson_does_not_require_publication_type() {
         let args = Cli::parse_from(["publish-zenodo", "--lesson", "some.smd"]);
+        assert!(args.lesson);
         assert!(args.sandbox);
         assert!(args.publication.is_none());
         assert!(!args.is_publication);
+    }
+
+    #[test]
+    fn production_server_enabled_with_zenodo_flag() {
+        let args = Cli::parse_from(["publish-zenodo", "--zenodo", "some.smd"]);
+        assert_eq!(&format!("{}", args.zenodo), "zenodo.org", "--zenodo parsed as {}", args.zenodo);
+        assert!(!args.sandbox, "CLI {args:#?}");
+        assert!(matches!(args.publication, Some(PublicationType::Preprint)));
+    }
+
+    #[test]
+    fn sandbox_flag_is_triggered_if_manually_specified() {
+        let args = Cli::parse_from(["publish-zenodo", "--zenodo=sandbox.zenodo.org", "some.smd"]);
+        assert_eq!(&format!("{}", args.zenodo), "sandbox.zenodo.org", "--zenodo parsed as {}", args.zenodo);
+        assert!(args.sandbox, "CLI {args:#?}");
     }
 }

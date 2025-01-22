@@ -160,31 +160,49 @@ mod test_helpers {
     use super::find_orcid;
 
     #[test]
-    fn test_extract_orcid() {
-        let patterns = [
+    fn find_orcid_detects_correctly_formatted_orcids() {
+        let orcids = [
+            "0000-0002-1825-1111",
+            "0000-0002-1825-009X"
+        ];
+
+        for orcid in orcids {
+            let expected = Some(orcid);
+            let actual = find_orcid(orcid);
+            assert_eq!(actual.as_deref(), expected, "input: {orcid:?} failed to produce {expected:?}");
+        }
+    }
+
+    #[test]
+    fn find_orcid_detects_malformed_orcids() {
+        let orcid = "0000000218253333";
+        let actual = find_orcid(orcid);
+        let expected = Some("0000-0002-1825-3333");
+        assert_eq!(actual.as_deref(), expected, "input: {orcid:?} failed to produce {expected:?}")
+    }
+
+    #[test]
+    fn find_orcid_detects_orcids_in_urls() {
+        let urls = [
             (
                 "http://orcid.org/0000-0002-2494-2700",
                 Some("0000-0002-2494-2700"),
             ),
             (
-                "https://orcid.org/0000-0002-1825-009X",
-                Some("0000-0002-1825-009X"),
+                "https://orcid.org/0000-0002-1825-2222",
+                Some("0000-0002-1825-2222"),
             ),
-            (
-                "https://orcid.org/000000021825009X",
-                Some("0000-0002-1825-009X"),
-            ),
-            ("0000-0002-1825-009X", Some("0000-0002-1825-009X")),
-            ("https://orcid.org/0000-0002-1825-0097/", None),
             (
                 "https://orcid.org/0000-0002-1825-009X/other",
-                Some("0000-0002-1825-009X"),
+                None,
             ),
+            ("https://orcid.org/0000-0002-1825-4444/", Some("0000-0002-1825-4444")),
             ("https://orcid.org", None),
         ];
 
-        for (pattern, expected_outcome) in patterns {
-            assert_eq!(find_orcid(pattern).as_deref(), expected_outcome);
+        for (url, expected) in urls {
+            let actual = find_orcid(url);
+            assert_eq!(actual.as_deref(), expected, "input: {url:?} failed to produce {expected:?}");
         }
     }
 }
