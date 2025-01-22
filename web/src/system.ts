@@ -94,17 +94,7 @@ class Data extends EventTarget {
   }
 
   get models(): Model[] {
-    return this._models.map((model) => ({
-      ...model,
-      // TODO: Remove these temporary, random scores, used for mocks
-      ...(model.id === 'stencila/router'
-        ? {}
-        : {
-            qualityScore: Math.floor(Math.random() * 101),
-            costScore: Math.floor(Math.random() * 101),
-            speedScore: Math.floor(Math.random() * 101),
-          }),
-    }))
+    return this._models
   }
 
   set models(models: Model[]) {

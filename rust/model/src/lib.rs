@@ -83,6 +83,9 @@ pub struct ModelSpecification {
     version: String,
     r#type: ModelType,
     availability: ModelAvailability,
+    quality_score: Option<u32>,
+    cost_score: Option<u32>,
+    speed_score: Option<u32>,
 }
 
 impl From<&dyn Model> for ModelSpecification {
@@ -94,6 +97,9 @@ impl From<&dyn Model> for ModelSpecification {
             version: model.version(),
             r#type: model.r#type(),
             availability: model.availability(),
+            quality_score: model.quality_score(),
+            cost_score: model.cost_score(),
+            speed_score: model.speed_score(),
         }
     }
 }
@@ -245,6 +251,32 @@ pub trait Model: Sync + Send {
     /// Get a list of output types this model supports
     fn supported_outputs(&self) -> &[ModelIO] {
         &[]
+    }
+
+    /// Get the overall quality score for the model
+    ///
+    /// This should be a score in the range 0-100 representing the overall quality
+    /// of responses from the model. It should not be specific to any prompt or task.
+    /// The model with the highest overall score should have a score of 100.
+    fn quality_score(&self) -> Option<u32> {
+        None
+    }
+
+    /// Get the cost score for the model
+    ///
+    /// This should be a score in the range 0-100 representing the cost of the
+    /// model usage (per token, input and output tokens combined). The cheapest
+    /// model should have a score of 100.
+    fn cost_score(&self) -> Option<u32> {
+        None
+    }
+
+    /// Get the speed score for the model
+    ///
+    /// This should be a score in the range 0-100 representing the speed of
+    /// model responses. The fastest model should have a score of 100.
+    fn speed_score(&self) -> Option<u32> {
+        None
     }
 
     /// Perform a generation task

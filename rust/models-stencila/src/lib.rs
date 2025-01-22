@@ -8,6 +8,7 @@ use model::{
         eyre::{bail, eyre, Result},
         inflector::Inflector,
         itertools::Itertools,
+        rand::{self, Rng},
         reqwest::Client,
         serde::{Deserialize, Serialize},
     },
@@ -29,6 +30,15 @@ pub struct StencilaModel {
 
     /// The version of the model e.g. 4o-mini-2024-07-18
     version: String,
+
+    /// The overall quality score of the model
+    quality_score: Option<u32>,
+
+    /// The cost score of the model
+    cost_score: Option<u32>,
+
+    /// The speed score of the model
+    speed_score: Option<u32>,
 
     /// The HTTP client for performing tasks via the Stencila Cloud API
     #[serde(skip)]
@@ -79,6 +89,18 @@ impl Model for StencilaModel {
         &[ModelIO::Text]
     }
 
+    fn quality_score(&self) -> Option<u32> {
+        self.quality_score
+    }
+
+    fn cost_score(&self) -> Option<u32> {
+        self.cost_score
+    }
+
+    fn speed_score(&self) -> Option<u32> {
+        self.speed_score
+    }
+
     async fn perform_task(&self, task: &ModelTask) -> Result<ModelOutput> {
         let token = cloud::api_key().ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
 
@@ -126,7 +148,16 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
     Ok(list_stencila_models(0)
         .await?
         .into_iter()
-        .map(|model| Arc::new(model) as Arc<dyn Model>)
+        .map(|mut model| {
+            // TODO: Remove these when score provided by Stencila Cloud
+            if model.identifier != "router" {
+                let mut rng = rand::thread_rng();
+                model.quality_score = Some(rng.gen_range(0..=100));
+                model.cost_score = Some(rng.gen_range(0..=100));
+                model.speed_score = Some(rng.gen_range(0..=100));
+            }
+            Arc::new(model) as Arc<dyn Model>
+        })
         .collect_vec())
 }
 
