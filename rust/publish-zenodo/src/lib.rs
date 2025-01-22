@@ -295,17 +295,17 @@ impl Cli {
 
         let doi = doc
             .inspect(|root| {
+                // skip anything that isn't an article
                 let Node::Article(article) = root else {
                     return None;
                 };
 
-                let Some(ids) = &article.options.identifiers else {
-                    return None;
-                };
-
-                for id in ids {
+                // return the first DOI in the article's identifiers
+if let Some(ids) = &article.options.identifiers {
+    for id in ids.iter() {
                     if let Some(doi) = metadata_extraction::extract_doi(id) {
                         return Some(doi.to_string());
+        }
                     }
                 }
 
