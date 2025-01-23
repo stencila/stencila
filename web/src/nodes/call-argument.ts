@@ -52,6 +52,7 @@ export class CallArgument extends Parameter {
           type="CallBlock"
           code=${code}
           language=${language}
+          node-id=${this.id}
           read-only
           no-gutters
           class="flex items-center flex-grow max-w-[50%]"

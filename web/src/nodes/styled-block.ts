@@ -54,6 +54,7 @@ export class StyledBlock extends Styled {
           <stencila-ui-node-code
             type="StyledBlock"
             code=${this.code}
+            node-id=${this.id}
             .code-authorship=${this.codeAuthorship}
             language=${this.styleLanguage}
             read-only

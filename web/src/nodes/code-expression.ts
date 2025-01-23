@@ -75,6 +75,7 @@ export class CodeExpression extends CodeExecutable {
         <stencila-ui-node-code
           type="CodeExpression"
           code=${this.code}
+          node-id=${this.id}
           .code-authorship=${this.codeAuthorship}
           language=${this.programmingLanguage}
           execution-required=${this.executionRequired}

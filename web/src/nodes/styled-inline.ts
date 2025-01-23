@@ -30,6 +30,7 @@ export class StyledInline extends Styled {
           type="StyledInline"
           code=${this.code}
           .code-authorship=${this.codeAuthorship}
+          node-id=${this.id}
           language=${this.styleLanguage}
           read-only
         >
