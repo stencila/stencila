@@ -1,5 +1,13 @@
 # Change Log
 
+## 0.0.20 2025-01-23
+
+- Improvements to chat interfaces, particularly in multi-model scenarios.
+
+- Improvements to interfaces for executable nodes giving more feedback on the execution status and whether execution is required.
+
+- Based on Stencila CLI v2.0.0-beta.23.
+
 ## 0.0.19 2025-01-22
 
 - Adds interfaces for standalone chats, chats about documents, and chats to insert specific types of content.
