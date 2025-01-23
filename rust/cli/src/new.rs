@@ -7,12 +7,29 @@ use common::{
 use document::Document;
 use format::Format;
 use schema::NodeType;
+use color_print::cstr;
 
+pub static AFTER_HELP: &str = cstr!("
+<bold>Usage Instructions</bold>
+
+<bold>Example:</bold> <cyan>`stencila new article.smd`</cyan>
+
+Detailed usage information provided in long-form help page,
+available by <cyan>`stencila new --help`</cyan>
+");
+
+pub static AFTER_LONG_HELP: &str = cstr!("
+<bold> Further Information and Examples </bold>
+
+<bold>Examples:</bold><cyan>
+        `stencila new article.smd --type article --sidecar json.zip`
+        `stencila new article.docx --sidecar json`
+        `stencila new article.md`
+    </cyan>
+
+    The File extension must be one of the supported codecs which can be found using <cyan>`stencila codecs list`</cyan>
+");
 /// Create a new document with sidecar file
-///
-/// Supported exstentions can be seen with `stencila codecs list`
-/// 
-/// Example: `stencila new article.smd`
 #[derive(Debug, Parser)]
 pub struct Cli {
     /// The path of the document to create with a supported extension 

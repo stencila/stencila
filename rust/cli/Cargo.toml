@@ -38,6 +38,7 @@ tracing-error = "0.2.1"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }
 version = { path = "../version" }
 webbrowser = "1.0.3"
+color-print = "0.3"
 
 [lints.rust]
 unsafe_code = "deny"

@@ -8,6 +8,30 @@ use common::{
 use format::Format;
 
 use crate::options::{DecodeOptions, EncodeOptions, StripOptions};
+use color_print::cstr;
+
+pub static AFTER_HELP: &str = cstr!("
+<bold>Usage Instructions</bold>
+
+<bold>Example:</bold> <cyan>`stencila convert article.smd article.docx`</cyan>
+
+Detailed usage information provided in long-form help page,
+available by <cyan>`stencila new --help`</cyan>
+");
+
+pub static AFTER_LONG_HELP: &str = cstr!("
+<bold> Further Information and Examples </bold>
+
+    <bold>Examples:</bold><cyan>
+        `stencila convert article.md --to json --pretty`
+        `stencila convert article.md --to jats --compact`
+        `stencila convert article.docx article.smd --input-losses --output-losses`
+        `stencila convert article.md --to docx article.docx`
+        `stencila convert article.smd  article.docx --render`
+    </cyan>
+
+    The File extension must be one of the supported codecs which can be found using <cyan>`stencila codecs list`</cyan>
+");
 
 /// Convert a document to another format
 ///
