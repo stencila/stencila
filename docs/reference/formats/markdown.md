@@ -87,7 +87,7 @@ Support and degree of loss for node types:
 | **Prose**                                                                                                                 |
 | [Admonition](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/admonition.md)                    | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function                    |
 | [Annotation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/annotation.md)                    | ⚠️ High loss |            | Encoded as `=={{content}}==`                          |
-| [Cite](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)                                | ⚠️ High loss |            |                                                       |
+| [Cite](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)                                | ⚠️ High loss |            | Encoded using implemented function                    |
 | [CiteGroup](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite_group.md)                     | ⚠️ High loss |            |                                                       |
 | [DefinedTerm](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/defined_term.md)                 | ⚠️ High loss |            |                                                       |
 | [Emphasis](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/emphasis.md)                        | 🟢 No loss    | 🟢 No loss  | Encoded as `_{{content}}_`                            |

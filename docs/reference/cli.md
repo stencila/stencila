@@ -83,36 +83,6 @@ CLI subcommands and global options
 
 * `--debug` — Display debug level logging and detailed error reports
 
-   Equivalent to using `--log-level=debug`, `--log-format=pretty`, and `--error-details=all`
-* `--trace` — Display trace level logging and detailed error reports
-
-   Equivalent to using `--log-level=trace`, `--log-format=pretty`, and `--error-details=all`
-* `--log-level <LOG_LEVEL>` — The minimum log level to output
-
-  Default value: `info`
-
-  Possible values: `trace`, `debug`, `info`, `warn`, `error`
-
-* `--log-filter <LOG_FILTER>` — A filter for log entries
-
-   Allows more fine-grained control over which log entries are shown. To additionally see lower level entries for a specific crates use syntax such as `tokio=debug`.
-
-  Default value: `globset=warn,hyper=info,hyper_util=info,ignore=warn,mio=info,notify=warn,ort=error,reqwest=info,sled=info,tokio=info,tungstenite=info`
-* `--log-format <LOG_FORMAT>` — The log format to use
-
-   When `auto`, uses `simple` for terminals and `json` for non-TTY devices.
-
-  Default value: `auto`
-
-  Possible values: `auto`, `simple`, `compact`, `pretty`, `full`, `json`
-
-* `--error-details <ERROR_DETAILS>` — The details to include in error reports
-
-   `auto`, `all`, or a comma separated list including `location`, `span`, or `env`.
-
-  Default value: `auto`
-* `--error-link` — Output a link to more easily report an issue
-
 
 
 ## `stencila new`
@@ -588,9 +558,24 @@ Publish to Ghost
 
   Default value: `true`
 * `--pull` — Update file from an existing Ghost post or page
+* `--id <ID>` — Ghost id of the page or post
+* `--title <TITLE>` — Title for page or post
+* `--draft` — Mark page or post as draft
+
+  Default value: `true`
+* `--publish` — Publish page or post
+* `--schedule <SCHEDULE>` — Schedule page or post
+* `--slug <SLUG>` — Set slug(URL slug the page or post will be available at)
+* `--tag <TAGS>` — Tags for page or post
+* `--excerpt <EXCERPT>` — Excerpt for page or post
+
+   Defaults to the article description
+* `--featured` — Feature post or page
+* `--inject-code-header <INJECT_CODE_HEADER>` — Inject HTML header
+* `--inject-code-footer <INJECT_CODE_FOOTER>` — Inject HTML footer
 * `--dry-run` — Dry run test
 
-   When set, stencila will perform the document conversion but skip the publication to Ghost.
+   When set, Stencila will perform the document conversion but skip the publication to Ghost.
 
   Default value: `false`
 
@@ -707,17 +692,17 @@ List the prompts available
 
 Show a prompt
 
-**Usage:** `stencila prompts show [OPTIONS] <ID>`
+**Usage:** `stencila prompts show [OPTIONS] <NAME>`
 
 ###### **Arguments:**
 
-* `<ID>` — The id of the prompt to show
+* `<NAME>` — The name of the prompt to show
 
 ###### **Options:**
 
 * `-t`, `--to <TO>` — The format to show the prompt in
 
-  Default value: `yaml`
+  Default value: `md`
 
 
 
