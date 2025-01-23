@@ -112,6 +112,7 @@ export class ForBlock extends CodeExecutable {
               language=${this.programmingLanguage}
               execution-required=${this.executionRequired}
               read-only
+              node-id=${this.id}
               no-gutters
               container-classes="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
               class="flex-grow flex items-center max-w-[30%]"
@@ -125,6 +126,7 @@ export class ForBlock extends CodeExecutable {
               code=${this.code}
               language=${this.programmingLanguage}
               read-only
+              node-id=${this.id}
               no-gutters
               container-classes="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
               class="flex-grow flex items-center max-w-[60%]"

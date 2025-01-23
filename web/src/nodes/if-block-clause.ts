@@ -174,6 +174,7 @@ export class IfBlockClause extends CodeExecutable {
           language=${this.programmingLanguage}
           execution-required=${this.executionRequired}
           read-only
+          node-id=${this.id}
           no-gutters
           container-classes="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
           class=${label === 'else'

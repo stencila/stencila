@@ -65,6 +65,7 @@ export class CodeBlock extends CodeStatic {
         <stencila-ui-node-code
           type="CodeBlock"
           code=${this.code}
+          node-id=${this.id}
           .code-authorship=${this.codeAuthorship}
           language=${this.programmingLanguage}
           read-only
