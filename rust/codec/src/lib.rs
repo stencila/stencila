@@ -34,6 +34,23 @@ pub enum CodecDirection {
     Encode,
 }
 
+/// If codec supports pass through args and of which type
+#[derive(Debug)]
+pub enum PassThroughArgs{
+    Pandoc,
+    None,
+}
+
+impl PassThroughArgs {
+    pub fn name(&self) -> &str {
+        use PassThroughArgs::*;
+        match self {
+            Pandoc => "pandoc",
+            None => "none",
+        }
+    }
+}
+
 /// A codec for decoding/encoding between Stencila Schema nodes and alternative formats
 #[async_trait]
 pub trait Codec: Sync + Send {
@@ -64,6 +81,10 @@ pub trait Codec: Sync + Send {
                 support.is_supported().then_some((format, support))
             })
             .collect()
+    }
+
+    fn supports_pass_through_args(&self) -> PassThroughArgs {
+        PassThroughArgs::None
     }
 
     /// The level of support that the codec provides for decoding for a [`NodeType`]

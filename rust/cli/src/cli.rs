@@ -15,6 +15,7 @@ use crate::{
 
 /// CLI subcommands and global options
 #[derive(Debug, Parser)]
+#[command(disable_help_subcommand = true)]
 #[command(name = "stencila", author, version = STENCILA_VERSION, about, long_about, styles = Cli::styles())]
 pub struct Cli {
     #[command(subcommand)]
@@ -94,9 +95,14 @@ impl Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Command {
+    #[command(after_help(new::AFTER_HELP))]
+    #[command(after_long_help(new::AFTER_LONG_HELP))]
     New(new::Cli),
 
+    #[command(after_help(convert::AFTER_HELP))]
+    #[command(after_long_help(convert::AFTER_LONG_HELP))]
     Convert(convert::Cli),
+    #[command(hide=true)]
     Sync(sync::Cli),
 
     Compile(compile::Cli),
