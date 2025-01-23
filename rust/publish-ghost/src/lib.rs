@@ -90,6 +90,8 @@ pub struct Cli {
     title: Option<String>,
 
     /// Mark page or post as draft
+    ///
+    /// Defaults if `--draft`, `--publishg` or `--schedule` aren't provided
     #[arg(
         long,
         group = "publish_type",
