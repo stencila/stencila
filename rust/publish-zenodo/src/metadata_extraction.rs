@@ -195,7 +195,10 @@ mod test_helpers {
                 "https://orcid.org/0000-0002-1825-2222",
                 Some("0000-0002-1825-2222"),
             ),
-            ("https://orcid.org/0000-0002-1825-009X/other", None),
+            (
+                "https://orcid.org/0000-0002-1825-009X/other",
+                Some("0000-0002-1825-009X"),
+            ),
             (
                 "https://orcid.org/0000-0002-1825-4444/",
                 Some("0000-0002-1825-4444"),
