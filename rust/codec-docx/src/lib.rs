@@ -5,7 +5,7 @@ use codec::{
     format::Format,
     schema::Node,
     status::Status,
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, NodeType,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, NodeType, PassThroughArgs,
 };
 use codec_pandoc::{pandoc_from_format, pandoc_to_format, root_from_pandoc, root_to_pandoc};
 
@@ -22,6 +22,10 @@ impl Codec for DocxCodec {
 
     fn status(&self) -> Status {
         Status::UnderDevelopment
+    }
+
+    fn supports_pass_through_args(&self) -> PassThroughArgs {
+        PassThroughArgs::Pandoc
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {

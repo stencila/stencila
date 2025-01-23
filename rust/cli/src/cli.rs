@@ -15,6 +15,7 @@ use crate::{
 
 /// CLI subcommands and global options
 #[derive(Debug, Parser)]
+#[command(disable_help_subcommand = true)]
 #[command(name = "stencila", author, version = STENCILA_VERSION, about, long_about, styles = Cli::styles())]
 pub struct Cli {
     #[command(subcommand)]

@@ -62,7 +62,7 @@ impl List {
         }
 
         let mut table = table::new();
-        table.set_header(["Name", "From", "To"]);
+        table.set_header(["Name", "From", "To","Pass Through Args Support"]);
 
         for codec in list {
             let from = codec
@@ -80,6 +80,7 @@ impl List {
                 Cell::new(codec.name()).add_attribute(Attribute::Bold),
                 Cell::new(from),
                 Cell::new(to),
+                Cell::new(codec.supports_pass_through_args().name())
             ]);
         }
 
