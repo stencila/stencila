@@ -13,5 +13,8 @@ document = { path = "../document" }
 url = "2.5.4"
 color-print = "0.3"
 
+[dev-dependencies]
+common-dev = { path = "../common-dev" }
+
 [lints]
 workspace = true
