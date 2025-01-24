@@ -1,8 +1,7 @@
 //! Facilitates providing hints to users about how to help themselves
 
 use is_terminal::IsTerminal;
-
-use crate::{message::Message, ToStdout};
+use crate::ToStdout;
 
 #[derive(Debug, Default)]
 pub struct Hint {
