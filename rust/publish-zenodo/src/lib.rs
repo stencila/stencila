@@ -330,43 +330,6 @@ impl Cli {
             })
             .await;
 
-        let doc_updated = Arc::new(Mutex::new(false));
-        let doc_updated_ = Arc::clone(&doc_updated);
-
-        doc.mutate(move |root| {
-            let Node::Article(article) = root else { return };
-
-            let Ok(mut doc_updated) = doc_updated_.lock() else {
-                tracing::error!("internal error: failed to acquire lock");
-                return;
-            };
-
-            if let Some(desc) = &self.description {
-                article.description = Some(desc.clone());
-                *doc_updated = true;
-            }
-
-            if *doc_updated {
-                let today = common::chrono::Utc::now().naive_utc().to_string();
-                let date_modified = schema::Date::new(today);
-                article.date_modified = Some(date_modified);
-            }
-        })
-        .await;
-
-        // Saving occurs in a second block to avoid holding a lock while calling await
-        let save_doc = match doc_updated.lock() {
-            Ok(update) if *update => true,
-            Ok(_) => false,
-            Err(_) => {
-                tracing::error!("internal error: failed to acquire write access to file. Proceeding without modifying document.");
-                false
-            }
-        };
-        if save_doc {
-            doc.save(CommandWait::Yes).await?
-        }
-
         // Determine server URL
         let server_url = if self.sandbox {
             url::Host::parse("sandbox.zenodo.org")?
