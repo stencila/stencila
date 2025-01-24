@@ -5,7 +5,7 @@
 
 use std::fmt::Display;
 
-use is_terminal::IsTerminal;
+use std::io::IsTerminal;
 
 pub use rpassword;
 

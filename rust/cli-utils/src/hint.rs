@@ -1,6 +1,6 @@
 //! Facilitates providing hints to users about how to help themselves
 
-use is_terminal::IsTerminal;
+use std::io::IsTerminal;
 use crate::ToStdout;
 
 #[derive(Debug, Default)]
