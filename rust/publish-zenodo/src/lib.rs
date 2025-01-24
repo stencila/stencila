@@ -1,29 +1,22 @@
 // TODO: use the [Research Organization Registry (ROR)](https://ror.org/) database to gather affiliations for authors
 
 use std::{
-    io::IsTerminal,
     path::PathBuf,
     str::FromStr,
-    sync::{Arc, Mutex},
 };
 
-use cli_utils::{hint, parse_host, ToStdout};
-use codec::{
-    schema::{Primitive, PropertyValue, PropertyValueOrString},
-    Codec,
-};
+use cli_utils::{cli_hint, hint, parse_host, ToStdout};
+
 use common::{
     clap::{self, builder::ArgPredicate, Parser},
-    eyre::{bail, Context, OptionExt, Result},
+    eyre::{bail, OptionExt, Result},
     reqwest::Client,
     serde,
-    serde_json::{json, Value},
-    tempfile, tokio, tracing,
+    serde_json::{json, Value}, tokio, tracing,
 };
 
-use codec_swb::SwbCodec;
 use color_print::cstr;
-use document::{schema, schema::Node, CommandWait, Document, EncodeOptions, Format};
+use document::{schema, schema::Node, CommandWait, Document};
 
 mod metadata_extraction;
 
@@ -260,12 +253,12 @@ impl Cli {
         // Open and compile document
         let Ok(doc) = Document::open(&self.path).await else {
             tracing::error!("Document root is not an Article");
-            hint!("Attempt to re-render a standalone document and retry.");
-            hint_cli!("If you built the file with `stencila render`, try adding the `--standalone` flag.")            
+            hint!("Attempt to re-render a standalone document and retry.").to_stdout();
+            cli_hint!("If you built the file with `stencila render`, try adding the `--standalone` flag.").to_stdout();
             bail!("Unable to create a Document from file at {}", self.path.display());
         };
         doc.compile(CommandWait::Yes).await?;
-     
+
         // Pre-check: ensure that we have an Article
         let Node::Article(_) = &doc.root().await else {
             tracing::info!("Internal error: Document root is not an Article");
@@ -285,18 +278,17 @@ impl Cli {
             let title = article.title.as_ref().map(codec_text::to_text).or_else(|| self.title.clone()).unwrap_or_else(|| { "Untitled".to_string() });
             let description = article.description.as_ref().map(codec_text::to_text);
             let mut creators = Vec::new();
-            let mut doi = None
+            let mut doi = None;
 
             if let Some(ids) = &article.options.identifiers {
                 for id in ids.iter() {
-                    if let Some(doi) = metadata_extraction::extract_doi(id) {
-                        return Some(doi.to_string());
+                    if doi.is_none() {
+                        doi = metadata_extraction::extract_doi(id).map(|x| x.to_string())
                     }
                 }
             }
 
             if let Some(authors) = &article.authors {
-
                 for author in authors {
                     if let schema::Author::Person(person) = author {
                         let mut affiliation = None;
@@ -344,42 +336,42 @@ impl Cli {
             Some((title, description, creators, doi))
         }).await;
 
-        let mut deposit = json!({ "metadata": json!({})});
+        let mut doi_from_doc = None;
+        let mut deposit = json!({ "metadata": json!({}) });
 
         if let Some((title, description, creators, doi)) = metadata_from_doc {
-        }).await;
-
-        let mut deposit = json!({ "metadata": json!({})});
-
-        if let Some((title, description, creators)) = metadata_from_doc {
-        
-        }).await;
-
-        let mut deposit = json!({ "metadata": json!({})});
-
-        if let Some((title, description, creators)) = metadata_from_doc {
             deposit["metadata"]["title"] = json!(title);
             deposit["metadata"]["description"] = json!(description);
             deposit["metadata"]["creators"] = json!(creators);
+            doi_from_doc = doi;
         }
-        
+
         if let Some(title_from_args) = self.title {
             deposit["metadata"]["title"] = json!(title_from_args);
         }
 
+        if let Some(desc) = self.description {
+            deposit["metadata"]["description"] = json!(desc);
+        }
+
+        if let Some(date) = self.publication_date {
+            deposit["metadata"]["publication_date"] = json!(date);
+        }
+
         if self.lesson {
             deposit["metadata"]["upload_type"] = json!("lesson");
-        }
-
-        if self.is_publication {
+        } else if self.is_publication || self.publication.is_some() {
             deposit["metadata"]["upload_type"] = json!("publication");
             deposit["metadata"]["publication_type"] = json!(self.publication.unwrap_or_default());
+        } else {
+            bail!("Publication type unavailable")
         }
 
-        match (doi, self.reserve_doi) {
-            (Some(doi), true) => tracing::warn!(
-                "Document already has a DOI ({doi}). The --reserve-doi flag will be ignored."
-            ),
+        match (doi_from_doc, self.reserve_doi) {
+            (Some(doi), true) => {
+                tracing::warn!("Document already has a DOI ({doi}).");
+                cli_hint!("Omit the `--reserve-doi` flag").to_stdout();
+            },
             (Some(doi), false) => deposit["metadata"]["doi"] = json!(doi),
             (None, true) => deposit["metadata"]["prereserve_doi"] = json!(true),
             (None, false) => (),
@@ -403,45 +395,68 @@ impl Cli {
         // permissions error
         if deposition_response.status().as_u16() == 403 {
             let mut msg = String::from(
-                "hint: Check that the access token is correct and has the necessary scope",
+                "Check that the access token is correct and has the necessary scope",
             );
-
             if self.force {
                 msg.push_str("s (`deposit:actions` and `deposit:write`) enabled.");
             } else {
                 msg.push_str(" (`deposit:actions`) enabled.");
             }
-
-            tracing::info!(msg);
+            hint!("{}", msg).to_stdout();
+            hint!("Check that the access token is provided by the Zenodo server that you're uploading to ({})", server_url).to_stdout();
         }
 
         if !&deposition_response.status().is_success() {
+            let http_code = deposition_response.status().as_u16();
             let data: Value = deposition_response.json().await?;
+            let debug_info = common::serde_json::to_string_pretty(&data)?;
 
+            if let Some(Value::String(top_level_message)) = data.get("message") {
+                tracing::info!(error_from_zenodo = debug_info, message_from_zenodo = top_level_message, http_code = http_code, "Failed to create deposition");
+            } else {
+                tracing::info!(error_from_zenodo = debug_info, "Failed to create deposition");
+            }
+
+            // TODO: use an actual type for deserialization rather than this maze of code
             if let Some(Value::Array(errors)) = data.get("errors") {
                 for error in errors {
-                    if let (Some(Value::String(field)), Some(Value::Array(messages))) =
-                        (error.get("field"), error.get("messages"))
-                    {
-                        if field == "metadata.description" {
+                    let Some(Value::String(field)) = error.get("field") else { continue };
+                    let Some(Value::Array(messages)) = error.get("messages") else { continue };
+
+                    match field.as_str() {
+                        "metadata.description" => {
                             for message in messages.iter().filter_map(|msg| msg.as_str()) {
                                 if message == "Field may not be null." {
                                     tracing::error!("Description missing from article.");
-                                    if std::io::stdout().is_terminal() {
-                                        cli_utils::message!("hint: Provide a description with the --description flag.");
-                                    }
+                                    cli_hint!("Provide a description with the --description flag.").to_stdout();
+                                } else {
+                                    tracing::error!("Problem with description: {:?}", message)
                                 }
                             }
-                        };
-                    };
+                        },
+                        "metadata.title" => {
+                            for message in messages.iter().filter_map(|msg| msg.as_str()) {
+                                if message == "Field may not be null." {
+                                    tracing::error!("Title missing from article.");
+                                    cli_hint!("Provide a title with the --title flag.").to_stdout();
+                                } else {
+                                    tracing::error!("Problem with title: {:?}", message)
+                                }
+                            }
+                        },
+                        other_field => {
+                            for message in messages.iter().filter_map(|msg| msg.as_str()) {
+                                tracing::error!("Problem with `{other_field}` field: {message:?}")
+                            }
+                        }
+                    }
                 }
             }
 
-            bail!("Failed to create deposition: {:?}", data.as_str());
+            bail!("Failed to create deposition");
         }
 
         let deposition: Value = deposition_response.json().await?;
-        tracing::debug!(deposition = ?deposition, "Response from creating deposit");
         let deposition_id = deposition["id"]
             .as_u64()
             .ok_or_eyre("No deposition ID in response in the response from Zenodo")?;
@@ -451,80 +466,33 @@ impl Cli {
             .as_str()
             .ok_or_eyre("No deposition URL provided in the response from Zenodo")?;
 
-        doc.mutate(move |root| {
-            let Node::Article(article) = root else { return };
-
-            let zenodo_property = PropertyValueOrString::String(deposition_url.to_string());
-            let mut zenodo_ids = vec![zenodo_property];
-
-            if let Some(doi) = reserved_doi {
-                let property = PropertyValueOrString::PropertyValue(PropertyValue {
-                    property_id: Some("https://registry.identifiers.org/registry/doi".into()),
-                    value: Primitive::String(doi.into()),
-                    ..Default::default()
-                });
-
-                zenodo_ids.push(property);
-            }
-
-            match article.options.identifiers.as_mut() {
-                Some(ids) => ids.extend(zenodo_ids.into_iter()),
-                None => article.options.identifiers = Some(zenodo_ids),
-            };
-
-            let now = common::chrono::Utc::now().naive_utc().to_string();
-            let date_modified = schema::Date::new(now);
-            article.date_modified = Some(date_modified);
-        })
-        .await;
-
-        doc.save(CommandWait::Yes).await?;
-
-        // Create a temporary directory and file for the SWB
-        let temp_dir = tempfile::tempdir()?;
-        let filename = make_filename(&article.title)?;
-        let swb_path = temp_dir.path().join(format!("{}.swb", filename));
-
-        // Create the SWB bundle
-        SwbCodec::default()
-            .to_path(
-                &root,
-                &swb_path,
-                Some(EncodeOptions {
-                    format: Some(Format::Swb),
-                    standalone: Some(true),
-                    ..Default::default()
-                }),
-            )
-            .await?;
-
-        if self.dry_run {
-            tracing::info!(
-                "Dry run complete - bundle created at {}",
-                swb_path.display()
-            );
-            return Ok(());
-        }
-
         // Get bucket URL for file upload
         let bucket_url = deposition["links"]["bucket"]
             .as_str()
             .ok_or_eyre("No bucket URL in response")?;
 
+        if let Some(doi) = reserved_doi {
+            tracing::debug!(id = ?deposition_id, reserved_doi = doi, url = deposition_url, "Depositition created");
+        }
+
         // Upload the SWB file using same filename
-        let file_name = format!("{}.swb", filename);
-        let url: String = format!("{}/{}", bucket_url, file_name);
-        tracing::info!(url = url, file = file_name, "Uploading deposit");
+        let file_name = self.path
+            .file_name().ok_or_eyre("unable to infer file name from path")? // should never happen - we've already checked that it's a file
+            .to_str().ok_or_eyre("unable to convert file name to UTF-8")?;
+        let upload_url: String = format!("{}/{}", bucket_url, file_name);
+        tracing::debug!(url = upload_url, file = file_name, "Uploading file to deposit");
         let upload_response = client
-            .put(format!("{}/{}", bucket_url, file_name))
+            .put(upload_url)
             .bearer_auth(token)
-            .body(tokio::fs::read(&swb_path).await?)
+            .body(tokio::fs::read(&self.path).await?) // TODO: use streaming
             .send()
             .await?;
 
         if !upload_response.status().is_success() {
-            tracing::error!(response = ?upload_response, file = ?file_name, "Failed to upload");
+            tracing::error!(file = ?file_name, "Failed to upload {file_name}");
             bail!("Failed to upload file: {}", upload_response.text().await?);
+        } else {
+            tracing::error!(file = ?file_name, "Upload successful");
         }
 
         let deposition_url = deposition["links"]["html"]
@@ -532,17 +500,22 @@ impl Cli {
             .ok_or_eyre("No deposit URL provided by Zenodo.")?;
 
         if self.force {
+            let publish_url = format!(
+                "{}/api/deposit/depositions/{}/actions/publish",
+                server_url, deposition_id
+            );
+            tracing::debug!("Publishing deposit");
             // Publish the deposition
             let publish_response = client
-                .post(format!(
-                    "{}/api/deposit/depositions/{}/actions/publish",
-                    server_url, deposition_id
-                ))
+                .post(publish_url)
                 .bearer_auth(token)
                 .send()
                 .await?;
 
             if !publish_response.status().is_success() {
+                tracing::debug!(response = ?publish_response, "Details from HTTP response to publish deposition");
+
+                // TODO: use diagnostics from publish-ghost
                 bail!(
                     "Failed to publish deposition: {}",
                     publish_response.text().await?
@@ -575,44 +548,6 @@ impl Cli {
         }
 
         Ok(())
-    }
-}
-
-/// Create an article's filename from article title by:
-/// - Converting to lowercase
-/// - Replacing non-alphanumeric chars with hyphens
-/// - Collapsing multiple hyphens
-/// - Trimming hyphens from start/end
-/// - Defaulting to "untitled"
-fn make_filename(title: &Option<Vec<schema::Inline>>) -> Result<String> {
-    let title_text = title
-        .as_ref()
-        .map(codec_text::to_text)
-        .unwrap_or_else(|| "untitled".to_string());
-
-    let mut result = String::new();
-    let mut last_was_hyphen = true; // To prevent starting with hyphen
-
-    for c in title_text.chars().flat_map(char::to_lowercase) {
-        if c.is_alphanumeric() {
-            result.push(c);
-            last_was_hyphen = false;
-        } else if !last_was_hyphen {
-            result.push('-');
-            last_was_hyphen = true;
-        }
-    }
-
-    // Trim trailing hyphen if exists
-    if result.ends_with('-') {
-        result.pop();
-    }
-
-    // Return "untitled" if no valid chars were found
-    if result.is_empty() {
-        Ok("untitled".to_string())
-    } else {
-        Ok(result)
     }
 }
 
