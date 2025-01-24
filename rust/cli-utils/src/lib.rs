@@ -12,6 +12,9 @@ pub use rpassword;
 mod code;
 pub use code::*;
 
+mod hint;
+pub use hint::*;
+
 mod message;
 pub use message::*;
 
