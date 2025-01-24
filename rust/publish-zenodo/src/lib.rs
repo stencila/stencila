@@ -1,11 +1,10 @@
 // TODO: use the [Research Organization Registry (ROR)](https://ror.org/) database to gather affiliations for authors
 
 use std::{
-    path::PathBuf,
-    str::FromStr,
+    path::PathBuf, str::FromStr
 };
 
-use cli_utils::{cli_hint, hint, parse_host, ToStdout};
+use cli_utils::{cli_hint, hint, message, parse_host, ToStdout};
 
 use common::{
     clap::{self, builder::ArgPredicate, Parser},
@@ -176,6 +175,7 @@ pub struct Cli {
     /// Reserve a DOI for the deposition
     #[arg(long)]
     #[arg(help_heading("Deposition Settings"), display_order(2))]
+    #[arg(conflicts_with = "doi")]
     reserve_doi: bool,
 
     /// Publication date
@@ -201,6 +201,43 @@ pub struct Cli {
     #[arg(long)]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
     description: Option<String>,
+
+    /// Supply existing DOI 
+    /// 
+    /// Use this field to provide a DOI that has already been issued
+    /// for the material you are depositing.
+    #[arg(long)]
+    #[arg(help_heading("Deposition Metadata"), display_order(3))]
+    #[arg(value_parser = metadata_extraction::parse_doi)]
+    doi: Option<String>,
+
+    /// Keywords for document
+    ///
+    /// To add multiple keywords, separate them with commas:
+    /// 
+    ///     --keywords=testing,software
+    /// 
+    /// To include spaces in keywords, surround the list with quotes*:
+    /// 
+    ///     --keywords='testing,software,software testing'
+    /// 
+    /// * The exact syntax will depend on your shell language.
+    #[arg(long)]
+    #[arg(help_heading("Deposition Metadata"), display_order(3))]
+    #[arg(help("Keywords for document (comma-delimited list)"))]
+    #[arg(require_equals(true), value_delimiter(','))]
+    keywords: Vec<String>,
+    
+    /// Additional Notes
+    ///
+    /// Any additional notes that to do not fit within the description.
+    /// 
+    /// HTML is allowed, but malformed input may cause validation errors
+    /// when it is checked by Zenodo. 
+    #[arg(long)]
+    #[arg(help_heading("Deposition Metadata"), display_order(3))]
+    #[arg(help("Additional notes (HTML permitted)"))]
+    notes: Option<String>,
 
     /// Version of document
     ///
@@ -367,6 +404,15 @@ impl Cli {
             deposit["metadata"]["publication_date"] = json!(date);
         }
 
+        if !self.keywords.is_empty() {
+            let kw: Vec<_> = self.keywords.into_iter().map(|kw| kw.trim().to_string()).collect();
+            deposit["metadata"]["keywords"] = json!(kw); 
+        }
+
+        if let Some(notes) = self.notes {
+            deposit["metadata"]["notes"] = json!(notes); 
+        }
+
         if let Some(ver) = self.version {
             deposit["metadata"]["version"] = json!(ver); 
         }
@@ -380,14 +426,52 @@ impl Cli {
             bail!("Publication type unavailable")
         }
 
-        match (doi_from_doc, self.reserve_doi) {
-            (Some(doi), true) => {
-                tracing::warn!("Document already has a DOI ({doi}).");
-                cli_hint!("Omit the `--reserve-doi` flag").to_stdout();
-            },
-            (Some(doi), false) => deposit["metadata"]["doi"] = json!(doi),
-            (None, true) => deposit["metadata"]["prereserve_doi"] = json!(true),
-            (None, false) => (),
+        let mut doi = None;
+        let mut reserve_doi = false;
+        
+        if self.reserve_doi {
+            match (&self.doi, &doi_from_doc) {
+                (None, None) => reserve_doi = true,
+                (None, Some(from_doc)) => {
+                    tracing::debug!("Requesting a new DOI, although one ({from_doc}) was found within the Article metadata");
+                    deposit["metadata"]["prereserve_doi"] = json!(true);
+                    doi = Some(from_doc);
+                },
+                (Some(from_cli), Some(_)) | (Some(from_cli), None) => {
+                    // these pattern should be impossible as --doi and --reserve-doi are marked as conflicting
+                    if cfg!(debug_assertions) {
+                        panic!("should be impossible to reserve a DOI and also provide one");                
+                    }
+                    message!("Using DOI provided ({}), rather than pre-reserving another one.", from_cli).to_stdout();
+                    doi = Some(from_cli)
+                },
+            }
+        } else {
+            match (&self.doi, &doi_from_doc) {
+                (None, None) => tracing::debug!("No DOI was explicitly requested, nor was one provided. Relying on Zenodo's defaults."),
+                (None, Some(from_doc)) => {
+                    tracing::info!("Providing DOI found in Article metadata ({from_doc}).");
+                    doi = Some(from_doc);
+                },
+                (Some(from_cli), None) => doi = Some(from_cli),
+                (Some(from_cli), Some(from_doc)) if from_cli == from_doc => doi = Some(from_cli),
+                (Some(from_cli), Some(from_doc)) => {
+                    tracing::debug!("DOI provided ({from_cli}) does not match the DOI found within the Article metadata ({from_doc}). Preferring {from_cli}.");
+                    doi = Some(from_cli);
+                },
+            }
+        };
+
+        if cfg!(debug_assertions) && reserve_doi && doi.is_some() {
+            tracing::warn!("logic error - --reserve_doi and --doi permitted together");
+        }
+
+        if reserve_doi {
+            deposit["metadata"]["prereserve_doi"] = json!(true)
+        }
+
+        if let Some(doi) = doi {
+            deposit["metadata"]["doi"] = json!(doi)
         }
 
         tracing::debug!(metadata_provided = ?deposit, "Creating deposit");
@@ -537,7 +621,6 @@ impl Cli {
 
             cli_utils::message!("🎉 Deposition published").to_stdout();
             cli_utils::message!("🌐 URL: {}", deposition_url).to_stdout();
-            // TODO: supply DOI
         } else {
             cli_utils::message!("🎉 Draft deposition submitted").to_stdout();
             cli_utils::message!(

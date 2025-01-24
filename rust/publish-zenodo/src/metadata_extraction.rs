@@ -1,5 +1,5 @@
 use codec::schema::{Person, Primitive, PropertyValue, PropertyValueOrString};
-use common::{regex, tracing};
+use common::{eyre::OptionExt, regex, tracing};
 use std::{borrow::Cow, sync::OnceLock};
 
 pub(crate) fn extract_affiliations(author: &Person) -> Option<impl Iterator<Item = Cow<str>>> {
@@ -94,6 +94,14 @@ pub(crate) fn extract_doi(id: &PropertyValueOrString) -> Option<Cow<str>> {
         PropertyValueOrString::String(text) => find_doi(text),
     }
 }
+
+/// Parse an input from the command line as a Ghost host
+pub fn parse_doi(arg: &str) -> common::eyre::Result<String> {
+    let doi = find_doi(arg).ok_or_eyre("DOI supplied is invalid")?;
+    tracing::error!("wat {}", doi);
+    Ok(doi.to_string())
+}
+
 
 /// Returns the first DOI pattern, e.g. "10.1126/science.1115581", within input text.
 fn find_doi(text: &str) -> Option<Cow<str>> {
