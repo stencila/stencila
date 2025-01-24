@@ -505,7 +505,7 @@ impl Cli {
             tracing::error!(file = ?file_name, "Failed to upload {file_name}");
             bail!("Failed to upload file: {}", upload_response.text().await?);
         } else {
-            tracing::error!(file = ?file_name, "Upload successful");
+            tracing::debug!(file = ?file_name, "Upload successful");
         }
 
         let deposition_url = deposition["links"]["html"]
