@@ -70,12 +70,6 @@ impl std::fmt::Display for Hint {
     }
 }
 
-impl Into<Message> for Hint {
-    fn into(self) -> Message {
-        Message(format!("{}", self))
-    }
-}
-
 impl ToStdout for Hint {
     fn to_terminal(&self) -> impl std::fmt::Display {
         let nl = if cfg!(windows) { "\r\n" } else { "\n" };
