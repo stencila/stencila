@@ -53,7 +53,7 @@ export class CallArgument extends Parameter {
           code=${code}
           language=${language}
           node-id=${this.id}
-          read-only
+          single-line
           no-gutters
           class="flex items-center flex-grow max-w-[50%]"
           container-classes="inline-block w-full rounded-sm border border-[${borderColour}] overflow-hidden text-ellipsis"

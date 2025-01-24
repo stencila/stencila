@@ -108,6 +108,12 @@ export class UINodeCode extends LitElement {
   containerClasses?: string
 
   /**
+   * Limits the editor to single line
+   */
+  @property({ type: Boolean, attribute: 'single-line' })
+  singleLine: boolean = false
+
+  /**
    * A CodeMirror editor for the code
    */
   private editorView?: EditorView
@@ -136,7 +142,6 @@ export class UINodeCode extends LitElement {
           const newValue = update.state.doc.toString()
           clearTimeout(timer)
           timer = setTimeout(() => {
-            console.log('sending patch', newValue)
             this.dispatchEvent(
               patchValue(this.type, this.nodeId, 'code', newValue)
             )
@@ -297,11 +302,18 @@ export class UINodeCode extends LitElement {
     this.viewEditable = new Compartment()
     this.viewReadOnly = new Compartment()
 
+    const singleLineEditor = EditorState.transactionFilter.of((tr) =>
+      tr.newDoc.lines > 1 ? [] : tr
+    )
+
+    console.log('single line', this.singleLine)
+
     return [
       this.patchInput(),
       this.viewEditable.of(EditorView.editable.of(!this.readOnly)),
       this.viewReadOnly.of(EditorState.readOnly.of(this.readOnly)),
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+      this.singleLine ? singleLineEditor : [],
       ...languageExtension,
       ...linterExtension,
       ...authorshipExtensions,
