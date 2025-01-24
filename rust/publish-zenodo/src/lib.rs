@@ -562,7 +562,7 @@ impl Cli {
             }
         }
 
-        if let Some(embargo_date) = self.embargoed {
+        if let Some(schema::Date { value: embargo_date, ..}) = self.embargoed {
             debug_assert_eq!(&self.access_right, "embargoed", "logic error: --embargoed={:?} is set, but --access_right={}", embargo_date, self.access_right);
             if &self.access_right != "embargoed" {
                 message!("Note: An embargo date ({}) has been provided, but access right is set to {}. Replacing access right to `embargoed`.", embargo_date, self.access_right);
