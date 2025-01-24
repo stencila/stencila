@@ -306,8 +306,6 @@ export class UINodeCode extends LitElement {
       tr.newDoc.lines > 1 ? [] : tr
     )
 
-    console.log('single line', this.singleLine)
-
     return [
       this.patchInput(),
       this.viewEditable.of(EditorView.editable.of(!this.readOnly)),
