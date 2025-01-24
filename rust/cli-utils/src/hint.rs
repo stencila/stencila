@@ -22,6 +22,7 @@ pub struct Hint {
 
 impl Hint {
     #[inline]
+    #[must_use = "Users see nothing unless printed. Consider calling .to_stdout()"]
     pub fn new(hint: &str) -> Self {
         Hint {
             base: hint.to_string(),
@@ -30,6 +31,7 @@ impl Hint {
     }
 
     #[inline]
+    #[must_use = "Users see nothing unless printed. Consider calling .to_stdout()"]
     pub fn new_cli_only(hint: &str) -> Self {
         Hint {
             cli_advice: hint.to_string(),
@@ -38,6 +40,7 @@ impl Hint {
     }
 
     #[inline]
+    #[must_use = "Users see nothing unless printed. Consider calling .to_stdout()"]
     pub fn new_lsp_only(hint: &str) -> Self {
         Hint {
             lsp_advice: hint.to_string(),
