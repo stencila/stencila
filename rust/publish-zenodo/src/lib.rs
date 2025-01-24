@@ -173,7 +173,7 @@ pub struct Cli {
     #[arg(hide(true))] // needed for logic later, but not exposed to the user
     is_publication: bool,
 
-    /// Reserve a DOI for the deposition
+    /// Reserve a DOI for the deposition (overrides DOI in Article metadata, if any)
     #[arg(long)]
     #[arg(help_heading("Deposition Settings"), display_order(2))]
     #[arg(conflicts_with = "doi")]
@@ -222,7 +222,11 @@ pub struct Cli {
     #[arg(required_if_eq("access_right", "embargoed"))]
     license: Option<String>,
 
-    /// Set `--access-right` to closed
+    /// Closed Access
+    /// 
+    /// Public access of the deposition is not allowed. 
+    /// 
+    /// Shorthand for `--access-right=closed`.
     #[arg(group = "access")]
     #[arg(long)]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
@@ -230,15 +234,15 @@ pub struct Cli {
 
     /// Set `--access-right` to restricted
     #[arg(group = "access")]
-    #[arg(alias("restrict"))]
+    #[arg(alias = "restrict")]
     #[arg(long, value_name = "ACCESS_CONDITIONS")]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
     restricted: bool,
 
     /// Provide a date when the embargo ends
     #[arg(group = "access")]
-    #[arg(alias("embargo"))]
-    #[arg(alias("embargo_date"))]
+    #[arg(alias = "embargo")]
+    #[arg(alias = "embargo_date")]
     #[arg(long, value_name = "YYYY-MM-DD")]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
     #[arg(value_parser = parse_date)]
@@ -249,6 +253,7 @@ pub struct Cli {
     /// Describe the conditions of access to the deposition for
     /// be accessed when --access-right=restricted. HTML is allowed.
     #[arg(long)]
+    #[arg(help = "Conditions to fulfill to access deposition (HTML permitted)")]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
     #[arg(required_if_eq("access_right", "restricted"))]
     #[arg(required_if_eq("restricted", "true"))]
@@ -260,7 +265,7 @@ pub struct Cli {
     #[arg(long)]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
     #[arg(group = "access")]
-    #[arg(alias("access"))]
+    #[arg(alias = "access")]
     #[arg(value_parser([
         PossibleValue::new("open").help("Open Access. Sets the default license to CC-BY, e.g. --license='cc-by'."),
         PossibleValue::new("embargoed").help("Embargoed Access. Requires --access_conditions, --license, and --embargoed=<DATE>."),
@@ -275,20 +280,15 @@ pub struct Cli {
     #[arg(default_value = "open")]
     access_right: String,
 
-    /// Keywords for document
+    /// Comma-delimited list of keywords
     ///
-    /// To add multiple keywords, separate them with commas:
+    /// To add multiple keywords, separate them with commas: --keywords=testing,software
     /// 
-    ///     --keywords=testing,software
+    /// To include spaces in keywords, surround the list with quotes[*]: --keywords='testing,software,software testing'   
     /// 
-    /// To include spaces in keywords, surround the list with quotes*:
-    /// 
-    ///     --keywords='testing,software,software testing'
-    /// 
-    /// * The exact syntax will depend on your shell language.
+    /// [*] The exact syntax will depend on your shell language.
     #[arg(long)]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
-    #[arg(help("Keywords for document (comma-delimited list)"))]
     #[arg(require_equals(true), value_delimiter(','))]
     keywords: Vec<String>,
 
@@ -653,6 +653,16 @@ impl Cli {
                                 if message == "Field may not be null." {
                                     tracing::error!("Title missing from article.");
                                     cli_hint!("Provide a title with the --title flag.").to_stdout();
+                                } else {
+                                    tracing::error!("Problem with title: {:?}", message)
+                                }
+                            }
+                        },
+                        "metadata.license" => {
+                            for message in messages.iter().filter_map(|msg| msg.as_str()) {
+                                if message.starts_with("Invalid license") {
+                                    tracing::error!("Invalid license identifier provided.");
+                                    hint!("Check that you are using an identifier, rather than the license's full name. Many identifiers are available in human-readable form at <https://spdx.org/licenses/>. Zenodo's full list of supported licenses is provided programmatically at <https://zenodo.org/api/vocabularies/licenses>.").to_stdout();
                                 } else {
                                     tracing::error!("Problem with title: {:?}", message)
                                 }
