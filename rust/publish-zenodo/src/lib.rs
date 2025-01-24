@@ -294,139 +294,50 @@ impl Cli {
                     }
                 }
             }
-            let mut doi = None
-
-            if let Some(ids) = &article.options.identifiers {
-                for id in ids.iter() {
-                    if let Some(doi) = metadata_extraction::extract_doi(id) {
-                        return Some(doi.to_string());
-                    }
-                }
-            }
 
             if let Some(authors) = &article.authors {
 
                 for author in authors {
                     if let schema::Author::Person(person) = author {
-                                            let mut affiliation = None;
+                        let mut affiliation = None;
 
-                                            // Zenodo expects ORCIDs to be numbers and hyphens only, e.g,
-                                            // 0000-0000-0000-0000, although it the last digit can be a trailing
-                                            // X to indicate a checksum
-                                            let mut orcid = None;
+                        // Zenodo expects ORCIDs to be numbers and hyphens only, e.g,
+                        // 0000-0000-0000-0000, although it the last digit can be a trailing
+                        // X to indicate a checksum
+                        let mut orcid = None;
 
-                                            let name = metadata_extraction::extract_name(person);
+                        let name = metadata_extraction::extract_name(person);
 
-                                            // find orcid in list of identifiers
-                                            if let Some(ids) = person.options.identifiers.as_ref() {
-                                                for id in ids {
-                                                    orcid = metadata_extraction::extract_orcid(id);
+                        // find orcid in list of identifiers
+                        if let Some(ids) = person.options.identifiers.as_ref() {
+                            for id in ids {
+                                orcid = metadata_extraction::extract_orcid(id);
 
-                                                    if orcid.is_some() {
-                                                        break
-                                                    }
-                                                }
-                                            };
+                                if orcid.is_some() {
+                                    break
+                                }
+                            }
+                        };
 
-                                            if let Some(mut affs) = metadata_extraction::extract_affiliations(person) {
-                                                affiliation = affs.next();
+                        if let Some(mut affs) = metadata_extraction::extract_affiliations(person) {
+                            affiliation = affs.next();
 
-                                                if affiliation.is_some() && affs.next().is_some() {
-                                                    let name_part = name.as_ref().map(|name| { format!("({name}) ") }).unwrap_or_default();
-                                                    let org_part = affiliation.as_ref().map(|org| { format!("({org})") }).unwrap_or_default();
+                            if affiliation.is_some() && affs.next().is_some() {
+                                let name_part = name.as_ref().map(|name| { format!("({name}) ") }).unwrap_or_default();
+                                let org_part = affiliation.as_ref().map(|org| { format!("({org})") }).unwrap_or_default();
 
-                                                    tracing::warn!("The author {name_part}has multiple affiliations. Only the first {org_part}can be added programmatically by Stencila. Please edit the record within Zenodo before publication to make corrections.");
-                                                    break;
-                                                }
-                                            }
+                                tracing::warn!("The author {name_part}has multiple affiliations. Only the first {org_part}can be added programmatically by Stencila. Please edit the record within Zenodo before publication to make corrections.");
+                                break;
+                            }
+                        }
 
-                                            let creator = json!({
-                                                "name": name,
-                                                "affiliation": affiliation,
-                                                "orcid": orcid,
-                                            });
-                                            creators.push(creator);
-                                        }
-                                                    let name_part = name.as_ref().map(|name| { format!("({name}) ") }).unwrap_or_default();
-                                                    let org_part = affiliation.as_ref().map(|org| { format!("({org})") }).unwrap_or_default();
-
-                                                    tracing::warn!("The author {name_part}has multiple affiliations. Only the first {org_part}can be added programmatically by Stencila. Please edit the record within Zenodo before publication to make corrections.");
-                                                    break;
-                                                }
-                                            }
-
-                                            let creator = json!({
-            Some((title, description, creators, doi))
-                                                "affiliation": affiliation,
-                                                "orcid": orcid,
-                                            });
-                                            creators.push(creator);
-        if let Some((title, description, creators, doi)) = metadata_from_doc {
-            Some((title, description, creators, doi))
-                                                    let org_part = affiliation.as_ref().map(|org| { format!("({org})") }).unwrap_or_default();
-
-                                                    tracing::warn!("The author {name_part}has multiple affiliations. Only the first {org_part}can be added programmatically by Stencila. Please edit the record within Zenodo before publication to make corrections.");
-                                                    break;
-                                                }
-                                            }
-
-                                            let creator = json!({
-            Some((title, description, creators, doi))
-                                                "affiliation": affiliation,
-                                                "orcid": orcid,
-                                            });
-                                            creators.push(creator);
-        if let Some((title, description, creators, doi)) = metadata_from_doc {
-                }
-            }
-
-            Some((title, description, creators, doi))
-        }).await;
-
-        let mut deposit = json!({ "metadata": json!({})});
-
-        if let Some((title, description, creators, doi)) = metadata_from_doc {
-                                                }
-                                            }
-
-                                            let creator = json!({
-            Some((title, description, creators, doi))
-                                                "affiliation": affiliation,
-                                                "orcid": orcid,
-                                            });
-                                            creators.push(creator);
-        if let Some((title, description, creators, doi)) = metadata_from_doc {
-                }
-            }
-
-            Some((title, description, creators, doi))
-        }).await;
-
-        let mut deposit = json!({ "metadata": json!({})});
-
-        if let Some((title, description, creators, doi)) = metadata_from_doc {
-        }).await;
-
-        let mut deposit = json!({ "metadata": json!({})});
-
-        if let Some((title, description, creators)) = metadata_from_doc {
-        
-        }).await;
-
-        let mut deposit = json!({ "metadata": json!({})});
-
-        if let Some((title, description, creators)) = metadata_from_doc {
-        if let Some((title, description, creators, doi)) = metadata_from_doc {
-                                            }
-
-                                            let creator = json!({
-            Some((title, description, creators, doi))
-        
-                                                "affiliation": affiliation,
-                                                "orcid": orcid,
-                                            });
-                                            creators.push(creator);
-        if let Some((title, description, creators, doi)) = metadata_from_doc {
+                        let creator = json!({
+                            "name": name,
+                            "affiliation": affiliation,
+                            "orcid": orcid,
+                        });
+                        creators.push(creator);
+                    }
                 }
             }
 
