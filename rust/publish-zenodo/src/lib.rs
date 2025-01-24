@@ -237,44 +237,6 @@ pub struct Cli {
     dry_run: bool,
 }
 
-/// Create an article's filename from article title by:
-/// - Converting to lowercase
-/// - Replacing non-alphanumeric chars with hyphens
-/// - Collapsing multiple hyphens
-/// - Trimming hyphens from start/end
-/// - Defaulting to "untitled"
-fn make_filename(title: &Option<Vec<schema::Inline>>) -> Result<String> {
-    let title_text = title
-        .as_ref()
-        .map(codec_text::to_text)
-        .unwrap_or_else(|| "untitled".to_string());
-
-    let mut result = String::new();
-    let mut last_was_hyphen = true; // To prevent starting with hyphen
-
-    for c in title_text.chars().flat_map(char::to_lowercase) {
-        if c.is_alphanumeric() {
-            result.push(c);
-            last_was_hyphen = false;
-        } else if !last_was_hyphen {
-            result.push('-');
-            last_was_hyphen = true;
-        }
-    }
-
-    // Trim trailing hyphen if exists
-    if result.ends_with('-') {
-        result.pop();
-    }
-
-    // Return "untitled" if no valid chars were found
-    if result.is_empty() {
-        Ok("untitled".to_string())
-    } else {
-        Ok(result)
-    }
-}
-
 impl Cli {
     pub async fn run(self) -> Result<()> {
         // Check preconditions first
@@ -612,6 +574,44 @@ impl Cli {
         }
 
         Ok(())
+    }
+}
+
+/// Create an article's filename from article title by:
+/// - Converting to lowercase
+/// - Replacing non-alphanumeric chars with hyphens
+/// - Collapsing multiple hyphens
+/// - Trimming hyphens from start/end
+/// - Defaulting to "untitled"
+fn make_filename(title: &Option<Vec<schema::Inline>>) -> Result<String> {
+    let title_text = title
+        .as_ref()
+        .map(codec_text::to_text)
+        .unwrap_or_else(|| "untitled".to_string());
+
+    let mut result = String::new();
+    let mut last_was_hyphen = true; // To prevent starting with hyphen
+
+    for c in title_text.chars().flat_map(char::to_lowercase) {
+        if c.is_alphanumeric() {
+            result.push(c);
+            last_was_hyphen = false;
+        } else if !last_was_hyphen {
+            result.push('-');
+            last_was_hyphen = true;
+        }
+    }
+
+    // Trim trailing hyphen if exists
+    if result.ends_with('-') {
+        result.pop();
+    }
+
+    // Return "untitled" if no valid chars were found
+    if result.is_empty() {
+        Ok("untitled".to_string())
+    } else {
+        Ok(result)
     }
 }
 
