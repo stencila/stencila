@@ -173,7 +173,8 @@ export class IfBlockClause extends CodeExecutable {
           .code-authorship=${this.codeAuthorship}
           language=${this.programmingLanguage}
           execution-required=${this.executionRequired}
-          read-only
+          ?read-only=${['Running', 'Pending'].includes(this.executionStatus)}
+          single-line
           node-id=${this.id}
           no-gutters
           container-classes="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
