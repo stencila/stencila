@@ -202,6 +202,15 @@ pub struct Cli {
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
     description: Option<String>,
 
+    /// Version of document
+    ///
+    /// NOTE: this is a free text field and all inputs are be accepted. However,
+    /// the suggested format is a semantically versioned tag (see more details
+    /// on semantic versioning at semver.org).
+    #[arg(long)]
+    #[arg(help_heading("Deposition Metadata"), display_order(3))]
+    version: Option<String>,
+
     /// Upload document as a "publication"
     ///
     /// Provide one of the publication types from Zenodo's controlled vocabulary.
@@ -356,6 +365,10 @@ impl Cli {
 
         if let Some(date) = self.publication_date {
             deposit["metadata"]["publication_date"] = json!(date);
+        }
+
+        if let Some(ver) = self.version {
+            deposit["metadata"]["version"] = json!(ver); 
         }
 
         if self.lesson {
