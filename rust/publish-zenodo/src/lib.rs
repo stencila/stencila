@@ -272,26 +272,6 @@ impl Cli {
             bail!("Document root is not an Article");
         };
 
-        let doi = doc
-            .inspect(|root| {
-
-                let Node::Article(article) = root else {
-                    return None;
-                };
-
-                // return the first DOI in the article's identifiers
-                if let Some(ids) = &article.options.identifiers {
-                    for id in ids.iter() {
-                        if let Some(doi) = metadata_extraction::extract_doi(id) {
-                            return Some(doi.to_string());
-                        }
-                    }
-                }
-
-                None
-            })
-            .await;
-
         // Determine server URL
         let server_url = if self.sandbox {
             url::Host::parse("sandbox.zenodo.org")?
@@ -305,6 +285,24 @@ impl Cli {
             let title = article.title.as_ref().map(codec_text::to_text).or_else(|| self.title.clone()).unwrap_or_else(|| { "Untitled".to_string() });
             let description = article.description.as_ref().map(codec_text::to_text);
             let mut creators = Vec::new();
+            let mut doi = None
+
+            if let Some(ids) = &article.options.identifiers {
+                for id in ids.iter() {
+                    if let Some(doi) = metadata_extraction::extract_doi(id) {
+                        return Some(doi.to_string());
+                    }
+                }
+            }
+            let mut doi = None
+
+            if let Some(ids) = &article.options.identifiers {
+                for id in ids.iter() {
+                    if let Some(doi) = metadata_extraction::extract_doi(id) {
+                        return Some(doi.to_string());
+                    }
+                }
+            }
 
             if let Some(authors) = &article.authors {
 
@@ -349,10 +347,101 @@ impl Cli {
                                             });
                                             creators.push(creator);
                                         }
+                                                    let name_part = name.as_ref().map(|name| { format!("({name}) ") }).unwrap_or_default();
+                                                    let org_part = affiliation.as_ref().map(|org| { format!("({org})") }).unwrap_or_default();
+
+                                                    tracing::warn!("The author {name_part}has multiple affiliations. Only the first {org_part}can be added programmatically by Stencila. Please edit the record within Zenodo before publication to make corrections.");
+                                                    break;
+                                                }
+                                            }
+
+                                            let creator = json!({
+            Some((title, description, creators, doi))
+                                                "affiliation": affiliation,
+                                                "orcid": orcid,
+                                            });
+                                            creators.push(creator);
+        if let Some((title, description, creators, doi)) = metadata_from_doc {
+            Some((title, description, creators, doi))
+                                                    let org_part = affiliation.as_ref().map(|org| { format!("({org})") }).unwrap_or_default();
+
+                                                    tracing::warn!("The author {name_part}has multiple affiliations. Only the first {org_part}can be added programmatically by Stencila. Please edit the record within Zenodo before publication to make corrections.");
+                                                    break;
+                                                }
+                                            }
+
+                                            let creator = json!({
+            Some((title, description, creators, doi))
+                                                "affiliation": affiliation,
+                                                "orcid": orcid,
+                                            });
+                                            creators.push(creator);
+        if let Some((title, description, creators, doi)) = metadata_from_doc {
                 }
             }
 
-            Some((title, description, creators))
+            Some((title, description, creators, doi))
+        }).await;
+
+        let mut deposit = json!({ "metadata": json!({})});
+
+        if let Some((title, description, creators, doi)) = metadata_from_doc {
+                                                }
+                                            }
+
+                                            let creator = json!({
+            Some((title, description, creators, doi))
+                                                "affiliation": affiliation,
+                                                "orcid": orcid,
+                                            });
+                                            creators.push(creator);
+        if let Some((title, description, creators, doi)) = metadata_from_doc {
+                }
+            }
+
+            Some((title, description, creators, doi))
+        }).await;
+
+        let mut deposit = json!({ "metadata": json!({})});
+
+        if let Some((title, description, creators, doi)) = metadata_from_doc {
+        }).await;
+
+        let mut deposit = json!({ "metadata": json!({})});
+
+        if let Some((title, description, creators)) = metadata_from_doc {
+        
+        }).await;
+
+        let mut deposit = json!({ "metadata": json!({})});
+
+        if let Some((title, description, creators)) = metadata_from_doc {
+        if let Some((title, description, creators, doi)) = metadata_from_doc {
+                                            }
+
+                                            let creator = json!({
+            Some((title, description, creators, doi))
+        
+                                                "affiliation": affiliation,
+                                                "orcid": orcid,
+                                            });
+                                            creators.push(creator);
+        if let Some((title, description, creators, doi)) = metadata_from_doc {
+                }
+            }
+
+            Some((title, description, creators, doi))
+        }).await;
+
+        let mut deposit = json!({ "metadata": json!({})});
+
+        if let Some((title, description, creators, doi)) = metadata_from_doc {
+        }).await;
+
+        let mut deposit = json!({ "metadata": json!({})});
+
+        if let Some((title, description, creators)) = metadata_from_doc {
+        
         }).await;
 
         let mut deposit = json!({ "metadata": json!({})});
@@ -362,6 +451,7 @@ impl Cli {
             deposit["metadata"]["description"] = json!(description);
             deposit["metadata"]["creators"] = json!(creators);
         }
+        
         if let Some(title_from_args) = self.title {
             deposit["metadata"]["title"] = json!(title_from_args);
         }
