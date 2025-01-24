@@ -7,7 +7,7 @@ use std::{
 use cli_utils::{cli_hint, hint, message, parse_host, ToStdout};
 
 use common::{
-    clap::{self, builder::ArgPredicate, Parser},
+    clap::{self, builder::{ArgPredicate, PossibleValue}, Parser, ValueHint},
     eyre::{bail, OptionExt, Result},
     reqwest::Client,
     serde,
@@ -109,6 +109,7 @@ pub struct Cli {
     /// Path to location of what to publish
     #[arg(default_value = ".")]
     #[arg(display_order(0))]
+    #[arg(value_hint(ValueHint::FilePath))]
     path: PathBuf,
 
     /// Zenodo authentication token
@@ -178,6 +179,15 @@ pub struct Cli {
     #[arg(conflicts_with = "doi")]
     reserve_doi: bool,
 
+    /// Supply an existing DOI 
+    /// 
+    /// Use this field to provide a DOI that has already been issued
+    /// for the material you are depositing.
+    #[arg(long)]
+    #[arg(help_heading("Deposition Settings"), display_order(2))]
+    #[arg(value_parser = metadata_extraction::parse_doi)]
+    doi: Option<String>,
+
     /// Publication date
     ///
     /// Provide the date formatted as YYYY-MM-DD, e.g. 2012-03-10.
@@ -198,18 +208,72 @@ pub struct Cli {
     /// Description to use within the deposition
     ///
     /// Required when the information is not available within the document.
+    /// HTML is allowed.
     #[arg(long)]
+    #[arg(help("Description notes (HTML permitted)"))]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
     description: Option<String>,
 
-    /// Supply existing DOI 
-    /// 
-    /// Use this field to provide a DOI that has already been issued
-    /// for the material you are depositing.
+    /// License Identifier (examples: cc-by, cc0)
     #[arg(long)]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
-    #[arg(value_parser = metadata_extraction::parse_doi)]
-    doi: Option<String>,
+    #[arg(default_value_if("access_right", "restricted", None))]
+    #[arg(default_value_if("access_right", "open", Some("cc-by")))]
+    #[arg(required_if_eq("access_right", "embargoed"))]
+    license: Option<String>,
+
+    /// Set `--access-right` to closed
+    #[arg(group = "access")]
+    #[arg(long)]
+    #[arg(help_heading("Deposition Metadata"), display_order(3))]
+    closed: bool,
+
+    /// Set `--access-right` to restricted
+    #[arg(group = "access")]
+    #[arg(alias("restrict"))]
+    #[arg(long, value_name = "ACCESS_CONDITIONS")]
+    #[arg(help_heading("Deposition Metadata"), display_order(3))]
+    restricted: bool,
+
+    /// Provide a date when the embargo ends
+    #[arg(group = "access")]
+    #[arg(alias("embargo"))]
+    #[arg(alias("embargo_date"))]
+    #[arg(long, value_name = "YYYY-MM-DD")]
+    #[arg(help_heading("Deposition Metadata"), display_order(3))]
+    #[arg(value_parser = parse_date)]
+    embargoed: Option<schema::Date>,
+
+    /// Conditions to fulfill to access deposition
+    ///
+    /// Describe the conditions of access to the deposition for
+    /// be accessed when --access-right=restricted. HTML is allowed.
+    #[arg(long)]
+    #[arg(help_heading("Deposition Metadata"), display_order(3))]
+    #[arg(required_if_eq("access_right", "restricted"))]
+    #[arg(required_if_eq("restricted", "true"))]
+    access_conditions: Option<String>,
+
+    /// Access right
+    /// 
+    /// 
+    #[arg(long)]
+    #[arg(help_heading("Deposition Metadata"), display_order(3))]
+    #[arg(group = "access")]
+    #[arg(alias("access"))]
+    #[arg(value_parser([
+        PossibleValue::new("open").help("Open Access. Sets the default license to CC-BY, e.g. --license='cc-by'."),
+        PossibleValue::new("embargoed").help("Embargoed Access. Requires --access_conditions, --license, and --embargoed=<DATE>."),
+        PossibleValue::new("restricted").help("Restricted Access. Requires --access_conditions."),
+        PossibleValue::new("closed").help("Closed Access.")
+    ]))]
+    #[arg(default_value_ifs = [
+        ("restricted", ArgPredicate::Equals("true".into()), "restricted"),
+        ("embargoed", ArgPredicate::IsPresent, "embargoed"),
+        ("closed", ArgPredicate::Equals("true".into()), "closed"),
+    ])]
+    #[arg(default_value = "open")]
+    access_right: String,
 
     /// Keywords for document
     ///
@@ -227,13 +291,21 @@ pub struct Cli {
     #[arg(help("Keywords for document (comma-delimited list)"))]
     #[arg(require_equals(true), value_delimiter(','))]
     keywords: Vec<String>,
-    
+
+    /// Methodology
+    ///
+    /// Free-form description of the methodology used in this research.
+    /// HTML is allowed. 
+    #[arg(long)]
+    #[arg(help_heading("Deposition Metadata"), display_order(3))]
+    #[arg(help("Methodology (HTML permitted)"))]
+    method: Option<String>,
+
+
     /// Additional Notes
     ///
     /// Any additional notes that to do not fit within the description.
-    /// 
-    /// HTML is allowed, but malformed input may cause validation errors
-    /// when it is checked by Zenodo. 
+    /// HTML is allowed. 
     #[arg(long)]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
     #[arg(help("Additional notes (HTML permitted)"))]
@@ -409,6 +481,10 @@ impl Cli {
             deposit["metadata"]["keywords"] = json!(kw); 
         }
 
+        if let Some(method) = self.method {
+            deposit["metadata"]["method"] = json!(method);
+        }
+
         if let Some(notes) = self.notes {
             deposit["metadata"]["notes"] = json!(notes); 
         }
@@ -474,7 +550,48 @@ impl Cli {
             deposit["metadata"]["doi"] = json!(doi)
         }
 
+
+        deposit["metadata"]["access_right"] = json!(self.access_right.clone());
+        deposit["metadata"]["license"] = json!(self.license);
+
+        if cfg!(debug_assertions) {
+            if let Some(license) = self.license {
+                 if license == "cc-by" || license == "cc0" {
+                    debug_assert_eq!(self.access_right, "open");
+                 }
+            }
+        }
+
+        if let Some(embargo_date) = self.embargoed {
+            debug_assert_eq!(&self.access_right, "embargoed", "logic error: --embargoed={:?} is set, but --access_right={}", embargo_date, self.access_right);
+            if &self.access_right != "embargoed" {
+                message!("Note: An embargo date ({}) has been provided, but access right is set to {}. Replacing access right to `embargoed`.", embargo_date, self.access_right);
+            }
+            deposit["metadata"]["embargo_date"] = json!(embargo_date);
+            deposit["metadata"]["access_right"] = json!("embargoed");
+        }
+
+        if self.restricted {
+            debug_assert_eq!(&self.access_right, "restricted", "logic error: --restricted is set, but --access_right={}", self.access_right);
+            debug_assert!(self.access_conditions.is_none(), "logic error: --restricted is set, but --access_conditions has not been provided");
+            deposit["metadata"]["access_right"] = json!("restricted");
+        }
+
+        if self.closed {
+            debug_assert_eq!(&self.access_right, "closed", "logic error: --closed is set, but --access_right={}", self.access_right);
+            deposit["metadata"]["access_right"] = json!("closed");
+        }
+
+        if let Some(conditions) = self.access_conditions {
+            deposit["metadata"]["access_conditions"] = json!(conditions);
+        }
+
         tracing::debug!(metadata_provided = ?deposit, "Creating deposit");
+
+        if self.dry_run {
+            message!("🏁🏃‍♀️ Dry run completed").to_stdout();
+            return Ok(());
+        }
 
         // Create HTTP client
         let client = Client::new();
