@@ -303,10 +303,16 @@ impl Cli {
             bail!("Unable to create a Document from file at {}", self.path.display());
         };
         doc.compile(CommandWait::Yes).await?;
+     
+        // Pre-check: ensure that we have an Article
+        let Node::Article(_) = &doc.root().await else {
+            tracing::info!("Internal error: Document root is not an Article");
+            bail!("Document root is not an Article");
+        };
 
         let doi = doc
             .inspect(|root| {
-                // skip anything that isn't an article
+
                 let Node::Article(article) = root else {
                     return None;
                 };
@@ -323,13 +329,6 @@ impl Cli {
                 None
             })
             .await;
-
-        // Get the root node and ensure it's an Article
-        let root = doc.root().await;
-        let Node::Article(ref article) = &root else {
-            tracing::error!("Internal error: Document root is not an Article");
-            bail!("Document root must be an Article");
-        };
 
         let doc_updated = Arc::new(Mutex::new(false));
         let doc_updated_ = Arc::clone(&doc_updated);
