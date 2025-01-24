@@ -7,14 +7,14 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use cli_utils::{parse_host, ToStdout};
+use cli_utils::{hint, parse_host, ToStdout};
 use codec::{
     schema::{Primitive, PropertyValue, PropertyValueOrString},
     Codec,
 };
 use common::{
     clap::{self, builder::ArgPredicate, Parser},
-    eyre::{bail, OptionExt, Result},
+    eyre::{bail, Context, OptionExt, Result},
     reqwest::Client,
     serde,
     serde_json::{json, Value},
@@ -296,7 +296,12 @@ impl Cli {
         }
 
         // Open and compile document
-        let doc = Document::open(&self.path).await?;
+        let Ok(doc) = Document::open(&self.path).await else {
+            tracing::error!("Document root is not an Article");
+            hint!("Attempt to re-render a standalone document and retry.");
+            hint_cli!("If you built the file with `stencila render`, try adding the `--standalone` flag.")            
+            bail!("Unable to create a Document from file at {}", self.path.display());
+        };
         doc.compile(CommandWait::Yes).await?;
 
         let doi = doc
