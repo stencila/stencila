@@ -158,14 +158,14 @@ pub struct Article {
     /// Under which circumstances the node should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
 
     /// Under which circumstances child nodes should be executed.
     #[serde(alias = "execution-bounds", alias = "execution_bounds")]
     #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_bounds: Option<ExecutionBounds>,
 

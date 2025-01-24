@@ -116,6 +116,7 @@ import paperclip from './paperclip.svg'
 import paragraph from './paragraph.svg'
 import person from './person.svg'
 import playCircle from './play-circle.svg'
+import playFill from './play-fill.svg'
 import play from './play.svg'
 import plusCircle from './plus-circle.svg'
 import postage from './postage.svg'
@@ -135,6 +136,7 @@ import skipStart from './skip-start.svg'
 import slashCircle from './slash-circle.svg'
 import sliders from './sliders.svg'
 import speedometer from './speedometer.svg'
+import squareFill from './square-fill.svg'
 import square from './square.svg'
 import starFill from './star-fill.svg'
 import stencilaColor from './stencila-color.svg'
@@ -250,6 +252,7 @@ const icons = {
   person,
   play,
   playCircle,
+  playFill,
   plusCircle,
   postage,
   python,
@@ -270,6 +273,7 @@ const icons = {
   sliders,
   speedometer,
   square,
+  squareFill,
   starFill,
   stencila,
   stencilaColor,

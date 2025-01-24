@@ -19,6 +19,9 @@
     "elem": "title",
     "special": true
   },
+  "latex": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },
@@ -62,6 +65,7 @@
           "myst",
           "ipynb",
           "qmd",
+          "latex",
           "lexical",
           "koenig"
         ]

@@ -53,6 +53,30 @@ impl DomCodec for Heading {
     }
 }
 
+impl LatexCodec for Heading {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        context.enter_node(self.node_type(), self.node_id());
+
+        let command = match self.level {
+            1 => "section",
+            2 => "subsection",
+            3 => "subsubsection",
+            4 => "paragraph",
+            _ => "subparagraph",
+        };
+
+        context
+            .command_enter(command)
+            .property_fn(NodeProperty::Content, |context| {
+                self.content.to_latex(context)
+            })
+            .command_exit()
+            .newline()
+            .exit_node()
+            .newline();
+    }
+}
+
 impl MarkdownCodec for Heading {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context

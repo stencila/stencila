@@ -4,6 +4,8 @@ extends: Executable
 category: flow
 description: Include block content from an external source (e.g. file, URL).
 status: under-development
+latex:
+  derive: false
 markdown:
   derive: false
 proptest: {}
@@ -20,7 +22,7 @@ properties:
     type: string
     strip: [code]
     patch:
-      formats: [md, smd, myst, ipynb, qmd]
+      formats: [md, smd, myst, ipynb, qmd, latex]
     proptest:
       min:
         description: Generate a fixed path.

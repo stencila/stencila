@@ -169,13 +169,15 @@ expression: specs
   "latex": {
     "status": "under-development",
     "supports_from_formats": {
-      "latex": "LowLoss"
+      "latex": "LowLoss",
+      "tex": "LowLoss"
     },
     "supports_from_bytes": false,
     "supports_from_string": true,
     "supports_from_path": true,
     "supports_to_formats": {
-      "latex": "LowLoss"
+      "latex": "LowLoss",
+      "tex": "LowLoss"
     },
     "supports_to_bytes": false,
     "supports_to_string": true,

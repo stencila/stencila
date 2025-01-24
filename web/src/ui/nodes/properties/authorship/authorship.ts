@@ -1,4 +1,4 @@
-import { consume } from '@lit/context'
+import { ContextConsumer } from '@lit/context'
 import { ProvenanceCategory } from '@stencila/types'
 import { LitElement, html, css, PropertyValueMap } from 'lit'
 import { property, customElement, state } from 'lit/decorators'
@@ -21,13 +21,11 @@ import { getTooltipContent } from './utils'
 @customElement('stencila-authorship')
 @withTwind()
 export class StencilaAuthorship extends LitElement {
-  @consume({ context: entityContext, subscribe: true })
   @state()
-  entityContext: EntityContext
+  entityContext: ContextConsumer<{ __context__: EntityContext }, this>
 
-  @consume({ context: documentContext, subscribe: true })
   @state()
-  documentContext: DocumentContext
+  documentContext: ContextConsumer<{ __context__: DocumentContext }, this>
 
   /**
    * Number of authors who have ever edited this content.
@@ -106,10 +104,27 @@ export class StencilaAuthorship extends LitElement {
     }
   }
 
+  override updated(changedProperties: PropertyValueMap<this>) {
+    super.updated(changedProperties)
+    // Wait for context to be available
+    if (!this.entityContext) {
+      this.entityContext = new ContextConsumer(this, {
+        context: entityContext,
+        subscribe: true,
+      })
+    }
+    if (!this.documentContext) {
+      this.documentContext = new ContextConsumer(this, {
+        context: documentContext,
+        subscribe: true,
+      })
+    }
+  }
+
   override render() {
     const showHighlights =
-      this.documentContext?.showAllAuthorshipHighlight ||
-      this.entityContext?.cardOpen
+      this.documentContext?.value?.showAllAuthorshipHighlight ||
+      this.entityContext?.value?.cardOpen
 
     if (showHighlights) {
       return this.renderHighlights()

@@ -268,7 +268,10 @@ impl PatchNode for InstructionBlock {
                             .op_additional(path, PatchOp::Insert(blocks));
                     }
                 }
-                InstructionType::Edit | InstructionType::Fix | InstructionType::Describe => {
+                InstructionType::Edit
+                | InstructionType::Fix
+                | InstructionType::Describe
+                | InstructionType::Discuss => {
                     // Merge the accepted content into the existing content and replace
                     // the instruction with that merged content
                     let merged = if let Some(content) = self.content.as_ref() {

@@ -50,6 +50,19 @@ export class CodeChunk extends CodeExecutable {
       return this.renderContent()
     }
 
+    // render with the `insert` chip in model chat response
+    if (this.isWithinModelChatMessage()) {
+      return html`
+        <div class="group relative">
+          ${this.renderInsertChip()} ${this.renderCard()}
+        </div>
+      `
+    }
+
+    return this.renderCard()
+  }
+
+  renderCard() {
     const { icon, title } = getTitleIcon(this.programmingLanguage) ?? {
       title: 'Code Chunk',
       icon: 'code',
@@ -64,17 +77,12 @@ export class CodeChunk extends CodeExecutable {
       ?noVisibleContent=${!this.hasOutputs}
     >
       <span slot="header-right" class="flex flex-row items-center gap-3">
-        <stencila-ui-node-chat-commands
-          type="CodeChunk"
-          node-id=${this.id}
-          depth=${this.depth}
-        >
-        </stencila-ui-node-chat-commands>
-
         <stencila-ui-node-execution-commands
           type="CodeChunk"
           node-id=${this.id}
           depth=${this.depth}
+          status=${this.executionStatus}
+          required=${this.executionRequired}
         >
         </stencila-ui-node-execution-commands>
       </span>
@@ -117,7 +125,7 @@ export class CodeChunk extends CodeExecutable {
       </div>
 
       <div slot="content">${this.renderContent()}</div>
-    </stencila-ui-block-on-demand>`
+    </stencila-ui-block-on-demand> `
   }
 
   /*

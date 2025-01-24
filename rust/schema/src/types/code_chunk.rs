@@ -48,20 +48,20 @@ pub struct CodeChunk {
     /// Under which circumstances the node should be executed.
     #[serde(alias = "execution-mode", alias = "execution_mode")]
     #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
 
     /// Under which circumstances child nodes should be executed.
     #[serde(alias = "execution-bounds", alias = "execution_bounds")]
     #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_bounds: Option<ExecutionBounds>,
 
     /// The code.
     #[strip(code)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::from("code")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9]{1,10}".prop_map(Cord::from)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::from)"#))]
@@ -72,7 +72,7 @@ pub struct CodeChunk {
     /// The programming language of the code.
     #[serde(alias = "programming-language", alias = "programming_language")]
     #[strip(code)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Some(String::from("lang"))"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"(cpp)|(js)|(py)|(r)|(ts)")"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]{1,10}")"#))]

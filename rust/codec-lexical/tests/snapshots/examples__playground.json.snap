@@ -139,7 +139,12 @@ snapshot_kind: text
                   "value": {
                     "string": "Visit the "
                   }
-                },
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Link",
                   "content": [
@@ -151,7 +156,12 @@ snapshot_kind: text
                     }
                   ],
                   "target": "https://lexical.dev/"
-                },
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Text",
                   "value": {
@@ -173,7 +183,12 @@ snapshot_kind: text
                   "value": {
                     "string": "Check out the code on our "
                   }
-                },
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Link",
                   "content": [
@@ -185,7 +200,12 @@ snapshot_kind: text
                     }
                   ],
                   "target": "https://github.com/facebook/lexical"
-                },
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Text",
                   "value": {
@@ -207,7 +227,12 @@ snapshot_kind: text
                   "value": {
                     "string": "Playground code can be found "
                   }
-                },
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Link",
                   "content": [
@@ -219,7 +244,12 @@ snapshot_kind: text
                     }
                   ],
                   "target": "https://github.com/facebook/lexical/tree/main/packages/lexical-playground"
-                },
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Text",
                   "value": {
@@ -241,7 +271,12 @@ snapshot_kind: text
                   "value": {
                     "string": "Join our "
                   }
-                },
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Link",
                   "content": [
@@ -253,7 +288,12 @@ snapshot_kind: text
                     }
                   ],
                   "target": "https://discord.com/invite/KmG4wQnnD9"
-                },
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Text",
                   "value": {

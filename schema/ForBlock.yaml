@@ -5,6 +5,8 @@ extends: CodeExecutable
 category: flow
 description: Repeat a block content for each item in an array.
 status: under-development
+latex:
+  derive: false
 markdown:
   derive: false
 proptest: {}
@@ -21,7 +23,7 @@ properties:
     type: string
     strip: [code]
     patch:
-      formats: [md, smd, myst, ipynb, qmd]
+      formats: [md, smd, myst, ipynb, qmd, latex]
     proptest:
       min:
         description: Generate a fixed variable name.
@@ -47,7 +49,7 @@ properties:
     strip: [code]
     walk: true
     patch:
-      formats: [md, smd, myst, ipynb, qmd]
+      formats: [md, smd, myst, ipynb, qmd, latex]
     dom:
       elem: div
     proptest:

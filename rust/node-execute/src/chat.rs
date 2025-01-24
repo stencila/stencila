@@ -8,8 +8,8 @@ use schema::{
     authorship,
     shortcuts::{adm, p, t},
     AdmonitionType, Author, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ChatMessageGroup,
-    ChatMessageOptions, ExecutionBounds, InstructionMessage, MessagePart, MessageRole,
-    ModelParameters, SoftwareApplication,
+    ChatMessageOptions, ExecutionBounds, InstructionMessage, InstructionType, MessagePart,
+    MessageRole, ModelParameters, Patch, PatchPath, PatchSlot, SoftwareApplication,
 };
 
 use crate::{
@@ -26,6 +26,36 @@ impl Executable for Chat {
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
         tracing::trace!("Compiling Chat {node_id}");
+
+        // If the prompt does not yet have a target then default to a general discussion prompt
+        // if not embedded in a document, otherwise a document focussed prompt. This is a fallback and
+        // it is better to set these at creation, if possible
+        if self.prompt.target.is_none()
+            && matches!(
+                self.prompt.instruction_type,
+                None | Some(InstructionType::Discuss)
+            )
+        {
+            let target = if self.is_temporary.is_some() {
+                "stencila/discuss/document"
+            } else {
+                "stencila/discuss/anything"
+            }
+            .to_string();
+
+            self.prompt.target = Some(target.clone());
+            executor.send_patch(Patch {
+                node_id: Some(node_id),
+                ops: vec![(
+                    PatchPath::from([
+                        PatchSlot::from(NodeProperty::Prompt),
+                        PatchSlot::from(NodeProperty::Target),
+                    ]),
+                    PatchOp::Set(PatchValue::String(target)),
+                )],
+                ..Default::default()
+            });
+        }
 
         // Call `prompt.compile` directly because a `PromptBlock` that
         // is not a `Block::PromptBlock` variant is not walked over

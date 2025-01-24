@@ -13,6 +13,8 @@ html:
 jats:
   special: true
   elem: article
+latex:
+  derive: false
 markdown:
   derive: false
 proptest: {}

@@ -21,8 +21,6 @@ pub struct Cli {
     pub command: Command,
 
     /// Display debug level logging and detailed error reports
-    ///
-    /// Equivalent to using `--log-level=debug`, `--log-format=pretty`, and `--error-details=all`
     #[arg(
         long,
         global = true,
@@ -34,11 +32,10 @@ pub struct Cli {
     pub debug: bool,
 
     /// Display trace level logging and detailed error reports
-    ///
-    /// Equivalent to using `--log-level=trace`, `--log-format=pretty`, and `--error-details=all`
     #[arg(
         long,
         global = true,
+        hide = true,
         conflicts_with = "debug",
         conflicts_with = "log_level",
         conflicts_with = "log_format",
@@ -47,7 +44,7 @@ pub struct Cli {
     pub trace: bool,
 
     /// The minimum log level to output
-    #[arg(long, default_value = "info", global = true)]
+    #[arg(long, default_value = "info", global = true, hide = true)]
     pub log_level: LoggingLevel,
 
     /// A filter for log entries
@@ -58,7 +55,8 @@ pub struct Cli {
     #[arg(
         long,
         default_value = "globset=warn,hyper=info,hyper_util=info,ignore=warn,mio=info,notify=warn,ort=error,reqwest=info,sled=info,tokio=info,tungstenite=info",
-        global = true
+        global = true,
+        hide = true
     )]
     pub log_filter: String,
 
@@ -66,17 +64,17 @@ pub struct Cli {
     ///
     /// When `auto`, uses `simple` for terminals and `json`
     /// for non-TTY devices.
-    #[arg(long, default_value = "auto", global = true)]
+    #[arg(long, default_value = "auto", global = true, hide = true)]
     pub log_format: LoggingFormat,
 
     /// The details to include in error reports
     ///
     /// `auto`, `all`, or a comma separated list including `location`, `span`, or `env`.
-    #[arg(long, default_value = "auto", global = true)]
+    #[arg(long, default_value = "auto", global = true, hide = true)]
     pub error_details: String,
 
     /// Output a link to more easily report an issue
-    #[arg(long, global = true)]
+    #[arg(long, global = true, hide = true)]
     pub error_link: bool,
 }
 

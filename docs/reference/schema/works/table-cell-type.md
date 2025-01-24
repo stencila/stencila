@@ -2,8 +2,8 @@
 
 **Indicates whether the cell is a header or data.**
 
-When `Header`, the cell is similar to the HTML [`<th>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th)).
-When `Data`, the cell is similar to the HTML [`<td>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td)).
+When `HeaderCell`, the cell is similar to the HTML [`<th>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th)).
+When `DataCell`, the cell is similar to the HTML [`<td>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td)).
 
 
 **`@id`**: `stencila:TableCellType`

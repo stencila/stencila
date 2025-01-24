@@ -65,7 +65,7 @@ impl Codec for PandocCodec {
     ) -> Result<(Node, DecodeInfo)> {
         let pandoc = serde_json::from_str(str)?;
 
-        root_from_pandoc(pandoc)
+        root_from_pandoc(pandoc, Format::Pandoc)
     }
 
     async fn to_string(
@@ -73,7 +73,7 @@ impl Codec for PandocCodec {
         node: &Node,
         options: Option<EncodeOptions>,
     ) -> Result<(String, EncodeInfo)> {
-        let (pandoc, info) = root_to_pandoc(node)?;
+        let (pandoc, info) = root_to_pandoc(node, Format::Pandoc)?;
 
         let json = match options.and_then(|options| options.compact) {
             Some(true) | None => serde_json::to_string(&pandoc)?,

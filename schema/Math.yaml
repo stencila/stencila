@@ -22,7 +22,7 @@ properties:
     $ref: Cord
     strip: [code]
     patch:
-      formats: [md, smd, myst, ipynb, qmd]
+      formats: [md, smd, myst, ipynb, qmd, latex]
     proptest:
       min:
         description: Generate a simple fixed string of math.

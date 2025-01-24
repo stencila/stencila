@@ -321,10 +321,11 @@ class InstructionType(StrEnum):
     The type of an instruction describing the operation to be performed.
     """
 
+    Discuss = "Discuss"
     Create = "Create"
+    Describe = "Describe"
     Edit = "Edit"
     Fix = "Fix"
-    Describe = "Describe"
 
 
 class LabelType(StrEnum):

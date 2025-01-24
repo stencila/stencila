@@ -9,7 +9,7 @@ use winnow::{
     error::{ErrMode, ErrorKind, ParserError},
     stream::Stream,
     token::{none_of, take_until, take_while},
-    Located, PResult, Parser,
+    LocatingSlice as Located, PResult, Parser,
 };
 
 use codec::{

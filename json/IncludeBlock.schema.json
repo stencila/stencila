@@ -9,6 +9,9 @@
   "category": "flow",
   "description": "Include block content from an external source (e.g. file, URL).",
   "status": "under-development",
+  "latex": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },
@@ -60,7 +63,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "$ref": "ExecutionMode.schema.json"
@@ -81,7 +85,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "$ref": "ExecutionBounds.schema.json"
@@ -327,7 +332,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "proptest": {

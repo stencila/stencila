@@ -57,8 +57,8 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let struct_name = type_attr.ident;
 
     if let Some(template) = type_attr.template {
-        // When a template is provided render each of the interpolated string and push the other content
-        // in between
+        // If a Markdown template is provided, render each of the interpolated strings
+        // and push the other content between
         let mut fields = TokenStream::new();
         let mut included = vec![];
         for segment in template
@@ -140,8 +140,8 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             }
         }
     } else {
-        // Fallback is to encode all fields but to record loss of structure of this type
-        // (but not for XxxxOptions)
+        // If no Markdown template provided, encode all fields but record loss of
+        // structure of this type  (but not for XxxxOptions)
 
         let (enter, exit) = if struct_name.to_string().ends_with("Options") {
             (TokenStream::new(), TokenStream::new())

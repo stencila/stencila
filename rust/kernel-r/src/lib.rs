@@ -53,8 +53,8 @@ impl Microkernel for RKernel {
         "Rscript".to_string()
     }
 
-    fn microkernel_script(&self) -> String {
-        include_str!("kernel.r").to_string()
+    fn microkernel_script(&self) -> (String, String) {
+        ("kernel.r".into(), include_str!("kernel.r").into())
     }
 
     fn default_message_level(&self) -> MessageLevel {
@@ -73,7 +73,7 @@ mod tests {
         },
         schema::{
             Array, ArrayHint, ArrayValidator, BooleanValidator, Datatable, DatatableColumn,
-            DatatableColumnHint, DatatableHint, EnumValidator, ExecutionMessage, Hint,
+            DatatableColumnHint, DatatableHint, EnumValidator, ExecutionMessage, Hint, ImageObject,
             IntegerValidator, Node, Null, NumberValidator, Object, ObjectHint, Primitive,
             StringHint, StringValidator, Validator, Variable,
         },
@@ -271,6 +271,53 @@ b",
         );
         assert!(messages[0].stack_trace.is_none());
         assert_eq!(outputs, vec![]);
+
+        // Still get outputs when base::warnings are emitted (both execute and evaluate)
+        let (outputs, messages) = kernel
+            .execute(
+                r#"
+warns <- function() {
+    base::warning("a warning")
+    1 + 2
+}
+warns()
+"#,
+            )
+            .await?;
+        assert_eq!(messages[0].message, "a warning");
+        assert_eq!(messages[0].level, MessageLevel::Warning);
+        assert_eq!(outputs, vec![Node::Integer(3)]);
+
+        // This is a regression test for an annoying, hard to fix issues where ggplots
+        // where not included in outputs if they had any warnings
+        let (outputs, messages) = kernel
+            .execute(
+                r#"
+library(ggplot2)
+ggplot(data.frame(x=c(1, 2, NA), y=c(2, 4, NA)), aes(x=x,y=y)) + geom_point()
+"#,
+            )
+            .await?;
+        assert_eq!(
+            messages[0].message,
+            "Removed 1 rows containing missing values (`geom_point()`)."
+        );
+        assert_eq!(messages[0].level, MessageLevel::Warning);
+        assert_eq!(outputs.len(), 1);
+        let Some(Node::ImageObject(ImageObject { content_url, .. })) = outputs.first() else {
+            bail!("expected an image object");
+        };
+        let Some(base64) = content_url.strip_prefix("data:image/png;base64,") else {
+            bail!("expected an data URI");
+        };
+        assert!(!base64.is_empty());
+
+        let (output, messages) = kernel
+            .evaluate(r#"base::warning("another warning"); 6*7"#)
+            .await?;
+        assert_eq!(messages[0].message, "another warning");
+        assert_eq!(messages[0].level, MessageLevel::Warning);
+        assert_eq!(output, Node::Integer(42));
 
         Ok(())
     }
@@ -664,8 +711,11 @@ df1 = data.frame(
             let (outputs, messages) = instance.execute(code).await?;
             assert_eq!(messages, []);
             assert_eq!(outputs.len(), 1);
-            if let Some(Node::ImageObject(image)) = outputs.first() {
-                assert!(image.content_url.starts_with("data:image/png;base64"));
+            if let Some(Node::ImageObject(ImageObject { content_url, .. })) = outputs.first() {
+                let Some(base64) = content_url.strip_prefix("data:image/png;base64,") else {
+                    bail!("expected an data URI");
+                };
+                assert!(!base64.is_empty());
             } else {
                 bail!("Expected an image, got: {outputs:?}")
             }
@@ -696,8 +746,11 @@ df1 = data.frame(
             let (outputs, messages) = instance.execute(code).await?;
             assert_eq!(messages, []);
             assert_eq!(outputs.len(), 1);
-            if let Some(Node::ImageObject(image)) = outputs.first() {
-                assert!(image.content_url.starts_with("data:image/png;base64"));
+            if let Some(Node::ImageObject(ImageObject { content_url, .. })) = outputs.first() {
+                let Some(base64) = content_url.strip_prefix("data:image/png;base64,") else {
+                    bail!("expected an data URI");
+                };
+                assert!(!base64.is_empty());
             } else {
                 bail!("Expected an image, got: {outputs:?}")
             }

@@ -70,6 +70,19 @@ export class IncludeBlock extends Executable {
       return this.renderContent()
     }
 
+    // render with the `insert` chip in model chat response
+    if (this.isWithinModelChatMessage()) {
+      return html`
+        <div class="group relative">
+          ${this.renderInsertChip()} ${this.renderCard()}
+        </div>
+      `
+    }
+
+    return this.renderCard()
+  }
+
+  renderCard() {
     return html`
       <stencila-ui-block-on-demand
         type="IncludeBlock"
@@ -77,17 +90,12 @@ export class IncludeBlock extends Executable {
         depth=${this.depth}
       >
         <div slot="header-right">
-          <stencila-ui-node-chat-commands
-            type="IncludeBlock"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-chat-commands>
-
           <stencila-ui-node-execution-commands
             type="IncludeBlock"
             node-id=${this.id}
             depth=${this.depth}
+            status=${this.executionStatus}
+            required=${this.executionRequired}
           >
           </stencila-ui-node-execution-commands>
         </div>

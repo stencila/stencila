@@ -6,7 +6,7 @@ use winnow::{
     combinator::{alt, delimited, eof, opt, preceded, separated, separated_pair, terminated},
     stream::AsChar,
     token::{take_till, take_until, take_while},
-    IResult, Located, PResult, Parser,
+    IResult, LocatingSlice as Located, PResult, Parser,
 };
 
 use codec::{

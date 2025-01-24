@@ -145,6 +145,9 @@ pub struct Schema {
     /// Options for encoding the type or property to/from JATS XML
     pub jats: Option<JatsOptions>,
 
+    /// Options for encoding the type or property to LaTeX
+    pub latex: Option<LatexOptions>,
+
     /// Options for encoding the type or property to Markdown
     pub markdown: Option<MarkdownOptions>,
 
@@ -725,6 +728,25 @@ pub struct JatsOptions {
     pub content: bool,
 }
 
+/// Options for deriving the `LatexCodec` trait
+#[skip_serializing_none]
+#[derive(Debug, Clone, SmartDefault, Deserialize, Serialize, JsonSchema)]
+#[serde(
+    default,
+    rename_all = "camelCase",
+    deny_unknown_fields,
+    crate = "common::serde"
+)]
+pub struct LatexOptions {
+    /// Whether the `LatexCodec` trait should be derived for the type
+    #[serde(skip_serializing_if = "is_true")]
+    #[default = true]
+    pub derive: bool,
+
+    /// The name of the command to wrap the node in
+    pub command: Option<String>,
+}
+
 /// Options for deriving the `MarkdownCodec` trait
 #[skip_serializing_none]
 #[derive(Debug, Clone, SmartDefault, Deserialize, Serialize, JsonSchema)]
@@ -740,10 +762,10 @@ pub struct MarkdownOptions {
     #[default = true]
     pub derive: bool,
 
-    /// The Rust formatting string to use as a template to encode to Markdown
+    /// The template to use to encode to Markdown
     pub template: Option<String>,
 
-    /// Character to escape when using `format!` macro to encode to Markdown
+    /// Character to escape when using the template to encode to Markdown
     pub escape: Option<String>,
 }
 

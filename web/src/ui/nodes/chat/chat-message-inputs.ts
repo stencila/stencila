@@ -3,12 +3,11 @@ import { html } from 'lit'
 import { customElement, state } from 'lit/decorators.js'
 import { createRef, ref, Ref } from 'lit/directives/ref'
 
-import { runChat } from '../../clients/commands'
-import { withTwind } from '../../twind'
-import { debounce } from '../../utilities/debounce'
-import { fileToStencilaFile } from '../inputs/file-input'
-
-import { UIBaseClass } from './mixins/ui-base-class'
+import { runChat } from '../../../clients/commands'
+import { withTwind } from '../../../twind'
+import { debounce } from '../../../utilities/debounce'
+import { fileToStencilaFile } from '../../inputs/file-input'
+import { UIBaseClass } from '../mixins/ui-base-class'
 
 @customElement('stencila-ui-chat-message-inputs')
 @withTwind()
@@ -167,17 +166,17 @@ export class UIChatMessageInputs extends UIBaseClass {
           ${ref(this.textRef)}
         ></textarea>
 
-        <div class="flex flex-row items-start justify-between">
-          <div>
-            <sl-tooltip content="Add file">
-              <stencila-ui-file-input
-                class="text-xl text-[${textColour}]"
-                multiple
-                @stencila-files=${this.onFileInput}
-              ></stencila-ui-file-input>
-            </sl-tooltip>
+        <div class="flex flex-row items-center justify-between">
+          <sl-tooltip content="Add file">
+            <stencila-ui-file-input
+              class="text-xl text-[${textColour}]"
+              multiple
+              @stencila-files=${this.onFileInput}
+            ></stencila-ui-file-input>
+          </sl-tooltip>
 
-            ${files}
+          <div class="w-full ml-2 mr-4">
+            <slot name="model-parameters"></slot>
           </div>
 
           <sl-tooltip content=${hasInputs ? 'Send message' : 'Message is empty'}
@@ -191,6 +190,8 @@ export class UIChatMessageInputs extends UIBaseClass {
             ></stencila-ui-icon-button
           ></sl-tooltip>
         </div>
+
+        <div class="pt-1">${files}</div>
       </div>
     `
   }

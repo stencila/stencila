@@ -1,5 +1,24 @@
 # Change Log
 
+## 0.0.20 2025-01-23
+
+- Improvements to chat interfaces, particularly in multi-model scenarios.
+
+- Improvements to interfaces for executable nodes giving more feedback on the execution status and whether execution is required.
+
+- Based on Stencila CLI v2.0.0-beta.23.
+
+## 0.0.19 2025-01-22
+
+- Adds interfaces for standalone chats, chats about documents, and chats to insert specific types of content.
+
+- Improvements to autocomplete, including file path completions for include blocks and images.
+
+- Adds preliminary support for LaTeX documents.
+
+- Based on Stencila CLI v2.0.0-beta.22.
+
+
 ## 0.0.18 2024-11-27
 
 - Remove more advanced syntax from snippets to de-clutter autocomplete dropdown for Stencila Markdown and MyST.

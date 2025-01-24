@@ -191,6 +191,7 @@ proptest! {
                 "IfBlock".into(),
                 "IncludeBlock".into(),
                 "RawBlock".into(),
+                "Section".into(),
                 "StyledBlock".into(),
             ],
             properties: vec![

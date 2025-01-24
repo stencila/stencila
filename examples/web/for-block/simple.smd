@@ -1,0 +1,5 @@
+::: for ord in ['1st', '2nd', '3rd']
+
+this is the `ord`{exec} iteration
+
+:::

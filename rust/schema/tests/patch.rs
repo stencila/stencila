@@ -992,3 +992,35 @@ fn archive_patch_new() -> Result<()> {
 
     Ok(())
 }
+
+/// Test that expected formats are supported for simple content
+/// This checks that patching of Paragraph.content and Text.value
+/// are supported for these formats.
+#[test]
+fn formats_supported() -> Result<()> {
+    for format in [
+        Format::Json,
+        Format::Yaml,
+        Format::Markdown,
+        Format::Smd,
+        Format::Qmd,
+        Format::Myst,
+        Format::Ipynb,
+        Format::Latex,
+        Format::Lexical,
+        Format::Koenig,
+    ] {
+        let mut p1 = p([t("Hello!")]);
+        let p2 = p([t("Hello world")]);
+
+        merge(&mut p1, &p2, Some(format.clone()), None)?;
+        strip(
+            &mut p1,
+            StripTargets::scopes(vec![StripScope::Authors, StripScope::Provenance]),
+        );
+
+        assert_eq!(p1, p2, "Failed for format: {}", format);
+    }
+
+    Ok(())
+}

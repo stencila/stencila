@@ -88,8 +88,8 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   
   InstructionBlock:   { icon: 'chatRightDots', ...nodeColours('violet'), title: 'Command' },
   InstructionMessage: { icon: 'chatRightText', ...nodeColours('violet')},
-  SuggestionBlock:    { icon: 'cardText',      ...nodeColours('indigo'),  title: 'Suggestion' },
-  PromptBlock:        { icon: 'chatRightText', ...nodeColours('purple'),  title: 'Prompt Preview'},
+  SuggestionBlock:    { icon: 'chatSquareText',...nodeColours('indigo'),  title: 'Suggestion' },
+  PromptBlock:        { icon: 'cardText',      ...nodeColours('purple'),  title: 'Prompt Preview'},
   
   InsertBlock:      { icon: 'plusCircle',         ...nodeColours('lime')},
   ReplaceBlock:     { icon: 'replaceBlock',       ...nodeColours('orange')},
@@ -127,35 +127,6 @@ export const nodeColour = (nodeType: NodeType) =>
  */
 export const nodeBorderColour = (nodeType: NodeType) =>
   nodeTypeUIMap[nodeType]?.borderColour ?? DEFAULT_BORDER_COLOUR
-
-// Execution Messages --------------------------------------
-
-/**
- * Return a colour and an icon for each execution message level
- *
- * @param level The execution level of the message
- * @returns Object containing the twind `colour` string an `icon` name,
- *                 and the icon `library` if not default
- */
-export const executionMessageUI = (
-  level: MessageLevel
-): { colour: string; icon: IconName } => {
-  switch (level) {
-    case 'Exception':
-    case 'Error':
-      return { colour: 'pink-900', icon: 'xCircle' }
-    case 'Warning':
-      return { colour: 'orange-500', icon: 'exclamationTriangle' }
-    case 'Info':
-      return { colour: 'green-900', icon: 'infoCircle' }
-    case 'Debug':
-      return { colour: 'blue-900', icon: 'questionCircle' }
-    case 'Trace':
-      return { colour: 'purple-900', icon: 'slashCircle' }
-    default:
-      return { colour: 'gray-900', icon: 'circle' }
-  }
-}
 
 // ---------------------------------------------------------
 
@@ -195,19 +166,45 @@ const admonitionColours = (name: string) => ({
 
 // prettier-ignore
 const admonitionUiMap: Record<AdmonitionType, AdmonitionTypeUI> = {
-  Note:      { ...admonitionColours('blue'),     icon:'infoCircle' },
-  Info:      { ...admonitionColours('blue'),     icon:'infoCircle' },
-  Tip:       { ...admonitionColours('green'),    icon:'lightbulb' },
-  Important: { ...admonitionColours('blue'),     icon:'exclamationCircle' },
-  Success:   { ...admonitionColours('green'),    icon:'checkCircle' },
-  Failure:   { ...admonitionColours('red'),      icon:'xCircle' },
-  Warning:   { ...admonitionColours('yellow'),   icon:'exclamationTriangle' },
-  Danger:    { ...admonitionColours('red'),      icon:'exclamationCircle' },
-  Error:     { ...admonitionColours('red'),      icon:'xCircle' },
+  Note:      { ...admonitionColours('blue'),     icon: 'infoCircle' },
+  Info:      { ...admonitionColours('blue'),     icon: 'infoCircle' },
+  Tip:       { ...admonitionColours('green'),    icon: 'lightbulb' },
+  Important: { ...admonitionColours('blue'),     icon: 'exclamationCircle' },
+  Success:   { ...admonitionColours('green'),    icon: 'checkCircle' },
+  Failure:   { ...admonitionColours('red'),      icon: 'xCircle' },
+  Warning:   { ...admonitionColours('yellow'),   icon: 'exclamationTriangle' },
+  Danger:    { ...admonitionColours('red'),      icon: 'exclamationCircle' },
+  Error:     { ...admonitionColours('red'),      icon: 'xCircle' },
 }
 
 export const admonitionUi = (type: AdmonitionType) => {
   return admonitionUiMap[type]
+}
+
+// ---------------------------------------------------------
+
+// Execution Messages --------------------------------------
+
+// prettier-ignore
+const executionMessagesUiMap: Record<MessageLevel, AdmonitionTypeUI> = {
+  'Exception': { ...admonitionColours('red'),      icon: 'xCircle' },
+  'Error':     { ...admonitionColours('red'),      icon: 'xCircle' },
+  'Warning':   { ...admonitionColours('yellow'),   icon: 'exclamationTriangle' },
+  'Info':      { ...admonitionColours('blue'),     icon: 'infoCircle' },
+  'Debug':     { ...admonitionColours('blue'),     icon: 'questionCircle' },
+  'Trace':     { ...admonitionColours('purple'),   icon: 'slashCircle' }
+}
+
+/**
+ * Returns admonition colours and an icon for each execution message level.
+ */
+export const executionMessageUI = (level: MessageLevel) => {
+  return (
+    executionMessagesUiMap[level] ?? {
+      ...admonitionColours('blue'),
+      icon: 'infoCircle',
+    }
+  )
 }
 
 // ---------------------------------------------------------

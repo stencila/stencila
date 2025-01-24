@@ -60,7 +60,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
+          # Important: use the Ubuntu version with the oldest GLIBC version we wish
+          # to support. Binaries built with older GLIBC versions work on newer GLIBC
+          # versions, but not vice versa. Ubuntu 22.04 has GLIBC 2.35.
+          - os: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
             ext: tar.gz
           - os: macos-latest
@@ -72,6 +75,8 @@ jobs:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
             ext: zip
+    # Do not fail the whole release if one build target fails
+    continue-on-error: true
     runs-on: ${{ matrix.os }}
     permissions:
       contents: write
