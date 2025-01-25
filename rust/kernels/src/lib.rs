@@ -17,8 +17,8 @@ use kernel::{
     },
     format::Format,
     schema::{ExecutionMessage, Node},
-    Kernel, KernelForks, KernelInstance, KernelLint, KernelLinting, KernelLintingOptions,
-    KernelLintingOutput, KernelVariableRequest, KernelVariableRequester, KernelVariableResponse,
+    Kernel, KernelForks, KernelInstance, KernelLint, KernelLinting, KernelLintingOutput,
+    KernelVariableRequest, KernelVariableRequester, KernelVariableResponse,
 };
 use kernel_asciimath::AsciiMathKernel;
 use kernel_bash::BashKernel;
@@ -35,7 +35,9 @@ use kernel_tex::TexKernel;
 #[cfg(feature = "kernel-rhai")]
 use kernel_rhai::RhaiKernel;
 
-pub use kernel::{KernelAvailability, KernelProvider, KernelSpecification, KernelType};
+pub use kernel::{
+    KernelAvailability, KernelLintingOptions, KernelProvider, KernelSpecification, KernelType,
+};
 
 pub mod cli;
 
@@ -89,15 +91,13 @@ pub async fn get(name: &str) -> Option<Box<dyn Kernel>> {
 pub async fn lint(
     code: &str,
     dir: &Path,
-    language: &str,
+    format: &Format,
     options: KernelLintingOptions,
 ) -> Result<KernelLintingOutput> {
     // Cache linting support for each kernel to avoid relatively expensive
     // calls to `supports_linting` on each call of this function.
-    static SUPPORT: Lazy<Arc<RwLock<HashMap<String, KernelLinting>>>> =
-        Lazy::new(|| Arc::default());
+    static SUPPORT: Lazy<Arc<RwLock<HashMap<String, KernelLinting>>>> = Lazy::new(Arc::default);
 
-    let format = Format::from_name(language);
     for kernel in list().await {
         if !kernel.supports_language(&format) {
             continue;
@@ -126,7 +126,7 @@ pub async fn lint(
         }
     }
 
-    bail!("No available kernel supports linting of {language}")
+    bail!("No available kernel supports linting of {format}")
 }
 
 /// Get the default kernel (used when no language is specified)

@@ -381,7 +381,7 @@ impl Lint {
         } = crate::lint(
             &code,
             dir,
-            &format.name().to_lowercase(),
+            &format,
             KernelLintingOptions {
                 fix: self.fix,
                 format: self.format,
