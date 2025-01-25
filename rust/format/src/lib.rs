@@ -240,6 +240,9 @@ impl Format {
     }
 
     /// Resolve a [`Format`] from a name for the format
+    /// 
+    /// Also includes kernel names e.g "nodejs" & "quickjs" so that we
+    /// can associate those names with a language
     pub fn from_name(name: &str) -> Self {
         use Format::*;
         match name.to_lowercase().trim() {
@@ -260,7 +263,7 @@ impl Format {
             "html" => Html,
             "ipynb" => Ipynb,
             "jats" | "jats.xml" => Jats,
-            "javascript" | "js" => JavaScript,
+            "javascript" | "js" | "nodejs" | "quickjs" => JavaScript,
             "jinja" => Jinja,
             "jpeg" => Jpeg,
             "json" => Json,
