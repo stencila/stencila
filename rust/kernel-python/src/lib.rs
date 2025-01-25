@@ -29,10 +29,10 @@ impl Kernel for PythonKernel {
     }
 
     fn supports_linting(&self) -> KernelLinting {
-        // Check for presence of Ruff or PyRight
-        which("ruff")
-            .or_else(|_| which("pyright"))
-            .map_or(KernelLinting::No, |_| KernelLinting::Fixes)
+        let ruff = which("ruff").is_ok();
+        let pyright = which("pyright").is_ok();
+
+        KernelLinting::new(ruff, ruff || pyright, ruff)
     }
 
     fn supports_interrupt(&self) -> KernelInterrupt {

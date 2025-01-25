@@ -1,7 +1,7 @@
 use std::{
     fs::{read_to_string, write},
     path::Path,
-    process::Command,
+    process::{Command, Stdio},
 };
 
 use kernel_micro::{
@@ -37,17 +37,25 @@ impl Kernel for NodeJsKernel {
     }
 
     fn supports_linting(&self) -> KernelLinting {
-        // Check for `npx` and `eslint`
-        match Command::new("npx")
+        let format = Command::new("npx")
+            .arg("--no") // Do not install prettier if not already
+            .arg("--")
+            .arg("prettier")
+            .arg("--version") // Smaller output than without
+            .stdout(Stdio::null())
+            .status()
+            .map_or(false, |status| status.success());
+
+        let fix = Command::new("npx")
             .arg("--no") // Do not install eslint if not already
             .arg("--")
             .arg("eslint")
             .arg("--version") // To prevent eslint waiting for input
-            .output()
-        {
-            Ok(..) => KernelLinting::Fixes,
-            Err(..) => KernelLinting::No,
-        }
+            .stdout(Stdio::null())
+            .status()
+            .map_or(false, |status| status.success());
+
+        KernelLinting::new(format, fix, fix)
     }
 
     fn supports_interrupt(&self) -> KernelInterrupt {

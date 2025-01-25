@@ -1,4 +1,9 @@
-use std::{fs::read_to_string, io::Write, path::Path, process::Command};
+use std::{
+    fs::read_to_string,
+    io::Write,
+    path::Path,
+    process::{Command, Stdio},
+};
 
 use kernel_micro::{
     common::{eyre::Result, serde::Deserialize, serde_json, tempfile, tracing},
@@ -33,16 +38,21 @@ impl Kernel for RKernel {
     }
 
     fn supports_linting(&self) -> KernelLinting {
-        // Check for `Rscript` and `lintr` package.
-        // Does not check for `styler`
-        match Command::new("Rscript")
+        let styler = Command::new("Rscript")
+            .arg("-e")
+            .arg("styler::style_file")
+            .stdout(Stdio::null())
+            .status()
+            .map_or(false, |status| status.success());
+
+        let lintr = Command::new("Rscript")
             .arg("-e")
             .arg("lintr::lint")
-            .output()
-        {
-            Ok(..) => KernelLinting::Fixes,
-            Err(..) => KernelLinting::No,
-        }
+            .stdout(Stdio::null())
+            .status()
+            .map_or(false, |status| status.success());
+
+        KernelLinting::new(styler, lintr, false)
     }
 
     fn supports_interrupt(&self) -> KernelInterrupt {

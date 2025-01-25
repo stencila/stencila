@@ -153,10 +153,31 @@ pub enum KernelLinting {
     /// Kernel does not support linting on this machine
     #[default]
     No,
-    /// Kernel supports linting diagnostics on this machine
-    Diagnostics,
+    /// Kernel supports formatting on this machine
+    Format,
+    /// Kernel supports linting checks on this machine
+    Check,
     /// Kernel supports linting fixes on this machine
-    Fixes,
+    Fix,
+    /// Kernel supports formatting and linting checks on this machine
+    #[strum(serialize = "format+check")]
+    FormatCheck,
+    /// Kernel supports formatting and linting fixes on this machine
+    #[strum(serialize = "format+fix")]
+    FormatFix,
+}
+
+impl KernelLinting {
+    pub fn new(format: bool, check: bool, fix: bool) -> Self {
+        match (format, check, fix) {
+            (false, false, false) => KernelLinting::No,
+            (true, false, false) => KernelLinting::Format,
+            (false, true, false) => KernelLinting::Check,
+            (false, false, true) | (false, true, true) => KernelLinting::Fix,
+            (true, true, false) => KernelLinting::FormatCheck,
+            (true, false, true) | (true, true, true) => KernelLinting::FormatFix,
+        }
+    }
 }
 
 /// Options for [`Kernel::lint`]

@@ -155,9 +155,12 @@ impl List {
                 },
                 Cell::new(langs),
                 match lint {
-                    KernelLinting::Fixes => Cell::new("fix").fg(Color::Green),
-                    KernelLinting::Diagnostics => Cell::new("diag").fg(Color::Cyan),
                     KernelLinting::No => Cell::new(lint).fg(Color::DarkGrey),
+                    KernelLinting::Format => Cell::new(lint).fg(Color::Yellow),
+                    KernelLinting::Check => Cell::new(lint).fg(Color::Magenta),
+                    KernelLinting::Fix => Cell::new(lint).fg(Color::Blue),
+                    KernelLinting::FormatCheck => Cell::new(lint).fg(Color::Cyan),
+                    KernelLinting::FormatFix => Cell::new(lint).fg(Color::Green),
                 },
                 match forks {
                     KernelForks::Yes => Cell::new(forks).fg(Color::Green),
