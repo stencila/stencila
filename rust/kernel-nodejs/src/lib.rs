@@ -89,7 +89,7 @@ impl KernelLint for NodeJsKernel {
         _dir: &Path,
         options: KernelLintingOptions,
     ) -> Result<KernelLintingOutput> {
-        tracing::debug!("Linting Node.js code");
+        tracing::trace!("Linting Node.js code");
 
         // It is difficult (impossible?) to get eslint to work on an out
         // of tree file (e.g. in /tmp) so this creates one next to the

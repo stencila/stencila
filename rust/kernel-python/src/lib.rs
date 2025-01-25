@@ -65,7 +65,7 @@ impl KernelLint for PythonKernel {
         _dir: &Path,
         options: KernelLintingOptions,
     ) -> Result<KernelLintingOutput> {
-        tracing::debug!("Linting Python code");
+        tracing::trace!("Linting Python code");
 
         // Write the code to a temporary file
         let mut temp_file = NamedTempFile::new()?;
@@ -114,13 +114,23 @@ impl KernelLint for PythonKernel {
                     error_type: Some(message.code),
                     message: message.message,
                     code_location: Some(CodeLocation {
-                        start_line: message.location.as_ref().map(|location| location.row),
-                        start_column: message.location.as_ref().map(|location| location.column),
-                        end_line: message.end_location.as_ref().map(|location| location.row),
+                        // Note that Ruff provides 1-based row and column indices
+                        start_line: message
+                            .location
+                            .as_ref()
+                            .map(|location| location.row.saturating_sub(1)),
+                        start_column: message
+                            .location
+                            .as_ref()
+                            .map(|location| location.column.saturating_sub(1)),
+                        end_line: message
+                            .end_location
+                            .as_ref()
+                            .map(|location| location.row.saturating_sub(1)),
                         end_column: message
                             .end_location
                             .as_ref()
-                            .map(|location| location.column),
+                            .map(|location| location.column.saturating_sub(1)),
                         ..Default::default()
                     }),
                     ..Default::default()
@@ -147,7 +157,7 @@ impl KernelLint for PythonKernel {
             #[derive(Deserialize)]
             #[serde(crate = "kernel_micro::common::serde")]
             struct PyrightDiagnostic {
-                rule: String,
+                rule: Option<String>,
                 severity: String,
                 message: String,
                 range: PyrightRange,
@@ -169,12 +179,18 @@ impl KernelLint for PythonKernel {
             let mut compilation_messages = pyright_diagnostics
                 .general_diagnostics
                 .into_iter()
+                .filter(|diag| {
+                    // Ignore some diagnostics which do not make so much sense in code cells
+                    !matches!(diag.rule.as_deref(), Some("reportUnusedExpression"))
+                })
                 .map(|diag| CompilationMessage {
                     level: match diag.severity.as_str() {
                         "warning" => MessageLevel::Warning,
                         _ => MessageLevel::Error,
                     },
-                    error_type: Some(diag.rule.trim_start_matches("report").into()),
+                    error_type: diag
+                        .rule
+                        .map(|rule| rule.trim_start_matches("report").into()),
                     message: diag.message,
                     code_location: Some(CodeLocation {
                         start_line: Some(diag.range.start.line),

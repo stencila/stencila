@@ -84,7 +84,7 @@ impl KernelLint for RKernel {
         _dir: &Path,
         options: KernelLintingOptions,
     ) -> Result<KernelLintingOutput> {
-        tracing::debug!("Linting R code");
+        tracing::trace!("Linting R code");
 
         // Write the code to a temporary file
         // styler requires that this have an R extension
@@ -131,12 +131,16 @@ impl KernelLint for RKernel {
                 let messages = lintr_messages
                     .into_iter()
                     .map(|msg| CompilationMessage {
-                        level: MessageLevel::Error,
+                        level: match msg.r#type.as_str() {
+                            "style" => MessageLevel::Debug,
+                            "warning" => MessageLevel::Warning,
+                            _ => MessageLevel::Error,
+                        },
                         error_type: Some(msg.r#type),
                         message: msg.message,
                         code_location: Some(CodeLocation {
-                            start_line: Some(msg.line_number),
-                            start_column: Some(msg.column_number),
+                            start_line: Some(msg.line_number.saturating_sub(1)),
+                            start_column: Some(msg.column_number.saturating_sub(1)),
                             ..Default::default()
                         }),
                         ..Default::default()
