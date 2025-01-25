@@ -20,6 +20,7 @@ use common::{
     PartialEq,
     Eq,
     Ord,
+    Hash,
     EnumIter,
     SerializeDisplay,
     DeserializeFromStr,
