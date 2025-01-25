@@ -91,8 +91,11 @@ pub enum Command {
     /// Export the document
     ExportDocument((PathBuf, EncodeOptions)),
 
-    /// Compile the entire document
+    /// Compile the document
     CompileDocument,
+
+    /// Lint the document
+    LintDocument { format: bool, fix: bool },
 
     /// Execute the entire document
     ExecuteDocument(ExecuteOptions),
@@ -877,6 +880,15 @@ impl Document {
         tracing::trace!("Compiling document");
 
         self.command(Command::CompileDocument, wait).await
+    }
+
+    /// Lint the document
+    #[tracing::instrument(skip(self))]
+    pub async fn lint(&self, format: bool, fix: bool, wait: CommandWait) -> Result<()> {
+        tracing::trace!("Linting document");
+
+        self.command(Command::LintDocument { format, fix }, wait)
+            .await
     }
 
     /// Execute the document

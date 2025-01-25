@@ -8,7 +8,7 @@ use common::{
     tracing,
 };
 use format::Format;
-use node_execute::{compile, execute, interrupt, ExecuteOptions};
+use node_execute::{compile, execute, interrupt, lint, ExecuteOptions};
 use schema::{
     transforms::blocks_to_inlines, Article, Block, ChatMessage, ChatMessageOptions, File, Node,
     NodeId, NodeProperty, Patch, PatchNode, PatchOp, PatchPath,
@@ -203,6 +203,20 @@ impl Document {
                             compile(home, root, kernels, Some(patch_sender), None, None).await
                         {
                             CommandStatus::Failed(format!("While compiling document: {error}"))
+                        } else {
+                            CommandStatus::Succeeded
+                        };
+                        send_status(&status_sender, command_id, status);
+                    });
+                    current_command_details = Some((command, command_id, task));
+                }
+                LintDocument { format, fix } => {
+                    let status_sender = status_sender.clone();
+                    let task = tokio::spawn(async move {
+                        let status = if let Err(error) =
+                            lint(home, root, kernels, Some(patch_sender), format, fix).await
+                        {
+                            CommandStatus::Failed(format!("While linting document: {error}"))
                         } else {
                             CommandStatus::Succeeded
                         };

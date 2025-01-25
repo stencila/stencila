@@ -1,21 +1,24 @@
 #![recursion_limit = "256"]
 
-use std::{path::PathBuf, sync::Arc};
+use std::{collections::HashMap, path::PathBuf, str::FromStr, sync::Arc};
 
+use codecs::Format;
 use common::{
     clap::{self, Args},
-    eyre::Result,
+    eyre::{eyre, Result},
+    futures::future::join_all,
     itertools::Itertools,
     serde::{Deserialize, Serialize},
     tokio::sync::{mpsc::UnboundedSender, RwLock, RwLockWriteGuard},
     tracing,
 };
-use kernels::Kernels;
+use kernels::{KernelLintingOptions, Kernels};
 use prompts::prompt::{DocumentContext, InstructionContext};
 use schema::{
-    AuthorRole, AuthorRoleName, Block, CompilationDigest, ExecutionBounds, ExecutionMode,
-    ExecutionStatus, Inline, Link, List, ListItem, ListOrder, Node, NodeId, NodeProperty, NodeType,
-    Paragraph, Patch, PatchOp, PatchPath, Timestamp, VisitorAsync, WalkControl, WalkNode,
+    AuthorRole, AuthorRoleName, Block, CompilationDigest, CompilationMessage, ExecutionBounds,
+    ExecutionMode, ExecutionStatus, Inline, Link, List, ListItem, ListOrder, Node, NodeId,
+    NodeProperty, NodeType, Paragraph, Patch, PatchNode, PatchOp, PatchPath, PatchValue, Timestamp,
+    VisitorAsync, WalkControl, WalkNode,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -58,6 +61,25 @@ pub async fn compile(
 ) -> Result<()> {
     let mut root = root.read().await.clone();
     let mut executor = Executor::new(home, kernels, patch_sender, node_ids, options);
+    executor.compile(&mut root).await
+}
+
+/// Walk over a root node and lint it and child nodes
+pub async fn lint(
+    home: PathBuf,
+    root: Arc<RwLock<Node>>,
+    kernels: Arc<RwLock<Kernels>>,
+    patch_sender: Option<UnboundedSender<Patch>>,
+    format: bool,
+    fix: bool,
+) -> Result<()> {
+    let mut root = root.read().await.clone();
+    let mut executor = Executor::new(home, kernels, patch_sender, None, None);
+    executor.lint_options = LintOptions {
+        format,
+        fix,
+        ..Default::default()
+    };
     executor.compile(&mut root).await
 }
 
@@ -184,14 +206,19 @@ pub struct Executor {
     /// but which should be executed as though between other nodes
     temporaries: Vec<(Option<NodeId>, Option<NodeId>, Node)>,
 
+    node_codes: Vec<(NodeId, bool, String, Option<String>)>,
+
     /// Whether the current node is the last in a set
     ///
     /// Used for `IfBlock` (and possibly others) to control behavior of execution
     /// of child nodes.
     is_last: bool,
 
+    /// Options for linting
+    lint_options: LintOptions,
+
     /// Options for execution
-    options: ExecuteOptions,
+    execute_options: ExecuteOptions,
 }
 
 /// Records information about a heading in order to created
@@ -262,6 +289,13 @@ impl HeadingInfo {
             ListOrder::Ascending,
         )
     }
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq, Args)]
+#[serde(default, crate = "common::serde")]
+pub struct LintOptions {
+    format: bool,
+    fix: bool,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq, Args)]
@@ -360,8 +394,10 @@ impl Executor {
             equation_count: 0,
             last_block: None,
             temporaries: Vec::new(),
+            node_codes: Vec::new(),
             is_last: false,
-            options: options.unwrap_or_default(),
+            lint_options: Default::default(),
+            execute_options: options.unwrap_or_default(),
         }
     }
 
@@ -430,7 +466,252 @@ impl Executor {
         self.table_count = 0;
         self.figure_count = 0;
         self.equation_count = 0;
-        root.walk_async(self).await
+        self.node_codes.clear();
+        root.walk_async(self).await?;
+
+        self.lint().await?;
+
+        Ok(())
+    }
+
+    /// Lint any code collected
+    async fn lint(&mut self) -> Result<()> {
+        // Skip linting if none have changed
+        if !self.lint_options.format
+            && !self.lint_options.fix
+            && !self
+                .node_codes
+                .iter()
+                .any(|(_, has_changed, ..)| *has_changed)
+        {
+            return Ok(());
+        }
+
+        const BEGIN: &str = "STENCILA-NODE-BEGIN";
+        const END: &str = "STENCILA-NODE-END";
+
+        // Get the single-line comment characters for a language
+        fn format_comment(format: &Option<Format>) -> &'static str {
+            match format {
+                Some(Format::Python | Format::R) => "#",
+                Some(Format::JavaScript) => "//",
+                _ => "//",
+            }
+        }
+
+        // Collate code for each language with comments delimiting each node.
+        // Record which nodes are associated with each language so we only extract
+        // code and messages for relevant nodes for each language
+        let mut format_codes: HashMap<Option<Format>, String> = HashMap::new();
+        let mut format_nodes: HashMap<Option<Format>, Vec<NodeId>> = HashMap::new();
+        for (node_id, .., code, language) in &self.node_codes {
+            let format = language.as_deref().map(Format::from_name);
+            let comment = format_comment(&format);
+            let code = format!("{comment} {BEGIN} {node_id}\n{code}\n{comment} {END} {node_id}\n");
+
+            if let Some(existing) = format_codes.get_mut(&format) {
+                existing.push_str(&code);
+            } else {
+                format_codes.insert(format.clone(), code);
+            }
+
+            format_nodes
+                .entry(format)
+                .or_default()
+                .push(node_id.clone());
+        }
+
+        let dir = self
+            .directory_stack
+            .first()
+            .ok_or_else(|| eyre!("Executor has no top directory"))?;
+
+        // Run linting for each of the collected languages concurrently
+        let should_format = self.lint_options.format;
+        let should_fix = self.lint_options.fix;
+        let futures = format_codes
+            .clone()
+            .into_iter()
+            .map(|(format, code)| async move {
+                let Some(format) = format else {
+                    return None;
+                };
+
+                match kernels::lint(
+                    &code,
+                    dir,
+                    &format,
+                    KernelLintingOptions {
+                        format: should_format,
+                        fix: should_fix,
+                    },
+                )
+                .await
+                {
+                    Ok(output) => Some((format, output)),
+                    Err(error) => {
+                        tracing::debug!("While linting {format}: {error}");
+                        None
+                    }
+                }
+            });
+        let mut outputs: HashMap<Format, _> =
+            join_all(futures).await.into_iter().flatten().collect();
+
+        let mut node_codes: HashMap<NodeId, String> = HashMap::new();
+        let mut node_messages: HashMap<NodeId, Vec<CompilationMessage>> = HashMap::new();
+        for (format, code) in format_codes {
+            let Some(format) = format else {
+                continue;
+            };
+            let Some(output) = outputs.remove(&format) else {
+                continue;
+            };
+
+            // If there is output code then it needs to be used to patch nodes
+            // and also message line numbers need to be calculated based on it
+            let (code, code_changed) = match output.code {
+                Some(code) => (code, true),
+                None => (code, false),
+            };
+
+            // If there is a code change then extract the new code for each node
+            // and compare to see if it has changed
+            if code_changed {
+                let format = Some(format);
+                let this_format_nodes = format_nodes.remove(&format).unwrap_or_default();
+                let comment = format_comment(&format);
+
+                let lines = code.lines().collect_vec();
+                let mut line_index = 0;
+                for (node_id, _, old_code, _) in &self.node_codes {
+                    // Continue if node does not have code for this language
+                    if !this_format_nodes.contains(node_id) {
+                        continue;
+                    }
+
+                    // Move across lines looking for code beginning and ending
+                    let begin = format!("{comment} {BEGIN} {node_id}");
+                    let end = format!("{comment} {END} {node_id}");
+                    let mut new_code = String::new();
+                    let mut begun = false;
+                    while line_index < lines.len() {
+                        let Some(line) = lines.get(line_index) else {
+                            break;
+                        };
+
+                        if *line == begin {
+                            begun = true;
+                        } else if *line == end {
+                            break;
+                        } else if begun {
+                            new_code.push_str(line);
+                            new_code.push('\n');
+                        }
+
+                        line_index += 1;
+                    }
+
+                    // This should not happen because we only look for the nodes using this
+                    // language. But if it does, then generate a warning.
+                    if !begun {
+                        tracing::warn!(
+                            "Could not find formatted and/or fixed code for node `{node_id}`"
+                        );
+                        continue;
+                    }
+
+                    // Ignore ending whitespace space
+                    new_code.truncate(new_code.trim_end().len());
+                    let old_code = old_code.trim_end();
+
+                    if &new_code != old_code {
+                        node_codes.insert(node_id.clone(), new_code);
+                    }
+                }
+            }
+
+            // If there are any messages then map them back to the nodes by find the
+            // STENCILA-NODE-BEGIN comment immediately before the location of the message
+            if let Some(messages) = output.messages {
+                let lines = code.lines().collect_vec();
+                for mut message in messages {
+                    let Some(start_line) = message
+                        .code_location
+                        .as_ref()
+                        .and_then(|loc| loc.start_line)
+                    else {
+                        continue;
+                    };
+
+                    let start_line = start_line as usize;
+                    for line_index in (0..start_line).rev() {
+                        let Some(line) = lines.get(line_index) else {
+                            continue;
+                        };
+
+                        let Some((_, BEGIN, node_id)) = line.split_whitespace().next_tuple() else {
+                            continue;
+                        };
+
+                        let Ok(node_id) = NodeId::from_str(node_id) else {
+                            continue;
+                        };
+
+                        // Adjust line numbers so that they are relative to BEGIN line
+                        if let Some(loc) = message.code_location.as_mut() {
+                            if let Some(start_line) = loc.start_line.as_mut() {
+                                *start_line = start_line
+                                    .saturating_sub(line_index as u64)
+                                    .saturating_sub(1);
+                            }
+                            if let Some(end_line) = loc.end_line.as_mut() {
+                                *end_line =
+                                    end_line.saturating_sub(line_index as u64).saturating_sub(1);
+                            }
+                        }
+
+                        node_messages.entry(node_id).or_default().push(message);
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        // Send a patch for each of the nodes
+        for (node_id, ..) in &self.node_codes {
+            let mut ops = Vec::new();
+
+            if let Some(code) = node_codes.get(node_id) {
+                ops.push((
+                    PatchPath::from(NodeProperty::Code),
+                    PatchOp::Set(code.to_value()?),
+                ));
+            };
+
+            let messages = match node_messages.get(node_id) {
+                Some(messages) => messages.to_value()?,
+                None => PatchValue::None,
+            };
+            ops.push((
+                PatchPath::from(NodeProperty::CompilationMessages),
+                PatchOp::Set(messages),
+            ));
+
+            if ops.is_empty() {
+                continue;
+            }
+
+            let patch = Patch {
+                node_id: Some(node_id.clone()),
+                ops,
+                ..Default::default()
+            };
+            self.send_patch(patch);
+        }
+
+        Ok(())
     }
 
     /// Run [`Phase::Prepare`]
@@ -446,13 +727,13 @@ impl Executor {
 
     /// Run [`Phase::Execute`]
     async fn execute(&mut self, root: &mut Node) -> Result<()> {
-        // Clear outside nodes before executing
+        // Clear temporary nodes before executing
         self.temporaries.clear();
 
         self.phase = Phase::Execute;
         root.walk_async(self).await?;
 
-        // Execute any un-executed outside nodes
+        // Execute any un-executed temporary nodes
         for (.., mut node) in self.temporaries.drain(..).collect_vec() {
             self.visit_node(&mut node).await?;
         }
@@ -498,7 +779,7 @@ impl Executor {
         compilation_digest: &Option<CompilationDigest>,
         execution_digest: &Option<CompilationDigest>,
     ) -> Option<ExecutionStatus> {
-        if self.options.force_all {
+        if self.execute_options.force_all {
             return Some(ExecutionStatus::Pending);
         }
 
@@ -520,10 +801,10 @@ impl Executor {
             node_type,
             NodeType::InstructionBlock | NodeType::InstructionInline
         ) {
-            if self.options.skip_instructions {
+            if self.execute_options.skip_instructions {
                 return Some(ExecutionStatus::Skipped);
             }
-        } else if self.options.skip_code {
+        } else if self.execute_options.skip_code {
             return Some(ExecutionStatus::Skipped);
         }
 

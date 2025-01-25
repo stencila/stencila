@@ -26,6 +26,24 @@ impl Executable for CodeChunk {
 
         let lang = self.programming_language.as_deref().unwrap_or_default();
         let info = parsers::parse(&self.code, lang);
+        let has_changed =
+            Some(&info.compilation_digest) != self.options.compilation_digest.as_ref();
+
+        // Collect the code. Note that this needs to be done regardless of whether
+        // the code chunk has changed or not because we need to collect all the code
+        // in the document for linting.
+        executor.node_codes.push((
+            node_id.clone(),
+            has_changed,
+            self.code.to_string(),
+            self.programming_language.clone(),
+        ));
+
+        if !has_changed {
+            tracing::trace!("Skipping compiling CodeChunk {node_id}");
+
+            return WalkControl::Break;
+        }
 
         let mut execution_required =
             execution_required_digests(&self.options.execution_digest, &info.compilation_digest);
