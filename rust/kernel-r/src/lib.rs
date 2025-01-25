@@ -1,7 +1,12 @@
+use std::{fs::read_to_string, io::Write, path::Path, process::Command};
+
 use kernel_micro::{
-    common::eyre::Result, format::Format, schema::MessageLevel, Kernel, KernelAvailability,
-    KernelForks, KernelInstance, KernelInterrupt, KernelKill, KernelProvider, KernelTerminate,
-    Microkernel,
+    common::{eyre::Result, serde::Deserialize, serde_json, tempfile, tracing},
+    format::Format,
+    schema::{CodeLocation, CompilationMessage, MessageLevel},
+    Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
+    KernelLint, KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider,
+    KernelTerminate, Microkernel,
 };
 
 /// A kernel for executing R code
@@ -27,6 +32,19 @@ impl Kernel for RKernel {
         vec![Format::R]
     }
 
+    fn supports_linting(&self) -> KernelLinting {
+        // Check for `Rscript` and `lintr` package.
+        // Does not check for `styler`
+        match Command::new("Rscript")
+            .arg("-e")
+            .arg("lintr::lint")
+            .output()
+        {
+            Ok(..) => KernelLinting::Fixes,
+            Err(..) => KernelLinting::No,
+        }
+    }
+
     fn supports_interrupt(&self) -> KernelInterrupt {
         self.microkernel_supports_interrupt()
     }
@@ -45,6 +63,95 @@ impl Kernel for RKernel {
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
         self.microkernel_create_instance(NAME)
+    }
+}
+
+impl KernelLint for RKernel {
+    #[tracing::instrument(skip(self, code))]
+    async fn lint(
+        &self,
+        code: &str,
+        _dir: &Path,
+        options: KernelLintingOptions,
+    ) -> Result<KernelLintingOutput> {
+        tracing::debug!("Linting R code");
+
+        // Write the code to a temporary file
+        // styler requires that this have an R extension
+        let mut temp_file = tempfile::Builder::new().suffix(".R").tempfile()?;
+        write!(temp_file, "{}", code)?;
+        let temp_path = temp_file.path();
+        let temp_path_str = temp_path.to_string_lossy();
+
+        // Construct R code to format and lint, so we can do a single call to R
+        // which is faster than doing two
+        let mut r = String::new();
+
+        // Format code if specified and styler is available
+        // Suppress outputs (including error for non existent styler package) to avoid them being read
+        // in as linter diagnostics.
+        if options.format {
+            r.push_str(&format!(
+                "sink(tempfile()); suppressMessages(suppressWarnings(try(styler::style_file('{temp_path_str}', strict=TRUE), silent=TRUE))); sink();"
+            ));
+        }
+
+        r.push_str(&format!(
+            "jsonlite::toJSON(lintr::lint('{temp_path_str}'), auto_unbox=T)"
+        ));
+
+        // Run command with JSON output to parse into messages
+        let messages = if let Ok(output) = Command::new("Rscript").arg("-e").arg(r).output() {
+            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+
+            // A diagnostic message from lintr
+            #[derive(Deserialize)]
+            #[serde(crate = "kernel_micro::common::serde")]
+            struct LintrMessage {
+                r#type: String,
+                message: String,
+                line_number: u64,
+                column_number: u64,
+            }
+
+            let lintr_messages = serde_json::from_str::<Vec<LintrMessage>>(&stdout)?;
+            if lintr_messages.is_empty() {
+                None
+            } else {
+                let messages = lintr_messages
+                    .into_iter()
+                    .map(|msg| CompilationMessage {
+                        level: MessageLevel::Error,
+                        error_type: Some(msg.r#type),
+                        message: msg.message,
+                        code_location: Some(CodeLocation {
+                            start_line: Some(msg.line_number),
+                            start_column: Some(msg.column_number),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    })
+                    .collect();
+
+                Some(messages)
+            }
+        } else {
+            None
+        };
+
+        // If formatted, read in the possibly changed code
+        let code = if options.format {
+            let new_code = read_to_string(temp_path)?;
+            (new_code != code).then_some(new_code)
+        } else {
+            None
+        };
+
+        Ok(KernelLintingOutput {
+            code,
+            messages,
+            ..Default::default()
+        })
     }
 }
 

@@ -15,8 +15,8 @@ use kernel::{
     },
     format::Format,
     schema::{ExecutionMessage, Node},
-    Kernel, KernelForks, KernelInstance, KernelVariableRequest, KernelVariableRequester,
-    KernelVariableResponse,
+    Kernel, KernelForks, KernelInstance, KernelLint, KernelLinting, KernelLintingOptions,
+    KernelLintingOutput, KernelVariableRequest, KernelVariableRequester, KernelVariableResponse,
 };
 use kernel_asciimath::AsciiMathKernel;
 use kernel_bash::BashKernel;
@@ -74,6 +74,38 @@ pub async fn get(name: &str) -> Option<Box<dyn Kernel>> {
     }
 
     None
+}
+
+/// Lint some code
+///
+/// # Arguments
+///
+/// - `code`: the code to be linted
+/// - `dir`: the directory of the document the code is in
+/// - `language`: the language of the code
+/// - `options`: linting options
+pub async fn lint(
+    code: &str,
+    dir: &Path,
+    language: &str,
+    options: KernelLintingOptions,
+) -> Result<KernelLintingOutput> {
+    let format = Format::from_name(language);
+    for kernel in list().await {
+        if kernel.supports_language(&format)
+            && kernel.is_available()
+            && !matches!(kernel.supports_linting(), KernelLinting::No)
+        {
+            match kernel.name().as_str() {
+                "nodejs" => return NodeJsKernel.lint(code, dir, options).await,
+                "python" => return PythonKernel.lint(code, dir, options).await,
+                "r" => return RKernel.lint(code, dir, options).await,
+                _ => {}
+            }
+        }
+    }
+
+    bail!("No available kernel supports linting of {language}")
 }
 
 /// Get the default kernel (used when no language is specified)

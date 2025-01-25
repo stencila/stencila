@@ -17,7 +17,10 @@ use format::Format;
 pub use common;
 pub use format;
 pub use schema;
-use schema::{ExecutionMessage, Node, Null, SoftwareApplication, SoftwareSourceCode, Variable};
+use schema::{
+    CompilationMessage, ExecutionMessage, Node, Null, SoftwareApplication, SoftwareSourceCode,
+    Variable,
+};
 
 /// A kernel for executing code in some language
 ///
@@ -62,6 +65,11 @@ pub trait Kernel: Sync + Send {
     /// Does the kernel support a particular language?
     fn supports_language(&self, format: &Format) -> bool {
         self.supports_languages().contains(format)
+    }
+
+    /// Does the kernel support linting?
+    fn supports_linting(&self) -> KernelLinting {
+        KernelLinting::No
     }
 
     /// Does the kernel support the interrupt signal?
@@ -128,6 +136,86 @@ pub enum KernelAvailability {
     Unavailable,
     /// Available on this machine but disabled
     Disabled,
+}
+
+/// Whether a kernel supports linting on the current machine
+///
+/// Linting is used provide warnings and errors to the user or LLM without
+/// having to execute the code (which may change the kernel state).
+///
+/// Whether linting is available for a kernel will usually be dependent on
+/// whether an associated external commands is available e.g. `ruff` (for Python),
+/// `Rscript -e 'lintr::lint'` (for R), and `npx eslint` (for Node).
+#[derive(Debug, Display, Default, Clone, Copy, Serialize, Deserialize)]
+#[strum(serialize_all = "lowercase")]
+#[serde(crate = "common::serde")]
+pub enum KernelLinting {
+    /// Kernel does not support linting on this machine
+    #[default]
+    No,
+    /// Kernel supports linting diagnostics on this machine
+    Diagnostics,
+    /// Kernel supports linting fixes on this machine
+    Fixes,
+}
+
+/// Options for [`Kernel::lint`]
+#[derive(Debug, Default)]
+pub struct KernelLintingOptions {
+    /// Whether to format the code
+    pub format: bool,
+
+    /// Whether to fix the code
+    pub fix: bool,
+}
+
+/// Output from [`Kernel::lint`]
+#[derive(Default)]
+pub struct KernelLintingOutput {
+    /// The formatted and/or fixed code
+    ///
+    /// If both `format` and `fix` are false, or if there is no change in the code,
+    /// this is expected to be `None`
+    pub code: Option<String>,
+
+    /// The diagnostic output
+    ///
+    /// The raw output from the linting tool/s. Will usually, but not necessarily,
+    /// be `None` if `output` is `Some`.
+    ///
+    /// Implementations should return `None` rather than an empty string.
+    pub output: Option<String>,
+
+    /// Any diagnostic messages
+    ///
+    /// The output from linting tool/s parsed to compilation messages.
+    /// The can be used for displaying diagnostic messages at the correct line/column.
+    ///
+    /// Will usually, but not necessarily, be `None` if `output` is `Some`.
+    /// Implementations should return `None` rather than an empty vector.
+    pub messages: Option<Vec<CompilationMessage>>,
+}
+
+/// A trait to lint some code for a language
+///
+/// This is a separate trait from [`Kernel`] to avoid from making that
+/// trait `async`. It is a separate trait from [`KernelInstance`] because
+/// linting is done as static analysis of code and does not need to
+/// read the current state of the kernel.
+pub trait KernelLint {
+    /// Lint and, if supported, fix the code
+    ///
+    /// This default implementation returns the code unchanged and with no
+    /// messages. It should be overridden by kernels that support linting.
+    #[allow(async_fn_in_trait, unused_variables)]
+    async fn lint(
+        &self,
+        code: &str,
+        dir: &Path,
+        options: KernelLintingOptions,
+    ) -> Result<KernelLintingOutput> {
+        Ok(KernelLintingOutput::default())
+    }
 }
 
 /// Whether a kernel supports the interrupt signal on the current machine

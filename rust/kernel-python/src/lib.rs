@@ -1,4 +1,4 @@
-use which::which;
+use std::{fs::read_to_string, io::Write, path::Path, process::Command};
 
 use kernel_micro::{
     common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelForks, KernelInstance,
@@ -28,6 +28,13 @@ impl Kernel for PythonKernel {
         vec![Format::Python]
     }
 
+    fn supports_linting(&self) -> KernelLinting {
+        // Check for presence of Ruff or PyRight
+        which("ruff")
+            .or_else(|_| which("pyright"))
+            .map_or(KernelLinting::No, |_| KernelLinting::Fixes)
+    }
+
     fn supports_interrupt(&self) -> KernelInterrupt {
         self.microkernel_supports_interrupt()
     }
@@ -47,6 +54,155 @@ impl Kernel for PythonKernel {
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
         self.microkernel_create_instance(NAME)
+    }
+}
+
+impl KernelLint for PythonKernel {
+    #[tracing::instrument(skip(self, code))]
+    async fn lint(
+        &self,
+        code: &str,
+        _dir: &Path,
+        options: KernelLintingOptions,
+    ) -> Result<KernelLintingOutput> {
+        tracing::debug!("Linting Python code");
+
+        // Write the code to a temporary file
+        let mut temp_file = NamedTempFile::new()?;
+        write!(temp_file, "{}", code)?;
+        let temp_path = temp_file.path();
+
+        // Format code if specified
+        if options.format {
+            Command::new("ruff")
+                .arg("format")
+                .arg(temp_path)
+                .output()
+                .ok();
+        }
+
+        // Run Ruff with JSON output for parsing of diagnostic to messages
+        let mut cmd = Command::new("ruff");
+        cmd.arg("check").arg("--output-format=json").arg(temp_path);
+        if options.fix {
+            cmd.arg("--fix");
+        }
+        let mut messages: Vec<CompilationMessage> = if let Ok(output) = cmd.output() {
+            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+
+            // A diagnostic message from Ruff
+            #[derive(Deserialize)]
+            #[serde(crate = "kernel_micro::common::serde")]
+            struct RuffMessage {
+                code: String,
+                message: String,
+                location: Option<RuffLocation>,
+                end_location: Option<RuffLocation>,
+            }
+            #[derive(Deserialize)]
+            #[serde(crate = "kernel_micro::common::serde")]
+            struct RuffLocation {
+                column: u64,
+                row: u64,
+            }
+
+            let ruff_messages = serde_json::from_str::<Vec<RuffMessage>>(&stdout)?;
+            ruff_messages
+                .into_iter()
+                .map(|message| CompilationMessage {
+                    level: MessageLevel::Error,
+                    error_type: Some(message.code),
+                    message: message.message,
+                    code_location: Some(CodeLocation {
+                        start_line: message.location.as_ref().map(|location| location.row),
+                        start_column: message.location.as_ref().map(|location| location.column),
+                        end_line: message.end_location.as_ref().map(|location| location.row),
+                        end_column: message
+                            .end_location
+                            .as_ref()
+                            .map(|location| location.column),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                })
+                .collect()
+        } else {
+            Vec::new()
+        };
+
+        // Run Pyright with JSON output to parse into messages
+        if let Ok(output) = Command::new("pyright")
+            .arg("--outputjson")
+            .arg(temp_path)
+            .output()
+        {
+            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+
+            // A diagnostic report from Pyright
+            #[derive(Deserialize)]
+            #[serde(rename_all = "camelCase", crate = "kernel_micro::common::serde")]
+            struct PyrightDiagnostics {
+                general_diagnostics: Vec<PyrightDiagnostic>,
+            }
+            #[derive(Deserialize)]
+            #[serde(crate = "kernel_micro::common::serde")]
+            struct PyrightDiagnostic {
+                rule: String,
+                severity: String,
+                message: String,
+                range: PyrightRange,
+            }
+            #[derive(Deserialize)]
+            #[serde(crate = "kernel_micro::common::serde")]
+            struct PyrightRange {
+                start: PyrightLocation,
+                end: PyrightLocation,
+            }
+            #[derive(Deserialize)]
+            #[serde(crate = "kernel_micro::common::serde")]
+            struct PyrightLocation {
+                line: u64,
+                character: u64,
+            }
+
+            let pyright_diagnostics = serde_json::from_str::<PyrightDiagnostics>(&stdout)?;
+            let mut compilation_messages = pyright_diagnostics
+                .general_diagnostics
+                .into_iter()
+                .map(|diag| CompilationMessage {
+                    level: match diag.severity.as_str() {
+                        "warning" => MessageLevel::Warning,
+                        _ => MessageLevel::Error,
+                    },
+                    error_type: Some(diag.rule.trim_start_matches("report").into()),
+                    message: diag.message,
+                    code_location: Some(CodeLocation {
+                        start_line: Some(diag.range.start.line),
+                        start_column: Some(diag.range.start.character),
+                        end_line: Some(diag.range.end.line),
+                        end_column: Some(diag.range.end.character),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                })
+                .collect();
+
+            messages.append(&mut compilation_messages);
+        }
+
+        // Read the updated file if formatted or fixed
+        let code = if options.format || options.fix {
+            let new_code = read_to_string(temp_path)?;
+            (new_code != code).then_some(new_code)
+        } else {
+            None
+        };
+
+        Ok(KernelLintingOutput {
+            code,
+            messages: (!messages.is_empty()).then_some(messages),
+            ..Default::default()
+        })
     }
 }
 

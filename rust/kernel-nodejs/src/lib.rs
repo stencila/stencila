@@ -1,6 +1,16 @@
+use std::{
+    fs::{read_to_string, write},
+    path::Path,
+    process::Command,
+};
+
 use kernel_micro::{
-    common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, KernelProvider, KernelTerminate, Microkernel,
+    common::{eyre::Result, serde::Deserialize, serde_json, tempfile, tracing},
+    format::Format,
+    schema::{CodeLocation, CompilationMessage, MessageLevel},
+    Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
+    KernelLint, KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider,
+    KernelTerminate, Microkernel,
 };
 
 /// A kernel for executing JavaScript code in Node.js
@@ -26,6 +36,20 @@ impl Kernel for NodeJsKernel {
         vec![Format::JavaScript]
     }
 
+    fn supports_linting(&self) -> KernelLinting {
+        // Check for `npx` and `eslint`
+        match Command::new("npx")
+            .arg("--no") // Do not install eslint if not already
+            .arg("--")
+            .arg("eslint")
+            .arg("--version") // To prevent eslint waiting for input
+            .output()
+        {
+            Ok(..) => KernelLinting::Fixes,
+            Err(..) => KernelLinting::No,
+        }
+    }
+
     fn supports_interrupt(&self) -> KernelInterrupt {
         self.microkernel_supports_interrupt()
     }
@@ -46,6 +70,131 @@ impl Kernel for NodeJsKernel {
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
         self.microkernel_create_instance(NAME)
+    }
+}
+
+impl KernelLint for NodeJsKernel {
+    #[tracing::instrument(skip(self, code))]
+    async fn lint(
+        &self,
+        code: &str,
+        _dir: &Path,
+        options: KernelLintingOptions,
+    ) -> Result<KernelLintingOutput> {
+        tracing::debug!("Linting Node.js code");
+
+        // It is difficult (impossible?) to get eslint to work on an out
+        // of tree file (e.g. in /tmp) so this creates one next to the
+        // current document.
+        let temp_dir = tempfile::Builder::new()
+            .prefix("stencila-lint-")
+            .tempdir_in(".")?;
+
+        // Write the code to a temporary file
+        let code_path = temp_dir.path().join("code.js");
+        write(&code_path, code)?;
+        let code_path_str = code_path.to_string_lossy();
+
+        // Format code if specified
+        // Does this optimistically with no error if it fails
+        if options.format {
+            Command::new("npx")
+                .arg("--no") // Do not install prettier if not already
+                .arg("--")
+                .arg("prettier")
+                .arg("--write")
+                .arg(&*code_path_str)
+                .output()
+                .ok();
+        }
+
+        // Need a config file
+        // TODO: walk up the tree to find any existing config
+        let config_path = temp_dir.path().join("eslint.config.mjs");
+        write(
+            &config_path,
+            r#"
+import pluginJs from "@eslint/js";
+export default [
+    pluginJs.configs.recommended,
+];
+"#,
+        )?;
+        let config_path_str = config_path.to_string_lossy();
+
+        // Run eslint to get diagnostics and output as JSON
+        let mut cmd = Command::new("npx");
+        cmd.arg("eslint")
+            .arg("--format=json")
+            .arg("--config")
+            .arg(&*config_path_str)
+            .arg(&*code_path_str);
+
+        if options.fix {
+            cmd.arg("--fix");
+        }
+
+        // Run ESLint with JSON output to parse into messages
+        let messages = if let Ok(output) = cmd.output() {
+            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+
+            // A diagnostic report from ESlint
+            #[derive(Deserialize)]
+            #[serde(rename_all = "camelCase", crate = "kernel_micro::common::serde")]
+            struct EslintReport {
+                messages: Vec<EslintMessage>,
+            }
+            #[derive(Deserialize)]
+            #[serde(crate = "kernel_micro::common::serde")]
+            struct EslintMessage {
+                severity: u8,
+                message: String,
+                line: u64,
+                column: u64,
+            }
+
+            let mut eslint_reports = serde_json::from_str::<Vec<EslintReport>>(&stdout)?;
+            if eslint_reports.is_empty() {
+                None
+            } else {
+                let messages = eslint_reports
+                    .swap_remove(0)
+                    .messages
+                    .into_iter()
+                    .map(|msg| CompilationMessage {
+                        level: match msg.severity {
+                            1 => MessageLevel::Warning,
+                            _ => MessageLevel::Error,
+                        },
+                        message: msg.message,
+                        code_location: Some(CodeLocation {
+                            start_line: Some(msg.line),
+                            start_column: Some(msg.column),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    })
+                    .collect();
+
+                Some(messages)
+            }
+        } else {
+            None
+        };
+
+        // If formatted or fixed, read in the possible changed code
+        let code = if options.format || options.fix {
+            let new_code = read_to_string(code_path)?;
+            (new_code != code).then_some(new_code)
+        } else {
+            None
+        };
+
+        Ok(KernelLintingOutput {
+            code,
+            messages,
+            ..Default::default()
+        })
     }
 }
 
