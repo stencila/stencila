@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     env, fmt,
     path::{Path, PathBuf},
     sync::Arc,
@@ -7,6 +8,7 @@ use std::{
 use kernel::{
     common::{
         eyre::{bail, Result},
+        once_cell::sync::Lazy,
         tokio::{
             self,
             sync::{broadcast, mpsc, Mutex, RwLock},
@@ -90,18 +92,37 @@ pub async fn lint(
     language: &str,
     options: KernelLintingOptions,
 ) -> Result<KernelLintingOutput> {
+    // Cache linting support for each kernel to avoid relatively expensive
+    // calls to `supports_linting` on each call of this function.
+    static SUPPORT: Lazy<Arc<RwLock<HashMap<String, KernelLinting>>>> =
+        Lazy::new(|| Arc::default());
+
     let format = Format::from_name(language);
     for kernel in list().await {
-        if kernel.supports_language(&format)
-            && kernel.is_available()
-            && !matches!(kernel.supports_linting(), KernelLinting::No)
-        {
-            match kernel.name().as_str() {
-                "nodejs" => return NodeJsKernel.lint(code, dir, options).await,
-                "python" => return PythonKernel.lint(code, dir, options).await,
-                "r" => return RKernel.lint(code, dir, options).await,
-                _ => {}
+        if !kernel.supports_language(&format) {
+            continue;
+        }
+
+        let name = kernel.name();
+
+        if let Some(support) = SUPPORT.read().await.get(&name) {
+            if matches!(support, KernelLinting::No) {
+                continue;
             }
+        }
+
+        let support = kernel.supports_linting();
+        SUPPORT.write().await.insert(name.clone(), support);
+
+        if matches!(support, KernelLinting::No) {
+            continue;
+        }
+
+        match name.as_str() {
+            "nodejs" => return NodeJsKernel.lint(code, dir, options).await,
+            "python" => return PythonKernel.lint(code, dir, options).await,
+            "r" => return RKernel.lint(code, dir, options).await,
+            _ => {}
         }
     }
 
