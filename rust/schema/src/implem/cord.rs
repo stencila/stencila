@@ -756,8 +756,15 @@ impl PatchNode for Cord {
             bail!("Invalid path `{path:?}` for Cord");
         }
 
-        let PatchOp::Apply(ops) = op else {
-            bail!("Invalid op for Cord");
+        let ops = match op {
+            // Accept pre-calculated operations from a higher level diff
+            PatchOp::Apply(ops) => ops,
+            // Calculate ops by diffing a new string value
+            PatchOp::Set(PatchValue::String(value)) => {
+                let other = Cord::from(value);
+                self.create_ops(&other)
+            }
+            _ => bail!("Invalid op for Cord"),
         };
 
         self.apply_ops(ops, context.author_index(), context.author_type());
