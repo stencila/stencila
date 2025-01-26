@@ -170,14 +170,15 @@ export default [
                     .messages
                     .into_iter()
                     .map(|msg| CompilationMessage {
+                        error_type: Some("Linting".into()),
                         level: match msg.severity {
                             1 => MessageLevel::Warning,
                             _ => MessageLevel::Error,
                         },
                         message: msg.message,
                         code_location: Some(CodeLocation {
-                            start_line: Some(msg.line),
-                            start_column: Some(msg.column),
+                            start_line: Some(msg.line.saturating_sub(1)),
+                            start_column: Some(msg.column.saturating_sub(1)),
                             ..Default::default()
                         }),
                         ..Default::default()

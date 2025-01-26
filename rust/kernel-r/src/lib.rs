@@ -131,12 +131,12 @@ impl KernelLint for RKernel {
                 let messages = lintr_messages
                     .into_iter()
                     .map(|msg| CompilationMessage {
+                        error_type: Some("Linting".into()),
                         level: match msg.r#type.as_str() {
                             "style" => MessageLevel::Debug,
                             "warning" => MessageLevel::Warning,
                             _ => MessageLevel::Error,
                         },
-                        error_type: Some(msg.r#type),
                         message: msg.message,
                         code_location: Some(CodeLocation {
                             start_line: Some(msg.line_number.saturating_sub(1)),

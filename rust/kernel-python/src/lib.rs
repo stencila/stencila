@@ -110,9 +110,9 @@ impl KernelLint for PythonKernel {
             ruff_messages
                 .into_iter()
                 .map(|message| CompilationMessage {
-                    level: MessageLevel::Error,
-                    error_type: Some(message.code),
-                    message: message.message,
+                    error_type: Some("Linting".into()),
+                    level: MessageLevel::Warning,
+                    message: format!("{} (Ruff {})", message.message, message.code),
                     code_location: Some(CodeLocation {
                         // Note that Ruff provides 1-based row and column indices
                         start_line: message
@@ -183,23 +183,33 @@ impl KernelLint for PythonKernel {
                     // Ignore some diagnostics which do not make so much sense in code cells
                     !matches!(diag.rule.as_deref(), Some("reportUnusedExpression"))
                 })
-                .map(|diag| CompilationMessage {
-                    level: match diag.severity.as_str() {
-                        "warning" => MessageLevel::Warning,
-                        _ => MessageLevel::Error,
-                    },
-                    error_type: diag
-                        .rule
-                        .map(|rule| rule.trim_start_matches("report").into()),
-                    message: diag.message,
-                    code_location: Some(CodeLocation {
-                        start_line: Some(diag.range.start.line),
-                        start_column: Some(diag.range.start.character),
-                        end_line: Some(diag.range.end.line),
-                        end_column: Some(diag.range.end.character),
+                .map(|diag| {
+                    let message = format!(
+                        "{}{}",
+                        diag.message,
+                        diag.rule
+                            .map(|rule| format!(" (Pyright {})", rule.trim_start_matches("report")))
+                            .unwrap_or_default()
+                    )
+                    .trim()
+                    .to_string();
+
+                    CompilationMessage {
+                        error_type: Some("Linting".into()),
+                        level: match diag.severity.as_str() {
+                            "warning" => MessageLevel::Warning,
+                            _ => MessageLevel::Error,
+                        },
+                        message,
+                        code_location: Some(CodeLocation {
+                            start_line: Some(diag.range.start.line),
+                            start_column: Some(diag.range.start.character),
+                            end_line: Some(diag.range.end.line),
+                            end_column: Some(diag.range.end.character),
+                            ..Default::default()
+                        }),
                         ..Default::default()
-                    }),
-                    ..Default::default()
+                    }
                 })
                 .collect();
 
