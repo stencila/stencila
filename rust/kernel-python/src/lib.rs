@@ -182,44 +182,53 @@ impl KernelLint for PythonKernel {
             }
 
             let pyright_diagnostics = serde_json::from_str::<PyrightDiagnostics>(&stdout)?;
-            let mut compilation_messages = pyright_diagnostics
+            for diag in pyright_diagnostics
                 .general_diagnostics
                 .into_iter()
                 .filter(|diag| {
                     // Ignore some diagnostics which do not make so much sense in code cells
                     !matches!(diag.rule.as_deref(), Some("reportUnusedExpression"))
                 })
-                .map(|diag| {
-                    let message = format!(
-                        "{}{}",
-                        diag.message,
-                        diag.rule
-                            .map(|rule| format!(" (Pyright {})", rule.trim_start_matches("report")))
-                            .unwrap_or_default()
-                    )
-                    .trim()
-                    .to_string();
+            {
+                let code_location = Some(CodeLocation {
+                    start_line: Some(diag.range.start.line),
+                    start_column: Some(diag.range.start.character),
+                    end_line: Some(diag.range.end.line),
+                    end_column: Some(diag.range.end.character),
+                    ..Default::default()
+                });
 
-                    CompilationMessage {
-                        error_type: Some("Linting".into()),
-                        level: match diag.severity.as_str() {
-                            "warning" => MessageLevel::Warning,
-                            _ => MessageLevel::Error,
-                        },
-                        message,
-                        code_location: Some(CodeLocation {
-                            start_line: Some(diag.range.start.line),
-                            start_column: Some(diag.range.start.character),
-                            end_line: Some(diag.range.end.line),
-                            end_column: Some(diag.range.end.character),
-                            ..Default::default()
-                        }),
-                        ..Default::default()
-                    }
-                })
-                .collect();
+                // Only add message if code location not already recorded
+                if messages
+                    .iter()
+                    .any(|msg| msg.code_location == code_location)
+                {
+                    continue;
+                }
 
-            messages.append(&mut compilation_messages);
+                let message = format!(
+                    "{}{}",
+                    diag.message,
+                    diag.rule
+                        .map(|rule| format!(" (Pyright {})", rule.trim_start_matches("report")))
+                        .unwrap_or_default()
+                )
+                .trim()
+                .to_string();
+
+                let message = CompilationMessage {
+                    error_type: Some("Linting".into()),
+                    level: match diag.severity.as_str() {
+                        "warning" => MessageLevel::Warning,
+                        _ => MessageLevel::Error,
+                    },
+                    message,
+                    code_location,
+                    ..Default::default()
+                };
+
+                messages.push(message);
+            }
         }
 
         // Read the updated file if formatted or fixed
