@@ -355,6 +355,11 @@ console.error("Error message");
     /// Standard kernel test for listing installed packages
     #[test_log::test(tokio::test)]
     async fn packages() -> Result<()> {
+        if std::env::var("CI").is_ok() {
+            eprintln!("Skipping test on CI because requires `npm install` has been run (not always the case)");
+            return Ok(());
+        }
+
         let Some(instance) = start_instance::<NodeJsKernel>().await? else {
             return Ok(());
         };
