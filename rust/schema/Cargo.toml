@@ -22,7 +22,7 @@ common = { path = "../common" }
 format = { path = "../format" }
 human_name = "2.0.3"
 images = { path = "../images" }
-interim = { version = "0.1.2", features = ["chrono"] }
+interim = { version = "0.2.0", features = ["chrono_0_4"] }
 monostate = { workspace = true }
 node-id = { path = "../node-id" }
 node-patch-derive = { path = "../node-patch-derive" }
