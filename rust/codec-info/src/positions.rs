@@ -1,7 +1,7 @@
 use std::cell::{Ref, RefCell};
 
 /// A UTF8-based line/column position in a string
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Default, PartialEq)]
 pub struct Position8 {
     /// The 0-based line index
     pub line: usize,
@@ -17,7 +17,7 @@ impl Position8 {
 }
 
 /// A UTF8-based range of positions
-#[derive(Debug, PartialEq)]
+#[derive(Debug, Default, PartialEq)]
 pub struct Range8 {
     /// The start of the range
     pub start: Position8,
