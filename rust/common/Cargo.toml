@@ -12,7 +12,7 @@ chrono = { version = "0.4.39", features = ["serde"] }
 chrono-humanize = "0.2.3"
 clap = { version = "4.5.27", features = ["derive", "color", "env", "wrap_help"] }
 derivative = "2.2.0"
-derive_more = "0.99.18"
+derive_more = "1.0.0"
 dirs = "5.0.1"
 eyre = "0.6.12"
 futures = "0.3.31"
