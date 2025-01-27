@@ -5,7 +5,7 @@ use crate::prelude::*;
 use super::node::Node;
 
 /// A code chunk in the current document
-#[derive(Default, Clone, Trace)]
+#[derive(Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct CodeChunk {
     /// The language of the code chunk
@@ -101,7 +101,7 @@ impl CodeChunk {
 }
 
 /// The code chunks in a document
-#[derive(Default, Clone, Trace)]
+#[derive(Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct CodeChunks {
     pub items: Vec<CodeChunk>,

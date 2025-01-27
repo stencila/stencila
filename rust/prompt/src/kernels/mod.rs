@@ -10,7 +10,7 @@ use variable::Variable;
 mod tests;
 
 /// The kernels associated with a document
-#[derive(Default, Clone, Trace)]
+#[derive(Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct Kernels {
     items: Vec<Kernel>,
@@ -84,7 +84,7 @@ impl Kernels {
 /// obtained from a kernel instance once, whereas `variables`
 /// needs to be updated whenever a variable is declared or
 /// updated in a kernel.
-#[derive(Default, Clone, Trace)]
+#[derive(Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct Kernel {
     /// The name of the kernel e.g. Python or R
