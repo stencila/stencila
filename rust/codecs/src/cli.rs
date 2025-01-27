@@ -81,9 +81,9 @@ impl List {
                 Cell::new(codec.name()).add_attribute(Attribute::Bold),
                 Cell::new(from),
                 Cell::new(to),
-                match avalibility {
+                match &avalibility {
                     CodecAvailability::Available => Cell::new(avalibility).fg(Color::Green),
-                    CodecAvailability::Installable(..) => Cell::new(avalibility).fg(Color::Yellow),
+                    CodecAvailability::Installable(package) => Cell::new(format!("requires {package}")).fg(Color::Yellow),
                     CodecAvailability::Unavailable => Cell::new(avalibility).fg(Color::Red),
                 },
             ]);
