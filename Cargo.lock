@@ -1503,7 +1503,6 @@ dependencies = [
  "glob",
  "indexmap 2.7.1",
  "itertools 0.14.0",
- "minijinja",
  "once_cell",
  "proc-macro2",
  "quote",
@@ -3323,6 +3322,7 @@ version = "0.0.0"
 dependencies = [
  "common-dev",
  "kernel",
+ "minijinja",
 ]
 
 [[package]]
@@ -3776,9 +3776,9 @@ dependencies = [
 
 [[package]]
 name = "minijinja"
-version = "1.0.21"
+version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "55e877d961d4f96ce13615862322df7c0b6d169d40cab71a7ef3f9b9e594451e"
+checksum = "212b4cab3aad057bc6e611814472905546c533295723b9e26a31c7feb19a8e65"
 dependencies = [
  "memo-map",
  "self_cell",
@@ -5997,9 +5997,9 @@ dependencies = [
 
 [[package]]
 name = "self_cell"
-version = "1.0.4"
+version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d369a96f978623eb3dc28807c4852d6cc617fed53da5d3c400feff1ef34a714a"
+checksum = "c2fdfc24bc566f839a2da4c4295b82db7d25a24253867d5c64355abb5799bdbe"
 
 [[package]]
 name = "semver"
