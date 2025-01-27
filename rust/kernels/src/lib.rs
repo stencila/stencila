@@ -99,7 +99,7 @@ pub async fn lint(
     static SUPPORT: Lazy<Arc<RwLock<HashMap<String, KernelLinting>>>> = Lazy::new(Arc::default);
 
     for kernel in list().await {
-        if !kernel.supports_language(&format) {
+        if !kernel.supports_language(format) {
             continue;
         }
 

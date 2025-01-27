@@ -1,8 +1,14 @@
 use std::{fs::read_to_string, io::Write, path::Path, process::Command};
 
+use which::which;
+
 use kernel_micro::{
-    common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, KernelProvider, KernelTerminate, Microkernel,
+    common::{eyre::Result, serde::Deserialize, serde_json, tempfile::NamedTempFile, tracing},
+    format::Format,
+    schema::{CodeLocation, CompilationMessage, MessageLevel},
+    Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
+    KernelLint, KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider,
+    KernelTerminate, Microkernel,
 };
 
 /// A kernel for executing Python code
