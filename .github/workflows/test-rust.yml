@@ -67,6 +67,10 @@ jobs:
         if: ${{ matrix.enabled != 'true' }}
         uses: Swatinem/rust-cache@v2
 
+      - name: Setup Python dependencies
+        # These are used in `make -C rust lint` for embedded python code
+        run: pip install ruff pyright
+
       - name: Build and archive CLI
         if: ${{ matrix.enabled != 'true' }}
         run: make -C rust lint test
