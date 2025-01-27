@@ -33,7 +33,7 @@ env:
   RUST_VERSION: "1.81.0"
 
 jobs:
-  build-cli:
+  test-rust:
     strategy:
       fail-fast: false
       matrix:
