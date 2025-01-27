@@ -7,28 +7,30 @@ impl Executable for MathBlock {
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        let compilation_digest = parsers::parse(
-            &self.code,
-            self.math_language.as_deref().unwrap_or_default(),
-        )
-        .compilation_digest;
-
-        if Some(&compilation_digest) == self.options.compilation_digest.as_ref() {
-            tracing::trace!("Skipping compiling MathBlock {node_id}");
-
-            return WalkControl::Break;
-        }
-
-        tracing::trace!("Compiling MathBlock {node_id}");
-
+        // Update label if necessary
         executor.equation_count += 1;
-
         if self.label_automatically.unwrap_or(true) {
             let label = executor.equation_count.to_string();
             if Some(&label) != self.label.as_ref() {
                 executor.patch(&node_id, [set(NodeProperty::Label, label)]);
             }
         }
+
+        // Parse the code to determine if it or the language has changed since last time
+        let info = parsers::parse(
+            &self.code,
+            &self.math_language,
+            &self.options.compilation_digest,
+        );
+
+        // Return early if no change
+        if info.changed.no() {
+            tracing::trace!("Skipping compiling MathBlock {node_id}");
+
+            return WalkControl::Break;
+        }
+
+        tracing::trace!("Compiling MathBlock {node_id}");
 
         if !self.code.trim().is_empty() {
             let lang = self
@@ -70,7 +72,7 @@ impl Executable for MathBlock {
                 [
                     set(NodeProperty::Mathml, mathml),
                     set(NodeProperty::CompilationMessages, messages),
-                    set(NodeProperty::CompilationDigest, compilation_digest),
+                    set(NodeProperty::CompilationDigest, info.compilation_digest),
                 ],
             );
         } else {
@@ -79,7 +81,7 @@ impl Executable for MathBlock {
                 [
                     none(NodeProperty::Mathml),
                     none(NodeProperty::CompilationMessages),
-                    set(NodeProperty::CompilationDigest, compilation_digest),
+                    set(NodeProperty::CompilationDigest, info.compilation_digest),
                 ],
             );
         };

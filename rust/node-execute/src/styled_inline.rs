@@ -7,13 +7,15 @@ impl Executable for StyledInline {
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        let compilation_digest = parsers::parse(
+        // Parse the code to determine if it or the language has changed since last time
+        let info = parsers::parse(
             &self.code,
-            self.style_language.as_deref().unwrap_or_default(),
-        )
-        .compilation_digest;
+            &self.style_language,
+            &self.options.compilation_digest,
+        );
 
-        if Some(&compilation_digest) == self.options.compilation_digest.as_ref() {
+        // Return early if no change
+        if info.changed.no() {
             tracing::trace!("Skipping compiling StyledInline {node_id}");
 
             // Continue to compile child nodes in content
@@ -57,7 +59,7 @@ impl Executable for StyledInline {
                     set(NodeProperty::Css, css),
                     set(NodeProperty::ClassList, class_list),
                     set(NodeProperty::CompilationMessages, messages),
-                    set(NodeProperty::CompilationDigest, compilation_digest),
+                    set(NodeProperty::CompilationDigest, info.compilation_digest),
                 ],
             );
         } else {
@@ -67,7 +69,7 @@ impl Executable for StyledInline {
                     none(NodeProperty::Css),
                     none(NodeProperty::ClassList),
                     none(NodeProperty::CompilationMessages),
-                    set(NodeProperty::CompilationDigest, compilation_digest),
+                    set(NodeProperty::CompilationDigest, info.compilation_digest),
                 ],
             );
         };

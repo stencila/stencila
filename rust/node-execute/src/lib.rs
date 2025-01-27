@@ -202,11 +202,16 @@ pub struct Executor {
     /// The id of the last [`Block`] visited
     last_block: Option<NodeId>,
 
+    /// The last programming language used
+    programming_language: Option<String>,
+
     /// Temporary nodes to be executed that are outside of the main tree
     /// but which should be executed as though between other nodes
     temporaries: Vec<(Option<NodeId>, Option<NodeId>, Node)>,
 
-    node_codes: Vec<(NodeId, bool, String, Option<String>)>,
+    /// Information about nodes, their code and language, and whether they have changed,
+    /// used for linting
+    linting_context: Vec<(Option<NodeId>, String, Option<String>, bool)>,
 
     /// Whether the current node is the last in a set
     ///
@@ -393,8 +398,9 @@ impl Executor {
             figure_count: 0,
             equation_count: 0,
             last_block: None,
+            programming_language: None,
             temporaries: Vec::new(),
-            node_codes: Vec::new(),
+            linting_context: Vec::new(),
             is_last: false,
             lint_options: Default::default(),
             execute_options: options.unwrap_or_default(),
@@ -466,7 +472,7 @@ impl Executor {
         self.table_count = 0;
         self.figure_count = 0;
         self.equation_count = 0;
-        self.node_codes.clear();
+        self.linting_context.clear();
         root.walk_async(self).await?;
 
         self.lint().await?;
@@ -474,15 +480,59 @@ impl Executor {
         Ok(())
     }
 
-    /// Lint any code collected
+    /// Add a variable declaration to the linting context
+    ///
+    /// This is used when it is necessary to declare some variable as being part of
+    /// the context but not part of a specific node's code.
+    pub(crate) fn linting_variable(
+        &mut self,
+        name: &str,
+        lang: &Option<String>,
+        has_changed: bool,
+    ) {
+        let format = lang.as_deref().map(Format::from_name);
+
+        use Format::*;
+        let declaration = match format {
+            Some(JavaScript) => format!("var {name} = null;\n"),
+            Some(Python) => format!("{name} = None\n"),
+            Some(R) => format!("{name} <- NULL\n"),
+            _ => format!("{name} = 0;\n"),
+        };
+
+        self.linting_context
+            .push((None, declaration, lang.clone(), has_changed));
+    }
+
+    /// Add code to the linting context
+    ///
+    /// Note that for code chunks, this needs to be done regardless of whether the code chunk
+    /// has changed or not because we need to collect all the code in the document for linting.
+    pub(crate) fn linting_code(
+        &mut self,
+        node_id: &NodeId,
+        code: &str,
+        lang: &Option<String>,
+        has_changed: bool,
+    ) {
+        self.linting_context.push((
+            Some(node_id.clone()),
+            code.to_string(),
+            lang.clone(),
+            has_changed,
+        ));
+    }
+
+    /// Lint code that was collected while compiling
     async fn lint(&mut self) -> Result<()> {
-        // Skip linting if none have changed
+        // Skip linting if formatting or fixing is not required and
+        // none of the codes have changed
         if !self.lint_options.format
             && !self.lint_options.fix
             && !self
-                .node_codes
+                .linting_context
                 .iter()
-                .any(|(_, has_changed, ..)| *has_changed)
+                .any(|(.., has_changed)| *has_changed)
         {
             return Ok(());
         }
@@ -504,21 +554,31 @@ impl Executor {
         // code and messages for relevant nodes for each language
         let mut format_codes: HashMap<Option<Format>, String> = HashMap::new();
         let mut format_nodes: HashMap<Option<Format>, Vec<NodeId>> = HashMap::new();
-        for (node_id, .., code, language) in &self.node_codes {
+        for (node_id, code, language, ..) in &self.linting_context {
             let format = language.as_deref().map(Format::from_name);
-            let comment = format_comment(&format);
-            let code = format!("{comment} {BEGIN} {node_id}\n{code}\n{comment} {END} {node_id}\n");
 
-            if let Some(existing) = format_codes.get_mut(&format) {
-                existing.push_str(&code);
+            if let Some(node_id) = node_id {
+                let comment = format_comment(&format);
+                let code =
+                    format!("{comment} {BEGIN} {node_id}\n{code}\n{comment} {END} {node_id}\n");
+
+                if let Some(existing) = format_codes.get_mut(&format) {
+                    existing.push_str(&code);
+                } else {
+                    format_codes.insert(format.clone(), code);
+                }
+
+                format_nodes
+                    .entry(format)
+                    .or_default()
+                    .push(node_id.clone());
             } else {
-                format_codes.insert(format.clone(), code);
+                if let Some(existing) = format_codes.get_mut(&format) {
+                    existing.push_str(&code);
+                } else {
+                    format_codes.insert(format.clone(), code.clone());
+                }
             }
-
-            format_nodes
-                .entry(format)
-                .or_default()
-                .push(node_id.clone());
         }
 
         let dir = self
@@ -568,6 +628,11 @@ impl Executor {
                 continue;
             };
 
+            let format = Some(format);
+
+            // Get the line comment prefix for the format
+            let comment_prefix = format_comment(&format);
+
             // If there is output code then it needs to be used to patch nodes
             // and also message line numbers need to be calculated based on it
             let (code, code_changed) = match output.code {
@@ -578,21 +643,24 @@ impl Executor {
             // If there is a code change then extract the new code for each node
             // and compare to see if it has changed
             if code_changed {
-                let format = Some(format);
                 let this_format_nodes = format_nodes.remove(&format).unwrap_or_default();
-                let comment = format_comment(&format);
 
                 let lines = code.lines().collect_vec();
                 let mut line_index = 0;
-                for (node_id, _, old_code, _) in &self.node_codes {
+                for (node_id, old_code, ..) in &self.linting_context {
+                    // Continue if code is not part of the node
+                    let Some(node_id) = node_id else {
+                        continue;
+                    };
+
                     // Continue if node does not have code for this language
                     if !this_format_nodes.contains(node_id) {
                         continue;
                     }
 
-                    // Move across lines looking for code beginning and ending
-                    let begin = format!("{comment} {BEGIN} {node_id}");
-                    let end = format!("{comment} {END} {node_id}");
+                    // Move over lines looking for code beginning and ending
+                    let begin = format!("{comment_prefix} {BEGIN} {node_id}");
+                    let end = format!("{comment_prefix} {END} {node_id}");
                     let mut new_code = String::new();
                     let mut begun = false;
                     while line_index < lines.len() {
@@ -632,10 +700,11 @@ impl Executor {
             }
 
             // If there are any messages then map them back to the nodes by find the
-            // STENCILA-NODE-BEGIN comment immediately before the location of the message
+            // BEGIN line immediately before the location of the message
             if let Some(messages) = output.messages {
                 let lines = code.lines().collect_vec();
                 for mut message in messages {
+                    // Get the line of the message as the starting line
                     let Some(start_line) = message
                         .code_location
                         .as_ref()
@@ -644,21 +713,46 @@ impl Executor {
                         continue;
                     };
 
+                    // Find the BEGIN line for the message
+                    let mut node_begin_line = None;
                     let start_line = start_line as usize;
                     for line_index in (0..start_line).rev() {
                         let Some(line) = lines.get(line_index) else {
                             continue;
                         };
 
-                        let Some((_, BEGIN, node_id)) = line.split_whitespace().next_tuple() else {
+                        // Split line into 3 parts
+                        let parts: Option<(&str, &str, &str)> =
+                            line.split_whitespace().next_tuple();
+
+                        // If we find an END line already then abort the search
+                        // (this can happen if the message is related to "anonymous"
+                        // code injected for variable declarations etc)
+                        if let Some((first, second, ..)) = parts {
+                            if first == comment_prefix && second == END {
+                                break;
+                            }
+                        };
+
+                        // If not a BEGIN line, continue
+                        let Some((_, BEGIN, node_id)) = parts else {
                             continue;
                         };
 
+                        // If not able to parse a node id form last part, continue
                         let Ok(node_id) = NodeId::from_str(node_id) else {
                             continue;
                         };
 
-                        // Adjust line numbers so that they are relative to BEGIN line
+                        // Previous BEGIN line found and node id parsed
+                        node_begin_line = Some((node_id, line_index));
+                        break;
+                    }
+
+                    // Adjust line numbers so that they are relative to BEGIN line
+                    // Note that if no BEGIN line was found then the message will be
+                    // added - this is intentional.
+                    if let Some((node_id, line_index)) = node_begin_line {
                         if let Some(loc) = message.code_location.as_mut() {
                             if let Some(start_line) = loc.start_line.as_mut() {
                                 *start_line = start_line
@@ -672,15 +766,18 @@ impl Executor {
                         }
 
                         node_messages.entry(node_id).or_default().push(message);
-
-                        break;
                     }
                 }
             }
         }
 
         // Send a patch for each of the nodes
-        for (node_id, ..) in &self.node_codes {
+        for (node_id, ..) in &self.linting_context {
+            // Continue if code is not part of the node
+            let Some(node_id) = node_id else {
+                continue;
+            };
+
             let mut ops = Vec::new();
 
             if let Some(code) = node_codes.get(node_id) {
@@ -767,6 +864,17 @@ impl Executor {
     /// Used by [`Executable`] nodes to execute and evaluate code and manage variables.
     pub async fn kernels(&self) -> RwLockWriteGuard<Kernels> {
         self.kernels.write().await
+    }
+
+    /// Updates and returns the current programming language of the executor
+    ///
+    /// Allows users to not have to specify the language on executable code,
+    /// particularly inline expressions, for and if blocks, and call arguments.
+    pub fn programming_language(&mut self, lang: &Option<String>) -> Option<String> {
+        if let Some(lang) = lang {
+            self.programming_language = Some(lang.clone());
+        }
+        self.programming_language.clone()
     }
 
     /// Get the execution status for a node based on state of node
