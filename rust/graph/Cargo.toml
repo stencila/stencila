@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 common = { path = "../common" }
 format = { path = "../format" }
-petgraph = { version = "0.6.4", features = ["serde-1"] }
+petgraph = { version = "0.7.1", features = ["serde-1"] }
 schema = { path = "../schema" }
 
 [lints]
