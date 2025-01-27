@@ -1,17 +1,25 @@
 use parser::{common::once_cell::sync::Lazy, format::Format, DefaultParser};
 
-pub use parser::{ParseInfo, Parser};
+pub use parser::{schema::CompilationDigest, ParseInfo, Parser};
 
 /// Parse some code in a language
-pub fn parse(code: &str, language: &str) -> ParseInfo {
+pub fn parse(
+    code: &str,
+    language: &Option<String>,
+    compilation_digest: &Option<CompilationDigest>,
+) -> ParseInfo {
     static PARSERS: Lazy<Vec<Box<dyn Parser>>> = Lazy::new(Vec::new);
 
-    let format = Format::from_name(language);
+    let format = language
+        .as_ref()
+        .map(|language| Format::from_name(language))
+        .unwrap_or(Format::Unknown);
+
     for parser in PARSERS.iter() {
         if parser.supports_language(&format) {
-            return parser.parse(code, &format);
+            return parser.parse(code, &format, &compilation_digest);
         }
     }
 
-    DefaultParser::default().parse(code, &format)
+    DefaultParser::default().parse(code, &format, &compilation_digest)
 }
