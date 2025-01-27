@@ -44,7 +44,7 @@ pub enum CodecAvailability {
     /// Available on this machine but requires installation of external binary
     Installable(String),
     /// Not available on this machine
-    Unavailable
+    Unavailable,
 }
 
 /// A codec for decoding/encoding between Stencila Schema nodes and alternative formats
@@ -63,7 +63,7 @@ pub trait Codec: Sync + Send {
     /// is not stable.
     fn status(&self) -> Status;
 
-        /// Get the availability of the kernel on the current machine
+    /// Get the availability of the kernel on the current machine
     fn availability(&self) -> CodecAvailability {
         CodecAvailability::Available
     }

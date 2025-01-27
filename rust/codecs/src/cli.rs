@@ -8,8 +8,7 @@ use codec::{
         eyre::Result,
         itertools::Itertools,
     },
-    CodecSpecification,
-    CodecAvailability,
+    CodecAvailability, CodecSpecification,
 };
 
 /// Manage format conversion codecs
@@ -86,7 +85,7 @@ impl List {
                     CodecAvailability::Available => Cell::new(avalibility).fg(Color::Green),
                     CodecAvailability::Installable(..) => Cell::new(avalibility).fg(Color::Yellow),
                     CodecAvailability::Unavailable => Cell::new(avalibility).fg(Color::Red),
-            },
+                },
             ]);
         }
 

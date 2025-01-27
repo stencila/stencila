@@ -3,7 +3,7 @@ use codec::{
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport,CodecAvailability, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
+    Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 
 mod blocks;
