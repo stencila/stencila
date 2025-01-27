@@ -6,7 +6,7 @@
 #
 # Tries to take a fail fast approach : dependency audits, linting etc,
 # (which are faster), are run before tests (which are slower, particularly
-# for Rust-based modules including the Node and Pythn SDKs).
+# for Rust-based modules including the Node and Python SDKs).
 
 name: Test
 
