@@ -1,0 +1,62 @@
+# Workflow for testing Rust core on multiple platforms
+#
+# Extends the main `test.yml` workflow by running `make -C rust lint test`
+# on several platforms (whereas `test.yml` build all modules, including
+# `web` and `vscode` on Ubuntu only).
+#
+# Intended to be run manually for specific branches, commits, or tags
+# rather than on every push.
+
+name: Test Rust
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: The repo ref (branch, commit, tag) to test
+        type: string
+        default: main
+      ubuntu:
+        description: Run on Ubuntu
+        type: boolean
+        default: true
+      mac:
+        description: Run on Mac OS
+        type: boolean
+        default: true
+      windows:
+        description: Run on Windows
+        type: boolean
+        default: true
+
+env:
+  RUST_VERSION: "1.81.0"
+
+jobs:
+  build-cli:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+          - os: macos-latest
+          - os: windows-latest
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+
+      - name: Build and archive CLI
+        run: make -C rust lint test
