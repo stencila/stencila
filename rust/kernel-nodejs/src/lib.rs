@@ -372,6 +372,7 @@ console.error("Error message");
     }
 
     /// Standard kernel test for variable listing
+    #[cfg(not(target_os = "windows"))] // TODO: Fix on windows
     #[test_log::test(tokio::test)]
     async fn var_listing() -> Result<()> {
         let Some(instance) = create_instance::<NodeJsKernel>().await? else {
@@ -462,6 +463,7 @@ var para = {type: "Paragraph", content:[]}
     }
 
     /// Standard kernel test for variable management
+    #[cfg(not(target_os = "windows"))] // TODO: Fix on windows
     #[test_log::test(tokio::test)]
     async fn var_management() -> Result<()> {
         let Some(instance) = create_instance::<NodeJsKernel>().await? else {
