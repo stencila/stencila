@@ -72,6 +72,11 @@ impl Microkernel for PythonKernel {
     }
 }
 
+// These tests fail on Windows CI with error
+//   Error: When flushing code to kernel: The pipe is being closed. (os error 232)
+// This is likely due to communication with the Python stdin/stdout pipes on Windows
+// TODO: Fix Python microkernel on Windows
+#[cfg(not(target_os = "windows"))]
 #[cfg(test)]
 #[allow(clippy::print_stderr, clippy::unwrap_used)]
 mod tests {

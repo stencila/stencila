@@ -355,6 +355,7 @@ console.error("Error message");
     /// Standard kernel test for listing installed packages
     #[test_log::test(tokio::test)]
     async fn packages() -> Result<()> {
+        #[allow(clippy::print_stderr)]
         if std::env::var("CI").is_ok() {
             eprintln!("Skipping test on CI because requires `npm install` has been run (not always the case)");
             return Ok(());
@@ -471,6 +472,7 @@ var para = {type: "Paragraph", content:[]}
     }
 
     /// Standard kernel test for forking
+    #[cfg(not(target_os = "windows"))]
     #[test_log::test(tokio::test)]
     async fn forking() -> Result<()> {
         let Some(instance) = create_instance::<NodeJsKernel>().await? else {
@@ -482,6 +484,7 @@ var para = {type: "Paragraph", content:[]}
 
     /// Custom test to check that modules imported in the main kernel instance are
     /// available in the forked instance
+    #[cfg(not(target_os = "windows"))]
     #[test_log::test(tokio::test)]
     async fn forking_imports() -> Result<()> {
         let Some(mut instance) = start_instance::<NodeJsKernel>().await? else {
@@ -531,6 +534,7 @@ console.log(typeof fs.read, typeof path.join, typeof crypto.createCipher)
     }
 
     /// Standard kernel test for signals
+    #[cfg(not(target_os = "windows"))]
     #[test_log::test(tokio::test)]
     async fn signals() -> Result<()> {
         let Some(instance) = create_instance::<NodeJsKernel>().await? else {

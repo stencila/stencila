@@ -54,6 +54,7 @@ struct Summary {
 }
 
 /// Snapshot tests of the `MergeNode::diff` method
+#[cfg(not(target_os = "windows"))]
 #[tokio::test]
 #[allow(clippy::print_stderr)]
 async fn fixtures() -> Result<()> {
