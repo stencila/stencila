@@ -39,24 +39,34 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
+            enabled: ${{ inputs.ubuntu }}
           - os: macos-latest
+            enabled: ${{ inputs.mac }}
           - os: windows-latest
+            enabled: ${{ inputs.windows }}
     runs-on: ${{ matrix.os }}
-    permissions:
-      contents: write
     steps:
+      - name: Skip job if not enabled
+        if: ${{ matrix.enabled != 'true' }}
+        run: echo "Skipping `${{ matrix.os }}` as not enabled"
+        
       - name: Checkout repo
+        if: ${{ matrix.enabled != 'true' }}
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
 
       - name: Setup Rust
+        if: ${{ matrix.enabled != 'true' }}
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ env.RUST_VERSION }}
+          components: clippy
 
       - name: Setup Rust cache
+        if: ${{ matrix.enabled != 'true' }}
         uses: Swatinem/rust-cache@v2
 
       - name: Build and archive CLI
+        if: ${{ matrix.enabled != 'true' }}
         run: make -C rust lint test
