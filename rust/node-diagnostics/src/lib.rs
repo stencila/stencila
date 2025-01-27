@@ -66,13 +66,13 @@ impl Diagnostic {
         // Generate details for at top of diagnostic
         let mut details = String::new();
         if let Some(format) = &self.format {
-            details.push_str(&format.name());
+            details.push_str(format.name());
             details.push(' ');
         }
         details.push_str(&self.node_type.to_string());
         details.push(' ');
         if let Some(kind) = &self.kind {
-            details.push_str(&kind);
+            details.push_str(kind);
             details.push(' ');
         }
 
@@ -178,7 +178,7 @@ impl Collector {
             .iter()
             .flatten()
             .map(|msg| Diagnostic {
-                node_type: node_type.clone(),
+                node_type,
                 node_id: node_id.clone(),
                 level: msg.level.clone(),
                 kind: msg.error_type.clone(),
@@ -204,7 +204,7 @@ impl Collector {
             .iter()
             .flatten()
             .map(|msg| Diagnostic {
-                node_type: node_type.clone(),
+                node_type,
                 node_id: node_id.clone(),
                 level: msg.level.clone(),
                 kind: msg.error_type.clone(),

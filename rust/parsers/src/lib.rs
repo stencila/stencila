@@ -17,9 +17,9 @@ pub fn parse(
 
     for parser in PARSERS.iter() {
         if parser.supports_language(&format) {
-            return parser.parse(code, &format, &compilation_digest);
+            return parser.parse(code, &format, compilation_digest);
         }
     }
 
-    DefaultParser::default().parse(code, &format, &compilation_digest)
+    DefaultParser.parse(code, &format, compilation_digest)
 }

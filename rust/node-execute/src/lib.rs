@@ -75,11 +75,7 @@ pub async fn lint(
 ) -> Result<()> {
     let mut root = root.read().await.clone();
     let mut executor = Executor::new(home, kernels, patch_sender, None, None);
-    executor.lint_options = LintOptions {
-        format,
-        fix,
-        ..Default::default()
-    };
+    executor.lint_options = LintOptions { format, fix };
     executor.compile(&mut root).await
 }
 
@@ -572,12 +568,10 @@ impl Executor {
                     .entry(format)
                     .or_default()
                     .push(node_id.clone());
+            } else if let Some(existing) = format_codes.get_mut(&format) {
+                existing.push_str(code);
             } else {
-                if let Some(existing) = format_codes.get_mut(&format) {
-                    existing.push_str(&code);
-                } else {
-                    format_codes.insert(format.clone(), code.clone());
-                }
+                format_codes.insert(format.clone(), code.clone());
             }
         }
 
@@ -593,9 +587,7 @@ impl Executor {
             .clone()
             .into_iter()
             .map(|(format, code)| async move {
-                let Some(format) = format else {
-                    return None;
-                };
+                let format = format?;
 
                 match kernels::lint(
                     &code,
@@ -693,7 +685,7 @@ impl Executor {
                     new_code.truncate(new_code.trim_end().len());
                     let old_code = old_code.trim_end();
 
-                    if &new_code != old_code {
+                    if new_code != old_code {
                         node_codes.insert(node_id.clone(), new_code);
                     }
                 }
