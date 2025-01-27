@@ -51,26 +51,27 @@ jobs:
         run: echo "Skipping `${{ matrix.os }}` as not enabled"
         
       - name: Checkout repo
-        if: ${{ matrix.enabled != 'true' }}
+        if: ${{ matrix.enabled == 'true' }}
         uses: actions/checkout@v4
         with:
           ref: ${{ inputs.ref }}
 
       - name: Setup Rust
-        if: ${{ matrix.enabled != 'true' }}
+        if: ${{ matrix.enabled == 'true' }}
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ env.RUST_VERSION }}
           components: clippy
 
       - name: Setup Rust cache
-        if: ${{ matrix.enabled != 'true' }}
+        if: ${{ matrix.enabled == 'true' }}
         uses: Swatinem/rust-cache@v2
 
       - name: Setup Python dependencies
+        if: ${{ matrix.enabled == 'true' }}
         # These are used in `make -C rust lint` for embedded python code
         run: pip install ruff pyright
 
-      - name: Build and archive CLI
-        if: ${{ matrix.enabled != 'true' }}
+      - name: Run Rust linting and tests 
+        if: ${{ matrix.enabled == 'true' }}
         run: make -C rust lint test
