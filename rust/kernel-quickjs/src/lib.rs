@@ -11,7 +11,7 @@ use std::{
 
 use rquickjs::{
     class::Trace, function::Rest, Array as JsArray, AsyncContext, AsyncRuntime, Ctx, Error,
-    Object as JsObject, String as JsString, Value,
+    JsLifetime, Object as JsObject, String as JsString, Value,
 };
 
 use kernel::{
@@ -725,7 +725,7 @@ impl QuickJsKernelInstance {
 }
 
 /// A struct for a Javascript console
-#[derive(Clone, Trace)]
+#[derive(Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 struct Console<'js> {
     /// The outputs captured from `console.log` calls
@@ -890,7 +890,7 @@ console.log(a, b, c, d)",
                     Node::Null(Null),
                     Some("unexpected token in expression: '@'"),
                 ),
-                ("foo", Node::Null(Null), Some("'foo' is not defined")),
+                ("foo", Node::Null(Null), Some("foo is not defined")),
             ],
         )
         .await
@@ -931,7 +931,7 @@ console.log(a, b, c, d)",
             messages[0].code_location,
             Some(CodeLocation {
                 start_line: Some(0),
-                start_column: Some(5),
+                start_column: Some(0),
                 ..Default::default()
             })
         );
@@ -939,7 +939,7 @@ console.log(a, b, c, d)",
 
         // Runtime error
         let (outputs, messages) = kernel.execute("foo").await?;
-        assert_eq!(messages[0].message, "'foo' is not defined");
+        assert_eq!(messages[0].message, "foo is not defined");
         assert!(messages[0].stack_trace.is_some());
         assert_eq!(
             messages[0].code_location,
@@ -962,7 +962,7 @@ foo()
 "#,
             )
             .await?;
-        assert_eq!(messages[0].message, "'bar' is not defined");
+        assert_eq!(messages[0].message, "bar is not defined");
         assert_eq!(
             messages[0].stack_trace.as_deref(),
             Some(
