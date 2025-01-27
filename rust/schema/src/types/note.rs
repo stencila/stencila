@@ -13,7 +13,7 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "Note")]
+#[display("Note")]
 #[jats(elem = "fn", attribs(fn__type = "custom"))]
 pub struct Note {
     /// The type of this item.

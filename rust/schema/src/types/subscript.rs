@@ -12,7 +12,7 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "Subscript")]
+#[display("Subscript")]
 #[dom(elem = "sub")]
 #[html(elem = "sub")]
 #[jats(elem = "sub")]

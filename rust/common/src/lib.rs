@@ -16,7 +16,6 @@ pub use chrono;
 pub use chrono_humanize;
 pub use clap;
 pub use derivative;
-pub use derive_more;
 pub use dirs;
 pub use eyre;
 pub use futures;

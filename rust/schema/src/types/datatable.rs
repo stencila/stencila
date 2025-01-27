@@ -27,7 +27,7 @@ use super::thing_type::ThingType;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "Datatable")]
+#[display("Datatable")]
 #[patch(authors_on = "options")]
 pub struct Datatable {
     /// The type of this item.

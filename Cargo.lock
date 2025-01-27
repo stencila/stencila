@@ -1175,6 +1175,7 @@ name = "codec-info"
 version = "0.0.0"
 dependencies = [
  "common",
+ "derive_more",
  "format",
  "node-id",
  "node-type",
@@ -1497,7 +1498,6 @@ dependencies = [
  "chrono-humanize",
  "clap",
  "derivative",
- "derive_more",
  "dirs",
  "eyre",
  "futures",
@@ -1661,12 +1661,6 @@ name = "constant_time_eq"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "245097e9a4535ee1e3e3931fcfcd55a796a44c643e8596ff6566d68f09b87bbc"
-
-[[package]]
-name = "convert_case"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6245d59a3e82a7fc217c5828a6692dbc6dfb63a0c8c90495621f7b9d79704a0e"
 
 [[package]]
 name = "convert_case"
@@ -1963,15 +1957,23 @@ dependencies = [
 
 [[package]]
 name = "derive_more"
-version = "0.99.18"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f33878137e4dafd7fa914ad4e259e18a4e8e532b9617a2d0150262bf53abfce"
+checksum = "4a9b99b9cbbe49445b21764dc0625032a89b145a2642e67603e1c936f5458d05"
 dependencies = [
- "convert_case 0.4.0",
+ "derive_more-impl",
+]
+
+[[package]]
+name = "derive_more-impl"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cb7330aeadfbe296029522e6c40f315320aba36fc43a5b3632f3795348f3bd22"
+dependencies = [
  "proc-macro2",
  "quote",
- "rustc_version",
  "syn 2.0.96",
+ "unicode-xid",
 ]
 
 [[package]]
@@ -3531,7 +3533,7 @@ version = "1.0.0-alpha.43"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "84c12744d1279367caed41739ef094c325d53fb0ffcd4f9b84a368796f870252"
 dependencies = [
- "convert_case 0.6.0",
+ "convert_case",
  "proc-macro2",
  "quote",
  "syn 1.0.109",
@@ -3938,7 +3940,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7cbe2585d8ac223f7d34f13701434b9d5f4eb9c332cccce8dee57ea18ab8ab0c"
 dependencies = [
  "cfg-if",
- "convert_case 0.6.0",
+ "convert_case",
  "napi-derive-backend",
  "proc-macro2",
  "quote",
@@ -3951,7 +3953,7 @@ version = "1.0.75"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1639aaa9eeb76e91c6ae66da8ce3e89e921cd3885e99ec85f4abacae72fc91bf"
 dependencies = [
- "convert_case 0.6.0",
+ "convert_case",
  "once_cell",
  "proc-macro2",
  "quote",
@@ -4078,6 +4080,7 @@ name = "node-id"
 version = "0.0.0"
 dependencies = [
  "common",
+ "derive_more",
 ]
 
 [[package]]
@@ -4085,6 +4088,7 @@ name = "node-map"
 version = "0.0.0"
 dependencies = [
  "common",
+ "derive_more",
  "schema",
 ]
 
@@ -4919,6 +4923,7 @@ dependencies = [
  "codec-markdown",
  "codecs",
  "common",
+ "derive_more",
  "flate2",
  "images",
  "model",
@@ -5581,7 +5586,7 @@ name = "rquickjs-macro"
 version = "0.8.1"
 source = "git+https://github.com/DelSkayn/rquickjs?rev=6a606077abd476c3b4a6095988adf4572d9fcfba#6a606077abd476c3b4a6095988adf4572d9fcfba"
 dependencies = [
- "convert_case 0.6.0",
+ "convert_case",
  "fnv",
  "ident_case",
  "indexmap 2.7.1",
@@ -5807,6 +5812,7 @@ dependencies = [
  "codec-text-trait",
  "common",
  "common-dev",
+ "derive_more",
  "format",
  "human_name",
  "images",
@@ -7110,6 +7116,12 @@ name = "unicode-width"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1fc81956842c57dac11422a97c3b8195a1ff727f06e85c84ed2e8aa277c9a0fd"
+
+[[package]]
+name = "unicode-xid"
+version = "0.2.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ebc1c04c71510c7f702b52b7c350734c9ff1295c464a03335b00bb84fc54f853"
 
 [[package]]
 name = "unidecode"

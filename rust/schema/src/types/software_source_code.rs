@@ -28,7 +28,7 @@ use super::thing_type::ThingType;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "SoftwareSourceCode")]
+#[display("SoftwareSourceCode")]
 #[patch(authors_on = "options")]
 pub struct SoftwareSourceCode {
     /// The type of this item.

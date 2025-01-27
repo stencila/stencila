@@ -41,7 +41,7 @@ use super::unsigned_integer_or_string::UnsignedIntegerOrString;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "Prompt")]
+#[display("Prompt")]
 #[patch(authors_on = "options")]
 pub struct Prompt {
     /// The type of this item.

@@ -1,4 +1,4 @@
-use common::derive_more::{Deref, DerefMut};
+use derive_more::{Deref, DerefMut};
 
 /// The severity level of a message.
 ///

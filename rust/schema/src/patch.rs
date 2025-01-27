@@ -5,8 +5,9 @@ use std::{
     ops::Range,
 };
 
+use derive_more::{Deref, DerefMut, IntoIterator};
+
 use common::{
-    derive_more::{Deref, DerefMut, IntoIterator},
     eyre::{bail, OptionExt, Report, Result},
     itertools::Itertools,
     serde::{de::DeserializeOwned, Deserialize, Serialize},

@@ -13,7 +13,7 @@ use super::table_row_type::TableRowType;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "TableRow")]
+#[display("TableRow")]
 #[html(elem = "tr")]
 #[jats(special)]
 pub struct TableRow {

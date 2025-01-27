@@ -28,7 +28,7 @@ use super::timestamp::Timestamp;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "ChatMessage")]
+#[display("ChatMessage")]
 pub struct ChatMessage {
     /// The type of this item.
     pub r#type: MustBe!("ChatMessage"),

@@ -16,7 +16,7 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "RawBlock")]
+#[display("RawBlock")]
 #[patch(authors_on = "self")]
 pub struct RawBlock {
     /// The type of this item.

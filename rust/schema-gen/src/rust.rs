@@ -473,7 +473,7 @@ pub enum NodeProperty {{
 
         // Add attributes for displaying name
         attrs.push("#[derive(derive_more::Display)]".to_string());
-        attrs.push(format!("#[display(fmt = \"{title}\")]"));
+        attrs.push(format!("#[display(\"{title}\")]"));
 
         // Add a #[patch(...)] attribute for main struct if it has authors that is a Vec<Author>
         if derive_patch {

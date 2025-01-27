@@ -12,7 +12,7 @@ use super::unsigned_integer::UnsignedInteger;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "ModelParameters")]
+#[display("ModelParameters")]
 pub struct ModelParameters {
     /// The type of this item.
     pub r#type: MustBe!("ModelParameters"),

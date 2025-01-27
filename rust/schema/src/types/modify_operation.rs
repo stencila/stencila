@@ -11,7 +11,7 @@ use super::string_patch_or_primitive::StringPatchOrPrimitive;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "ModifyOperation")]
+#[display("ModifyOperation")]
 pub struct ModifyOperation {
     /// The type of this item.
     pub r#type: MustBe!("ModifyOperation"),

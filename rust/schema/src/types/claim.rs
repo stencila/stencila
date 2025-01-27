@@ -28,7 +28,7 @@ use super::thing_type::ThingType;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "Claim")]
+#[display("Claim")]
 #[patch(authors_on = "self")]
 #[jats(elem = "statement")]
 pub struct Claim {

@@ -17,7 +17,7 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "ListItem")]
+#[display("ListItem")]
 #[html(elem = "li")]
 #[jats(elem = "list-item")]
 pub struct ListItem {

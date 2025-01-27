@@ -16,7 +16,7 @@ use super::timestamp::Timestamp;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "SuggestionInline")]
+#[display("SuggestionInline")]
 #[patch(authors_on = "self")]
 pub struct SuggestionInline {
     /// The type of this item.
