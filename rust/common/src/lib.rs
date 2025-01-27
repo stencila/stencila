@@ -45,4 +45,3 @@ pub use toml;
 pub use tracing;
 pub use type_safe_id;
 pub use uuid;
-pub use zip;

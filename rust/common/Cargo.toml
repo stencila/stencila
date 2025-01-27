@@ -40,7 +40,6 @@ toml = "0.8.19"
 tracing = { version = "0.1.41", features = ["log"] }
 type-safe-id = "0.3.1"
 uuid = { version = "1.12.1", features = ["v4"] }
-zip = "0.6.6"
 
 [lints]
 workspace = true
