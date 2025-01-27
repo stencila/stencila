@@ -164,14 +164,16 @@ END = "END" if DEV_MODE else "\U0010cb40"
 # time" sysconf(3)
 # RLIMIT_NOFILE "specifies a value one greater than the maximum file descriptor
 # number that can be opened by this process." getrlimit(2)
-try:
-    MAXFD = os.sysconf("SC_OPEN_MAX")
-except Exception:
+if sys.platform != "win32":
     try:
-        MAXFD = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
+        MAXFD = os.sysconf("SC_OPEN_MAX")
     except Exception:
-        MAXFD = 256
-
+        try:
+            MAXFD = resource.getrlimit(resource.RLIMIT_NOFILE)[1]
+        except Exception:
+            MAXFD = 256
+else:
+    MAXFD = 256
 
 # We try and intercept the logging and warnings to write to stderr
 # 1. Install logging handler to write to stderr.
@@ -850,6 +852,11 @@ def remove_variable(name: str) -> None:
 
 # Fork the kernel instance
 def fork(pipes: list[str]) -> None:
+    # Fork is not available on Windows and this function should not
+    # have been called but this avoids linting errors
+    if sys.platform == "win32":
+        raise OSError("fork() not supported in Windows")
+
     pid = os.fork()
     if pid == 0:
         # Close all file descriptors so that we're not interfering with
