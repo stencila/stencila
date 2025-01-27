@@ -34,6 +34,19 @@ pub enum CodecDirection {
     Encode,
 }
 
+/// The availability of a codec on the current machine
+#[derive(Debug, Display, Clone, Serialize, Deserialize)]
+#[strum(serialize_all = "lowercase")]
+#[serde(crate = "common::serde")]
+pub enum CodecAvailability {
+    /// Available on this machine
+    Available,
+    /// Available on this machine but requires installation of external binary
+    Installable(String),
+    /// Not available on this machine
+    Unavailable
+}
+
 /// A codec for decoding/encoding between Stencila Schema nodes and alternative formats
 #[async_trait]
 pub trait Codec: Sync + Send {
@@ -49,6 +62,16 @@ pub trait Codec: Sync + Send {
     /// Used when listing codecs and to warn users when using a codec that
     /// is not stable.
     fn status(&self) -> Status;
+
+        /// Get the availability of the kernel on the current machine
+    fn availability(&self) -> CodecAvailability {
+        CodecAvailability::Available
+    }
+
+    /// Is the kernel available on the current machine
+    fn is_available(&self) -> bool {
+        matches!(self.availability(), CodecAvailability::Available)
+    }
 
     /// The level of support that the codec provides for decoding from a format
     #[allow(unused)]

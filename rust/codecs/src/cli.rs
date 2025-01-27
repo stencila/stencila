@@ -1,5 +1,5 @@
 use cli_utils::{
-    table::{self, Attribute, Cell},
+    table::{self, Attribute, Cell, Color},
     AsFormat, Code, ToStdout,
 };
 use codec::{
@@ -9,6 +9,7 @@ use codec::{
         itertools::Itertools,
     },
     CodecSpecification,
+    CodecAvailability,
 };
 
 /// Manage format conversion codecs
@@ -62,7 +63,7 @@ impl List {
         }
 
         let mut table = table::new();
-        table.set_header(["Name", "From", "To"]);
+        table.set_header(["Name", "From", "To", "Avalibility"]);
 
         for codec in list {
             let from = codec
@@ -75,11 +76,17 @@ impl List {
                 .keys()
                 .map(|format| format.to_string())
                 .join(", ");
+            let avalibility = codec.availability();
 
             table.add_row([
                 Cell::new(codec.name()).add_attribute(Attribute::Bold),
                 Cell::new(from),
                 Cell::new(to),
+                match avalibility {
+                    CodecAvailability::Available => Cell::new(avalibility).fg(Color::Green),
+                    CodecAvailability::Installable(..) => Cell::new(avalibility).fg(Color::Yellow),
+                    CodecAvailability::Unavailable => Cell::new(avalibility).fg(Color::Red),
+            },
             ]);
         }
 
