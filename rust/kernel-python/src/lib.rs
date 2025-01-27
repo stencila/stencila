@@ -1,8 +1,8 @@
+use which::which;
+
 use kernel_micro::{
-    common::{eyre::Result, which::which},
-    format::Format,
-    Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
-    KernelProvider, KernelTerminate, Microkernel,
+    common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelForks, KernelInstance,
+    KernelInterrupt, KernelKill, KernelProvider, KernelTerminate, Microkernel,
 };
 
 /// A kernel for executing Python code

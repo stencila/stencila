@@ -1527,7 +1527,6 @@ dependencies = [
  "tracing",
  "type-safe-id",
  "uuid",
- "which",
  "zip",
 ]
 
@@ -2117,6 +2116,12 @@ dependencies = [
  "quote",
  "syn 2.0.96",
 ]
+
+[[package]]
+name = "env_home"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c7f84e12ccf0a7ddc17a6c41c93326024c42920d7ee630d04950e6926645c0fe"
 
 [[package]]
 name = "equivalent"
@@ -3337,6 +3342,7 @@ dependencies = [
  "directories",
  "kernel",
  "nix 0.29.0",
+ "which",
 ]
 
 [[package]]
@@ -3355,6 +3361,7 @@ dependencies = [
  "common-dev",
  "kernel-micro",
  "test-log",
+ "which",
 ]
 
 [[package]]
@@ -4803,6 +4810,7 @@ dependencies = [
  "kernel",
  "model",
  "semver",
+ "which",
 ]
 
 [[package]]
@@ -7446,12 +7454,12 @@ checksum = "53a85b86a771b1c87058196170769dd264f66c0782acf1ae6cc51bfd64b39082"
 
 [[package]]
 name = "which"
-version = "6.0.3"
+version = "7.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b4ee928febd44d98f2f459a4a79bd4d928591333a494a10a868418ac1b39cf1f"
+checksum = "fb4a9e33648339dc1642b0e36e21b3385e6148e289226f657c809dee59df5028"
 dependencies = [
  "either",
- "home",
+ "env_home",
  "rustix 0.38.41",
  "winsafe",
 ]

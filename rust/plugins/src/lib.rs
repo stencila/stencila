@@ -14,6 +14,7 @@ use std::{
 };
 
 use semver::{Version, VersionReq};
+use which::which;
 
 use app::{get_app_dir, DirType};
 use cli_utils::Code;
@@ -31,8 +32,7 @@ use common::{
         io::{AsyncBufReadExt, AsyncWriteExt, BufReader, BufWriter},
         process::{Child, ChildStdin, ChildStdout, Command},
     },
-    toml, tracing, which,
-    which::which,
+    toml, tracing,
 };
 
 use codec::{format::Format, Codec};
