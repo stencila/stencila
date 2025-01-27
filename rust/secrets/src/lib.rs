@@ -169,7 +169,7 @@ pub fn set(name: &str, value: &str) -> Result<()> {
 
     let secret_entry = entry(name)?;
     if value.trim().is_empty() {
-        secret_entry.delete_password()?;
+        secret_entry.delete_credential()?;
     } else {
         secret_entry.set_password(value)?;
     }
@@ -193,7 +193,7 @@ pub fn delete(name: &str) -> Result<()> {
         bail!("Only secrets used by Stencila can be deleted by Stencila")
     }
 
-    match entry(name)?.delete_password() {
+    match entry(name)?.delete_credential() {
         Err(keyring::Error::NoEntry) => {
             tracing::warn!("No secret named {name} to delete");
             Ok(())
