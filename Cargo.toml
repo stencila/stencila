@@ -19,6 +19,7 @@ panic = "abort"
 base64 = "0.22.0"
 cached = { version = "0.54.0", features = ["async"] }
 derive_more = { version = "1.0.0", features = ["display", "deref", "deref_mut", "into_iterator"] }
+directories = "6.0.0"
 flate2 = "1.0.35"
 is-terminal = "0.4.12"
 mime = "0.3.17"

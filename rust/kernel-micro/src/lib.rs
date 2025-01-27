@@ -5,6 +5,7 @@ use std::{
     process::Stdio,
 };
 
+use directories::UserDirs;
 use which::which;
 
 // Re-exports for the convenience of internal crates implementing
@@ -17,7 +18,6 @@ pub use kernel::{
 use kernel::{
     common::{
         async_trait::async_trait,
-        dirs,
         eyre::{bail, eyre, Context, OptionExt, Result},
         itertools::Itertools,
         serde_json,
@@ -567,7 +567,8 @@ impl KernelInstance for MicrokernelInstance {
 
         if let Some(path) = path {
             let path = path.canonicalize().unwrap_or(path);
-            let home_dir = dirs::home_dir().unwrap_or_default();
+            let user_dirs = UserDirs::new().ok_or_eyre("unable to get user dirs")?;
+            let home_dir = user_dirs.home_dir();
 
             let url = if let Some(relative) = self
                 .working_dir
@@ -576,7 +577,7 @@ impl KernelInstance for MicrokernelInstance {
             {
                 // Strip the working directory if this in is the working directory
                 relative.to_string_lossy().to_string()
-            } else if let Ok(relative_to_home) = path.strip_prefix(&home_dir) {
+            } else if let Ok(relative_to_home) = path.strip_prefix(home_dir) {
                 // Strip users home dir
                 PathBuf::from("~")
                     .join(relative_to_home)

@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 app = { path = "../app" }
+directories = { workspace = true }
 kernel = { path = "../kernel" }
 
 [target.'cfg(unix)'.dependencies]
