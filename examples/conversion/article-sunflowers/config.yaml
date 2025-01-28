@@ -22,6 +22,8 @@ qmd:
     skip: true
 
 pandoc:
+  # Skip because many node types currently not supported
+  encode:
+    skip: true
   decode:
-    # TODO: remove when implemented
     skip: true
