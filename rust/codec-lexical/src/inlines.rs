@@ -2,8 +2,8 @@ use codec::{
     common::tracing,
     format::Format,
     schema::{
-        Annotation, CodeInline, Emphasis, Inline, Link, MathInline, QuoteInline, Strikeout, Strong,
-        Subscript, Superscript, Text, Underline,
+        Annotation, CodeExpression, CodeInline, Emphasis, Inline, Link, MathInline, QuoteInline,
+        Strikeout, Strong, Subscript, Superscript, Text, Underline,
     },
 };
 
@@ -114,6 +114,7 @@ fn inline_from_lexical(inline: lexical::InlineNode, context: &mut LexicalDecodeC
 fn inline_to_lexical(inline: &Inline, context: &mut LexicalEncodeContext) -> lexical::InlineNode {
     use Inline::*;
     match inline {
+        CodeExpression(code_expr) => code_expr_to_lexical(code_expr),
         Link(link) => link_to_lexical(link, context),
         MathInline(math) => math_to_lexical(math),
         Text(inline) => text_to_lexical(inline, context),
@@ -122,6 +123,23 @@ fn inline_to_lexical(inline: &Inline, context: &mut LexicalEncodeContext) -> lex
             context.losses.add(inline.node_type().to_string());
             lexical::InlineNode::Text(lexical::TextNode::default())
         }
+    }
+}
+
+fn code_expr_to_lexical(code: &CodeExpression) -> lexical::InlineNode {
+    // If the expression has an output then encode that as text,
+    // otherwise, encode the code as inline code
+    if let Some(output) = &code.output {
+        lexical::InlineNode::Text(lexical::TextNode {
+            text: codec_text::to_text(output),
+            ..Default::default()
+        })
+    } else {
+        lexical::InlineNode::Text(lexical::TextNode {
+            text: code.code.to_string(),
+            format: TextFormat::CODE,
+            ..Default::default()
+        })
     }
 }
 
