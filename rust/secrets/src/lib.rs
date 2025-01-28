@@ -163,7 +163,7 @@ fn redact(value: String) -> String {
 ///
 /// If the value is a blank string then delete the entry
 pub fn set(name: &str, value: &str) -> Result<()> {
-    if !SECRETS.iter().any(|secret| secret.name == name) {
+    if !cfg!(test) && !SECRETS.iter().any(|secret| secret.name == name) {
         bail!("Only secrets used by Stencila can be set by Stencila")
     }
 
@@ -189,7 +189,7 @@ pub fn env_or_get(name: &str) -> Result<String> {
 
 /// Delete a secret
 pub fn delete(name: &str) -> Result<()> {
-    if !SECRETS.iter().any(|secret| secret.name == name) {
+    if !cfg!(test) && !SECRETS.iter().any(|secret| secret.name == name) {
         bail!("Only secrets used by Stencila can be deleted by Stencila")
     }
 
@@ -200,5 +200,23 @@ pub fn delete(name: &str) -> Result<()> {
         }
         Err(error) => bail!(error),
         Ok(..) => Ok(()),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn set_get_delete() -> Result<()> {
+        let name = "TEST_SECRET";
+        let value = "teSTSeCRET";
+
+        set(name, value)?;
+        assert_eq!(get(name)?, value);
+        delete(name)?;
+        assert!(get(name).is_err());
+
+        Ok(())
     }
 }
