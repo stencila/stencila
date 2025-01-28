@@ -7,6 +7,7 @@ use std::{
     time::{Duration, SystemTime},
 };
 
+use codecs::PoshMap;
 use common::{
     clap::{self, ValueEnum},
     eyre::{bail, eyre, Result},
@@ -14,6 +15,7 @@ use common::{
     strum::{Display, EnumString},
     tokio::{
         self,
+        fs::read_to_string,
         sync::{broadcast, mpsc, watch, RwLock},
         time::sleep,
     },
@@ -21,6 +23,7 @@ use common::{
     type_safe_id::{StaticType, TypeSafeId},
 };
 use kernels::Kernels;
+use node_diagnostics::diagnostics;
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
@@ -897,5 +900,49 @@ impl Document {
         tracing::trace!("Executing document");
 
         self.command(Command::ExecuteDocument(options), wait).await
+    }
+
+    /// Print diagnostics for the document
+    pub async fn diagnostics(&self) -> Result<bool> {
+        let diagnostics = diagnostics(&*self.root.read().await);
+
+        // No diagnostics so return early
+        if diagnostics.is_empty() {
+            return Ok(false);
+        }
+
+        // If the document has a path read it so that diagnostics can be printed
+        // with the original document source as context.
+        let mut source = String::new();
+        let generated;
+        let (path, poshmap) = if let Some(path) = self.path.as_ref() {
+            source = read_to_string(path).await?;
+
+            let format = Format::from_path(path);
+
+            let result = codecs::to_string_with_info(
+                &*self.root.read().await,
+                Some(EncodeOptions {
+                    format: Some(format),
+                    ..Default::default()
+                }),
+            )
+            .await?;
+            generated = result.0;
+            let mapping = result.1.mapping;
+
+            let poshmap = PoshMap::new(&source, &generated, mapping);
+
+            (path.to_string_lossy().to_string(), Some(poshmap))
+        } else {
+            (String::from("<file>"), None)
+        };
+
+        // Print each of the diagnostics to stderr
+        for diagnostic in diagnostics {
+            diagnostic.to_stderr_pretty(&path, &source, &poshmap)?;
+        }
+
+        Ok(true)
     }
 }

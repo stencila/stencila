@@ -8,7 +8,7 @@ use server::{self, ServeOptions};
 use version::STENCILA_VERSION;
 
 use crate::{
-    compile, convert, execute,
+    compile, convert, execute, lint,
     logging::{LoggingFormat, LoggingLevel},
     new, preview, render, sync, uninstall, upgrade,
 };
@@ -100,6 +100,7 @@ pub enum Command {
     Sync(sync::Cli),
 
     Compile(compile::Cli),
+    Lint(lint::Cli),
     Execute(execute::Cli),
     Render(render::Cli),
 
@@ -149,6 +150,7 @@ impl Cli {
             Command::Sync(sync) => sync.run().await?,
 
             Command::Compile(compile) => compile.run().await?,
+            Command::Lint(lint) => lint.run().await?,
             Command::Execute(execute) => execute.run().await?,
             Command::Render(render) => render.run().await?,
 

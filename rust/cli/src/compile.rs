@@ -62,6 +62,7 @@ impl Cli {
 
         let doc = Document::open(&input).await?;
         doc.compile(CommandWait::Yes).await?;
+        doc.diagnostics().await?;
 
         if !no_save {
             doc.save_with(
