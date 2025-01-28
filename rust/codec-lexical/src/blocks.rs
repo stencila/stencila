@@ -1,11 +1,12 @@
 use codec::{
-    common::serde_json::from_value,
+    common::{serde_json::from_value, tracing},
     format::Format,
     schema::{
         shortcuts::{art, p, t},
         transforms::blocks_to_inlines,
         AudioObject, Block, CodeBlock, File, Heading, ImageObject, Inline, List, ListItem,
-        ListOrder, Paragraph, QuoteBlock, RawBlock, Table, Text, ThematicBreak, VideoObject,
+        ListOrder, MathBlock, Paragraph, QuoteBlock, RawBlock, Table, Text, ThematicBreak,
+        VideoObject,
     },
 };
 use codec_text::to_text;
@@ -95,6 +96,7 @@ fn block_to_lexical(block: &Block, context: &mut LexicalEncodeContext) -> lexica
         List(list) => list_to_lexical(list, context),
         QuoteBlock(quote) => quote_to_lexical(quote, context),
         CodeBlock(code_block) => code_block_to_lexical(code_block, context),
+        MathBlock(math_block) => math_block_to_lexical(math_block),
         Table(table) => table_to_lexical(table, context),
         ImageObject(image) => image_to_lexical(image, context),
         AudioObject(audio) => audio_to_lexical(audio),
@@ -384,6 +386,40 @@ fn code_block_to_lexical(
     lexical::BlockNode::CodeBlock(lexical::CodeBlockNode {
         code: code_block.code.to_string(),
         language: code_block.programming_language.clone(),
+        ..Default::default()
+    })
+}
+
+fn math_block_to_lexical(math: &MathBlock) -> lexical::BlockNode {
+    // If the math is LaTeX then represent as Markdown paragraph so the
+    // user can edit it and KaTeX (if the theme has it) can render it.
+    // Otherwise, if there is MathML (e.g. compiled from AsciiMath) then
+    // represent as a HTML block so it can at least be rendered.
+
+    if let Some(lang) = &math.math_language {
+        let lang = lang.to_lowercase();
+        if !(lang == "tex" || lang == "latex") {
+            if math.options.mathml.is_some() {
+                // We could just put the MathML in the HTML block but
+                // by encoding using DOM HTML we get that plus the original
+                // language and source code which allows us to convert back
+                // in the future.
+                let html = codec_dom::encode(math);
+                return lexical::BlockNode::Html(lexical::HtmlNode {
+                    html,
+                    ..Default::default()
+                });
+            }
+
+            tracing::warn!("Math written in `{lang}` may not render correctly")
+        }
+    }
+
+    lexical::BlockNode::Paragraph(lexical::ParagraphNode {
+        children: vec![lexical::InlineNode::Text(lexical::TextNode {
+            text: ["$$ ", &math.code, " $$"].concat(),
+            ..Default::default()
+        })],
         ..Default::default()
     })
 }
