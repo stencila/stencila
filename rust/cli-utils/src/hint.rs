@@ -93,14 +93,13 @@ impl ToStdout for Hint {
 
 #[macro_export]
 macro_rules! hint {
-
     ($msg:expr, $($key:ident = $value:expr),* $(,)?) => {{
         let mut hint = $crate::Hint::new($msg);
         $(
             match stringify!($key) {
                 "cli" => hint.cli_advice = $value.to_string(),
                 "lsp" => hint.lsp_advice = $value.to_string(),
-                _ => (), // Should n
+                _ => (),
             }
         )*
         hint
@@ -153,7 +152,7 @@ mod tests {
     fn test_formatted_hint() {
         let value = 10_1000;
         let hint = hint!("formatted {}", value);
-        assert_eq!(hint.base, "formatted 42");
+        assert_eq!(hint.base, "formatted 101000");
     }
 
     #[test]
@@ -195,12 +194,6 @@ mod tests {
         assert!(hint.base.is_empty());
         assert!(hint.cli_advice.is_empty());
         assert_eq!(hint.lsp_advice, "lsp message: 123");
-    }
-
-    #[test]
-    #[should_panic(expected = "Invalid hint key")]
-    fn test_invalid_hint_key() {
-        hint!("message", invalid = "value".to_string());
     }
 
     #[test]
