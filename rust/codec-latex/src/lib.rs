@@ -3,10 +3,13 @@ use codec::{
     format::Format,
     schema::Node,
     status::Status,
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, NodeType,
+    Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
+    NodeType,
 };
 use codec_latex_trait::{LatexCodec as _, LatexEncodeContext};
-use codec_pandoc::{pandoc_from_format, pandoc_to_format, root_from_pandoc, root_to_pandoc};
+use codec_pandoc::{
+    pandoc_availability, pandoc_from_format, pandoc_to_format, root_from_pandoc, root_to_pandoc,
+};
 
 /// A codec for LaTeX
 pub struct LatexCodec;
@@ -21,6 +24,10 @@ impl Codec for LatexCodec {
 
     fn status(&self) -> Status {
         Status::UnderDevelopment
+    }
+
+    fn availability(&self) -> CodecAvailability {
+        pandoc_availability()
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {
