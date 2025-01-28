@@ -102,7 +102,6 @@ pub fn parse_doi(arg: &str) -> common::eyre::Result<String> {
     Ok(doi.to_string())
 }
 
-
 /// Returns the first DOI pattern, e.g. "10.1126/science.1115581", within input text.
 fn find_doi(text: &str) -> Option<Cow<str>> {
     // Matches only ASCII values for performance

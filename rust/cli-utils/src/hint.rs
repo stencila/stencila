@@ -1,7 +1,7 @@
 //! Facilitates providing hints to users about how to help themselves
 
-use std::io::IsTerminal;
 use crate::ToStdout;
+use std::io::IsTerminal;
 
 #[derive(Debug, Default)]
 pub struct Hint {
@@ -93,7 +93,7 @@ impl ToStdout for Hint {
 
 #[macro_export]
 macro_rules! hint {
-    
+
     ($msg:expr, $($key:ident = $value:expr),* $(,)?) => {{
         let mut hint = $crate::Hint::new($msg);
         $(
@@ -105,11 +105,11 @@ macro_rules! hint {
         )*
         hint
     }};
-    
+
     ($str:literal, $($arg:tt)*) => {
         $crate::Hint::new(&format!($str, $($arg)*))
-    };    
-    
+    };
+
     ($msg:literal) => {
         $crate::Hint::new($msg)
     };
@@ -137,7 +137,6 @@ macro_rules! lsp_hint {
     };
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -159,10 +158,7 @@ mod tests {
 
     #[test]
     fn test_hint_with_advice() {
-        let hint = hint!("base message",
-            cli = "cli advice",
-            lsp = "lsp advice",
-        );
+        let hint = hint!("base message", cli = "cli advice", lsp = "lsp advice",);
         assert_eq!(hint.base, "base message");
         assert_eq!(hint.cli_advice, "cli advice");
         assert_eq!(hint.lsp_advice, "lsp advice");
@@ -209,10 +205,7 @@ mod tests {
 
     #[test]
     fn test_display_formatting() {
-        let hint = hint!("base",
-            cli = "cli-specific info",
-            lsp = "lsp-specific info"
-        );
+        let hint = hint!("base", cli = "cli-specific info", lsp = "lsp-specific info");
         let output = format!("{}", hint);
         assert!(output.contains("hint: base"));
         if std::io::stdout().is_terminal() {

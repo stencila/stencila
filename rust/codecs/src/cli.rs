@@ -83,7 +83,9 @@ impl List {
                 Cell::new(to),
                 match &avalibility {
                     CodecAvailability::Available => Cell::new(avalibility).fg(Color::Green),
-                    CodecAvailability::Installable(package) => Cell::new(format!("requires {package}")).fg(Color::Yellow),
+                    CodecAvailability::Installable(package) => {
+                        Cell::new(format!("requires {package}")).fg(Color::Yellow)
+                    }
                     CodecAvailability::Unavailable => Cell::new(avalibility).fg(Color::Red),
                 },
             ]);

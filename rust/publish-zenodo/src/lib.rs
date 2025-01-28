@@ -1,17 +1,20 @@
 // TODO: use the [Research Organization Registry (ROR)](https://ror.org/) database to gather affiliations for authors
 
-use std::{
-    path::PathBuf, str::FromStr
-};
+use std::{path::PathBuf, str::FromStr};
 
 use cli_utils::{cli_hint, hint, message, parse_host, ToStdout};
 
 use common::{
-    clap::{self, builder::{ArgPredicate, PossibleValue}, Parser, ValueHint},
+    clap::{
+        self,
+        builder::{ArgPredicate, PossibleValue},
+        Parser, ValueHint,
+    },
     eyre::{bail, OptionExt, Result},
     reqwest::Client,
     serde,
-    serde_json::{json, Value}, tokio, tracing,
+    serde_json::{json, Value},
+    tokio, tracing,
 };
 
 use color_print::cstr;
@@ -179,8 +182,8 @@ pub struct Cli {
     #[arg(conflicts_with = "doi")]
     reserve_doi: bool,
 
-    /// Supply an existing DOI 
-    /// 
+    /// Supply an existing DOI
+    ///
     /// Use this field to provide a DOI that has already been issued
     /// for the material you are depositing.
     #[arg(long)]
@@ -223,9 +226,9 @@ pub struct Cli {
     license: Option<String>,
 
     /// Closed Access
-    /// 
-    /// Public access of the deposition is not allowed. 
-    /// 
+    ///
+    /// Public access of the deposition is not allowed.
+    ///
     /// Shorthand for `--access-right=closed`.
     #[arg(group = "access")]
     #[arg(long)]
@@ -260,8 +263,8 @@ pub struct Cli {
     access_conditions: Option<String>,
 
     /// Access right
-    /// 
-    /// 
+    ///
+    ///
     #[arg(long)]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
     #[arg(group = "access")]
@@ -283,9 +286,9 @@ pub struct Cli {
     /// Comma-delimited list of keywords
     ///
     /// To add multiple keywords, separate them with commas: --keywords=testing,software
-    /// 
+    ///
     /// To include spaces in keywords, surround the list with quotes[*]: --keywords='testing,software,software testing'   
-    /// 
+    ///
     /// [*] The exact syntax will depend on your shell language.
     #[arg(long)]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
@@ -295,17 +298,16 @@ pub struct Cli {
     /// Methodology
     ///
     /// Free-form description of the methodology used in this research.
-    /// HTML is allowed. 
+    /// HTML is allowed.
     #[arg(long)]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
     #[arg(help("Methodology (HTML permitted)"))]
     method: Option<String>,
 
-
     /// Additional Notes
     ///
     /// Any additional notes that to do not fit within the description.
-    /// HTML is allowed. 
+    /// HTML is allowed.
     #[arg(long)]
     #[arg(help_heading("Deposition Metadata"), display_order(3))]
     #[arg(help("Additional notes (HTML permitted)"))]
@@ -372,8 +374,14 @@ impl Cli {
         let Ok(doc) = Document::open(&self.path).await else {
             tracing::error!("Document root is not an Article");
             hint!("Attempt to re-render a standalone document and retry.").to_stdout();
-            cli_hint!("If you built the file with `stencila render`, try adding the `--standalone` flag.").to_stdout();
-            bail!("Unable to create a Document from file at {}", self.path.display());
+            cli_hint!(
+                "If you built the file with `stencila render`, try adding the `--standalone` flag."
+            )
+            .to_stdout();
+            bail!(
+                "Unable to create a Document from file at {}",
+                self.path.display()
+            );
         };
         doc.compile(CommandWait::Yes).await?;
 
@@ -477,8 +485,12 @@ impl Cli {
         }
 
         if !self.keywords.is_empty() {
-            let kw: Vec<_> = self.keywords.into_iter().map(|kw| kw.trim().to_string()).collect();
-            deposit["metadata"]["keywords"] = json!(kw); 
+            let kw: Vec<_> = self
+                .keywords
+                .into_iter()
+                .map(|kw| kw.trim().to_string())
+                .collect();
+            deposit["metadata"]["keywords"] = json!(kw);
         }
 
         if let Some(method) = self.method {
@@ -486,11 +498,11 @@ impl Cli {
         }
 
         if let Some(notes) = self.notes {
-            deposit["metadata"]["notes"] = json!(notes); 
+            deposit["metadata"]["notes"] = json!(notes);
         }
 
         if let Some(ver) = self.version {
-            deposit["metadata"]["version"] = json!(ver); 
+            deposit["metadata"]["version"] = json!(ver);
         }
 
         if self.lesson {
@@ -504,7 +516,7 @@ impl Cli {
 
         let mut doi = None;
         let mut reserve_doi = false;
-        
+
         if self.reserve_doi {
             match (&self.doi, &doi_from_doc) {
                 (None, None) => reserve_doi = true,
@@ -512,15 +524,19 @@ impl Cli {
                     tracing::debug!("Requesting a new DOI, although one ({from_doc}) was found within the Article metadata");
                     deposit["metadata"]["prereserve_doi"] = json!(true);
                     doi = Some(from_doc);
-                },
+                }
                 (Some(from_cli), Some(_)) | (Some(from_cli), None) => {
                     // these pattern should be impossible as --doi and --reserve-doi are marked as conflicting
                     if cfg!(debug_assertions) {
-                        panic!("should be impossible to reserve a DOI and also provide one");                
+                        panic!("should be impossible to reserve a DOI and also provide one");
                     }
-                    message!("Using DOI provided ({}), rather than pre-reserving another one.", from_cli).to_stdout();
+                    message!(
+                        "Using DOI provided ({}), rather than pre-reserving another one.",
+                        from_cli
+                    )
+                    .to_stdout();
                     doi = Some(from_cli)
-                },
+                }
             }
         } else {
             match (&self.doi, &doi_from_doc) {
@@ -550,20 +566,27 @@ impl Cli {
             deposit["metadata"]["doi"] = json!(doi)
         }
 
-
         deposit["metadata"]["access_right"] = json!(self.access_right.clone());
         deposit["metadata"]["license"] = json!(self.license);
 
         if cfg!(debug_assertions) {
             if let Some(license) = self.license {
-                 if license == "cc-by" || license == "cc0" {
+                if license == "cc-by" || license == "cc0" {
                     debug_assert_eq!(self.access_right, "open");
-                 }
+                }
             }
         }
 
-        if let Some(schema::Date { value: embargo_date, ..}) = self.embargoed {
-            debug_assert_eq!(&self.access_right, "embargoed", "logic error: --embargoed={:?} is set, but --access_right={}", embargo_date, self.access_right);
+        if let Some(schema::Date {
+            value: embargo_date,
+            ..
+        }) = self.embargoed
+        {
+            debug_assert_eq!(
+                &self.access_right, "embargoed",
+                "logic error: --embargoed={:?} is set, but --access_right={}",
+                embargo_date, self.access_right
+            );
             if &self.access_right != "embargoed" {
                 message!("Note: An embargo date ({}) has been provided, but access right is set to {}. Replacing access right to `embargoed`.", embargo_date, self.access_right);
             }
@@ -572,13 +595,24 @@ impl Cli {
         }
 
         if self.restricted {
-            debug_assert_eq!(&self.access_right, "restricted", "logic error: --restricted is set, but --access_right={}", self.access_right);
-            debug_assert!(self.access_conditions.is_none(), "logic error: --restricted is set, but --access_conditions has not been provided");
+            debug_assert_eq!(
+                &self.access_right, "restricted",
+                "logic error: --restricted is set, but --access_right={}",
+                self.access_right
+            );
+            debug_assert!(
+                self.access_conditions.is_none(),
+                "logic error: --restricted is set, but --access_conditions has not been provided"
+            );
             deposit["metadata"]["access_right"] = json!("restricted");
         }
 
         if self.closed {
-            debug_assert_eq!(&self.access_right, "closed", "logic error: --closed is set, but --access_right={}", self.access_right);
+            debug_assert_eq!(
+                &self.access_right, "closed",
+                "logic error: --closed is set, but --access_right={}",
+                self.access_right
+            );
             deposit["metadata"]["access_right"] = json!("closed");
         }
 
@@ -608,9 +642,8 @@ impl Cli {
 
         // permissions error
         if deposition_response.status().as_u16() == 403 {
-            let mut msg = String::from(
-                "Check that the access token is correct and has the necessary scope",
-            );
+            let mut msg =
+                String::from("Check that the access token is correct and has the necessary scope");
             if self.force {
                 msg.push_str("s (`deposit:actions` and `deposit:write`) enabled.");
             } else {
@@ -626,28 +659,41 @@ impl Cli {
             let debug_info = common::serde_json::to_string_pretty(&data)?;
 
             if let Some(Value::String(top_level_message)) = data.get("message") {
-                tracing::info!(error_from_zenodo = debug_info, message_from_zenodo = top_level_message, http_code = http_code, "Failed to create deposition");
+                tracing::info!(
+                    error_from_zenodo = debug_info,
+                    message_from_zenodo = top_level_message,
+                    http_code = http_code,
+                    "Failed to create deposition"
+                );
             } else {
-                tracing::info!(error_from_zenodo = debug_info, "Failed to create deposition");
+                tracing::info!(
+                    error_from_zenodo = debug_info,
+                    "Failed to create deposition"
+                );
             }
 
             // TODO: use an actual type for deserialization rather than this maze of code
             if let Some(Value::Array(errors)) = data.get("errors") {
                 for error in errors {
-                    let Some(Value::String(field)) = error.get("field") else { continue };
-                    let Some(Value::Array(messages)) = error.get("messages") else { continue };
+                    let Some(Value::String(field)) = error.get("field") else {
+                        continue;
+                    };
+                    let Some(Value::Array(messages)) = error.get("messages") else {
+                        continue;
+                    };
 
                     match field.as_str() {
                         "metadata.description" => {
                             for message in messages.iter().filter_map(|msg| msg.as_str()) {
                                 if message == "Field may not be null." {
                                     tracing::error!("Description missing from article.");
-                                    cli_hint!("Provide a description with the --description flag.").to_stdout();
+                                    cli_hint!("Provide a description with the --description flag.")
+                                        .to_stdout();
                                 } else {
                                     tracing::error!("Problem with description: {:?}", message)
                                 }
                             }
-                        },
+                        }
                         "metadata.title" => {
                             for message in messages.iter().filter_map(|msg| msg.as_str()) {
                                 if message == "Field may not be null." {
@@ -657,7 +703,7 @@ impl Cli {
                                     tracing::error!("Problem with title: {:?}", message)
                                 }
                             }
-                        },
+                        }
                         "metadata.license" => {
                             for message in messages.iter().filter_map(|msg| msg.as_str()) {
                                 if message.starts_with("Invalid license") {
@@ -667,7 +713,7 @@ impl Cli {
                                     tracing::error!("Problem with title: {:?}", message)
                                 }
                             }
-                        },
+                        }
                         other_field => {
                             for message in messages.iter().filter_map(|msg| msg.as_str()) {
                                 tracing::error!("Problem with `{other_field}` field: {message:?}")
@@ -700,11 +746,18 @@ impl Cli {
         }
 
         // Upload the SWB file using same filename
-        let file_name = self.path
-            .file_name().ok_or_eyre("unable to infer file name from path")? // should never happen - we've already checked that it's a file
-            .to_str().ok_or_eyre("unable to convert file name to UTF-8")?;
+        let file_name = self
+            .path
+            .file_name()
+            .ok_or_eyre("unable to infer file name from path")? // should never happen - we've already checked that it's a file
+            .to_str()
+            .ok_or_eyre("unable to convert file name to UTF-8")?;
         let upload_url: String = format!("{}/{}", bucket_url, file_name);
-        tracing::debug!(url = upload_url, file = file_name, "Uploading file to deposit");
+        tracing::debug!(
+            url = upload_url,
+            file = file_name,
+            "Uploading file to deposit"
+        );
         let upload_response = client
             .put(upload_url)
             .bearer_auth(token)
@@ -730,11 +783,7 @@ impl Cli {
             );
             tracing::debug!("Publishing deposit");
             // Publish the deposition
-            let publish_response = client
-                .post(publish_url)
-                .bearer_auth(token)
-                .send()
-                .await?;
+            let publish_response = client.post(publish_url).bearer_auth(token).send().await?;
 
             if !publish_response.status().is_success() {
                 tracing::debug!(response = ?publish_response, "Details from HTTP response to publish deposition");
