@@ -287,10 +287,10 @@ fn list_to_lexical(list: &List, context: &mut LexicalEncodeContext) -> lexical::
         .iter()
         .flat_map(|item| &item.content)
         .any(|block| {
-            if let Block::List(List{..}) = block{
-                return true;
-            } else{
-                return false;
+            if let Block::List(List { .. }) = block {
+                true
+            } else {
+                false
             }
         })
     {
