@@ -66,6 +66,13 @@ pub(super) fn inlines_to_lexical(
                 }));
                 quoted
             }
+            Inline::StyledInline(styled) => {
+                // Unwrap content and record loss of styling code
+                // Unable to do anything more sophisticated because inline HTML is not supported
+                // at present.
+                context.losses.add_prop(&styled, "code");
+                inlines_to_lexical(&styled.content, context)
+            }
             Inline::CodeInline(CodeInline { code, .. }) => formatted_to_lexical(
                 TextFormat::CODE,
                 &vec![Inline::Text(Text::new(code.clone()))],
