@@ -2,13 +2,13 @@ use codec::{
     common::tracing,
     format::Format,
     schema::{
-        Annotation, CodeInline, Emphasis, Inline, Link, MathInline, Strikeout, Strong, Subscript,
-        Superscript, Text, Underline,
+        Annotation, CodeInline, Emphasis, Inline, Link, MathInline, QuoteInline, Strikeout, Strong,
+        Subscript, Superscript, Text, Underline,
     },
 };
 
 use crate::{
-    lexical::{self, TextFormat},
+    lexical::{self, TextFormat, TextNode},
     shared::{LexicalDecodeContext, LexicalEncodeContext},
 };
 
@@ -49,6 +49,22 @@ pub(super) fn inlines_to_lexical(
             }
             Inline::Annotation(Annotation { content, .. }) => {
                 formatted_to_lexical(TextFormat::HIGHLIGHT, content, context)
+            }
+            Inline::QuoteInline(QuoteInline { content, .. }) => {
+                // Wrap in "66..99" curly quotes
+                let mut quoted = inlines_to_lexical(content, context);
+                quoted.insert(
+                    0,
+                    lexical::InlineNode::Text(TextNode {
+                        text: "“".into(),
+                        ..Default::default()
+                    }),
+                );
+                quoted.push(lexical::InlineNode::Text(TextNode {
+                    text: "”".into(),
+                    ..Default::default()
+                }));
+                quoted
             }
             Inline::CodeInline(CodeInline { code, .. }) => formatted_to_lexical(
                 TextFormat::CODE,
