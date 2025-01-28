@@ -6,6 +6,7 @@ use std::{
 use jsonwebtoken as jwt;
 use url::Host;
 
+use cli_utils::parse_host;
 use common::{
     chrono::{DateTime, Utc},
     clap::{self, Parser},
@@ -652,12 +653,6 @@ impl Cli {
 
         Ok(payload)
     }
-}
-
-/// Parse an input from the command line as a Ghost host
-fn parse_host(arg: &str) -> Result<Host> {
-    // Question mark converts between error types
-    Ok(Host::parse(arg)?)
 }
 
 /// Parse an input from the command line as a Ghost Admin API key

@@ -5,15 +5,21 @@
 
 use std::fmt::Display;
 
-use is_terminal::IsTerminal;
+use std::io::IsTerminal;
 
 pub use rpassword;
 
 mod code;
 pub use code::*;
 
+mod hint;
+pub use hint::*;
+
 mod message;
 pub use message::*;
+
+mod parsers;
+pub use parsers::*;
 
 pub mod table;
 
