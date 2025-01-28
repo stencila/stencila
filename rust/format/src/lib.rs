@@ -220,10 +220,22 @@ impl Format {
         matches!(self, Avi | Mkv | Mp4 | Ogv | WebM)
     }
 
-    /// Is this format a flavor or Markdown?
+    /// Is this format a flavor of JSON?
+    pub fn is_json_flavor(&self) -> bool {
+        use Format::*;
+        matches!(self, Json | Json5 | JsonLd | Ipynb | Lexical | Koenig)
+    }
+
+    /// Is this format a flavor of Markdown?
     pub fn is_markdown_flavor(&self) -> bool {
         use Format::*;
         matches!(self, Markdown | Smd | Myst | Qmd | Llmd)
+    }
+
+    /// Is this format a flavor of XML?
+    pub fn is_xml_flavor(&self) -> bool {
+        use Format::*;
+        matches!(self, Jats)
     }
 
     /// Resolve a [`Format`] from a name for the format
