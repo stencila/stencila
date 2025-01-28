@@ -9,7 +9,7 @@ use winnow::{
     error::{ErrMode, ErrorKind, ParserError},
     stream::Stream,
     token::{none_of, take_until, take_while},
-    LocatingSlice as Located, PResult, Parser,
+    LocatingSlice as Located, ModalResult, Parser,
 };
 
 use codec::{
@@ -27,7 +27,7 @@ use crate::decode::inlines::mds_to_string;
 /// Parse a name (e.g. name of a variable, parameter, call argument, or curly braced option)
 ///
 /// Will only recognize names that are valid in (most) programming languages.
-pub(super) fn name<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
+pub(super) fn name<'s>(input: &mut Located<&'s str>) -> ModalResult<&'s str> {
     (
         take_while(1.., |c: char| c.is_ascii_alphabetic() || c == '_'),
         take_while(0.., |c: char| c.is_ascii_alphanumeric() || c == '_'),
@@ -37,7 +37,7 @@ pub(super) fn name<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
 }
 
 /// Parse an execution mode variant
-pub(super) fn execution_mode(input: &mut Located<&str>) -> PResult<ExecutionMode> {
+pub(super) fn execution_mode(input: &mut Located<&str>) -> ModalResult<ExecutionMode> {
     alt(("always", "auto", "need", "lock"))
         .map(|typ| match typ {
             "always" => ExecutionMode::Always,
@@ -50,7 +50,7 @@ pub(super) fn execution_mode(input: &mut Located<&str>) -> PResult<ExecutionMode
 }
 
 /// Parse an execution bounds variant
-pub(super) fn execution_bounds(input: &mut Located<&str>) -> PResult<ExecutionBounds> {
+pub(super) fn execution_bounds(input: &mut Located<&str>) -> ModalResult<ExecutionBounds> {
     alt(("main", "fork", "limit", "box", "skip"))
         .map(|typ| match typ {
             "main" => ExecutionBounds::Main,
@@ -64,7 +64,7 @@ pub(super) fn execution_bounds(input: &mut Located<&str>) -> PResult<ExecutionBo
 }
 
 /// Parse an instruction type
-pub(super) fn instruction_type(input: &mut Located<&str>) -> PResult<InstructionType> {
+pub(super) fn instruction_type(input: &mut Located<&str>) -> ModalResult<InstructionType> {
     alt((
         "create".value(InstructionType::Create),
         "edit".value(InstructionType::Edit),
@@ -75,7 +75,7 @@ pub(super) fn instruction_type(input: &mut Located<&str>) -> PResult<Instruction
 }
 
 /// Parse a relative position
-pub(super) fn relative_position(input: &mut Located<&str>) -> PResult<RelativePosition> {
+pub(super) fn relative_position(input: &mut Located<&str>) -> ModalResult<RelativePosition> {
     alt((
         alt(("above", "previous", "prev")).value(RelativePosition::Previous),
         alt(("below", "next")).value(RelativePosition::Next),
@@ -84,7 +84,7 @@ pub(super) fn relative_position(input: &mut Located<&str>) -> PResult<RelativePo
 }
 
 /// Parse a node type
-pub(super) fn node_type(input: &mut Located<&str>) -> PResult<NodeType> {
+pub(super) fn node_type(input: &mut Located<&str>) -> ModalResult<NodeType> {
     alt((
         "heading".value(NodeType::Heading),
         alt(("paragraph", "para")).value(NodeType::Paragraph),
@@ -100,7 +100,7 @@ pub(super) fn node_type(input: &mut Located<&str>) -> PResult<NodeType> {
 }
 
 /// Parse instruction options
-pub(super) fn model_parameters<'s>(input: &mut Located<&'s str>) -> PResult<ModelParameters> {
+pub(super) fn model_parameters<'s>(input: &mut Located<&'s str>) -> ModalResult<ModelParameters> {
     (
         opt(delimited(
             (multispace0, '['),
@@ -155,7 +155,7 @@ pub(super) fn model_parameters<'s>(input: &mut Located<&'s str>) -> PResult<Mode
 }
 
 /// Parse a specified prompt id
-pub(super) fn prompt<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
+pub(super) fn prompt<'s>(input: &mut Located<&'s str>) -> ModalResult<&'s str> {
     preceded('@', take_while(1.., |c: char| !c.is_whitespace())).parse_next(input)
 }
 
@@ -163,7 +163,7 @@ pub(super) fn prompt<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
 pub(super) fn take_until_unbalanced<'s>(
     opening: char,
     closing: char,
-) -> impl Fn(&mut Located<&'s str>) -> PResult<&'s str> {
+) -> impl Fn(&mut Located<&'s str>) -> ModalResult<&'s str> {
     move |input: &mut Located<&'s str>| {
         let mut counter = 0;
         for (index, char) in input.char_indices() {
@@ -185,14 +185,14 @@ pub(super) fn take_until_unbalanced<'s>(
 ///
 /// Curly braced options are used to specify options on various
 /// node types. Separated by whitespace with optional commas
-pub(super) fn attrs<'s>(input: &mut Located<&'s str>) -> PResult<Vec<(&'s str, Option<Node>)>> {
+pub(super) fn attrs<'s>(input: &mut Located<&'s str>) -> ModalResult<Vec<(&'s str, Option<Node>)>> {
     delimited(('{', multispace0), attrs_list, (multispace0, '}')).parse_next(input)
 }
 
 /// Parse a list of `attrs`
 pub(super) fn attrs_list<'s>(
     input: &mut Located<&'s str>,
-) -> PResult<Vec<(&'s str, Option<Node>)>> {
+) -> ModalResult<Vec<(&'s str, Option<Node>)>> {
     separated(
         0..,
         attr,
@@ -204,7 +204,7 @@ pub(super) fn attrs_list<'s>(
 /// Parse a single attr inside `attrs`
 ///
 /// Attributes can be single values (i.e. flags) or key-value pairs (separated by `=`).
-pub(super) fn attr<'s>(input: &mut Located<&'s str>) -> PResult<(&'s str, Option<Node>)> {
+pub(super) fn attr<'s>(input: &mut Located<&'s str>) -> ModalResult<(&'s str, Option<Node>)> {
     alt((
         separated_pair(
             name,
@@ -218,7 +218,7 @@ pub(super) fn attr<'s>(input: &mut Located<&'s str>) -> PResult<(&'s str, Option
 }
 
 /// Any primitive node
-pub(super) fn primitive_node(input: &mut Located<&str>) -> PResult<Node> {
+pub(super) fn primitive_node(input: &mut Located<&str>) -> ModalResult<Node> {
     alt((
         object_node,
         array_node,
@@ -234,38 +234,38 @@ pub(super) fn primitive_node(input: &mut Located<&str>) -> PResult<Node> {
 }
 
 /// Parse a true/false (case-insensitive) into a `Boolean` node
-fn boolean_node(input: &mut Located<&str>) -> PResult<Node> {
+fn boolean_node(input: &mut Located<&str>) -> ModalResult<Node> {
     alt((Caseless("true"), Caseless("false")))
         .map(|str: &str| Node::Boolean(str.to_lowercase() == "true"))
         .parse_next(input)
 }
 
 /// Parse an `Integer` node
-fn integer_node(input: &mut Located<&str>) -> PResult<Node> {
+fn integer_node(input: &mut Located<&str>) -> ModalResult<Node> {
     (dec_int, peek(not(".")))
         .map(|(num, ..)| Node::Integer(num))
         .parse_next(input)
 }
 
 /// Parse a `Number` node
-fn number_node(input: &mut Located<&str>) -> PResult<Node> {
+fn number_node(input: &mut Located<&str>) -> ModalResult<Node> {
     float.map(Node::Number).parse_next(input)
 }
 
 /// Parse a single or double quoted string into a `String` node
-fn string_node(input: &mut Located<&str>) -> PResult<Node> {
+fn string_node(input: &mut Located<&str>) -> ModalResult<Node> {
     alt((single_quoted_string_node, double_quoted_string_node)).parse_next(input)
 }
 
 /// Parse a single quoted string into a `String` node
-fn single_quoted_string_node(input: &mut Located<&str>) -> PResult<Node> {
+fn single_quoted_string_node(input: &mut Located<&str>) -> ModalResult<Node> {
     delimited('\'', take_escaped(none_of(['\\', '\'']), '\\', '\''), '\'')
         .map(|value: &str| Node::String(value.to_string()))
         .parse_next(input)
 }
 
 /// Parse a double quoted string into a `String` node
-fn double_quoted_string_node(input: &mut Located<&str>) -> PResult<Node> {
+fn double_quoted_string_node(input: &mut Located<&str>) -> ModalResult<Node> {
     delimited('"', take_escaped(none_of(['\\', '"']), '\\', '"'), '"')
         .map(|value: &str| Node::String(value.to_string()))
         .parse_next(input)
@@ -274,7 +274,7 @@ fn double_quoted_string_node(input: &mut Located<&str>) -> PResult<Node> {
 /// Parse characters into string into a `String` node
 ///
 /// Excludes character that may be significant in places that this is used.
-fn unquoted_string_node(input: &mut Located<&str>) -> PResult<Node> {
+fn unquoted_string_node(input: &mut Located<&str>) -> ModalResult<Node> {
     take_while(1.., |c: char| c != ' ' && c != '}')
         .take()
         .map(|value: &str| Node::String(value.to_string()))
@@ -282,23 +282,23 @@ fn unquoted_string_node(input: &mut Located<&str>) -> PResult<Node> {
 }
 
 /// Parse a YYYY-mm-ddTHH::MM::SS datetime
-fn datetime_node(input: &mut Located<&str>) -> PResult<Node> {
+fn datetime_node(input: &mut Located<&str>) -> ModalResult<Node> {
     terminated((date_node, 'T', time_node), opt('Z'))
         .take()
         .map(|str: &str| Node::DateTime(DateTime::new(str.to_string())))
         .parse_next(input)
 }
 
-fn digits4<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
+fn digits4<'s>(input: &mut Located<&'s str>) -> ModalResult<&'s str> {
     take_while(4..=4, '0'..='9').parse_next(input)
 }
 
-fn digits2<'s>(input: &mut Located<&'s str>) -> PResult<&'s str> {
+fn digits2<'s>(input: &mut Located<&'s str>) -> ModalResult<&'s str> {
     take_while(2..=2, '0'..='9').parse_next(input)
 }
 
 /// Parse a YYYY-mm-dd date
-fn date_node(input: &mut Located<&str>) -> PResult<Node> {
+fn date_node(input: &mut Located<&str>) -> ModalResult<Node> {
     (digits4, '-', digits2, '-', digits2)
         .take()
         .map(|str: &str| Node::Date(Date::new(str.to_string())))
@@ -306,7 +306,7 @@ fn date_node(input: &mut Located<&str>) -> PResult<Node> {
 }
 
 /// Parse a HH::MM::SS time
-fn time_node(input: &mut Located<&str>) -> PResult<Node> {
+fn time_node(input: &mut Located<&str>) -> ModalResult<Node> {
     (digits2, ':', digits2, ':', digits2)
         .take()
         .map(|str: &str| Node::Time(Time::new(str.to_string())))
@@ -314,7 +314,7 @@ fn time_node(input: &mut Located<&str>) -> PResult<Node> {
 }
 
 /// Parse a JSON5-style square bracketed array into an `Array` node
-fn array_node(input: &mut Located<&str>) -> PResult<Node> {
+fn array_node(input: &mut Located<&str>) -> ModalResult<Node> {
     let json5 = ('[', take_until_unbalanced('[', ']'), ']')
         .take()
         .parse_next(input)?;
@@ -322,7 +322,7 @@ fn array_node(input: &mut Located<&str>) -> PResult<Node> {
 }
 
 /// Parse a JSON5-style curly braced object into an `Object` node
-fn object_node(input: &mut Located<&str>) -> PResult<Node> {
+fn object_node(input: &mut Located<&str>) -> ModalResult<Node> {
     let json5 = ('{', take_until_unbalanced('{', '}'), '}')
         .take()
         .parse_next(input)?;

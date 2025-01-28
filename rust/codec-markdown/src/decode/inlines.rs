@@ -7,7 +7,7 @@ use winnow::{
     combinator::{alt, delimited, not, opt, peek, preceded, repeat, separated, terminated},
     stream::{LocatingSlice as Located, Stream},
     token::{take, take_until, take_while},
-    PResult, Parser,
+    ModalResult, Parser,
 };
 
 use codec::{
@@ -347,7 +347,7 @@ fn inlines_only(input: &str) -> Vec<Inline> {
 }
 
 // Parse a MyST "role" into an inline
-fn myst_role(input: &mut Located<&str>) -> PResult<Inline> {
+fn myst_role(input: &mut Located<&str>) -> ModalResult<Inline> {
     (
         delimited('{', take_until(0.., '}'), '}'),
         delimited('`', take_until(0.., '`'), '`'),
@@ -367,7 +367,7 @@ fn myst_role(input: &mut Located<&str>) -> PResult<Inline> {
 }
 
 // Parse a QMD inline expression
-fn qmd_inline_code(input: &mut Located<&str>) -> PResult<Inline> {
+fn qmd_inline_code(input: &mut Located<&str>) -> ModalResult<Inline> {
     (
         delimited("`{", take_until(0.., '}'), '}'),
         delimited(multispace0, take_until(0.., '`'), '`'),
@@ -387,7 +387,7 @@ fn qmd_inline_code(input: &mut Located<&str>) -> PResult<Inline> {
 ///
 /// The `attrs` are optional because plain `CodeFragment`s also end up being
 /// passed to this function
-fn code_attrs(input: &mut Located<&str>) -> PResult<Inline> {
+fn code_attrs(input: &mut Located<&str>) -> ModalResult<Inline> {
     preceded(
         not(peek(('=', space0))), // Avoid matching call arguments using backticks
         (delimited('`', take_until(0.., '`'), '`'), opt(attrs)),
@@ -456,7 +456,7 @@ fn code_attrs(input: &mut Located<&str>) -> PResult<Inline> {
 /// The language of the code expression can be added in a curly brace suffix.
 /// e.g. `{{2 * 2}}{r}` is equivalent to `\`r 2 * 2\``{r exec} in Markdown or to
 /// `\`r 2 * 2\` in R Markdown.
-fn double_braces(input: &mut Located<&str>) -> PResult<Inline> {
+fn double_braces(input: &mut Located<&str>) -> ModalResult<Inline> {
     (delimited("{{", take_until(0.., "}}"), "}}"), opt(attrs))
         .map(|(code, options)| {
             let mut options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
@@ -475,7 +475,7 @@ fn double_braces(input: &mut Located<&str>) -> PResult<Inline> {
 }
 
 /// Parse math surrounded by one or two dollars into a `MathInline`.
-fn math(input: &mut Located<&str>) -> PResult<Inline> {
+fn math(input: &mut Located<&str>) -> ModalResult<Inline> {
     (alt((
         delimited("$$", take_until(0.., "$$"), "$$"),
         delimited("$", take_until(0.., "$"), "$"),
@@ -504,7 +504,7 @@ fn math(input: &mut Located<&str>) -> PResult<Inline> {
 ///   - [ ] citation_prefix
 ///   - [ ] citation_suffix
 ///   - [ ] citation_intent
-fn cite(input: &mut Located<&str>) -> PResult<Inline> {
+fn cite(input: &mut Located<&str>) -> ModalResult<Inline> {
     // TODO: Parse more properties of citations
     preceded('@', take_while(1.., |chr: char| chr.is_alphanumeric()))
         .map(|target: &str| {
@@ -520,7 +520,7 @@ fn cite(input: &mut Located<&str>) -> PResult<Inline> {
 ///
 /// If there is only one citation within square brackets then a parenthetical `Cite` node is
 /// returned. Otherwise, the `Cite` nodes are grouped into into a `CiteGroup`.
-fn cite_group(input: &mut Located<&str>) -> PResult<Inline> {
+fn cite_group(input: &mut Located<&str>) -> ModalResult<Inline> {
     let cite =
         preceded('@', take_while(1.., |chr: char| chr.is_alphanumeric())).map(|res: &str| {
             let target = res.into();
@@ -556,7 +556,7 @@ fn cite_group(input: &mut Located<&str>) -> PResult<Inline> {
 }
 
 /// Parse a `Parameter`.
-fn parameter(input: &mut Located<&str>) -> PResult<Inline> {
+fn parameter(input: &mut Located<&str>) -> ModalResult<Inline> {
     (delimited("&[", name, ']'), opt(attrs))
         .map(|(name, attrs)| {
             let mut options: HashMap<&str, _> = attrs.unwrap_or_default().into_iter().collect();
@@ -754,7 +754,7 @@ fn parameter(input: &mut Located<&str>) -> PResult<Inline> {
 }
 
 /// Parse a `Button`
-fn button(input: &mut Located<&str>) -> PResult<Inline> {
+fn button(input: &mut Located<&str>) -> ModalResult<Inline> {
     (
         delimited("#[", take_until(0.., ']'), ']'),
         opt(delimited('`', take_until(0.., "`"), '`')),
@@ -776,7 +776,7 @@ fn button(input: &mut Located<&str>) -> PResult<Inline> {
 }
 
 /// Parse a [`StyledInline`].
-fn styled_inline(input: &mut Located<&str>) -> PResult<Inline> {
+fn styled_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
     (
         delimited('[', take_until_unbalanced('[', ']'), ']'),
         delimited('{', take_until_unbalanced('{', '}'), '}'),
@@ -792,7 +792,7 @@ fn styled_inline(input: &mut Located<&str>) -> PResult<Inline> {
 }
 
 /// Parse a string into a `Strikeout` node
-fn strikeout(input: &mut Located<&str>) -> PResult<Inline> {
+fn strikeout(input: &mut Located<&str>) -> ModalResult<Inline> {
     alt((
         delimited("~~", take_until(0.., "~~"), "~~"),
         delimited("<s>", take_until(0.., "</s>"), "</s>"),
@@ -803,7 +803,7 @@ fn strikeout(input: &mut Located<&str>) -> PResult<Inline> {
 }
 
 /// Parse a string into a `Subscript` node
-fn subscript(input: &mut Located<&str>) -> PResult<Inline> {
+fn subscript(input: &mut Located<&str>) -> ModalResult<Inline> {
     alt((
         delimited(
             // Only match single tilde, because doubles are for `Strikeout`
@@ -818,7 +818,7 @@ fn subscript(input: &mut Located<&str>) -> PResult<Inline> {
 }
 
 /// Parse a string into a `Superscript` node
-fn superscript(input: &mut Located<&str>) -> PResult<Inline> {
+fn superscript(input: &mut Located<&str>) -> ModalResult<Inline> {
     alt((
         delimited('^', take_until(0.., '^'), '^'),
         delimited("<sup>", take_until(0.., "</sup>"), "</sup>"),
@@ -828,7 +828,7 @@ fn superscript(input: &mut Located<&str>) -> PResult<Inline> {
 }
 
 /// Nest HTML tag only parsers under a peek for performance (avoids trying each one in the input does not start with <)
-fn html(input: &mut Located<&str>) -> PResult<Inline> {
+fn html(input: &mut Located<&str>) -> ModalResult<Inline> {
     preceded(
         peek("<"),
         alt((
@@ -839,42 +839,42 @@ fn html(input: &mut Located<&str>) -> PResult<Inline> {
 }
 
 /// Parse <q> tags into a `QuoteInline` node
-fn quote(input: &mut Located<&str>) -> PResult<Inline> {
+fn quote(input: &mut Located<&str>) -> ModalResult<Inline> {
     delimited("<q>", take_until(0.., "</q>"), "</q>")
         .map(|content: &str| Inline::QuoteInline(QuoteInline::new(inlines_only(content))))
         .parse_next(input)
 }
 
 /// Parse <u> tags into a `Underline` node
-fn underline(input: &mut Located<&str>) -> PResult<Inline> {
+fn underline(input: &mut Located<&str>) -> ModalResult<Inline> {
     delimited("<u>", take_until(0.., "</u>"), "</u>")
         .map(|content: &str| Inline::Underline(Underline::new(inlines_only(content))))
         .parse_next(input)
 }
 
 /// Parse <em> tags into a `Emphasis` node
-fn emphasis(input: &mut Located<&str>) -> PResult<Inline> {
+fn emphasis(input: &mut Located<&str>) -> ModalResult<Inline> {
     delimited("<em>", take_until(0.., "</em>"), "</em>")
         .map(|content: &str| Inline::Emphasis(Emphasis::new(inlines_only(content))))
         .parse_next(input)
 }
 
 /// Parse <strong> tags into a `Strong` node
-fn strong(input: &mut Located<&str>) -> PResult<Inline> {
+fn strong(input: &mut Located<&str>) -> ModalResult<Inline> {
     delimited("<strong>", take_until(0.., "</strong>"), "</strong>")
         .map(|content: &str| Inline::Strong(Strong::new(inlines_only(content))))
         .parse_next(input)
 }
 
 /// Parse <code> tags into a `CodeInline` node
-fn code(input: &mut Located<&str>) -> PResult<Inline> {
+fn code(input: &mut Located<&str>) -> ModalResult<Inline> {
     delimited("<code>", take_until(0.., "</code>"), "</code>")
         .map(|code: &str| Inline::CodeInline(CodeInline::new(code.into())))
         .parse_next(input)
 }
 
 /// Parse <img> tags into a `Image` node
-fn image(input: &mut Located<&str>) -> PResult<Inline> {
+fn image(input: &mut Located<&str>) -> ModalResult<Inline> {
     delimited("<img ", attrs_list, ">")
         .map(|attrs| {
             let mut content_url = String::new();
@@ -897,7 +897,7 @@ fn image(input: &mut Located<&str>) -> PResult<Inline> {
 }
 
 /// Parse <a> tags into a `Link` node
-fn link(input: &mut Located<&str>) -> PResult<Inline> {
+fn link(input: &mut Located<&str>) -> ModalResult<Inline> {
     delimited(
         "<a ",
         (terminated(attrs_list, ">"), take_until(0.., "</a>")),
@@ -926,7 +926,7 @@ fn link(input: &mut Located<&str>) -> PResult<Inline> {
 
 /// Ignore other inline HTML start and end tags. The content between them will still be parsed elsewhere
 /// so this does not try to balance them
-fn html_tag(input: &mut Located<&str>) -> PResult<Inline> {
+fn html_tag(input: &mut Located<&str>) -> ModalResult<Inline> {
     alt((
         delimited(
             "</",
@@ -940,7 +940,7 @@ fn html_tag(input: &mut Located<&str>) -> PResult<Inline> {
 }
 
 /// Parse a string into a `InstructionInline` node
-fn instruction_inline(input: &mut Located<&str>) -> PResult<Inline> {
+fn instruction_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
     (
         delimited("[[", instruction_type, multispace0),
         (opt(terminated(prompt, multispace1)), take_until_edit),
@@ -969,7 +969,7 @@ fn instruction_inline(input: &mut Located<&str>) -> PResult<Inline> {
 }
 
 /// Take characters until `EDIT_WITH` or `EDIT_END`
-fn take_until_edit<'s>(input: &mut Located<&'s str>) -> PResult<(&'s str, &'static str)> {
+fn take_until_edit<'s>(input: &mut Located<&'s str>) -> ModalResult<(&'s str, &'static str)> {
     let mut last = ' ';
     for (index, char) in input.char_indices() {
         if (last == '>' && char == '>') || last == ']' && char == ']' {
@@ -984,35 +984,35 @@ fn take_until_edit<'s>(input: &mut Located<&'s str>) -> PResult<(&'s str, &'stat
 }
 
 /// Parse a string into a `SuggestionInline` node
-fn suggestion_inline(input: &mut Located<&str>) -> PResult<Inline> {
+fn suggestion_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
     (EDIT_START, "suggest", ' ')
         .map(|_| Inline::SuggestionInline(SuggestionInline::default()))
         .parse_next(input)
 }
 
 /// Parse a string into a `InsertInline` node
-fn insert_inline(input: &mut Located<&str>) -> PResult<Inline> {
+fn insert_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
     (EDIT_START, alt(("insert", "ins")), ' ')
         .map(|_| Inline::InsertInline(InsertInline::default()))
         .parse_next(input)
 }
 
 /// Parse a string into a `DeleteInline` node
-fn delete_inline(input: &mut Located<&str>) -> PResult<Inline> {
+fn delete_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
     (EDIT_START, alt(("delete", "del")), ' ')
         .map(|_| Inline::DeleteInline(DeleteInline::default()))
         .parse_next(input)
 }
 
 /// Parse a string into a `ReplaceInline` node
-fn replace_inline(input: &mut Located<&str>) -> PResult<Inline> {
+fn replace_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
     (EDIT_START, alt(("replace", "rep")), ' ')
         .map(|_| Inline::ReplaceInline(ReplaceInline::default()))
         .parse_next(input)
 }
 
 /// Parse a `with:` word indicating the replacement content for a `ReplaceInline` or `ModifyInline` node
-fn edit_with(input: &mut Located<&str>) -> PResult<Inline> {
+fn edit_with(input: &mut Located<&str>) -> ModalResult<Inline> {
     EDIT_WITH
         .map(|_| Inline::Text(Text::from(EDIT_WITH)))
         .parse_next(input)
@@ -1020,7 +1020,7 @@ fn edit_with(input: &mut Located<&str>) -> PResult<Inline> {
 
 /// Parse double closing square brackets `]]` indicating the end of content
 /// for an edit node
-fn edit_end(input: &mut Located<&str>) -> PResult<Inline> {
+fn edit_end(input: &mut Located<&str>) -> ModalResult<Inline> {
     EDIT_END
         .map(|_| Inline::Text(Text::from(EDIT_END)))
         .parse_next(input)
@@ -1030,7 +1030,7 @@ fn edit_end(input: &mut Located<&str>) -> PResult<Inline> {
 ///
 /// Will greedily take as many characters as possible, excluding those that appear at the
 /// start of other inline parsers e.g. '$', '['
-fn string(input: &mut Located<&str>) -> PResult<Inline> {
+fn string(input: &mut Located<&str>) -> ModalResult<Inline> {
     const CHARS: &str = "~@#$^&[]{`<>";
     take_while(1.., |chr: char| !CHARS.contains(chr))
         .map(|val: &str| Inline::Text(Text::new(val.into())))
@@ -1040,7 +1040,7 @@ fn string(input: &mut Located<&str>) -> PResult<Inline> {
 /// Take a single character into a `Text` node
 ///
 /// Necessary so that the characters not consumed by `string` are not lost.
-fn character(input: &mut Located<&str>) -> PResult<Inline> {
+fn character(input: &mut Located<&str>) -> ModalResult<Inline> {
     take(1usize)
         .map(|val: &str| Inline::Text(Text::new(val.into())))
         .parse_next(input)

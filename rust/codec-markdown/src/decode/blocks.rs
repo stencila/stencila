@@ -6,7 +6,7 @@ use winnow::{
     combinator::{alt, delimited, eof, opt, preceded, separated, separated_pair, terminated},
     stream::AsChar,
     token::{take_till, take_until, take_while},
-    IResult, LocatingSlice as Located, PResult, Parser,
+    LocatingSlice as Located, ModalResult, Parser,
 };
 
 use codec::{
@@ -505,7 +505,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 }
 
 /// Parse a "div": a paragraph starting with at least three semicolons
-fn block(input: &mut Located<&str>) -> PResult<Block> {
+fn block(input: &mut Located<&str>) -> ModalResult<Block> {
     alt((
         chat,
         preceded(
@@ -538,7 +538,7 @@ fn block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`Admonition`] node
-fn admonition_qmd(input: &mut Located<&str>) -> PResult<Block> {
+fn admonition_qmd(input: &mut Located<&str>) -> ModalResult<Block> {
     delimited(
         "{.callout-",
         (
@@ -582,7 +582,7 @@ fn admonition_qmd(input: &mut Located<&str>) -> PResult<Block> {
 /// Parse an argument to a `CallBlock`.
 ///
 /// Arguments must be key-value or key-symbol pairs separated by `=`.
-fn call_arg(input: &mut Located<&str>) -> PResult<CallArgument> {
+fn call_arg(input: &mut Located<&str>) -> ModalResult<CallArgument> {
     // TODO allow for programming language to be specified
     (
         terminated(name, delimited(multispace0, "=", multispace0)),
@@ -601,7 +601,7 @@ fn call_arg(input: &mut Located<&str>) -> PResult<CallArgument> {
 }
 
 /// Parse a [`CallBlock`] node
-fn call_block(input: &mut Located<&str>) -> PResult<Block> {
+fn call_block(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         ("call", multispace1),
         (
@@ -630,7 +630,7 @@ fn call_block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse an [`IncludeBlock`] node
-fn include_block(input: &mut Located<&str>) -> PResult<Block> {
+fn include_block(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         (alt(("include", "inc")), multispace1),
         (take_while(1.., |c| c != '{'), opt(attrs)),
@@ -650,7 +650,7 @@ fn include_block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`PromptBlock`] node
-fn prompt_block(input: &mut Located<&str>) -> PResult<Block> {
+fn prompt_block(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         "prompt",
         (
@@ -684,7 +684,7 @@ fn prompt_block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`Claim`] node
-fn claim(input: &mut Located<&str>) -> PResult<Block> {
+fn claim(input: &mut Located<&str>) -> ModalResult<Block> {
     (
         terminated(
             alt((
@@ -712,7 +712,7 @@ fn claim(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`CodeChunk`] node with a label and/or caption
-fn code_chunk(input: &mut Located<&str>) -> PResult<Block> {
+fn code_chunk(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         ("chunk", multispace0),
         (
@@ -746,7 +746,7 @@ fn code_chunk(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`Chat`] node
-fn chat(input: &mut Located<&str>) -> PResult<Block> {
+fn chat(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         "/",
         (
@@ -790,7 +790,7 @@ fn chat(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`ChatMessage`] or [`ChatMessageGroup`] node
-fn chat_message(input: &mut Located<&str>) -> PResult<Block> {
+fn chat_message(input: &mut Located<&str>) -> ModalResult<Block> {
     (
         preceded(
             Caseless("msg/"),
@@ -834,7 +834,7 @@ fn chat_message(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`Figure`] node with a label and/or caption
-fn figure(input: &mut Located<&str>) -> PResult<Block> {
+fn figure(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         (
             alt((Caseless("figure"), Caseless("fig"), Caseless("fig."))),
@@ -853,7 +853,7 @@ fn figure(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`ForBlock`] node
-fn for_block(input: &mut Located<&str>) -> PResult<Block> {
+fn for_block(input: &mut Located<&str>) -> ModalResult<Block> {
     alt((
         // Stencila Markdown
         preceded(
@@ -898,7 +898,7 @@ fn for_block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse an `if` or `elif` fenced div into an [`IfBlockClause`]
-fn if_elif(input: &mut Located<&str>) -> PResult<(bool, IfBlockClause)> {
+fn if_elif(input: &mut Located<&str>) -> ModalResult<(bool, IfBlockClause)> {
     alt((
         // Stencila Markdown
         (
@@ -941,7 +941,7 @@ fn if_elif(input: &mut Located<&str>) -> PResult<(bool, IfBlockClause)> {
 }
 
 /// Start an [`InstructionBlock`]
-fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
+fn instruction_block(input: &mut Located<&str>) -> ModalResult<Block> {
     (
         instruction_type,
         opt(preceded(multispace1, execution_mode)),
@@ -1021,7 +1021,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`SuggestionBlock`] node
-fn suggestion_block(input: &mut Located<&str>) -> PResult<Block> {
+fn suggestion_block(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         ("suggest", multispace0),
         (
@@ -1067,7 +1067,7 @@ fn suggestion_block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`InsertBlock`] node
-fn insert_block(input: &mut Located<&str>) -> PResult<Block> {
+fn insert_block(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         (alt(("insert", "ins")), multispace0),
         opt(take_while(1.., |_| true)),
@@ -1082,7 +1082,7 @@ fn insert_block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`DeleteBlock`] node
-fn delete_block(input: &mut Located<&str>) -> PResult<Block> {
+fn delete_block(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         (alt(("delete", "del")), multispace0),
         opt(take_while(1.., |_| true)),
@@ -1097,7 +1097,7 @@ fn delete_block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`ReplaceBlock`] node
-fn replace_block(input: &mut Located<&str>) -> PResult<Block> {
+fn replace_block(input: &mut Located<&str>) -> ModalResult<Block> {
     delimited(
         (alt(("replace", "rep")), multispace0),
         opt(take_while(1.., |_| true)),
@@ -1113,7 +1113,7 @@ fn replace_block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`ModifyBlock`] node
-fn modify_block(input: &mut Located<&str>) -> PResult<Block> {
+fn modify_block(input: &mut Located<&str>) -> ModalResult<Block> {
     delimited(
         (alt(("modify", "mod")), multispace0),
         opt(take_while(1.., |_| true)),
@@ -1129,7 +1129,7 @@ fn modify_block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`Section`] node
-fn section(input: &mut Located<&str>) -> PResult<Block> {
+fn section(input: &mut Located<&str>) -> ModalResult<Block> {
     alphanumeric1
         .map(|section_type: &str| {
             Block::Section(Section {
@@ -1141,7 +1141,7 @@ fn section(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`StyledBlock`] node
-fn styled_block(input: &mut Located<&str>) -> PResult<Block> {
+fn styled_block(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         (alt((Caseless("styled"), Caseless("style"))), multispace0),
         take_while(0.., |_| true),
@@ -1156,7 +1156,7 @@ fn styled_block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`Table`] with a label and/or caption
-fn table(input: &mut Located<&str>) -> PResult<Block> {
+fn table(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         (Caseless("table"), multispace0),
         opt(take_while(1.., |_| true)),
@@ -1172,7 +1172,7 @@ fn table(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a divider between sections of content
-fn divider(input: &mut &str) -> PResult<Divider> {
+fn divider(input: &mut &str) -> ModalResult<Divider> {
     delimited(
         (take_while(3.., ':'), space0),
         alt((
@@ -1844,7 +1844,7 @@ fn mds_to_quote_block_or_admonition(mds: Vec<mdast::Node>, context: &mut Context
         .unwrap_or_default();
 
     #[allow(clippy::type_complexity)]
-    let parsed: IResult<&str, (&str, Option<&str>, Option<&str>, Option<char>)> = (
+    let parsed: ModalResult<(&str, (&str, Option<&str>, Option<&str>, Option<char>))> = (
         delimited("[!", take_until(1.., "]"), "]"),
         opt(preceded(space0, alt(("+", "-")))),
         opt(preceded(space0, take_while(1.., |c| c != '\n'))),
