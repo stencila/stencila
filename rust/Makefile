@@ -52,7 +52,7 @@ cover: test-setup
 	
 	cargo llvm-cov test --workspace --no-report
 	
-	# SKIP: NO TESTS cargo llvm-cov test --no-report -p codecs --features proptest-min --test proptests
+	cargo llvm-cov test --no-report -p codecs --features proptest-min --test proptests
 	
 	cargo llvm-cov test --no-report -p codecs --features proptest-low --test proptests
 	

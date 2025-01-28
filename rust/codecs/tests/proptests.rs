@@ -59,43 +59,16 @@ fn roundtrip(
 
 #[cfg(feature = "proptest-min")]
 proptest! {
-    #![proptest_config(ProptestConfig::with_cases(1000))]
-}
-
-#[cfg(feature = "proptest-low")]
-proptest! {
-    #![proptest_config(ProptestConfig::with_cases(500))]
-
-    /// Roundtrip test for Stencila Markdown
-    #[test]
-    fn article_smd(article: Article) {
-        let mut article = Node::Article(article);
-
-        article.strip(&StripTargets {
-            types: vec![
-                // TODO Resolve why block quotes are causing failures
-                // in round trips and re-enable
-                // See https://github.com/stencila/stencila/issues/1924
-                "QuoteBlock".into(),
-            ],
-            properties: vec![
-                // Admonition title is currently encoded as plain, unstructured text
-                // only, so strip it.
-                "Admonition.title".into(),
-                // `CodeChunk.label` are not supported if there is no
-                // `label_type` (which can be generated as an arbitrary combo)
-                "CodeChunk.label".into(),
-                // Arbitrary figures do not necessarily have `label_automatically == false`
-                // when a label is present so need to strip label
-                "Figure.label".into()
-            ],
-            ..Default::default()
-        });
-
-        assert_eq!(roundtrip(Format::Smd, &article, None, None).unwrap(), article);
-    }
+    #![proptest_config(ProptestConfig::with_cases(10_000))]
 
     /// Roundtrip test for IPYNB
+    /// 
+    /// TODO: Fix this
+    /// This is in `proptest-min` because `Note` nodes are not currently supported.
+    /// This is due to how we append the content of the Markdown to the end of
+    /// a document and so they are lost when encoded to a cell. Instead we
+    /// perhaps treat each Markdown cell as a standalone `Article` when
+    /// encoding/decoding.
     #[test]
     fn article_ipynb(article: Article) {
         let mut article = Node::Article(article);
@@ -138,6 +111,40 @@ proptest! {
         });
 
         assert_eq!(roundtrip(Format::Ipynb, &article, None, None).unwrap(), article);
+    }
+}
+
+#[cfg(feature = "proptest-low")]
+proptest! {
+    #![proptest_config(ProptestConfig::with_cases(5000))]
+
+    /// Roundtrip test for Stencila Markdown
+    #[test]
+    fn article_smd(article: Article) {
+        let mut article = Node::Article(article);
+
+        article.strip(&StripTargets {
+            types: vec![
+                // TODO Resolve why block quotes are causing failures
+                // in round trips and re-enable
+                // See https://github.com/stencila/stencila/issues/1924
+                "QuoteBlock".into(),
+            ],
+            properties: vec![
+                // Admonition title is currently encoded as plain, unstructured text
+                // only, so strip it.
+                "Admonition.title".into(),
+                // `CodeChunk.label` are not supported if there is no
+                // `label_type` (which can be generated as an arbitrary combo)
+                "CodeChunk.label".into(),
+                // Arbitrary figures do not necessarily have `label_automatically == false`
+                // when a label is present so need to strip label
+                "Figure.label".into()
+            ],
+            ..Default::default()
+        });
+
+        assert_eq!(roundtrip(Format::Smd, &article, None, None).unwrap(), article);
     }
 
     /// Roundtrip test for Pandoc
