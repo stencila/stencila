@@ -7,14 +7,10 @@
 # Intended to be run manually for specific branches, commits, or tags
 # rather than on every push.
 
-ame: Test Rust
+name: Test Rust
 on:
   workflow_dispatch:
     inputs:
-      ref:
-        description: "The repo ref (branch, commit, tag) to test"
-        type: string
-        default: main
       platforms:
         description: "Platforms to test on (comma-separated: ubuntu,mac,windows)"
         type: string
@@ -37,8 +33,6 @@ jobs:
     
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.ref }}
           
       - uses: dtolnay/rust-toolchain@master
         with:
