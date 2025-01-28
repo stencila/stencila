@@ -857,7 +857,6 @@ dependencies = [
  "document",
  "flate2",
  "format",
- "is-terminal",
  "kernels",
  "lsp",
  "models",
@@ -892,9 +891,9 @@ dependencies = [
  "comfy-table",
  "common",
  "format",
- "is-terminal",
  "rpassword",
  "syntect",
+ "url",
 ]
 
 [[package]]
@@ -1277,6 +1276,27 @@ dependencies = [
  "owo-colors",
  "tracing-error",
  "url",
+]
+
+[[package]]
+name = "color-print"
+version = "0.3.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3aa954171903797d5623e047d9ab69d91b493657917bdfb8c2c80ecaf9cdb6f4"
+dependencies = [
+ "color-print-proc-macro",
+]
+
+[[package]]
+name = "color-print-proc-macro"
+version = "0.3.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "692186b5ebe54007e45a59aea47ece9eb4108e141326c304cdc91699a7118a22"
+dependencies = [
+ "nom",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.96",
 ]
 
 [[package]]
@@ -2391,12 +2411,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d231dfb89cfffdbc30e7fc41579ed6066ad03abda9e567ccafae602b97ec5024"
 
 [[package]]
-name = "hermit-abi"
-version = "0.4.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fbf6a919d6cf397374f7dfeeea91d974c7c0a7221d0d0f4f20d859d329e53fcc"
-
-[[package]]
 name = "hex"
 version = "0.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2916,17 +2930,6 @@ name = "ipnet"
 version = "2.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ddc24109865250148c2e0f3d25d4f0f479571723792d3802153c60922a4fb708"
-
-[[package]]
-name = "is-terminal"
-version = "0.4.13"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "261f68e344040fbd0edea105bef17c66edf46f984ddb1115b775ce31be948f4b"
-dependencies = [
- "hermit-abi 0.4.0",
- "libc",
- "windows-sys 0.52.0",
-]
 
 [[package]]
 name = "is_terminal_polyfill"
@@ -3615,7 +3618,7 @@ version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "80e04d1dcff3aae0704555fe5fee3bcfaf3d1fdf8a7e521d5b9d2b42acb52cec"
 dependencies = [
- "hermit-abi 0.3.9",
+ "hermit-abi",
  "libc",
  "log",
  "wasi",
@@ -4761,12 +4764,14 @@ dependencies = [
  "common",
  "publish-ghost",
  "publish-stencila",
+ "publish-zenodo",
 ]
 
 [[package]]
 name = "publish-ghost"
 version = "0.0.0"
 dependencies = [
+ "cli-utils",
  "codec-text",
  "common",
  "document",
@@ -4786,6 +4791,21 @@ dependencies = [
  "common",
  "document",
  "schema",
+]
+
+[[package]]
+name = "publish-zenodo"
+version = "0.0.0"
+dependencies = [
+ "cli-utils",
+ "codec",
+ "codec-swb",
+ "codec-text",
+ "color-print",
+ "common",
+ "common-dev",
+ "document",
+ "url",
 ]
 
 [[package]]
