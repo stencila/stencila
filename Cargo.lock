@@ -1178,6 +1178,7 @@ dependencies = [
  "codec",
  "codec-text-trait",
  "pandoc_types",
+ "which",
 ]
 
 [[package]]
