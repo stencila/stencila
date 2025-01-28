@@ -209,6 +209,13 @@ mod tests {
 
     #[test]
     fn set_get_delete() -> Result<()> {
+        if cfg!(target_os = "linux") && std::env::var("CI").is_ok() {
+            // Requires the secrets service (e.g. gnome-keyring-daemon) to be running
+            // so skip on CI where that is not usually the case.
+            eprintln!("Skipping test on Linux CI");
+            return Ok(());
+        }
+
         let name = "TEST_SECRET";
         let value = "teSTSeCRET";
 
