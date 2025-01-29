@@ -286,13 +286,7 @@ fn list_to_lexical(list: &List, context: &mut LexicalEncodeContext) -> lexical::
         .items
         .iter()
         .flat_map(|item| &item.content)
-        .any(|block| {
-            if let Block::List(List { .. }) = block {
-                true
-            } else {
-                false
-            }
-        })
+        .any(|block| matches!(block, Block::List(List { .. })))
     {
         let markdown = match codec_markdown::encode(&art([Block::List(list.clone())]), None) {
             Ok((md, ..)) => md,

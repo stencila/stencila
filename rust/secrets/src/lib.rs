@@ -209,6 +209,7 @@ mod tests {
 
     #[test]
     fn set_get_delete() -> Result<()> {
+        #[allow(clippy::print_stderr)]
         if cfg!(target_os = "linux") && std::env::var("CI").is_ok() {
             // Requires the secrets service (e.g. gnome-keyring-daemon) to be running
             // so skip on CI where that is not usually the case.

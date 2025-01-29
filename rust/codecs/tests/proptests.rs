@@ -62,7 +62,7 @@ proptest! {
     #![proptest_config(ProptestConfig::with_cases(10_000))]
 
     /// Roundtrip test for IPYNB
-    /// 
+    ///
     /// TODO: Fix this
     /// This is in `proptest-min` because `Note` nodes are not currently supported.
     /// This is due to how we append the content of the Markdown to the end of
@@ -134,11 +134,11 @@ proptest! {
                 // Admonition title is currently encoded as plain, unstructured text
                 // only, so strip it.
                 "Admonition.title".into(),
-                
+
                 // `CodeChunk.label` are not supported if there is no
                 // `label_type` (which can be generated as an arbitrary combo)
                 "CodeChunk.label".into(),
-                
+
                 // Arbitrary figures do not necessarily have `label_automatically == false`
                 // when a label is present so need to strip label
                 "Figure.label".into()
@@ -160,14 +160,14 @@ proptest! {
                 // only, so we need to strip it for round trips to be same.
                 "Admonition.title".into(),
                 "CodeChunk.caption".into(),
-                
+
                 // The `programming_language` property of `CodeExpression`s is not
                 // currently supported
                 "CodeInline.programming_language".into(),
-                
+
                 // The `otherwise` property of `ForBlock`s is not yet supported
                 "ForBlock.otherwise".into(),
-                
+
                 // Arbitrarily generated code chunks and figures do not necessarily have
                 // `label_automatically == false` when `label` is `Some` so we need
                 // to strip labels for round trips to be same
