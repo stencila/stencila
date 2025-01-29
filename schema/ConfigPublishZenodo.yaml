@@ -1,0 +1,12 @@
+title: ConfigPublishZenodo
+nick: cpz
+category: config
+description: Zenodo publishing options.
+core:
+  - embargoed
+properties:
+  embargoed:
+    description: Whether the deposit is embargoed.
+    type: boolean
+    patch:
+      formats: [all]
