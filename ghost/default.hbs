@@ -6,8 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="{{asset "built/index.css"}}" />
     <link rel="stylesheet" href="{{asset "built/tailwind.css"}}" />
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
     <script src="{{asset "built/index.js"}}" defer></script>
     <script src="{{asset "built/stencila-web/views/dynamic.js" }}"></script>
+
 
     <title>{{meta_title}}</title>
 
@@ -18,10 +20,18 @@
 <body class="{{body_class}}">
 <div class="gh-viewport">
 
-<header id="gh-head" class="gh-head">
-    <nav class="gh-head-inner gh-container">
-
-        <div class="gh-head-brand">
+<header id="gh-head" class="fixed w-full flex items-center h-20 z-20 border-b border-black/20 bg-white">
+    <nav class="container mx-auto flex flex-row justify-between items-center">
+        <div>
+            <a href="{{@site.url}}">    
+                {{#if @site.logo}}
+                    <img src="{{@site.logo}}" alt="{{@site.title}}" />
+                {{else}}
+                    {{@site.title}}
+                {{/if}}
+            </a>
+        </div>
+        {{!-- <div class="gh-head-brand">
             <a class="gh-head-logo" href="{{@site.url}}">
                 {{#if @site.logo}}
                     <img src="{{@site.logo}}" alt="{{@site.title}}" />
@@ -34,10 +44,15 @@
                     <div class="gh-burger-inner"></div>
                 </div>
             </a>
-        </div>
-        <div class="gh-head-menu">
+        </div> --}}
+        <div class="gh-head-menu flex items-center">
             {{navigation}}
         </div>
+        <a class="gh-burger" role="button" aria-label="menu">
+            <div class="gh-burger-box">
+                <div class="gh-burger-inner"></div>
+            </div>
+        </a>
         <div class="gh-head-actions">
             <div class="gh-head-actions-list">
                 {{search}}

@@ -49,11 +49,6 @@
 /* Primary Navigation
 /* ---------------------------------------------------------- */
 
-.gh-head-menu {
-    display: flex;
-    align-items: center;
-}
-
 .gh-head-menu .nav {
     display: inline-flex;
     flex-wrap: wrap;
@@ -95,11 +90,11 @@
     align-items: center;
 }
 
-.gh-head-actions-list a:not([class]) {
+/* .gh-head-actions-list a:not([class]) {
     display: inline-block;
     margin: 0 0 0 1.5vmin;
     padding: 5px 0;
-}
+} */
 
 
 /* Mobile Menu Trigger
