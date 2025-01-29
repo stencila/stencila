@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{asset "built/index.css"}}" />
     <link rel="stylesheet" href="{{asset "built/tailwind.css"}}" />
     <script src="{{asset "built/index.js"}}" defer></script>
+    <script src="{{asset "built/stencila-web/views/dynamic.js" }}"></script>
 
     <title>{{meta_title}}</title>
 
@@ -53,10 +54,8 @@
 </header>
 
 <main class="gh-main">
-
     {{{body}}}
     {{!-- All content gets inserted here, index.hbs, post.hbs, etc --}}
-
 </main>
 
 <footer class="gh-foot">

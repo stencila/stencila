@@ -34,6 +34,14 @@
       ],
       "distDir": "./dist"
     },
+    "ghost": {
+      "source": [
+        "src/themes/default.css",
+        "src/themes/stencila.css",
+        "src/views/dynamic.ts"
+      ],
+      "distDir": "../ghost/assets/built/stencila-web"
+    },
     "vscode": {
       "source": [
         "src/themes/default.css",
@@ -55,6 +63,7 @@
     "start": "parcel watch",
     "build": "cross-env NODE_ENV=production parcel build --target default --no-scope-hoist",
     "build:vscode": "cross-env NODE_ENV=production parcel build --target vscode --config .parcelrc-vscode --no-source-maps --no-cache",
+    "build:ghost": "cross-env NODE_ENV=production parcel build --target ghost --no-source-maps --no-cache",
     "export:vscode": "tsx scripts/export-to-vscode.ts",
     "unused": "depcheck --quiet --ignores '@parcel/*,parcel-*,postcss-*' --ignore-patterns 'eslint.config.js'"
   },

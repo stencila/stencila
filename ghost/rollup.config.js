@@ -20,10 +20,6 @@ import postcssPresetEnv from 'postcss-preset-env';
 import { resolve } from "path";
 import livereload from 'rollup-plugin-livereload';
 
-import tailwindcss from '@tailwindcss/postcss'; // Import TailwindCSS
-import autoprefixer from 'autoprefixer'
-
-
 // Rollup configuration
 export default defineConfig({
         input: 'assets/js/index.js',
@@ -39,7 +35,7 @@ export default defineConfig({
             postcss({
                 extract: true,
                 sourceMap: true,
-                minimize: false,
+                minimize: true,
                 plugins: [
                     atImport(),
                     postcssPresetEnv({}),
