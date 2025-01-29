@@ -2,22 +2,20 @@
 
 **Stencila document configuration options.**
 
-**`@id`**: `stencila:Config`
-
 ## Properties
 
 The `Config` type has these properties:
 
-| Name    | Aliases | `@id`                                | Type                                                                                            | Description                               | Inherited from                                                                                   |
-| ------- | ------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `id`    | -       | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item.             | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| `theme` | -       | `stencila:theme`                     | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The styling theme to use for the document | -                                                                                                |
+| Name      | Aliases | `@id` | Type                                                                                                             | Description                               | Inherited from |
+| --------- | ------- | ----- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | -------------- |
+| `theme`   | -       | ``    | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                  | The styling theme to use for the document | -              |
+| `publish` | -       | ``    | [`ConfigPublish`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/config/config-publish.md) | Publishing configuration options          | -              |
 
 ## Related
 
 The `Config` type is related to these types:
 
-- Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
+- Parents: none
 - Children: none
 
 ## Formats

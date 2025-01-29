@@ -179,9 +179,10 @@ Support and degree of loss for node types:
 | [StringPatch](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/string_patch.md)                 | 🟢 No loss | 🟢 No loss |       |
 | [SuggestionBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion_block.md)         | 🟢 No loss | 🟢 No loss |       |
 | [SuggestionInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion_inline.md)       | 🟢 No loss | 🟢 No loss |       |
+| **Config**                                                                                                                |
+| [Config](https://github.com/stencila/stencila/blob/main/docs/reference/schema/config/config.md)                           | 🟢 No loss | 🟢 No loss |       |
 | **Other**                                                                                                                 |
 | [Brand](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md)                              | 🟢 No loss | 🟢 No loss |       |
-| [Config](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/config.md)                            | 🟢 No loss | 🟢 No loss |       |
 | [ContactPoint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/contact_point.md)               | 🟢 No loss | 🟢 No loss |       |
 | [Enumeration](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/enumeration.md)                  | 🟢 No loss | 🟢 No loss |       |
 | [Grant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/grant.md)                              | 🟢 No loss | 🟢 No loss |       |
