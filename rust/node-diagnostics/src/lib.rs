@@ -28,7 +28,7 @@ pub struct Diagnostic {
     node_id: NodeId,
 
     /// The severity level of the diagnostic
-    level: MessageLevel,
+    level: DiagnosticLevel,
 
     /// The kind of diagnostic
     kind: Option<String>,
@@ -46,6 +46,25 @@ pub struct Diagnostic {
     code_location: Option<CodeLocation>,
 }
 
+enum DiagnosticLevel {
+    /// An advisory diagnostic
+    Advice,
+    /// A warning diagnostic
+    Warning,
+    /// An error diagnostic
+    Error,
+}
+
+impl From<&MessageLevel> for DiagnosticLevel {
+    fn from(value: &MessageLevel) -> Self {
+        match value {
+            MessageLevel::Warning => DiagnosticLevel::Warning,
+            MessageLevel::Error | MessageLevel::Exception => DiagnosticLevel::Error,
+            _ => DiagnosticLevel::Advice,
+        }
+    }
+}
+
 impl Diagnostic {
     pub fn to_stderr_pretty<'p>(
         self,
@@ -53,14 +72,12 @@ impl Diagnostic {
         source: &str,
         poshmap: &Option<PoshMap<'p, 'p>>,
     ) -> Result<()> {
-        use ariadne::{Color, Label, Report, ReportKind, Source};
+        use ariadne::{Label, Report, ReportKind, Source};
 
-        let kind = match self.level {
-            MessageLevel::Trace => ReportKind::Custom("Trace", Color::Blue),
-            MessageLevel::Debug => ReportKind::Custom("Debug", Color::Blue),
-            MessageLevel::Info => ReportKind::Advice,
-            MessageLevel::Warning => ReportKind::Warning,
-            MessageLevel::Error | MessageLevel::Exception => ReportKind::Error,
+        let kind: ReportKind<'_> = match self.level {
+            DiagnosticLevel::Advice => ReportKind::Advice,
+            DiagnosticLevel::Warning => ReportKind::Warning,
+            DiagnosticLevel::Error => ReportKind::Error,
         };
 
         // Generate details for at top of diagnostic
@@ -180,7 +197,7 @@ impl Collector {
             .map(|msg| Diagnostic {
                 node_type,
                 node_id: node_id.clone(),
-                level: msg.level.clone(),
+                level: DiagnosticLevel::from(&msg.level),
                 kind: msg.error_type.clone(),
                 message: msg.message.clone(),
                 format: lang.map(Format::from_name),
@@ -206,7 +223,7 @@ impl Collector {
             .map(|msg| Diagnostic {
                 node_type,
                 node_id: node_id.clone(),
-                level: msg.level.clone(),
+                level: DiagnosticLevel::from(&msg.level),
                 kind: msg.error_type.clone(),
                 message: msg.message.clone(),
                 format: lang.map(Format::from_name),
