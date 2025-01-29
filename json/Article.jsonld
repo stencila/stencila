@@ -866,9 +866,6 @@
       "rdfs:comment": "Configuration options for the document.",
       "schema:domainIncludes": {
         "@id": "schema:Article"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:Config"
       }
     },
     {

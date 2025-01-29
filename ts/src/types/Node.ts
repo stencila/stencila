@@ -30,7 +30,6 @@ import { type Collection } from "./Collection.js";
 import { type Comment } from "./Comment.js";
 import { type CompilationDigest } from "./CompilationDigest.js";
 import { type CompilationMessage } from "./CompilationMessage.js";
-import { type Config } from "./Config.js";
 import { type ConstantValidator } from "./ConstantValidator.js";
 import { type ContactPoint } from "./ContactPoint.js";
 import { type Cord } from "./Cord.js";
@@ -181,7 +180,6 @@ export type Node =
   Comment |
   CompilationDigest |
   CompilationMessage |
-  Config |
   ConstantValidator |
   ContactPoint |
   CreativeWork |
@@ -325,7 +323,6 @@ export function node(other: Node): Node {
     case "Comment":
     case "CompilationDigest":
     case "CompilationMessage":
-    case "Config":
     case "ConstantValidator":
     case "ContactPoint":
     case "CreativeWork":

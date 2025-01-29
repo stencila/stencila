@@ -47,7 +47,6 @@ pub enum NodeType {
     Comment,
     CompilationDigest,
     CompilationMessage,
-    Config,
     ConstantValidator,
     ContactPoint,
     CreativeWork,
@@ -155,12 +154,16 @@ pub enum NodeType {
     Walkthrough,
     WalkthroughStep,
     Object,
+
+    /// Special node type for configuration structs
+    Config
 }
 
 
 impl TryFrom<&NodeId> for NodeType {
     type Error = Report;
 
+    #[forbid(unreachable_patterns)]
     fn try_from(value: &NodeId) -> Result<Self, Self::Error> {
         use NodeType::*;
         Ok(match value.nick() {
@@ -193,7 +196,6 @@ impl TryFrom<&NodeId> for NodeType {
             "com" => Comment,
             "cmd" => CompilationDigest,
             "cme" => CompilationMessage,
-            "cfg" => Config,
             "cov" => ConstantValidator,
             "con" => ContactPoint,
             "cor" => Cord,

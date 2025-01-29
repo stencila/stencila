@@ -108,9 +108,6 @@
       "$ref": "CompilationMessage.schema.json"
     },
     {
-      "$ref": "Config.schema.json"
-    },
-    {
       "$ref": "ConstantValidator.schema.json"
     },
     {

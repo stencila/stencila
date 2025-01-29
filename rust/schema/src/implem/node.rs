@@ -42,7 +42,6 @@ impl Node {
             Comment,
             CompilationDigest,
             CompilationMessage,
-            Config,
             ConstantValidator,
             ContactPoint,
             Cord,
@@ -206,7 +205,6 @@ impl Node {
             Comment,
             CompilationDigest,
             CompilationMessage,
-            Config,
             ConstantValidator,
             ContactPoint,
             CreativeWork,
@@ -361,6 +359,8 @@ impl ReadNode for Node {
                         NodeType::$variant => Ok(Node::$variant(crate::$variant::load_map(store, obj_id)?)),
                     )*
 
+                    NodeType::Config => bail!("Config options not yet supported"),
+
                     // It is not expected to have a map with type: "Object", but if there is,
                     // then treat it as such
                     NodeType::Object => Ok(Node::Object(Object::load_map(store, obj_id)?)),
@@ -404,7 +404,6 @@ impl ReadNode for Node {
             Comment,
             CompilationDigest,
             CompilationMessage,
-            Config,
             ConstantValidator,
             ContactPoint,
             Cord,

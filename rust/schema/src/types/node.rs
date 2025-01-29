@@ -31,7 +31,6 @@ use super::collection::Collection;
 use super::comment::Comment;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
-use super::config::Config;
 use super::constant_validator::ConstantValidator;
 use super::contact_point::ContactPoint;
 use super::cord::Cord;
@@ -220,8 +219,6 @@ pub enum Node {
     CompilationDigest(CompilationDigest),
 
     CompilationMessage(CompilationMessage),
-
-    Config(Config),
 
     ConstantValidator(ConstantValidator),
 
