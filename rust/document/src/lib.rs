@@ -878,6 +878,8 @@ impl Document {
     }
 
     /// Compile the document
+    ///
+    /// Note that this does not do any linting. Use the [`Document::lint`] function for that.
     #[tracing::instrument(skip(self))]
     pub async fn compile(&self, wait: CommandWait) -> Result<()> {
         tracing::trace!("Compiling document");

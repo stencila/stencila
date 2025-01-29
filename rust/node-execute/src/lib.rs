@@ -56,11 +56,9 @@ pub async fn compile(
     root: Arc<RwLock<Node>>,
     kernels: Arc<RwLock<Kernels>>,
     patch_sender: Option<UnboundedSender<Patch>>,
-    node_ids: Option<NodeIds>,
-    options: Option<ExecuteOptions>,
 ) -> Result<()> {
     let mut root = root.read().await.clone();
-    let mut executor = Executor::new(home, kernels, patch_sender, node_ids, options);
+    let mut executor = Executor::new(home, kernels, patch_sender, None, None);
     executor.compile(&mut root).await
 }
 
@@ -76,7 +74,8 @@ pub async fn lint(
     let mut root = root.read().await.clone();
     let mut executor = Executor::new(home, kernels, patch_sender, None, None);
     executor.lint_options = LintOptions { format, fix };
-    executor.compile(&mut root).await
+    executor.compile(&mut root).await?;
+    executor.lint().await
 }
 
 /// Walk over a root node and execute it and child nodes
@@ -471,8 +470,6 @@ impl Executor {
         self.linting_context.clear();
         root.walk_async(self).await?;
 
-        self.lint().await?;
-
         Ok(())
     }
 
@@ -521,10 +518,15 @@ impl Executor {
 
     /// Lint code that was collected while compiling
     async fn lint(&mut self) -> Result<()> {
+        let LintOptions {
+            format: should_format,
+            fix: should_fix,
+        } = self.lint_options;
+
         // Skip linting if formatting or fixing is not required and
         // none of the codes have changed
-        if !self.lint_options.format
-            && !self.lint_options.fix
+        if !should_format
+            && !should_fix
             && !self
                 .linting_context
                 .iter()
@@ -581,8 +583,6 @@ impl Executor {
             .ok_or_else(|| eyre!("Executor has no top directory"))?;
 
         // Run linting for each of the collected languages concurrently
-        let should_format = self.lint_options.format;
-        let should_fix = self.lint_options.fix;
         let futures = format_codes
             .clone()
             .into_iter()

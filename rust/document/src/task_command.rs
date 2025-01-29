@@ -200,7 +200,7 @@ impl Document {
                     let status_sender = status_sender.clone();
                     let task = tokio::spawn(async move {
                         let status = if let Err(error) =
-                            compile(home, root, kernels, Some(patch_sender), None, None).await
+                            compile(home, root, kernels, Some(patch_sender)).await
                         {
                             CommandStatus::Failed(format!("While compiling document: {error}"))
                         } else {
