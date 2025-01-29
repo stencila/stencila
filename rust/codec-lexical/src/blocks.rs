@@ -282,20 +282,71 @@ fn list_from_lexical(list: lexical::ListNode, context: &mut LexicalDecodeContext
 }
 
 fn list_to_lexical(list: &List, context: &mut LexicalEncodeContext) -> lexical::BlockNode {
-    let markdown = match codec_markdown::encode(&art([Block::List(list.clone())]), None) {
-        Ok((md, ..)) => md,
-        Err(error) => {
-            // If encoding fails (should very, rarely if at all)
-            // record loss and return empty string
-            context.losses.add(format!("Markdown: {error}"));
-            String::new()
-        }
-    };
+    if list
+        .items
+        .iter()
+        .flat_map(|item| &item.content)
+        .any(|block| {
+            if let Block::List(List { .. }) = block {
+                true
+            } else {
+                false
+            }
+        })
+    {
+        let markdown = match codec_markdown::encode(&art([Block::List(list.clone())]), None) {
+            Ok((md, ..)) => md,
+            Err(error) => {
+                // If encoding fails (should very, rarely if at all)
+                // record loss and return empty string
+                context.losses.add(format!("Markdown: {error}"));
+                String::new()
+            }
+        };
 
-    lexical::BlockNode::Markdown(lexical::MarkdownNode {
-        markdown,
+        lexical::BlockNode::Markdown(lexical::MarkdownNode {
+            markdown,
+            ..Default::default()
+        })
+    } else {
+        let children = list
+            .items
+            .iter()
+            .map(|item| list_item_to_lexical(item, context))
+            .collect();
+
+        let list_type = match list.order {
+            ListOrder::Ascending | ListOrder::Descending => lexical::ListType::Number,
+            ListOrder::Unordered => lexical::ListType::Bullet,
+        };
+
+        lexical::BlockNode::List(lexical::ListNode {
+            list_type,
+            children,
+            ..Default::default()
+        })
+    }
+}
+
+fn list_item_to_lexical(
+    list_item: &ListItem,
+    context: &mut LexicalEncodeContext,
+) -> lexical::ListItemNode {
+    let mut children = Vec::new();
+
+    for (i, block) in list_item.content.clone().into_iter().enumerate() {
+        if i != 0 {
+            children.push(lexical::BlockNode::LineBreak(lexical::LineBreakNode {
+                ..Default::default()
+            }));
+        }
+        children.push(block_to_lexical(&block, context));
+    }
+
+    lexical::ListItemNode {
+        children,
         ..Default::default()
-    })
+    }
 }
 
 fn quote_to_lexical(quote: &QuoteBlock, context: &mut LexicalEncodeContext) -> lexical::BlockNode {
