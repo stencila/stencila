@@ -630,7 +630,7 @@ pub enum NodeProperty {{
             let name = name.to_snake_case();
 
             // Determine Rust type for the property
-            let (mut typ, is_vec) = if name == "type" {
+            let (mut typ, is_vec) = if name == "type" && !schema.is_config() {
                 (format!(r#"MustBe!("{title}")"#), false)
             } else {
                 let (typ, is_vec, ..) = Self::rust_type(dest, property)?;
@@ -1101,6 +1101,15 @@ impl {title} {{
                     if default == &variant {
                         attrs.push(String::from("#[default]"))
                     }
+                }
+
+                // Add serde rename if the variant has any
+                if let Some(rename) = variant_schema
+                    .serde
+                    .as_ref()
+                    .and_then(|serde| serde.rename.as_ref())
+                {
+                    attrs.push(format!(r#"#[serde(rename = "{rename}")]"#,));
                 }
 
                 // Add serde aliases if the variant has any

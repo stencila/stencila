@@ -615,6 +615,16 @@ pub struct SerdeOptions {
     #[serde(skip_serializing_if = "is_false")]
     pub flatten: bool,
 
+    /// Set the `rename` attribute to an enum variant
+    ///
+    /// See https://serde.rs/field-attrs.html#rename
+    pub rename: Option<String>,
+
+    /// Add an `alias` attribute to an enum variant
+    ///
+    /// See https://serde.rs/field-attrs.html#alias
+    pub alias: Option<String>,
+
     /// Set the `deserialize_with` attribute of a field
     ///
     /// See https://serde.rs/field-attrs.html#deserialize_with
