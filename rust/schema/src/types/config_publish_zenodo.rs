@@ -2,24 +2,19 @@
 
 use crate::prelude::*;
 
-use super::config_publish::ConfigPublish;
-use super::string::String;
+use super::boolean::Boolean;
 
-/// Stencila document configuration options.
+/// Zenodo publishing options.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display("Config")]
-pub struct Config {
-    /// The styling theme to use for the document
+#[display("ConfigPublishZenodo")]
+pub struct ConfigPublishZenodo {
+    /// Whether the deposit is embargoed.
     #[patch(format = "all")]
-    pub theme: Option<String>,
-
-    /// Publishing configuration options
-    #[patch(format = "all")]
-    pub publish: Option<ConfigPublish>,
+    pub embargoed: Option<Boolean>,
 
     /// A unique identifier for a node within a document
     
@@ -27,8 +22,8 @@ pub struct Config {
     pub uid: NodeUid
 }
 
-impl Config {
-    const NICK: [u8; 3] = [99, 102, 103];
+impl ConfigPublishZenodo {
+    const NICK: [u8; 3] = [99, 112, 122];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Config

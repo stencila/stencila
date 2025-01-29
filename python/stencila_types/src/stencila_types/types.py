@@ -206,6 +206,15 @@ class ClaimType(StrEnum):
     Corollary = "Corollary"
 
 
+class ConfigPublishGhostType(StrEnum):
+    """
+    The type of Ghost resource
+    """
+
+    Page = "Page"
+    Post = "Post"
+
+
 class ExecutionBounds(StrEnum):
     """
     The bounds placed on the execution of a document node.
@@ -1531,18 +1540,6 @@ class CompilationMessage(Entity):
 
     code_location: CodeLocation | None = None
     """The location that the error occurred."""
-
-
-@dataclass(kw_only=True, repr=False)
-class Config(Entity):
-    """
-    Stencila document configuration options.
-    """
-
-    type: Literal["Config"] = "Config"
-
-    theme: str | None = None
-    """The styling theme to use for the document"""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3390,7 +3387,6 @@ Node = Union[
     Comment,
     CompilationDigest,
     CompilationMessage,
-    Config,
     ConstantValidator,
     ContactPoint,
     CreativeWork,
@@ -3611,7 +3607,6 @@ TYPES = [
     Comment,
     CompilationDigest,
     CompilationMessage,
-    Config,
     ConstantValidator,
     Datatable,
     DatatableColumn,

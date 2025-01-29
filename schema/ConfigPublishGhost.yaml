@@ -1,0 +1,30 @@
+title: ConfigPublishGhost
+nick: cpg
+category: config
+description: Ghost publishing options.
+core:
+  - type
+  - slug
+  - featured
+  - schedule
+properties:
+  type:
+    description: The type of Ghost resource (page or post).
+    $ref: ConfigPublishGhostType
+  slug:
+    description: The URL slug for the page or post.
+    type: string
+    patch:
+      formats: [all]
+  featured:
+    description: Whether the page or post is featured.
+    type: boolean
+    patch:
+      formats: [all]
+  schedule:
+    description: The date that the page or post is to be published.
+    $ref: Date
+    patch:
+      formats: [all]
+    serde:
+      deserializeWith: option_string_or_object

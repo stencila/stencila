@@ -36,7 +36,6 @@ export type NodeType =
   | "Comment"
   | "CompilationDigest"
   | "CompilationMessage"
-  | "Config"
   | "ConstantValidator"
   | "ContactPoint"
   | "CreativeWork"
@@ -181,7 +180,6 @@ export const NodeTypeList = [
   "Comment",
   "CompilationDigest",
   "CompilationMessage",
-  "Config",
   "ConstantValidator",
   "ContactPoint",
   "CreativeWork",

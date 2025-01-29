@@ -328,6 +328,13 @@
           ]
         },
         {
+          "description": "Types related to Stencila configuration",
+          "type": "string",
+          "enum": [
+            "config"
+          ]
+        },
+        {
           "description": "All other node types",
           "type": "string",
           "enum": [
@@ -852,6 +859,10 @@
       "description": "Options for `serde` serialization/deserialization",
       "type": "object",
       "properties": {
+        "alias": {
+          "description": "Add an `alias` attribute to an enum variant\n\nSee https://serde.rs/field-attrs.html#alias",
+          "type": "string"
+        },
         "default": {
           "description": "Set the `default` attribute of a field\n\nSee https://serde.rs/field-attrs.html#default",
           "type": "boolean"
@@ -863,6 +874,10 @@
         "flatten": {
           "description": "Set the `flatten` attribute of a field\n\nSee https://serde.rs/field-attrs.html#flatten",
           "type": "boolean"
+        },
+        "rename": {
+          "description": "Set the `rename` attribute to an enum variant\n\nSee https://serde.rs/field-attrs.html#rename",
+          "type": "string"
         }
       },
       "additionalProperties": false

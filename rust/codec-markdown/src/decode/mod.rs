@@ -402,14 +402,6 @@ impl Context {
                     value.insert("content".into(), json!([]));
                 }
 
-                if let Some(config) = value
-                    .get_mut("config")
-                    .and_then(|config: &mut serde_json::Value| config.as_object_mut())
-                {
-                    // Ensure that `config` has `type: Config`
-                    config.insert("type".into(), json!("Config"));
-                }
-
                 json!(value)
             }
             Ok(_) => {
