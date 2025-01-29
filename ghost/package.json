@@ -1,5 +1,5 @@
 {
-    "name": "@stencila/ghost",
+    "name": "stencila-ghost-theme",
     "description": "A custom theme for  stencila ghost publications",
     "version": "0.0.0",
     "engines": {
@@ -10,8 +10,8 @@
         "desktop": "assets/screenshot-desktop.jpg"
     },
     "scripts": {
-        "dev": "rollup -c --environment BUILD:development -w",
-        "build": "rollup -c --environment BUILD:production",
+        "dev": "concurrently \"rollup -c --environment BUILD:development -w\" \"npx tailwindcss -i ./assets/css/tailwind.css -o ./assets/built/tailwind.css --watch\"",
+        "build": "rollup -c --environment BUILD:production && npx tailwindcss -i ./assets/css/tailwind.css -o ./assets/built/tailwind.css --minify",
         "zip": "npm run build && bestzip $npm_package_name.zip assets/* partials/* members/* *.hbs package.json",
         "test": "npx gscan .",
         "pretest": "npm run build"
@@ -33,12 +33,10 @@
         "theme",
         "ghost-theme"
     ],
-    "repository": {
-        "type": "git",
-        "url": "https://github.com/TryGhost/Starter.git"
-    },
     "bugs": "https://github.com/TryGhost/Starter/issues",
-    "contributors": ["https://github.com/TryGhost/Starter/graphs/contributors"],
+    "contributors": [
+        "https://github.com/TryGhost/Starter/graphs/contributors"
+    ],
     "devDependencies": {
         "@babel/core": "^7.21.0",
         "@babel/preset-env": "^7.20.2",
@@ -46,13 +44,16 @@
         "@rollup/plugin-commonjs": "^25.0.0",
         "@rollup/plugin-node-resolve": "^15.0.1",
         "@rollup/plugin-terser": "^0.4.0",
+        "autoprefixer": "^10.4.20",
         "bestzip": "^2.2.1",
-        "postcss": "^8.4.24",
+        "concurrently": "^9.1.2",
+        "postcss": "^8.5.1",
         "postcss-import": "^15.1.0",
         "postcss-preset-env": "^8.0.1",
         "rollup": "^3.18.0",
         "rollup-plugin-livereload": "^2.0.5",
-        "rollup-plugin-postcss": "^4.0.2"
+        "rollup-plugin-postcss": "^4.0.2",
+        "tailwindcss": "^4.0.0"
     },
     "browserslist": [
         "defaults"
