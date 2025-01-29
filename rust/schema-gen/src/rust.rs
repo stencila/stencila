@@ -227,12 +227,16 @@ use node_id::NodeId;
 #[strum(crate = "common::strum")]
 pub enum NodeType {{
 {node_types}
+
+    /// Special node type for configuration structs
+    Config
 }}
 
 
 impl TryFrom<&NodeId> for NodeType {{
     type Error = Report;
 
+    #[forbid(unreachable_patterns)]
     fn try_from(value: &NodeId) -> Result<Self, Self::Error> {{
         use NodeType::*;
         Ok(match value.nick() {{
@@ -972,6 +976,19 @@ pub struct {title}Options {{
             nick[0], nick[1], nick[2]
         );
 
+        let fn_node_type = if schema.is_config() {
+            "pub fn node_type(&self) -> NodeType {
+        NodeType::Config
+    }"
+            .to_string()
+        } else {
+            format!(
+                "pub fn node_type(&self) -> NodeType {{
+        NodeType::{title}
+    }}"
+            )
+        };
+
         write(
             path,
             &format!(
@@ -993,9 +1010,7 @@ pub struct {title} {{
 impl {title} {{
     {nick}
     
-    pub fn node_type(&self) -> NodeType {{
-        NodeType::{title}
-    }}
+    {fn_node_type}
 
     pub fn node_id(&self) -> NodeId {{
         NodeId::new(&Self::NICK, &self.uid)
