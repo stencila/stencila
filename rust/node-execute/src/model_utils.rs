@@ -101,14 +101,27 @@ pub(super) async fn model_task_to_blocks_and_authors(
 
     let blocks = match kind {
         ModelOutputKind::Text => {
+            let format = format
+                .is_unknown()
+                .then_some(Format::Markdown)
+                .or(Some(format));
+
+            // Put thinking in an admonition if necessary
+            // Some models (e.g. cloudflare/deepseek-r1-distill-qwen-32b) do not always produce the opening tag
+            // so we only check for closing tag and assume everything above that is CoT tokens
+            let content = if matches!(format, Some(Format::Markdown))
+                && (content.contains("</think>\n") || content.contains("</thinking>\n"))
+            {
+                thinking_admonition(&content)
+            } else {
+                content
+            };
+
             // Decode the model output into blocks
             let node = codecs::from_str(
                 &content,
                 Some(DecodeOptions {
-                    format: format
-                        .is_unknown()
-                        .then_some(Format::Markdown)
-                        .or(Some(format)),
+                    format,
                     ..Default::default()
                 }),
             )
@@ -154,4 +167,131 @@ pub(super) async fn model_task_to_blocks_and_authors(
     };
 
     Ok((blocks, authors))
+}
+
+/// Put any chain-of-thought output into a collapsed admonition
+fn thinking_admonition(content: &str) -> String {
+    // Add admonition header and then prefix all lines until we reach the closing tag
+    // Note that this assumes that everything thing before closing tag is thinking
+    let mut lines = content.lines();
+    let mut content = String::from("> [!info]+ Thinking\n>\n");
+    while let Some(line) = lines.next() {
+        if line == "<think>" || line == "<thinking>" {
+            // Skip any opening tag
+            continue;
+        } else if line == "</think>" || line == "</thinking>" {
+            // Separating blank line
+            content.push('\n');
+            break;
+        }
+
+        content.push_str("> ");
+        content.push_str(&line);
+        content.push('\n');
+    }
+
+    // Add remainder of lines
+    while let Some(line) = lines.next() {
+        content.push_str(&line);
+        content.push('\n');
+    }
+
+    content
+}
+
+#[cfg(test)]
+mod tests {
+    use common_dev::insta::assert_snapshot;
+
+    use super::*;
+
+    #[test]
+    fn balanced_think() {
+        assert_snapshot!(thinking_admonition(r#"<think>
+Mmmm,...
+
+Another mmm...
+</think>
+
+Answer
+"#), @r#"
+        > [!info]+ Thinking
+        >
+        > Mmmm,...
+        > 
+        > Another mmm...
+
+
+        Answer
+        "#);
+    }
+
+    #[test]
+    fn balanced_thinking() {
+        assert_snapshot!(thinking_admonition(r#"<thinking>
+Mmmm,...
+
+Another mmm...
+</thinking>
+
+Answer
+
+Still going answer
+"#), @r#"
+        > [!info]+ Thinking
+        >
+        > Mmmm,...
+        > 
+        > Another mmm...
+
+
+        Answer
+
+        Still going answer
+        "#);
+    }
+
+    #[test]
+    fn unbalanced_think() {
+        assert_snapshot!(thinking_admonition(r#"Mmmm,...
+
+Another mmm...
+</think>
+
+Answer
+"#), @r#"
+        > [!info]+ Thinking
+        >
+        > Mmmm,...
+        > 
+        > Another mmm...
+
+
+        Answer
+        "#);
+    }
+
+    #[test]
+    fn unbalanced_thinking() {
+        assert_snapshot!(thinking_admonition(r#"Mmmm,...
+
+Another mmm...
+</thinking>
+
+Answer
+
+Still going answer
+"#), @r#"
+        > [!info]+ Thinking
+        >
+        > Mmmm,...
+        > 
+        > Another mmm...
+
+
+        Answer
+
+        Still going answer
+        "#);
+    }
 }
