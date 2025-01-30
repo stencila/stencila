@@ -6,8 +6,8 @@ use common::{
 use models::ModelTask;
 use schema::{
     authorship,
-    shortcuts::{adm, p, t},
-    AdmonitionType, Author, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ChatMessageGroup,
+    shortcuts::{p, t},
+    Author, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ChatMessageGroup,
     ChatMessageOptions, ExecutionBounds, InstructionMessage, InstructionType, MessagePart,
     MessageRole, ModelParameters, Patch, PatchPath, PatchSlot, SoftwareApplication,
 };
@@ -256,7 +256,7 @@ impl Executable for Chat {
             let task = ModelTask::new(
                 self.prompt.instruction_type.clone().unwrap_or_default(),
                 ModelParameters {
-                    model_ids: Some(vec![model_id]),
+                    model_ids: Some(vec![model_id.clone()]),
                     ..*self.model_parameters.clone()
                 },
                 instruction_messages.clone(),
@@ -265,13 +265,13 @@ impl Executable for Chat {
                 let started = Timestamp::now();
                 let result = model_task_to_blocks_and_authors(task).await;
                 let ended = Timestamp::now();
-                (message_id, started, ended, result)
+                (model_id, message_id, started, ended, result)
             })
         }
 
         // Wait for each future to complete and patch content
         let execution_bounds = self.execution_bounds.clone().unwrap_or_default();
-        while let Some((message_id, started, ended, result)) = futures.next().await {
+        while let Some((model_id, message_id, started, ended, result)) = futures.next().await {
             tracing::trace!("Model message finished {message_id}");
 
             let (content, messages) = match result {
@@ -299,13 +299,9 @@ impl Executable for Chat {
                     (content, None)
                 }
                 Err(error) => (
-                    vec![adm(
-                        AdmonitionType::Failure,
-                        None::<String>,
-                        [p([t(error.to_string())])],
-                    )],
+                    vec![],
                     Some(vec![error_to_execution_message(
-                        "While running model",
+                        &format!("While running model `{model_id}`"),
                         error,
                     )]),
                 ),

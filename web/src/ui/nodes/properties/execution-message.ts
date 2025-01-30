@@ -45,7 +45,7 @@ export class ExecutionMessage extends LitElement {
     return html`
       <div class="flex bg-[${baseColour}]">
         <div class=${marginStyles}></div>
-        <div class="flex-grow ml-2">
+        <div class="flex-grow ml-2 py-1 text-[${textColour}]">
           <div class=${msgBodyStyles}>
             <pre>${this.message}</pre>
             <pre>${this.stackTrace}</pre>
