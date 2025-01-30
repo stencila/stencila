@@ -24,7 +24,7 @@ regex = "1.11.1"
 reqwest = { version = "0.12.12", default-features = false, features = ["json", "rustls-tls"] }
 seahash = "4.1.0"
 serde = { workspace = true }
-serde_json = { version = "1.0.137", features = ["preserve_order"] }
+serde_json = { version = "1.0.138", features = ["preserve_order"] }
 serde_with = "3.12.0"
 serde_yaml = "0.9.34"
 similar = { version = "2.7.0", features = ["serde", "unicode"] }
@@ -33,7 +33,7 @@ smol_str = "0.2.1"
 strum = { version = "0.26.3", features = ["derive"] }
 syn = "2.0.96"
 tar = "0.4.43"
-tempfile = "3.15.0"
+tempfile = "3.16.0"
 tokio = { version = "1.43.0", features = ["full", "tracing"] }
 toml = "0.8.19"
 tracing = { version = "0.1.41", features = ["log"] }
