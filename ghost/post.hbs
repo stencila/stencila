@@ -2,11 +2,13 @@
 
 {{#post}}
 
-<article class="gh-article {{post_class}}">
+
+{{> docview }}
+{{!-- <article class="gh-article {{post_class}}">
 
     <header class="gh-header gh-canvas">
         <span class="gh-post-meta"><time datetime="{{date format="YYYY-MM-DD"}}">{{date format="D MMM YYYY"}}</time> <span class="bull">&bull;</span> {{reading_time}}</span>
-        <h1 class="gh-title">{{title}}</h1>
+        <h1 class=" text-3xl lg:text-5xl">{{title}}</h1>
 
         {{#if custom_excerpt}}
         <p class="gh-excerpt">{{custom_excerpt}}</p>
@@ -88,6 +90,6 @@
             </a>{{/prev_post}}
         </div>
     </div>
-</aside>
+</aside> --}}
 
 {{/post}}

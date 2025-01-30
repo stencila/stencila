@@ -1,0 +1,16 @@
+
+@media only screen and (max-width: 64rem) {
+  #sidebar {
+      opacity: 0;
+      pointer-events: none; /* Prevent clicks when hidden */
+      transition: transform 400ms ease-in-out, opacity 400ms ease-in-out;
+      transform: translateX(-100%);
+  }
+
+  #sidebar.open {
+      opacity: 1;
+      pointer-events: auto; /* Enable interactions when visible */
+      transform: translateX(0);
+  }
+}
+

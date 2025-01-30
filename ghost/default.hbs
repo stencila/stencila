@@ -20,69 +20,58 @@
 <body class="{{body_class}}">
 <div class="gh-viewport">
 
-<header id="gh-head" class="fixed w-full flex items-center h-20 z-20 border-b border-black/20 bg-white">
-    <nav class="container mx-auto flex flex-row justify-between items-center">
-        <div>
-            <a href="{{@site.url}}">    
-                {{#if @site.logo}}
-                    <img src="{{@site.logo}}" alt="{{@site.title}}" />
-                {{else}}
-                    {{@site.title}}
-                {{/if}}
-            </a>
-        </div>
-        {{!-- <div class="gh-head-brand">
-            <a class="gh-head-logo" href="{{@site.url}}">
-                {{#if @site.logo}}
-                    <img src="{{@site.logo}}" alt="{{@site.title}}" />
-                {{else}}
-                    {{@site.title}}
-                {{/if}}
-            </a>
+    <header id="gh-head" class="sticky top-0 w-full flex items-center h-20 lg:h-32 z-20 border-b border-black/20 bg-white z-40">
+        <nav class="container mx-auto px-2 flex flex-row justify-between items-center">
+            <div class="text-2xl lg:text-3xl max-w-[150px] lg:max-w-[250px] mr-4">
+                <a href="{{@site.url}}">    
+                    {{#if @site.logo}}
+                        <img src="{{@site.logo}}" alt="{{@site.title}}" width="100%" />
+                    {{else}}
+                        {{@site.title}}
+                    {{/if}}
+                </a>
+            </div>
+            <div class="gh-head-menu flex items-center">
+                {{navigation}}
+            </div>
             <a class="gh-burger" role="button" aria-label="menu">
                 <div class="gh-burger-box">
                     <div class="gh-burger-inner"></div>
                 </div>
             </a>
-        </div> --}}
-        <div class="gh-head-menu flex items-center">
-            {{navigation}}
-        </div>
-        <a class="gh-burger" role="button" aria-label="menu">
-            <div class="gh-burger-box">
-                <div class="gh-burger-inner"></div>
-            </div>
-        </a>
-        <div class="gh-head-actions">
-            <div class="gh-head-actions-list">
-                {{search}}
-                {{#if @site.members_enabled}}
-                    {{^if @member}}
-                    <a class="gh-button" href="{{@site.signup_url}}">Subscribe</a>
-                    {{else}}
-                    <a class="gh-button" href="#/portal/account">Account</a>
+            <div class="gh-head-actions">
+                <div class="gh-head-actions-list">
+                    {{search}}
+                    {{#if @site.members_enabled}}
+                        {{^if @member}}
+                        <a class="gh-button gh-button-small" href="{{@site.signup_url}}">Subscribe</a>
+                        {{else}}
+                        <a class="gh-button gh-button-small" href="#/portal/account">Account</a>
+                        {{/if}}
                     {{/if}}
-                {{/if}}
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="gh-main">
+        {{{body}}}
+        {{!-- All content gets inserted here, index.hbs, post.hbs, etc --}}
+    </main>
+
+    <footer class="gh-foot border border-0 border-t border-black/20">
+        <div class="container mx-auto px-2 flex items-center justify-between">
+            <div class="gh-foot-meta">
+                Published with <a href="https://ghost.org" target="_blank" rel="noopener">Ghost</a>
+            </div>
+            <div class="flex gap-4">
+                {{> social-links }}
+            </div>
+            <div class="gh-foot-menu">
+                {{navigation type="secondary"}}
             </div>
         </div>
-    </nav>
-</header>
-
-<main class="gh-main">
-    {{{body}}}
-    {{!-- All content gets inserted here, index.hbs, post.hbs, etc --}}
-</main>
-
-<footer class="gh-foot">
-    <div class="gh-container">
-        <div class="gh-foot-menu">
-            {{navigation type="secondary"}}
-        </div>
-        <div class="gh-foot-meta">
-            Published with <a href="https://ghost.org" target="_blank" rel="noopener">Ghost</a>
-        </div>
-    </div>
-</footer>
+    </footer>
 
 </div>
 

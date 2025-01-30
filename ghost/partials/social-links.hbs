@@ -1,0 +1,11 @@
+  {{#if @site.twitter}}
+      <a class="block w-8 h-8" href="{{twitter_url @site.twitter}}" target="_blank">
+          {{> icons/twitter }}
+      </a>
+  {{/if}}
+
+  {{#if @site.facebook}}
+      <a class="block w-8 h-8" href="{{facebook_url @site.facebook}}" target="_blank">
+          {{> icons/facebook }}
+      </a>
+  {{/if}}
