@@ -343,7 +343,7 @@ body {
   }
 
   stencila-admonition {
-    p[slot="title"] {
+    p[slot='title'] {
       @apply my-0;
     }
 
