@@ -9,18 +9,28 @@ use document::{CommandWait, Document};
 /// Lint a document
 #[derive(Debug, Parser)]
 pub struct Cli {
-    /// The path of the file to execute
-    ///
-    /// If not supplied the input content is read from `stdin`.
-    input: PathBuf,
+    /// The file to lint
+    file: PathBuf,
+
+    /// Format the file if necessary
+    #[arg(long)]
+    format: bool,
+
+    /// Fix any linting issues
+    #[arg(long)]
+    fix: bool,
 }
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
-        let Self { input, .. } = self;
+        let Self { file, .. } = self;
 
-        let doc = Document::open(&input).await?;
-        doc.lint(false, false, CommandWait::Yes).await?;
+        let doc = Document::open(&file).await?;
+        doc.lint(self.format, self.fix, CommandWait::Yes).await?;
+
+        if self.format || self.fix {
+            doc.save(CommandWait::Yes).await?;
+        }
 
         let some = doc.diagnostics().await?;
 
