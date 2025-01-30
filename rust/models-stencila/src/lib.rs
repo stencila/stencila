@@ -16,7 +16,7 @@ use model::{
 
 /// A model available via Stencila Cloud
 #[derive(Default, Clone, Serialize, Deserialize)]
-#[serde(crate = "model::common::serde")]
+#[serde(rename_all = "camelCase", crate = "model::common::serde")]
 pub struct StencilaModel {
     /// The name of the provider e.g. openai
     provider: String,
