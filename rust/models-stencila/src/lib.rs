@@ -8,7 +8,6 @@ use model::{
         eyre::{bail, eyre, Result},
         inflector::Inflector,
         itertools::Itertools,
-        rand::{self, Rng},
         reqwest::Client,
         serde::{Deserialize, Serialize},
     },
@@ -148,16 +147,7 @@ pub async fn list() -> Result<Vec<Arc<dyn Model>>> {
     Ok(list_stencila_models(0)
         .await?
         .into_iter()
-        .map(|mut model| {
-            // TODO: Remove these when score provided by Stencila Cloud
-            if model.identifier != "router" {
-                let mut rng = rand::thread_rng();
-                model.quality_score = Some(rng.gen_range(0..=100));
-                model.cost_score = Some(rng.gen_range(0..=100));
-                model.speed_score = Some(rng.gen_range(0..=100));
-            }
-            Arc::new(model) as Arc<dyn Model>
-        })
+        .map(|model| Arc::new(model) as Arc<dyn Model>)
         .collect_vec())
 }
 
