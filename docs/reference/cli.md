@@ -9,6 +9,7 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila convert`↴](#stencila-convert)
 * [`stencila sync`↴](#stencila-sync)
 * [`stencila compile`↴](#stencila-compile)
+* [`stencila lint`↴](#stencila-lint)
 * [`stencila execute`↴](#stencila-execute)
 * [`stencila render`↴](#stencila-render)
 * [`stencila preview`↴](#stencila-preview)
@@ -33,6 +34,7 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila kernels packages`↴](#stencila-kernels-packages)
 * [`stencila kernels execute`↴](#stencila-kernels-execute)
 * [`stencila kernels evaluate`↴](#stencila-kernels-evaluate)
+* [`stencila kernels lint`↴](#stencila-kernels-lint)
 * [`stencila codecs`↴](#stencila-codecs)
 * [`stencila codecs list`↴](#stencila-codecs-list)
 * [`stencila plugins`↴](#stencila-plugins)
@@ -64,6 +66,7 @@ CLI subcommands and global options
 * `convert` — Convert a document to another format
 * `sync` — Synchronize a document between formats
 * `compile` — Compile a document
+* `lint` — Lint a document
 * `execute` — Execute a document
 * `render` — Render a document
 * `preview` — Preview a document or site
@@ -308,6 +311,23 @@ Compile a document
 * `--strip-types <STRIP_TYPES>` — A list of node types to strip
 * `--strip-props <STRIP_PROPS>` — A list of node properties to strip
 * `--no-save` — Do not save the document after compiling it
+
+
+
+## `stencila lint`
+
+Lint a document
+
+**Usage:** `stencila lint [OPTIONS] <FILE>`
+
+###### **Arguments:**
+
+* `<FILE>` — The file to lint
+
+###### **Options:**
+
+* `--format` — Format the file if necessary
+* `--fix` — Fix any linting issues
 
 
 
@@ -959,6 +979,7 @@ Manage execution kernels
 * `packages` — List packages available to a kernel
 * `execute` — Execute code in a kernel
 * `evaluate` — Evaluate a code expression in a kernel
+* `lint` — Lint code using the linting tool/s associated with a kernel
 
 
 
@@ -1045,6 +1066,27 @@ Mainly intended for quick testing of kernels during development.
 
 * `<NAME>` — The name of the kernel to evaluate code in
 * `<CODE>` — The code expression to evaluate
+
+
+
+## `stencila kernels lint`
+
+Lint code using the linting tool/s associated with a kernel
+
+Note that this does not affect the file. It only prints how it would be formatted/fixed and any diagnostics.
+
+Mainly intended for testing of linting by kernels during development of Stencila.
+
+**Usage:** `stencila kernels lint [OPTIONS] <FILE>`
+
+###### **Arguments:**
+
+* `<FILE>` — The file to lint
+
+###### **Options:**
+
+* `--format` — Format the code
+* `--fix` — Fix warnings and errors where possible
 
 
 
