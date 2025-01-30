@@ -103,6 +103,7 @@ import javascript from './javascript.svg'
 import json from './json.svg'
 import latex from './latex.svg'
 import lightbulb from './lightbulb.svg'
+import lightningChargeFill from './lightning-charge-fill.svg'
 import lightning from './lightning.svg'
 import list from './list.svg'
 import lock from './lock.svg'
@@ -238,6 +239,7 @@ const icons = {
   json,
   latex,
   lightbulb,
+  lightningChargeFill,
   lightning,
   list,
   lock,

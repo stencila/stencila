@@ -91,31 +91,89 @@ export class ModelParameters extends Entity {
 
     const { textColour } = this.parentNodeUI
 
-    // Render options
+    // Repeat an icon between 1 and 5 times based on score from 0-100
+    // If `reverse = true` then use the reversed score e.g. 100 = 1 icon
+    const scoreIcons = (
+      icon: string | TemplateResult,
+      score?: number,
+      reverse = false
+    ): string | TemplateResult[] => {
+      if (score === undefined || score === null) {
+        return ''
+      }
+      const clampedScore = Math.max(0, Math.min(100, score))
+      const repeatCount = reverse
+        ? 5 - Math.ceil((clampedScore / 100) * 5) + 1
+        : Math.ceil((clampedScore / 100) * 5)
+      return Array(repeatCount).fill(icon)
+    }
+
+    // Render model options nested under a divider for each provider
     this.modelOptions = Object.entries(providers).map(
       ([provider, models], index) => {
         return html`
           ${index !== 0 ? html`<sl-divider class="my-1"></sl-divider>` : ''}
           <div
-            class="flex flex-row items-center gap-2 px-2 py-1 text-[${textColour}]"
+            class="flex flex-row items-center gap-2 pl-6 py-1 text-[${textColour}]"
           >
             <stencila-ui-icon
               slot="prefix"
               class="text-base"
               name=${iconMaybe(provider.toLowerCase()) ?? 'building'}
             ></stencila-ui-icon>
-            ${provider}
+            <span class="font-semi-bold">${provider}</span>
           </div>
-          ${models.map(
-            (model) => html`
+          ${models.map((model) => {
+            const iconGroupStyle = apply('w-[50px] flex flex-row')
+
+            return html`
               <sl-option
                 value=${model.id}
                 style="--sl-spacing-x-small: 0.25rem;"
               >
-                <span class="text-sm text-[${textColour}]">${model.id}</span>
+                <div
+                  class="flex flex-row flex-wrap justify-between items-center text-[${textColour}]"
+                >
+                  <div class="text-sm">${model.name} ${model.version}</div>
+                  <div class="flex flex-row items-center gap-2 text-[10px]">
+                    <sl-tooltip
+                      content="Overall quality score: ${model.qualityScore}/100"
+                    >
+                      <div class=${iconGroupStyle}>
+                        ${scoreIcons(
+                          html`<stencila-ui-icon
+                            name="starFill"
+                          ></stencila-ui-icon>`,
+                          model.qualityScore
+                        )}
+                      </div>
+                    </sl-tooltip>
+                    <sl-tooltip content="Cost score: ${model.costScore}/100">
+                      <div class=${iconGroupStyle}>
+                        ${scoreIcons(
+                          html`<stencila-ui-icon
+                            name="currencyDollar"
+                          ></stencila-ui-icon>`,
+                          model.costScore,
+                          true
+                        )}
+                      </div>
+                    </sl-tooltip>
+                    <sl-tooltip content="Speed score: ${model.speedScore}/100">
+                      <div class=${iconGroupStyle}>
+                        ${scoreIcons(
+                          html`<stencila-ui-icon
+                            name="lightningChargeFill"
+                          ></stencila-ui-icon>`,
+                          model.speedScore
+                        )}
+                      </div>
+                    </sl-tooltip>
+                  </div>
+                </div>
               </sl-option>
             `
-          )}
+          })}
         `
       }
     )

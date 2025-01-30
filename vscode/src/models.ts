@@ -84,6 +84,9 @@ interface Model {
     | "RequiresKey"
     | "Installable"
     | "Unavailable";
+  qualityScore?: number;
+  costScore?: number;
+  speedScore?: number;
 }
 
 class ModelPickerItem implements vscode.QuickPickItem {

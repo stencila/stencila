@@ -1,5 +1,5 @@
 use cli_utils::{
-    table::{self, Attribute, Cell, Color},
+    table::{self, Attribute, Cell, CellAlignment, Color},
     AsFormat, Code, ToStdout,
 };
 use model::{
@@ -76,38 +76,45 @@ impl List {
             "Provider",
             "Name",
             "Version",
-            "I/O",
+            "Quality",
+            "Cost",
+            "Speed",
         ]);
 
         for model in list {
             use ModelAvailability::*;
+            use ModelType::*;
+
             let availability = model.availability();
 
-            let inputs = model
-                .supported_inputs()
-                .iter()
-                .map(|input| input.to_string())
-                .join(", ");
-
-            let outputs = model
-                .supported_outputs()
-                .iter()
-                .map(|output| output.to_string())
-                .join(", ");
-
-            let io = [&inputs, "/", &outputs].concat();
+            let no_score = || (String::new(), Color::Reset);
+            let score = |score: u32| {
+                (
+                    score.to_string(),
+                    match score {
+                        0..=20 => Color::Red,
+                        21..=40 => Color::Magenta,
+                        41..=60 => Color::Yellow,
+                        61..=80 => Color::Cyan,
+                        81..=100 => Color::Green,
+                        _ => Color::White,
+                    },
+                )
+            };
+            let quality = model.quality_score().map_or_else(no_score, score);
+            let cost = model.cost_score().map_or_else(no_score, score);
+            let speed = model.speed_score().map_or_else(no_score, score);
+            let right = CellAlignment::Right;
 
             table.add_row([
                 Cell::new(model.id()).add_attribute(Attribute::Bold),
                 match model.r#type() {
-                    ModelType::Builtin => Cell::new("builtin").fg(Color::DarkBlue),
-                    ModelType::Local => Cell::new("local").fg(Color::Blue),
-                    ModelType::Router => Cell::new("router").fg(Color::Green),
-                    ModelType::Proxied => Cell::new("proxied").fg(Color::Cyan),
-                    ModelType::Remote => Cell::new("remote").fg(Color::Magenta),
-                    ModelType::Plugin(name) => {
-                        Cell::new(format!("plugin \"{name}\"")).fg(Color::DarkCyan)
-                    }
+                    Builtin => Cell::new("builtin").fg(Color::DarkBlue),
+                    Local => Cell::new("local").fg(Color::Blue),
+                    Router => Cell::new("router").fg(Color::Green),
+                    Proxied => Cell::new("proxied").fg(Color::Cyan),
+                    Remote => Cell::new("remote").fg(Color::Magenta),
+                    Plugin(name) => Cell::new(format!("plugin \"{name}\"")).fg(Color::DarkCyan),
                 },
                 match availability {
                     Available => Cell::new(availability).fg(Color::Green),
@@ -119,7 +126,9 @@ impl List {
                 Cell::new(model.provider()),
                 Cell::new(model.name()),
                 Cell::new(model.version()),
-                Cell::new(io),
+                Cell::new(quality.0).fg(quality.1).set_alignment(right),
+                Cell::new(cost.0).fg(cost.1).set_alignment(right),
+                Cell::new(speed.0).fg(speed.1).set_alignment(right),
             ]);
         }
 
