@@ -85,6 +85,7 @@ import fileTypeRaw from './filetype-raw.svg'
 import fullscreen from './fullscreen.svg'
 import gear from './gear.svg'
 import google from './google.svg'
+import groq from './groq.svg'
 import handThumbsDownFill from './hand-thumbs-down-fill.svg'
 import handThumbsDown from './hand-thumbs-down.svg'
 import handThumbsUpFill from './hand-thumbs-up-fill.svg'
@@ -218,6 +219,7 @@ const icons = {
   fullscreen,
   gear,
   google,
+  groq,
   handThumbsDown,
   handThumbsDownFill,
   handThumbsUp,
