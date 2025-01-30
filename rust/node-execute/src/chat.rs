@@ -74,7 +74,7 @@ impl Executable for Chat {
         // - force_all is on
         // - no node ids and this is not an embedded chat (`is_temporary` is None)
         // - node ids contain this chat
-        let is_pending = executor.options.force_all
+        let is_pending = executor.execute_options.force_all
             || (executor.node_ids.is_none() && self.is_temporary.is_none())
             || executor.node_ids.iter().flatten().any(|id| id == &node_id);
 

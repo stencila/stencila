@@ -6,15 +6,16 @@ use common::tracing;
 use schema::{
     Admonition, Annotation, Article, AudioObject, Block, Button, CallBlock, Chat, ChatMessage,
     ChatMessageGroup, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeExpression, CodeInline,
-    Date, DateTime, DeleteBlock, DeleteInline, Duration, Emphasis, ExecutionStatus, Figure, File,
-    ForBlock, Form, Heading, IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline,
-    InsertBlock, InsertInline, InstructionBlock, InstructionInline, LabelType, Link, List,
-    ListItem, MathBlock, MathInline, MediaObject, ModifyBlock, ModifyInline, Node, NodeId,
-    NodeProperty, NodeType, Note, Paragraph, Parameter, Prompt, PromptBlock, ProvenanceCount,
-    QuoteBlock, QuoteInline, RawBlock, ReplaceBlock, ReplaceInline, Section, Strikeout, Strong,
-    StyledBlock, StyledInline, Subscript, SuggestionBlock, SuggestionInline, Superscript, Table,
-    TableCell, TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor,
-    WalkControl, Walkthrough, WalkthroughStep,
+    CompilationMessage, Date, DateTime, DeleteBlock, DeleteInline, Duration, Emphasis,
+    ExecutionMessage, ExecutionStatus, Figure, File, ForBlock, Form, Heading, IfBlock,
+    IfBlockClause, ImageObject, IncludeBlock, Inline, InsertBlock, InsertInline, InstructionBlock,
+    InstructionInline, LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject,
+    MessageLevel, ModifyBlock, ModifyInline, Node, NodeId, NodeProperty, NodeType, Note, Paragraph,
+    Parameter, Prompt, PromptBlock, ProvenanceCount, QuoteBlock, QuoteInline, RawBlock,
+    ReplaceBlock, ReplaceInline, Section, Strikeout, Strong, StyledBlock, StyledInline, Subscript,
+    SuggestionBlock, SuggestionInline, Superscript, Table, TableCell, TableRow, Text,
+    ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl, Walkthrough,
+    WalkthroughStep,
 };
 
 use crate::{
@@ -470,6 +471,15 @@ impl Inspect for CodeChunk {
             .node_property_to_range16(&node_id, NodeProperty::Code)
             .map(range16_to_range);
 
+        let messages: Vec<ExecutionMessage> = self
+            .options
+            .compilation_messages
+            .iter()
+            .flatten()
+            .map(compilation_to_execution_message)
+            .chain(self.options.execution_messages.iter().flatten().cloned())
+            .collect();
+
         let execution = Some(TextNodeExecution {
             mode: self.execution_mode.clone(),
             status: self.options.execution_status.clone(),
@@ -478,7 +488,7 @@ impl Inspect for CodeChunk {
             duration: self.options.execution_duration.clone(),
             ended: self.options.execution_ended.clone(),
             outputs: self.outputs.as_ref().map(|outputs| outputs.len()),
-            messages: self.options.execution_messages.clone(),
+            messages: (!messages.is_empty()).then_some(messages),
             code_range,
             ..Default::default()
         });
@@ -929,3 +939,18 @@ macro_rules! executable_not_content {
 }
 
 executable_not_content!(IncludeBlock, PromptBlock);
+
+// Convert a compilation message to an execution message for display
+fn compilation_to_execution_message(message: &CompilationMessage) -> ExecutionMessage {
+    ExecutionMessage {
+        // For linting messages, limit level to warning
+        level: if matches!(message.error_type.as_deref(), Some("Linting")) {
+            message.level.clone().min(MessageLevel::Warning)
+        } else {
+            message.level.clone()
+        },
+        message: message.message.clone(),
+        code_location: message.code_location.clone(),
+        ..Default::default()
+    }
+}
