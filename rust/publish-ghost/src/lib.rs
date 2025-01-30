@@ -12,7 +12,6 @@ use common::{
     chrono::{DateTime, Utc},
     clap::{self, Parser},
     eyre::{bail, eyre, Context, OptionExt, Result},
-    itertools::Itertools,
     reqwest::{multipart::Form, Client, Response, StatusCode},
     serde::{Deserialize, Serialize},
     serde_json,
@@ -23,8 +22,7 @@ use common::{
 use document::{
     codecs,
     schema::{
-        shortcuts::t, ConfigPublishGhostState, ConfigPublishGhostType, Node, Primitive,
-        PropertyValueOrString,
+        shortcuts::t, ConfigPublishGhostState, ConfigPublishGhostType, Node,
     },
     CommandWait, DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
 };
@@ -558,7 +556,7 @@ impl Cli {
                     if let Some(config) = &article.config {
                         if let Some(publish) = &config.publish {
                             if let Some(publisher) = &publish.ghost {
-                                return publisher.featured.clone();
+                                return publisher.featured;
                             }
                         }
                     }
@@ -567,7 +565,7 @@ impl Cli {
             })
             .await
         } else {
-            Some(self.featured.clone())
+            Some(self.featured)
         };
 
         // If no custom excerpt provided, use the article description
@@ -611,21 +609,19 @@ impl Cli {
                 (Some(Status::Draft), None)
             })
             .await
-        } else {
-            if self.publish {
-                (Some(Status::Published), None)
-            } else if self.schedule.is_some() {
-                if self.schedule <= Some(Utc::now()) {
-                    bail!(
+        } else if self.publish {
+            (Some(Status::Published), None)
+        } else if self.schedule.is_some() {
+            if self.schedule <= Some(Utc::now()) {
+                bail!(
                     "Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",
                     self.schedule,
                     Utc::now()
                 );
-                }
-                (Some(Status::Scheduled), None)
-            } else {
-                (Some(Status::Draft), None)
             }
+            (Some(Status::Scheduled), None)
+        } else {
+            (Some(Status::Draft), None)
         };
 
         // If no tags provided, use the tags in the `tags` field of the YAML header
