@@ -7,6 +7,8 @@ core:
   - slug
   - featured
   - schedule
+  - state
+  - tags
 properties:
   type:
     description: The type of Ghost resource (page or post).
@@ -28,3 +30,16 @@ properties:
       formats: [all]
     serde:
       deserializeWith: option_string_or_object
+  state:
+    description: the state of the page or post eg draft or published.
+    $ref: ConfigPublishGhostState 
+    patch:
+      formats: [all]
+  tags:
+    description: ghost tags.
+    type: array
+    items:
+      type: string
+    patch:
+      formats: [all]
+  

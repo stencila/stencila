@@ -9,7 +9,9 @@
     "type",
     "slug",
     "featured",
-    "schedule"
+    "schedule",
+    "state",
+    "tags"
   ],
   "properties": {
     "type": {
@@ -45,6 +47,30 @@
         "deserializeWith": "option_string_or_object"
       },
       "$ref": "Date.schema.json"
+    },
+    "state": {
+      "description": "the state of the page or post eg draft or published.",
+      "patch": {
+        "formats": [
+          "all"
+        ]
+      },
+      "$ref": "ConfigPublishGhostState.schema.json"
+    },
+    "tags": {
+      "description": "ghost tags.",
+      "aliases": [
+        "tag"
+      ],
+      "patch": {
+        "formats": [
+          "all"
+        ]
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
     }
   }
 }

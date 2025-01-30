@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::boolean::Boolean;
+use super::config_publish_ghost_state::ConfigPublishGhostState;
 use super::config_publish_ghost_type::ConfigPublishGhostType;
 use super::date::Date;
 use super::string::String;
@@ -30,6 +31,16 @@ pub struct ConfigPublishGhost {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[patch(format = "all")]
     pub schedule: Option<Date>,
+
+    /// the state of the page or post eg draft or published.
+    #[patch(format = "all")]
+    pub state: Option<ConfigPublishGhostState>,
+
+    /// ghost tags.
+    #[serde(alias = "tag")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[patch(format = "all")]
+    pub tags: Option<Vec<String>>,
 
     /// A unique identifier for a node within a document
     

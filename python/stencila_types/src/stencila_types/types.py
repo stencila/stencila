@@ -206,6 +206,15 @@ class ClaimType(StrEnum):
     Corollary = "Corollary"
 
 
+class ConfigPublishGhostState(StrEnum):
+    """
+    The state of Ghost resource
+    """
+
+    Draft = "Draft"
+    Publish = "Publish"
+
+
 class ConfigPublishGhostType(StrEnum):
     """
     The type of Ghost resource

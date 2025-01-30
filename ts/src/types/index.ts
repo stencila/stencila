@@ -42,6 +42,7 @@ export * from "./CompilationMessage.js";
 export * from "./Config.js";
 export * from "./ConfigPublish.js";
 export * from "./ConfigPublishGhost.js";
+export * from "./ConfigPublishGhostState.js";
 export * from "./ConfigPublishGhostType.js";
 export * from "./ConfigPublishZenodo.js";
 export * from "./ConstantValidator.js";

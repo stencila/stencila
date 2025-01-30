@@ -1,5 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
+import { ConfigPublishGhostState } from "./ConfigPublishGhostState.js";
 import { Date } from "./Date.js";
 
 /**
@@ -23,6 +24,16 @@ export class ConfigPublishGhost {
    * The date that the page or post is to be published.
    */
   schedule?: Date;
+
+  /**
+   * the state of the page or post eg draft or published.
+   */
+  state?: ConfigPublishGhostState;
+
+  /**
+   * ghost tags.
+   */
+  tags?: string[];
 
   constructor(options?: Partial<ConfigPublishGhost>) {
     if (options) Object.assign(this, options);

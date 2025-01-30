@@ -1,5 +1,6 @@
 use std::{
     path::{Path, PathBuf},
+    str::FromStr,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -21,7 +22,10 @@ use common::{
 };
 use document::{
     codecs,
-    schema::{shortcuts::t, Node, Primitive, PropertyValueOrString},
+    schema::{
+        shortcuts::t, ConfigPublishGhostState, ConfigPublishGhostType, Node, Primitive,
+        PropertyValueOrString,
+    },
     CommandWait, DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
 };
 
@@ -65,7 +69,7 @@ pub struct Cli {
     ///
     /// Does not apply when pushing to, or pulling from, and existing
     /// Ghost resource.
-    #[arg(long, conflicts_with = "post", default_value_t = true)]
+    #[arg(long, conflicts_with = "post", default_value_t = false)]
     #[arg(help_heading("Ghost Settings"), display_order(1))]
     page: bool,
 
@@ -107,7 +111,7 @@ pub struct Cli {
         long,
         group = "publish_type",
         conflicts_with = "pull",
-        default_value_t = true
+        default_value_t = false
     )]
     #[arg(help_heading("Post/Page Settings"), display_order(2))]
     draft: bool,
@@ -244,8 +248,26 @@ impl Cli {
         } else if self.page {
             ResourceType::Page
         } else {
-            // Default is `--post = true` so this should not occur
-            bail!("Please use either the --post or --page flag");
+            // get resource type from YAML header if none provided in cli
+            doc.inspect(|root: &Node| {
+                if let Node::Article(article) = root {
+                    if let Some(config) = &article.config {
+                        if let Some(publish) = &config.publish {
+                            if let Some(publisher) = &publish.ghost {
+                                if let Some(r#type) = &publisher.r#type {
+                                    return match r#type {
+                                        ConfigPublishGhostType::Page => ResourceType::Page,
+                                        ConfigPublishGhostType::Post => ResourceType::Post,
+                                    };
+                                }
+                            }
+                        }
+                    }
+                }
+                //Default to post
+                ResourceType::Post
+            })
+            .await
         };
 
         // Generate JWT for request
@@ -495,24 +517,6 @@ impl Cli {
         doc: &Document,
         updated_at: Option<String>,
     ) -> Result<Payload> {
-        // Status of page or post
-        let status = if self.publish {
-            Some(Status::Published)
-        } else if self.schedule.is_some() {
-            if self.schedule <= Some(Utc::now()) {
-                bail!(
-                    "Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",
-                    self.schedule,
-                    Utc::now()
-                );
-            }
-            Some(Status::Scheduled)
-        } else if self.draft {
-            Some(Status::Draft)
-        } else {
-            None
-        };
-
         // Get document title and other metadata
         let title = if self.title.is_none() {
             doc.inspect(|root: &Node| {
@@ -526,6 +530,44 @@ impl Cli {
             .await
         } else {
             self.title.clone()
+        };
+
+        // get slug from YAML header if none provided in cli
+        let slug = if self.slug.is_none() {
+            doc.inspect(|root: &Node| {
+                if let Node::Article(article) = root {
+                    if let Some(config) = &article.config {
+                        if let Some(publish) = &config.publish {
+                            if let Some(publisher) = &publish.ghost {
+                                return publisher.slug.clone();
+                            }
+                        }
+                    }
+                }
+                None
+            })
+            .await
+        } else {
+            self.slug.clone()
+        };
+
+        //
+        let featured = if !self.featured {
+            doc.inspect(|root: &Node| {
+                if let Node::Article(article) = root {
+                    if let Some(config) = &article.config {
+                        if let Some(publish) = &config.publish {
+                            if let Some(publisher) = &publish.ghost {
+                                return publisher.featured.clone();
+                            }
+                        }
+                    }
+                }
+                None
+            })
+            .await
+        } else {
+            Some(self.featured.clone())
         };
 
         // If no custom excerpt provided, use the article description
@@ -542,24 +584,59 @@ impl Cli {
             self.excerpt.clone()
         };
 
-        // If no tags provided, use the tags in the custom `tags` field of the YAML header
+        // Status of page or post
+        // If no status provided, use `status` or `schedule` field of the YAML header
+        let (status, schedule) = if !self.publish && !self.draft && self.schedule.is_none() {
+            doc.inspect(|root: &Node| {
+                if let Node::Article(article) = root {
+                    if let Some(config) = &article.config {
+                        if let Some(publish) = &config.publish {
+                            if let Some(publisher) = &publish.ghost {
+                                if let Some(schedule) = &publisher.schedule {
+                                    return (
+                                        Some(Status::Scheduled),
+                                        DateTime::from_str(schedule.value.as_str()).ok(),
+                                    );
+                                }
+                                return match publisher.state.clone() {
+                                    Some(ConfigPublishGhostState::Publish) => {
+                                        (Some(Status::Published), None)
+                                    }
+                                    _ => (Some(Status::Draft), None),
+                                };
+                            }
+                        }
+                    }
+                }
+                (Some(Status::Draft), None)
+            })
+            .await
+        } else {
+            if self.publish {
+                (Some(Status::Published), None)
+            } else if self.schedule.is_some() {
+                if self.schedule <= Some(Utc::now()) {
+                    bail!(
+                    "Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",
+                    self.schedule,
+                    Utc::now()
+                );
+                }
+                (Some(Status::Scheduled), None)
+            } else {
+                (Some(Status::Draft), None)
+            }
+        };
+
+        // If no tags provided, use the tags in the `tags` field of the YAML header
         let tags = if self.tags.is_none() {
             doc.inspect(|root: &Node| {
                 if let Node::Article(article) = root {
-                    if let Some(extra) = article.options.extra.clone() {
-                        if let Some(Primitive::Array(vector)) = extra.get("tags") {
-                            return Some(
-                                vector
-                                    .iter()
-                                    .filter_map(|primitive| {
-                                        if let Primitive::String(string) = primitive {
-                                            Some(string.into())
-                                        } else {
-                                            None
-                                        }
-                                    })
-                                    .collect_vec(),
-                            );
+                    if let Some(config) = &article.config {
+                        if let Some(publish) = &config.publish {
+                            if let Some(publisher) = &publish.ghost {
+                                return publisher.tags.clone();
+                            }
                         }
                     }
                 }
@@ -632,14 +709,14 @@ impl Cli {
 
         let resource = Resource {
             title: title.clone().or_else(|| Some("Untitled".into())),
-            slug: self.slug.clone().or(title),
+            slug: slug.clone().or(title),
             tags,
             custom_excerpt: excerpt,
             lexical: Some(lexical),
             status,
             updated_at,
-            published_at: self.schedule,
-            featured: Some(self.featured),
+            published_at: schedule,
+            featured,
             codeinjection_head: self.inject_code_header.clone(),
             codeinjection_foot: self.inject_code_footer.clone(),
             ..Default::default()
