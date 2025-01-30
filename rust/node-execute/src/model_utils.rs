@@ -175,7 +175,7 @@ fn thinking_admonition(content: &str) -> String {
     // Note that this assumes that everything thing before closing tag is thinking
     let mut lines = content.lines();
     let mut content = String::from("> [!info]+ Thinking\n>\n");
-    while let Some(line) = lines.next() {
+    for line in lines.by_ref() {
         if line == "<think>" || line == "<thinking>" {
             // Skip any opening tag
             continue;
@@ -186,13 +186,13 @@ fn thinking_admonition(content: &str) -> String {
         }
 
         content.push_str("> ");
-        content.push_str(&line);
+        content.push_str(line);
         content.push('\n');
     }
 
     // Add remainder of lines
-    while let Some(line) = lines.next() {
-        content.push_str(&line);
+    for line in lines {
+        content.push_str(line);
         content.push('\n');
     }
 
