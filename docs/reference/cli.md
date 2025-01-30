@@ -26,7 +26,7 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila prompts reset`↴](#stencila-prompts-reset)
 * [`stencila models`↴](#stencila-models)
 * [`stencila models list`↴](#stencila-models-list)
-* [`stencila models execute`↴](#stencila-models-execute)
+* [`stencila models run`↴](#stencila-models-run)
 * [`stencila kernels`↴](#stencila-kernels)
 * [`stencila kernels list`↴](#stencila-kernels-list)
 * [`stencila kernels info`↴](#stencila-kernels-info)
@@ -908,7 +908,7 @@ Manage generative models
 ###### **Subcommands:**
 
 * `list` — List the models available
-* `execute` — Execute a model task
+* `run` — Run a model task
 
 
 
@@ -927,13 +927,13 @@ List the models available
 
 
 
-## `stencila models execute`
+## `stencila models run`
 
-Execute a model task
+Run a model task
 
-Mainly intended for testing of model selection and routing.
+Mainly intended for testing of model selection and routing. Displays the task sent to the model and the generated output returned from it.
 
-**Usage:** `stencila models execute [OPTIONS] <PROMPT>`
+**Usage:** `stencila models run [OPTIONS] <PROMPT>`
 
 ###### **Arguments:**
 
