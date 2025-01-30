@@ -67,7 +67,7 @@ export class UINodesSelected extends UIBaseClass {
   /**
    * Checks the element is the right container for the selection functionality,
    *
-   * Should be a div with a slot="content" attibute,
+   * Should be a div with a slot="content" attribute,
    * Must have a parent element like so: `stencila-chat-message[message-role="Model"]`.
    */
   private isTargetContainer(element: Element | null) {
@@ -178,7 +178,7 @@ export class UINodesSelected extends UIBaseClass {
   }
 
   /**
-   * Handle the `stencla-node-insert` element's @sl-remove event.
+   * Handle the `stencila-node-insert` element's @sl-remove event.
    */
   private handleTagRemove(id: string) {
     const updatedSelection = this.selectedNodes.filter((node) => node[1] !== id)
