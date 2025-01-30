@@ -26,7 +26,7 @@ pub struct Cli {
 #[derive(Debug, Subcommand)]
 enum Command {
     List(List),
-    Execute(Execute),
+    Run(Run),
 }
 
 impl Cli {
@@ -38,7 +38,7 @@ impl Cli {
 
         match command {
             Command::List(list) => list.run().await?,
-            Command::Execute(execute) => execute.run().await?,
+            Command::Run(run) => run.run().await?,
         }
 
         Ok(())
@@ -129,11 +129,14 @@ impl List {
     }
 }
 
-/// Execute a model task
+/// Run a model task
 ///
 /// Mainly intended for testing of model selection and routing.
+/// Displays the task sent to the model and the generated output
+/// returned from it.
 #[derive(Debug, Args)]
-struct Execute {
+#[clap(alias = "execute")]
+struct Run {
     prompt: String,
 
     /// The id pattern to specify the model to use
@@ -145,7 +148,7 @@ struct Execute {
     dry_run: bool,
 }
 
-impl Execute {
+impl Run {
     async fn run(self) -> Result<()> {
         let message = InstructionMessage::from(self.prompt);
 
