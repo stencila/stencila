@@ -294,4 +294,41 @@ Still going answer
         Still going answer
         "#);
     }
+
+    #[test]
+    fn lists_in_thinking() {
+        assert_snapshot!(thinking_admonition(r#"<think>
+Para one
+
+- apple
+- pear
+
+Para two
+
+1. one
+2. two
+
+Para three
+</think>
+
+Answer
+"#), @r#"
+        > [!info]+ Thinking
+        >
+        > Para one
+        > 
+        > - apple
+        > - pear
+        > 
+        > Para two
+        > 
+        > 1. one
+        > 2. two
+        > 
+        > Para three
+
+
+        Answer
+        "#);
+    }
 }
