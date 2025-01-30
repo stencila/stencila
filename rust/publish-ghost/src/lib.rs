@@ -21,9 +21,7 @@ use common::{
 };
 use document::{
     codecs,
-    schema::{
-        shortcuts::t, ConfigPublishGhostState, ConfigPublishGhostType, Node,
-    },
+    schema::{shortcuts::t, ConfigPublishGhostState, ConfigPublishGhostType, PropertyValueOrString,  Node},
     CommandWait, DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
 };
 
@@ -515,133 +513,95 @@ impl Cli {
         doc: &Document,
         updated_at: Option<String>,
     ) -> Result<Payload> {
-        // Get document title and other metadata
-        let title = if self.title.is_none() {
-            doc.inspect(|root: &Node| {
-                if let Node::Article(article) = root {
-                    if let Some(inlines) = &article.title {
-                        return Some(codec_text::to_text(inlines));
-                    }
-                }
-                None
-            })
-            .await
-        } else {
-            self.title.clone()
-        };
+        // Get document meta data if fields aren't filled
+        let (title, slug, featured, excerpt, status, schedule, tags) = doc
+            .inspect(|root: &Node| {
+                let mut title = None;
+                let mut slug = None;
+                let mut featured = None;
+                let mut excerpt = None;
+                let mut status = None;
+                let mut schedule: Option<DateTime<Utc>> = None;
+                let mut tags = None;
 
-        // get slug from YAML header if none provided in cli
-        let slug = if self.slug.is_none() {
-            doc.inspect(|root: &Node| {
                 if let Node::Article(article) = root {
-                    if let Some(config) = &article.config {
-                        if let Some(publish) = &config.publish {
-                            if let Some(publisher) = &publish.ghost {
-                                return publisher.slug.clone();
-                            }
+                    //Get document title
+                    if self.title.is_none() {
+                        if let Some(inlines) = &article.title {
+                            title = Some(codec_text::to_text(inlines));
                         }
+                    } else {
+                        title = self.title.clone();
                     }
-                }
-                None
-            })
-            .await
-        } else {
-            self.slug.clone()
-        };
 
-        //
-        let featured = if !self.featured {
-            doc.inspect(|root: &Node| {
-                if let Node::Article(article) = root {
+                    // If no custom excerpt provided, use the article description
+                    if self.excerpt.is_none() {
+                        excerpt = article.description.clone();
+                    } else {
+                        excerpt = self.excerpt.clone();
+                    }
+
+                    //Get config meta data
                     if let Some(config) = &article.config {
                         if let Some(publish) = &config.publish {
                             if let Some(publisher) = &publish.ghost {
-                                return publisher.featured;
-                            }
-                        }
-                    }
-                }
-                None
-            })
-            .await
-        } else {
-            Some(self.featured)
-        };
-
-        // If no custom excerpt provided, use the article description
-        let excerpt = if self.excerpt.is_none() {
-            doc.inspect(|root: &Node| {
-                if let Node::Article(article) = root {
-                    article.description.clone()
-                } else {
-                    None
-                }
-            })
-            .await
-        } else {
-            self.excerpt.clone()
-        };
-
-        // Status of page or post
-        // If no status provided, use `status` or `schedule` field of the YAML header
-        let (status, schedule) = if !self.publish && !self.draft && self.schedule.is_none() {
-            doc.inspect(|root: &Node| {
-                if let Node::Article(article) = root {
-                    if let Some(config) = &article.config {
-                        if let Some(publish) = &config.publish {
-                            if let Some(publisher) = &publish.ghost {
-                                if let Some(schedule) = &publisher.schedule {
-                                    return (
-                                        Some(Status::Scheduled),
-                                        DateTime::from_str(schedule.value.as_str()).ok(),
-                                    );
+                                if self.slug.is_none() {
+                                    slug = publisher.slug.clone();
+                                } else {
+                                    slug = self.slug.clone();
                                 }
-                                return match publisher.state.clone() {
-                                    Some(ConfigPublishGhostState::Publish) => {
-                                        (Some(Status::Published), None)
+                                if !self.featured {
+                                    featured = publisher.featured.clone();
+                                } else {
+                                    featured = Some(self.featured);
+                                }
+                                if !self.publish && !self.draft && self.schedule.is_none() {
+                                    if let Some(doc_schedule) = &publisher.schedule {
+                                        status = Some(Status::Scheduled);
+                                        schedule =
+                                            DateTime::from_str(doc_schedule.value.as_str()).ok();
+                                        if schedule <= Some(Utc::now()){
+                                            bail!(
+                                                "Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",
+                                                self.schedule,
+                                                Utc::now()
+                                            );
+                                        }
+                                    } else {
+                                        status = match publisher.state.clone() {
+                                            Some(ConfigPublishGhostState::Publish) => {
+                                                Some(Status::Published)
+                                            }
+                                            _ => Some(Status::Draft),
+                                        };
                                     }
-                                    _ => (Some(Status::Draft), None),
-                                };
+                                } else {
+                                    //Defaults to draft
+                                    status = Some(Status::Draft);
+                                    if self.schedule.is_some() {
+                                        if self.schedule <= Some(Utc::now()) {
+                                            bail!(
+                                                "Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",
+                                                self.schedule,
+                                                Utc::now()
+                                            );
+                                        }
+                                        schedule = self.schedule;
+                                    }
+                                }
+                                if self.tags.is_none() {
+                                    tags = publisher.tags.clone();
+                                } else {
+                                    tags = self.tags.clone()
+                                }
                             }
                         }
                     }
                 }
-                (Some(Status::Draft), None)
+                return Ok((title, slug, featured, excerpt, status, schedule, tags));
             })
-            .await
-        } else if self.publish {
-            (Some(Status::Published), None)
-        } else if self.schedule.is_some() {
-            if self.schedule <= Some(Utc::now()) {
-                bail!(
-                    "Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",
-                    self.schedule,
-                    Utc::now()
-                );
-            }
-            (Some(Status::Scheduled), None)
-        } else {
-            (Some(Status::Draft), None)
-        };
+            .await?;
 
-        // If no tags provided, use the tags in the `tags` field of the YAML header
-        let tags = if self.tags.is_none() {
-            doc.inspect(|root: &Node| {
-                if let Node::Article(article) = root {
-                    if let Some(config) = &article.config {
-                        if let Some(publish) = &config.publish {
-                            if let Some(publisher) = &publish.ghost {
-                                return publisher.tags.clone();
-                            }
-                        }
-                    }
-                }
-                None
-            })
-            .await
-        } else {
-            self.tags.clone()
-        };
         let tags = tags.map(|tag| tag.into_iter().map(|name| Tag { name }).collect());
 
         // Get the root node of the document
