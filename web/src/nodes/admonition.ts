@@ -41,6 +41,13 @@ export class Admonition extends Entity {
   @state()
   hasTitleSlot: boolean
 
+  /**
+   * The text of the title.
+   *
+   * Used to avoid adding an insert chip for some types of admonitions.
+   */
+  private titleSlotText?: string
+
   private toggleIsFolded() {
     if (this.isFolded) {
       this.isFolded = false
@@ -52,6 +59,9 @@ export class Admonition extends Entity {
   private onTitleSlotChange(event: Event): void {
     const slot = event.target as HTMLSlotElement
     this.hasTitleSlot = slot.assignedElements().length > 0
+    this.titleSlotText = this.hasTitleSlot
+      ? slot.assignedElements()[0].textContent
+      : undefined
   }
 
   override render() {
@@ -70,11 +80,12 @@ export class Admonition extends Entity {
       `
     }
 
-    // render with the `insert` chip in model chat response
-    if (this.isWithinModelChatMessage()) {
+    // Render with an insert chip when in model chat response but not if
+    // a "Thinking" admonition
+    if (this.isWithinModelChatMessage) {
       return html`
         <div class="group relative">
-          ${this.renderInsertChip()}
+          ${this.titleSlotText !== 'Thinking' ? this.renderInsertChip() : ''}
           <div class=${styles}>
             ${this.renderHeader()} ${this.renderContent()}
           </div>
