@@ -29,9 +29,6 @@ repository:
       - include: "#instruction-block"
       - include: "#suggestion-block"
       - include: "#prompt-block"
-      - include: "#insert-block"
-      - include: "#delete-block"
-      - include: "#replace-block"
       - include: "#for-block"
       - include: "#if-block"
       - include: "#else-block"
@@ -54,9 +51,6 @@ repository:
       - include: "#math-inline"
       - include: "#instruction-inline"
       - include: "#suggestion-inline"
-      - include: "#insert-inline"
-      - include: "#delete-inline"
-      - include: "#replace-inline"
       - include: "#styled-inline"
       - include: "#ampersand"
       - include: "#bracket"
@@ -418,41 +412,6 @@ repository:
 
   ########## Suggestions: Block & Inline ##########
 
-  insert-block:
-    name: meta.stencila.insert-block
-    match: >
-      (?x)
-      ^
-        (:{3,})
-        \s*
-        (insert)
-        \s+
-        (?:
-          (accept)|
-          (reject)|
-          .*
-        )?
-        \s*
-      $
-    captures:
-      "1": { name: markup.heading.stencila } # semicolons
-      "2": { name: keyword.control.stencila } # insert
-      "3": { name: accept.stencila } # accept
-      "4": { name: error.stencila } # reject
-
-  insert-inline:
-    name: meta.stencila.insert-inline
-    match: >
-      (?x)
-      \[\[
-        \s*
-        (insert)
-        \s
-        (.*?)
-      \]\]
-    captures:
-      "1": { name: keyword.control.stencila } # insert
-
   suggestion-block:
     name: meta.stencila.suggestion-block
     match: >
@@ -490,79 +449,6 @@ repository:
       \]\]
     captures:
       "1": { name: keyword.control.stencila } # suggest
-
-  delete-block:
-    name: meta.stencila.delete-block
-    match: >
-      (?x)
-      ^
-        (:{3,})
-        \s*
-        (delete)
-        \s+
-        (?:
-          (accept)|
-          (reject)|
-          .*
-        )?
-        \s*
-      $
-    captures:
-      "1": { name: markup.heading.stencila } # semicolons
-      "2": { name: keyword.control.stencila } # delete
-      "3": { name: accept.stencila } # accept
-      "4": { name: error.stencila } # reject
-
-  delete-inline:
-    name: meta.stencila.delete-inline
-    match: >
-      (?x)
-      \[\[
-        \s*
-        (delete)
-        \s
-        (.*?)
-      \]\]
-    captures:
-      "1": { name: keyword.control.stencila } # delete
-
-  replace-block:
-    name: meta.stencila.replace-block
-    match: >
-      (?x)
-      ^
-        (:{3,})
-        \s*
-        (replace)
-        \s+
-        (?:
-          (accept)|
-          (reject)|
-          .*
-        )?
-        \s*
-      $
-    captures:
-      "1": { name: markup.heading.stencila } # semicolons
-      "2": { name: keyword.control.stencila } # replace
-      "3": { name: accept.stencila } # accept
-      "4": { name: error.stencila } # reject
-
-  replace-inline:
-    name: meta.stencila.replace-inline
-    match: >
-      (?x)
-      \[\[
-        \s*
-        (replace)
-        \s
-        (.*?)
-        (>>)
-        (.*?)
-      \]\]
-    captures:
-      "1": { name: keyword.control.stencila } # replace
-      "3": { name: keyword.control.stencila } # >>
 
   ########## PromptBlock ##########
 

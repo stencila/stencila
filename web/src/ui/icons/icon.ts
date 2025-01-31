@@ -127,7 +127,6 @@ import questionCircle from './question-circle.svg'
 import quote from './quote.svg'
 import r from './r.svg'
 import repeat from './repeat.svg'
-import replaceBlock from './replace-block.svg'
 import robot from './robot.svg'
 import rosetteCheck from './rosette-check.svg'
 import rosetteFillCheck from './rosette-fill-check.svg'
@@ -265,7 +264,6 @@ const icons = {
   quote,
   r,
   repeat,
-  replaceBlock,
   robot,
   rosetteCheck,
   rosetteFillCheck,

@@ -28,11 +28,6 @@ content:
   - type: CodeInline
     code:
       string: inline code
-  - type: DeleteInline
-    content:
-    - type: Text
-      value:
-        string: ', delete'
   - type: Text
     value:
       string: ', '
@@ -50,11 +45,6 @@ content:
     - type: Text
       value:
         string: image
-  - type: InsertInline
-    content:
-    - type: Text
-      value:
-        string: ', insert'
   - type: Text
     value:
       string: ', '
@@ -95,15 +85,6 @@ content:
     - type: Text
       value:
         string: inline quote
-  - type: ReplaceInline
-    content:
-    - type: Text
-      value:
-        string: ', old'
-    replacement:
-    - type: Text
-      value:
-        string: ', new'
   - type: Text
     value:
       string: ', '
@@ -183,13 +164,6 @@ content:
 - type: CodeChunk
   code:
     string: This is a code chunk
-- type: DeleteBlock
-  content:
-  - type: Paragraph
-    content:
-    - type: Text
-      value:
-        string: This paragraph is to be deleted
 - type: Figure
   content:
   - type: Paragraph
@@ -226,13 +200,6 @@ content:
           string: This is an if block
 - type: IncludeBlock
   source: this/is/an/include
-- type: InsertBlock
-  content:
-  - type: Paragraph
-    content:
-    - type: Text
-      value:
-        string: This paragraph is to be inserted
 - type: List
   items:
   - type: ListItem
@@ -254,19 +221,6 @@ content:
     - type: Text
       value:
         string: This is a quote block
-- type: ReplaceBlock
-  content:
-  - type: Paragraph
-    content:
-    - type: Text
-      value:
-        string: Old paragraph
-  replacement:
-  - type: Paragraph
-    content:
-    - type: Text
-      value:
-        string: New paragraph
 - type: Section
   content:
   - type: Paragraph

@@ -44,8 +44,6 @@ use super::date_time::DateTime;
 use super::date_time_validator::DateTimeValidator;
 use super::date_validator::DateValidator;
 use super::defined_term::DefinedTerm;
-use super::delete_block::DeleteBlock;
-use super::delete_inline::DeleteInline;
 use super::directory::Directory;
 use super::duration::Duration;
 use super::duration_validator::DurationValidator;
@@ -67,8 +65,6 @@ use super::if_block::IfBlock;
 use super::if_block_clause::IfBlockClause;
 use super::image_object::ImageObject;
 use super::include_block::IncludeBlock;
-use super::insert_block::InsertBlock;
-use super::insert_inline::InsertInline;
 use super::instruction_block::InstructionBlock;
 use super::instruction_inline::InstructionInline;
 use super::instruction_message::InstructionMessage;
@@ -81,9 +77,6 @@ use super::math_block::MathBlock;
 use super::math_inline::MathInline;
 use super::media_object::MediaObject;
 use super::model_parameters::ModelParameters;
-use super::modify_block::ModifyBlock;
-use super::modify_inline::ModifyInline;
-use super::modify_operation::ModifyOperation;
 use super::monetary_grant::MonetaryGrant;
 use super::note::Note;
 use super::null::Null;
@@ -107,8 +100,6 @@ use super::publication_volume::PublicationVolume;
 use super::quote_block::QuoteBlock;
 use super::quote_inline::QuoteInline;
 use super::raw_block::RawBlock;
-use super::replace_block::ReplaceBlock;
-use super::replace_inline::ReplaceInline;
 use super::review::Review;
 use super::section::Section;
 use super::software_application::SoftwareApplication;
@@ -116,8 +107,6 @@ use super::software_source_code::SoftwareSourceCode;
 use super::strikeout::Strikeout;
 use super::string::String;
 use super::string_hint::StringHint;
-use super::string_operation::StringOperation;
-use super::string_patch::StringPatch;
 use super::string_validator::StringValidator;
 use super::strong::Strong;
 use super::styled_block::StyledBlock;
@@ -244,10 +233,6 @@ pub enum Node {
 
     DefinedTerm(DefinedTerm),
 
-    DeleteBlock(DeleteBlock),
-
-    DeleteInline(DeleteInline),
-
     Directory(Directory),
 
     Duration(Duration),
@@ -290,10 +275,6 @@ pub enum Node {
 
     IncludeBlock(IncludeBlock),
 
-    InsertBlock(InsertBlock),
-
-    InsertInline(InsertInline),
-
     InstructionBlock(InstructionBlock),
 
     InstructionInline(InstructionInline),
@@ -315,12 +296,6 @@ pub enum Node {
     MediaObject(MediaObject),
 
     ModelParameters(ModelParameters),
-
-    ModifyBlock(ModifyBlock),
-
-    ModifyInline(ModifyInline),
-
-    ModifyOperation(ModifyOperation),
 
     MonetaryGrant(MonetaryGrant),
 
@@ -362,10 +337,6 @@ pub enum Node {
 
     RawBlock(RawBlock),
 
-    ReplaceBlock(ReplaceBlock),
-
-    ReplaceInline(ReplaceInline),
-
     Review(Review),
 
     Section(Section),
@@ -377,10 +348,6 @@ pub enum Node {
     Strikeout(Strikeout),
 
     StringHint(StringHint),
-
-    StringOperation(StringOperation),
-
-    StringPatch(StringPatch),
 
     StringValidator(StringValidator),
 

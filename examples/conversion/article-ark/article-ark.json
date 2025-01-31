@@ -30,10 +30,6 @@
           "type": "CodeInline",
           "code": "inline code"
         },
-        {
-          "type": "DeleteInline",
-          "content": [{ "type": "Text", "value": ", delete" }]
-        },
         { "type": "Text", "value": ", " },
         {
           "type": "Emphasis",
@@ -44,10 +40,6 @@
           "type": "ImageObject",
           "contentUrl": "https://example.org/cat.jpg",
           "caption": [{ "type": "Text", "value": "image" }]
-        },
-        {
-          "type": "InsertInline",
-          "content": [{ "type": "Text", "value": ", insert" }]
         },
         { "type": "Text", "value": ", " },
         {
@@ -81,11 +73,6 @@
         {
           "type": "QuoteInline",
           "content": [{ "type": "Text", "value": "inline quote" }]
-        },
-        {
-          "type": "ReplaceInline",
-          "content": [{ "type": "Text", "value": ", old" }],
-          "replacement": [{ "type": "Text", "value": ", new" }]
         },
         { "type": "Text", "value": ", " },
         {
@@ -151,17 +138,6 @@
       "code": "This is a code chunk"
     },
     {
-      "type": "DeleteBlock",
-      "content": [
-        {
-          "type": "Paragraph",
-          "content": [
-            { "type": "Text", "value": "This paragraph is to be deleted" }
-          ]
-        }
-      ]
-    },
-    {
       "type": "Figure",
       "content": [
         {
@@ -206,17 +182,6 @@
       "source": "this/is/an/include"
     },
     {
-      "type": "InsertBlock",
-      "content": [
-        {
-          "type": "Paragraph",
-          "content": [
-            { "type": "Text", "value": "This paragraph is to be inserted" }
-          ]
-        }
-      ]
-    },
-    {
       "type": "List",
       "order": "Unordered",
       "items": [
@@ -242,21 +207,6 @@
         {
           "type": "Paragraph",
           "content": [{ "type": "Text", "value": "This is a quote block" }]
-        }
-      ]
-    },
-    {
-      "type": "ReplaceBlock",
-      "content": [
-        {
-          "type": "Paragraph",
-          "content": [{ "type": "Text", "value": "Old paragraph" }]
-        }
-      ],
-      "replacement": [
-        {
-          "type": "Paragraph",
-          "content": [{ "type": "Text", "value": "New paragraph" }]
         }
       ]
     },
