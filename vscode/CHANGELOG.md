@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.0.22 2025-01-31
+
+- Fixes and improvements to "Chat to create..." context menu.
+
+- Improved node type syntax highlighting for `/create` and `::: create` Markdown directives.
+
 ## 0.0.21 2025-01-31
 
 - Load kernel, prompt, and model lists early to reduce waits when user interfaces first loaded. 
