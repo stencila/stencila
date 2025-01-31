@@ -203,7 +203,7 @@ async fn create_node_type_completion(
     }
 
     let items = TYPES
-        .into_iter()
+        .iter()
         .map(|item| CompletionItem {
             label: item.to_string(),
             ..Default::default()
