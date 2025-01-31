@@ -6,11 +6,11 @@ use common::{
 };
 use document::{CommandWait, Document};
 
-/// Lint a document
+/// Lint one or more documents
 #[derive(Debug, Parser)]
 pub struct Cli {
-    /// The file to lint
-    file: PathBuf,
+    /// The files to lint
+    files: Vec<PathBuf>,
 
     /// Format the file if necessary
     #[arg(long)]
@@ -23,21 +23,33 @@ pub struct Cli {
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
-        let Self { file, .. } = self;
+        let mut files_with_issues = 0;
+        let mut count_of_issues = 0;
+        for file in self.files {
+            let doc = Document::open(&file).await?;
+            doc.lint(self.format, self.fix, CommandWait::Yes).await?;
 
-        let doc = Document::open(&file).await?;
-        doc.lint(self.format, self.fix, CommandWait::Yes).await?;
+            if self.format || self.fix {
+                doc.save(CommandWait::Yes).await?;
+            }
 
-        if self.format || self.fix {
-            doc.save(CommandWait::Yes).await?;
+            let count = doc.diagnostics().await?;
+            if count > 0 {
+                count_of_issues += count;
+                files_with_issues += 1;
+            }
         }
 
-        let some = doc.diagnostics().await?;
-
         #[allow(clippy::print_stderr)]
-        if !some {
+        if files_with_issues == 0 {
             eprintln!("🎉 No problems found")
         } else {
+            eprintln!(
+                "⚠️  {count_of_issues} issue{} found in {files_with_issues} file{}",
+                if count_of_issues > 1 { "s" } else { "" },
+                if files_with_issues > 1 { "s" } else { "" }
+            );
+
             exit(1)
         }
 
