@@ -241,7 +241,7 @@
       {
         "command": "stencila.insert-chat.create.figure-mermaid",
         "category": "Stencila",
-        "title": "Figure > Mermaid)"
+        "title": "Figure > Mermaid"
       },
       {
         "command": "stencila.insert-chat.create.figure-svg",
@@ -292,11 +292,6 @@
         "command": "stencila.insert-chat.create.table-filled",
         "category": "Stencila",
         "title": "Table > Filled"
-      },
-      {
-        "command": "stencila.insert-chat.create.CodeChunk",
-        "category": "Stencila",
-        "title": "Code Chunk"
       },
       {
         "command": "stencila.insert-chat.edit",
