@@ -65,7 +65,7 @@ properties:
         description: Always generate an unordered list.
         value: ListOrder::Unordered
       low:
-        description: Randomly generate either and unordered or ascending list.
+        description: Randomly generate either an unordered, or ascending, list.
         strategy: prop_oneof![Just(ListOrder::Unordered),Just(ListOrder::Ascending)]
       high:
         description: Generate an arbitrary list ordering.
