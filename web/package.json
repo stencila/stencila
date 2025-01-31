@@ -38,7 +38,7 @@
       "source": [
         "src/themes/default.css",
         "src/themes/stencila.css",
-        "src/views/dynamic.ts"
+        "src/views/static.ts"
       ],
       "distDir": "../ghost/assets/built/stencila-web"
     },

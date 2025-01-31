@@ -1,11 +1,31 @@
-  {{#if @site.twitter}}
-      <a class="block w-8 h-8" href="{{twitter_url @site.twitter}}" target="_blank">
-          {{> icons/twitter }}
-      </a>
-  {{/if}}
+{{#if @site.twitter}}
+    <a class="block w-8 h-8" href="{{twitter_url @site.twitter}}" target="_blank">
+        {{> icons/twitter }}
+    </a>
+{{/if}}
 
-  {{#if @site.facebook}}
-      <a class="block w-8 h-8" href="{{facebook_url @site.facebook}}" target="_blank">
-          {{> icons/facebook }}
-      </a>
-  {{/if}}
+{{#if @site.facebook}}
+    <a class="block w-8 h-8" href="{{facebook_url @site.facebook}}" target="_blank">
+        {{> icons/facebook }}
+    </a>
+{{/if}}
+
+{{#if @custom.discord}}
+  <a class="block w-8 h-8" href="{{@custom.discord}}"></a>
+{{/if}}
+
+{{#if @custom.whatsapp}}
+  <a class="block w-8 h-8" href="{{@custom.whatsapp}}"></a>
+{{/if}}
+
+{{#if @custom.github}}
+  <a class="block w-8 h-8" href="{{@custom.github}}"></a>
+{{/if}}
+
+{{#if @custom.instagram}}
+  <a class="block w-8 h-8" href="{{@custom.instagram}}"></a>
+{{/if}}
+
+{{#if @custom.youtube}}
+  <a class="block w-8 h-8" href="{{@custom.youtube}}"></a>
+{{/if}}

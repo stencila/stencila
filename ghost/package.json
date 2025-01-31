@@ -80,6 +80,28 @@
             "xl": {
                 "width": 2000
             }
+        },
+        "custom": {
+            "instagram": {
+                "type": "text",
+                "default": ""
+            },
+            "discord": {
+                "type": "text",
+                "default": ""
+            },
+            "github": {
+                "type": "text",
+                "default": ""
+            },
+            "whatsapp": {
+                "type": "text",
+                "default": ""
+            },
+            "youtube": {
+                "type": "text",
+                "default": ""
+            }
         }
     },
     "type": "module"
