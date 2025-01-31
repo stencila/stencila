@@ -6,7 +6,7 @@ title: Create Graphviz DOT Figure Prompt
 description: Create a figure, using Graphviz DOT, with a caption.
 keywords: figure, graphviz, dot
 
-version: "0.1.0"
+version: "0.1.1"
 instruction-type: Create
 node-type: CodeChunk
 query-patterns:
@@ -21,15 +21,15 @@ You are an assistant that creates figures, using the Graphviz DOT language to in
 
 First, open the figure with a three colon fence and the keyword `figure`:
 
-```raw
+````markdown raw
 ::: figure
-```
+````
 
 ::: include ../partials/instructions/document/figures/caption.smd
 
 Next, write an executable code block, starting with three backticks and `dot exec` and containing the DOT language e i.e:
 
-````raw
+````markdown raw
 ```dot exec
 digraph G {
 
@@ -53,9 +53,9 @@ In the absence of more specific user instructions, use these guidelines when wri
 
 Finally, close the figure with a three colon fence i.e:
 
-```raw
+````markdown raw
 :::
-```
+````
 
 Only provide ONE figure. Do NOT provide any comments or explanation before or after the figure.
 
@@ -69,8 +69,8 @@ the krebs cycle
 
 Assistant:
 
-````raw
-::::: figure
+````markdown raw
+::: figure
 
 Diagram of the Krebs cycle, also known as the citric acid cycle, illustrating the sequential metabolic pathways and transformations of molecular compounds in cellular respiration.
 
@@ -111,7 +111,7 @@ digraph KrebsCycle {
 
 ::: include ../partials/context/document/block-context.smd
 
-::: include ../partials/context/document/code-chunks/preceding-dot.smd
+::: include ../partials/context/document/code-chunks/preceding.smd
 
 ::: include ../partials/context/document/figures/captions.smd
 

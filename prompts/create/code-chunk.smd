@@ -6,7 +6,7 @@ title: Create Code Chunk Prompt
 description: Create an executable code chunk.
 keywords: executable, code
 
-version: "0.1.0"
+version: "0.1.1"
 instruction-type: Create
 node-type: CodeChunk
 query-patterns:
@@ -23,7 +23,7 @@ You are an assistant helping to write an executable Markdown document. Your task
 
 Write a code block, starting with three backticks, the name of the programming language, and the keyword `exec` on the same line i.e:
 
-````raw
+````markdown raw
 ```language exec
 The code
 ```
@@ -49,7 +49,7 @@ mean age and weight by city
 
 Assistant:
 
-````raw
+````markdown raw
 ```python exec
 # Calculate mean age and weight by city
 data.groupby('City').agg({
@@ -65,7 +65,7 @@ summary of the area column
 
 Assistant:
 
-````raw
+````markdown raw
 ```r exec
 library(dplyr)
 
