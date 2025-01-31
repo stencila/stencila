@@ -124,7 +124,7 @@ impl Diagnostic {
 
         // Convert line/column range to character range
         let range = if let Some(location) = self.code_location {
-            // If there is a code location then shify
+            // If there is a code location then shift the range
             let line = location.start_line.unwrap_or(0) as usize;
             let column = location.start_column.unwrap_or(0) as usize;
             let start = positions
@@ -302,7 +302,14 @@ impl Visitor for Collector {
             Block::CodeChunk(block) => cms_ems!(self, block, block.programming_language.as_deref(), Some(&block.code)),
             Block::ForBlock(block) => cms_ems!(self, block, block.programming_language.as_deref(), Some(&block.code)),
             Block::IfBlock(block) => cms_ems!(self, block, None, None),
-            Block::IncludeBlock(block) => cms_ems!(self, block, None, None),
+            Block::IncludeBlock(block) => {
+                // Collect diagnostics on the include block itself but do
+                // not continue walk into the included content because
+                // we are unable to link any diagnostics in there to the
+                // original source location.
+                cms_ems!(self, block, None, None);
+                return WalkControl::Break;
+            },
             Block::InstructionBlock(block) => cms_ems!(self, block, None, None),
             Block::MathBlock(block) => cms!(self, block, block.math_language.as_deref(), Some(&block.code)),
             Block::PromptBlock(block) => cms_ems!(self, block, None, None),
