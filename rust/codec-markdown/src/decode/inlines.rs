@@ -15,12 +15,11 @@ use codec::{
     format::Format,
     schema::{
         AudioObject, BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeInline, Cord,
-        DateTimeValidator, DateValidator, DeleteInline, DurationValidator, Emphasis, EnumValidator,
-        ImageObject, Inline, InsertInline, InstructionInline, InstructionMessage, IntegerValidator,
-        Link, MathInline, ModifyInline, Node, NodeType, Note, NoteType, NumberValidator, Parameter,
-        ParameterOptions, PromptBlock, QuoteInline, ReplaceInline, Strikeout, StringValidator,
-        Strong, StyledInline, Subscript, SuggestionInline, Superscript, Text, TimeValidator,
-        TimestampValidator, Underline, Validator, VideoObject,
+        DateTimeValidator, DateValidator, DurationValidator, Emphasis, EnumValidator, ImageObject,
+        Inline, InstructionInline, InstructionMessage, IntegerValidator, Link, MathInline, Node,
+        NodeType, Note, NoteType, NumberValidator, Parameter, ParameterOptions, PromptBlock,
+        QuoteInline, Strikeout, StringValidator, Strong, StyledInline, Subscript, SuggestionInline,
+        Superscript, Text, TimeValidator, TimestampValidator, Underline, Validator, VideoObject,
     },
 };
 
@@ -73,32 +72,9 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
         if let Inline::Text(text) = &inline {
             // Note: currently, mainly for performance reasons, we do not add mapping entries
             // for `Inline::Text` nodes.
-            if text.value.as_str() == EDIT_WITH {
-                // A `>>` separator so associated inlines since last boundary with the previous
-                // `ReplaceInline` or `ModifyInline`
-                if let Some(boundary) = boundaries.pop() {
-                    let children = inlines.drain(boundary..).collect();
-                    match inlines.last_mut() {
-                        Some(
-                            Inline::ReplaceInline(ReplaceInline { content, .. })
-                            | Inline::ModifyInline(ModifyInline { content, .. }),
-                        ) => {
-                            *content = children;
-                            boundaries.push(inlines.len());
-                        }
-
-                        _ => {
-                            // This should not happen, but if it does push the separator
-                            inlines.push(inline);
-                        }
-                    }
-                } else {
-                    // A `>>` fragment that is not a separator, so just push
-                    inlines.push(inline);
-                }
-            } else if text.value.as_str() == EDIT_END {
+            if text.value.as_str() == EDIT_END {
                 // A `]]` terminator so associate inlines since last boundary with the previous
-                // `InstructionInline`, `InsertInline`, `DeleteInline`, etc and map end
+                // `InstructionInline`, etc and map end
                 if let Some(boundary) = boundaries.pop() {
                     // End the mapping for the previous inline
                     context.map_end(span.end);
@@ -110,19 +86,9 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                                 content: Some(content),
                                 ..
                             })
-                            | Inline::SuggestionInline(SuggestionInline { content, .. })
-                            | Inline::InsertInline(InsertInline { content, .. })
-                            | Inline::DeleteInline(DeleteInline { content, .. }),
+                            | Inline::SuggestionInline(SuggestionInline { content, .. }),
                         ) => {
                             *content = children;
-                        }
-
-                        Some(Inline::ReplaceInline(ReplaceInline { replacement, .. })) => {
-                            *replacement = children;
-                        }
-
-                        Some(Inline::ModifyInline(..)) => {
-                            // Ignore "simulated" replacement content
                         }
 
                         _ => {
@@ -170,10 +136,6 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
                 content: Some(..),
                 ..
             }) | Inline::SuggestionInline(..)
-                | Inline::InsertInline(..)
-                | Inline::DeleteInline(..)
-                | Inline::ReplaceInline(..)
-                | Inline::ModifyInline(..)
         ) {
             // An inline that registers a boundary
             if let Some(node_id) = inline.node_id() {
@@ -327,7 +289,6 @@ pub(super) fn inlines(input: &str) -> Vec<(Inline, Range<usize>)> {
             html,
             // Nested in another alt to avoid going over max size of tuple
             alt((instruction_inline, suggestion_inline)),
-            alt((insert_inline, delete_inline, replace_inline)),
             alt((edit_with, edit_end)),
             string,
             character,
@@ -990,28 +951,7 @@ fn suggestion_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
         .parse_next(input)
 }
 
-/// Parse a string into a `InsertInline` node
-fn insert_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
-    (EDIT_START, alt(("insert", "ins")), ' ')
-        .map(|_| Inline::InsertInline(InsertInline::default()))
-        .parse_next(input)
-}
-
-/// Parse a string into a `DeleteInline` node
-fn delete_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
-    (EDIT_START, alt(("delete", "del")), ' ')
-        .map(|_| Inline::DeleteInline(DeleteInline::default()))
-        .parse_next(input)
-}
-
-/// Parse a string into a `ReplaceInline` node
-fn replace_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
-    (EDIT_START, alt(("replace", "rep")), ' ')
-        .map(|_| Inline::ReplaceInline(ReplaceInline::default()))
-        .parse_next(input)
-}
-
-/// Parse a `with:` word indicating the replacement content for a `ReplaceInline` or `ModifyInline` node
+/// Parse a `>>` word indicating the replacement content
 fn edit_with(input: &mut Located<&str>) -> ModalResult<Inline> {
     EDIT_WITH
         .map(|_| Inline::Text(Text::from(EDIT_WITH)))

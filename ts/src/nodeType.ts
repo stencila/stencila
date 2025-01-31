@@ -48,8 +48,6 @@ export type NodeType =
   | "DateTimeValidator"
   | "DateValidator"
   | "DefinedTerm"
-  | "DeleteBlock"
-  | "DeleteInline"
   | "Directory"
   | "Duration"
   | "DurationValidator"
@@ -71,8 +69,6 @@ export type NodeType =
   | "IfBlockClause"
   | "ImageObject"
   | "IncludeBlock"
-  | "InsertBlock"
-  | "InsertInline"
   | "InstructionBlock"
   | "InstructionInline"
   | "InstructionMessage"
@@ -84,9 +80,6 @@ export type NodeType =
   | "MathInline"
   | "MediaObject"
   | "ModelParameters"
-  | "ModifyBlock"
-  | "ModifyInline"
-  | "ModifyOperation"
   | "MonetaryGrant"
   | "Note"
   | "NumberValidator"
@@ -107,16 +100,12 @@ export type NodeType =
   | "QuoteBlock"
   | "QuoteInline"
   | "RawBlock"
-  | "ReplaceBlock"
-  | "ReplaceInline"
   | "Review"
   | "Section"
   | "SoftwareApplication"
   | "SoftwareSourceCode"
   | "Strikeout"
   | "StringHint"
-  | "StringOperation"
-  | "StringPatch"
   | "StringValidator"
   | "Strong"
   | "StyledBlock"
@@ -192,8 +181,6 @@ export const NodeTypeList = [
   "DateTimeValidator",
   "DateValidator",
   "DefinedTerm",
-  "DeleteBlock",
-  "DeleteInline",
   "Directory",
   "Duration",
   "DurationValidator",
@@ -215,8 +202,6 @@ export const NodeTypeList = [
   "IfBlockClause",
   "ImageObject",
   "IncludeBlock",
-  "InsertBlock",
-  "InsertInline",
   "InstructionBlock",
   "InstructionInline",
   "InstructionMessage",
@@ -228,9 +213,6 @@ export const NodeTypeList = [
   "MathInline",
   "MediaObject",
   "ModelParameters",
-  "ModifyBlock",
-  "ModifyInline",
-  "ModifyOperation",
   "MonetaryGrant",
   "Note",
   "NumberValidator",
@@ -251,16 +233,12 @@ export const NodeTypeList = [
   "QuoteBlock",
   "QuoteInline",
   "RawBlock",
-  "ReplaceBlock",
-  "ReplaceInline",
   "Review",
   "Section",
   "SoftwareApplication",
   "SoftwareSourceCode",
   "Strikeout",
   "StringHint",
-  "StringOperation",
-  "StringPatch",
   "StringValidator",
   "Strong",
   "StyledBlock",

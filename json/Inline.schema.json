@@ -100,18 +100,6 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `DeleteInline` nodes in inline content.",
-          "skip": true
-        },
-        "max": {
-          "description": "Generate `DeleteInline` nodes in inline content."
-        }
-      },
-      "$ref": "DeleteInline.schema.json"
-    },
-    {
-      "proptest": {
-        "min": {
           "description": "Do not generate `Duration` nodes in inline content.",
           "skip": true
         },
@@ -126,18 +114,6 @@
     },
     {
       "$ref": "ImageObject.schema.json"
-    },
-    {
-      "proptest": {
-        "min": {
-          "description": "Do not generate `InsertInline` nodes in inline content.",
-          "skip": true
-        },
-        "max": {
-          "description": "Generate `InsertInline` nodes in inline content."
-        }
-      },
-      "$ref": "InsertInline.schema.json"
     },
     {
       "proptest": {
@@ -169,18 +145,6 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `ModifyInline` nodes in inline content.",
-          "skip": true
-        },
-        "max": {
-          "description": "Generate `ModifyInline` nodes in inline content."
-        }
-      },
-      "$ref": "ModifyInline.schema.json"
-    },
-    {
-      "proptest": {
-        "min": {
           "description": "Do not generate `Note` nodes in inline content.",
           "skip": true
         },
@@ -204,18 +168,6 @@
     },
     {
       "$ref": "QuoteInline.schema.json"
-    },
-    {
-      "proptest": {
-        "min": {
-          "description": "Do not generate `ReplaceInline` nodes in inline content.",
-          "skip": true
-        },
-        "max": {
-          "description": "Generate `ReplaceInline` nodes in inline content."
-        }
-      },
-      "$ref": "ReplaceInline.schema.json"
     },
     {
       "$ref": "StyledInline.schema.json"

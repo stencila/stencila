@@ -73,9 +73,8 @@ impl Codec for JatsCodec {
         match node_type {
             // Prose Inlines
             Text | Emphasis | Strong | Strikeout | Subscript | Superscript | Underline
-            | InsertInline | QuoteInline | StyledInline | Note => NoLoss,
+            | QuoteInline | StyledInline | Note => NoLoss,
             Link | AudioObject | ImageObject | VideoObject => LowLoss,
-            DeleteInline => HighLoss,
             // Prose Blocks
             Admonition | Section | Heading | Paragraph | QuoteBlock | ThematicBreak => NoLoss,
             List | ListItem | Figure => LowLoss,

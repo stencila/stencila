@@ -28,20 +28,16 @@ impl Inline {
             CodeInline,
             Date,
             DateTime,
-            DeleteInline,
             Duration,
             Emphasis,
             ImageObject,
-            InsertInline,
             InstructionInline,
             Link,
             MathInline,
             MediaObject,
-            ModifyInline,
             Note,
             Parameter,
             QuoteInline,
-            ReplaceInline,
             Strikeout,
             Strong,
             StyledInline,
@@ -81,20 +77,16 @@ impl Inline {
             CodeInline,
             Date,
             DateTime,
-            DeleteInline,
             Duration,
             Emphasis,
             ImageObject,
-            InsertInline,
             InstructionInline,
             Link,
             MathInline,
             MediaObject,
-            ModifyInline,
             Note,
             Parameter,
             QuoteInline,
-            ReplaceInline,
             Strikeout,
             Strong,
             StyledInline,
@@ -157,20 +149,16 @@ impl ReadNode for Inline {
             CodeInline,
             Date,
             DateTime,
-            DeleteInline,
             Duration,
             Emphasis,
             ImageObject,
-            InsertInline,
             InstructionInline,
             Link,
             MathInline,
             MediaObject,
-            ModifyInline,
             Note,
             Parameter,
             QuoteInline,
-            ReplaceInline,
             Strikeout,
             Strong,
             StyledInline,
@@ -278,18 +266,6 @@ impl From<Block> for Vec<Inline> {
 impl MarkdownCodec for Inline {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         if matches!(context.format, Format::Llmd) {
-            // These node types that are never encoded to LLMd
-            if matches!(
-                self,
-                Inline::SuggestionInline(..)
-                    | Inline::InsertInline(..)
-                    | Inline::DeleteInline(..)
-                    | Inline::ModifyInline(..)
-                    | Inline::ReplaceInline(..)
-            ) {
-                return;
-            }
-
             // Most other block types are only encoded to LLMd if they meet the specified
             // thresholds for provenance. This is not done for compound inline types (those that
             // have nested inlines) where the provenance is calculated for the 'code' of the
@@ -328,20 +304,16 @@ impl MarkdownCodec for Inline {
             CodeInline,
             Date,
             DateTime,
-            DeleteInline,
             Duration,
             Emphasis,
             ImageObject,
-            InsertInline,
             InstructionInline,
             Link,
             MathInline,
             MediaObject,
-            ModifyInline,
             Note,
             Parameter,
             QuoteInline,
-            ReplaceInline,
             Strikeout,
             Strong,
             StyledInline,

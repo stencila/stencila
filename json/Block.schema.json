@@ -100,15 +100,6 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `DeleteBlock` nodes in block content.",
-          "skip": true
-        }
-      },
-      "$ref": "DeleteBlock.schema.json"
-    },
-    {
-      "proptest": {
-        "min": {
           "description": "Do not generate `Figure` nodes in block content.",
           "skip": true
         },
@@ -187,15 +178,6 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `InsertBlock` nodes in block content.",
-          "skip": true
-        }
-      },
-      "$ref": "InsertBlock.schema.json"
-    },
-    {
-      "proptest": {
-        "min": {
           "description": "Do not generate `InstructionBlock` nodes in block content.",
           "skip": true
         }
@@ -207,15 +189,6 @@
     },
     {
       "$ref": "MathBlock.schema.json"
-    },
-    {
-      "proptest": {
-        "min": {
-          "description": "Do not generate `ModifyBlock` nodes in block content.",
-          "skip": true
-        }
-      },
-      "$ref": "ModifyBlock.schema.json"
     },
     {
       "$ref": "Paragraph.schema.json"
@@ -234,15 +207,6 @@
     },
     {
       "$ref": "RawBlock.schema.json"
-    },
-    {
-      "proptest": {
-        "min": {
-          "description": "Do not generate `ReplaceBlock` nodes in block content.",
-          "skip": true
-        }
-      },
-      "$ref": "ReplaceBlock.schema.json"
     },
     {
       "proptest": {

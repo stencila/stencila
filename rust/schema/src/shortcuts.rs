@@ -50,11 +50,6 @@ pub fn ci<C: Into<Cord>>(code: C) -> Inline {
     Inline::CodeInline(CodeInline::new(code.into()))
 }
 
-/// Create an [`Inline::DeleteInline`] node
-pub fn dei<I: Into<Vec<Inline>>>(content: I) -> Inline {
-    Inline::DeleteInline(DeleteInline::new(content.into()))
-}
-
 /// Create an [`Inline::Emphasis`] node
 pub fn em<I: Into<Vec<Inline>>>(content: I) -> Inline {
     Inline::Emphasis(Emphasis::new(content.into()))
@@ -63,11 +58,6 @@ pub fn em<I: Into<Vec<Inline>>>(content: I) -> Inline {
 /// Create an [`Inline::ImageObject`] node
 pub fn img<S: Into<String>>(url: S) -> Inline {
     Inline::ImageObject(ImageObject::new(url.into()))
-}
-
-/// Create an [`Inline::InsertInline`] node
-pub fn isi<I: Into<Vec<Inline>>>(content: I) -> Inline {
-    Inline::InsertInline(InsertInline::new(content.into()))
 }
 
 /// Create an [`Inline::Link`] node
@@ -92,11 +82,6 @@ pub fn nte<B: Into<Vec<Block>>>(note_type: NoteType, content: B) -> Inline {
 /// Create an [`Inline::Parameter`] node
 pub fn par<S: Into<String>>(name: S) -> Inline {
     Inline::Parameter(Parameter::new(name.into()))
-}
-
-/// Create an [`Inline::ReplaceInline`] node
-pub fn rei<I1: Into<Vec<Inline>>, I2: Into<Vec<Inline>>>(content: I1, replacement: I2) -> Inline {
-    Inline::ReplaceInline(ReplaceInline::new(content.into(), replacement.into()))
 }
 
 /// Create an [`Inline::QuoteInline`] node
@@ -197,11 +182,6 @@ pub fn cc<C: Into<Cord>, S: Into<String>>(code: C, lang: Option<S>) -> Block {
     })
 }
 
-/// Create a [`Block::DeleteBlock`] node
-pub fn deb<I: Into<Vec<Block>>>(content: I) -> Block {
-    Block::DeleteBlock(DeleteBlock::new(content.into()))
-}
-
 /// Create a [`Block::Figure`] node
 pub fn fig<B: Into<Vec<Block>>>(content: B) -> Block {
     Block::Figure(Figure::new(content.into()))
@@ -275,11 +255,6 @@ pub fn inb<S: Into<String>>(source: S) -> Block {
     Block::IncludeBlock(IncludeBlock::new(source.into()))
 }
 
-/// Create a [`Block::InsertBlock`] node
-pub fn isb<I: Into<Vec<Block>>>(content: I) -> Block {
-    Block::InsertBlock(InsertBlock::new(content.into()))
-}
-
 /// Create a [`Block::List`] node with ascending order
 pub fn ol<I: Into<Vec<ListItem>>>(items: I) -> Block {
     Block::List(List::new(items.into(), ListOrder::Ascending))
@@ -315,11 +290,6 @@ pub fn p<I: Into<Vec<Inline>>>(content: I) -> Block {
 /// Create a [`Block::QuoteBlock`] node
 pub fn qb<B: Into<Vec<Block>>>(content: B) -> Block {
     Block::QuoteBlock(QuoteBlock::new(content.into()))
-}
-
-/// Create an [`Inline::ReplaceBlock`] node
-pub fn reb<B1: Into<Vec<Block>>, B2: Into<Vec<Block>>>(content: B1, replacement: B2) -> Block {
-    Block::ReplaceBlock(ReplaceBlock::new(content.into(), replacement.into()))
 }
 
 /// Create a [`Block::Section`] node

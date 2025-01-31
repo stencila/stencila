@@ -19,12 +19,11 @@ use codec::{
     schema::{
         shortcuts, Admonition, AdmonitionType, Author, Block, CallArgument, CallBlock, Chat,
         ChatMessage, ChatMessageGroup, ChatMessageOptions, Claim, CodeBlock, CodeChunk,
-        DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
-        IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage, LabelType, List,
-        ListItem, ListOrder, MathBlock, ModifyBlock, Node, Paragraph, PromptBlock, QuoteBlock,
-        RawBlock, ReplaceBlock, Section, SoftwareApplication, StyledBlock, SuggestionBlock,
-        SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text, ThematicBreak,
-        Walkthrough, WalkthroughStep,
+        ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause, IncludeBlock, Inline,
+        InstructionBlock, InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock,
+        Node, Paragraph, PromptBlock, QuoteBlock, RawBlock, Section, SoftwareApplication,
+        StyledBlock, SuggestionBlock, SuggestionStatus, Table, TableCell, TableRow, TableRowType,
+        Text, ThematicBreak, Walkthrough, WalkthroughStep,
     },
 };
 
@@ -88,20 +87,6 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                 let children = pop_blocks(&mut blocks, &mut boundaries);
 
                 match divider {
-                    Divider::With => {
-                        if let Some(block) = blocks.last_mut() {
-                            match block {
-                                Block::ReplaceBlock(ReplaceBlock { content, .. })
-                                | Block::ModifyBlock(ModifyBlock { content, .. }) => {
-                                    *content = children;
-                                }
-
-                                _ => tracing::warn!("Found a `::: with` without a preceding `::: replace` or `::: modify`")
-                            }
-                        }
-
-                        boundaries.push(blocks.len());
-                    }
                     Divider::Else => {
                         if let Some(block) = blocks.last_mut() {
                             match block {
@@ -522,10 +507,6 @@ fn block(input: &mut Located<&str>) -> ModalResult<Block> {
                 instruction_block,
                 suggestion_block,
                 chat_message,
-                delete_block,
-                insert_block,
-                replace_block,
-                modify_block,
                 claim,
                 styled_block,
                 // Section parser is permissive of label so needs to
@@ -1066,68 +1047,6 @@ fn suggestion_block(input: &mut Located<&str>) -> ModalResult<Block> {
     .parse_next(input)
 }
 
-/// Parse a [`InsertBlock`] node
-fn insert_block(input: &mut Located<&str>) -> ModalResult<Block> {
-    preceded(
-        (alt(("insert", "ins")), multispace0),
-        opt(take_while(1.., |_| true)),
-    )
-    .map(|feedback| {
-        Block::InsertBlock(InsertBlock {
-            feedback: feedback.map(String::from),
-            ..Default::default()
-        })
-    })
-    .parse_next(input)
-}
-
-/// Parse a [`DeleteBlock`] node
-fn delete_block(input: &mut Located<&str>) -> ModalResult<Block> {
-    preceded(
-        (alt(("delete", "del")), multispace0),
-        opt(take_while(1.., |_| true)),
-    )
-    .map(|feedback| {
-        Block::DeleteBlock(DeleteBlock {
-            feedback: feedback.map(String::from),
-            ..Default::default()
-        })
-    })
-    .parse_next(input)
-}
-
-/// Parse a [`ReplaceBlock`] node
-fn replace_block(input: &mut Located<&str>) -> ModalResult<Block> {
-    delimited(
-        (alt(("replace", "rep")), multispace0),
-        opt(take_while(1.., |_| true)),
-        opt(delimited(multispace0, "::: with", multispace0)),
-    )
-    .map(|feedback| {
-        Block::ReplaceBlock(ReplaceBlock {
-            feedback: feedback.map(String::from),
-            ..Default::default()
-        })
-    })
-    .parse_next(input)
-}
-
-/// Parse a [`ModifyBlock`] node
-fn modify_block(input: &mut Located<&str>) -> ModalResult<Block> {
-    delimited(
-        (alt(("modify", "mod")), multispace0),
-        opt(take_while(1.., |_| true)),
-        opt(delimited(multispace0, "::: with", multispace0)),
-    )
-    .map(|feedback| {
-        Block::ModifyBlock(ModifyBlock {
-            feedback: feedback.map(String::from),
-            ..Default::default()
-        })
-    })
-    .parse_next(input)
-}
-
 /// Parse a [`Section`] node
 fn section(input: &mut Located<&str>) -> ModalResult<Block> {
     alphanumeric1
@@ -1177,7 +1096,6 @@ fn divider(input: &mut &str) -> ModalResult<Divider> {
         (take_while(3.., ':'), space0),
         alt((
             alt(("else", "{else}")).map(|_| Divider::Else),
-            "with".map(|_| Divider::With),
             "".map(|_| Divider::End),
         )),
         (space0, eof),
@@ -1187,7 +1105,6 @@ fn divider(input: &mut &str) -> ModalResult<Divider> {
 
 #[derive(Debug, PartialEq)]
 enum Divider {
-    With,
     Else,
     End,
 }
@@ -1195,8 +1112,6 @@ enum Divider {
 /// Finalize a block by assigning children etc
 fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context) {
     if let Block::SuggestionBlock(SuggestionBlock { content, .. })
-    | Block::DeleteBlock(DeleteBlock { content, .. })
-    | Block::InsertBlock(InsertBlock { content, .. })
     | Block::ChatMessage(ChatMessage { content, .. })
     | Block::Claim(Claim { content, .. })
     | Block::Section(Section { content, .. })
@@ -1326,9 +1241,6 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
         } else {
             *content = (!children.is_empty()).then_some(children);
         }
-    } else if let Block::ReplaceBlock(replace_block) = parent {
-        // At the end of replace block `::with` so set replacement
-        replace_block.replacement = children;
     } else if let Block::Table(table) = parent {
         if children
             .iter()
@@ -2262,9 +2174,6 @@ mod tests {
 
     #[test]
     fn test_divider() {
-        assert_eq!(divider(&mut "::: with").unwrap(), Divider::With);
-        assert_eq!(divider(&mut "::::: with  ").unwrap(), Divider::With);
-
         assert_eq!(divider(&mut "::: else").unwrap(), Divider::Else);
         assert_eq!(divider(&mut "::::: else  ").unwrap(), Divider::Else);
 

@@ -90,10 +90,6 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   InstructionMessage: { icon: 'chatRightText', ...nodeColours('violet')},
   SuggestionBlock:    { icon: 'chatSquareText',...nodeColours('indigo'),  title: 'Suggestion' },
   PromptBlock:        { icon: 'cardText',      ...nodeColours('purple'),  title: 'Prompt Preview'},
-  
-  InsertBlock:      { icon: 'plusCircle',         ...nodeColours('lime')},
-  ReplaceBlock:     { icon: 'replaceBlock',       ...nodeColours('orange')},
-  DeleteBlock:      { icon: 'dashCircle',         ...nodeColours('red')},
 }
 
 /**
