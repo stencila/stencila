@@ -202,7 +202,7 @@ export abstract class Entity extends LitElement {
    * with the `"group"` utility class applied.
    *
    * eg:
-   * 
+   *
    *  ```
    *  <div class="group relative">
    *    ${this.renderInsertChip()}
