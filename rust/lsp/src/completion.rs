@@ -76,6 +76,10 @@ pub(super) async fn request(
             return model_completion().await;
         }
 
+        if line.contains("create") && !line.contains("@") {
+            return create_node_type_completion(&line).await;
+        }
+
         return smd_snippets(&line, position.line);
     }
 
@@ -169,6 +173,40 @@ async fn prompt_completion(before: &str) -> Result<Option<CompletionResponse>, R
                 documentation,
                 ..Default::default()
             })
+        })
+        .collect();
+
+    Ok(Some(CompletionResponse::Array(items)))
+}
+
+/// Provide completion list of node types that can be created
+async fn create_node_type_completion(
+    line: &str,
+) -> Result<Option<CompletionResponse>, ResponseError> {
+    const TYPES: &[&str] = &[
+        "code",
+        "figure",
+        "heading",
+        "list",
+        "math",
+        "equation",
+        "paragraph",
+        "quote",
+        "table",
+    ];
+
+    // No completion if one of the node types is already on the line
+    for node_type in TYPES {
+        if line.contains(node_type) {
+            return Ok(None);
+        }
+    }
+
+    let items = TYPES
+        .into_iter()
+        .map(|item| CompletionItem {
+            label: item.to_string(),
+            ..Default::default()
         })
         .collect();
 
