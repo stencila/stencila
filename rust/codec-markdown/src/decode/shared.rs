@@ -92,7 +92,7 @@ pub(super) fn node_type(input: &mut Located<&str>) -> ModalResult<NodeType> {
         alt(("figure", "fig")).value(NodeType::Figure),
         alt(("code", "cell")).value(NodeType::CodeChunk),
         "list".value(NodeType::List),
-        "math".value(NodeType::MathBlock),
+        alt(("math", "equation", "eqn")).value(NodeType::MathBlock),
         "quote".value(NodeType::QuoteBlock),
         "section".value(NodeType::Section),
     ))

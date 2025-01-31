@@ -290,7 +290,7 @@ repository:
         )?
         (?:
           \s+
-          (heading|(?:para(?:graph)?)|table|(?:fig(?:ure)?)|code|cell|list|math|quote|section)\b
+          (heading|(?:para(?:graph)?)|table|(?:fig(?:ure)?)|code|cell|list|(?:math|eqn|equation)|quote|section)\b
         )?
         (?:
           \s+
@@ -365,7 +365,7 @@ repository:
         )?
         (?:
           \s+
-          (heading|(?:para(?:graph)?)|table|(?:fig(?:ure)?)|code|cell|list|math|quote|section)\b
+          (heading|(?:para(?:graph)?)|table|(?:fig(?:ure)?)|code|cell|list|(?:math|eqn|equation)|quote|section)\b
         )?
         (?:
           \s+
