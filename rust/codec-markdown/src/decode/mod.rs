@@ -146,6 +146,7 @@ pub fn preprocess(input: &str) -> String {
 
     let mut empty_line_needed = false;
     let mut html_tag = None;
+    let mut in_math_block = false;
     for line in input.lines() {
         // Wrap certain top level HTML tags in `RawBlock`s
         if line.starts_with("<") && line.ends_with(">") {
@@ -183,9 +184,9 @@ pub fn preprocess(input: &str) -> String {
             output.push('\n');
         }
 
-        let colons = line.starts_with(":::");
+        let in_special = in_math_block || html_tag.is_some();
 
-        if colons {
+        if !in_special && line.starts_with(":::") {
             // Ensure that there is an empty line before this line but
             // not if this is at the start of the document
             if !output.is_empty() && !output.ends_with("\n\n") {
@@ -201,7 +202,22 @@ pub fn preprocess(input: &str) -> String {
             empty_line_needed = false;
         }
 
-        output.push_str(line);
+        // Convert LaTeX style math blocks and inlines. This is done because LLMs often
+        // use LaTeX style delimiters when not prompted otherwise. This may be put behind
+        // an option if found to interfere with user expectations.
+        let line = if !in_special && line.trim_start() == r"\[" {
+            in_math_block = true;
+            "$$".to_string()
+        } else if in_math_block && line.trim_start() == r"\]" {
+            in_math_block = false;
+            "$$".to_string()
+        } else if !in_special {
+            line.replace(r"\(", r"$").replace(r"\)", r"$")
+        } else {
+            line.to_string()
+        };
+
+        output.push_str(&line);
         output.push('\n');
     }
 
