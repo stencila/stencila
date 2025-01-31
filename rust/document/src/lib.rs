@@ -905,12 +905,12 @@ impl Document {
     }
 
     /// Print diagnostics for the document
-    pub async fn diagnostics(&self) -> Result<bool> {
+    pub async fn diagnostics(&self) -> Result<usize> {
         let diagnostics = diagnostics(&*self.root.read().await);
 
         // No diagnostics so return early
         if diagnostics.is_empty() {
-            return Ok(false);
+            return Ok(0);
         }
 
         // If the document has a path read it so that diagnostics can be printed
@@ -940,11 +940,13 @@ impl Document {
             (String::from("<file>"), None)
         };
 
+        let count = diagnostics.len();
+
         // Print each of the diagnostics to stderr
         for diagnostic in diagnostics {
             diagnostic.to_stderr_pretty(&path, &source, &poshmap)?;
         }
 
-        Ok(true)
+        Ok(count)
     }
 }

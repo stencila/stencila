@@ -148,17 +148,20 @@ export default [
 
             // A diagnostic report from ESlint
             #[derive(Deserialize)]
-            #[serde(rename_all = "camelCase", crate = "kernel_micro::common::serde")]
+            #[serde(crate = "kernel_micro::common::serde")]
             struct EslintReport {
                 messages: Vec<EslintMessage>,
             }
             #[derive(Deserialize)]
-            #[serde(crate = "kernel_micro::common::serde")]
+            #[serde(rename_all = "camelCase", crate = "kernel_micro::common::serde")]
             struct EslintMessage {
                 severity: u8,
+                rule_id: String,
                 message: String,
                 line: u64,
                 column: u64,
+                end_line: Option<u64>,
+                end_column: Option<u64>,
             }
 
             let mut eslint_reports = serde_json::from_str::<Vec<EslintReport>>(&stdout)?;
@@ -175,10 +178,12 @@ export default [
                             1 => MessageLevel::Warning,
                             _ => MessageLevel::Error,
                         },
-                        message: msg.message,
+                        message: format!("{} (ESLint {})", msg.message, msg.rule_id),
                         code_location: Some(CodeLocation {
                             start_line: Some(msg.line.saturating_sub(1)),
                             start_column: Some(msg.column.saturating_sub(1)),
+                            end_line: msg.end_line.map(|line| line.saturating_sub(1)),
+                            end_column: msg.end_column.map(|col| col.saturating_sub(1)),
                             ..Default::default()
                         }),
                         ..Default::default()

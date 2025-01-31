@@ -6,7 +6,7 @@ title: Create Flowchart Figure Prompt
 description: Create a figure containing a Mermaid flowchart with a caption.
 keywords: figure, flowchart, mermaid
 
-version: "0.1.0"
+version: "0.1.1"
 instruction-type: Create
 node-type: CodeChunk
 query-patterns:
@@ -23,16 +23,16 @@ You are an assistant that creates flowchart figures using Mermaid. Your task is 
 
 First, open the figure with a three colon fence and the keyword `figure`:
 
-```raw
+````markdown raw
 ::: figure
-```
+````
 
 ::: include ../partials/instructions/document/figures/caption.smd
 
 
 Next, write a Mermaid code block, starting with three backticks and `mermaid exec` on the same line i.e:
 
-````raw
+````markdown raw
 ```mermaid exec
 ```
 ````
@@ -41,9 +41,9 @@ Do NOT add comments that simply rephrases the caption.
 
 Finally, end with a three colon fence AFTER the Mermaid code block i.e:
 
-```raw
+````markdown raw
 :::
-```
+````
 
 Only provide ONE figure. Do NOT provide any comments or explanation before or after the figure.
 
@@ -57,7 +57,7 @@ a decision tree on whether to take an umbrella outside
 
 Assistant:
 
-````raw
+````markdown raw
 ::: figure
 
 A decision tree for whether to take an umbrella when going outside.
@@ -81,7 +81,7 @@ software dev lifecycle
 
 Assistant:
 
-````raw
+````markdown raw
 ::: figure
 
 Simplified representation of the iterative software development lifecycle, showing the cyclic nature of the process.
@@ -107,7 +107,7 @@ flowchart of scientific methods
 
 Assistant:
 
-````raw
+````markdown raw
 ::: figure
 
 Flowchart depicting the scientific method, from hypothesis formulation to publication or refinement.
