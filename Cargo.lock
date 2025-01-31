@@ -911,6 +911,7 @@ dependencies = [
 name = "cloud"
 version = "0.0.0"
 dependencies = [
+ "cached",
  "common",
  "secrets",
 ]
