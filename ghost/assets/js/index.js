@@ -7,11 +7,9 @@ import "../css/index.css";
 import menuOpen from "./menuOpen";
 import infiniteScroll from "./infiniteScroll";
 import sidebar from './sidebar';
-import menu from './menu';
 
 
 // Call the menu and infinite scroll functions
 menuOpen();
-menu();
 infiniteScroll();
 sidebar();

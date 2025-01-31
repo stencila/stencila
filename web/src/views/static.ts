@@ -1,11 +1,10 @@
 import { provide } from '@lit/context'
-import { customElement, property, state } from 'lit/decorators.js'
+import { html, LitElement } from 'lit'
+import { customElement, state } from 'lit/decorators.js'
 
 import '../nodes'
 
 import { DocumentContext, documentContext } from '../ui/document/context'
-
-import { ThemedView as ThemedView } from './themed'
 
 /**
  * Static view of a document
@@ -14,10 +13,7 @@ import { ThemedView as ThemedView } from './themed'
  * nor allows changes to it.
  */
 @customElement('stencila-ghost-view')
-export class StaticView extends ThemedView {
-  @property({ type: Boolean })
-  ghostPage: boolean
-
+export class StaticView extends LitElement {
   @provide({ context: documentContext })
   @state()
   protected context: DocumentContext = {
@@ -28,5 +24,9 @@ export class StaticView extends ThemedView {
 
   protected override createRenderRoot() {
     return this
+  }
+
+  protected override render(): unknown {
+    return html`<slot></slot>`
   }
 }
