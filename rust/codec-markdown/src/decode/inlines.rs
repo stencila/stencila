@@ -443,10 +443,10 @@ fn code_attrs(input: &mut Located<&str>) -> ModalResult<Inline> {
 
 /// Parse double brace surrounded text into a `CodeExpression`.
 ///
-/// This supports the Jupyter "Python Markdown" extension syntax for
-/// interpolated variables / expressions: `{{x}}`
+/// This supports the Jinja an Jupyter "Python Markdown" extension syntax for
+/// interpolated variables / expressions: `{{ x }}`
 ///
-/// Does not support the single curly brace syntax (as in Python, Rust and JSX) i.e. `{x}`
+/// Does not support the single curly brace syntax (as in Python, Rust and JSX) i.e. `{ x }`
 /// given that is less specific and could conflict with other user content.
 ///
 /// Does not support JavaScript style "dollared-brace" syntax i.e. `${x}` since some
@@ -454,7 +454,7 @@ fn code_attrs(input: &mut Located<&str>) -> ModalResult<Inline> {
 /// is no closing brace).
 ///
 /// The language of the code expression can be added in a curly brace suffix.
-/// e.g. `{{2 * 2}}{r}` is equivalent to `\`r 2 * 2\``{r exec} in Markdown or to
+/// e.g. `{{ 2 * 2 }}{r}` is equivalent to `\`r 2 * 2\``{r exec} in Markdown or to
 /// `\`r 2 * 2\` in R Markdown.
 fn double_braces(input: &mut Located<&str>) -> ModalResult<Inline> {
     (delimited("{{", take_until(0.., "}}"), "}}"), opt(attrs))
@@ -462,7 +462,7 @@ fn double_braces(input: &mut Located<&str>) -> ModalResult<Inline> {
             let mut options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
 
             Inline::CodeExpression(CodeExpression {
-                code: code.into(),
+                code: code.trim().into(),
                 programming_language: options.first().map(|(lang, ..)| lang.to_string()),
                 execution_mode: options
                     .swap_remove("auto")

@@ -23,13 +23,13 @@ start     end        offsets   node_type+property                   authorship
     93    108        (-1, 1)   Superscript
    108    113        (15, 5)   Text.value
    108    113         (0, 0)   Text
-   114    119         (6, 6)   CodeExpression.code
-   113    126        (-1, 7)   CodeExpression
-    65    126       (-48, 0)   InsertInline.content
-    56    128        (-9, 2)   InsertInline
-   128    129        (72, 1)   Text.value
-   128    129         (0, 0)   Text
-    32    129       (-96, 0)   Paragraph.content
-    32    130         (0, 1)   Paragraph
-     0    131       (-32, 1)   Article.content
-     0    131         (0, 0)   Article
+   116    121         (8, 8)   CodeExpression.code
+   113    124        (-3, 3)   CodeExpression
+    65    124       (-48, 0)   InsertInline.content
+    56    126        (-9, 2)   InsertInline
+   126    127        (70, 1)   Text.value
+   126    127         (0, 0)   Text
+    32    127       (-94, 0)   Paragraph.content
+    32    128         (0, 1)   Paragraph
+     0    129       (-32, 1)   Article.content
+     0    129         (0, 0)   Article

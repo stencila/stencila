@@ -23,13 +23,13 @@ start     end        offsets   node_type+property                   authorship
     92    109        (-3, 4)   Underline
    109    114        (17, 5)   Text.value
    109    114         (0, 0)   Text
-   115    120         (6, 6)   CodeExpression.code
-   114    127        (-1, 7)   CodeExpression
-    64    127       (-50, 0)   DeleteInline.content
-    55    129        (-9, 2)   DeleteInline
-   129    130        (74, 1)   Text.value
-   129    130         (0, 0)   Text
-    31    130       (-98, 0)   Paragraph.content
-    31    131         (0, 1)   Paragraph
-     0    132       (-31, 1)   Article.content
-     0    132         (0, 0)   Article
+   117    122         (8, 8)   CodeExpression.code
+   114    125        (-3, 3)   CodeExpression
+    64    125       (-50, 0)   DeleteInline.content
+    55    127        (-9, 2)   DeleteInline
+   127    128        (72, 1)   Text.value
+   127    128         (0, 0)   Text
+    31    128       (-96, 0)   Paragraph.content
+    31    129         (0, 1)   Paragraph
+     0    130       (-31, 1)   Article.content
+     0    130         (0, 0)   Article
