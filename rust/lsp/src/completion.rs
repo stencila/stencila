@@ -14,7 +14,10 @@ use async_lsp::{
 };
 
 use codecs::{Format, Positions};
-use common::tokio::{fs::read_dir, sync::RwLock};
+use common::{
+    itertools::Itertools,
+    tokio::{fs::read_dir, sync::RwLock},
+};
 use kernels::KernelType;
 use schema::{InstructionType, Prompt, StringOrNumber};
 
@@ -36,11 +39,12 @@ pub(super) async fn request(
     let take = end - start;
     let line: String = source.chars().skip(start).take(take).collect();
 
-    if line.starts_with("```") {
+    // Note two backticks here, so that autocomplete triggers on third
+    if line.starts_with("``") {
         if line.contains("exec") {
             return execution_keywords(&line);
         } else {
-            return kernel_completion().await;
+            return kernel_snippets(position.line).await;
         }
     }
 
@@ -243,15 +247,14 @@ async fn model_completion() -> Result<Option<CompletionResponse>, ResponseError>
 }
 
 /// Provide completion list of kernels
-async fn kernel_completion() -> Result<Option<CompletionResponse>, ResponseError> {
+async fn kernel_snippets(line_num: u32) -> Result<Option<CompletionResponse>, ResponseError> {
     let items = kernels::list()
         .await
         .iter()
-        .filter_map(|kernel| {
-            if !kernel.is_available() {
-                return None;
-            }
-
+        .filter(|kernel| kernel.is_available() && !matches!(kernel.r#type(), KernelType::Styling))
+        .sorted_by(|a, b| a.r#type().cmp(&b.r#type()))
+        .enumerate()
+        .filter_map(|(index, kernel)| {
             let kind = match kernel.r#type() {
                 KernelType::Programming => CompletionItemKind::EVENT,
                 KernelType::Math => CompletionItemKind::OPERATOR,
@@ -270,9 +273,62 @@ async fn kernel_completion() -> Result<Option<CompletionResponse>, ResponseError
                 label.push_str(" exec");
             }
 
+            let lang = kernel
+                .supports_languages()
+                .first()
+                .map(|format| format.name().to_string());
+            let details = match kernel.r#type() {
+                KernelType::Programming => [
+                    "Run ",
+                    lang.as_deref().unwrap_or("programming language"),
+                    " code",
+                ]
+                .concat(),
+                KernelType::Math => [
+                    "Write math using ",
+                    lang.as_deref().unwrap_or("math markup"),
+                ]
+                .concat(),
+                KernelType::Diagrams => {
+                    ["Create a diagram with ", lang.as_deref().unwrap_or("code")].concat()
+                }
+                KernelType::Templating => [
+                    "Generate text using ",
+                    lang.as_deref().unwrap_or("templates"),
+                ]
+                .concat(),
+                KernelType::Styling => {
+                    return None;
+                }
+            };
+
+            let filter_text = Some(["```", &label].concat());
+            let body = ["```", &label, "\n${0}\n```\n"].concat();
+
             Some(CompletionItem {
                 kind: Some(kind),
                 label,
+                label_details: Some(CompletionItemLabelDetails {
+                    description: Some(details.into()),
+                    ..Default::default()
+                }),
+                filter_text,
+                insert_text_format: Some(InsertTextFormat::SNIPPET),
+                text_edit: Some(CompletionTextEdit::Edit(TextEdit {
+                    // Replace the whole line with the snippet
+                    range: Range {
+                        start: Position {
+                            line: line_num,
+                            character: 0,
+                        },
+                        end: Position {
+                            line: line_num,
+                            character: u32::MAX,
+                        },
+                    },
+                    new_text: body.into(),
+                })),
+                sort_text: Some(format!("{index:03}")),
                 ..Default::default()
             })
         })
