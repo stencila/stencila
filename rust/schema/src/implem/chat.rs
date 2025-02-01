@@ -133,9 +133,6 @@ impl MarkdownCodec for Chat {
             return;
         }
 
-        // The following is based on `Article::to_markdown` but with some differences
-        // (e.g. not yet supporting authors)
-
         context.enter_node(self.node_type(), self.node_id());
 
         // Create a header version of self that has no content and can be stripped

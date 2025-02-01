@@ -290,6 +290,7 @@
     "feedback": "stencila:feedback",
     "files": "stencila:files",
     "format": "stencila:format",
+    "frontmatter": "stencila:frontmatter",
     "fundedBy": "stencila:fundedBy",
     "fundedItems": "schema:fundedItem",
     "funders": "schema:funder",

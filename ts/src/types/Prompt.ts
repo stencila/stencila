@@ -35,6 +35,11 @@ export class Prompt extends CreativeWork {
   version: StringOrNumber;
 
   /**
+   * Frontmatter containing document metadata.
+   */
+  frontmatter?: string;
+
+  /**
    * The types of instructions that the prompt supports
    */
   instructionTypes: InstructionType[];

@@ -1097,6 +1097,9 @@ class Article(CreativeWork, Executable):
     pagination: str | None = None
     """Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55"."""
 
+    frontmatter: str | None = None
+    """Frontmatter containing document metadata."""
+
     config: Config | None = None
     """Configuration options for the document."""
 
@@ -2389,6 +2392,9 @@ class Prompt(CreativeWork, Executable):
     """
 
     type: Literal["Prompt"] = "Prompt"
+
+    frontmatter: str | None = None
+    """Frontmatter containing document metadata."""
 
     instruction_types: list[InstructionType]
     """The types of instructions that the prompt supports"""
