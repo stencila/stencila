@@ -3893,6 +3893,7 @@ dependencies = [
  "common-dev",
  "kernels",
  "models",
+ "node-diagnostics",
  "parsers",
  "prompts",
  "schema",

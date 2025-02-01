@@ -4,11 +4,12 @@ use common::{
     tokio,
 };
 use models::ModelTask;
+use node_diagnostics::diagnostics;
 use schema::{
     authorship,
     shortcuts::{p, t},
     Author, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ChatMessageGroup,
-    ChatMessageOptions, ExecutionBounds, InstructionMessage, InstructionType, MessagePart,
+    ChatMessageOptions, ExecutionBounds, Heading, InstructionMessage, InstructionType, MessagePart,
     MessageRole, ModelParameters, Patch, PatchPath, PatchSlot, SoftwareApplication,
 };
 
@@ -131,7 +132,7 @@ impl Executable for Chat {
         }
 
         // If there are no messages yet, and the prompt block contains a query
-        // then use it as the first message
+        // then construct the first message from it
         if let (true, Some(query)) = (self.content.is_empty(), &self.prompt.query) {
             let mut parts = Vec::new();
 
@@ -161,7 +162,7 @@ impl Executable for Chat {
             executor.patch(&node_id, [push(NodeProperty::Content, message)])
         }
 
-        // Construct a model task from all the messages in this chat
+        // Append the existing messages in this chat
         instruction_messages.append(
             &mut self
                 .content
@@ -207,7 +208,6 @@ impl Executable for Chat {
             .flat_map(|x| vec![x; replicates])
             .cloned()
             .collect_vec();
-
         let models = models::list().await;
         let mut chat_messages = model_ids
             .iter()
@@ -263,37 +263,103 @@ impl Executable for Chat {
             );
             futures.push(async move {
                 let started = Timestamp::now();
-                let result = model_task_to_blocks_and_authors(task).await;
+                let result = model_task_to_blocks_and_authors(task.clone()).await;
                 let ended = Timestamp::now();
-                (model_id, message_id, started, ended, result)
+                (model_id, message_id, task, started, ended, result)
             })
         }
 
         // Wait for each future to complete and patch content
         let execution_bounds = self.execution_bounds.clone().unwrap_or_default();
-        while let Some((model_id, message_id, started, ended, result)) = futures.next().await {
+        while let Some((model_id, message_id, mut task, started, ended, result)) =
+            futures.next().await
+        {
             tracing::trace!("Model message finished {message_id}");
 
             let (content, messages) = match result {
                 Ok((mut content, mut authors)) => {
-                    // Apply model and user authorship to blocks
                     if let Some(role) = &user_author_role {
                         authors.push(role.clone());
                     }
-                    if let Err(error) = authorship(&mut content, authors) {
+
+                    // Apply model and user authorship to blocks
+                    if let Err(error) = authorship(&mut content, authors.clone()) {
                         tracing::error!("While applying authorship to content: {error}");
                     }
 
-                    // Execute if not skipped
+                    // Execute the content if not skipped. Note that this is spawned as an async task so that
+                    // the message can be updated with the unexecuted content first.
                     if !matches!(execution_bounds, ExecutionBounds::Skip) {
                         let mut fork = executor.fork_for_all();
                         let mut content = content.clone();
-                        let execute = async move {
-                            if let Err(error) = fork.compile_prepare_execute(&mut content).await {
-                                tracing::error!("While executing content: {error}");
+                        let message_id = message_id.clone();
+                        tokio::spawn(async move {
+                            // TODO: allow the maximum number of retries to be set in model params
+                            const MAX_RETRIES: u32 = 3;
+
+                            let mut retries = 0;
+                            while retries < MAX_RETRIES {
+                                // TODO: Format and lint before executing
+
+                                // Execute the content
+                                if let Err(error) = fork.compile_prepare_execute(&mut content).await
+                                {
+                                    tracing::error!("While executing content: {error}");
+                                }
+
+                                // Collect diagnostics and stop if none
+                                let diags = diagnostics(&content);
+                                if diags.is_empty() {
+                                    break;
+                                }
+
+                                retries += 1;
+
+                                // Add a heading indicating the retry
+                                let heading = Block::Heading(Heading {
+                                    level: 4,
+                                    content: vec![t(format!("Retry #{retries} ..."))],
+                                    ..Default::default()
+                                });
+                                fork.patch(&message_id, [push(NodeProperty::Content, heading)]);
+
+                                // Add a new message to the task with the diagnostic/s
+                                let diags = diags
+                                    .into_iter()
+                                    .filter_map(|diag| diag.to_string_pretty("", "", &None).ok())
+                                    .join("\n");
+                                task.messages.push(InstructionMessage::user(
+                                    format!("There was an error:\n\n{diags}"),
+                                    None,
+                                ));
+
+                                // Run model task again with diagnostic added
+                                let mut new_content =
+                                    match model_task_to_blocks_and_authors(task.clone()).await {
+                                        Ok((blocks, ..)) => blocks,
+                                        Err(error) => {
+                                            tracing::error!("While retrying model task: {error}");
+                                            continue;
+                                        }
+                                    };
+
+                                // Apply model and user authorship to blocks
+                                if let Err(error) = authorship(&mut new_content, authors.clone()) {
+                                    tracing::error!(
+                                        "While applying authorship to content: {error}"
+                                    );
+                                }
+
+                                // Reset the content so only the new blocks are executed
+                                content = new_content.clone();
+
+                                // Append the new content to the message
+                                fork.patch(
+                                    &message_id,
+                                    [append(NodeProperty::Content, new_content)],
+                                );
                             }
-                        };
-                        tokio::spawn(execute);
+                        });
                     }
 
                     (content, None)
@@ -311,6 +377,7 @@ impl Executable for Chat {
             let required = execution_required_status(&status);
             let duration = execution_duration(&started, &ended);
 
+            // Patch the message with its execution details and new content
             executor.patch(
                 &message_id,
                 [
@@ -332,7 +399,7 @@ impl Executable for Chat {
         let duration = execution_duration(&started, &ended);
         let count = self.options.execution_count.unwrap_or_default() + 1;
 
-        // Patch the chat, including appending a new, empty user message
+        // Patch the chat's execution details
         executor.patch(
             &node_id,
             [
