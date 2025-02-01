@@ -7,9 +7,9 @@ use models::ModelTask;
 use node_diagnostics::diagnostics;
 use schema::{
     authorship,
-    shortcuts::{p, t},
+    shortcuts::{ci, h3, p, t},
     Author, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ChatMessageGroup,
-    ChatMessageOptions, ExecutionBounds, Heading, InstructionMessage, InstructionType, MessagePart,
+    ChatMessageOptions, ExecutionBounds, InstructionMessage, InstructionType, MessagePart,
     MessageRole, ModelParameters, Patch, PatchPath, PatchSlot, SoftwareApplication,
 };
 
@@ -298,7 +298,7 @@ impl Executable for Chat {
                             const MAX_RETRIES: u32 = 3;
 
                             let mut retries = 0;
-                            while retries < MAX_RETRIES {
+                            loop {
                                 // TODO: Format and lint before executing
 
                                 // Execute the content
@@ -307,21 +307,66 @@ impl Executable for Chat {
                                     tracing::error!("While executing content: {error}");
                                 }
 
-                                // Collect diagnostics and stop if none
+                                // Collect diagnostics and stop retrying if none
                                 let diags = diagnostics(&content);
                                 if diags.is_empty() {
                                     break;
                                 }
 
+                                // Extract the level and message of the first diagnostic
+                                let (level, mut message) = diags
+                                    .first()
+                                    .map(|diag| {
+                                        (
+                                            diag.level().to_string().to_lowercase(),
+                                            diag.message().to_string(),
+                                        )
+                                    })
+                                    .unwrap_or_default();
+                                const MAX_MESSAGE_CHARS: usize = 50;
+                                if message.len() > MAX_MESSAGE_CHARS {
+                                    message = message.chars().take(MAX_MESSAGE_CHARS).collect();
+                                    message.push_str("…");
+                                }
+
+                                // Stop if hit maximum number of retries
+                                // Note that this check occurs after the execute to allow the final
+                                // retry to be executed
+                                if retries >= MAX_RETRIES {
+                                    // Let the user know we are giving up
+                                    if retries > 0 {
+                                        fork.patch(
+                                            &message_id,
+                                            [append(
+                                                NodeProperty::Content,
+                                                vec![
+                                                    p([
+                                                        t(format!("Giving up after {retries} {} with {level}: ", if retries == 1 {"retry"} else {"retries"})),
+                                                        ci(message),
+                                                    ]),
+                                                ],
+                                            )],
+                                        );
+                                    }
+
+                                    break;
+                                }
                                 retries += 1;
 
-                                // Add a heading indicating the retry
-                                let heading = Block::Heading(Heading {
-                                    level: 4,
-                                    content: vec![t(format!("Retry #{retries} ..."))],
-                                    ..Default::default()
-                                });
-                                fork.patch(&message_id, [push(NodeProperty::Content, heading)]);
+                                // Add a content indicating the retry and the reason for it
+                                fork.patch(
+                                    &message_id,
+                                    [append(
+                                        NodeProperty::Content,
+                                        vec![
+                                            h3([t(format!("Retry {retries} of {MAX_RETRIES}"))]),
+                                            p([
+                                                t(format!("Trying again due to {level}: ")),
+                                                ci(message),
+                                            ]),
+                                        ],
+                                    )],
+                                );
 
                                 // Add a new message to the task with the diagnostic/s
                                 let diags = diags
@@ -329,7 +374,7 @@ impl Executable for Chat {
                                     .filter_map(|diag| diag.to_string_pretty("", "", &None).ok())
                                     .join("\n");
                                 task.messages.push(InstructionMessage::user(
-                                    format!("There was an error:\n\n{diags}"),
+                                    format!("There was an error, please try again:\n\n{diags}"),
                                     None,
                                 ));
 
@@ -343,7 +388,7 @@ impl Executable for Chat {
                                         }
                                     };
 
-                                // Apply model and user authorship to blocks
+                                // Apply model and user authorship to new blocks
                                 if let Err(error) = authorship(&mut new_content, authors.clone()) {
                                     tracing::error!(
                                         "While applying authorship to content: {error}"

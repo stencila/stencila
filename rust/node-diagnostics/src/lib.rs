@@ -3,7 +3,7 @@ use std::ops::Range;
 use ariadne::{Config, Label, Report, ReportKind, Source};
 
 use codec_info::{PoshMap, Position8, Positions};
-use common::eyre::Result;
+use common::{eyre::Result, strum::Display};
 use format::Format;
 use schema::{
     Block, CodeLocation, CompilationMessage, Cord, ExecutionMessage, Inline, MessageLevel, Node,
@@ -50,7 +50,8 @@ pub struct Diagnostic {
     code_location: Option<CodeLocation>,
 }
 
-enum DiagnosticLevel {
+#[derive(Clone, Copy, Display)]
+pub enum DiagnosticLevel {
     /// An advisory diagnostic
     Advice,
     /// A warning diagnostic
@@ -70,6 +71,16 @@ impl From<&MessageLevel> for DiagnosticLevel {
 }
 
 impl Diagnostic {
+    /// Get the diagnostics level
+    pub fn level(&self) -> DiagnosticLevel {
+        self.level
+    }
+
+    /// Get the diagnostics message text
+    pub fn message(&self) -> &str {
+        &self.message
+    }
+
     /// Pretty print the diagnostic to a string
     ///
     /// Similar `to_stderr_pretty` but returns a string without terminal color codes
