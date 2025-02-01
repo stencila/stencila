@@ -447,6 +447,23 @@ func(
         assert_eq!(messages, vec![]);
         assert_eq!(outputs, vec![Node::Integer(7)]);
 
+        let (outputs, messages) = instance
+            .execute(
+                r"
+try:
+    raise ValueError()
+except NameError:
+    print(2)
+except ValueError as e:
+    print(3)
+finally:
+    print(4)
+",
+            )
+            .await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs, vec![Node::Integer(3), Node::Integer(4)]);
+
         Ok(())
     }
 

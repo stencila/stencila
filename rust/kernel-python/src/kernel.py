@@ -637,9 +637,9 @@ def execute(lines: list[str], file: str) -> None:
     buffer = ""
     for index, line in enumerate(lines):
         # If the current line is empty, indented, or starts with
-        # `elif` or `else`, continue to accumulate to buffer.
+        # certain keywords, continue to accumulate to buffer.
         if (
-            line.startswith(("elif", "else", " ", "\t"))
+            line.startswith(("elif", "else", "except", "finally", " ", "\t"))
             or len(line.strip()) == 0
         ):
             buffer += line + "\n"
