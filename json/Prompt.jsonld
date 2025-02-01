@@ -781,6 +781,23 @@
       }
     },
     {
+      "@id": "stencila:frontmatter",
+      "@type": "rdfs:Property",
+      "rdfs:label": "frontmatter",
+      "rdfs:comment": "Frontmatter containing document metadata.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "stencila:Prompt"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:instructionTypes",
       "@type": "rdfs:Property",
       "rdfs:label": "instructionTypes",

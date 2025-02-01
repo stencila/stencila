@@ -760,10 +760,6 @@ macro_rules! default {
 }
 
 default!(
-    // Works
-    Article,
-    Prompt,
-    Chat,
     // Blocks
     Admonition,
     Claim,
@@ -802,6 +798,37 @@ default!(
     Underline,
     VideoObject
 );
+
+/// Implementation for root nodes with compilation messages
+macro_rules! root {
+    ($( $type:ident ),*) => {
+        $(impl Inspect for $type {
+            fn inspect(&self, inspector: &mut Inspector) {
+                let node_id = self.node_id();
+
+                //eprintln!("INSPECT ROOT {}\n", self.node_id());
+
+                let messages = compilation_to_execution_messages(&self.options.compilation_messages);
+
+                let code_range = inspector
+                    .poshmap
+                    .node_property_to_range16(&node_id, NodeProperty::Frontmatter)
+                    .map(range16_to_range);
+
+                let execution = Some(TextNodeExecution{
+                    messages,
+                    code_range,
+                    ..Default::default()
+                });
+
+                inspector.enter_node(self.node_type(), node_id, None, None, execution, None);
+                inspector.visit(self);
+                inspector.exit_node();
+            }
+        })*
+    };
+}
+root!(Article, Prompt, Chat);
 
 /// Implementation for nodes with compilation messages
 macro_rules! compiled_options {

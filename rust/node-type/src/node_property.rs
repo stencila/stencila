@@ -110,6 +110,7 @@ pub enum NodeProperty {
     Feedback,
     Files,
     Format,
+    Frontmatter,
     FundedBy,
     FundedItems,
     Funders,

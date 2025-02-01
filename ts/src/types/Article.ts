@@ -31,6 +31,11 @@ export class Article extends CreativeWork {
   pagination?: string;
 
   /**
+   * Frontmatter containing document metadata.
+   */
+  frontmatter?: string;
+
+  /**
    * Configuration options for the document.
    */
   config?: Config;

@@ -860,6 +860,23 @@
       }
     },
     {
+      "@id": "stencila:frontmatter",
+      "@type": "rdfs:Property",
+      "rdfs:label": "frontmatter",
+      "rdfs:comment": "Frontmatter containing document metadata.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "stencila:Prompt"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:config",
       "@type": "rdfs:Property",
       "rdfs:label": "config",

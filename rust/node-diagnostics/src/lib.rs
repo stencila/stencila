@@ -278,7 +278,9 @@ impl Visitor for Collector {
     #[rustfmt::skip]
     fn visit_node(&mut self, node: &Node) -> WalkControl {
         match node {
+            Node::Article(node) => cms_ems!(self, node, None, None),
             Node::CallBlock(node) => cms_ems!(self, node, None, None),
+            Node::Chat(node) => cms_ems!(self, node, None, None),
             Node::ChatMessage(node) => cms_ems!(self, node, None, None),
             Node::CodeChunk(node) => cms_ems!(self, node, node.programming_language.as_deref(), Some(&node.code)),
             Node::ForBlock(node) => cms_ems!(self, node, node.programming_language.as_deref(), Some(&node.code)),
@@ -286,6 +288,7 @@ impl Visitor for Collector {
             Node::IncludeBlock(node) => cms_ems!(self, node, None, None),
             Node::InstructionBlock(node) => cms_ems!(self, node, None, None),
             Node::MathBlock(node) => cms!(self, node, node.math_language.as_deref(), Some(&node.code)),
+            Node::Prompt(node) => cms_ems!(self, node, None, None),
             Node::PromptBlock(node) => cms_ems!(self, node, None, None),
             Node::StyledBlock(node) => cms!(self, node, node.style_language.as_deref(), Some(&node.code)),
             _ => {}

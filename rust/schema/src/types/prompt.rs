@@ -85,6 +85,11 @@ pub struct Prompt {
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     pub execution_bounds: Option<ExecutionBounds>,
 
+    /// Frontmatter containing document metadata.
+    #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    pub frontmatter: Option<String>,
+
     /// The types of instructions that the prompt supports
     #[serde(alias = "instruction-types", alias = "instruction_types", alias = "instructionType", alias = "instruction-type", alias = "instruction_type")]
     #[serde(deserialize_with = "one_or_many")]

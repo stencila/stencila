@@ -60,6 +60,7 @@
         "emax",
         "emin",
         "fastembed",
+        "frontmatter",
         "Graphviz",
         "groq",
         "hasher",

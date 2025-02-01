@@ -42,6 +42,7 @@ mod math_inline;
 mod model_utils;
 mod paragraph;
 mod parameter;
+mod prompt;
 mod prompt_block;
 mod raw_block;
 mod section;
@@ -1023,6 +1024,7 @@ impl VisitorAsync for Executor {
         use Node::*;
         Ok(match node {
             Article(node) => self.visit_executable(node).await,
+            Prompt(node) => self.visit_executable(node).await,
             Chat(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
         })
