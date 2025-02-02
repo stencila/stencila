@@ -107,7 +107,16 @@ impl Executable for Chat {
         ) {
             // Chat itself not marked as pending so continue walk
             // to execute nodes in `content`
-            return WalkControl::Continue;
+
+            if let Err(error) = self.content.walk_async(executor).await {
+                tracing::error!("While executing chat content: {error}")
+            };
+            
+            // Previously, rather than do the above walk, this returned `WalkControl::Continue`.
+            // However, for some unresolved reason, that approach did not execute code chunks
+            // nested within temporary chats (it worked for standalone-chats only). The
+            // approach works for both types of chats
+            return WalkControl::Break;
         }
 
         tracing::debug!("Executing Chat {node_id}");
