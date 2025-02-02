@@ -68,6 +68,8 @@ export class CodeChunk extends CodeExecutable {
       icon: 'code',
     }
 
+    const readOnly = ['Running', 'Pending'].includes(this.executionStatus)
+
     return html`
       <stencila-ui-block-on-demand
         type="CodeChunk"
@@ -120,7 +122,7 @@ export class CodeChunk extends CodeExecutable {
             code-authorship=${this.codeAuthorship}
             language=${this.programmingLanguage}
             execution-required=${this.executionRequired}
-            ?read-only=${['Running', 'Pending'].includes(this.executionStatus)}
+            ?read-only=${readOnly}
           >
             <slot name="execution-messages" slot="messages"></slot>
           </stencila-ui-node-code>

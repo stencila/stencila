@@ -31,9 +31,6 @@ import {
   createLinterDiagnostics,
 } from './utils'
 
-// ms value for deboucing dispatching the patch
-const PATCH_DEBOUNCE = 300
-
 /**
  * A component for rendering the `code` property of `CodeStatic`, `CodeExecutable`
  * `Math`, and `Styled` nodes
@@ -123,36 +120,72 @@ export class UINodeCode extends LitElement {
   private viewReadOnly: Compartment
 
   /**
-   * returns a codemirror `Extension`, which dispatches a
+   * Whether the code is currently being edited
+   *
+   * Used to ignore incoming changes from the server
+   * (patches applied to the `code` attribute) while the
+   * user is actively editing the code.
+   */
+  isBeingEdited: boolean = false
+
+  /**
+   * Returns a codemirror `Extension`, which dispatches a
    * debounced `patchValue` event when the document is
    * changed via user input.
    */
   private patchInput() {
-    let timer: NodeJS.Timeout
+    // Millisecond debounce for debouncing timers
+    const BEING_EDITED_TIMEOUT = 5_000
+    const PATCH_DEBOUNCE = 300
+
+    let isBeingEditedTimer: NodeJS.Timeout
+    let patchTimer: NodeJS.Timeout
     return EditorView.updateListener.of((update: ViewUpdate) => {
       if (update.docChanged) {
-        let isUserInput = false
+        // Check whether this is a user event so we can ignore changes coming in
+        // from the server. It is necessary to list all user event types that may
+        // change the content
+        // See https://codemirror.net/docs/ref/#state.Transaction^userEvent
+        let isUserEvent = false
         for (const t of update.transactions) {
-          if (t.isUserEvent('input')) {
-            isUserInput = true
+          if (
+            t.isUserEvent('input') ||
+            t.isUserEvent('delete') ||
+            t.isUserEvent('move') ||
+            t.isUserEvent('select') ||
+            t.isUserEvent('undo') ||
+            t.isUserEvent('redo')
+          ) {
+            isUserEvent = true
             break
           }
         }
-        if (isUserInput) {
-          const newValue = update.state.doc.toString()
-          clearTimeout(timer)
-          timer = setTimeout(() => {
-            this.dispatchEvent(
-              patchValue(this.type, this.nodeId, 'code', newValue)
-            )
-          }, PATCH_DEBOUNCE)
+
+        if (!isUserEvent) {
+          return
         }
+
+        // Ignore any incoming changes from server for a while
+        this.isBeingEdited = true
+        clearTimeout(isBeingEditedTimer)
+        isBeingEditedTimer = setTimeout(() => {
+          this.isBeingEdited = false
+        }, BEING_EDITED_TIMEOUT)
+
+        // Send patch to server with debounce
+        const newValue = update.state.doc.toString()
+        clearTimeout(patchTimer)
+        patchTimer = setTimeout(() => {
+          this.dispatchEvent(
+            patchValue(this.type, this.nodeId, 'code', newValue)
+          )
+        }, PATCH_DEBOUNCE)
       }
     })
   }
 
   /**
-   * update the editable and readonly extension of the `editorView`
+   * Update the editable and readonly extension of the `editorView`
    */
   private updateViewEditability() {
     this.editorView.dispatch({
@@ -432,10 +465,10 @@ export class UINodeCode extends LitElement {
       // update the editorView readonly state
       this.updateViewEditability()
     } else if (changedProperties.has('code')) {
-      // Update the editor state
+      // Update the editor state if not currently being edited
       const view = this.editorView
       const state = view?.state
-      if (view && state) {
+      if (!this.isBeingEdited && view && state) {
         view.dispatch(
           state.update({
             changes: { from: 0, to: state.doc.length, insert: this.code },
