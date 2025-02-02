@@ -74,7 +74,7 @@ impl Executable for Chat {
         // Check if this chat is to be executed:
         // - force_all is on
         // - no node ids and this is not an embedded chat (`is_temporary` is None)
-        // - node ids contain this chat
+        // - node id is this chat
         let is_pending = executor.execute_options.force_all
             || (executor.node_ids.is_none() && self.is_temporary.is_none())
             || executor.node_ids.iter().flatten().any(|id| id == &node_id);
@@ -359,18 +359,20 @@ impl Executable for Chat {
                                 retries += 1;
 
                                 // Add content indicating the retry and the reason for it
+                                // and update message status indicating that updating message
+                                let message = vec![
+                                    h3([t(format!("Retry {retries} of {MAX_RETRIES}"))]),
+                                    p([t(format!("Trying again due to {level}: ")), ci(message)]),
+                                ];
                                 fork.patch(
                                     &message_id,
-                                    [append(
-                                        NodeProperty::Content,
-                                        vec![
-                                            h3([t(format!("Retry {retries} of {MAX_RETRIES}"))]),
-                                            p([
-                                                t(format!("Trying again due to {level}: ")),
-                                                ci(message),
-                                            ]),
-                                        ],
-                                    )],
+                                    [
+                                        append(NodeProperty::Content, message),
+                                        set(
+                                            NodeProperty::ExecutionStatus,
+                                            ExecutionStatus::Running,
+                                        ),
+                                    ],
                                 );
 
                                 // Add a new message to the task with the diagnostic/s
@@ -397,9 +399,23 @@ impl Executable for Chat {
                                                 )),
                                                 ci(truncate(error.to_string(), 200)),
                                             ]);
+                                            let exec_message = error_to_execution_message(
+                                                &format!("While running model `{model_id}`"),
+                                                error,
+                                            );
                                             fork.patch(
                                                 &message_id,
-                                                [append(NodeProperty::Content, vec![message])],
+                                                [
+                                                    append(NodeProperty::Content, vec![message]),
+                                                    push(
+                                                        NodeProperty::ExecutionMessages,
+                                                        exec_message,
+                                                    ),
+                                                    set(
+                                                        NodeProperty::ExecutionStatus,
+                                                        ExecutionStatus::Errors,
+                                                    ),
+                                                ],
                                             );
                                             break;
                                         }
@@ -418,7 +434,13 @@ impl Executable for Chat {
                                 // Append the new content to the message
                                 fork.patch(
                                     &message_id,
-                                    [append(NodeProperty::Content, new_content)],
+                                    [
+                                        append(NodeProperty::Content, new_content),
+                                        set(
+                                            NodeProperty::ExecutionStatus,
+                                            ExecutionStatus::Succeeded,
+                                        ),
+                                    ],
                                 );
                             }
                         });
