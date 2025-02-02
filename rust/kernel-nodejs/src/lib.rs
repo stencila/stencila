@@ -39,7 +39,12 @@ impl Kernel for NodeJsKernel {
         vec![Format::JavaScript]
     }
 
+    #[allow(unreachable_code)]
     fn supports_linting(&self) -> KernelLinting {
+        // Note: NodeJS linting is preliminary and can be slow so is
+        // currently disabled
+        return KernelLinting::No;
+
         let format = Command::new("npx")
             .arg("--no") // Do not install prettier if not already
             .arg("--")
