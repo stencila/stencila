@@ -1,5 +1,5 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
-import { defaultKeymap } from '@codemirror/commands'
+import { defaultKeymap, history, undo, redo } from '@codemirror/commands'
 import {
   foldGutter,
   defaultHighlightStyle,
@@ -347,6 +347,30 @@ export class UINodeCode extends LitElement {
       tr.newDoc.lines > 1 ? [] : tr
     )
 
+    const basicKeymap = [
+      // Copy, cut, paste
+      { key: 'Mod-c', run: () => document.execCommand('copy') },
+      { key: 'Mod-x', run: () => document.execCommand('cut') },
+      { key: 'Mod-v', run: () => document.execCommand('paste') },
+      // undo, redo
+      { key: 'Mod-z', run: undo },
+      { key: 'Mod-y', run: redo },
+    ]
+
+    // const editorDomEventHandlers = EditorView.domEventHandlers({
+    //   keydown: (e: KeyboardEvent, view: EditorView) => {
+    //     if (e.ctrlKey && ['c', 'v', 'z', 'y'].includes(e.key.toLowerCase())) {
+    //       e.preventDefault()
+    //       const boundCommand = basicKeymap.find(
+    //         (binding) => binding.key === `Mod-${e.key.toLowerCase()}`
+    //       )
+    //       if (boundCommand) {
+    //         boundCommand.run(view)
+    //       }
+    //     }
+    //   },
+    // })
+
     return [
       this.patchInput(),
       this.viewEditable.of(EditorView.editable.of(!this.readOnly)),
@@ -357,7 +381,9 @@ export class UINodeCode extends LitElement {
       ...linterExtension,
       ...authorshipExtensions,
       this.noGutters ? [] : [lineNumbers(), foldGutter()],
+      history(),
       keymap.of(defaultKeymap),
+      keymap.of(basicKeymap),
       stencilaTheme,
     ]
   }
