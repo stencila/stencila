@@ -100,8 +100,7 @@ impl Executable for Article {
 
         let started = Timestamp::now();
 
-        // Move all temporaries into the executor so it can handle when to
-        // execute them
+        // Move temporaries into the executor so it can handle when to execute them
         if let Some(temporaries) = &mut self.temporary {
             let mut chats = temporaries
                 .drain(..)

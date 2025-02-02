@@ -836,7 +836,7 @@ impl Executor {
         self.phase = Phase::Execute;
         root.walk_async(self).await?;
 
-        // Execute any un-executed temporary nodes
+        // Execute any un-executed temporary nodes (those not walked in `visit_block`)
         for (.., mut node) in self.temporaries.drain(..).collect_vec() {
             self.visit_node(&mut node).await?;
         }
