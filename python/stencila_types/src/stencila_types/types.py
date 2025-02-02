@@ -81,6 +81,8 @@ class AuthorRoleName(StrEnum):
     Router = "Router"
     Generator = "Generator"
     Executor = "Executor"
+    Formatter = "Formatter"
+    Linter = "Linter"
 
 
 class CitationIntent(StrEnum):

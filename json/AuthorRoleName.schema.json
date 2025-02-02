@@ -170,6 +170,16 @@
       "@id": "stencila:Executor",
       "description": "The author is a `SoftwareApplication` that executed code which created outputs such as text, tables, or images.",
       "const": "Executor"
+    },
+    {
+      "@id": "stencila:Formatter",
+      "description": "The author is a `SoftwareApplication` that formatted code.",
+      "const": "Formatter"
+    },
+    {
+      "@id": "stencila:Linter",
+      "description": "The author is a `SoftwareApplication` that made linting fixes to code.",
+      "const": "Linter"
     }
   ],
   "default": "Writer"

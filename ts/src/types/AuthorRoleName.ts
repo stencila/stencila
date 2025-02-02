@@ -11,6 +11,8 @@ export type AuthorRoleName =
   'Prompter' |
   'Router' |
   'Generator' |
-  'Executor';
+  'Executor' |
+  'Formatter' |
+  'Linter';
 
 

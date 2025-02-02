@@ -18,8 +18,8 @@ pub use common;
 pub use format;
 pub use schema;
 use schema::{
-    CompilationMessage, ExecutionMessage, Node, Null, SoftwareApplication, SoftwareSourceCode,
-    Variable,
+    AuthorRole, CompilationMessage, ExecutionMessage, Node, Null, SoftwareApplication,
+    SoftwareSourceCode, Variable,
 };
 
 /// A kernel for executing code in some language
@@ -215,6 +215,11 @@ pub struct KernelLintingOutput {
     /// Will usually, but not necessarily, be `None` if `output` is `Some`.
     /// Implementations should return `None` rather than an empty vector.
     pub messages: Option<Vec<CompilationMessage>>,
+
+    /// Any software authors that contributed to the linting
+    ///
+    /// The `role_name` of these authors should be either `Formatter` or `Linter`.
+    pub authors: Option<Vec<AuthorRole>>,
 }
 
 /// A trait to lint some code for a language

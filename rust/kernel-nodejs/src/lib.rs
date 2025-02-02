@@ -7,7 +7,10 @@ use std::{
 use kernel_micro::{
     common::{eyre::Result, serde::Deserialize, serde_json, tempfile, tracing},
     format::Format,
-    schema::{CodeLocation, CompilationMessage, MessageLevel},
+    schema::{
+        AuthorRole, AuthorRoleName, CodeLocation, CompilationMessage, MessageLevel,
+        SoftwareApplication, Timestamp,
+    },
     Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
     KernelLint, KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider,
     KernelTerminate, Microkernel,
@@ -103,17 +106,32 @@ impl KernelLint for NodeJsKernel {
         write(&code_path, code)?;
         let code_path_str = code_path.to_string_lossy();
 
+        let mut authors: Vec<AuthorRole> = Vec::new();
+
         // Format code if specified
         // Does this optimistically with no error if it fails
         if options.format {
-            Command::new("npx")
+            let result = Command::new("npx")
                 .arg("--no") // Do not install prettier if not already
                 .arg("--")
                 .arg("prettier")
                 .arg("--write")
                 .arg(&*code_path_str)
-                .output()
-                .ok();
+                .output();
+
+            if let Ok(output) = result {
+                let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+                if !stdout.contains("unchanged") {
+                    // Successfully ran Prettier, and it made changes, so add as an author
+                    authors.push(
+                        SoftwareApplication::new("Prettier".to_string()).into_author_role(
+                            AuthorRoleName::Formatter,
+                            Some(Format::JavaScript),
+                            Some(Timestamp::now()),
+                        ),
+                    );
+                }
+            }
         }
 
         // Need a config file
@@ -146,6 +164,15 @@ export default [
         let messages = if let Ok(output) = cmd.output() {
             let stdout = String::from_utf8_lossy(&output.stdout).to_string();
 
+            // Successfully ran ESLint so add as an author (regardless of whether it made any fixes)
+            authors.push(
+                SoftwareApplication::new("ESLint".to_string()).into_author_role(
+                    AuthorRoleName::Linter,
+                    Some(Format::JavaScript),
+                    Some(Timestamp::now()),
+                ),
+            );
+
             // A diagnostic report from ESlint
             #[derive(Deserialize)]
             #[serde(crate = "kernel_micro::common::serde")]
@@ -156,7 +183,7 @@ export default [
             #[serde(rename_all = "camelCase", crate = "kernel_micro::common::serde")]
             struct EslintMessage {
                 severity: u8,
-                rule_id: String,
+                rule_id: Option<String>,
                 message: String,
                 line: u64,
                 column: u64,
@@ -178,7 +205,13 @@ export default [
                             1 => MessageLevel::Warning,
                             _ => MessageLevel::Error,
                         },
-                        message: format!("{} (ESLint {})", msg.message, msg.rule_id),
+                        message: format!(
+                            "{}{}",
+                            msg.message,
+                            msg.rule_id
+                                .map(|rule| format!(" (ESLint {rule})"))
+                                .unwrap_or_default()
+                        ),
                         code_location: Some(CodeLocation {
                             start_line: Some(msg.line.saturating_sub(1)),
                             start_column: Some(msg.column.saturating_sub(1)),
@@ -207,6 +240,7 @@ export default [
         Ok(KernelLintingOutput {
             code,
             messages,
+            authors: (!authors.is_empty()).then_some(authors),
             ..Default::default()
         })
     }
