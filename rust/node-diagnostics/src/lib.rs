@@ -10,11 +10,12 @@ use schema::{
     NodeId, NodeProperty, NodeType, Visitor, WalkControl, WalkNode,
 };
 
-/// Collect all diagnostic messages from a a node
+/// Collect all diagnostic messages from a node
 ///
 /// Currently, collects the [`CompilationMessage`] and [`ExecutionMessage`]s
-/// from on and within the node. In the future, additional diagnostics,
-/// (e.g verification of internal and external links) may be added
+/// from on, and within, the node. In the future, additional diagnostics
+/// not related to executable nodes, (e.g verification of internal and external links)
+/// may be added.
 pub fn diagnostics<T>(node: &T) -> Vec<Diagnostic>
 where
     T: WalkNode,
@@ -22,6 +23,17 @@ where
     let mut walker = Collector::default();
     walker.visit(node);
     walker.messages
+}
+
+/// Collect all diagnostic messages with at least a given level
+pub fn diagnostics_gte<T>(node: &T, level: DiagnosticLevel) -> Vec<Diagnostic>
+where
+    T: WalkNode,
+{
+    diagnostics(node)
+        .into_iter()
+        .filter(|diagnostic| diagnostic.level >= level)
+        .collect()
 }
 
 pub struct Diagnostic {
@@ -50,7 +62,7 @@ pub struct Diagnostic {
     code_location: Option<CodeLocation>,
 }
 
-#[derive(Clone, Copy, Display)]
+#[derive(Clone, Copy, Display, PartialEq, Eq, PartialOrd, Ord)]
 pub enum DiagnosticLevel {
     /// An advisory diagnostic
     Advice,
