@@ -16,7 +16,7 @@ use super::vertical_alignment::VerticalAlignment;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "TableCell")]
+#[display("TableCell")]
 #[html(elem = "td")]
 #[jats(special)]
 pub struct TableCell {

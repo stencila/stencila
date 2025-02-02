@@ -27,7 +27,7 @@ use super::validator::Validator;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "CallArgument")]
+#[display("CallArgument")]
 pub struct CallArgument {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]

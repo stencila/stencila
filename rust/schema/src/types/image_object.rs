@@ -27,7 +27,7 @@ use super::thing_type::ThingType;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "ImageObject")]
+#[display("ImageObject")]
 #[patch(authors_on = "options")]
 #[html(elem = "img", special)]
 #[jats(elem = "inline-graphic", special)]

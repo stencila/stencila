@@ -28,7 +28,7 @@ use super::thing_type::ThingType;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "AudioObject")]
+#[display("AudioObject")]
 #[patch(authors_on = "options")]
 #[html(elem = "audio", special)]
 #[jats(elem = "inline-media", special)]

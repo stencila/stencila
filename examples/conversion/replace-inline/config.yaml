@@ -1,8 +1,0 @@
-compact.jats.xml:
-  decode:
-    skip: true
-
-pandoc:
-  decode:
-    # TODO: remove when implemented
-    skip: true

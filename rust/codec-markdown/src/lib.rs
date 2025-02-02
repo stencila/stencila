@@ -6,10 +6,11 @@ use codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 
-pub use codec_markdown_trait::to_markdown;
+pub use codec_markdown_trait::{to_markdown, to_markdown_with};
 
 mod decode;
 pub use decode::decode;
+pub use decode::decode_frontmatter;
 pub use decode::preprocess;
 
 mod encode;

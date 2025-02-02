@@ -9,28 +9,38 @@ impl Executable for ForBlock {
         let node_id = self.node_id();
         tracing::trace!("Compiling ForBlock {node_id}");
 
-        let language = self.programming_language.as_deref().unwrap_or_default();
-        let ParseInfo {
-            mut compilation_digest,
-            ..
-        } = parsers::parse(&self.code, language);
+        // Get the programming language, falling back to using the executor's current language
+        let lang = executor.programming_language(&self.programming_language);
+
+        // Parse the code to determine if it or the language has changed since last time
+        let mut info = parsers::parse(&self.code, &lang, &self.options.compilation_digest);
+
+        // Add variable and code to linting context
+        executor.linting_variable(&self.variable, &lang, info.changed.yes());
+        executor.linting_code(&node_id, &self.code.to_string(), &lang, info.changed.yes());
+
+        // Compile content. Do this here so any updates to content during compilation
+        // are included in the following state digest. Also for linting of content.
+        if let Err(error) = self.content.walk_async(executor).await {
+            tracing::error!("While compiling `ForBlock.content`: {error}");
+        }
 
         // Add a digest of the `content` to the state digest given that
         // if the content changes all the `iterations` become stale.
         // Use CBOR for this since is it faster and more compact to encode than JSON etc
         match self.content.to_cbor() {
-            Ok(bytes) => add_to_digest(&mut compilation_digest.state_digest, &bytes),
+            Ok(bytes) => add_to_digest(&mut info.compilation_digest.state_digest, &bytes),
             Err(error) => {
                 tracing::error!("While encoding `content` to CBOR: {error}")
             }
         }
 
         let execution_required =
-            execution_required_digests(&self.options.execution_digest, &compilation_digest);
+            execution_required_digests(&self.options.execution_digest, &info.compilation_digest);
         executor.patch(
             &node_id,
             [
-                set(NodeProperty::CompilationDigest, compilation_digest),
+                set(NodeProperty::CompilationDigest, info.compilation_digest),
                 set(NodeProperty::ExecutionRequired, execution_required),
             ],
         );
@@ -41,8 +51,8 @@ impl Executable for ForBlock {
             tracing::error!("While compiling `otherwise`: {error}")
         }
 
-        // Break walk to avoid walking over `content` (already captured in state digest)
-        // and `iterations` (compilation digest is not required)
+        // Break walk: `content` already compiled above, and avoid walking over `iterations`
+        // (compilation digest is not required)
         WalkControl::Break
     }
 

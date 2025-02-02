@@ -26,7 +26,7 @@ use super::validator::Validator;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "Parameter")]
+#[display("Parameter")]
 #[html(special)]
 #[jats(elem = "parameter")]
 pub struct Parameter {

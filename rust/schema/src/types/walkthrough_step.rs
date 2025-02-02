@@ -12,7 +12,7 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "WalkthroughStep")]
+#[display("WalkthroughStep")]
 pub struct WalkthroughStep {
     /// The type of this item.
     pub r#type: MustBe!("WalkthroughStep"),

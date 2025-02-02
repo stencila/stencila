@@ -29,7 +29,7 @@ use super::thing_type::ThingType;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "Table")]
+#[display("Table")]
 #[patch(authors_on = "self", authors_take = true)]
 #[html(special)]
 #[jats(special)]

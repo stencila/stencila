@@ -28,7 +28,7 @@ use super::timestamp::Timestamp;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "CodeExpression")]
+#[display("CodeExpression")]
 #[patch(authors_on = "self")]
 #[jats(elem = "code", attribs(executable = "yes"))]
 pub struct CodeExpression {

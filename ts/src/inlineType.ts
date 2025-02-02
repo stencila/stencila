@@ -10,20 +10,16 @@ export type InlineType =
   | "CodeInline"
   | "Date"
   | "DateTime"
-  | "DeleteInline"
   | "Duration"
   | "Emphasis"
   | "ImageObject"
-  | "InsertInline"
   | "InstructionInline"
   | "Link"
   | "MathInline"
   | "MediaObject"
-  | "ModifyInline"
   | "Note"
   | "Parameter"
   | "QuoteInline"
-  | "ReplaceInline"
   | "StyledInline"
   | "Strikeout"
   | "Strong"
@@ -51,20 +47,16 @@ export const InlineTypeList = [
   "CodeInline",
   "Date",
   "DateTime",
-  "DeleteInline",
   "Duration",
   "Emphasis",
   "ImageObject",
-  "InsertInline",
   "InstructionInline",
   "Link",
   "MathInline",
   "MediaObject",
-  "ModifyInline",
   "Note",
   "Parameter",
   "QuoteInline",
-  "ReplaceInline",
   "StyledInline",
   "Strikeout",
   "Strong",

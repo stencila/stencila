@@ -17,7 +17,7 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "StyledBlock")]
+#[display("StyledBlock")]
 #[patch(authors_on = "self")]
 #[html(elem = "div")]
 pub struct StyledBlock {
@@ -34,7 +34,7 @@ pub struct StyledBlock {
     /// The code of the equation in the `styleLanguage`.
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::from("code")"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9 ]{1,10}".prop_map(|code| Cord::from(code.trim()))"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9 ]{1,10}".prop_filter("No keywords", |code| !["include", "call", "if", "ifblock", "for"].contains(&code.trim())).prop_map(|code| Cord::from(code.trim()))"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::from)"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"String::arbitrary().prop_map(Cord::from)"#))]
     #[jats(attr = "style")]

@@ -4,15 +4,12 @@ use std::{
     thread,
 };
 
+use minijinja::{self, context, value::Object, Environment, Value};
+
 use kernel::{
     common::{
         async_trait::async_trait,
         eyre::{Report, Result},
-        minijinja::{
-            self, context,
-            value::{Object, ObjectKind, StructObject},
-            Environment, Value,
-        },
         serde_json, tokio, tracing,
     },
     format::Format,
@@ -119,7 +116,7 @@ impl KernelInstance for JinjaKernelInstance {
         let env = Environment::new();
 
         let context = match self.context.as_ref() {
-            Some(context) => Value::from(context.clone()),
+            Some(context) => Value::from_dyn_object(context.clone()),
             None => context!(),
         };
 
@@ -159,7 +156,7 @@ impl KernelInstance for JinjaKernelInstance {
         };
 
         let context = match self.context.as_ref() {
-            Some(context) => Value::from(context.clone()),
+            Some(context) => Value::from_dyn_object(context.clone()),
             None => context!(),
         };
 
@@ -233,13 +230,7 @@ impl fmt::Display for JinjaKernelContext {
 }
 
 impl Object for JinjaKernelContext {
-    fn kind(&self) -> ObjectKind {
-        ObjectKind::Struct(self)
-    }
-}
-
-impl StructObject for JinjaKernelContext {
-    fn get_field(&self, name: &str) -> Option<Value> {
+    fn get_value(self: &Arc<Self>, name: &Value) -> Option<Value> {
         let Ok(mut guard) = self.variable_channel.lock() else {
             return None;
         };

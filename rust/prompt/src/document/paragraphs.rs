@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 /// A paragraph in the current document
-#[derive(Debug, Default, Clone, Trace)]
+#[derive(Debug, Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct Paragraph {
     /// The Markdown content of the paragraph
@@ -41,7 +41,7 @@ impl Paragraph {
 }
 
 /// The paragraphs in a document
-#[derive(Debug, Default, Clone, Trace)]
+#[derive(Debug, Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct Paragraphs {
     /// Whether to ignore paragraphs that are pushed, entered and exited

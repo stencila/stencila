@@ -51,6 +51,11 @@ export class ModelParameters extends Entity {
    */
   randomSeed?: Integer;
 
+  /**
+   * The maximum number of retries.
+   */
+  maximumRetries?: UnsignedInteger;
+
   constructor(options?: Partial<ModelParameters>) {
     super();
     this.type = "ModelParameters";

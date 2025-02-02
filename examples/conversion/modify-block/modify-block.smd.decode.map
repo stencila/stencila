@@ -1,5 +1,0 @@
-start     end        offsets   node_type+property                   authorship
-     0     55        (0, 55)   Paragraph
-    69     99       (69, 44)   CodeChunk
-    57    114      (-12, 15)   ModifyBlock
-     0    115       (-57, 1)   Article

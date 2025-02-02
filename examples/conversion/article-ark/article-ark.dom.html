@@ -17,11 +17,6 @@
         <stencila-code-inline id=xxx depth=2 ancestors=Article.Paragraph code='inline code'>
           <code>inline code</code>
         </stencila-code-inline>
-        <stencila-delete-inline id=xxx depth=2 ancestors=Article.Paragraph>
-          <span slot=content>
-            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.DeleteInline>, delete</stencila-text>
-          </span>
-        </stencila-delete-inline>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
         <stencila-emphasis id=xxx depth=2 ancestors=Article.Paragraph>
           <em>
@@ -36,11 +31,6 @@
             <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.ImageObject>image</stencila-text>
           </span>
         </stencila-image-object>
-        <stencila-insert-inline id=xxx depth=2 ancestors=Article.Paragraph>
-          <span slot=content>
-            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.InsertInline>, insert</stencila-text>
-          </span>
-        </stencila-insert-inline>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
         <stencila-link id=xxx depth=2 ancestors=Article.Paragraph target=https://example.org>
           <a href=https://example.org>
@@ -71,14 +61,6 @@
             <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.QuoteInline>inline quote</stencila-text>
           </q>
         </stencila-quote-inline>
-        <stencila-replace-inline id=xxx depth=2 ancestors=Article.Paragraph>
-          <span slot=content>
-            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.ReplaceInline>, old</stencila-text>
-          </span>
-          <span slot=replacement>
-            <stencila-text id=xxx depth=3 ancestors=Article.Paragraph.ReplaceInline>, new</stencila-text>
-          </span>
-        </stencila-replace-inline>
         <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>,</stencila-text>
         <stencila-styled-inline id=xxx depth=2 ancestors=Article.Paragraph code=text-blue-400>
           <span slot=content>
@@ -139,15 +121,6 @@
     </stencila-code-block>
     <stencila-code-chunk id=xxx depth=1 ancestors=Article code='This is a code chunk'>
     </stencila-code-chunk>
-    <stencila-delete-block id=xxx depth=1 ancestors=Article>
-      <div slot=content>
-        <stencila-paragraph id=xxx depth=2 ancestors=Article.DeleteBlock>
-          <p slot=content>
-            <stencila-text id=xxx depth=3 ancestors=Article.DeleteBlock.Paragraph>This paragraph is to be deleted</stencila-text>
-          </p>
-        </stencila-paragraph>
-      </div>
-    </stencila-delete-block>
     <stencila-figure id=xxx depth=1 ancestors=Article>
       <figure slot=content>
         <stencila-paragraph id=xxx depth=2 ancestors=Article.Figure>
@@ -193,15 +166,6 @@
     </stencila-if-block>
     <stencila-include-block id=xxx depth=1 ancestors=Article source=this/is/an/include>
     </stencila-include-block>
-    <stencila-insert-block id=xxx depth=1 ancestors=Article>
-      <div slot=content>
-        <stencila-paragraph id=xxx depth=2 ancestors=Article.InsertBlock>
-          <p slot=content>
-            <stencila-text id=xxx depth=3 ancestors=Article.InsertBlock.Paragraph>This paragraph is to be inserted</stencila-text>
-          </p>
-        </stencila-paragraph>
-      </div>
-    </stencila-insert-block>
     <stencila-list id=xxx depth=1 ancestors=Article order=Unordered>
       <ul slot=items>
         <stencila-list-item id=xxx depth=2 ancestors=Article.List>
@@ -226,22 +190,6 @@
         </stencila-paragraph>
       </blockquote>
     </stencila-quote-block>
-    <stencila-replace-block id=xxx depth=1 ancestors=Article>
-      <div slot=content>
-        <stencila-paragraph id=xxx depth=2 ancestors=Article.ReplaceBlock>
-          <p slot=content>
-            <stencila-text id=xxx depth=3 ancestors=Article.ReplaceBlock.Paragraph>Old paragraph</stencila-text>
-          </p>
-        </stencila-paragraph>
-      </div>
-      <div slot=replacement>
-        <stencila-paragraph id=xxx depth=2 ancestors=Article.ReplaceBlock>
-          <p slot=content>
-            <stencila-text id=xxx depth=3 ancestors=Article.ReplaceBlock.Paragraph>New paragraph</stencila-text>
-          </p>
-        </stencila-paragraph>
-      </div>
-    </stencila-replace-block>
     <stencila-section id=xxx depth=1 ancestors=Article>
       <section slot=content>
         <stencila-paragraph id=xxx depth=2 ancestors=Article.Section>

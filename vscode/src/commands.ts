@@ -419,7 +419,7 @@ nodeTypes: []
   context.subscriptions.push(
     vscode.commands.registerCommand(
       `stencila.invoke.create-chat`,
-      async ({ instructionType, nodeType, prompt, executeChat }) => {
+      async ({ instructionType, nodeType, prompt, executeChat } = {}) => {
         const editor = vscode.window.activeTextEditor;
         if (!editor) {
           vscode.window.showErrorMessage("No active editor");
@@ -484,14 +484,29 @@ nodeTypes: []
       async () => await insertChat({ instructionType: "Create" })
     )
   );
-  for (const nodeType of ["Paragraph", "Table", "CodeChunk"]) {
+  for (const prompt of [
+    "code-chunk",
+    "figure-code",
+    "figure-flowchart",
+    "figure-mermaid",
+    "figure-svg",
+    "figure-timeline",
+    "list-ordered",
+    "list-unordered",
+    "math-block",
+    "paragraph",
+    "quote-block",
+    "table-code",
+    "table-empty",
+    "table-filled",
+  ]) {
     context.subscriptions.push(
       vscode.commands.registerCommand(
-        `stencila.insert-chat.create.${nodeType}`,
+        `stencila.insert-chat.create.${prompt}`,
         async () =>
           await insertChat({
             instructionType: "Create",
-            nodeType,
+            prompt: `stencila/create/${prompt}`,
           })
       )
     );

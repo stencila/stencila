@@ -5,19 +5,20 @@ use std::{
     process::Stdio,
 };
 
+use directories::UserDirs;
 use which::which;
 
 // Re-exports for the convenience of internal crates implementing
 // the `Microkernel` trait
 pub use kernel::{
     common, format, schema, tests, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, KernelProvider, KernelSignal, KernelStatus, KernelTerminate,
+    KernelInterrupt, KernelKill, KernelLint, KernelLinting, KernelLintingOptions,
+    KernelLintingOutput, KernelProvider, KernelSignal, KernelStatus, KernelTerminate,
 };
 
 use kernel::{
     common::{
         async_trait::async_trait,
-        dirs,
         eyre::{bail, eyre, Context, OptionExt, Result},
         itertools::Itertools,
         serde_json,
@@ -30,7 +31,7 @@ use kernel::{
             process::{Child, ChildStderr, ChildStdin, ChildStdout, Command},
             sync::{mpsc, watch},
         },
-        tracing, which,
+        tracing,
     },
     generate_id,
     schema::{
@@ -375,6 +376,7 @@ impl KernelInstance for MicrokernelInstance {
 
         // Search for an environment in the current, or ancestor, directories
         let mut current_dir = directory.to_path_buf();
+        let mut in_pyproject = false;
         loop {
             // Check for devbox.json
             let devbox_path = current_dir.join("devbox.json");
@@ -385,7 +387,13 @@ impl KernelInstance for MicrokernelInstance {
                 break;
             }
 
-            // Check for .venv directory with exec in it
+            // Check for pyproject.toml
+            let pyproject_toml = current_dir.join("pyproject.toml");
+            if pyproject_toml.is_file() {
+                in_pyproject = true;
+            }
+
+            // Check for .venv directory with the desired exec in it
             let venv_path = current_dir
                 .join(".venv")
                 .join("bin")
@@ -401,6 +409,12 @@ impl KernelInstance for MicrokernelInstance {
                 // We've reached the root of the file system so stop
                 break;
             }
+        }
+
+        // If the executable is `uv` and we are not in a pyproject add argument
+        // to use the system Python. Otherwise, no packages will be available, just plain Python.
+        if exec_name == "uv" && !in_pyproject {
+            exec_args.insert(0, "--python-preference=system".into())
         }
 
         // Get the path to the executable, failing early if it can not be found
@@ -567,7 +581,8 @@ impl KernelInstance for MicrokernelInstance {
 
         if let Some(path) = path {
             let path = path.canonicalize().unwrap_or(path);
-            let home_dir = dirs::home_dir().unwrap_or_default();
+            let user_dirs = UserDirs::new().ok_or_eyre("unable to get user dirs")?;
+            let home_dir = user_dirs.home_dir();
 
             let url = if let Some(relative) = self
                 .working_dir
@@ -576,7 +591,7 @@ impl KernelInstance for MicrokernelInstance {
             {
                 // Strip the working directory if this in is the working directory
                 relative.to_string_lossy().to_string()
-            } else if let Ok(relative_to_home) = path.strip_prefix(&home_dir) {
+            } else if let Ok(relative_to_home) = path.strip_prefix(home_dir) {
                 // Strip users home dir
                 PathBuf::from("~")
                     .join(relative_to_home)

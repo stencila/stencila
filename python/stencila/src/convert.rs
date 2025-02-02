@@ -9,16 +9,16 @@ use common::{eyre, serde_json};
 
 use crate::utilities::{runtime_error, value_error};
 
-pub fn module(py: Python<'_>) -> PyResult<&PyModule> {
-    let convert = PyModule::new(py, "convert")?;
+pub fn module(stencila: &Bound<'_, PyModule>) -> PyResult<()> {
+    let convert = PyModule::new(stencila.py(), "convert")?;
 
-    convert.add_function(wrap_pyfunction!(to_string, convert)?)?;
-    convert.add_function(wrap_pyfunction!(to_path, convert)?)?;
-    convert.add_function(wrap_pyfunction!(from_string, convert)?)?;
-    convert.add_function(wrap_pyfunction!(from_path, convert)?)?;
-    convert.add_function(wrap_pyfunction!(from_to, convert)?)?;
+    convert.add_function(wrap_pyfunction!(to_string, &convert)?)?;
+    convert.add_function(wrap_pyfunction!(to_path, &convert)?)?;
+    convert.add_function(wrap_pyfunction!(from_string, &convert)?)?;
+    convert.add_function(wrap_pyfunction!(from_path, &convert)?)?;
+    convert.add_function(wrap_pyfunction!(from_to, &convert)?)?;
 
-    Ok(convert)
+    stencila.add("convert", convert)
 }
 
 /// Decoding options
@@ -77,8 +77,8 @@ impl TryInto<codecs::EncodeOptions> for EncodeOptions {
 
 /// Decode a Stencila Schema node from a string
 #[pyfunction]
-fn from_string(py: Python, input: String, options: DecodeOptions) -> PyResult<&PyAny> {
-    pyo3_asyncio::tokio::future_into_py(py, async move {
+fn from_string(py: Python, input: String, options: DecodeOptions) -> PyResult<Bound<PyAny>> {
+    pyo3_async_runtimes::tokio::future_into_py(py, async move {
         let options = Some(options.try_into()?);
 
         let node = codecs::from_str(&input, options)
@@ -93,8 +93,8 @@ fn from_string(py: Python, input: String, options: DecodeOptions) -> PyResult<&P
 
 /// Decode a Stencila Schema node from a file system path
 #[pyfunction]
-fn from_path(py: Python, path: String, options: DecodeOptions) -> PyResult<&PyAny> {
-    pyo3_asyncio::tokio::future_into_py(py, async move {
+fn from_path(py: Python, path: String, options: DecodeOptions) -> PyResult<Bound<PyAny>> {
+    pyo3_async_runtimes::tokio::future_into_py(py, async move {
         let path = PathBuf::from(path);
         let options = Some(options.try_into()?);
 
@@ -110,8 +110,8 @@ fn from_path(py: Python, path: String, options: DecodeOptions) -> PyResult<&PyAn
 
 /// Encode a Stencila Schema node to a string
 #[pyfunction]
-fn to_string(py: Python, json: String, options: EncodeOptions) -> PyResult<&PyAny> {
-    pyo3_asyncio::tokio::future_into_py(py, async move {
+fn to_string(py: Python, json: String, options: EncodeOptions) -> PyResult<Bound<PyAny>> {
+    pyo3_async_runtimes::tokio::future_into_py(py, async move {
         let options = Some(options.try_into()?);
 
         let node = serde_json::from_str(&json)
@@ -126,8 +126,13 @@ fn to_string(py: Python, json: String, options: EncodeOptions) -> PyResult<&PyAn
 
 /// Encode a Stencila Schema node to a file system path
 #[pyfunction]
-fn to_path(py: Python, json: String, path: String, options: EncodeOptions) -> PyResult<&PyAny> {
-    pyo3_asyncio::tokio::future_into_py(py, async move {
+fn to_path(
+    py: Python,
+    json: String,
+    path: String,
+    options: EncodeOptions,
+) -> PyResult<Bound<PyAny>> {
+    pyo3_async_runtimes::tokio::future_into_py(py, async move {
         let path = PathBuf::from(path);
         let options = Some(options.try_into()?);
 
@@ -149,8 +154,8 @@ fn from_to(
     output: String,
     decode_options: DecodeOptions,
     encode_options: EncodeOptions,
-) -> PyResult<&PyAny> {
-    pyo3_asyncio::tokio::future_into_py(py, async move {
+) -> PyResult<Bound<PyAny>> {
+    pyo3_async_runtimes::tokio::future_into_py(py, async move {
         let input = if input.is_empty() {
             None
         } else {

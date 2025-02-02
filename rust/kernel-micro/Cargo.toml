@@ -5,7 +5,9 @@ edition = "2021"
 
 [dependencies]
 app = { path = "../app" }
+directories = { workspace = true }
 kernel = { path = "../kernel" }
+which = { workspace = true }
 
 [target.'cfg(unix)'.dependencies]
 nix = { version = "0.29.0", features = ["fs", "signal"] }

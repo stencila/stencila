@@ -13,7 +13,7 @@ use super::time_unit::TimeUnit;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "Timestamp")]
+#[display("Timestamp")]
 #[jats(elem = "timestamp", special)]
 pub struct Timestamp {
     /// The type of this item.

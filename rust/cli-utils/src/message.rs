@@ -12,7 +12,11 @@ pub struct Message(pub String);
 #[macro_export]
 macro_rules! message {
     ($str:literal, $($arg:tt)*) => {
-        Message(format!($str, $($arg)*))
+        cli_utils::Message(format!($str, $($arg)*))
+    };
+
+    ($str:literal) => {
+        cli_utils::Message($str.to_string())
     };
 }
 

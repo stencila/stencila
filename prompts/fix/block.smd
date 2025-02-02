@@ -6,7 +6,7 @@ title: Fix Block Prompt
 description: Fix a block that has errors or warnings.
 keywords: fix
 
-version: "0.1.0"
+version: "0.1.1"
 instruction-type: Fix
 ---
 
@@ -64,7 +64,7 @@ Respond with the fixed code including any surrounding backtick or dollar delimit
 
 Fix this:
 
-````raw
+````markdown raw
 ```python exec
 def calculate_average(numbers)
     total = 0
@@ -81,7 +81,7 @@ print("The average is: " + result)
 
 Response:
 
-````raw
+````markdown raw
 ```python exec
 def calculate_average(numbers):
     total = 0
@@ -100,15 +100,19 @@ print("The average is:", result)
 
 Fix this:
 
+````markdown raw
 $$
 f(x) = \frac{1}{\sqrt{2\pi\sigma^2} e^{-\frac{(x-\mu)^2}{2\sigma^2}
 $$
+````
 
 Response:
 
+````markdown raw
 $$
 f(x) = \frac{1}{\sqrt{2\pi\sigma^2}} e^{-\frac{(x-\mu)^2}{2\sigma^2}}
 $$
+````
 
 :::
 

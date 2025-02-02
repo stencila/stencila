@@ -41,7 +41,7 @@ use super::unsigned_integer_or_string::UnsignedIntegerOrString;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "Prompt")]
+#[display("Prompt")]
 #[patch(authors_on = "options")]
 pub struct Prompt {
     /// The type of this item.
@@ -84,6 +84,11 @@ pub struct Prompt {
     #[strip(execution)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     pub execution_bounds: Option<ExecutionBounds>,
+
+    /// Frontmatter containing document metadata.
+    #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    pub frontmatter: Option<String>,
 
     /// The types of instructions that the prompt supports
     #[serde(alias = "instruction-types", alias = "instruction_types", alias = "instructionType", alias = "instruction-type", alias = "instruction_type")]

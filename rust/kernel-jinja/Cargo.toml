@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 kernel = { path = "../kernel" }
+minijinja = { version = "2.7.0", features = ["loader", "json", "debug"] }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }

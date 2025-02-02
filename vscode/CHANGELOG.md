@@ -1,5 +1,25 @@
 # Change Log
 
+## 0.0.22 2025-01-31
+
+- Fixes and improvements to "Chat to create..." context menu.
+
+- Improved node type syntax highlighting for `/create` and `::: create` Markdown directives.
+
+## 0.0.21 2025-01-31
+
+- Load kernel, prompt, and model lists early to reduce waits when user interfaces first loaded. 
+
+- Based on Stencila CLI v2.0.0-beta.24 which includes new code linting and formatting functionality, and quality, cost, and speed scores for models.
+
+## 0.0.20 2025-01-23
+
+- Improvements to chat interfaces, particularly in multi-model scenarios.
+
+- Improvements to interfaces for executable nodes giving more feedback on the execution status and whether execution is required.
+
+- Based on Stencila CLI v2.0.0-beta.23.
+
 ## 0.0.19 2025-01-22
 
 - Adds interfaces for standalone chats, chats about documents, and chats to insert specific types of content.

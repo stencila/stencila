@@ -1,0 +1,18 @@
+title: ConfigPublish
+nick: cfp
+category: config
+description: Publishing options.
+core:
+  - ghost
+  - zenodo
+properties:
+  ghost:
+    description: Ghost publishing options.
+    $ref: ConfigPublishGhost
+    patch:
+      formats: [all]
+  zenodo:
+    description: Zenodo publishing options.
+    $ref: ConfigPublishZenodo
+    patch:
+      formats: [all]

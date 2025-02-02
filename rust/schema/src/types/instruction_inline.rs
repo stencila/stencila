@@ -31,7 +31,7 @@ use super::unsigned_integer::UnsignedInteger;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "InstructionInline")]
+#[display("InstructionInline")]
 #[patch(apply_with = "InstructionInline::apply_with")]
 pub struct InstructionInline {
     /// The type of this item.

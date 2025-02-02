@@ -23,7 +23,8 @@
     "speedWeight",
     "minimumScore",
     "temperature",
-    "randomSeed"
+    "randomSeed",
+    "maximumRetries"
   ],
   "properties": {
     "type": {
@@ -199,6 +200,25 @@
         "seed"
       ],
       "type": "integer"
+    },
+    "maximumRetries": {
+      "@id": "stencila:retries",
+      "description": "The maximum number of retries.",
+      "aliases": [
+        "retries",
+        "maximum-retries",
+        "maximum_retries"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "$ref": "UnsignedInteger.schema.json"
     }
   }
 }

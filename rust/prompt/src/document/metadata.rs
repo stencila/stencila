@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 /// The metadata of the current document
-#[derive(Default, Clone, Trace)]
+#[derive(Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct Metadata {
     /// The document's title as a Markdown string

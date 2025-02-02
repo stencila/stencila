@@ -14,7 +14,7 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "Paragraph")]
+#[display("Paragraph")]
 #[patch(authors_on = "self")]
 #[html(elem = "p")]
 #[jats(elem = "p")]

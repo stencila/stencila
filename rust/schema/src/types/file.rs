@@ -11,7 +11,7 @@ use super::unsigned_integer::UnsignedInteger;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "File")]
+#[display("File")]
 pub struct File {
     /// The type of this item.
     pub r#type: MustBe!("File"),

@@ -12,7 +12,7 @@ use super::walkthrough_step::WalkthroughStep;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "Walkthrough")]
+#[display("Walkthrough")]
 #[patch(apply_with = "Walkthrough::apply_with")]
 pub struct Walkthrough {
     /// The type of this item.

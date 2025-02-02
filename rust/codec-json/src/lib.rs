@@ -4,12 +4,13 @@ use std::{
     path::Path,
 };
 
+use zip::{self, write::FileOptions, ZipArchive};
+
 use codec::{
     common::{
         async_trait::async_trait,
         eyre::{bail, Result},
         serde_json::{Map, Value},
-        zip::{self, write::FileOptions, ZipArchive},
     },
     format::Format,
     schema::{Article, Node, NodeType},
@@ -187,7 +188,7 @@ pub fn to_path(node: &Node, path: &Path, options: Option<EncodeOptions>) -> Resu
             .unwrap_or("document");
         let filename = [filename, ".json"].concat();
 
-        let options = FileOptions::default().unix_permissions(0o755);
+        let options: FileOptions<'_, ()> = FileOptions::default().unix_permissions(0o755);
         zip.start_file(filename, options)?;
         zip.write_all(string.as_bytes())?;
         zip.finish()?;

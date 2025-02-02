@@ -17,7 +17,6 @@ The `Block` type has these members:
 - [`Claim`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)
 - [`CodeBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-block.md)
 - [`CodeChunk`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-chunk.md)
-- [`DeleteBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/delete-block.md)
 - [`Figure`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/figure.md)
 - [`File`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/file.md)
 - [`ForBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for-block.md)
@@ -26,16 +25,13 @@ The `Block` type has these members:
 - [`IfBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if-block.md)
 - [`ImageObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image-object.md)
 - [`IncludeBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include-block.md)
-- [`InsertBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/insert-block.md)
 - [`InstructionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction-block.md)
 - [`List`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list.md)
 - [`MathBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math-block.md)
-- [`ModifyBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify-block.md)
 - [`Paragraph`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/paragraph.md)
 - [`PromptBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/prompt-block.md)
 - [`QuoteBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote-block.md)
 - [`RawBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/raw-block.md)
-- [`ReplaceBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/replace-block.md)
 - [`Section`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/section.md)
 - [`StyledBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled-block.md)
 - [`SuggestionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-block.md)
@@ -72,7 +68,6 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 |                    | Low+       | Generate `Claim` nodes in block content.                   | Default for level |
 | `CodeChunk`        | Min+       | Do not generate `CodeChunk` nodes in block content.        | -                 |
 |                    | Low+       | Generate `CodeChunk` nodes in block content.               | Default for level |
-| `DeleteBlock`      | Min+       | Do not generate `DeleteBlock` nodes in block content.      | -                 |
 | `Figure`           | Min+       | Do not generate `Figure` nodes in block content.           | -                 |
 |                    | Low+       | Generate `Figure` nodes in block content.                  | Default for level |
 | `File`             | Min+       | Do not generate `File` nodes in block content.             | -                 |
@@ -84,11 +79,8 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 | `ImageObject`      | Min+       | Do not generate `ImageObject` nodes in block content.      | -                 |
 | `IncludeBlock`     | Min+       | Do not generate `IncludeBlock` nodes in block content.     | -                 |
 |                    | Low+       | Generate `IncludeBlock` nodes in block content.            | Default for level |
-| `InsertBlock`      | Min+       | Do not generate `InsertBlock` nodes in block content.      | -                 |
 | `InstructionBlock` | Min+       | Do not generate `InstructionBlock` nodes in block content. | -                 |
-| `ModifyBlock`      | Min+       | Do not generate `ModifyBlock` nodes in block content.      | -                 |
 | `PromptBlock`      | Min+       | Do not generate `PromptBlock` nodes in block content.      | -                 |
-| `ReplaceBlock`     | Min+       | Do not generate `ReplaceBlock` nodes in block content.     | -                 |
 | `Section`          | Min+       | Do not generate `Section` nodes in block content.          | -                 |
 |                    | Low+       | Generate `Section` nodes in block content.                 | Default for level |
 | `SuggestionBlock`  | Min+       | Do not generate `SuggestionBlock` nodes in block content.  | -                 |

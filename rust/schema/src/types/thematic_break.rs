@@ -11,7 +11,7 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "ThematicBreak")]
+#[display("ThematicBreak")]
 #[html(elem = "hr")]
 #[jats(elem = "hr")]
 #[markdown(template = "***\n\n")]

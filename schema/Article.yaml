@@ -34,6 +34,7 @@ core:
   - datePublished
   - description
   - references
+  - frontmatter
   - config
   - headings
   - temporary
@@ -60,6 +61,14 @@ properties:
       for example, "1-6, 9, 55".
     type: string
     strip: [metadata]
+  frontmatter:
+    "@id": stencila:frontmatter
+    description: Frontmatter containing document metadata.
+    $comment: Currently assumed to be YAML or JSON.
+    type: string
+    strip: [metadata]
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
   config:
     "@id": stencila:config
     description: Configuration options for the document.

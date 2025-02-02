@@ -1,14 +1,6 @@
 # TODO: Support the following codec/node type combinations
 
 compact.jats.xml:
-  encode:
-    strip-types:
-      - DeleteBlock
-      - DeleteInline
-      - InsertBlock
-      - InsertInline
-      - ReplaceBlock
-      - ReplaceInline
   decode:
     strip-types:
       - CallBlock

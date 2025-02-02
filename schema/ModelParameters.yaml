@@ -14,6 +14,7 @@ core:
   - minimumScore
   - temperature
   - randomSeed
+  - maximumRetries
 properties:
   modelIds:
     '@id': stencila:modelIds
@@ -98,3 +99,11 @@ properties:
       - rand-seed
       - rand_seed
       - seed
+  maximumRetries:
+    '@id': stencila:retries
+    description: The maximum number of retries.
+    $ref: UnsignedInteger
+    aliases:
+      - retries
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]

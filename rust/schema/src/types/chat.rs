@@ -43,7 +43,7 @@ use super::timestamp::Timestamp;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "Chat")]
+#[display("Chat")]
 #[patch(authors_on = "options", apply_with = "Chat::apply_with")]
 pub struct Chat {
     /// The type of this item.

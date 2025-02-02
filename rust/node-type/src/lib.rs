@@ -20,22 +20,18 @@ impl NodeType {
                 | Claim
                 | CodeBlock
                 | CodeChunk
-                | DeleteBlock
                 | Figure
                 | ForBlock
                 | Form
                 | Heading
                 | IfBlock
                 | IncludeBlock
-                | InsertBlock
                 | InstructionBlock
                 | List
                 | MathBlock
-                | ModifyBlock
                 | Paragraph
                 | PromptBlock
                 | QuoteBlock
-                | ReplaceBlock
                 | Section
                 | StyledBlock
                 | SuggestionBlock

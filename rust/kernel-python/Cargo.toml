@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 kernel-micro = { path = "../kernel-micro" }
+which = { workspace = true }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }

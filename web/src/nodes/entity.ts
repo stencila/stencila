@@ -67,7 +67,7 @@ export abstract class Entity extends LitElement {
   protected parentNodeType: NodeType
 
   /**
-   * An element property to be used if the Enity requires a tooltip
+   * An element property to be used if the Entity requires a tooltip
    */
   protected tooltipElement: Element | null = null
 
@@ -199,9 +199,10 @@ export abstract class Entity extends LitElement {
    * Renders the chip control for the particular entity
    *
    * To use correctly this must be inside a non-static positioned element
-   * with the `"group"` utitly class applied.
+   * with the `"group"` utility class applied.
    *
    * eg:
+   *
    *  ```
    *  <div class="group relative">
    *    ${this.renderInsertChip()}

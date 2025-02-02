@@ -80,9 +80,17 @@ impl ToStdout for Code {
         let ext = match self.format {
             Format::Dom => "html".to_string(),
             Format::Json5 => "js".to_string(),
-            Format::JsonLd => "json".to_string(),
-            Format::Jats => "xml".to_string(),
-            _ => self.format.extension(),
+            _ => {
+                if self.format.is_json_flavor() {
+                    "json".to_string()
+                } else if self.format.is_markdown_flavor() {
+                    "md".to_string()
+                } else if self.format.is_xml_flavor() {
+                    "xml".to_string()
+                } else {
+                    self.format.extension()
+                }
+            }
         };
 
         let syntax = SYNTAXES.find_syntax_by_extension(&ext).unwrap_or_else(|| {

@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 /// A variable available within a kernel instance
-#[derive(Default, Clone, Trace)]
+#[derive(Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class(rename_all = "camelCase")]
 pub struct Variable {
     /// The name of the variable
@@ -54,7 +54,7 @@ impl Variable {
 }
 
 /// A variable available within a kernel instance
-#[derive(Clone, Trace)]
+#[derive(Clone, Trace, JsLifetime)]
 #[rquickjs::class(rename_all = "camelCase")]
 pub enum Hint {
     Boolean(bool),

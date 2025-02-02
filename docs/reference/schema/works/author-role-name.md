@@ -17,6 +17,8 @@ The `AuthorRoleName` type has these members:
 - `Router`
 - `Generator`
 - `Executor`
+- `Formatter`
+- `Linter`
 
 ## Bindings
 

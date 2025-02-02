@@ -469,7 +469,7 @@ async fn code_chunks() -> Result<()> {
 
     let (output, messages) = kernel.evaluate("cc.first.outputs[0].value").await?;
     assert_eq!(messages, []);
-    assert_eq!(output, Node::Integer(3));
+    assert_eq!(output, Node::Number(3.0));
 
     let (output, messages) = kernel.evaluate("cc.last.code").await?;
     assert_eq!(messages, []);

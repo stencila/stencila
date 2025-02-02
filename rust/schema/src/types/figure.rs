@@ -28,7 +28,7 @@ use super::thing_type::ThingType;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "Figure")]
+#[display("Figure")]
 #[patch(authors_on = "self")]
 #[html(elem = "figure")]
 #[jats(elem = "fig")]

@@ -28,7 +28,7 @@ use tables::{Table, Tables};
 ///
 /// This intentionally condenses the rich, nested, structure of the document
 /// into a flat structure that is more easily accessible from within prompts.
-#[derive(Default, Clone, Trace)]
+#[derive(Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class(rename_all = "camelCase")]
 pub struct Document {
     /// Metadata of the current document

@@ -1,41 +1,16 @@
 {
   "$schema": "https://stencila.org/meta.schema.json",
   "$id": "https://stencila.org/Config.schema.json",
-  "@id": "stencila:Config",
   "title": "Config",
   "nick": "cfg",
-  "extends": [
-    "Entity"
-  ],
+  "category": "config",
   "description": "Stencila document configuration options.",
-  "required": [
-    "type"
-  ],
   "core": [
-    "id",
-    "theme"
+    "theme",
+    "publish"
   ],
   "properties": {
-    "type": {
-      "@id": "schema:type",
-      "description": "The type of this item.",
-      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
-      "type": "string"
-    },
-    "id": {
-      "@id": "schema:id",
-      "description": "The identifier for this item.",
-      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
-      "strip": [
-        "metadata"
-      ],
-      "html": {
-        "attr": "id"
-      },
-      "type": "string"
-    },
     "theme": {
-      "@id": "stencila:theme",
       "description": "The styling theme to use for the document",
       "patch": {
         "formats": [
@@ -43,6 +18,15 @@
         ]
       },
       "type": "string"
+    },
+    "publish": {
+      "description": "Publishing configuration options",
+      "patch": {
+        "formats": [
+          "all"
+        ]
+      },
+      "$ref": "ConfigPublish.schema.json"
     }
   }
 }

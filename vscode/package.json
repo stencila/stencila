@@ -3,7 +3,7 @@
   "displayName": "Stencila",
   "publisher": "stencila",
   "description": "Documents with Scientific Intelligence",
-  "version": "0.0.19",
+  "version": "0.0.22",
   "license": "Apache-2.0",
   "author": "Stencila and contributors",
   "homepage": "https://github.com/stencila/stencila/tree/main/vscode#readme",
@@ -224,19 +224,74 @@
         "title": "Chat to create"
       },
       {
-        "command": "stencila.insert-chat.create.Paragraph",
+        "command": "stencila.insert-chat.create.code-chunk",
+        "category": "Stencila",
+        "title": "Code Chunk"
+      },
+      {
+        "command": "stencila.insert-chat.create.figure-code",
+        "category": "Stencila",
+        "title": "Figure > Code based"
+      },
+      {
+        "command": "stencila.insert-chat.create.figure-flowchart",
+        "category": "Stencila",
+        "title": "Figure > Mermaid Flowchart"
+      },
+      {
+        "command": "stencila.insert-chat.create.figure-mermaid",
+        "category": "Stencila",
+        "title": "Figure > Mermaid"
+      },
+      {
+        "command": "stencila.insert-chat.create.figure-svg",
+        "category": "Stencila",
+        "title": "Figure > SVG"
+      },
+      {
+        "command": "stencila.insert-chat.create.figure-timeline",
+        "category": "Stencila",
+        "title": "Figure > Mermaid Timeline"
+      },
+      {
+        "command": "stencila.insert-chat.create.list-ordered",
+        "category": "Stencila",
+        "title": "List > Ordered"
+      },
+      {
+        "command": "stencila.insert-chat.create.list-unordered",
+        "category": "Stencila",
+        "title": "List > Unordered"
+      },
+      {
+        "command": "stencila.insert-chat.create.math-block",
+        "category": "Stencila",
+        "title": "Math"
+      },
+      {
+        "command": "stencila.insert-chat.create.paragraph",
         "category": "Stencila",
         "title": "Paragraph"
       },
       {
-        "command": "stencila.insert-chat.create.Table",
+        "command": "stencila.insert-chat.create.quote-block",
         "category": "Stencila",
-        "title": "Table"
+        "title": "Quote"
       },
       {
-        "command": "stencila.insert-chat.create.CodeChunk",
+        "command": "stencila.insert-chat.create.table-code",
         "category": "Stencila",
-        "title": "Code Chunk"
+        "title": "Table > Code based"
+      },
+      {
+        "command": "stencila.insert-chat.create.table-empty",
+        "category": "Stencila",
+        "title": "Table > Empty"
+      },
+      {
+        "command": "stencila.insert-chat.create.table-filled",
+        "category": "Stencila",
+        "title": "Table > Filled"
       },
       {
         "command": "stencila.insert-chat.edit",
@@ -528,7 +583,7 @@
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
       },
       {
-        "command": "stencila.insert-chat",
+        "command": "stencila.invoke.create-chat",
         "key": "ctrl+/",
         "mac": "cmd+/",
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
@@ -604,6 +659,18 @@
       {
         "id": "stencila.insert-chat.create-submenu",
         "label": "Chat to create..."
+      },
+      {
+        "id": "stencila.insert-chat.create.figure-submenu",
+        "label": "Figure..."
+      },
+      {
+        "id": "stencila.insert-chat.create.list-submenu",
+        "label": "List..."
+      },
+      {
+        "id": "stencila.insert-chat.create.table-submenu",
+        "label": "Table..."
       }
     ],
     "menus": {
@@ -781,13 +848,61 @@
       ],
       "stencila.insert-chat.create-submenu": [
         {
-          "command": "stencila.insert-chat.create.Paragraph"
+          "command": "stencila.insert-chat.create.paragraph"
         },
         {
-          "command": "stencila.insert-chat.create.Table"
+          "submenu": "stencila.insert-chat.create.figure-submenu"
         },
         {
-          "command": "stencila.insert-chat.create.CodeChunk"
+          "submenu": "stencila.insert-chat.create.table-submenu"
+        },
+        {
+          "command": "stencila.insert-chat.create.code-chunk"
+        },
+        {
+          "command": "stencila.insert-chat.create.math-block"
+        },
+        {
+          "submenu": "stencila.insert-chat.create.list-submenu"
+        },
+        {
+          "command": "stencila.insert-chat.create.quote-block"
+        }
+      ],
+      "stencila.insert-chat.create.figure-submenu": [
+        {
+          "command": "stencila.insert-chat.create.figure-code"
+        },
+        {
+          "command": "stencila.insert-chat.create.figure-flowchart"
+        },
+        {
+          "command": "stencila.insert-chat.create.figure-timeline"
+        },
+        {
+          "command": "stencila.insert-chat.create.figure-mermaid"
+        },
+        {
+          "command": "stencila.insert-chat.create.figure-svg"
+        }
+      ],
+      "stencila.insert-chat.create.list-submenu": [
+        {
+          "command": "stencila.insert-chat.create.list-ordered"
+        },
+        {
+          "command": "stencila.insert-chat.create.list-unordered"
+        }
+      ],
+      "stencila.insert-chat.create.table-submenu": [
+        {
+          "command": "stencila.insert-chat.create.table-code"
+        },
+        {
+          "command": "stencila.insert-chat.create.table-empty"
+        },
+        {
+          "command": "stencila.insert-chat.create.table-filled"
         }
       ],
       "view/title": [

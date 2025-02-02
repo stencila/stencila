@@ -15,7 +15,7 @@ use super::thing::Thing;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "MonetaryGrant")]
+#[display("MonetaryGrant")]
 pub struct MonetaryGrant {
     /// The type of this item.
     pub r#type: MustBe!("MonetaryGrant"),

@@ -1,5 +1,6 @@
+use derive_more::{Deref, DerefMut};
+
 use common::{
-    derive_more::{Deref, DerefMut},
     indexmap::IndexMap,
     serde::Serialize,
     smol_str::{SmolStr, ToSmolStr},

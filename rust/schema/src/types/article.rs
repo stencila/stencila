@@ -45,7 +45,7 @@ use super::timestamp::Timestamp;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "Article")]
+#[display("Article")]
 #[patch(authors_on = "self")]
 #[html(elem = "article")]
 #[jats(elem = "article", special)]
@@ -168,6 +168,12 @@ pub struct Article {
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_bounds: Option<ExecutionBounds>,
+
+    /// Frontmatter containing document metadata.
+    #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub frontmatter: Option<String>,
 
     /// Configuration options for the document.
     #[strip(metadata)]

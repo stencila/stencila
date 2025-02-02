@@ -1,5 +1,5 @@
 use codec_cbor::r#trait::CborCodec;
-use codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
+use codec_markdown::to_markdown_with;
 use codecs::Format;
 use common::{
     futures::stream::{FuturesUnordered, StreamExt},
@@ -84,7 +84,7 @@ impl Executable for InstructionBlock {
         // as indicated by previous suggestions being retained, then (a) set the number of replicates
         // to one, (b) use the same model as that which generated the active suggestion, and
         // (c) put the active suggestion last when sending to the model <<- TODO
-        if executor.options.retain_suggestions {
+        if executor.execute_options.retain_suggestions {
             replicates = 1;
 
             if let (Some(index), Some(suggestions)) = (self.active_suggestion, &self.suggestions) {
@@ -147,9 +147,7 @@ impl Executable for InstructionBlock {
         executor.instruction_context = None;
 
         // Render the `PromptBlock` into a system prompt
-        let mut context = MarkdownEncodeContext::new(Some(Format::Markdown), Some(true));
-        self.prompt.content.to_markdown(&mut context);
-        let system_prompt = context.content;
+        let system_prompt = to_markdown_with(&self.prompt.content, Format::Markdown, true);
 
         // Create an author role for the prompt
         let prompter = AuthorRole {
@@ -168,7 +166,7 @@ impl Executable for InstructionBlock {
         }
 
         // Unless specified, clear existing suggestions
-        if !executor.options.retain_suggestions {
+        if !executor.execute_options.retain_suggestions {
             executor.patch(&node_id, [none(NodeProperty::Suggestions)]);
         }
 
@@ -182,7 +180,7 @@ impl Executable for InstructionBlock {
             let prompter = prompter.clone();
             let system_prompt = system_prompt.to_string();
             let mut instruction = self.clone();
-            let dry_run = executor.options.dry_run;
+            let dry_run = executor.execute_options.dry_run;
             if let Some(model_ids) = model_ids.clone() {
                 // Apply the model id for revisions
                 instruction.model_parameters.model_ids = Some(model_ids);
