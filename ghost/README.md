@@ -1,3 +1,26 @@
+# Stencila theme
+
+
+
+## Configuring social links
+
+All social links currently shown in the page footer.
+
+Ghost provides support for facebook and x(formaly twitter) which can be configured in the admin menu.
+
+This theme adds support for 
+'whatsapp', 'instagram', 'github', 'discord', 'youtube'.
+
+To add 
+
+
+## Routing
+
+This them will utililse the custom [routes.yml](https://ghost.org/docs/themes/routing/).
+
+More to come.
+
+
 # Ghost Starter Theme
 
 A starter framework for Ghost themes! Click **Use this template** to create a copy of this repo for everything you need to get started developing a custom Ghost theme.
@@ -123,3 +146,4 @@ npm run test
 ## Copyright & License
 
 Copyright (c) 2013-2025 Ghost Foundation - Released under the [MIT license](LICENSE).
+
