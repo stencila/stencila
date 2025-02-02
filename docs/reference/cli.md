@@ -66,7 +66,7 @@ CLI subcommands and global options
 * `convert` — Convert a document to another format
 * `sync` — Synchronize a document between formats
 * `compile` — Compile a document
-* `lint` — Lint a document
+* `lint` — Lint one or more documents
 * `execute` — Execute a document
 * `render` — Render a document
 * `preview` — Preview a document or site
@@ -316,13 +316,13 @@ Compile a document
 
 ## `stencila lint`
 
-Lint a document
+Lint one or more documents
 
-**Usage:** `stencila lint [OPTIONS] <FILE>`
+**Usage:** `stencila lint [OPTIONS] [FILES]...`
 
 ###### **Arguments:**
 
-* `<FILE>` — The file to lint
+* `<FILES>` — The files to lint
 
 ###### **Options:**
 
