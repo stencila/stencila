@@ -4,7 +4,7 @@ use common::{
     tokio,
 };
 use models::ModelTask;
-use node_diagnostics::diagnostics;
+use node_diagnostics::{diagnostics_gte, DiagnosticLevel};
 use schema::{
     authorship,
     shortcuts::{ci, h3, p, t},
@@ -299,22 +299,33 @@ impl Executable for Chat {
 
                             let mut retries = 0;
                             loop {
-                                // TODO: Format and lint before executing
-
-                                // Execute the content
-                                if let Err(error) = fork.compile_prepare_execute(&mut content).await
+                                // Format, fix & lint the content before executing
+                                if let Err(error) =
+                                    fork.compile_lint(&mut content, true, true).await
                                 {
-                                    tracing::error!("While executing content: {error}");
-                                }
+                                    tracing::error!("While linting content: {error}");
+                                };
 
-                                // Collect diagnostics and stop retrying if none
-                                let diags = diagnostics(&content);
+                                // Collect linting diagnostics
+                                let diags = diagnostics_gte(&content, DiagnosticLevel::Warning);
+
+                                // Execute only if no linting warnings or errors
+                                let diags = if diags.is_empty() {
+                                    if let Err(error) = fork.prepare_execute(&mut content).await {
+                                        tracing::error!("While executing content: {error}");
+                                    }
+                                    diagnostics_gte(&content, DiagnosticLevel::Warning)
+                                } else {
+                                    diags
+                                };
+
+                                // Stop retrying if no diagnostics
                                 if diags.is_empty() {
                                     break;
                                 }
 
                                 // Extract the level and message of the first diagnostic
-                                let (level, mut message) = diags
+                                let (level, message) = diags
                                     .first()
                                     .map(|diag| {
                                         (
@@ -323,11 +334,6 @@ impl Executable for Chat {
                                         )
                                     })
                                     .unwrap_or_default();
-                                const MAX_MESSAGE_CHARS: usize = 50;
-                                if message.len() > MAX_MESSAGE_CHARS {
-                                    message = message.chars().take(MAX_MESSAGE_CHARS).collect();
-                                    message.push_str("…");
-                                }
 
                                 // Stop if hit maximum number of retries
                                 // Note that this check occurs after the execute to allow the final
@@ -335,17 +341,16 @@ impl Executable for Chat {
                                 if retries >= MAX_RETRIES {
                                     // Let the user know we are giving up
                                     if retries > 0 {
+                                        let message = p([
+                                            t(format!(
+                                                "Giving up after {retries} {} with {level}: ",
+                                                if retries == 1 { "retry" } else { "retries" }
+                                            )),
+                                            ci(truncate(message, 100)),
+                                        ]);
                                         fork.patch(
                                             &message_id,
-                                            [append(
-                                                NodeProperty::Content,
-                                                vec![
-                                                    p([
-                                                        t(format!("Giving up after {retries} {} with {level}: ", if retries == 1 {"retry"} else {"retries"})),
-                                                        ci(message),
-                                                    ]),
-                                                ],
-                                            )],
+                                            [append(NodeProperty::Content, vec![message])],
                                         );
                                     }
 
@@ -353,7 +358,7 @@ impl Executable for Chat {
                                 }
                                 retries += 1;
 
-                                // Add a content indicating the retry and the reason for it
+                                // Add content indicating the retry and the reason for it
                                 fork.patch(
                                     &message_id,
                                     [append(
@@ -383,8 +388,20 @@ impl Executable for Chat {
                                     match model_task_to_blocks_and_authors(task.clone()).await {
                                         Ok((blocks, ..)) => blocks,
                                         Err(error) => {
-                                            tracing::error!("While retrying model task: {error}");
-                                            continue;
+                                            // If there was an error retrying e.g. model unavailable then
+                                            // give up.
+                                            let message = p([
+                                                t(format!(
+                                                    "Giving up after {retries} {} due to error: ",
+                                                    if retries == 1 { "retry" } else { "retries" }
+                                                )),
+                                                ci(truncate(error.to_string(), 200)),
+                                            ]);
+                                            fork.patch(
+                                                &message_id,
+                                                [append(NodeProperty::Content, vec![message])],
+                                            );
+                                            break;
                                         }
                                     };
 
@@ -512,4 +529,14 @@ fn group_to_instr_msg(group: &ChatMessageGroup) -> Option<InstructionMessage> {
         .find(|msg| msg.options.is_selected.unwrap_or_default())
         .or_else(|| group.messages.first())
         .and_then(msg_to_instr_msg)
+}
+
+fn truncate(message: String, chars: usize) -> String {
+    if message.len() > chars {
+        let mut message: String = message.chars().take(chars).collect();
+        message.push_str("…");
+        message
+    } else {
+        message
+    }
 }
