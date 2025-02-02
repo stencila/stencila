@@ -44,18 +44,25 @@ pub mod cli;
 /// Get a list of available kernels
 pub async fn list() -> Vec<Box<dyn Kernel>> {
     let mut kernels = vec![
-        // First so that it gets used for `js` rather than `NodeJsKernel`
-        Box::<QuickJsKernel>::default() as Box<dyn Kernel>,
-        Box::<AsciiMathKernel>::default() as Box<dyn Kernel>,
-        Box::<BashKernel>::default() as Box<dyn Kernel>,
-        Box::<GraphvizKernel>::default() as Box<dyn Kernel>,
-        Box::<JinjaKernel>::default() as Box<dyn Kernel>,
-        Box::<MermaidKernel>::default() as Box<dyn Kernel>,
-        Box::<NodeJsKernel>::default() as Box<dyn Kernel>,
+        // The order here is important it is used in places like
+        // `stencila kernels list`, LSP completion lists, and other user interfaces
+
+        // Programming
         Box::<PythonKernel>::default() as Box<dyn Kernel>,
         Box::<RKernel>::default() as Box<dyn Kernel>,
-        Box::<StyleKernel>::default() as Box<dyn Kernel>,
+        Box::<QuickJsKernel>::default() as Box<dyn Kernel>,
+        Box::<NodeJsKernel>::default() as Box<dyn Kernel>,
+        Box::<BashKernel>::default() as Box<dyn Kernel>,
+        // Diagrams
+        Box::<MermaidKernel>::default() as Box<dyn Kernel>,
+        Box::<GraphvizKernel>::default() as Box<dyn Kernel>,
+        // Templating
+        Box::<JinjaKernel>::default() as Box<dyn Kernel>,
+        // Math
+        Box::<AsciiMathKernel>::default() as Box<dyn Kernel>,
         Box::<TexKernel>::default() as Box<dyn Kernel>,
+        // Styling
+        Box::<StyleKernel>::default() as Box<dyn Kernel>,
     ];
 
     #[cfg(feature = "kernel-rhai")]

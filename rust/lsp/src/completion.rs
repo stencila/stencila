@@ -14,10 +14,7 @@ use async_lsp::{
 };
 
 use codecs::{Format, Positions};
-use common::{
-    itertools::Itertools,
-    tokio::{fs::read_dir, sync::RwLock},
-};
+use common::tokio::{fs::read_dir, sync::RwLock};
 use kernels::KernelType;
 use schema::{InstructionType, Prompt, StringOrNumber};
 
@@ -252,7 +249,6 @@ async fn kernel_snippets(line_num: u32) -> Result<Option<CompletionResponse>, Re
         .await
         .iter()
         .filter(|kernel| kernel.is_available() && !matches!(kernel.r#type(), KernelType::Styling))
-        .sorted_by(|a, b| a.r#type().cmp(&b.r#type()))
         .enumerate()
         .filter_map(|(index, kernel)| {
             let kind = match kernel.r#type() {
@@ -266,6 +262,10 @@ async fn kernel_snippets(line_num: u32) -> Result<Option<CompletionResponse>, Re
             };
 
             let mut label = kernel.name();
+            if label == "quickjs" {
+                label = "js".into();
+            }
+
             if matches!(
                 kernel.r#type(),
                 KernelType::Programming | KernelType::Diagrams | KernelType::Templating
@@ -282,6 +282,11 @@ async fn kernel_snippets(line_num: u32) -> Result<Option<CompletionResponse>, Re
                     "Run ",
                     lang.as_deref().unwrap_or("programming language"),
                     " code",
+                    match kernel.name().as_str() {
+                        "quickjs" => " with QuickJS",
+                        "nodejs" => " with NodeJS",
+                        _ => "",
+                    },
                 ]
                 .concat(),
                 KernelType::Math => [

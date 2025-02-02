@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, path::PathBuf};
+use std::path::PathBuf;
 
 use cli_utils::{
     table::{self, Attribute, Cell, CellAlignment, Color},
@@ -89,16 +89,6 @@ impl List {
 
             return Ok(());
         }
-
-        let list = list
-            .into_iter()
-            .sorted_by(|a, b| match a.r#type().cmp(&b.r#type()) {
-                Ordering::Equal => match a.provider().cmp(&b.provider()) {
-                    Ordering::Equal => a.name().cmp(&b.name()),
-                    ordering => ordering,
-                },
-                ordering => ordering,
-            });
 
         let mut table = table::new();
         table.set_header([
