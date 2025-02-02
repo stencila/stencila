@@ -103,7 +103,7 @@ impl Diagnostic {
         source: &'s str,
         poshmap: &Option<PoshMap<'s, 's>>,
     ) -> Result<String> {
-        let (report, source) = self.to_report(path, source, poshmap, false, true)?;
+        let (report, source) = self.into_report(path, source, poshmap, false, true)?;
         let cache = (path, Source::from(source));
 
         let mut buffer = Vec::new();
@@ -120,7 +120,7 @@ impl Diagnostic {
         source: &'s str,
         poshmap: &Option<PoshMap<'s, 's>>,
     ) -> Result<()> {
-        let (report, source) = self.to_report(path, source, poshmap, true, false)?;
+        let (report, source) = self.into_report(path, source, poshmap, true, false)?;
         let cache = (path, Source::from(source));
 
         report.eprint(cache)?;
@@ -128,7 +128,8 @@ impl Diagnostic {
         Ok(())
     }
 
-    fn to_report<'s>(
+    #[allow(clippy::type_complexity)]
+    fn into_report<'s>(
         self,
         path: &'s str,
         source: &'s str,

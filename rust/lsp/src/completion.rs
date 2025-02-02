@@ -309,7 +309,7 @@ async fn kernel_snippets(line_num: u32) -> Result<Option<CompletionResponse>, Re
                 kind: Some(kind),
                 label,
                 label_details: Some(CompletionItemLabelDetails {
-                    description: Some(details.into()),
+                    description: Some(details),
                     ..Default::default()
                 }),
                 filter_text,
@@ -326,7 +326,7 @@ async fn kernel_snippets(line_num: u32) -> Result<Option<CompletionResponse>, Re
                             character: u32::MAX,
                         },
                     },
-                    new_text: body.into(),
+                    new_text: body,
                 })),
                 sort_text: Some(format!("{index:03}")),
                 ..Default::default()

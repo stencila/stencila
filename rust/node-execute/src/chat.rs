@@ -111,7 +111,7 @@ impl Executable for Chat {
             if let Err(error) = self.content.walk_async(executor).await {
                 tracing::error!("While executing chat content: {error}")
             };
-            
+
             // Previously, rather than do the above walk, this returned `WalkControl::Continue`.
             // However, for some unresolved reason, that approach did not execute code chunks
             // nested within temporary chats (it worked for standalone-chats only). The
@@ -563,7 +563,7 @@ fn group_to_instr_msg(group: &ChatMessageGroup) -> Option<InstructionMessage> {
 fn truncate(message: String, chars: usize) -> String {
     if message.len() > chars {
         let mut message: String = message.chars().take(chars).collect();
-        message.push_str("…");
+        message.push('…');
         message
     } else {
         message
