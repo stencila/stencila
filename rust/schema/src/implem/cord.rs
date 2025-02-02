@@ -760,7 +760,9 @@ impl PatchNode for Cord {
             // Accept pre-calculated operations from a higher level diff
             PatchOp::Apply(ops) => ops,
             // Calculate ops by diffing a new string value
-            PatchOp::Set(PatchValue::String(value)) => {
+            PatchOp::Set(
+                PatchValue::String(value) | PatchValue::Json(serde_json::Value::String(value)),
+            ) => {
                 let other = Cord::from(value);
                 self.create_ops(&other)
             }
