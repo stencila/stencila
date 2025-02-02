@@ -50,6 +50,9 @@ export class ModelParameters extends Entity {
   @property({ attribute: 'random-seed', type: Number })
   randomSeed?: number
 
+  @property({ attribute: 'maximum-retries', type: Number })
+  maximumRetries?: number
+
   /**
    * UI settings of the parent node type
    *
@@ -277,7 +280,7 @@ export class ModelParameters extends Entity {
    */
   private onPropertyChanged(
     event: InputEvent,
-    property: 'minimumScore' | 'replicates' | 'temperature'
+    property: 'minimumScore' | 'replicates' | 'temperature' | 'maximumRetries'
   ) {
     this[property] = parseInt((event.target as HTMLInputElement).value)
 
@@ -501,7 +504,7 @@ export class ModelParameters extends Entity {
           <span class=${headerClasses}>
             <stencila-ui-icon
               class="text-lg"
-              name="arrowRepeat"
+              name="hash"
             ></stencila-ui-icon>
             Suggestions per model
             ${help('Number of suggestions made by each model')}
@@ -514,6 +517,24 @@ export class ModelParameters extends Entity {
             value=${this.replicates ?? 1}
             @sl-change=${(e: InputEvent) =>
               this.onPropertyChanged(e, 'replicates')}
+          ></sl-range>
+
+          <span class=${headerClasses}>
+            <stencila-ui-icon
+              class="text-lg"
+              name="arrowRepeat"
+            ></stencila-ui-icon>
+            Maximum number of retries
+            ${help('Maximum number of retries by each model')}
+          </span>
+          <sl-range
+            class="w-full"
+            style=${rangeStyle}
+            min="0"
+            max="5"
+            value=${this.maximumRetries ?? 0}
+            @sl-change=${(e: InputEvent) =>
+              this.onPropertyChanged(e, 'maximumRetries')}
           ></sl-range>
         </div>
       </div>

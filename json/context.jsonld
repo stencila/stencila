@@ -344,6 +344,7 @@
     "maxItems": "stencila:maxItems",
     "maxLength": "stencila:maxLength",
     "maximum": "stencila:maximum",
+    "maximumRetries": "stencila:retries",
     "mediaType": "schema:encodingFormat",
     "memberOf": "schema:memberOf",
     "members": "schema:member",

@@ -279,6 +279,7 @@ impl Executable for Chat {
         }
 
         // Wait for each future to complete and patch content
+        let max_retries = self.model_parameters.maximum_retries.unwrap_or(0);
         let execution_bounds = self.execution_bounds.clone().unwrap_or_default();
         while let Some((model_id, message_id, mut task, started, ended, result)) =
             futures.next().await
@@ -303,9 +304,6 @@ impl Executable for Chat {
                         let mut content = content.clone();
                         let message_id = message_id.clone();
                         tokio::spawn(async move {
-                            // TODO: allow the maximum number of retries to be set in model params
-                            const MAX_RETRIES: u32 = 3;
-
                             let mut retries = 0;
                             loop {
                                 // Format, fix & lint the content before executing
@@ -328,8 +326,8 @@ impl Executable for Chat {
                                     diags
                                 };
 
-                                // Stop retrying if no diagnostics
-                                if diags.is_empty() {
+                                // Stop retrying if no retries or diagnostics
+                                if max_retries == 0 || diags.is_empty() {
                                     break;
                                 }
 
@@ -347,7 +345,7 @@ impl Executable for Chat {
                                 // Stop if hit maximum number of retries
                                 // Note that this check occurs after the execute to allow the final
                                 // retry to be executed
-                                if retries >= MAX_RETRIES {
+                                if retries >= max_retries {
                                     // Let the user know we are giving up
                                     if retries > 0 {
                                         let message = p([
@@ -370,7 +368,7 @@ impl Executable for Chat {
                                 // Add content indicating the retry and the reason for it
                                 // and update message status indicating that updating message
                                 let message = vec![
-                                    h3([t(format!("Retry {retries} of {MAX_RETRIES}"))]),
+                                    h3([t(format!("Retry {retries} of {max_retries}"))]),
                                     p([t(format!("Trying again due to {level}: ")), ci(message)]),
                                 ];
                                 fork.patch(

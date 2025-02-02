@@ -166,6 +166,7 @@ pub enum NodeProperty {
     MaxItems,
     MaxLength,
     Maximum,
+    MaximumRetries,
     MediaType,
     MemberOf,
     Members,

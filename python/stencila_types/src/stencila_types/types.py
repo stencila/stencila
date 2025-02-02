@@ -2179,6 +2179,9 @@ class ModelParameters(Entity):
     random_seed: int | None = None
     """The random seed used for the model (if possible)"""
 
+    maximum_retries: UnsignedInteger | None = None
+    """The maximum number of retries."""
+
 
 @dataclass(kw_only=True, repr=False)
 class MonetaryGrant(Grant):
