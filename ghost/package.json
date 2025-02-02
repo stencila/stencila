@@ -14,7 +14,8 @@
         "build": "rollup -c --environment BUILD:production && npx tailwindcss -i ./assets/css/tailwind.css -o ./assets/built/tailwind.css --minify",
         "zip": "npm run build && bestzip $npm_package_name.zip assets/* partials/* members/* *.hbs package.json",
         "test": "npx gscan .",
-        "pretest": "npm run build"
+        "pretest": "npm run build",
+        "compile-stencila": "cd ../web && npm run build:ghost"
     },
     "author": {
         "name": "Ghost Foundation",
