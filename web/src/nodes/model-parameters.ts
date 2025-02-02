@@ -502,10 +502,7 @@ export class ModelParameters extends Entity {
           ></sl-range>
 
           <span class=${headerClasses}>
-            <stencila-ui-icon
-              class="text-lg"
-              name="hash"
-            ></stencila-ui-icon>
+            <stencila-ui-icon class="text-lg" name="hash"></stencila-ui-icon>
             Suggestions per model
             ${help('Number of suggestions made by each model')}
           </span>
