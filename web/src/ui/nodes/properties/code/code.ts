@@ -47,8 +47,16 @@ export class UINodeCode extends LitElement {
   /**
    * Id of the node whose code is being rendered
    */
-  @property({ type: String, attribute: 'node-id' })
+  @property({ attribute: 'node-id' })
   nodeId: string
+
+  /**
+   * Name of the node property that the code is for
+   *
+   * Used when sending patches to update the code.
+   */
+  @property({ attribute: 'node-property' })
+  nodeProperty: string = 'code'
 
   /**
    * The code to be rendered
@@ -177,7 +185,7 @@ export class UINodeCode extends LitElement {
         clearTimeout(patchTimer)
         patchTimer = setTimeout(() => {
           this.dispatchEvent(
-            patchValue(this.type, this.nodeId, 'code', newValue)
+            patchValue(this.type, this.nodeId, this.nodeProperty, newValue)
           )
         }, PATCH_DEBOUNCE)
       }
