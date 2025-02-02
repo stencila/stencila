@@ -5,7 +5,10 @@ use which::which;
 use kernel_micro::{
     common::{eyre::Result, serde::Deserialize, serde_json, tempfile::NamedTempFile, tracing},
     format::Format,
-    schema::{CodeLocation, CompilationMessage, MessageLevel},
+    schema::{
+        AuthorRole, AuthorRoleName, CodeLocation, CompilationMessage, MessageLevel,
+        SoftwareApplication, Timestamp,
+    },
     Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
     KernelLint, KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider,
     KernelTerminate, Microkernel,
@@ -78,13 +81,25 @@ impl KernelLint for PythonKernel {
         write!(temp_file, "{}", code)?;
         let temp_path = temp_file.path();
 
+        let mut authors: Vec<AuthorRole> = Vec::new();
+
         // Format code if specified
         if options.format {
-            Command::new("ruff")
-                .arg("format")
-                .arg(temp_path)
-                .output()
-                .ok();
+            let result = Command::new("ruff").arg("format").arg(temp_path).output();
+
+            if let Ok(output) = result {
+                let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+                if stdout.contains("reformatted") {
+                    // Successfully ran Ruff, and it made changes, so add as an author
+                    authors.push(
+                        SoftwareApplication::new("Ruff".to_string()).into_author_role(
+                            AuthorRoleName::Formatter,
+                            Some(Format::Python),
+                            Some(Timestamp::now()),
+                        ),
+                    );
+                }
+            }
         }
 
         // Run Ruff with JSON output for parsing of diagnostic to messages
@@ -95,6 +110,15 @@ impl KernelLint for PythonKernel {
         }
         let mut messages: Vec<CompilationMessage> = if let Ok(output) = cmd.output() {
             let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+
+            // Successfully ran Ruff so add as an author (regardless of whether it made any fixes)
+            authors.push(
+                SoftwareApplication::new("Ruff".to_string()).into_author_role(
+                    AuthorRoleName::Linter,
+                    Some(Format::Python),
+                    Some(Timestamp::now()),
+                ),
+            );
 
             // A diagnostic message from Ruff
             #[derive(Deserialize)]
@@ -115,6 +139,11 @@ impl KernelLint for PythonKernel {
             let ruff_messages = serde_json::from_str::<Vec<RuffMessage>>(&stdout)?;
             ruff_messages
                 .into_iter()
+                .filter(|message| {
+                    // Ignore some messages which make no sense when concatenating code chunks
+                    // E402: Module level import not at top of file
+                    !matches!(message.code.as_str(), "E402")
+                })
                 .map(|message| CompilationMessage {
                     error_type: Some("Linting".into()),
                     level: MessageLevel::Warning,
@@ -153,6 +182,15 @@ impl KernelLint for PythonKernel {
             .output()
         {
             let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+
+            // Successfully ran Pyright so add as an author (regardless of whether it made any fixes)
+            authors.push(
+                SoftwareApplication::new("Pyright".to_string()).into_author_role(
+                    AuthorRoleName::Linter,
+                    Some(Format::Python),
+                    Some(Timestamp::now()),
+                ),
+            );
 
             // A diagnostic report from Pyright
             #[derive(Deserialize)]
@@ -242,6 +280,7 @@ impl KernelLint for PythonKernel {
         Ok(KernelLintingOutput {
             code,
             messages: (!messages.is_empty()).then_some(messages),
+            authors: (!authors.is_empty()).then_some(authors),
             ..Default::default()
         })
     }
@@ -446,6 +485,23 @@ func(
             .await?;
         assert_eq!(messages, vec![]);
         assert_eq!(outputs, vec![Node::Integer(7)]);
+
+        let (outputs, messages) = instance
+            .execute(
+                r"
+try:
+    raise ValueError()
+except NameError:
+    print(2)
+except ValueError as e:
+    print(3)
+finally:
+    print(4)
+",
+            )
+            .await?;
+        assert_eq!(messages, vec![]);
+        assert_eq!(outputs, vec![Node::Integer(3), Node::Integer(4)]);
 
         Ok(())
     }

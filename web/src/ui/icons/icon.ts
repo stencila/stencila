@@ -73,6 +73,7 @@ import cursor from './cursor.svg'
 import dashCircle from './dash-circle.svg'
 import elifClause from './elif-clause.svg'
 import elseClause from './else-clause.svg'
+import eslint from './eslint.svg'
 import exclamationCircle from './exclamation-circle.svg'
 import exclamationTriangle from './exclamation-triangle.svg'
 import eyeSlash from './eye-slash.svg'
@@ -122,6 +123,7 @@ import playFill from './play-fill.svg'
 import play from './play.svg'
 import plusCircle from './plus-circle.svg'
 import postage from './postage.svg'
+import prettier from './prettier.svg'
 import python from './python.svg'
 import questionCircle from './question-circle.svg'
 import quote from './quote.svg'
@@ -130,6 +132,7 @@ import repeat from './repeat.svg'
 import robot from './robot.svg'
 import rosetteCheck from './rosette-check.svg'
 import rosetteFillCheck from './rosette-fill-check.svg'
+import ruff from './ruff.svg'
 import sandbox from './sandbox.svg'
 import shieldCheck from './shield-check.svg'
 import skipEnd from './skip-end.svg'
@@ -207,6 +210,7 @@ const icons = {
   dashCircle,
   elifClause,
   elseClause,
+  eslint,
   exclamationCircle,
   exclamationTriangle,
   eye,
@@ -258,6 +262,7 @@ const icons = {
   playFill,
   plusCircle,
   postage,
+  prettier,
   python,
   python3: python,
   questionCircle,
@@ -267,6 +272,7 @@ const icons = {
   robot,
   rosetteCheck,
   rosetteFillCheck,
+  ruff,
   sandbox,
   shieldCheck,
   skipEnd,

@@ -376,6 +376,7 @@ impl KernelInstance for MicrokernelInstance {
 
         // Search for an environment in the current, or ancestor, directories
         let mut current_dir = directory.to_path_buf();
+        let mut in_pyproject = false;
         loop {
             // Check for devbox.json
             let devbox_path = current_dir.join("devbox.json");
@@ -386,7 +387,13 @@ impl KernelInstance for MicrokernelInstance {
                 break;
             }
 
-            // Check for .venv directory with exec in it
+            // Check for pyproject.toml
+            let pyproject_toml = current_dir.join("pyproject.toml");
+            if pyproject_toml.is_file() {
+                in_pyproject = true;
+            }
+
+            // Check for .venv directory with the desired exec in it
             let venv_path = current_dir
                 .join(".venv")
                 .join("bin")
@@ -402,6 +409,12 @@ impl KernelInstance for MicrokernelInstance {
                 // We've reached the root of the file system so stop
                 break;
             }
+        }
+
+        // If the executable is `uv` and we are not in a pyproject add argument
+        // to use the system Python. Otherwise, no packages will be available, just plain Python.
+        if exec_name == "uv" && !in_pyproject {
+            exec_args.insert(0, "--python-preference=system".into())
         }
 
         // Get the path to the executable, failing early if it can not be found

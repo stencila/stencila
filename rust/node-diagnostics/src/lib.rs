@@ -1,16 +1,21 @@
+use std::ops::Range;
+
+use ariadne::{Config, Label, Report, ReportKind, Source};
+
 use codec_info::{PoshMap, Position8, Positions};
-use common::eyre::Result;
+use common::{eyre::Result, strum::Display};
 use format::Format;
 use schema::{
     Block, CodeLocation, CompilationMessage, Cord, ExecutionMessage, Inline, MessageLevel, Node,
     NodeId, NodeProperty, NodeType, Visitor, WalkControl, WalkNode,
 };
 
-/// Collect all diagnostic messages from a a node
+/// Collect all diagnostic messages from a node
 ///
 /// Currently, collects the [`CompilationMessage`] and [`ExecutionMessage`]s
-/// from on and within the node. In the future, additional diagnostics,
-/// (e.g verification of internal and external links) may be added
+/// from on, and within, the node. In the future, additional diagnostics
+/// not related to executable nodes, (e.g verification of internal and external links)
+/// may be added.
 pub fn diagnostics<T>(node: &T) -> Vec<Diagnostic>
 where
     T: WalkNode,
@@ -18,6 +23,17 @@ where
     let mut walker = Collector::default();
     walker.visit(node);
     walker.messages
+}
+
+/// Collect all diagnostic messages with at least a given level
+pub fn diagnostics_gte<T>(node: &T, level: DiagnosticLevel) -> Vec<Diagnostic>
+where
+    T: WalkNode,
+{
+    diagnostics(node)
+        .into_iter()
+        .filter(|diagnostic| diagnostic.level >= level)
+        .collect()
 }
 
 pub struct Diagnostic {
@@ -46,7 +62,8 @@ pub struct Diagnostic {
     code_location: Option<CodeLocation>,
 }
 
-enum DiagnosticLevel {
+#[derive(Clone, Copy, Display, PartialEq, Eq, PartialOrd, Ord)]
+pub enum DiagnosticLevel {
     /// An advisory diagnostic
     Advice,
     /// A warning diagnostic
@@ -66,14 +83,60 @@ impl From<&MessageLevel> for DiagnosticLevel {
 }
 
 impl Diagnostic {
-    pub fn to_stderr_pretty<'p>(
-        self,
-        path: &str,
-        source: &str,
-        poshmap: &Option<PoshMap<'p, 'p>>,
-    ) -> Result<()> {
-        use ariadne::{Label, Report, ReportKind, Source};
+    /// Get the diagnostics level
+    pub fn level(&self) -> DiagnosticLevel {
+        self.level
+    }
 
+    /// Get the diagnostics message text
+    pub fn message(&self) -> &str {
+        &self.message
+    }
+
+    /// Pretty print the diagnostic to a string
+    ///
+    /// Similar `to_stderr_pretty` but returns a string without terminal color codes
+    /// and that is more compact.
+    pub fn to_string_pretty<'s>(
+        self,
+        path: &'s str,
+        source: &'s str,
+        poshmap: &Option<PoshMap<'s, 's>>,
+    ) -> Result<String> {
+        let (report, source) = self.into_report(path, source, poshmap, false, true)?;
+        let cache = (path, Source::from(source));
+
+        let mut buffer = Vec::new();
+        report.write(cache, &mut buffer)?;
+        let string = String::from_utf8(buffer)?;
+
+        Ok(string)
+    }
+
+    /// Pretty print the diagnostic to stderr
+    pub fn to_stderr_pretty<'s>(
+        self,
+        path: &'s str,
+        source: &'s str,
+        poshmap: &Option<PoshMap<'s, 's>>,
+    ) -> Result<()> {
+        let (report, source) = self.into_report(path, source, poshmap, true, false)?;
+        let cache = (path, Source::from(source));
+
+        report.eprint(cache)?;
+
+        Ok(())
+    }
+
+    #[allow(clippy::type_complexity)]
+    fn into_report<'s>(
+        self,
+        path: &'s str,
+        source: &'s str,
+        poshmap: &Option<PoshMap<'s, 's>>,
+        color: bool,
+        compact: bool,
+    ) -> Result<(Report<'s, (&'s str, Range<usize>)>, String)> {
         let kind: ReportKind<'_> = match self.level {
             DiagnosticLevel::Advice => ReportKind::Advice,
             DiagnosticLevel::Warning => ReportKind::Warning,
@@ -95,15 +158,15 @@ impl Diagnostic {
 
         // Decide if using the document's source or the message's source
         let source = if !source.is_empty() {
-            source
+            source.to_string()
         } else if let Some(code) = &self.code {
-            code
+            code.to_string()
         } else {
-            ""
+            String::new()
         };
 
         // Create a mapping between source line/column position and character index
-        let positions = Positions::new(source);
+        let positions = Positions::new(&source);
 
         // Guess the property of the node that the diagnostic is for
         let property = match self.node_type {
@@ -157,21 +220,13 @@ impl Diagnostic {
             start..end
         };
 
-        let source = if !source.is_empty() {
-            source
-        } else if let Some(code) = &self.code {
-            code
-        } else {
-            ""
-        };
-
-        Report::build(kind, (path, range.clone()))
+        let report = Report::build(kind, (path, range.clone()))
             .with_message(&details)
             .with_label(Label::new((path, range)).with_message(self.message))
-            .finish()
-            .eprint((path, Source::from(source)))?;
+            .with_config(Config::new().with_color(color).with_compact(compact))
+            .finish();
 
-        Ok(())
+        Ok((report, source))
     }
 }
 

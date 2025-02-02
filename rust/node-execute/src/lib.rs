@@ -1,6 +1,6 @@
 #![recursion_limit = "256"]
 
-use std::{collections::HashMap, path::PathBuf, str::FromStr, sync::Arc};
+use std::{collections::HashMap, fmt::Debug, path::PathBuf, str::FromStr, sync::Arc};
 
 use codecs::Format;
 use common::{
@@ -74,9 +74,8 @@ pub async fn lint(
 ) -> Result<()> {
     let mut root = root.read().await.clone();
     let mut executor = Executor::new(home, kernels, patch_sender, None, None);
-    executor.lint_options = LintOptions { format, fix };
     executor.compile(&mut root).await?;
-    executor.lint().await
+    executor.lint(&mut root, format, fix).await
 }
 
 /// Walk over a root node and execute it and child nodes
@@ -214,9 +213,6 @@ pub struct Executor {
     /// Used for `IfBlock` (and possibly others) to control behavior of execution
     /// of child nodes.
     is_last: bool,
-
-    /// Options for linting
-    lint_options: LintOptions,
 
     /// Options for execution
     execute_options: ExecuteOptions,
@@ -398,7 +394,6 @@ impl Executor {
             temporaries: Vec::new(),
             linting_context: Vec::new(),
             is_last: false,
-            lint_options: Default::default(),
             execute_options: options.unwrap_or_default(),
         }
     }
@@ -518,12 +513,12 @@ impl Executor {
     }
 
     /// Lint code that was collected while compiling
-    async fn lint(&mut self) -> Result<()> {
-        let LintOptions {
-            format: should_format,
-            fix: should_fix,
-        } = self.lint_options;
-
+    async fn lint<P: PatchNode + Debug>(
+        &mut self,
+        node: &mut P,
+        should_format: bool,
+        should_fix: bool,
+    ) -> Result<()> {
         // Skip linting if formatting or fixing is not required and
         // none of the codes have changed
         if !should_format
@@ -613,6 +608,7 @@ impl Executor {
 
         let mut node_codes: HashMap<NodeId, String> = HashMap::new();
         let mut node_messages: HashMap<NodeId, Vec<CompilationMessage>> = HashMap::new();
+        let mut node_authors: HashMap<NodeId, Vec<AuthorRole>> = HashMap::new();
         for (format, code) in format_codes {
             let Some(format) = format else {
                 continue;
@@ -622,6 +618,16 @@ impl Executor {
             };
 
             let format = Some(format);
+            let this_format_nodes = format_nodes.remove(&format).unwrap_or_default();
+
+            if let Some(authors) = output.authors {
+                // Get the formatter and linter authors
+                // This could be refined to only add formatter role to nodes
+                // that changed
+                for node_id in &this_format_nodes {
+                    node_authors.insert(node_id.clone(), authors.clone());
+                }
+            }
 
             // Get the line comment prefix for the format
             let comment_prefix = format_comment(&format);
@@ -636,8 +642,6 @@ impl Executor {
             // If there is a code change then extract the new code for each node
             // and compare to see if it has changed
             if code_changed {
-                let this_format_nodes = format_nodes.remove(&format).unwrap_or_default();
-
                 let lines = code.lines().collect_vec();
                 let mut line_index = 0;
                 for (node_id, old_code, ..) in &self.linting_context {
@@ -764,7 +768,7 @@ impl Executor {
             }
         }
 
-        // Send a patch for each of the nodes
+        // Send a patch for each of the nodes in the linting context
         for (node_id, ..) in &self.linting_context {
             // Continue if code is not part of the node
             let Some(node_id) = node_id else {
@@ -789,16 +793,25 @@ impl Executor {
                 PatchOp::Set(messages),
             ));
 
-            if ops.is_empty() {
-                continue;
-            }
+            let authors = node_authors.remove(node_id);
 
             let patch = Patch {
                 node_id: Some(node_id.clone()),
                 ops,
+                authors,
                 ..Default::default()
             };
-            self.send_patch(patch);
+
+            // Send the patch to be applied to the do
+            self.send_patch(patch.clone());
+
+            // Apply the patch to the local copy of the code so the any further
+            // operations on it e.g. execution have the correct line numberings etc
+            // Currently just debug level logging of errors but that may need
+            // to be revisited later?
+            if let Err(error) = schema::patch(node, patch.clone()) {
+                tracing::debug!("While applying local linting patch: {error}");
+            }
         }
 
         Ok(())
@@ -823,7 +836,7 @@ impl Executor {
         self.phase = Phase::Execute;
         root.walk_async(self).await?;
 
-        // Execute any un-executed temporary nodes
+        // Execute any un-executed temporary nodes (those not walked in `visit_block`)
         for (.., mut node) in self.temporaries.drain(..).collect_vec() {
             self.visit_node(&mut node).await?;
         }
@@ -837,7 +850,32 @@ impl Executor {
         root.walk_async(self).await
     }
 
-    /// Run the compile, prepare and execute phases on am executable node
+    /// Run the compile phase on content and lint any code within it
+    async fn compile_lint<N: WalkNode + PatchNode + Debug>(
+        &mut self,
+        node: &mut N,
+        format: bool,
+        fix: bool,
+    ) -> Result<()> {
+        self.phase = Phase::Compile;
+        node.walk_async(self).await?;
+
+        self.lint(node, format, fix).await?;
+
+        Ok(())
+    }
+
+    /// Run the prepare and execute phases on content
+    async fn prepare_execute<W: WalkNode>(&mut self, node: &mut W) -> Result<()> {
+        for phase in [Phase::Prepare, Phase::Execute] {
+            self.phase = phase;
+            node.walk_async(self).await?;
+        }
+
+        Ok(())
+    }
+
+    /// Run the compile, prepare and execute phases on content
     ///
     /// Used when recursively executing new content that has not necessarily been compiled
     /// or prepared yet (e.g. a suggestion or for loop iteration).

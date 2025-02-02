@@ -34,4 +34,10 @@ pub enum AuthorRoleName {
 
     /// The author is a `SoftwareApplication` that executed code which created outputs such as text, tables, or images.
     Executor,
+
+    /// The author is a `SoftwareApplication` that formatted code.
+    Formatter,
+
+    /// The author is a `SoftwareApplication` that made linting fixes to code.
+    Linter,
 }

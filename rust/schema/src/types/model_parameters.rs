@@ -62,6 +62,11 @@ pub struct ModelParameters {
     #[serde(alias = "random-seed", alias = "random_seed", alias = "rand-seed", alias = "rand_seed", alias = "seed")]
     pub random_seed: Option<Integer>,
 
+    /// The maximum number of retries.
+    #[serde(alias = "retries", alias = "maximum-retries", alias = "maximum_retries")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    pub maximum_retries: Option<UnsignedInteger>,
+
     /// A unique identifier for a node within a document
     
     #[serde(skip)]

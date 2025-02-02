@@ -378,6 +378,7 @@ impl Lint {
             code,
             output,
             messages,
+            authors,
         } = crate::lint(
             &code,
             dir,
@@ -402,6 +403,11 @@ impl Lint {
         if let Some(messages) = messages {
             println!("Diagnostic messages:\n");
             Code::new(Format::Yaml, &serde_yaml::to_string(&messages)?).to_stdout();
+        }
+
+        if let Some(authors) = authors {
+            println!("Contributors:\n");
+            Code::new(Format::Yaml, &serde_yaml::to_string(&authors)?).to_stdout();
         }
 
         Ok(())

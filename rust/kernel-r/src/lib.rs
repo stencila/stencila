@@ -8,7 +8,10 @@ use std::{
 use kernel_micro::{
     common::{eyre::Result, serde::Deserialize, serde_json, tempfile, tracing},
     format::Format,
-    schema::{CodeLocation, CompilationMessage, MessageLevel},
+    schema::{
+        AuthorRole, AuthorRoleName, CodeLocation, CompilationMessage, MessageLevel,
+        SoftwareApplication, Timestamp,
+    },
     Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
     KernelLint, KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider,
     KernelTerminate, Microkernel,
@@ -97,6 +100,8 @@ impl KernelLint for RKernel {
         // which is faster than doing two
         let mut r = String::new();
 
+        let mut authors: Vec<AuthorRole> = Vec::new();
+
         // Format code if specified and styler is available
         // Suppress outputs (including error for non existent styler package) to avoid them being read
         // in as linter diagnostics.
@@ -113,6 +118,15 @@ impl KernelLint for RKernel {
         // Run command with JSON output to parse into messages
         let messages = if let Ok(output) = Command::new("Rscript").arg("-e").arg(r).output() {
             let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+
+            // Successfully ran ESLint so add as an author (regardless of whether it made any fixes)
+            authors.push(
+                SoftwareApplication::new("LintR".to_string()).into_author_role(
+                    AuthorRoleName::Linter,
+                    Some(Format::R),
+                    Some(Timestamp::now()),
+                ),
+            );
 
             // A diagnostic message from lintr
             #[derive(Deserialize)]
@@ -164,6 +178,7 @@ impl KernelLint for RKernel {
         Ok(KernelLintingOutput {
             code,
             messages,
+            authors: (!authors.is_empty()).then_some(authors),
             ..Default::default()
         })
     }

@@ -65,6 +65,7 @@ mod provenance_count;
 mod quote_block;
 mod raw_block;
 mod section;
+mod software_application;
 mod string_or_number;
 mod styled_block;
 mod styled_inline;
