@@ -690,7 +690,7 @@ Activated if `expr` is false.
         ),
         (
             "::: if elif else",
-            "::: if ${1:expr}\n\n$2\n\n::: else\n\n$0\n\n:::",
+            "::: if ${1:expr}\n\n$2\n\n::: elif ${3:expr}\n\n$4\n\n::: else\n\n$0\n\n:::",
             "Activate content alternatives",
             "If Elif Else Block",
             "Content will only be shown (and executed) in each clause if the expression is truthy,
