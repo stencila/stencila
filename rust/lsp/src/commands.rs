@@ -90,6 +90,7 @@ pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
 pub(super) fn commands() -> Vec<String> {
     [
         PATCH_VALUE,
+        PATCH_VALUE_EXECUTE,
         PATCH_CLONE,
         PATCH_CHAT_FOCUS,
         PATCH_NODE_FORMAT,
