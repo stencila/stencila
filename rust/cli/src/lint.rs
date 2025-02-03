@@ -30,7 +30,7 @@ impl Cli {
             doc.lint(self.format, self.fix, CommandWait::Yes).await?;
 
             if self.format || self.fix {
-                doc.save(CommandWait::Yes).await?;
+                doc.save().await?;
             }
 
             let count = doc.diagnostics().await?;

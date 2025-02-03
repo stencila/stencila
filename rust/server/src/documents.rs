@@ -92,7 +92,7 @@ impl Documents {
             // In block to ensure lock is dropped when no longer needed
             let paths = self.paths.read().await;
             if let Some(uuid) = paths.get(path) {
-                return Ok((uuid.clone(), self.by_uuid(uuid).await?));
+                return Ok((*uuid, self.by_uuid(uuid).await?));
             }
         }
 
@@ -118,7 +118,7 @@ impl Documents {
 
     /// Close a document by [`Uuid`]
     async fn close(&self, uuid: &Uuid) -> Result<()> {
-        self.docs.write().await.remove(&uuid);
+        self.docs.write().await.remove(uuid);
 
         // TODO: When there are multiple docs for a path this will need to be revised.
         self.paths

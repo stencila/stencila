@@ -92,10 +92,11 @@ pub struct Move {
 
 impl Move {
     pub async fn run(self) -> Result<()> {
-        if self.to.exists() && !self.force {
-            if !confirm("Destination path already exists, overwrite it?")? {
-                return Ok(());
-            }
+        if self.to.exists()
+            && !self.force
+            && !confirm("Destination path already exists, overwrite it?")?
+        {
+            return Ok(());
         }
 
         Document::move_path(&self.from, &self.to).await
@@ -119,13 +120,14 @@ pub struct Remove {
 
 impl Remove {
     pub async fn run(self) -> Result<()> {
-        if self.file.exists() && !self.force {
-            if !confirm(&format!(
+        if self.file.exists()
+            && !self.force
+            && !confirm(&format!(
                 "Are you sure you want to remove {}?",
                 self.file.display()
-            ))? {
-                return Ok(());
-            }
+            ))?
+        {
+            return Ok(());
         }
 
         Document::remove_path(&self.file).await

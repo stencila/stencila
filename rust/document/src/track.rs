@@ -144,7 +144,6 @@ impl DocumentStatus {
             modified_at: Some(modified_at),
             tracked_at: Some(tracked_at),
             doc_id: Some(doc_id),
-            ..Default::default()
         }
     }
 }
@@ -384,7 +383,7 @@ impl Document {
         }
 
         // Get the modification time of file
-        let modified_at = modification_time(&path)?;
+        let modified_at = modification_time(path)?;
 
         // Get the document id, returning early if none
         let Some(id) = self.id().await else {
@@ -404,7 +403,7 @@ impl Document {
         // Get the modification time of tracked JSON
         let tracked_at = modification_time(&tracked_json)?;
 
-        Ok(DocumentStatus::new(&path, modified_at, tracked_at, id))
+        Ok(DocumentStatus::new(path, modified_at, tracked_at, id))
     }
 
     /// Get the tracking status of a path
@@ -669,6 +668,7 @@ async fn tracked_paths_lock(tracked_paths: &Path) -> Result<File> {
         .read(true)
         .write(true)
         .create(true)
+        .truncate(false)
         .open(tracked_paths)
         .await?;
 
@@ -810,13 +810,12 @@ pub fn file_stem_for_id(id: &str) -> String {
     let hash = format!("{:.8x}", hasher.finish());
 
     // Combine parts with length limit
-    let filename = if sanitized.len() > 32 {
+
+    if sanitized.len() > 32 {
         format!("{}-{}", &sanitized[..32], hash)
     } else {
         format!("{}-{}", sanitized, hash)
-    };
-
-    filename
+    }
 }
 
 #[cfg(test)]
