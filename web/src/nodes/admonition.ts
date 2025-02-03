@@ -68,6 +68,7 @@ export class Admonition extends Entity {
     const { borderColour } = admonitionUi(this.admonitionType)
 
     const styles = apply([
+      'my-4',
       `border border-l-4 border-[${borderColour}]`,
       'shadow rounded',
     ])
