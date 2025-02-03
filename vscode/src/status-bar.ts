@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 
-import { PROVIDER_ID } from "./authentication";
+import { PROVIDER_ID, stencilaApiTokenEnvVar } from "./authentication";
 import { event } from "./events";
 
 /**
@@ -180,33 +180,40 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
         }
       );
 
-      // Add sign in/out commands based on whether there is a session of not
-      const session = await vscode.authentication.getSession(PROVIDER_ID, [], {
-        createIfNone: false,
-      });
-      commands.push(
-        ...(!session
-          ? [
-              {
-                label: "$(sign-in) Sign In",
-                description:
-                  "Sign in to Stencila Cloud to use model router and other services",
-                command: "stencila.cloud.signin",
-              },
-              {
-                label: "$(key) Sign In with Access Token",
-                description: "Sign in to Stencila Cloud using an access token",
-                command: "stencila.cloud.signin-token",
-              },
-            ]
-          : [
-              {
-                label: "$(sign-out) Sign Out",
-                description: "Sign out from Stencila Cloud",
-                command: "stencila.cloud.signout",
-              },
-            ])
-      );
+      if (!stencilaApiTokenEnvVar) {
+        // Add sign in/out commands based on whether there is a session or not
+        const session = await vscode.authentication.getSession(
+          PROVIDER_ID,
+          [],
+          {
+            createIfNone: false,
+          }
+        );
+        commands.push(
+          ...(!session
+            ? [
+                {
+                  label: "$(sign-in) Sign In",
+                  description:
+                    "Sign in to Stencila Cloud to use model router and other services",
+                  command: "stencila.cloud.signin",
+                },
+                {
+                  label: "$(key) Sign In with Access Token",
+                  description:
+                    "Sign in to Stencila Cloud using an access token",
+                  command: "stencila.cloud.signin-token",
+                },
+              ]
+            : [
+                {
+                  label: "$(sign-out) Sign Out",
+                  description: "Sign out from Stencila Cloud",
+                  command: "stencila.cloud.signout",
+                },
+              ])
+        );
+      }
 
       commands.push(
         {

@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { PROVIDER_ID } from "./authentication";
+import { PROVIDER_ID, stencilaApiTokenEnvVar } from "./authentication";
 import { collectSecrets } from "./secrets";
 
 /**
@@ -101,9 +101,13 @@ class SetupTreeProvider implements vscode.TreeDataProvider<SetupTreeItem> {
     // Stencila Cloud or has any AI API keys set.
 
     let stencilaCloud = false;
-    const session = await vscode.authentication.getSession(PROVIDER_ID, []);
-    if (session?.accessToken) {
+    if (stencilaApiTokenEnvVar) {
       stencilaCloud = true;
+    } else {
+      const session = await vscode.authentication.getSession(PROVIDER_ID, []);
+      if (session?.accessToken) {
+        stencilaCloud = true;
+      }
     }
 
     let aiApiKey = false;
