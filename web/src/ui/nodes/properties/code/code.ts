@@ -1,11 +1,5 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
-import {
-  defaultKeymap,
-  history,
-  undo,
-  redo,
-  historyKeymap,
-} from '@codemirror/commands'
+import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import {
   foldGutter,
   defaultHighlightStyle,
