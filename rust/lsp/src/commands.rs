@@ -49,6 +49,7 @@ use schema::{
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
 
 pub(super) const PATCH_VALUE: &str = "stencila.patch-value";
+pub(super) const PATCH_VALUE_EXECUTE: &str = "stencila.patch-value-execute";
 pub(super) const PATCH_CLONE: &str = "stencila.patch-clone";
 pub(super) const PATCH_CHAT_FOCUS: &str = "stencila.patch-chat-focus";
 pub(super) const PATCH_NODE_FORMAT: &str = "stencila.patch-node-format";
@@ -224,6 +225,38 @@ pub(super) async fn execute_command(
                 }),
                 false,
                 true,
+            )
+        }
+        PATCH_VALUE_EXECUTE => {
+            let _node_type = node_type_arg(args.next())?;
+            let node_id = node_id_arg(args.next())?;
+
+            let path = args
+                .next()
+                .ok_or_eyre("Patch path arg missing")
+                .and_then(PatchPath::try_from)
+                .map_err(invalid_request)?;
+
+            let op = PatchOp::Set(
+                args.next()
+                    .map(PatchValue::Json)
+                    .unwrap_or(PatchValue::None),
+            );
+
+            (
+                "Patching and executing node".to_string(),
+                Command::PatchExecuteNodes((
+                    Patch {
+                        node_id: Some(node_id.clone()),
+                        ops: vec![(path, op)],
+                        authors: Some(vec![author]),
+                        ..Default::default()
+                    },
+                    CommandNodes::new(vec![node_id], CommandScope::Only),
+                    ExecuteOptions::default(),
+                )),
+                false,
+                false,
             )
         }
         PATCH_NODE_FORMAT => {
