@@ -39,6 +39,11 @@ export class IncludeBlock extends Executable {
   @state()
   private hasContent = false
 
+  /**
+   * Whether the include block is read-only.
+   *
+   * Currently always false, but in the future, this may depend on the context.
+   */
   private readonly = false
 
   /**
@@ -47,6 +52,9 @@ export class IncludeBlock extends Executable {
    */
   private contentObserver: MutationObserver
 
+  /**
+   * A timer on the <input> used to debounce changes
+   */
   private inputTimer: NodeJS.Timeout
 
   /**
@@ -61,8 +69,9 @@ export class IncludeBlock extends Executable {
       this.dispatchEvent(patchValue('IncludeBlock', this.id, 'source', value))
     }, 300)
   }
+
   /**
-   * Key press event handler to run include upon 'Ctrl+Enter'
+   * Key press event handler to execute upon 'Ctrl+Enter'
    */
   private onKeydown(e: KeyboardEvent) {
     if (e.ctrlKey && e.key === 'Enter') {
