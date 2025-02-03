@@ -68,17 +68,25 @@ pub(super) async fn request(
     }
 
     if line.starts_with("/") || line.starts_with(":::") {
-        if line.ends_with('@') {
-            return prompt_completion(&line).await;
-        }
-
-        if line.ends_with('[') || (line.contains('[') && !line.contains(']') && line.ends_with(','))
+        if line.contains("create")
+            || line.contains("edit")
+            || line.contains("fix")
+            || line.contains("describe")
+            || line.contains("prompt")
         {
-            return model_completion().await;
-        }
+            if line.ends_with('@') {
+                return prompt_completion(&line).await;
+            }
 
-        if line.contains("create") && !line.contains("@") {
-            return create_node_type_completion(&line).await;
+            if line.ends_with('[')
+                || (line.contains('[') && !line.contains(']') && line.ends_with(','))
+            {
+                return model_completion().await;
+            }
+
+            if line.contains("create") && !line.contains("@") {
+                return create_node_type_completion(&line).await;
+            }
         }
 
         return smd_snippets(&line, position.line);
