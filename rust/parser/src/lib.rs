@@ -17,6 +17,33 @@ pub struct ParseInfo {
 
     /// Tags parsed from comments in the code
     pub execution_tags: Option<Vec<ExecutionTag>>,
+
+    /// Whether, and how, the code has changed since last time it was parsed
+    pub changed: ParseChange,
+}
+
+pub enum ParseChange {
+    No,
+    State,
+    Semantics,
+}
+
+impl ParseChange {
+    pub fn yes(&self) -> bool {
+        !matches!(self, Self::No)
+    }
+
+    pub fn no(&self) -> bool {
+        matches!(self, Self::No)
+    }
+
+    pub fn state(&self) -> bool {
+        matches!(self, Self::State)
+    }
+
+    pub fn semantics(&self) -> bool {
+        matches!(self, Self::Semantics)
+    }
 }
 
 /// A parser of code in a programming language
@@ -71,8 +98,34 @@ pub trait Parser: Sync + Send {
         }
     }
 
+    /// Calculate a [`ParseChange`] from the current and previous [`CompilationDigest`] of some code
+    fn change(
+        &self,
+        current: &CompilationDigest,
+        previous: &Option<CompilationDigest>,
+    ) -> ParseChange {
+        let Some(previous) = previous else {
+            return ParseChange::Semantics;
+        };
+
+        if current.semantic_digest != previous.semantic_digest {
+            return ParseChange::Semantics;
+        }
+
+        if current.state_digest != previous.state_digest {
+            return ParseChange::State;
+        }
+
+        ParseChange::No
+    }
+
     /// Parse code in a language
-    fn parse(&self, code: &str, format: &Format) -> ParseInfo;
+    fn parse(
+        &self,
+        code: &str,
+        format: &Format,
+        previous_compilation_digest: &Option<CompilationDigest>,
+    ) -> ParseInfo;
 }
 
 /// A default parser
@@ -80,20 +133,33 @@ pub trait Parser: Sync + Send {
 /// Calculates language independent `ParseInfo` properties such
 /// the state digest and execution tags.
 #[derive(Default)]
-pub struct DefaultParser {}
+pub struct DefaultParser;
 
 impl Parser for DefaultParser {
     fn name(&self) -> String {
         "default".to_string()
     }
 
-    fn parse(&self, code: &str, format: &Format) -> ParseInfo {
+    fn parse(
+        &self,
+        code: &str,
+        format: &Format,
+        previous_compilation_digest: &Option<CompilationDigest>,
+    ) -> ParseInfo {
+        let state_digest = self.state_digest(code, format);
+        let execution_tags = self.execution_tags(code);
+
+        let compilation_digest = CompilationDigest {
+            state_digest,
+            ..Default::default()
+        };
+
+        let change = self.change(&compilation_digest, previous_compilation_digest);
+
         ParseInfo {
-            compilation_digest: CompilationDigest {
-                state_digest: self.state_digest(code, format),
-                ..Default::default()
-            },
-            execution_tags: self.execution_tags(code),
+            compilation_digest,
+            execution_tags,
+            changed: change,
         }
     }
 }

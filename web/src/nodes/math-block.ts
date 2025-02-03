@@ -49,9 +49,9 @@ export class MathBlock extends Math {
           <stencila-ui-node-code
             type="MathBlock"
             code=${this.code}
+            node-id=${this.id}
             .code-authorship=${this.codeAuthorship}
             language=${this.mathLanguage ?? 'tex'}
-            read-only
           >
             <slot name="compilation-messages" slot="messages"></slot>
           </stencila-ui-node-code>

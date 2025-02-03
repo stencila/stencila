@@ -112,6 +112,18 @@
       "schema:rangeIncludes": {
         "@id": "schema:Number"
       }
+    },
+    {
+      "@id": "stencila:retries",
+      "@type": "rdfs:Property",
+      "rdfs:label": "maximumRetries",
+      "rdfs:comment": "The maximum number of retries.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ModelParameters"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:UnsignedInteger"
+      }
     }
   ]
 }

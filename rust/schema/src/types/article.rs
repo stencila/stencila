@@ -169,6 +169,12 @@ pub struct Article {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_bounds: Option<ExecutionBounds>,
 
+    /// Frontmatter containing document metadata.
+    #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub frontmatter: Option<String>,
+
     /// Configuration options for the document.
     #[strip(metadata)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]

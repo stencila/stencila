@@ -1,11 +1,12 @@
 use codec::{
-    common::serde_json::from_value,
+    common::{serde_json::from_value, tracing},
     format::Format,
     schema::{
         shortcuts::{art, p, t},
         transforms::blocks_to_inlines,
         AudioObject, Block, CodeBlock, File, Heading, ImageObject, Inline, List, ListItem,
-        ListOrder, Paragraph, QuoteBlock, RawBlock, Table, Text, ThematicBreak, VideoObject,
+        ListOrder, MathBlock, Paragraph, QuoteBlock, RawBlock, Table, Text, ThematicBreak,
+        VideoObject,
     },
 };
 use codec_text::to_text;
@@ -95,6 +96,7 @@ fn block_to_lexical(block: &Block, context: &mut LexicalEncodeContext) -> lexica
         List(list) => list_to_lexical(list, context),
         QuoteBlock(quote) => quote_to_lexical(quote, context),
         CodeBlock(code_block) => code_block_to_lexical(code_block, context),
+        MathBlock(math_block) => math_block_to_lexical(math_block),
         Table(table) => table_to_lexical(table, context),
         ImageObject(image) => image_to_lexical(image, context),
         AudioObject(audio) => audio_to_lexical(audio),
@@ -280,20 +282,65 @@ fn list_from_lexical(list: lexical::ListNode, context: &mut LexicalDecodeContext
 }
 
 fn list_to_lexical(list: &List, context: &mut LexicalEncodeContext) -> lexical::BlockNode {
-    let markdown = match codec_markdown::encode(&art([Block::List(list.clone())]), None) {
-        Ok((md, ..)) => md,
-        Err(error) => {
-            // If encoding fails (should very, rarely if at all)
-            // record loss and return empty string
-            context.losses.add(format!("Markdown: {error}"));
-            String::new()
-        }
-    };
+    if list
+        .items
+        .iter()
+        .flat_map(|item| &item.content)
+        .any(|block| matches!(block, Block::List(List { .. })))
+    {
+        let markdown = match codec_markdown::encode(&art([Block::List(list.clone())]), None) {
+            Ok((md, ..)) => md,
+            Err(error) => {
+                // If encoding fails (should very, rarely if at all)
+                // record loss and return empty string
+                context.losses.add(format!("Markdown: {error}"));
+                String::new()
+            }
+        };
 
-    lexical::BlockNode::Markdown(lexical::MarkdownNode {
-        markdown,
+        lexical::BlockNode::Markdown(lexical::MarkdownNode {
+            markdown,
+            ..Default::default()
+        })
+    } else {
+        let children = list
+            .items
+            .iter()
+            .map(|item| list_item_to_lexical(item, context))
+            .collect();
+
+        let list_type = match list.order {
+            ListOrder::Ascending | ListOrder::Descending => lexical::ListType::Number,
+            ListOrder::Unordered => lexical::ListType::Bullet,
+        };
+
+        lexical::BlockNode::List(lexical::ListNode {
+            list_type,
+            children,
+            ..Default::default()
+        })
+    }
+}
+
+fn list_item_to_lexical(
+    list_item: &ListItem,
+    context: &mut LexicalEncodeContext,
+) -> lexical::ListItemNode {
+    let mut children = Vec::new();
+
+    for (i, block) in list_item.content.clone().into_iter().enumerate() {
+        if i != 0 {
+            children.push(lexical::BlockNode::LineBreak(lexical::LineBreakNode {
+                ..Default::default()
+            }));
+        }
+        children.push(block_to_lexical(&block, context));
+    }
+
+    lexical::ListItemNode {
+        children,
         ..Default::default()
-    })
+    }
 }
 
 fn quote_to_lexical(quote: &QuoteBlock, context: &mut LexicalEncodeContext) -> lexical::BlockNode {
@@ -384,6 +431,40 @@ fn code_block_to_lexical(
     lexical::BlockNode::CodeBlock(lexical::CodeBlockNode {
         code: code_block.code.to_string(),
         language: code_block.programming_language.clone(),
+        ..Default::default()
+    })
+}
+
+fn math_block_to_lexical(math: &MathBlock) -> lexical::BlockNode {
+    // If the math is LaTeX then represent as Markdown paragraph so the
+    // user can edit it and KaTeX (if the theme has it) can render it.
+    // Otherwise, if there is MathML (e.g. compiled from AsciiMath) then
+    // represent as a HTML block so it can at least be rendered.
+
+    if let Some(lang) = &math.math_language {
+        let lang = lang.to_lowercase();
+        if !(lang == "tex" || lang == "latex") {
+            if math.options.mathml.is_some() {
+                // We could just put the MathML in the HTML block but
+                // by encoding using DOM HTML we get that plus the original
+                // language and source code which allows us to convert back
+                // in the future.
+                let html = codec_dom::encode(math);
+                return lexical::BlockNode::Html(lexical::HtmlNode {
+                    html,
+                    ..Default::default()
+                });
+            }
+
+            tracing::warn!("Math written in `{lang}` may not render correctly")
+        }
+    }
+
+    lexical::BlockNode::Paragraph(lexical::ParagraphNode {
+        children: vec![lexical::InlineNode::Text(lexical::TextNode {
+            text: ["$$ ", &math.code, " $$"].concat(),
+            ..Default::default()
+        })],
         ..Default::default()
     })
 }

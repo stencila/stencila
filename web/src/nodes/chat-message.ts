@@ -166,9 +166,10 @@ export class ChatMessage extends Executable {
                 <slot name="execution-messages"></slot>
               </div>`
             : ''}
+          <slot name="content"></slot>
           ${this.executionStatus === 'Running'
             ? this.renderRunningIndicator()
-            : html`<slot name="content"></slot>`}
+            : ''}
         </div>
       `
     }
@@ -179,9 +180,10 @@ export class ChatMessage extends Executable {
             <div class="bg-gray-100 rounded">
               <slot name="execution-messages"></slot>
             </div>
+            <slot name="content"></slot>
             ${this.executionStatus === 'Running'
               ? this.renderRunningIndicator()
-              : html`<slot name="content"></slot>`}
+              : ''}
           </div>
         `
       : html``

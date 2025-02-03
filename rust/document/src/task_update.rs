@@ -32,7 +32,7 @@ impl Document {
         tracing::debug!("Document update task started");
 
         loop {
-            let (compile, execute) = tokio::select! {
+            let (compile, lint, execute) = tokio::select! {
                 Some(update) = update_receiver.recv() => {
                     tracing::trace!("Document root node update received");
 
@@ -44,12 +44,13 @@ impl Document {
                         tracing::error!("While merging update into root: {error}");
                     }
 
-                    (true, None)
+                    (true, true, None)
                 },
                 Some(mut patch) = patch_receiver.recv() => {
                     tracing::trace!("Document root node patch received");
 
                     let compile = patch.compile;
+                    let lint = patch.lint;
                     let execute = patch.execute.clone();
 
                     let root = &mut *root.write().await;
@@ -69,7 +70,7 @@ impl Document {
                         tracing::error!("While applying patch to root: {error}");
                     }
 
-                    (compile, execute)
+                    (compile, lint, execute)
                 },
                 else => {
                     tracing::debug!("Both update and patch channels closed");
@@ -86,9 +87,18 @@ impl Document {
                 }
             }
 
-            // Compile if requested
-            if compile {
-                if let Err(error) = command_sender.send((Command::CompileDocument, 0)).await {
+            // Lint, or just compile, if requested.
+            if lint || compile {
+                let command = if lint {
+                    Command::LintDocument {
+                        format: false,
+                        fix: false,
+                    }
+                } else {
+                    Command::CompileDocument
+                };
+
+                if let Err(error) = command_sender.send((command, 0)).await {
                     tracing::error!("While sending command to document: {error}");
                     continue;
                 }

@@ -108,9 +108,6 @@
       "$ref": "CompilationMessage.schema.json"
     },
     {
-      "$ref": "Config.schema.json"
-    },
-    {
       "$ref": "ConstantValidator.schema.json"
     },
     {
@@ -145,12 +142,6 @@
     },
     {
       "$ref": "DefinedTerm.schema.json"
-    },
-    {
-      "$ref": "DeleteBlock.schema.json"
-    },
-    {
-      "$ref": "DeleteInline.schema.json"
     },
     {
       "$ref": "Directory.schema.json"
@@ -216,12 +207,6 @@
       "$ref": "IncludeBlock.schema.json"
     },
     {
-      "$ref": "InsertBlock.schema.json"
-    },
-    {
-      "$ref": "InsertInline.schema.json"
-    },
-    {
       "$ref": "InstructionBlock.schema.json"
     },
     {
@@ -253,15 +238,6 @@
     },
     {
       "$ref": "ModelParameters.schema.json"
-    },
-    {
-      "$ref": "ModifyBlock.schema.json"
-    },
-    {
-      "$ref": "ModifyInline.schema.json"
-    },
-    {
-      "$ref": "ModifyOperation.schema.json"
     },
     {
       "$ref": "MonetaryGrant.schema.json"
@@ -324,12 +300,6 @@
       "$ref": "RawBlock.schema.json"
     },
     {
-      "$ref": "ReplaceBlock.schema.json"
-    },
-    {
-      "$ref": "ReplaceInline.schema.json"
-    },
-    {
       "$ref": "Review.schema.json"
     },
     {
@@ -346,12 +316,6 @@
     },
     {
       "$ref": "StringHint.schema.json"
-    },
-    {
-      "$ref": "StringOperation.schema.json"
-    },
-    {
-      "$ref": "StringPatch.schema.json"
     },
     {
       "$ref": "StringValidator.schema.json"

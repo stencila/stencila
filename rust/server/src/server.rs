@@ -14,13 +14,14 @@ use axum::{
     routing::get,
     Router,
 };
+
+use rand::{rng, Rng};
 use tower_cookies::{Cookie, CookieManagerLayer, Cookies};
 use tower_http::trace::TraceLayer;
 
 use common::{
     clap::{self, Args},
     eyre::{self},
-    rand::{self, Rng},
     serde::Deserialize,
     smart_default::SmartDefault,
     tokio::net::TcpListener,
@@ -200,10 +201,10 @@ pub fn get_access_token() -> String {
     // too unwieldy to use in URLs
     const LEN: usize = 60;
 
-    let mut rng = rand::thread_rng();
+    let mut rng = rng();
     let random: String = (0..LEN)
         .map(|_| {
-            let idx = rng.gen_range(0..CHARS.len());
+            let idx = rng.random_range(0..CHARS.len());
             CHARS[idx] as char
         })
         .collect();

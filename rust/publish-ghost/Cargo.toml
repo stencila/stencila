@@ -4,6 +4,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+cli-utils = { "path" = "../cli-utils" }
 codec-text = { "path" = "../codec-text" }
 common = { "path" = "../common" }
 document = { path = "../document" }

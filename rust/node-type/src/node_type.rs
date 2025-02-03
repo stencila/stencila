@@ -47,7 +47,6 @@ pub enum NodeType {
     Comment,
     CompilationDigest,
     CompilationMessage,
-    Config,
     ConstantValidator,
     ContactPoint,
     CreativeWork,
@@ -60,8 +59,6 @@ pub enum NodeType {
     DateTimeValidator,
     DateValidator,
     DefinedTerm,
-    DeleteBlock,
-    DeleteInline,
     Directory,
     Duration,
     DurationValidator,
@@ -83,8 +80,6 @@ pub enum NodeType {
     IfBlockClause,
     ImageObject,
     IncludeBlock,
-    InsertBlock,
-    InsertInline,
     InstructionBlock,
     InstructionInline,
     InstructionMessage,
@@ -96,9 +91,6 @@ pub enum NodeType {
     MathInline,
     MediaObject,
     ModelParameters,
-    ModifyBlock,
-    ModifyInline,
-    ModifyOperation,
     MonetaryGrant,
     Note,
     NumberValidator,
@@ -119,16 +111,12 @@ pub enum NodeType {
     QuoteBlock,
     QuoteInline,
     RawBlock,
-    ReplaceBlock,
-    ReplaceInline,
     Review,
     Section,
     SoftwareApplication,
     SoftwareSourceCode,
     Strikeout,
     StringHint,
-    StringOperation,
-    StringPatch,
     StringValidator,
     Strong,
     StyledBlock,
@@ -155,12 +143,16 @@ pub enum NodeType {
     Walkthrough,
     WalkthroughStep,
     Object,
+
+    /// Special node type for configuration structs
+    Config
 }
 
 
 impl TryFrom<&NodeId> for NodeType {
     type Error = Report;
 
+    #[forbid(unreachable_patterns)]
     fn try_from(value: &NodeId) -> Result<Self, Self::Error> {
         use NodeType::*;
         Ok(match value.nick() {
@@ -193,7 +185,6 @@ impl TryFrom<&NodeId> for NodeType {
             "com" => Comment,
             "cmd" => CompilationDigest,
             "cme" => CompilationMessage,
-            "cfg" => Config,
             "cov" => ConstantValidator,
             "con" => ContactPoint,
             "cor" => Cord,
@@ -207,8 +198,6 @@ impl TryFrom<&NodeId> for NodeType {
             "dtv" => DateTimeValidator,
             "dav" => DateValidator,
             "def" => DefinedTerm,
-            "deb" => DeleteBlock,
-            "dei" => DeleteInline,
             "dir" => Directory,
             "dur" => Duration,
             "duv" => DurationValidator,
@@ -230,8 +219,6 @@ impl TryFrom<&NodeId> for NodeType {
             "ibc" => IfBlockClause,
             "img" => ImageObject,
             "inc" => IncludeBlock,
-            "inb" => InsertBlock,
-            "ini" => InsertInline,
             "isb" => InstructionBlock,
             "isi" => InstructionInline,
             "ime" => InstructionMessage,
@@ -244,9 +231,6 @@ impl TryFrom<&NodeId> for NodeType {
             "mti" => MathInline,
             "med" => MediaObject,
             "mdp" => ModelParameters,
-            "mdb" => ModifyBlock,
-            "mdi" => ModifyInline,
-            "mdo" => ModifyOperation,
             "mon" => MonetaryGrant,
             "not" => Note,
             "nul" => Null,
@@ -270,8 +254,6 @@ impl TryFrom<&NodeId> for NodeType {
             "qtb" => QuoteBlock,
             "qti" => QuoteInline,
             "raw" => RawBlock,
-            "rpb" => ReplaceBlock,
-            "rpi" => ReplaceInline,
             "rev" => Review,
             "sec" => Section,
             "sap" => SoftwareApplication,
@@ -279,8 +261,6 @@ impl TryFrom<&NodeId> for NodeType {
             "stk" => Strikeout,
             "str" => String,
             "sth" => StringHint,
-            "sto" => StringOperation,
-            "stp" => StringPatch,
             "stv" => StringValidator,
             "stg" => Strong,
             "stb" => StyledBlock,

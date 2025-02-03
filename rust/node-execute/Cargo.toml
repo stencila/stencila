@@ -5,14 +5,18 @@ edition = "2021"
 
 [dependencies]
 codec-cbor = { path = "../codec-cbor" }
-codec-markdown-trait = { path = "../codec-markdown-trait" }
+codec-markdown = { path = "../codec-markdown" }
 codecs = { path = "../codecs" }
 common = { path = "../common" }
 kernels = { path = "../kernels" }
 models = { path = "../models" }
+node-diagnostics = { path = "../node-diagnostics" }
 parsers = { path = "../parsers" }
 prompts = { path = "../prompts" }
 schema = { path = "../schema" }
+
+[dev-dependencies]
+common-dev = { path = "../common-dev" }
 
 [lints]
 workspace = true

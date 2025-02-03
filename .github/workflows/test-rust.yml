@@ -8,26 +8,13 @@
 # rather than on every push.
 
 name: Test Rust
-
 on:
   workflow_dispatch:
     inputs:
-      ref:
-        description: The repo ref (branch, commit, tag) to test
+      platforms:
+        description: "Platforms to test on (comma-separated: ubuntu,macos,windows)"
         type: string
-        default: main
-      ubuntu:
-        description: Run on Ubuntu
-        type: boolean
-        default: true
-      mac:
-        description: Run on Mac OS
-        type: boolean
-        default: true
-      windows:
-        description: Run on Windows
-        type: boolean
-        default: true
+        default: "ubuntu,macos,windows"
 
 env:
   RUST_VERSION: "1.81.0"
@@ -37,41 +24,29 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-latest
-            enabled: ${{ inputs.ubuntu }}
-          - os: macos-latest
-            enabled: ${{ inputs.mac }}
-          - os: windows-latest
-            enabled: ${{ inputs.windows }}
-    runs-on: ${{ matrix.os }}
+        platform:
+          - ubuntu
+          - macos
+          - windows
+    runs-on: ${{ matrix.platform }}-latest
+    
     steps:
-      - name: Skip job if not enabled
-        if: ${{ matrix.enabled != 'true' }}
-        run: echo "Skipping `${{ matrix.os }}` as not enabled"
-        
-      - name: Checkout repo
-        if: ${{ matrix.enabled == 'true' }}
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ inputs.ref }}
-
-      - name: Setup Rust
-        if: ${{ matrix.enabled == 'true' }}
-        uses: dtolnay/rust-toolchain@master
+      - uses: actions/checkout@v4
+        if: ${{ contains(inputs.platforms, matrix.platform) }}
+          
+      - uses: dtolnay/rust-toolchain@master
+        if: ${{ contains(inputs.platforms, matrix.platform) }}
         with:
           toolchain: ${{ env.RUST_VERSION }}
           components: clippy
-
-      - name: Setup Rust cache
-        if: ${{ matrix.enabled == 'true' }}
-        uses: Swatinem/rust-cache@v2
-
-      - name: Setup Python dependencies
-        if: ${{ matrix.enabled == 'true' }}
-        # These are used in `make -C rust lint` for embedded python code
+          
+      - uses: Swatinem/rust-cache@v2
+        if: ${{ contains(inputs.platforms, matrix.platform) }}
+      
+      - name: Install Python dependencies
+        if: ${{ contains(inputs.platforms, matrix.platform) }}
         run: pip install ruff pyright
-
-      - name: Run Rust linting and tests 
-        if: ${{ matrix.enabled == 'true' }}
+        
+      - name: Run tests
+        if: ${{ contains(inputs.platforms, matrix.platform) }}
         run: make -C rust lint test

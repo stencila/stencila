@@ -79,15 +79,15 @@ The `List` type is represented in these bindings:
 
 During property-based (a.k.a generative) testing, the properties of the `List` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
-| Property | Complexity | Description                                               | Strategy                                                             |
-| -------- | ---------- | --------------------------------------------------------- | -------------------------------------------------------------------- |
-| `items`  | Min+       | Generate a single, arbitrary, list item.                  | `vec(ListItem::arbitrary(), size_range(1..=1))`                      |
-|          | Low+       | Generate up to two, arbitrary, list items.                | `vec(ListItem::arbitrary(), size_range(1..=2))`                      |
-|          | High+      | Generate up to four, arbitrary, list items.               | `vec(ListItem::arbitrary(), size_range(1..=4))`                      |
-|          | Max        | Generate up to eight, arbitrary, list items.              | `vec(ListItem::arbitrary(), size_range(1..=8))`                      |
-| `order`  | Min+       | Always generate an unordered list.                        | `ListOrder::Unordered`                                               |
-|          | Low+       | Randomly generate either and unordered or ascending list. | `prop_oneof![Just(ListOrder::Unordered),Just(ListOrder::Ascending)]` |
-|          | High+      | Generate an arbitrary list ordering.                      | `ListOrder::arbitrary()`                                             |
+| Property | Complexity | Description                                                | Strategy                                                             |
+| -------- | ---------- | ---------------------------------------------------------- | -------------------------------------------------------------------- |
+| `items`  | Min+       | Generate a single, arbitrary, list item.                   | `vec(ListItem::arbitrary(), size_range(1..=1))`                      |
+|          | Low+       | Generate up to two, arbitrary, list items.                 | `vec(ListItem::arbitrary(), size_range(1..=2))`                      |
+|          | High+      | Generate up to four, arbitrary, list items.                | `vec(ListItem::arbitrary(), size_range(1..=4))`                      |
+|          | Max        | Generate up to eight, arbitrary, list items.               | `vec(ListItem::arbitrary(), size_range(1..=8))`                      |
+| `order`  | Min+       | Always generate an unordered list.                         | `ListOrder::Unordered`                                               |
+|          | Low+       | Randomly generate either an unordered, or ascending, list. | `prop_oneof![Just(ListOrder::Unordered),Just(ListOrder::Ascending)]` |
+|          | High+      | Generate an arbitrary list ordering.                       | `ListOrder::arbitrary()`                                             |
 
 ## Source
 

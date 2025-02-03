@@ -81,6 +81,8 @@ class AuthorRoleName(StrEnum):
     Router = "Router"
     Generator = "Generator"
     Executor = "Executor"
+    Formatter = "Formatter"
+    Linter = "Linter"
 
 
 class CitationIntent(StrEnum):
@@ -204,6 +206,15 @@ class ClaimType(StrEnum):
     Hypothesis = "Hypothesis"
     Proposition = "Proposition"
     Corollary = "Corollary"
+
+
+class ConfigPublishGhostType(StrEnum):
+    """
+    The type of Ghost resource
+    """
+
+    Page = "Page"
+    Post = "Post"
 
 
 class ExecutionBounds(StrEnum):
@@ -676,33 +687,6 @@ class Executable(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
-class Suggestion(Entity):
-    """
-    Abstract base type for nodes that indicate a suggested change to content.
-    """
-
-    type: Literal["Suggestion"] = "Suggestion"
-
-    suggestion_status: SuggestionStatus | None = None
-    """The status of the suggestion including whether it is the original, or is accepted, or rejected."""
-
-    authors: list[Author] | None = None
-    """The authors of the suggestion"""
-
-    provenance: list[ProvenanceCount] | None = None
-    """A summary of the provenance of the content within the suggestion."""
-
-    execution_duration: Duration | None = None
-    """Time taken to generate the suggestion."""
-
-    execution_ended: Timestamp | None = None
-    """The timestamp when the generation ended."""
-
-    feedback: str | None = None
-    """Feedback on the suggestion"""
-
-
-@dataclass(kw_only=True, repr=False)
 class CodeExecutable(Executable):
     """
     Abstract base type for executable code nodes (e.g. `CodeChunk`).
@@ -982,27 +966,30 @@ class Styled(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
-class SuggestionBlock(Suggestion):
+class Suggestion(Entity):
     """
-    Abstract base type for nodes that indicate a suggested change to block content.
-    """
-
-    type: Literal["SuggestionBlock"] = "SuggestionBlock"
-
-    content: list[Block]
-    """The content that is suggested to be inserted, modified, replaced, or deleted."""
-
-
-@dataclass(kw_only=True, repr=False)
-class SuggestionInline(Suggestion):
-    """
-    Abstract base type for nodes that indicate a suggested change to inline content.
+    Abstract base type for nodes that indicate a suggested change to content.
     """
 
-    type: Literal["SuggestionInline"] = "SuggestionInline"
+    type: Literal["Suggestion"] = "Suggestion"
 
-    content: list[Inline]
-    """The content that is suggested to be inserted, modified, replaced, or deleted."""
+    suggestion_status: SuggestionStatus | None = None
+    """The status of the suggestion including whether it is the original, or is accepted, or rejected."""
+
+    authors: list[Author] | None = None
+    """The authors of the suggestion"""
+
+    provenance: list[ProvenanceCount] | None = None
+    """A summary of the provenance of the content within the suggestion."""
+
+    execution_duration: Duration | None = None
+    """Time taken to generate the suggestion."""
+
+    execution_ended: Timestamp | None = None
+    """The timestamp when the generation ended."""
+
+    feedback: str | None = None
+    """Feedback on the suggestion"""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -1111,6 +1098,9 @@ class Article(CreativeWork, Executable):
 
     pagination: str | None = None
     """Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55"."""
+
+    frontmatter: str | None = None
+    """Frontmatter containing document metadata."""
 
     config: Config | None = None
     """Configuration options for the document."""
@@ -1534,18 +1524,6 @@ class CompilationMessage(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
-class Config(Entity):
-    """
-    Stencila document configuration options.
-    """
-
-    type: Literal["Config"] = "Config"
-
-    theme: str | None = None
-    """The styling theme to use for the document"""
-
-
-@dataclass(kw_only=True, repr=False)
 class ConstantValidator(Entity):
     """
     A validator specifying a constant value that a node must have.
@@ -1690,24 +1668,6 @@ class DefinedTerm(Thing):
 
     term_code: str | None = None
     """A code that identifies this DefinedTerm within a DefinedTermSet"""
-
-
-@dataclass(kw_only=True, repr=False)
-class DeleteBlock(SuggestionBlock):
-    """
-    A suggestion to delete some block content.
-    """
-
-    type: Literal["DeleteBlock"] = "DeleteBlock"
-
-
-@dataclass(kw_only=True, repr=False)
-class DeleteInline(SuggestionInline):
-    """
-    A suggestion to delete some inline content.
-    """
-
-    type: Literal["DeleteInline"] = "DeleteInline"
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2041,24 +2001,6 @@ class ImageObject(MediaObject):
 
 
 @dataclass(kw_only=True, repr=False)
-class InsertBlock(SuggestionBlock):
-    """
-    A suggestion to insert some block content.
-    """
-
-    type: Literal["InsertBlock"] = "InsertBlock"
-
-
-@dataclass(kw_only=True, repr=False)
-class InsertInline(SuggestionInline):
-    """
-    A suggestion to insert some inline content.
-    """
-
-    type: Literal["InsertInline"] = "InsertInline"
-
-
-@dataclass(kw_only=True, repr=False)
 class InstructionBlock(Instruction):
     """
     An instruction to edit some block content.
@@ -2237,44 +2179,8 @@ class ModelParameters(Entity):
     random_seed: int | None = None
     """The random seed used for the model (if possible)"""
 
-
-@dataclass(kw_only=True, repr=False)
-class ModifyBlock(SuggestionBlock):
-    """
-    A suggestion to modify some block content.
-    """
-
-    type: Literal["ModifyBlock"] = "ModifyBlock"
-
-    operations: list[ModifyOperation]
-    """The operations to be applied to the nodes."""
-
-
-@dataclass(kw_only=True, repr=False)
-class ModifyInline(SuggestionInline):
-    """
-    A suggestion to modify some inline content.
-    """
-
-    type: Literal["ModifyInline"] = "ModifyInline"
-
-    operations: list[ModifyOperation]
-    """The operations to be applied to the nodes."""
-
-
-@dataclass(kw_only=True, repr=False)
-class ModifyOperation(Entity):
-    """
-    An operation that is part of a suggestion to modify the property of a node.
-    """
-
-    type: Literal["ModifyOperation"] = "ModifyOperation"
-
-    target: str
-    """The target property of each node to be modified."""
-
-    value: StringPatch | Primitive
-    """The new value, or string patch, to apply to the target property."""
+    maximum_retries: UnsignedInteger | None = None
+    """The maximum number of retries."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2492,6 +2398,9 @@ class Prompt(CreativeWork, Executable):
 
     type: Literal["Prompt"] = "Prompt"
 
+    frontmatter: str | None = None
+    """Frontmatter containing document metadata."""
+
     instruction_types: list[InstructionType]
     """The types of instructions that the prompt supports"""
 
@@ -2677,30 +2586,6 @@ class RawBlock(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
-class ReplaceBlock(SuggestionBlock):
-    """
-    A suggestion to replace some block content with new block content.
-    """
-
-    type: Literal["ReplaceBlock"] = "ReplaceBlock"
-
-    replacement: list[Block]
-    """The new replacement block content."""
-
-
-@dataclass(kw_only=True, repr=False)
-class ReplaceInline(SuggestionInline):
-    """
-    A suggestion to replace some inline content with new inline content.
-    """
-
-    type: Literal["ReplaceInline"] = "ReplaceInline"
-
-    replacement: list[Inline]
-    """The new replacement inline content."""
-
-
-@dataclass(kw_only=True, repr=False)
 class Review(CreativeWork):
     """
     A review of an item, e.g of an `Article` or `SoftwareApplication`.
@@ -2803,36 +2688,6 @@ class StringHint(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
-class StringOperation(Entity):
-    """
-    An operation that modifies a string.
-    """
-
-    type: Literal["StringOperation"] = "StringOperation"
-
-    start_position: UnsignedInteger
-    """The start position in the string of the operation."""
-
-    end_position: UnsignedInteger | None = None
-    """The end position in the string of the operation."""
-
-    value: str | None = None
-    """The string value to insert or use as the replacement."""
-
-
-@dataclass(kw_only=True, repr=False)
-class StringPatch(Entity):
-    """
-    An set of operations to modify a string.
-    """
-
-    type: Literal["StringPatch"] = "StringPatch"
-
-    operations: list[StringOperation]
-    """The operations to be applied to the string."""
-
-
-@dataclass(kw_only=True, repr=False)
 class StringValidator(Entity):
     """
     A schema specifying constraints on a string node.
@@ -2890,6 +2745,30 @@ class Subscript(Mark):
     """
 
     type: Literal["Subscript"] = "Subscript"
+
+
+@dataclass(kw_only=True, repr=False)
+class SuggestionBlock(Suggestion):
+    """
+    Abstract base type for nodes that indicate a suggested change to block content.
+    """
+
+    type: Literal["SuggestionBlock"] = "SuggestionBlock"
+
+    content: list[Block]
+    """The content that is suggested to be inserted, modified, replaced, or deleted."""
+
+
+@dataclass(kw_only=True, repr=False)
+class SuggestionInline(Suggestion):
+    """
+    Abstract base type for nodes that indicate a suggested change to inline content.
+    """
+
+    type: Literal["SuggestionInline"] = "SuggestionInline"
+
+    content: list[Inline]
+    """The content that is suggested to be inserted, modified, replaced, or deleted."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3193,7 +3072,6 @@ Block = Union[
     Claim,
     CodeBlock,
     CodeChunk,
-    DeleteBlock,
     Figure,
     File,
     ForBlock,
@@ -3202,16 +3080,13 @@ Block = Union[
     IfBlock,
     ImageObject,
     IncludeBlock,
-    InsertBlock,
     InstructionBlock,
     List,
     MathBlock,
-    ModifyBlock,
     Paragraph,
     PromptBlock,
     QuoteBlock,
     RawBlock,
-    ReplaceBlock,
     Section,
     StyledBlock,
     SuggestionBlock,
@@ -3307,20 +3182,16 @@ Inline = Union[
     CodeInline,
     Date,
     DateTime,
-    DeleteInline,
     Duration,
     Emphasis,
     ImageObject,
-    InsertInline,
     InstructionInline,
     Link,
     MathInline,
     MediaObject,
-    ModifyInline,
     Note,
     Parameter,
     QuoteInline,
-    ReplaceInline,
     StyledInline,
     Strikeout,
     Strong,
@@ -3390,7 +3261,6 @@ Node = Union[
     Comment,
     CompilationDigest,
     CompilationMessage,
-    Config,
     ConstantValidator,
     ContactPoint,
     CreativeWork,
@@ -3403,8 +3273,6 @@ Node = Union[
     DateTimeValidator,
     DateValidator,
     DefinedTerm,
-    DeleteBlock,
-    DeleteInline,
     Directory,
     Duration,
     DurationValidator,
@@ -3426,8 +3294,6 @@ Node = Union[
     IfBlockClause,
     ImageObject,
     IncludeBlock,
-    InsertBlock,
-    InsertInline,
     InstructionBlock,
     InstructionInline,
     InstructionMessage,
@@ -3439,9 +3305,6 @@ Node = Union[
     MathInline,
     MediaObject,
     ModelParameters,
-    ModifyBlock,
-    ModifyInline,
-    ModifyOperation,
     MonetaryGrant,
     Note,
     NumberValidator,
@@ -3462,16 +3325,12 @@ Node = Union[
     QuoteBlock,
     QuoteInline,
     RawBlock,
-    ReplaceBlock,
-    ReplaceInline,
     Review,
     Section,
     SoftwareApplication,
     SoftwareSourceCode,
     Strikeout,
     StringHint,
-    StringOperation,
-    StringPatch,
     StringValidator,
     Strong,
     StyledBlock,
@@ -3568,7 +3427,6 @@ TYPES = [
     Thing,
     CreativeWork,
     Executable,
-    Suggestion,
     CodeExecutable,
     CodeStatic,
     ContactPoint,
@@ -3582,8 +3440,7 @@ TYPES = [
     Parameter,
     Role,
     Styled,
-    SuggestionBlock,
-    SuggestionInline,
+    Suggestion,
     Admonition,
     Annotation,
     ArrayHint,
@@ -3611,7 +3468,6 @@ TYPES = [
     Comment,
     CompilationDigest,
     CompilationMessage,
-    Config,
     ConstantValidator,
     Datatable,
     DatatableColumn,
@@ -3622,8 +3478,6 @@ TYPES = [
     DateTimeValidator,
     DateValidator,
     DefinedTerm,
-    DeleteBlock,
-    DeleteInline,
     Directory,
     Duration,
     DurationValidator,
@@ -3643,8 +3497,6 @@ TYPES = [
     IfBlock,
     IfBlockClause,
     ImageObject,
-    InsertBlock,
-    InsertInline,
     InstructionBlock,
     InstructionInline,
     InstructionMessage,
@@ -3655,9 +3507,6 @@ TYPES = [
     MathBlock,
     MathInline,
     ModelParameters,
-    ModifyBlock,
-    ModifyInline,
-    ModifyOperation,
     MonetaryGrant,
     Note,
     ObjectHint,
@@ -3676,21 +3525,19 @@ TYPES = [
     QuoteBlock,
     QuoteInline,
     RawBlock,
-    ReplaceBlock,
-    ReplaceInline,
     Review,
     Section,
     SoftwareApplication,
     SoftwareSourceCode,
     Strikeout,
     StringHint,
-    StringOperation,
-    StringPatch,
     StringValidator,
     Strong,
     StyledBlock,
     StyledInline,
     Subscript,
+    SuggestionBlock,
+    SuggestionInline,
     Superscript,
     Table,
     TableCell,
@@ -3737,7 +3584,6 @@ ANON_UNIONS = [
     PostalAddress | str,
     PropertyValue | str,
     SoftwareSourceCode | SoftwareApplication | str,
-    StringPatch | Primitive,
     UnsignedInteger | str,
     int | str,
     str | float,

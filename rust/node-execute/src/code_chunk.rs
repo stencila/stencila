@@ -8,6 +8,7 @@ impl Executable for CodeChunk {
         let node_id = self.node_id();
         tracing::trace!("Compiling CodeChunk {node_id}");
 
+        // Update label if necessary
         if let Some(label_type) = &self.label_type {
             let label = match label_type {
                 LabelType::FigureLabel => {
@@ -24,8 +25,21 @@ impl Executable for CodeChunk {
             }
         }
 
-        let lang = self.programming_language.as_deref().unwrap_or_default();
-        let info = parsers::parse(&self.code, lang);
+        // Get the programming language, falling back to using the executor's current language
+        let lang = executor.programming_language(&self.programming_language);
+
+        // Parse the code to determine if it or the language has changed since last time
+        let info = parsers::parse(&self.code, &lang, &self.options.compilation_digest);
+
+        // Add code to the linting context
+        executor.linting_code(&node_id, &self.code.to_string(), &lang, info.changed.yes());
+
+        // Return early if no change
+        if info.changed.no() {
+            tracing::trace!("Skipping compiling CodeChunk {node_id}");
+
+            return WalkControl::Break;
+        }
 
         let mut execution_required =
             execution_required_digests(&self.options.execution_digest, &info.compilation_digest);
@@ -61,16 +75,18 @@ impl Executable for CodeChunk {
         // TODO: consider having a way to specify which code chunks and/or
         // which kernels should execute at compile time (e.g. could have
         // a compile method on kernels)
-        if !matches!(execution_required, ExecutionRequired::No)
-            && matches!(
-                lang.trim().to_lowercase().as_str(),
-                "dot" | "graphviz" | "mermaid"
-            )
-        {
-            // Need to set execution status to pending so avoid early return from
-            // the execute methods
-            self.options.execution_status = Some(ExecutionStatus::Pending);
-            self.execute(executor).await;
+        if let Some(lang) = lang {
+            if !matches!(execution_required, ExecutionRequired::No)
+                && matches!(
+                    lang.trim().to_lowercase().as_str(),
+                    "dot" | "graphviz" | "mermaid"
+                )
+            {
+                // Need to set execution status to pending so avoid early return from
+                // the execute methods
+                self.options.execution_status = Some(ExecutionStatus::Pending);
+                self.execute(executor).await;
+            }
         }
 
         WalkControl::Continue

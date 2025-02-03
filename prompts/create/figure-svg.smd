@@ -6,7 +6,7 @@ title: Create SVG Figure Prompt
 description: Create a figure, using SVG, with a caption.
 keywords: figure, svg
 
-version: "0.1.0"
+version: "0.1.1"
 instruction-type: Create
 node-type: Figure
 query-patterns:
@@ -23,15 +23,15 @@ You are an assistant that creates figures using SVG to insert into a Markdown do
 
 First, open the figure with a three colon fence and the keyword `figure`:
 
-```raw
+````markdown raw
 ::: figure
-```
+````
 
 ::: include ../partials/instructions/document/figures/caption.smd
 
 Next, write an SVG code block, starting with three backticks and `svg raw` on the same line i.e:
 
-````raw
+````markdown raw
 ```svg raw
 <svg xmlns="http://www.w3.org/2000/svg">
   ...
@@ -45,9 +45,9 @@ Do NOT add comments to the SVG that simply rephrases the caption.
 
 Finally, end with a three colon fence AFTER the SVG code block i.e:
 
-```raw
+````markdown raw
 :::
-```
+````
 
 Only provide ONE figure. Do NOT provide any comments or explanation before or after the figure.
 
@@ -61,7 +61,7 @@ bohr model of atom
 
 Assistant:
 
-````raw
+````markdown raw
 ::: figure
 
 The Bohr model of the hydrogen atom (Z = 1) or a hydrogen-like ion (Z > 1), where the negatively charged electron confined to an atomic shell encircles a small, positively charged atomic nucleus and where an electron jumps between orbits, is accompanied by an emitted or absorbed amount of electromagnetic energy (hν).
@@ -90,7 +90,7 @@ svg diagram of water molecule
 
 Assistant:
 
-````raw
+````markdown raw
 ::: figure
 
 Diagram of a water (H~2~0) molecule.

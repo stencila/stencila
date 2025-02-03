@@ -33,10 +33,14 @@ impl Schemas {
             .map(|file| async { remove_file(file).await });
         try_join_all(futures).await?;
 
+        // Ignore config types
+        let mut schemas: BTreeMap<String, Schema> = self.schemas.clone();
+        schemas.retain(|_, schema| !schema.is_config());
+
         // For each property determine its `domainIncludes` (type it exists on)
         // and `rangeIncludes` (types it can have).
         let mut domains = HashMap::new();
-        for schema in self.schemas.values() {
+        for schema in schemas.values() {
             for (property_name, property) in &schema.properties {
                 if property.is_inherited {
                     continue;
@@ -54,7 +58,7 @@ impl Schemas {
 
         // Generate a schema for each schema
         let mut overall = BTreeMap::new();
-        for (title, schema) in self.schemas.iter() {
+        for (title, schema) in schemas.iter() {
             if let Some(jid) = &schema.jid {
                 overall.insert(title, jid);
             }
@@ -67,7 +71,7 @@ impl Schemas {
             });
 
             if let Some(extends) = schema.extends.first() {
-                if let Some(parent) = self.schemas.get(extends) {
+                if let Some(parent) = schemas.get(extends) {
                     class["rdfs:subClassOf"] = json!({ "@id": parent.jid });
                 }
             }
@@ -103,7 +107,7 @@ impl Schemas {
                     json!(sorted)
                 };
 
-                let ranges = ranges(property, &self.schemas)
+                let ranges = ranges(property, &schemas)
                     .iter()
                     .map(|id| json!({ "@id": id }))
                     .collect_vec();

@@ -42,6 +42,9 @@ export interface Model {
     | 'Installable'
     | 'Unavailable'
     | 'Disabled'
+  qualityScore?: number
+  costScore?: number
+  speedScore?: number
 }
 
 /**

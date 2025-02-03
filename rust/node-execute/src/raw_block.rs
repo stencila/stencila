@@ -6,7 +6,7 @@ use crate::prelude::*;
 impl Executable for RawBlock {
     #[tracing::instrument(skip_all)]
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
-        // Return easily if not a format that requires compiling
+        // Return early if not a format that requires compiling
         let format = Format::from_name(&self.format);
         if !matches!(format, Format::Html | Format::Css) {
             // Break walk because no properties need compiling
@@ -15,9 +15,17 @@ impl Executable for RawBlock {
 
         let node_id = self.node_id();
 
-        let compilation_digest = parsers::parse(&self.content, &self.format).compilation_digest;
-        if Some(&compilation_digest) == self.compilation_digest.as_ref() {
+        // Parse the code to determine if it or the format has changed since last time
+        let info = parsers::parse(
+            &self.content,
+            &Some(self.format.clone()),
+            &self.compilation_digest,
+        );
+
+        // Return early if no change
+        if info.changed.no() {
             tracing::trace!("Skipping compiling RawBlock {node_id}");
+
             // Break walk because no properties need compiling
             return WalkControl::Break;
         }
@@ -51,7 +59,7 @@ impl Executable for RawBlock {
                 [
                     set(NodeProperty::Css, css),
                     set(NodeProperty::CompilationMessages, messages),
-                    set(NodeProperty::CompilationDigest, compilation_digest),
+                    set(NodeProperty::CompilationDigest, info.compilation_digest),
                 ],
             );
         } else {
@@ -60,7 +68,7 @@ impl Executable for RawBlock {
                 [
                     none(NodeProperty::Css),
                     none(NodeProperty::CompilationMessages),
-                    set(NodeProperty::CompilationDigest, compilation_digest),
+                    set(NodeProperty::CompilationDigest, info.compilation_digest),
                 ],
             );
         };

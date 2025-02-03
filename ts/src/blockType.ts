@@ -10,7 +10,6 @@ export type BlockType =
   | "Claim"
   | "CodeBlock"
   | "CodeChunk"
-  | "DeleteBlock"
   | "Figure"
   | "File"
   | "ForBlock"
@@ -19,16 +18,13 @@ export type BlockType =
   | "IfBlock"
   | "ImageObject"
   | "IncludeBlock"
-  | "InsertBlock"
   | "InstructionBlock"
   | "List"
   | "MathBlock"
-  | "ModifyBlock"
   | "Paragraph"
   | "PromptBlock"
   | "QuoteBlock"
   | "RawBlock"
-  | "ReplaceBlock"
   | "Section"
   | "StyledBlock"
   | "SuggestionBlock"
@@ -47,7 +43,6 @@ export const BlockTypeList = [
   "Claim",
   "CodeBlock",
   "CodeChunk",
-  "DeleteBlock",
   "Figure",
   "File",
   "ForBlock",
@@ -56,16 +51,13 @@ export const BlockTypeList = [
   "IfBlock",
   "ImageObject",
   "IncludeBlock",
-  "InsertBlock",
   "InstructionBlock",
   "List",
   "MathBlock",
-  "ModifyBlock",
   "Paragraph",
   "PromptBlock",
   "QuoteBlock",
   "RawBlock",
-  "ReplaceBlock",
   "Section",
   "StyledBlock",
   "SuggestionBlock",

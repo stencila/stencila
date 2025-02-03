@@ -13,10 +13,19 @@ required:
   - instructionTypes
   - content
 core:
+  - frontmatter
   - nodeTypes
   - nodeCount
   - queryPatterns
 properties:
+  frontmatter:
+    "@id": stencila:frontmatter
+    description: Frontmatter containing document metadata.
+    $comment: Currently assumed to be YAML or JSON.
+    type: string
+    strip: [metadata]
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
   instructionTypes:
     "@id": stencila:instructionTypes
     description: The types of instructions that the prompt supports

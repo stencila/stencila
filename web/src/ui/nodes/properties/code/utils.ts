@@ -1,5 +1,10 @@
 import { Diagnostic } from '@codemirror/lint'
-import { EditorView, Decoration, hoverTooltip } from '@codemirror/view'
+import {
+  EditorView,
+  Decoration,
+  hoverTooltip,
+  KeyBinding,
+} from '@codemirror/view'
 
 import { CompilationMessage } from '../../../../nodes/compilation-message'
 import { ExecutionMessage } from '../../../../nodes/execution-message'
@@ -150,3 +155,53 @@ export const provenanceTooltip = (
 
     return null
   })
+
+/**
+ * A custom set of keybindings to enure clipboard events work in the vscode extension
+ */
+export const clipBoardKeyBindings = [
+  {
+    key: 'Mod-c',
+    run: () => {
+      const text = window.getSelection()?.toString() || ''
+      navigator.clipboard.writeText(text)
+      return true // Use Clipboard API to copy text
+    },
+  },
+  {
+    key: 'Mod-x',
+    run: (view: EditorView) => {
+      const selectedText = window.getSelection()?.toString() || ''
+      navigator.clipboard.writeText(selectedText) // Write selected text to clipboard
+
+      // If text is selected, delete it after cutting
+      if (view.state.selection.main.empty) {
+        return false // Don't cut if there's no selection
+      }
+      view.dispatch({
+        changes: {
+          from: view.state.selection.main.from,
+          to: view.state.selection.main.to,
+          insert: '',
+        },
+      })
+      return true // Cut successful
+    },
+  },
+  {
+    key: 'Mod-v',
+    run: async (view: EditorView) => {
+      const text = await navigator.clipboard.readText() // Use Clipboard API to get clipboard content
+
+      // Insert the clipboard content at the cursor position
+      view.dispatch({
+        changes: {
+          from: view.state.selection.main.from,
+          to: view.state.selection.main.from,
+          insert: text,
+        },
+      })
+      return true // Paste successful
+    },
+  },
+] as KeyBinding[]

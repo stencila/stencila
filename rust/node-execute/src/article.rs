@@ -1,5 +1,6 @@
+use codec_markdown::decode_frontmatter;
 use common::itertools::Itertools;
-use schema::{diff, Article, PatchSlot};
+use schema::{diff, Article, NodeType, PatchSlot};
 
 use crate::{interrupt_impl, prelude::*, HeadingInfo};
 
@@ -8,6 +9,22 @@ impl Executable for Article {
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
         tracing::trace!("Compiling Article {node_id}");
+
+        let mut messages = Vec::new();
+
+        // Check frontmatter for syntactic and semantic errors
+        if let Some(yaml) = self.frontmatter.as_deref() {
+            let (.., mut fm_messages) = decode_frontmatter(yaml, Some(NodeType::Article));
+            messages.append(&mut fm_messages);
+        }
+
+        if messages.is_empty() {
+            self.options.compilation_messages = None;
+            executor.patch(&node_id, [none(NodeProperty::CompilationMessages)]);
+        } else {
+            self.options.compilation_messages = Some(messages.clone());
+            executor.patch(&node_id, [set(NodeProperty::CompilationMessages, messages)]);
+        }
 
         // Clear the executor's headings
         executor.headings.clear();
@@ -83,8 +100,7 @@ impl Executable for Article {
 
         let started = Timestamp::now();
 
-        // Move all temporaries into the executor so it can handle when to
-        // execute them
+        // Move temporaries into the executor so it can handle when to execute them
         if let Some(temporaries) = &mut self.temporary {
             let mut chats = temporaries
                 .drain(..)

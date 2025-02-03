@@ -4,10 +4,11 @@ use common::{
     tokio,
 };
 use models::ModelTask;
+use node_diagnostics::{diagnostics_gte, DiagnosticLevel};
 use schema::{
     authorship,
-    shortcuts::{adm, p, t},
-    AdmonitionType, Author, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ChatMessageGroup,
+    shortcuts::{ci, h3, p, t},
+    Author, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ChatMessageGroup,
     ChatMessageOptions, ExecutionBounds, InstructionMessage, InstructionType, MessagePart,
     MessageRole, ModelParameters, Patch, PatchPath, PatchSlot, SoftwareApplication,
 };
@@ -73,8 +74,8 @@ impl Executable for Chat {
         // Check if this chat is to be executed:
         // - force_all is on
         // - no node ids and this is not an embedded chat (`is_temporary` is None)
-        // - node ids contain this chat
-        let is_pending = executor.options.force_all
+        // - node id is this chat
+        let is_pending = executor.execute_options.force_all
             || (executor.node_ids.is_none() && self.is_temporary.is_none())
             || executor.node_ids.iter().flatten().any(|id| id == &node_id);
 
@@ -106,7 +107,16 @@ impl Executable for Chat {
         ) {
             // Chat itself not marked as pending so continue walk
             // to execute nodes in `content`
-            return WalkControl::Continue;
+
+            if let Err(error) = self.content.walk_async(executor).await {
+                tracing::error!("While executing chat content: {error}")
+            };
+
+            // Previously, rather than do the above walk, this returned `WalkControl::Continue`.
+            // However, for some unresolved reason, that approach did not execute code chunks
+            // nested within temporary chats (it worked for standalone-chats only). The
+            // approach works for both types of chats
+            return WalkControl::Break;
         }
 
         tracing::debug!("Executing Chat {node_id}");
@@ -131,7 +141,7 @@ impl Executable for Chat {
         }
 
         // If there are no messages yet, and the prompt block contains a query
-        // then use it as the first message
+        // then construct the first message from it
         if let (true, Some(query)) = (self.content.is_empty(), &self.prompt.query) {
             let mut parts = Vec::new();
 
@@ -161,7 +171,7 @@ impl Executable for Chat {
             executor.patch(&node_id, [push(NodeProperty::Content, message)])
         }
 
-        // Construct a model task from all the messages in this chat
+        // Append the existing messages in this chat
         instruction_messages.append(
             &mut self
                 .content
@@ -207,7 +217,6 @@ impl Executable for Chat {
             .flat_map(|x| vec![x; replicates])
             .cloned()
             .collect_vec();
-
         let models = models::list().await;
         let mut chat_messages = model_ids
             .iter()
@@ -256,56 +265,200 @@ impl Executable for Chat {
             let task = ModelTask::new(
                 self.prompt.instruction_type.clone().unwrap_or_default(),
                 ModelParameters {
-                    model_ids: Some(vec![model_id]),
+                    model_ids: Some(vec![model_id.clone()]),
                     ..*self.model_parameters.clone()
                 },
                 instruction_messages.clone(),
             );
             futures.push(async move {
                 let started = Timestamp::now();
-                let result = model_task_to_blocks_and_authors(task).await;
+                let result = model_task_to_blocks_and_authors(task.clone()).await;
                 let ended = Timestamp::now();
-                (message_id, started, ended, result)
+                (model_id, message_id, task, started, ended, result)
             })
         }
 
         // Wait for each future to complete and patch content
+        let max_retries = self.model_parameters.maximum_retries.unwrap_or(0);
         let execution_bounds = self.execution_bounds.clone().unwrap_or_default();
-        while let Some((message_id, started, ended, result)) = futures.next().await {
+        while let Some((model_id, message_id, mut task, started, ended, result)) =
+            futures.next().await
+        {
             tracing::trace!("Model message finished {message_id}");
 
             let (content, messages) = match result {
                 Ok((mut content, mut authors)) => {
-                    // Apply model and user authorship to blocks
                     if let Some(role) = &user_author_role {
                         authors.push(role.clone());
                     }
-                    if let Err(error) = authorship(&mut content, authors) {
+
+                    // Apply model and user authorship to blocks
+                    if let Err(error) = authorship(&mut content, authors.clone()) {
                         tracing::error!("While applying authorship to content: {error}");
                     }
 
-                    // Execute if not skipped
+                    // Execute the content if not skipped. Note that this is spawned as an async task so that
+                    // the message can be updated with the unexecuted content first.
                     if !matches!(execution_bounds, ExecutionBounds::Skip) {
                         let mut fork = executor.fork_for_all();
                         let mut content = content.clone();
-                        let execute = async move {
-                            if let Err(error) = fork.compile_prepare_execute(&mut content).await {
-                                tracing::error!("While executing content: {error}");
+                        let message_id = message_id.clone();
+                        tokio::spawn(async move {
+                            let mut retries = 0;
+                            loop {
+                                // Format, fix & lint the content before executing
+                                if let Err(error) =
+                                    fork.compile_lint(&mut content, true, true).await
+                                {
+                                    tracing::error!("While linting content: {error}");
+                                };
+
+                                // Collect linting diagnostics
+                                let diags = diagnostics_gte(&content, DiagnosticLevel::Warning);
+
+                                // Execute only if no linting warnings or errors
+                                let diags = if diags.is_empty() {
+                                    if let Err(error) = fork.prepare_execute(&mut content).await {
+                                        tracing::error!("While executing content: {error}");
+                                    }
+                                    diagnostics_gte(&content, DiagnosticLevel::Warning)
+                                } else {
+                                    diags
+                                };
+
+                                // Stop retrying if no retries or diagnostics
+                                if max_retries == 0 || diags.is_empty() {
+                                    break;
+                                }
+
+                                // Extract the level and message of the first diagnostic
+                                let (level, message) = diags
+                                    .first()
+                                    .map(|diag| {
+                                        (
+                                            diag.level().to_string().to_lowercase(),
+                                            diag.message().to_string(),
+                                        )
+                                    })
+                                    .unwrap_or_default();
+
+                                // Stop if hit maximum number of retries
+                                // Note that this check occurs after the execute to allow the final
+                                // retry to be executed
+                                if retries >= max_retries {
+                                    // Let the user know we are giving up
+                                    if retries > 0 {
+                                        let message = p([
+                                            t(format!(
+                                                "Giving up after {retries} {} with {level}: ",
+                                                if retries == 1 { "retry" } else { "retries" }
+                                            )),
+                                            ci(truncate(message, 100)),
+                                        ]);
+                                        fork.patch(
+                                            &message_id,
+                                            [append(NodeProperty::Content, vec![message])],
+                                        );
+                                    }
+
+                                    break;
+                                }
+                                retries += 1;
+
+                                // Add content indicating the retry and the reason for it
+                                // and update message status indicating that updating message
+                                let message = vec![
+                                    h3([t(format!("Retry {retries} of {max_retries}"))]),
+                                    p([t(format!("Trying again due to {level}: ")), ci(message)]),
+                                ];
+                                fork.patch(
+                                    &message_id,
+                                    [
+                                        append(NodeProperty::Content, message),
+                                        set(
+                                            NodeProperty::ExecutionStatus,
+                                            ExecutionStatus::Running,
+                                        ),
+                                    ],
+                                );
+
+                                // Add a new message to the task with the diagnostic/s
+                                let diags = diags
+                                    .into_iter()
+                                    .filter_map(|diag| diag.to_string_pretty("", "", &None).ok())
+                                    .join("\n");
+                                task.messages.push(InstructionMessage::user(
+                                    format!("There was an error, please try again:\n\n{diags}"),
+                                    None,
+                                ));
+
+                                // Run model task again with diagnostic added
+                                let mut new_content =
+                                    match model_task_to_blocks_and_authors(task.clone()).await {
+                                        Ok((blocks, ..)) => blocks,
+                                        Err(error) => {
+                                            // If there was an error retrying e.g. model unavailable then
+                                            // give up.
+                                            let message = p([
+                                                t(format!(
+                                                    "Giving up after {retries} {} due to error: ",
+                                                    if retries == 1 { "retry" } else { "retries" }
+                                                )),
+                                                ci(truncate(error.to_string(), 200)),
+                                            ]);
+                                            let exec_message = error_to_execution_message(
+                                                &format!("While running model `{model_id}`"),
+                                                error,
+                                            );
+                                            fork.patch(
+                                                &message_id,
+                                                [
+                                                    append(NodeProperty::Content, vec![message]),
+                                                    push(
+                                                        NodeProperty::ExecutionMessages,
+                                                        exec_message,
+                                                    ),
+                                                    set(
+                                                        NodeProperty::ExecutionStatus,
+                                                        ExecutionStatus::Errors,
+                                                    ),
+                                                ],
+                                            );
+                                            break;
+                                        }
+                                    };
+
+                                // Apply model and user authorship to new blocks
+                                if let Err(error) = authorship(&mut new_content, authors.clone()) {
+                                    tracing::error!(
+                                        "While applying authorship to content: {error}"
+                                    );
+                                }
+
+                                // Reset the content so only the new blocks are executed
+                                content = new_content.clone();
+
+                                // Append the new content to the message
+                                fork.patch(
+                                    &message_id,
+                                    [
+                                        append(NodeProperty::Content, new_content),
+                                        set(
+                                            NodeProperty::ExecutionStatus,
+                                            ExecutionStatus::Succeeded,
+                                        ),
+                                    ],
+                                );
                             }
-                        };
-                        tokio::spawn(execute);
+                        });
                     }
 
                     (content, None)
                 }
                 Err(error) => (
-                    vec![adm(
-                        AdmonitionType::Failure,
-                        None::<String>,
-                        [p([t(error.to_string())])],
-                    )],
+                    vec![],
                     Some(vec![error_to_execution_message(
-                        "While running model",
+                        &format!("While running model `{model_id}`"),
                         error,
                     )]),
                 ),
@@ -315,6 +468,7 @@ impl Executable for Chat {
             let required = execution_required_status(&status);
             let duration = execution_duration(&started, &ended);
 
+            // Patch the message with its execution details and new content
             executor.patch(
                 &message_id,
                 [
@@ -336,7 +490,7 @@ impl Executable for Chat {
         let duration = execution_duration(&started, &ended);
         let count = self.options.execution_count.unwrap_or_default() + 1;
 
-        // Patch the chat, including appending a new, empty user message
+        // Patch the chat's execution details
         executor.patch(
             &node_id,
             [
@@ -404,4 +558,14 @@ fn group_to_instr_msg(group: &ChatMessageGroup) -> Option<InstructionMessage> {
         .find(|msg| msg.options.is_selected.unwrap_or_default())
         .or_else(|| group.messages.first())
         .and_then(msg_to_instr_msg)
+}
+
+fn truncate(message: String, chars: usize) -> String {
+    if message.len() > chars {
+        let mut message: String = message.chars().take(chars).collect();
+        message.push('…');
+        message
+    } else {
+        message
+    }
 }

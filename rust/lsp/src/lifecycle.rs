@@ -57,6 +57,7 @@ pub(super) async fn initialize() -> Result<InitializeResult, ResponseError> {
                     "[".into(),
                     "(".into(),
                     ",".into(),
+                    "`".into(),
                     " ".into(),
                 ]),
                 resolve_provider: Some(true),

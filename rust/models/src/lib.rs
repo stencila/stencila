@@ -41,8 +41,8 @@ pub async fn list() -> Vec<Arc<dyn Model>> {
 
     let list = join_all(futures).await.into_iter().flatten();
 
-    // Ensure that ids are unique, taking those with lower rank (higher
-    // preference) type: Local < Remote < Proxied. This avoids having
+    // Ensure that ids are unique, taking those with lower ranked type (higher
+    // preference): Local < Remote < Proxied. This avoids having
     // proxied models clashing with remote models when user has both
     // Stencila API key and other provider API keys set
     let mut unique = HashMap::new();
@@ -57,14 +57,18 @@ pub async fn list() -> Vec<Arc<dyn Model>> {
             .or_insert(model);
     }
 
+    // Sort by router/rest, then by descending quality score, and then by provider and model name
     unique
         .into_values()
         .sorted_by(|a, b| match (a.r#type(), b.r#type()) {
             (ModelType::Router, _) => Ordering::Less,
             (_, ModelType::Router) => Ordering::Greater,
-            _ => match a.provider().cmp(&b.provider()) {
-                Ordering::Equal => match a.name().cmp(&b.name()) {
-                    Ordering::Equal => a.version().cmp(&b.version()).reverse(),
+            _ => match a.quality_score().cmp(&b.quality_score()).reverse() {
+                Ordering::Equal => match a.provider().cmp(&b.provider()) {
+                    Ordering::Equal => match a.name().cmp(&b.name()) {
+                        Ordering::Equal => a.version().cmp(&b.version()).reverse(),
+                        order => order,
+                    },
                     order => order,
                 },
                 order => order,

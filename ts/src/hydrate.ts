@@ -95,6 +95,12 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.CompilationMessage.prototype);
     case "Config":
       return Object.setPrototypeOf(value, types.Config.prototype);
+    case "ConfigPublish":
+      return Object.setPrototypeOf(value, types.ConfigPublish.prototype);
+    case "ConfigPublishGhost":
+      return Object.setPrototypeOf(value, types.ConfigPublishGhost.prototype);
+    case "ConfigPublishZenodo":
+      return Object.setPrototypeOf(value, types.ConfigPublishZenodo.prototype);
     case "ConstantValidator":
       return Object.setPrototypeOf(value, types.ConstantValidator.prototype);
     case "ContactPoint":
@@ -119,10 +125,6 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.DateValidator.prototype);
     case "DefinedTerm":
       return Object.setPrototypeOf(value, types.DefinedTerm.prototype);
-    case "DeleteBlock":
-      return Object.setPrototypeOf(value, types.DeleteBlock.prototype);
-    case "DeleteInline":
-      return Object.setPrototypeOf(value, types.DeleteInline.prototype);
     case "Directory":
       return Object.setPrototypeOf(value, types.Directory.prototype);
     case "Duration":
@@ -169,10 +171,6 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.ImageObject.prototype);
     case "IncludeBlock":
       return Object.setPrototypeOf(value, types.IncludeBlock.prototype);
-    case "InsertBlock":
-      return Object.setPrototypeOf(value, types.InsertBlock.prototype);
-    case "InsertInline":
-      return Object.setPrototypeOf(value, types.InsertInline.prototype);
     case "Instruction":
       return Object.setPrototypeOf(value, types.Instruction.prototype);
     case "InstructionBlock":
@@ -201,12 +199,6 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.MediaObject.prototype);
     case "ModelParameters":
       return Object.setPrototypeOf(value, types.ModelParameters.prototype);
-    case "ModifyBlock":
-      return Object.setPrototypeOf(value, types.ModifyBlock.prototype);
-    case "ModifyInline":
-      return Object.setPrototypeOf(value, types.ModifyInline.prototype);
-    case "ModifyOperation":
-      return Object.setPrototypeOf(value, types.ModifyOperation.prototype);
     case "MonetaryGrant":
       return Object.setPrototypeOf(value, types.MonetaryGrant.prototype);
     case "Note":
@@ -247,10 +239,6 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.QuoteInline.prototype);
     case "RawBlock":
       return Object.setPrototypeOf(value, types.RawBlock.prototype);
-    case "ReplaceBlock":
-      return Object.setPrototypeOf(value, types.ReplaceBlock.prototype);
-    case "ReplaceInline":
-      return Object.setPrototypeOf(value, types.ReplaceInline.prototype);
     case "Review":
       return Object.setPrototypeOf(value, types.Review.prototype);
     case "Role":
@@ -265,10 +253,6 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Strikeout.prototype);
     case "StringHint":
       return Object.setPrototypeOf(value, types.StringHint.prototype);
-    case "StringOperation":
-      return Object.setPrototypeOf(value, types.StringOperation.prototype);
-    case "StringPatch":
-      return Object.setPrototypeOf(value, types.StringPatch.prototype);
     case "StringValidator":
       return Object.setPrototypeOf(value, types.StringValidator.prototype);
     case "Strong":

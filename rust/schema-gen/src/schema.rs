@@ -376,6 +376,8 @@ pub enum Category {
     Style,
     /// Node types related to editing documents
     Edits,
+    /// Types related to Stencila configuration
+    Config,
     /// All other node types
     #[default]
     Other,
@@ -612,6 +614,16 @@ pub struct SerdeOptions {
     /// See https://serde.rs/field-attrs.html#flatten
     #[serde(skip_serializing_if = "is_false")]
     pub flatten: bool,
+
+    /// Set the `rename` attribute to an enum variant
+    ///
+    /// See https://serde.rs/field-attrs.html#rename
+    pub rename: Option<String>,
+
+    /// Add an `alias` attribute to an enum variant
+    ///
+    /// See https://serde.rs/field-attrs.html#alias
+    pub alias: Option<String>,
 
     /// Set the `deserialize_with` attribute of a field
     ///
@@ -920,6 +932,10 @@ impl Schema {
 
     pub fn is_array(&self) -> bool {
         matches!(self.r#type, Some(Type::Array))
+    }
+
+    pub fn is_config(&self) -> bool {
+        matches!(self.category, Category::Config)
     }
 }
 

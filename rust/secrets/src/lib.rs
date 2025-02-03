@@ -120,6 +120,8 @@ fn entry(name: &str) -> Result<keyring::Entry> {
 
 /// List secrets
 pub fn list() -> Result<Vec<Secret>> {
+    tracing::trace!("Listing secrets");
+
     SECRETS
         .iter()
         .map(|secret| {
@@ -162,8 +164,11 @@ fn redact(value: String) -> String {
 /// Set a secret
 ///
 /// If the value is a blank string then delete the entry
+#[tracing::instrument(skip(value))] // Important: skip logging secret value
 pub fn set(name: &str, value: &str) -> Result<()> {
-    if !SECRETS.iter().any(|secret| secret.name == name) {
+    tracing::trace!("Setting secret `{name}`");
+
+    if !cfg!(test) && !SECRETS.iter().any(|secret| secret.name == name) {
         bail!("Only secrets used by Stencila can be set by Stencila")
     }
 
@@ -178,18 +183,25 @@ pub fn set(name: &str, value: &str) -> Result<()> {
 }
 
 /// Get a secret
+#[tracing::instrument]
 pub fn get(name: &str) -> Result<String> {
+    tracing::trace!("Getting secret `{name}`");
+
     Ok(entry(name)?.get_password()?)
 }
 
 /// Get an environment variable or secret
+#[tracing::instrument]
 pub fn env_or_get(name: &str) -> Result<String> {
     env::var(name).or_else(|_| get(name))
 }
 
 /// Delete a secret
+#[tracing::instrument]
 pub fn delete(name: &str) -> Result<()> {
-    if !SECRETS.iter().any(|secret| secret.name == name) {
+    tracing::trace!("Deleting secret `{name}`");
+
+    if !cfg!(test) && !SECRETS.iter().any(|secret| secret.name == name) {
         bail!("Only secrets used by Stencila can be deleted by Stencila")
     }
 
@@ -200,5 +212,31 @@ pub fn delete(name: &str) -> Result<()> {
         }
         Err(error) => bail!(error),
         Ok(..) => Ok(()),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn set_get_delete() -> Result<()> {
+        #[allow(clippy::print_stderr)]
+        if cfg!(target_os = "linux") && std::env::var("CI").is_ok() {
+            // Requires the secrets service (e.g. gnome-keyring-daemon) to be running
+            // so skip on CI where that is not usually the case.
+            eprintln!("Skipping test on Linux CI");
+            return Ok(());
+        }
+
+        let name = "TEST_SECRET";
+        let value = "teSTSeCRET";
+
+        set(name, value)?;
+        assert_eq!(get(name)?, value);
+        delete(name)?;
+        assert!(get(name).is_err());
+
+        Ok(())
     }
 }

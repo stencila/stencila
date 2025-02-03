@@ -2,7 +2,6 @@ use std::hash::{Hash, Hasher};
 
 use common::seahash::SeaHasher;
 pub use common::{eyre::Report, tracing};
-pub use parsers::ParseInfo;
 pub use schema::{
     Array, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus, MessageLevel, Node,
     NodeProperty, Null, PatchNode, PatchOp, PatchValue, Primitive, Timestamp, WalkControl,

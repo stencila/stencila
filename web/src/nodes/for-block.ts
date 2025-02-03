@@ -54,6 +54,8 @@ export class ForBlock extends CodeExecutable {
   private renderCard() {
     const { colour, borderColour } = nodeUi('ForBlock')
 
+    const readOnly = ['Running', 'Pending'].includes(this.executionStatus)
+
     return html`
       <stencila-ui-block-on-demand
         type="ForBlock"
@@ -108,10 +110,13 @@ export class ForBlock extends CodeExecutable {
 
             <stencila-ui-node-code
               type="ForBlock"
+              node-id=${this.id}
+              node-property="variable"
               code=${this.variable}
               language=${this.programmingLanguage}
               execution-required=${this.executionRequired}
-              read-only
+              ?read-only=${readOnly}
+              single-line
               no-gutters
               container-classes="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
               class="flex-grow flex items-center max-w-[30%]"
@@ -122,9 +127,12 @@ export class ForBlock extends CodeExecutable {
 
             <stencila-ui-node-code
               type="ForBlock"
+              node-id=${this.id}
+              node-property="code"
               code=${this.code}
               language=${this.programmingLanguage}
-              read-only
+              ?read-only=${readOnly}
+              single-line
               no-gutters
               container-classes="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
               class="flex-grow flex items-center max-w-[60%]"

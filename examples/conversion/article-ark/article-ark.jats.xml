@@ -22,7 +22,6 @@
       <p>This is a figure</p>
     </fig>
     <title level="1">This is a heading</title>
-    <p>This paragraph is to be inserted</p>
     <list list-type="Unordered">
       <list-item>
         <p>This is a list</p>

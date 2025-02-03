@@ -42,6 +42,7 @@ export class CodeInline extends CodeStatic {
 
           <stencila-ui-node-code
             type="CodeInline"
+            node-id=${this.id}
             code=${this.code}
             .code-authorship=${this.codeAuthorship}
             language=${this.programmingLanguage}

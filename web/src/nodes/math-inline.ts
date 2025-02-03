@@ -32,6 +32,7 @@ export class MathInline extends Math {
           <stencila-ui-node-code
             type="MathInline"
             code=${this.code}
+            node-id=${this.id}
             .code-authorship=${this.codeAuthorship}
             language=${this.mathLanguage ?? 'tex'}
             read-only

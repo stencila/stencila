@@ -1,0 +1,32 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/ConfigPublish.schema.json",
+  "title": "ConfigPublish",
+  "nick": "cfp",
+  "category": "config",
+  "description": "Publishing options.",
+  "core": [
+    "ghost",
+    "zenodo"
+  ],
+  "properties": {
+    "ghost": {
+      "description": "Ghost publishing options.",
+      "patch": {
+        "formats": [
+          "all"
+        ]
+      },
+      "$ref": "ConfigPublishGhost.schema.json"
+    },
+    "zenodo": {
+      "description": "Zenodo publishing options.",
+      "patch": {
+        "formats": [
+          "all"
+        ]
+      },
+      "$ref": "ConfigPublishZenodo.schema.json"
+    }
+  }
+}

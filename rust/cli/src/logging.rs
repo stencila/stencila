@@ -17,7 +17,7 @@ use common::{
 #[cfg(not(feature = "console-subscriber"))]
 pub fn setup(level: LoggingLevel, filter: &str, format: LoggingFormat) -> Result<()> {
     use common::eyre::{bail, Context};
-    use is_terminal::IsTerminal;
+    use std::io::IsTerminal;
     use tracing_error::ErrorLayer;
     use tracing_subscriber::{fmt, registry, EnvFilter};
 

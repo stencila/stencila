@@ -1,0 +1,22 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/ConfigPublishZenodo.schema.json",
+  "title": "ConfigPublishZenodo",
+  "nick": "cpz",
+  "category": "config",
+  "description": "Zenodo publishing options.",
+  "core": [
+    "embargoed"
+  ],
+  "properties": {
+    "embargoed": {
+      "description": "Whether the deposit is embargoed.",
+      "patch": {
+        "formats": [
+          "all"
+        ]
+      },
+      "type": "boolean"
+    }
+  }
+}

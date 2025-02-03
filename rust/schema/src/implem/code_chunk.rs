@@ -192,18 +192,6 @@ impl MarkdownCodec for CodeChunk {
         let backticks = context.enclosing_backticks(&self.code);
 
         if context.render || matches!(context.format, Format::Llmd) {
-            // Record any execution messages
-            if let Some(messages) = &self.options.execution_messages {
-                for message in messages {
-                    context.add_message(
-                        self.node_type(),
-                        self.node_id(),
-                        message.level.clone().into(),
-                        message.message.to_string(),
-                    );
-                }
-            }
-
             // Encode label and caption (ensuring blank line after)
             if let Some(label_type) = &self.label_type {
                 context.push_str(match label_type {

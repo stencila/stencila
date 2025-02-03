@@ -32,3 +32,9 @@ anyOf:
   - const: Executor
     '@id': stencila:Executor
     description: The author is a `SoftwareApplication` that executed code which created outputs such as text, tables, or images.
+  - const: Formatter
+    '@id': stencila:Formatter
+    description: The author is a `SoftwareApplication` that formatted code.
+  - const: Linter
+    '@id': stencila:Linter
+    description: The author is a `SoftwareApplication` that made linting fixes to code.

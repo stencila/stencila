@@ -3,7 +3,7 @@ use codec::{
     format::Format,
     schema::{Node, NodeType},
     status::Status,
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
+    Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 
 mod blocks;
@@ -34,6 +34,10 @@ impl Codec for PandocCodec {
 
     fn status(&self) -> Status {
         Status::UnderDevelopment
+    }
+
+    fn availability(&self) -> CodecAvailability {
+        pandoc_availability()
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {
@@ -81,5 +85,12 @@ impl Codec for PandocCodec {
         };
 
         Ok((json, info))
+    }
+}
+
+pub fn pandoc_availability() -> CodecAvailability {
+    match which::which("pandoc") {
+        Ok(..) => CodecAvailability::Available,
+        Err(..) => CodecAvailability::Installable("pandoc".into()),
     }
 }

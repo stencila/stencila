@@ -193,12 +193,15 @@ export class UINodeAuthor extends LitElement {
       icon = 'chatSquareText'
     }
 
-    return icon
-      ? html`<stencila-ui-icon
-          name=${icon}
-          class=${`text-2xl`}
-        ></stencila-ui-icon>`
-      : this.renderAvatar()
+    // Fallback to box icon
+    if (!icon) {
+      icon = 'box'
+    }
+
+    return html`<stencila-ui-icon
+      name=${icon}
+      class="text-2xl"
+    ></stencila-ui-icon>`
   }
 
   private renderOrgIcon() {

@@ -20,7 +20,6 @@ impl Block {
             Claim,
             CodeBlock,
             CodeChunk,
-            DeleteBlock,
             Figure,
             File,
             ForBlock,
@@ -29,16 +28,13 @@ impl Block {
             IfBlock,
             ImageObject,
             IncludeBlock,
-            InsertBlock,
             InstructionBlock,
             List,
             MathBlock,
-            ModifyBlock,
             Paragraph,
             PromptBlock,
             QuoteBlock,
             RawBlock,
-            ReplaceBlock,
             Section,
             StyledBlock,
             SuggestionBlock,
@@ -68,7 +64,6 @@ impl Block {
             Claim,
             CodeBlock,
             CodeChunk,
-            DeleteBlock,
             Figure,
             File,
             ForBlock,
@@ -77,16 +72,13 @@ impl Block {
             IfBlock,
             ImageObject,
             IncludeBlock,
-            InsertBlock,
             InstructionBlock,
             List,
             MathBlock,
-            ModifyBlock,
             Paragraph,
             PromptBlock,
             QuoteBlock,
             RawBlock,
-            ReplaceBlock,
             Section,
             StyledBlock,
             SuggestionBlock,
@@ -120,23 +112,19 @@ impl TryFrom<Node> for Block {
             Claim,
             CodeBlock,
             CodeChunk,
-            DeleteBlock,
             Figure,
             ForBlock,
             Form,
             Heading,
             IfBlock,
             IncludeBlock,
-            InsertBlock,
             InstructionBlock,
             List,
             MathBlock,
-            ModifyBlock,
             Paragraph,
             PromptBlock,
             QuoteBlock,
             RawBlock,
-            ReplaceBlock,
             Section,
             StyledBlock,
             SuggestionBlock,
@@ -197,18 +185,6 @@ impl From<Vec<Inline>> for Block {
 impl MarkdownCodec for Block {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         if matches!(context.format, Format::Llmd) {
-            // These block types are never encoded to LLMd
-            if matches!(
-                self,
-                Block::SuggestionBlock(..)
-                    | Block::InsertBlock(..)
-                    | Block::DeleteBlock(..)
-                    | Block::ModifyBlock(..)
-                    | Block::ReplaceBlock(..)
-            ) {
-                return;
-            }
-
             // Most other block types are only encoded to LLMd if they meet the specified
             // thresholds for provenance. This is not done for compound block types (those that
             // have nested blocks) where the provenance is calculated for the 'code' of the
@@ -252,7 +228,6 @@ impl MarkdownCodec for Block {
             Claim,
             CodeBlock,
             CodeChunk,
-            DeleteBlock,
             Figure,
             File,
             ForBlock,
@@ -261,16 +236,13 @@ impl MarkdownCodec for Block {
             IfBlock,
             ImageObject,
             IncludeBlock,
-            InsertBlock,
             InstructionBlock,
             List,
             MathBlock,
-            ModifyBlock,
             Paragraph,
             PromptBlock,
             QuoteBlock,
             RawBlock,
-            ReplaceBlock,
             Section,
             StyledBlock,
             SuggestionBlock,

@@ -8,7 +8,7 @@ use server::{self, ServeOptions};
 use version::STENCILA_VERSION;
 
 use crate::{
-    compile, convert, execute,
+    compile, convert, execute, lint,
     logging::{LoggingFormat, LoggingLevel},
     new, preview, render, sync, uninstall, upgrade,
 };
@@ -54,7 +54,7 @@ pub struct Cli {
     /// syntax such as `tokio=debug`.
     #[arg(
         long,
-        default_value = "globset=warn,hyper=info,hyper_util=info,ignore=warn,mio=info,notify=warn,ort=error,reqwest=info,sled=info,tokio=info,tungstenite=info",
+        default_value = "globset=warn,hyper=info,hyper_util=info,ignore=warn,keyring=info,mio=info,notify=warn,ort=error,reqwest=info,sled=info,tokio=info,tungstenite=info",
         global = true,
         hide = true
     )]
@@ -100,6 +100,7 @@ pub enum Command {
     Sync(sync::Cli),
 
     Compile(compile::Cli),
+    Lint(lint::Cli),
     Execute(execute::Cli),
     Render(render::Cli),
 
@@ -149,6 +150,7 @@ impl Cli {
             Command::Sync(sync) => sync.run().await?,
 
             Command::Compile(compile) => compile.run().await?,
+            Command::Lint(lint) => lint.run().await?,
             Command::Execute(execute) => execute.run().await?,
             Command::Render(render) => render.run().await?,
 

@@ -30,7 +30,6 @@ import { type Collection } from "./Collection.js";
 import { type Comment } from "./Comment.js";
 import { type CompilationDigest } from "./CompilationDigest.js";
 import { type CompilationMessage } from "./CompilationMessage.js";
-import { type Config } from "./Config.js";
 import { type ConstantValidator } from "./ConstantValidator.js";
 import { type ContactPoint } from "./ContactPoint.js";
 import { type Cord } from "./Cord.js";
@@ -44,8 +43,6 @@ import { type DateTime } from "./DateTime.js";
 import { type DateTimeValidator } from "./DateTimeValidator.js";
 import { type DateValidator } from "./DateValidator.js";
 import { type DefinedTerm } from "./DefinedTerm.js";
-import { type DeleteBlock } from "./DeleteBlock.js";
-import { type DeleteInline } from "./DeleteInline.js";
 import { type Directory } from "./Directory.js";
 import { type Duration } from "./Duration.js";
 import { type DurationValidator } from "./DurationValidator.js";
@@ -67,8 +64,6 @@ import { type IfBlock } from "./IfBlock.js";
 import { type IfBlockClause } from "./IfBlockClause.js";
 import { type ImageObject } from "./ImageObject.js";
 import { type IncludeBlock } from "./IncludeBlock.js";
-import { type InsertBlock } from "./InsertBlock.js";
-import { type InsertInline } from "./InsertInline.js";
 import { type InstructionBlock } from "./InstructionBlock.js";
 import { type InstructionInline } from "./InstructionInline.js";
 import { type InstructionMessage } from "./InstructionMessage.js";
@@ -81,9 +76,6 @@ import { type MathBlock } from "./MathBlock.js";
 import { type MathInline } from "./MathInline.js";
 import { type MediaObject } from "./MediaObject.js";
 import { type ModelParameters } from "./ModelParameters.js";
-import { type ModifyBlock } from "./ModifyBlock.js";
-import { type ModifyInline } from "./ModifyInline.js";
-import { type ModifyOperation } from "./ModifyOperation.js";
 import { type MonetaryGrant } from "./MonetaryGrant.js";
 import { type Note } from "./Note.js";
 import { type NumberValidator } from "./NumberValidator.js";
@@ -105,16 +97,12 @@ import { type PublicationVolume } from "./PublicationVolume.js";
 import { type QuoteBlock } from "./QuoteBlock.js";
 import { type QuoteInline } from "./QuoteInline.js";
 import { type RawBlock } from "./RawBlock.js";
-import { type ReplaceBlock } from "./ReplaceBlock.js";
-import { type ReplaceInline } from "./ReplaceInline.js";
 import { type Review } from "./Review.js";
 import { type Section } from "./Section.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type SoftwareSourceCode } from "./SoftwareSourceCode.js";
 import { type Strikeout } from "./Strikeout.js";
 import { type StringHint } from "./StringHint.js";
-import { type StringOperation } from "./StringOperation.js";
-import { type StringPatch } from "./StringPatch.js";
 import { type StringValidator } from "./StringValidator.js";
 import { type Strong } from "./Strong.js";
 import { type StyledBlock } from "./StyledBlock.js";
@@ -181,7 +169,6 @@ export type Node =
   Comment |
   CompilationDigest |
   CompilationMessage |
-  Config |
   ConstantValidator |
   ContactPoint |
   CreativeWork |
@@ -194,8 +181,6 @@ export type Node =
   DateTimeValidator |
   DateValidator |
   DefinedTerm |
-  DeleteBlock |
-  DeleteInline |
   Directory |
   Duration |
   DurationValidator |
@@ -217,8 +202,6 @@ export type Node =
   IfBlockClause |
   ImageObject |
   IncludeBlock |
-  InsertBlock |
-  InsertInline |
   InstructionBlock |
   InstructionInline |
   InstructionMessage |
@@ -230,9 +213,6 @@ export type Node =
   MathInline |
   MediaObject |
   ModelParameters |
-  ModifyBlock |
-  ModifyInline |
-  ModifyOperation |
   MonetaryGrant |
   Note |
   NumberValidator |
@@ -253,16 +233,12 @@ export type Node =
   QuoteBlock |
   QuoteInline |
   RawBlock |
-  ReplaceBlock |
-  ReplaceInline |
   Review |
   Section |
   SoftwareApplication |
   SoftwareSourceCode |
   Strikeout |
   StringHint |
-  StringOperation |
-  StringPatch |
   StringValidator |
   Strong |
   StyledBlock |
@@ -325,7 +301,6 @@ export function node(other: Node): Node {
     case "Comment":
     case "CompilationDigest":
     case "CompilationMessage":
-    case "Config":
     case "ConstantValidator":
     case "ContactPoint":
     case "CreativeWork":
@@ -338,8 +313,6 @@ export function node(other: Node): Node {
     case "DateTimeValidator":
     case "DateValidator":
     case "DefinedTerm":
-    case "DeleteBlock":
-    case "DeleteInline":
     case "Directory":
     case "Duration":
     case "DurationValidator":
@@ -361,8 +334,6 @@ export function node(other: Node): Node {
     case "IfBlockClause":
     case "ImageObject":
     case "IncludeBlock":
-    case "InsertBlock":
-    case "InsertInline":
     case "InstructionBlock":
     case "InstructionInline":
     case "InstructionMessage":
@@ -374,9 +345,6 @@ export function node(other: Node): Node {
     case "MathInline":
     case "MediaObject":
     case "ModelParameters":
-    case "ModifyBlock":
-    case "ModifyInline":
-    case "ModifyOperation":
     case "MonetaryGrant":
     case "Note":
     case "NumberValidator":
@@ -397,16 +365,12 @@ export function node(other: Node): Node {
     case "QuoteBlock":
     case "QuoteInline":
     case "RawBlock":
-    case "ReplaceBlock":
-    case "ReplaceInline":
     case "Review":
     case "Section":
     case "SoftwareApplication":
     case "SoftwareSourceCode":
     case "Strikeout":
     case "StringHint":
-    case "StringOperation":
-    case "StringPatch":
     case "StringValidator":
     case "Strong":
     case "StyledBlock":

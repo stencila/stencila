@@ -11,9 +11,6 @@
     </stencila-code-expression>
     <span>,</span>
     <code>inline code</code>
-    <del>
-      <span>, delete</span>
-    </del>
     <span>,</span>
     <em>
       <span>emphasis</span>
@@ -21,9 +18,6 @@
     <span>,</span>
     <img src='https://example.org/cat.jpg' alt='image'>
     </img>
-    <ins>
-      <span>, insert</span>
-    </ins>
     <span>,</span>
     <a href='https://example.org'>
       <span>link</span>
@@ -47,9 +41,6 @@
     <q>
       <span>inline quote</span>
     </q>
-    <stencila-replace-inline replacement='[{"type":"Text","value":{"string":", new"}}]'>
-      <span>, old</span>
-    </stencila-replace-inline>
     <span>,</span>
     <span data-code='{"string":"text-blue-400"}'>
       <span>styled inline</span>
@@ -89,11 +80,6 @@
   <pre>This is a code block</pre>
   <stencila-code-chunk code='{"string":"This is a code chunk"}'>
   </stencila-code-chunk>
-  <stencila-delete-block>
-    <p>
-      <span>This paragraph is to be deleted</span>
-    </p>
-  </stencila-delete-block>
   <figure>
     <p>
       <span>This is a figure</span>
@@ -120,11 +106,6 @@
   </stencila-if-block>
   <stencila-include-block source='this/is/an/include'>
   </stencila-include-block>
-  <stencila-insert-block>
-    <p>
-      <span>This paragraph is to be inserted</span>
-    </p>
-  </stencila-insert-block>
   <ul>
     <li>
       <p>
@@ -139,11 +120,6 @@
       <span>This is a quote block</span>
     </p>
   </blockquote>
-  <stencila-replace-block replacement='[{"type":"Paragraph","content":[{"type":"Text","value":{"string":"New paragraph"}}]}]'>
-    <p>
-      <span>Old paragraph</span>
-    </p>
-  </stencila-replace-block>
   <section>
     <p>
       <span>This is a section</span>
