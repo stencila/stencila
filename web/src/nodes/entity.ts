@@ -93,7 +93,7 @@ export abstract class Entity extends LitElement {
     this.context.nodeId = this.id
 
     const mode = getModeParam(window)
-    if (mode && mode === 'test-expand-all') {
+    if ((mode && mode === 'test-expand-all') || this.depth === 0) {
       // start with card open in default
       this.context.cardOpen = true
     }
