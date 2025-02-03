@@ -407,7 +407,7 @@ export class PromptBlock extends Executable {
     return html`
       <div class="bg-white/50 w-full max-h-[90vh] rounded overflow-y-auto mt-2">
         <div
-          class="max-w-prose mx-auto p-3"
+          class="max-w-[50rem] mx-auto pl-16 pr-5"
           style="color: var(--default-text-colour);"
         >
           <slot name="content"></slot>
