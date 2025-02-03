@@ -53,7 +53,6 @@ export class IncludeBlock extends Executable {
    * Send the patch event upon input change
    */
   private onInputChange(e: InputEvent) {
-    console.log('timer')
     const value = (e.target as HTMLInputElement).value
     if (this.inputTimer) {
       clearTimeout(this.inputTimer)
@@ -185,7 +184,7 @@ export class IncludeBlock extends Executable {
           <input
             class="flex-grow rounded-sm border border-[${borderColour}] px-2 font-mono h-[2em] outline-black"
             value=${this.source}
-            @input=${(e) => this.onInputChange(e)}
+            @input=${this.onInputChange}
             @keydown=${this.onKeydown}
             ?readonly=${this.readonly}
             ?disabled=${this.readonly}
