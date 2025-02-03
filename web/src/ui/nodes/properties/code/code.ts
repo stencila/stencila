@@ -16,11 +16,7 @@ import { apply } from '@twind/core'
 import { LitElement, PropertyValues, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import {
-  patchValue,
-  patchValueExecute,
-  runNode,
-} from '../../../../clients/commands'
+import { patchValue, patchValueExecute } from '../../../../clients/commands'
 import { CompilationMessage } from '../../../../nodes/compilation-message'
 import { ExecutionMessage } from '../../../../nodes/execution-message'
 import { withTwind } from '../../../../twind'
@@ -372,7 +368,6 @@ export class UINodeCode extends LitElement {
       tr.newDoc.lines > 1 ? [] : tr
     )
 
-    // filter out default ctrl-enter keybinding
     const filteredKeyMap = defaultKeymap.filter((kb) => {
       if (kb.key) {
         return !['mod-enter', 'ctrl-enter'].includes(kb.key.toLowerCase())
