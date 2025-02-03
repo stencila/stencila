@@ -139,10 +139,12 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
 
       const { borderColour, icon } = nodeUi(this.type)
 
+      const defaultState = this.docViewContext?.nodeMarkerState ?? 'hover-only'
+
       const markerStateClasses =
-        this.toggle || this.docViewContext.nodeMarkerState === 'hidden'
+        this.toggle || defaultState === 'hidden'
           ? 'opacity-0 pointer-events-none'
-          : this.docViewContext.nodeMarkerState === 'hover-only'
+          : defaultState === 'hover-only'
             ? 'opacity-0 group-hover:opacity-100'
             : 'opacity-100'
 
