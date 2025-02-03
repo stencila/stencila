@@ -39,6 +39,20 @@ export const patchValue = (
   })
 
 /**
+ * Create a `patch-value-execute` command event
+ */
+export const patchValueExecute = (
+  nodeType: NodeType,
+  nodeId: NodeId,
+  patchPath: string | number | Array<string | number>,
+  value: null | boolean | number | string
+) =>
+  documentCommandEvent({
+    command: 'patch-value-execute',
+    args: [nodeType, nodeId, patchPath, value],
+  })
+
+/**
  * Create a `patch-clone` command event
  */
 export const patchClone = (
@@ -62,26 +76,25 @@ export const patchChatFocus = (chatId: NodeId, cloneId: NodeId) =>
   })
 
 /**
- * Create an `invoke.insert-clone` command event
+ * Create an `invoke.insert-clones` command event
  */
-export const insertClone = (nodeType: NodeType, nodeId: NodeId) =>
+export const insertClones = (nodeIds: NodeId[]) =>
   documentCommandEvent({
-    command: 'invoke.insert-clone',
-    args: [nodeType, nodeId],
+    command: 'invoke.insert-clones',
+    args: [[nodeIds]],
   })
 
 /**
  * Create an `invoke.insert-instruction` command event
  */
-export const insertInstruction = (
-  nodeType: NodeType,
-  nodeId: NodeId,
+export const insertInstructions = (
+  nodeIds: NodeId[],
   instructionType: InstructionType,
   executionMode: ExecutionMode
 ) =>
   documentCommandEvent({
     command: 'invoke.insert-instruction',
-    args: [nodeType, nodeId, instructionType, executionMode],
+    args: [nodeIds, instructionType, executionMode],
   })
 
 /**
@@ -95,6 +108,15 @@ export const runNode = (
   documentCommandEvent({
     command: 'run-node',
     args: [nodeType, nodeId, scope],
+  })
+
+/**
+ * Create a `cancel-node` command event
+ */
+export const cancelNode = (nodeType: NodeType, nodeId: NodeId) =>
+  documentCommandEvent({
+    command: 'cancel-node',
+    args: [nodeType, nodeId],
   })
 
 /**

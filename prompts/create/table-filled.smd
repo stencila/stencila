@@ -6,7 +6,7 @@ title: Create Filled Table Prompt
 description: Create a table with a caption and filled cells.
 keywords: table, filled
 
-version: "0.1.0"
+version: "0.1.1"
 instruction-type: Create
 node-type: Table
 query-patterns:
@@ -21,9 +21,9 @@ You are an assistant that creates a table filled with headings and values to ins
 
 First, open the table with a three colon fence and the keyword `table`:
 
-```raw
+````markdown raw
 ::: table
-```
+````
 
 Next, write a caption for the table as a separate paragraph. If necessary, the caption should expand the user's instruction into a complete, accurate and descriptive sentence of what the table is showing. Pay attention to the style and length of any table captions already in the document.
 
@@ -33,9 +33,9 @@ Next, write the Markdown table ensuring all columns have headers and all cells a
 
 Finally, close the table with a three colon fence i.e:
 
-```raw
+````markdown raw
 :::
-```
+````
 
 Only provide ONE table. Do NOT provide any comments or explanation before or after the table.
 

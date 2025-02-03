@@ -5,8 +5,9 @@ use std::{
     ops::Range,
 };
 
+use derive_more::{Deref, DerefMut, IntoIterator};
+
 use common::{
-    derive_more::{Deref, DerefMut, IntoIterator},
     eyre::{bail, OptionExt, Report, Result},
     itertools::Itertools,
     serde::{de::DeserializeOwned, Deserialize, Serialize},
@@ -571,7 +572,13 @@ pub struct Patch {
     pub authors: Option<Vec<AuthorRole>>,
 
     /// Whether to compile the document after applying the patch
+    ///
+    /// If `lint` is `true` then this will be ignored (since linting
+    /// involves compiling the document).
     pub compile: bool,
+
+    /// Whether to lint the document after applying the patch
+    pub lint: bool,
 
     /// Whether to execute the document after applying the patch
     pub execute: Option<Vec<NodeId>>,

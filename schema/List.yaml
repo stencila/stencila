@@ -16,6 +16,8 @@ html:
   special: true
 jats:
   elem: list
+latex:
+  derive: false
 markdown:
   derive: false
 proptest: {}
@@ -34,7 +36,7 @@ properties:
       $ref: ListItem
     walk: true
     patch:
-      formats: [md, smd, myst, ipynb, qmd, lexical, koenig]
+      formats: [md, smd, myst, ipynb, qmd, latex, lexical, koenig]
     jats:
       content: true
     proptest:
@@ -55,7 +57,7 @@ properties:
     description: The ordering of the list.
     $ref: ListOrder
     patch:
-      formats: [md, smd, myst, ipynb, qmd, lexical, koenig]
+      formats: [md, smd, myst, ipynb, qmd, latex, lexical, koenig]
     jats:
       attr: list-type
     proptest:
@@ -63,7 +65,7 @@ properties:
         description: Always generate an unordered list.
         value: ListOrder::Unordered
       low:
-        description: Randomly generate either and unordered or ascending list.
+        description: Randomly generate either an unordered, or ascending, list.
         strategy: prop_oneof![Just(ListOrder::Unordered),Just(ListOrder::Ascending)]
       high:
         description: Generate an arbitrary list ordering.

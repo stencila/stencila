@@ -30,8 +30,9 @@ properties:
         description: Generate a simple fixed string of code.
         value: Cord::from("code")
       low:
-        description: Generate a random string of up to 10 alphanumeric & space characters (trimmed).
-        strategy: r"[a-zA-Z0-9 ]{1,10}".prop_map(|code| Cord::from(code.trim()))
+        description: |
+          Generate a random string of up to 10 alphanumeric & space characters (trimmed). Avoid keywords used to identify other node types.
+        strategy: r"[a-zA-Z0-9 ]{1,10}".prop_filter("No keywords", |code| !["include", "call", "if", "ifblock", "for"].contains(&code.trim())).prop_map(|code| Cord::from(code.trim()))
       high:
         description: |
           Generate a random string of up to 100 characters (excluding control characters).

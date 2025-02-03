@@ -1,7 +1,7 @@
 use pandoc_types::definition::{self as pandoc, Attr, Target};
 
 use codec::{
-    common::{once_cell::sync::Lazy, regex::Regex, serde_json},
+    common::{itertools::Itertools, once_cell::sync::Lazy, regex::Regex, serde_json},
     schema::*,
 };
 use codec_text_trait::to_text;
@@ -423,4 +423,36 @@ fn inline_from_pandoc_raw_inline(
         code: content.into(),
         ..Default::default()
     })
+}
+
+pub(super) fn string_from_pandoc_inlines(inlines: Vec<pandoc::Inline>) -> String {
+    inlines.into_iter().map(string_from_pandoc_inline).join("")
+}
+
+fn string_from_pandoc_inline(inline: pandoc::Inline) -> String {
+    match inline {
+        pandoc::Inline::Str(value) => value,
+        pandoc::Inline::Space => " ".into(),
+        pandoc::Inline::LineBreak => " ".into(),
+        pandoc::Inline::SoftBreak => " ".into(),
+
+        pandoc::Inline::Emph(inlines)
+        | pandoc::Inline::Quoted(.., inlines)
+        | pandoc::Inline::Strikeout(inlines)
+        | pandoc::Inline::Strong(inlines)
+        | pandoc::Inline::Subscript(inlines)
+        | pandoc::Inline::Superscript(inlines)
+        | pandoc::Inline::Underline(inlines)
+        | pandoc::Inline::SmallCaps(inlines)
+        | pandoc::Inline::Image(.., inlines, _)
+        | pandoc::Inline::Link(.., inlines, _)
+        | pandoc::Inline::Cite(.., inlines)
+        | pandoc::Inline::Span(.., inlines) => string_from_pandoc_inlines(inlines),
+
+        pandoc::Inline::Code(.., code) | pandoc::Inline::Math(.., code) => code,
+
+        pandoc::Inline::RawInline(.., content) => content,
+
+        _ => "".into(),
+    }
 }

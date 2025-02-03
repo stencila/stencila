@@ -17,6 +17,9 @@
     "elem": "article",
     "special": true
   },
+  "latex": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },
@@ -44,6 +47,7 @@
     "datePublished",
     "description",
     "references",
+    "frontmatter",
     "config",
     "headings",
     "temporary",
@@ -650,7 +654,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "$ref": "ExecutionMode.schema.json"
@@ -671,7 +676,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "$ref": "ExecutionBounds.schema.json"
@@ -949,6 +955,24 @@
       "strip": [
         "metadata"
       ],
+      "type": "string"
+    },
+    "frontmatter": {
+      "@id": "stencila:frontmatter",
+      "description": "Frontmatter containing document metadata.",
+      "$comment": "Currently assumed to be YAML or JSON.",
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
       "type": "string"
     },
     "config": {

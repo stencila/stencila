@@ -73,6 +73,7 @@ import cursor from './cursor.svg'
 import dashCircle from './dash-circle.svg'
 import elifClause from './elif-clause.svg'
 import elseClause from './else-clause.svg'
+import eslint from './eslint.svg'
 import exclamationCircle from './exclamation-circle.svg'
 import exclamationTriangle from './exclamation-triangle.svg'
 import eyeSlash from './eye-slash.svg'
@@ -85,6 +86,7 @@ import fileTypeRaw from './filetype-raw.svg'
 import fullscreen from './fullscreen.svg'
 import gear from './gear.svg'
 import google from './google.svg'
+import groq from './groq.svg'
 import handThumbsDownFill from './hand-thumbs-down-fill.svg'
 import handThumbsDown from './hand-thumbs-down.svg'
 import handThumbsUpFill from './hand-thumbs-up-fill.svg'
@@ -102,6 +104,7 @@ import javascript from './javascript.svg'
 import json from './json.svg'
 import latex from './latex.svg'
 import lightbulb from './lightbulb.svg'
+import lightningChargeFill from './lightning-charge-fill.svg'
 import lightning from './lightning.svg'
 import list from './list.svg'
 import lock from './lock.svg'
@@ -116,18 +119,20 @@ import paperclip from './paperclip.svg'
 import paragraph from './paragraph.svg'
 import person from './person.svg'
 import playCircle from './play-circle.svg'
+import playFill from './play-fill.svg'
 import play from './play.svg'
 import plusCircle from './plus-circle.svg'
 import postage from './postage.svg'
+import prettier from './prettier.svg'
 import python from './python.svg'
 import questionCircle from './question-circle.svg'
 import quote from './quote.svg'
 import r from './r.svg'
 import repeat from './repeat.svg'
-import replaceBlock from './replace-block.svg'
 import robot from './robot.svg'
 import rosetteCheck from './rosette-check.svg'
 import rosetteFillCheck from './rosette-fill-check.svg'
+import ruff from './ruff.svg'
 import sandbox from './sandbox.svg'
 import shieldCheck from './shield-check.svg'
 import skipEnd from './skip-end.svg'
@@ -135,6 +140,7 @@ import skipStart from './skip-start.svg'
 import slashCircle from './slash-circle.svg'
 import sliders from './sliders.svg'
 import speedometer from './speedometer.svg'
+import squareFill from './square-fill.svg'
 import square from './square.svg'
 import starFill from './star-fill.svg'
 import stencilaColor from './stencila-color.svg'
@@ -204,6 +210,7 @@ const icons = {
   dashCircle,
   elifClause,
   elseClause,
+  eslint,
   exclamationCircle,
   exclamationTriangle,
   eye,
@@ -216,6 +223,7 @@ const icons = {
   fullscreen,
   gear,
   google,
+  groq,
   handThumbsDown,
   handThumbsDownFill,
   handThumbsUp,
@@ -234,6 +242,7 @@ const icons = {
   json,
   latex,
   lightbulb,
+  lightningChargeFill,
   lightning,
   list,
   lock,
@@ -250,18 +259,20 @@ const icons = {
   person,
   play,
   playCircle,
+  playFill,
   plusCircle,
   postage,
+  prettier,
   python,
   python3: python,
   questionCircle,
   quote,
   r,
   repeat,
-  replaceBlock,
   robot,
   rosetteCheck,
   rosetteFillCheck,
+  ruff,
   sandbox,
   shieldCheck,
   skipEnd,
@@ -270,6 +281,7 @@ const icons = {
   sliders,
   speedometer,
   square,
+  squareFill,
   starFill,
   stencila,
   stencilaColor,

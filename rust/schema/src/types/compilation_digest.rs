@@ -8,10 +8,10 @@ use super::unsigned_integer::UnsignedInteger;
 /// A digest of the content, semantics and dependencies of an executable node.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "CompilationDigest")]
+#[display("CompilationDigest")]
 pub struct CompilationDigest {
     /// The type of this item.
     pub r#type: MustBe!("CompilationDigest"),

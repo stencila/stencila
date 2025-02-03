@@ -84,6 +84,9 @@ interface Model {
     | "RequiresKey"
     | "Installable"
     | "Unavailable";
+  qualityScore?: number;
+  costScore?: number;
+  speedScore?: number;
 }
 
 class ModelPickerItem implements vscode.QuickPickItem {
@@ -137,6 +140,7 @@ class ModelTreeItem extends vscode.TreeItem {
           case "anthropic":
           case "cloudflare":
           case "google":
+          case "groq":
           case "mistral":
           case "openai":
           case "stencila":

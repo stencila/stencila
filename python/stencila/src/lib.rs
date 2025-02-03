@@ -5,9 +5,8 @@ mod utilities;
 
 #[pymodule]
 #[pyo3(name = "_stencila")]
-fn stencila(py: Python<'_>, stencila: &PyModule) -> PyResult<()> {
-    let convert = convert::module(py)?;
-    stencila.add_submodule(convert)?;
+fn stencila(stencila: &Bound<'_, PyModule>) -> PyResult<()> {
+    convert::module(stencila)?;
 
     Ok(())
 }

@@ -13,14 +13,15 @@ use std::{
     time::Duration,
 };
 
+use rand::{distr::Alphanumeric, rng, Rng};
 use semver::{Version, VersionReq};
+use which::which;
 
 use app::{get_app_dir, DirType};
 use cli_utils::Code;
 use common::{
     eyre::{bail, eyre, OptionExt, Report, Result},
     itertools::Itertools,
-    rand::{distributions::Alphanumeric, thread_rng, Rng},
     reqwest::{self, header, Client, Url},
     serde::{self, de::DeserializeOwned, Deserialize, Deserializer, Serialize, Serializer},
     serde_json::{self, Value},
@@ -31,8 +32,7 @@ use common::{
         io::{AsyncBufReadExt, AsyncWriteExt, BufReader, BufWriter},
         process::{Child, ChildStdin, ChildStdout, Command},
     },
-    toml, tracing, which,
-    which::which,
+    toml, tracing,
 };
 
 use codec::{format::Format, Codec};
@@ -856,12 +856,12 @@ impl PluginInstance {
         command.env("STENCILA_TRANSPORT", transport.to_string());
 
         let http_client = if transport == PluginTransport::Http {
-            let mut rng = thread_rng();
+            let mut rng = rng();
             let mut port: u16;
             loop {
                 // Generate a random port number within the IANA recommended range for dynamic
                 // or private ports and attempt to bind to it to check if it's available
-                port = rng.gen_range(49152..=65535);
+                port = rng.random_range(49152..=65535);
                 match TcpListener::bind(("127.0.0.1", port)) {
                     Ok(_) => break,     // If binding succeeds, the port is likely available
                     Err(_) => continue, // If binding fails, try another port

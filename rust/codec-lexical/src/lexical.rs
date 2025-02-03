@@ -29,6 +29,7 @@ pub(super) enum BlockNode {
     ExtendedHeading(ExtendedHeadingNode),
     Paragraph(ParagraphNode),
     List(ListNode),
+    LineBreak(LineBreakNode),
     Quote(QuoteNode),
     Aside(AsideNode),
     ExtendedQuote(ExtendedQuoteNode),
@@ -136,6 +137,11 @@ pub(super) struct ListNode {
 }
 
 #[derive(Default, Serialize, Deserialize)]
+pub(super) struct LineBreakNode {
+    pub r#type: MustBe!("linebreak"),
+}
+
+#[derive(Default, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub(super) enum ListType {
     #[default]
@@ -155,7 +161,7 @@ pub(super) struct ListItemNode {
 
     /// Assumes that only inline nodes are expected here
     /// (whereas in Stencila, block nodes are expected)
-    pub children: Vec<InlineNode>,
+    pub children: Vec<BlockNode>,
 }
 
 #[skip_serializing_none]

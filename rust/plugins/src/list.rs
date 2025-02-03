@@ -45,7 +45,7 @@ pub async fn list(args: ListArgs) -> Result<Vec<Plugin>> {
         }
         false
     };
-    let plugins = if !args.refresh && cache.exists() && !cache_has_expired() {
+    let mut plugins = if !args.refresh && cache.exists() && !cache_has_expired() {
         // If no errors reading or deserializing (e.g. due to change in fields in plugins) then
         // use cached list
         read_to_string(&cache)
@@ -54,10 +54,6 @@ pub async fn list(args: ListArgs) -> Result<Vec<Plugin>> {
             .and_then(|json| serde_json::from_str(&json).ok())
             .unwrap_or_default()
     } else {
-        vec![]
-    };
-
-    let mut plugins = if plugins.is_empty() {
         tracing::debug!("Refreshing list of plugins and their manifests");
 
         // Fetch the plugins list from the Stencila repo
@@ -87,8 +83,6 @@ pub async fn list(args: ListArgs) -> Result<Vec<Plugin>> {
         tracing::debug!("Caching plugin manifests to {}", cache.display());
         write(cache, serde_json::to_string_pretty(&plugins)?).await?;
 
-        plugins
-    } else {
         plugins
     };
 

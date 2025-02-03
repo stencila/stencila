@@ -3,7 +3,7 @@ use crate::prelude::*;
 use schema::StringOrNumber;
 
 /// A package available within a kernel instance
-#[derive(Default, Clone, Trace)]
+#[derive(Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct Package {
     /// The name of the package e.g. pandas

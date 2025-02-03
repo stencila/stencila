@@ -8,10 +8,11 @@
 
 The `InstructionType` type has these members:
 
+- `Discuss`
 - `Create`
+- `Describe`
 - `Edit`
 - `Fix`
-- `Describe`
 
 ## Bindings
 

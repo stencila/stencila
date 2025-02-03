@@ -15,8 +15,9 @@ json-patch = "1.2.0"
 node-execute = { path = "../node-execute" }
 node-find = { path = "../node-find" }
 node-map = { path = "../node-map" }
+node-diagnostics = { path = "../node-diagnostics" }
 node-strip = { path = "../node-strip" }
-notify = { version = "6.1.1", default-features = false, features = ["macos_kqueue"] }
+notify = { version = "8.0.0", default-features = false, features = ["macos_kqueue"] }
 schema = { path = "../schema" }
 
 [dev-dependencies]

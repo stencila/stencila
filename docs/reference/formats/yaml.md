@@ -159,26 +159,16 @@ Support and degree of loss for node types:
 | [StyledBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled_block.md)                 | 🟢 No loss | 🟢 No loss |       |
 | [StyledInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled_inline.md)               | 🟢 No loss | 🟢 No loss |       |
 | **Edits**                                                                                                                 |
-| [DeleteBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/delete_block.md)                 | 🟢 No loss | 🟢 No loss |       |
-| [DeleteInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/delete_inline.md)               | 🟢 No loss | 🟢 No loss |       |
-| [InsertBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/insert_block.md)                 | 🟢 No loss | 🟢 No loss |       |
-| [InsertInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/insert_inline.md)               | 🟢 No loss | 🟢 No loss |       |
 | [InstructionBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_block.md)       | 🟢 No loss | 🟢 No loss |       |
 | [InstructionInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_inline.md)     | 🟢 No loss | 🟢 No loss |       |
 | [InstructionMessage](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_message.md)   | 🟢 No loss | 🟢 No loss |       |
-| [ModifyBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_block.md)                 | 🟢 No loss | 🟢 No loss |       |
-| [ModifyInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_inline.md)               | 🟢 No loss | 🟢 No loss |       |
-| [ModifyOperation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/modify_operation.md)         | 🟢 No loss | 🟢 No loss |       |
 | [PromptBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/prompt_block.md)                 | 🟢 No loss | 🟢 No loss |       |
-| [ReplaceBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/replace_block.md)               | 🟢 No loss | 🟢 No loss |       |
-| [ReplaceInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/replace_inline.md)             | 🟢 No loss | 🟢 No loss |       |
-| [StringOperation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/string_operation.md)         | 🟢 No loss | 🟢 No loss |       |
-| [StringPatch](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/string_patch.md)                 | 🟢 No loss | 🟢 No loss |       |
 | [SuggestionBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion_block.md)         | 🟢 No loss | 🟢 No loss |       |
 | [SuggestionInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion_inline.md)       | 🟢 No loss | 🟢 No loss |       |
+| **Config**                                                                                                                |
+| [Config](https://github.com/stencila/stencila/blob/main/docs/reference/schema/config/config.md)                           | 🟢 No loss | 🟢 No loss |       |
 | **Other**                                                                                                                 |
 | [Brand](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md)                              | 🟢 No loss | 🟢 No loss |       |
-| [Config](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/config.md)                            | 🟢 No loss | 🟢 No loss |       |
 | [ContactPoint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/contact_point.md)               | 🟢 No loss | 🟢 No loss |       |
 | [Enumeration](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/enumeration.md)                  | 🟢 No loss | 🟢 No loss |       |
 | [Grant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/grant.md)                              | 🟢 No loss | 🟢 No loss |       |

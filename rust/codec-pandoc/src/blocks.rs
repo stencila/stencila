@@ -2,11 +2,11 @@ use std::{any::type_name_of_val, str::FromStr};
 
 use pandoc_types::definition::{self as pandoc};
 
-use codec::schema::*;
+use codec::{format::Format, schema::*};
 use codec_text_trait::to_text;
 
 use crate::{
-    inlines::{inlines_from_pandoc, inlines_to_pandoc},
+    inlines::{inlines_from_pandoc, inlines_to_pandoc, string_from_pandoc_inlines},
     shared::{
         attrs_attributes, attrs_classes, attrs_empty, get_attr, PandocDecodeContext,
         PandocEncodeContext,
@@ -101,7 +101,7 @@ pub fn block_from_pandoc(block: pandoc::Block, context: &mut PandocDecodeContext
         // Other
         pandoc::Block::BlockQuote(blocks) => quote_block_from_pandoc(blocks, context),
         pandoc::Block::RawBlock(format, string) => raw_block_from_pandoc(format, string, context), 
-        pandoc::Block::Div(attrs, blocks) => styled_block_from_pandoc(attrs, blocks, context),
+        pandoc::Block::Div(attrs, blocks) => div_from_pandoc(attrs, blocks, context),
         
         // Block types currently ignored create an empty section and record loss
         // TODO: implement these
@@ -455,7 +455,10 @@ fn code_block_from_pandoc(
 ) -> Block {
     let mut programming_language = attrs.classes.first().cloned();
 
-    if attrs.classes.iter().any(|class| class == "exec") {
+    let is_executable = attrs.classes.iter().any(|class| class == "exec")
+        || attrs.attributes.iter().any(|(name, ..)| name == "exec");
+
+    if is_executable {
         if programming_language.as_deref() == Some("exec") {
             programming_language = None;
         }
@@ -463,7 +466,24 @@ fn code_block_from_pandoc(
         let execution_mode = attrs
             .classes
             .iter()
-            .find_map(|class| ExecutionMode::from_str(class).ok());
+            .find_map(|class| ExecutionMode::from_str(class).ok())
+            .or_else(|| {
+                attrs
+                    .attributes
+                    .iter()
+                    .find_map(|(name, ..)| ExecutionMode::from_str(name).ok())
+            });
+
+        let execution_bounds = attrs
+            .classes
+            .iter()
+            .find_map(|class| ExecutionBounds::from_str(class).ok())
+            .or_else(|| {
+                attrs
+                    .attributes
+                    .iter()
+                    .find_map(|(name, ..)| ExecutionBounds::from_str(name).ok())
+            });
 
         let label_type =
             get_attr(&attrs, "label-type").and_then(|value| LabelType::from_str(&value).ok());
@@ -478,6 +498,7 @@ fn code_block_from_pandoc(
         return Block::CodeChunk(CodeChunk {
             programming_language,
             execution_mode,
+            execution_bounds,
             label_type,
             label,
             label_automatically,
@@ -614,6 +635,63 @@ fn call_block_to_pandoc(block: &CallBlock, context: &mut PandocEncodeContext) ->
     pandoc::Block::Div(attrs, blocks_to_pandoc(content, context))
 }
 
+fn call_block_from_pandoc(
+    attrs: pandoc::Attr,
+    mut blocks: Vec<pandoc::Block>,
+    context: &mut PandocDecodeContext,
+) -> Block {
+    let mut source = attrs
+        .attributes
+        .iter()
+        .find_map(|(name, value)| (name == "source").then_some(value.clone()));
+    if source.is_none() && context.format == Format::Latex && !blocks.is_empty() {
+        if let Some(pandoc::Block::Para(inlines)) = blocks.get_mut(0) {
+            if let Some(pandoc::Inline::Span(..)) = inlines.first() {
+                if let pandoc::Inline::Span(.., inlines) = inlines.remove(0) {
+                    source = Some(string_from_pandoc_inlines(inlines))
+                }
+            }
+            if let Some(pandoc::Inline::SoftBreak) = inlines.first() {
+                inlines.remove(0);
+            }
+        }
+    }
+    let source = source.unwrap_or_default();
+
+    let mut arguments = Vec::new();
+    let mut select = None;
+    let mut media_type = None;
+    let mut execution_mode = None;
+    for (name, value) in attrs.attributes {
+        if name == "select" {
+            select = Some(value);
+        } else if name == "media" {
+            media_type = Some(value);
+        } else if name == "mode" {
+            execution_mode = ExecutionMode::from_str(&value).ok();
+        } else if let Some(name) = name.strip_prefix("arg-") {
+            arguments.push(CallArgument {
+                name: name.to_string(),
+                code: value.into(),
+                ..Default::default()
+            })
+        }
+    }
+
+    let content = blocks_from_pandoc(blocks, context);
+    let content = (!content.is_empty()).then_some(content);
+
+    Block::CallBlock(CallBlock {
+        execution_mode,
+        source,
+        media_type,
+        select,
+        content,
+        arguments,
+        ..Default::default()
+    })
+}
+
 fn chat_message_to_pandoc(
     message: &ChatMessage,
     context: &mut PandocEncodeContext,
@@ -681,6 +759,78 @@ fn if_block_to_pandoc(block: &IfBlock, context: &mut PandocEncodeContext) -> pan
     pandoc::Block::Div(attrs, clauses)
 }
 
+fn if_block_from_pandoc(
+    attrs: pandoc::Attr,
+    blocks: Vec<pandoc::Block>,
+    context: &mut PandocDecodeContext,
+) -> Block {
+    // Iterate over children and determine if each is an `IfBlockClause`
+    let mut clauses = Vec::new();
+    for block in blocks.iter() {
+        if let pandoc::Block::Div(attrs, blocks) = block {
+            if attrs.classes.iter().any(|class| {
+                class == "if-clause" || class == "if" || class == "elif" || class == "else"
+            }) {
+                let clause = if_block_clause_from_pandoc(attrs.clone(), blocks.clone(), context);
+                clauses.push(clause);
+            }
+        }
+    }
+
+    if clauses.is_empty() {
+        let clause = if_block_clause_from_pandoc(attrs, blocks, context);
+
+        Block::IfBlock(IfBlock {
+            clauses: vec![clause],
+            ..Default::default()
+        })
+    } else {
+        Block::IfBlock(IfBlock {
+            clauses,
+            ..Default::default()
+        })
+    }
+}
+
+fn if_block_clause_from_pandoc(
+    attrs: pandoc::Attr,
+    mut blocks: Vec<pandoc::Block>,
+    context: &mut PandocDecodeContext,
+) -> IfBlockClause {
+    let mut code = None;
+    let mut lang = None;
+    for (name, value) in attrs.attributes {
+        if name == "code" {
+            code = Some(value);
+        } else if name == "lang" {
+            lang = Some(value);
+        }
+    }
+
+    if code.is_none() && context.format == Format::Latex && !blocks.is_empty() {
+        if let Some(pandoc::Block::Para(inlines)) = blocks.get_mut(0) {
+            if let Some(pandoc::Inline::Span(..)) = inlines.first() {
+                if let pandoc::Inline::Span(.., inlines) = inlines.remove(0) {
+                    code = Some(string_from_pandoc_inlines(inlines))
+                }
+            }
+            if let Some(pandoc::Inline::SoftBreak) = inlines.first() {
+                inlines.remove(0);
+            }
+        }
+    }
+    let code = code.unwrap_or_default().into();
+
+    let content = blocks_from_pandoc(blocks, context);
+
+    IfBlockClause {
+        code,
+        content,
+        programming_language: lang,
+        ..Default::default()
+    }
+}
+
 fn include_block_to_pandoc(
     block: &IncludeBlock,
     context: &mut PandocEncodeContext,
@@ -705,6 +855,55 @@ fn include_block_to_pandoc(
     let content = &block.content.clone().unwrap_or_default();
 
     pandoc::Block::Div(attrs, blocks_to_pandoc(content, context))
+}
+
+fn include_block_from_pandoc(
+    attrs: pandoc::Attr,
+    mut blocks: Vec<pandoc::Block>,
+    context: &mut PandocDecodeContext,
+) -> Block {
+    let mut source = attrs
+        .attributes
+        .iter()
+        .find_map(|(name, value)| (name == "source").then_some(value.clone()));
+    if source.is_none() && context.format == Format::Latex && !blocks.is_empty() {
+        if let Some(pandoc::Block::Para(inlines)) = blocks.get_mut(0) {
+            if let Some(pandoc::Inline::Span(..)) = inlines.first() {
+                if let pandoc::Inline::Span(.., inlines) = inlines.remove(0) {
+                    source = Some(string_from_pandoc_inlines(inlines))
+                }
+            }
+            if let Some(pandoc::Inline::SoftBreak) = inlines.first() {
+                inlines.remove(0);
+            }
+        }
+    }
+    let source = source.unwrap_or_default();
+
+    let mut select = None;
+    let mut media_type = None;
+    let mut execution_mode = None;
+    for (name, value) in attrs.attributes {
+        if name == "select" {
+            select = Some(value);
+        } else if name == "media" {
+            media_type = Some(value);
+        } else if name == "mode" {
+            execution_mode = ExecutionMode::from_str(&value).ok();
+        }
+    }
+
+    let content = blocks_from_pandoc(blocks, context);
+    let content = (!content.is_empty()).then_some(content);
+
+    Block::IncludeBlock(IncludeBlock {
+        execution_mode,
+        source,
+        media_type,
+        select,
+        content,
+        ..Default::default()
+    })
 }
 
 fn instruction_block_to_pandoc(
@@ -767,6 +966,62 @@ fn for_block_to_pandoc(block: &ForBlock, context: &mut PandocEncodeContext) -> p
     pandoc::Block::Div(attrs, blocks_to_pandoc(&block.content, context))
 }
 
+fn for_block_from_pandoc(
+    attrs: pandoc::Attr,
+    mut blocks: Vec<pandoc::Block>,
+    context: &mut PandocDecodeContext,
+) -> Block {
+    let mut variable = attrs
+        .attributes
+        .iter()
+        .find_map(|(name, value)| (name == "variable").then_some(value.clone()));
+
+    let mut code = attrs
+        .attributes
+        .iter()
+        .find_map(|(name, value)| (name == "code").then_some(value.clone()));
+
+    // If variable and code are none, then likely this is from LaTeX and so try getting them
+    // from the first two spans of the first paragraph (the LaTex environment args that Pandoc
+    // does not handle)
+    if variable.is_none() && code.is_none() && context.format == Format::Latex {
+        if let Some(pandoc::Block::Para(inlines)) = blocks.get_mut(0) {
+            if let Some(pandoc::Inline::Span(..)) = inlines.first() {
+                if let pandoc::Inline::Span(.., inlines) = inlines.remove(0) {
+                    variable = Some(string_from_pandoc_inlines(inlines));
+                }
+            }
+            if let Some(pandoc::Inline::Span(..)) = inlines.first() {
+                if let pandoc::Inline::Span(.., inlines) = inlines.remove(0) {
+                    code = Some(string_from_pandoc_inlines(inlines));
+                }
+            }
+            if let Some(pandoc::Inline::SoftBreak) = inlines.first() {
+                inlines.remove(0);
+            }
+        }
+    }
+
+    // If still none, then just make them empty strings
+    let variable = variable.unwrap_or_default();
+    let code = code.unwrap_or_default().into();
+
+    let programming_language = attrs
+        .attributes
+        .into_iter()
+        .find_map(|(name, value)| (name == "lang").then_some(value));
+
+    let content = blocks_from_pandoc(blocks, context);
+
+    Block::ForBlock(ForBlock {
+        variable,
+        code,
+        programming_language,
+        content,
+        ..Default::default()
+    })
+}
+
 fn quote_block_to_pandoc(block: &QuoteBlock, context: &mut PandocEncodeContext) -> pandoc::Block {
     if block.cite.is_some() {
         context.losses.add("QuoteBlock.cite");
@@ -807,11 +1062,32 @@ fn styled_block_to_pandoc(block: &StyledBlock, context: &mut PandocEncodeContext
     )
 }
 
-fn styled_block_from_pandoc(
+fn div_from_pandoc(
     attrs: pandoc::Attr,
     blocks: Vec<pandoc::Block>,
     context: &mut PandocDecodeContext,
 ) -> Block {
+    let classes = &attrs.classes;
+
+    if classes.iter().any(|class| class == "include") {
+        return include_block_from_pandoc(attrs, blocks, context);
+    };
+
+    if classes.iter().any(|class| class == "call") {
+        return call_block_from_pandoc(attrs, blocks, context);
+    };
+
+    if classes
+        .iter()
+        .any(|class| class == "if" || class == "if-block" || class == "ifblock")
+    {
+        return if_block_from_pandoc(attrs, blocks, context);
+    };
+
+    if classes.iter().any(|class| class == "for") {
+        return for_block_from_pandoc(attrs, blocks, context);
+    };
+
     let content = blocks_from_pandoc(blocks, context);
 
     if let Some(admon_type) = attrs
@@ -866,126 +1142,8 @@ fn styled_block_from_pandoc(
         }
     };
 
-    if attrs.classes.iter().any(|class| class == "if-clause") {
-        let code = attrs
-            .attributes
-            .iter()
-            .find_map(|(name, value)| (name == "code").then_some(value.clone()))
-            .unwrap_or_default()
-            .into();
-
-        let programming_language = attrs
-            .attributes
-            .into_iter()
-            .find_map(|(name, value)| (name == "lang").then_some(value));
-        return Block::IfBlock(IfBlock {
-            clauses: vec![IfBlockClause {
-                code,
-                programming_language,
-                content,
-                ..Default::default()
-            }],
-            ..Default::default()
-        });
-    }
-
-    if attrs.classes.iter().any(|class| class == "call") {
-        let mut source = String::new();
-        let mut arguments = Vec::new();
-        let mut select = None;
-        let mut media_type = None;
-        let mut execution_mode = None;
-        for (name, value) in attrs.attributes {
-            if name == "source" {
-                source = value;
-            } else if name == "select" {
-                select = Some(value);
-            } else if name == "media" {
-                media_type = Some(value);
-            } else if name == "mode" {
-                execution_mode = ExecutionMode::from_str(&value).ok();
-            } else if let Some(name) = name.strip_prefix("arg-") {
-                arguments.push(CallArgument {
-                    name: name.to_string(),
-                    code: value.into(),
-                    ..Default::default()
-                })
-            }
-        }
-        let content = (!content.is_empty()).then_some(content);
-
-        return Block::CallBlock(CallBlock {
-            execution_mode,
-            source,
-            media_type,
-            select,
-            content,
-            arguments,
-            ..Default::default()
-        });
-    }
-
     if attrs.classes.iter().any(|class| class == "chat-message") {
         return Block::ChatMessage(ChatMessage {
-            content,
-            ..Default::default()
-        });
-    }
-
-    if attrs.classes.iter().any(|class| class == "if") {
-        let mut clauses = Vec::new();
-        for block in content {
-            // will never not be StyledBlock unless other error
-            let clause = match block {
-                Block::IfBlock(IfBlock { clauses, .. }) => clauses[0].clone(),
-                _ => IfBlockClause {
-                    ..Default::default()
-                },
-            };
-            clauses.push(clause);
-        }
-
-        return Block::IfBlock(IfBlock {
-            clauses,
-            ..Default::default()
-        });
-    };
-
-    if attrs.classes.iter().any(|class| class == "include") {
-        let select = attrs
-            .attributes
-            .iter()
-            .find_map(|(name, value)| (name == "select").then_some(value.clone()))
-            .unwrap_or_default();
-        let source = attrs
-            .attributes
-            .iter()
-            .find_map(|(name, value)| (name == "source").then_some(value.clone()))
-            .unwrap_or_default();
-        let execution_mode = attrs
-            .attributes
-            .iter()
-            .find_map(|(name, value)| (name == "mode").then_some(value.clone()))
-            .unwrap_or_default();
-        let media_type = attrs
-            .attributes
-            .into_iter()
-            .find_map(|(name, value)| (name == "media").then_some(value));
-        let execution_mode = ExecutionMode::from_str(&execution_mode).ok();
-        let select = match select.as_str() {
-            "" => None,
-            _ => Some(select),
-        };
-        let content = match content[..] {
-            [] => None,
-            _ => Some(content),
-        };
-
-        return Block::IncludeBlock(IncludeBlock {
-            execution_mode,
-            source,
-            media_type,
-            select,
             content,
             ..Default::default()
         });
@@ -1048,34 +1206,6 @@ fn styled_block_from_pandoc(
             ..Default::default()
         });
     }
-
-    if attrs.classes.iter().any(|class| class == "for") {
-        let variable = attrs
-            .attributes
-            .iter()
-            .find_map(|(name, value)| (name == "variable").then_some(value.clone()))
-            .unwrap_or_default();
-
-        let code = attrs
-            .attributes
-            .iter()
-            .find_map(|(name, value)| (name == "code").then_some(value.clone()))
-            .unwrap_or_default()
-            .into();
-
-        let programming_language = attrs
-            .attributes
-            .into_iter()
-            .find_map(|(name, value)| (name == "lang").then_some(value));
-
-        return Block::ForBlock(ForBlock {
-            variable,
-            code,
-            programming_language,
-            content,
-            ..Default::default()
-        });
-    };
 
     if let Some(section_type) = attrs
         .classes

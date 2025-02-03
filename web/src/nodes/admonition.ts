@@ -41,6 +41,13 @@ export class Admonition extends Entity {
   @state()
   hasTitleSlot: boolean
 
+  /**
+   * The text of the title.
+   *
+   * Used to avoid adding an insert chip for some types of admonitions.
+   */
+  private titleSlotText?: string
+
   private toggleIsFolded() {
     if (this.isFolded) {
       this.isFolded = false
@@ -52,12 +59,16 @@ export class Admonition extends Entity {
   private onTitleSlotChange(event: Event): void {
     const slot = event.target as HTMLSlotElement
     this.hasTitleSlot = slot.assignedElements().length > 0
+    this.titleSlotText = this.hasTitleSlot
+      ? slot.assignedElements()[0].textContent
+      : undefined
   }
 
   override render() {
     const { borderColour } = admonitionUi(this.admonitionType)
 
     const styles = apply([
+      'my-4',
       `border border-l-4 border-[${borderColour}]`,
       'shadow rounded',
     ])
@@ -70,21 +81,25 @@ export class Admonition extends Entity {
       `
     }
 
+    // Render with an insert chip when in model chat response but not if
+    // a "Thinking" admonition
+    if (this.isWithinModelChatMessage) {
+      return html`
+        <div class="group relative">
+          ${this.titleSlotText !== 'Thinking' ? this.renderInsertChip() : ''}
+          <div class=${styles}>
+            ${this.renderHeader()} ${this.renderContent()}
+          </div>
+        </div>
+      `
+    }
+
     return html`
       <stencila-ui-block-on-demand
         type="Admonition"
         node-id=${this.id}
         depth=${this.depth}
       >
-        <div slot="header-right">
-          <stencila-ui-node-chat-commands
-            type="Admonition"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-chat-commands>
-        </div>
-
         <div slot="body">
           <stencila-ui-node-authors type="Admonition">
             <stencila-ui-node-provenance slot="provenance">

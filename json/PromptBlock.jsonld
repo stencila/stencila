@@ -317,9 +317,6 @@
           "@id": "stencila:Link"
         },
         {
-          "@id": "stencila:ModifyOperation"
-        },
-        {
           "@id": "stencila:PromptBlock"
         }
       ],

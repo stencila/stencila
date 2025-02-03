@@ -8,6 +8,7 @@ use std::{
 };
 
 use flate2::read::GzDecoder;
+use zip::ZipArchive;
 
 use app::{get_app_dir, DirType};
 use common::{
@@ -25,7 +26,6 @@ use common::{
         task::JoinHandle,
     },
     tracing,
-    zip::ZipArchive,
 };
 use version::STENCILA_VERSION;
 

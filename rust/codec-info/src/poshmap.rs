@@ -37,6 +37,13 @@ where
         self.mapping.node_id_at(generated_index)
     }
 
+    /// Get the [`NodeId`] at a UTF16-based line/column position
+    pub fn position16_to_node_id(&self, position16: Position16) -> Option<&NodeId> {
+        let source_index = self.positions.index_at_position16(position16)?;
+        let generated_index = self.shifter.source_to_generated(source_index);
+        self.mapping.node_id_at(generated_index)
+    }
+
     /// Get the [`Range8`] for a [`NodeId`]
     pub fn node_id_to_range8(&self, node_id: &NodeId) -> Option<Range8> {
         let generated_range = self.mapping.range_of_node(node_id)?;
@@ -52,13 +59,6 @@ where
             .position8_at_index(end_index.saturating_add(1));
 
         Some(Range8::new(start_position, end_position))
-    }
-
-    /// Get the [`NodeId`] at a UTF8-based line/column position
-    pub fn position16_to_node_id(&self, position16: Position16) -> Option<&NodeId> {
-        let source_index = self.positions.index_at_position16(position16)?;
-        let generated_index = self.shifter.source_to_generated(source_index);
-        self.mapping.node_id_at(generated_index)
     }
 
     /// Get the [`Range16`] for a [`NodeId`]
@@ -78,7 +78,28 @@ where
         Some(Range16::new(start_position, end_position))
     }
 
-    /// Get the [`Range16`] for a [`NodeProperty`] of a node
+    /// Get the [`Range8`] for a [`NodeProperty`] of a [`NodeId`]
+    pub fn node_property_to_range8(
+        &self,
+        node_id: &NodeId,
+        property: NodeProperty,
+    ) -> Option<Range8> {
+        let generated_range = self.mapping.range_of_property(node_id, property)?;
+
+        let start_index = self.shifter.generated_to_source(generated_range.start);
+        let end_index = self
+            .shifter
+            .generated_to_source(generated_range.end.saturating_sub(1));
+
+        let start_position = self.positions.position8_at_index(start_index);
+        let end_position = self
+            .positions
+            .position8_at_index(end_index.saturating_add(1));
+
+        Some(Range8::new(start_position, end_position))
+    }
+
+    /// Get the [`Range16`] for a [`NodeProperty`] of a [`NodeId`]
     pub fn node_property_to_range16(
         &self,
         node_id: &NodeId,

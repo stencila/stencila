@@ -16,6 +16,9 @@
   "jats": {
     "elem": "p"
   },
+  "latex": {
+    "derive": false
+  },
   "markdown": {
     "template": "{{content}}\\n\\n"
   },

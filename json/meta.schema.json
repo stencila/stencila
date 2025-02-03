@@ -152,6 +152,14 @@
         }
       ]
     },
+    "latex": {
+      "description": "Options for encoding the type or property to LaTeX",
+      "allOf": [
+        {
+          "$ref": "#/definitions/LatexOptions"
+        }
+      ]
+    },
     "markdown": {
       "description": "Options for encoding the type or property to Markdown",
       "allOf": [
@@ -320,6 +328,13 @@
           ]
         },
         {
+          "description": "Types related to Stencila configuration",
+          "type": "string",
+          "enum": [
+            "config"
+          ]
+        },
+        {
           "description": "All other node types",
           "type": "string",
           "enum": [
@@ -449,7 +464,7 @@
       "type": "object",
       "properties": {
         "attr": {
-          "description": "The HTML attribute name for a property\n\nShould only be used when `elem` is not `None`. When `elem` is `None`, the name of the attribute will be the name of the property.",
+          "description": "The name of the JATS attribute to use for a property\n\nShould only be used when `elem` is not `None`. When `elem` is `None`, the name of the attribute will be the name of the property.",
           "type": "string"
         },
         "attrs": {
@@ -474,6 +489,21 @@
       },
       "additionalProperties": false
     },
+    "LatexOptions": {
+      "description": "Options for deriving the `LatexCodec` trait",
+      "type": "object",
+      "properties": {
+        "command": {
+          "description": "The name of the command to wrap the node in",
+          "type": "string"
+        },
+        "derive": {
+          "description": "Whether the `LatexCodec` trait should be derived for the type",
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false
+    },
     "MarkdownOptions": {
       "description": "Options for deriving the `MarkdownCodec` trait",
       "type": "object",
@@ -483,11 +513,11 @@
           "type": "boolean"
         },
         "escape": {
-          "description": "Character to escape when using `format!` macro to encode to Markdown",
+          "description": "Character to escape when using the template to encode to Markdown",
           "type": "string"
         },
         "template": {
-          "description": "The Rust formatting string to use as a template to encode to Markdown",
+          "description": "The template to use to encode to Markdown",
           "type": "string"
         }
       },
@@ -708,6 +738,14 @@
             }
           ]
         },
+        "latex": {
+          "description": "Options for encoding the type or property to LaTeX",
+          "allOf": [
+            {
+              "$ref": "#/definitions/LatexOptions"
+            }
+          ]
+        },
         "markdown": {
           "description": "Options for encoding the type or property to Markdown",
           "allOf": [
@@ -821,6 +859,10 @@
       "description": "Options for `serde` serialization/deserialization",
       "type": "object",
       "properties": {
+        "alias": {
+          "description": "Add an `alias` attribute to an enum variant\n\nSee https://serde.rs/field-attrs.html#alias",
+          "type": "string"
+        },
         "default": {
           "description": "Set the `default` attribute of a field\n\nSee https://serde.rs/field-attrs.html#default",
           "type": "boolean"
@@ -832,6 +874,10 @@
         "flatten": {
           "description": "Set the `flatten` attribute of a field\n\nSee https://serde.rs/field-attrs.html#flatten",
           "type": "boolean"
+        },
+        "rename": {
+          "description": "Set the `rename` attribute to an enum variant\n\nSee https://serde.rs/field-attrs.html#rename",
+          "type": "string"
         }
       },
       "additionalProperties": false

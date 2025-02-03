@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 /// A math block in the current document
-#[derive(Default, Clone, Trace)]
+#[derive(Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct MathBlock {
     /// The language of the math block
@@ -48,7 +48,7 @@ impl MathBlock {
 /// (e.g. CodeChunks), this collection does not have the notion
 /// of the `current` math block since there are no nested nodes
 /// in a math block (just strings).
-#[derive(Default, Clone, Trace)]
+#[derive(Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct MathBlocks {
     items: Vec<MathBlock>,

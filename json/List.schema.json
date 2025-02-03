@@ -19,6 +19,9 @@
   "jats": {
     "elem": "list"
   },
+  "latex": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },
@@ -65,6 +68,7 @@
           "myst",
           "ipynb",
           "qmd",
+          "latex",
           "lexical",
           "koenig"
         ]
@@ -106,6 +110,7 @@
           "myst",
           "ipynb",
           "qmd",
+          "latex",
           "lexical",
           "koenig"
         ]
@@ -119,7 +124,7 @@
           "value": "ListOrder::Unordered"
         },
         "low": {
-          "description": "Randomly generate either and unordered or ascending list.",
+          "description": "Randomly generate either an unordered, or ascending, list.",
           "strategy": "prop_oneof![Just(ListOrder::Unordered),Just(ListOrder::Ascending)]"
         },
         "high": {

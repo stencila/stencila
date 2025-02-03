@@ -30,10 +30,10 @@ export class ExecutionMessage extends LitElement {
   `
 
   override render() {
-    const { colour } = executionMessageUI(this.level)
+    const { baseColour, textColour } = executionMessageUI(this.level)
 
     // styles for the margin element
-    const marginStyles = apply(['w-2', `bg-${colour}`])
+    const marginStyles = apply(['w-2', `bg-[${textColour}]`])
 
     // styles for the expandable message container
     const msgBodyStyles = apply([
@@ -43,9 +43,9 @@ export class ExecutionMessage extends LitElement {
     ])
 
     return html`
-      <div class="flex p-1">
+      <div class="flex bg-[${baseColour}]">
         <div class=${marginStyles}></div>
-        <div class="flex-grow ml-2">
+        <div class="flex-grow ml-2 py-1 text-[${textColour}]">
           <div class=${msgBodyStyles}>
             <pre>${this.message}</pre>
             <pre>${this.stackTrace}</pre>

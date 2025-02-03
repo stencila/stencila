@@ -2,27 +2,24 @@
 
 use crate::prelude::*;
 
+use super::config_publish::ConfigPublish;
 use super::string::String;
 
 /// Stencila document configuration options.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "Config")]
+#[display("Config")]
 pub struct Config {
-    /// The type of this item.
-    pub r#type: MustBe!("Config"),
-
-    /// The identifier for this item.
-    #[strip(metadata)]
-    #[html(attr = "id")]
-    pub id: Option<String>,
-
     /// The styling theme to use for the document
     #[patch(format = "all")]
     pub theme: Option<String>,
+
+    /// Publishing configuration options
+    #[patch(format = "all")]
+    pub publish: Option<ConfigPublish>,
 
     /// A unique identifier for a node within a document
     

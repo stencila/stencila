@@ -1,22 +1,46 @@
-use codec_info::lost_exec_options;
+use codec_info::{lost_exec_options, lost_options};
 
 use crate::{prelude::*, Block, ForBlock, Section};
+
+impl LatexCodec for ForBlock {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        const ENVIRON: &str = "for";
+
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(
+                self,
+                id,
+                programming_language,
+                otherwise,
+                execution_mode,
+                execution_bounds
+            ))
+            .merge_losses(lost_exec_options!(self))
+            .environ_begin(ENVIRON)
+            .char('{')
+            .property_str(NodeProperty::Variable, &self.variable)
+            .char('}')
+            .char('{')
+            .property_str(NodeProperty::Code, &self.code)
+            .char('}')
+            .newline()
+            .increase_depth()
+            .property_fn(NodeProperty::Content, |context| {
+                self.content.to_latex(context)
+            })
+            .decrease_depth()
+            .trim_end()
+            .newline()
+            .environ_end(ENVIRON)
+            .exit_node()
+            .newline();
+    }
+}
 
 impl MarkdownCodec for ForBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         if context.render || matches!(context.format, Format::Llmd) {
-            // Record any execution messages
-            if let Some(messages) = &self.options.execution_messages {
-                for message in messages {
-                    context.add_message(
-                        self.node_type(),
-                        self.node_id(),
-                        message.level.clone().into(),
-                        message.message.to_string(),
-                    );
-                }
-            }
-
             // Encode iterations only (unwrapping the `Section` representing each as is
             // usually the case) but if none, render any `otherwise`
             for iteration in self.iterations.iter().flatten() {

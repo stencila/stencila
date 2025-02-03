@@ -21,7 +21,6 @@ console-subscriber = { version = "0.4.1", optional = true }
 document = { path = "../document" }
 flate2 = { workspace = true }
 format = { path = "../format" }
-is-terminal = { workspace = true }
 kernels = { path = "../kernels" }
 lsp = { path = "../lsp" }
 models = { path = "../models" }
@@ -38,6 +37,7 @@ tracing-error = "0.2.1"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }
 version = { path = "../version" }
 webbrowser = "1.0.3"
+zip = { workspace = true }
 
 [lints.rust]
 unsafe_code = "deny"

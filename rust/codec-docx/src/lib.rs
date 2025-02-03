@@ -5,9 +5,12 @@ use codec::{
     format::Format,
     schema::Node,
     status::Status,
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, NodeType,
+    Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
+    NodeType,
 };
-use codec_pandoc::{pandoc_from_format, pandoc_to_format, root_from_pandoc, root_to_pandoc};
+use codec_pandoc::{
+    pandoc_availability, pandoc_from_format, pandoc_to_format, root_from_pandoc, root_to_pandoc,
+};
 
 /// A codec for Microsoft Word DOCX
 pub struct DocxCodec;
@@ -22,6 +25,10 @@ impl Codec for DocxCodec {
 
     fn status(&self) -> Status {
         Status::UnderDevelopment
+    }
+
+    fn availability(&self) -> CodecAvailability {
+        pandoc_availability()
     }
 
     fn supports_from_format(&self, format: &Format) -> CodecSupport {
@@ -68,7 +75,7 @@ impl Codec for DocxCodec {
                 .unwrap_or_default(),
         )
         .await?;
-        root_from_pandoc(pandoc)
+        root_from_pandoc(pandoc, Format::Docx)
     }
 
     async fn to_path(
@@ -77,7 +84,7 @@ impl Codec for DocxCodec {
         path: &Path,
         options: Option<EncodeOptions>,
     ) -> Result<EncodeInfo> {
-        let (pandoc, info) = root_to_pandoc(node)?;
+        let (pandoc, info) = root_to_pandoc(node, Format::Docx)?;
         pandoc_to_format(
             &pandoc,
             Some(path),

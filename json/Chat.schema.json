@@ -634,7 +634,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "$ref": "ExecutionMode.schema.json"
@@ -655,7 +656,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "$ref": "ExecutionBounds.schema.json"

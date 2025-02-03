@@ -1,13 +1,14 @@
 use codec::{
+    common::tracing,
     format::Format,
     schema::{
-        Annotation, CodeInline, Emphasis, Inline, Link, Strikeout, Strong, Subscript, Superscript,
-        Text, Underline,
+        Annotation, CodeExpression, CodeInline, Emphasis, Inline, Link, MathInline, QuoteInline,
+        Strikeout, Strong, Subscript, Superscript, Text, Underline,
     },
 };
 
 use crate::{
-    lexical::{self, TextFormat},
+    lexical::{self, TextFormat, TextNode},
     shared::{LexicalDecodeContext, LexicalEncodeContext},
 };
 
@@ -48,6 +49,29 @@ pub(super) fn inlines_to_lexical(
             }
             Inline::Annotation(Annotation { content, .. }) => {
                 formatted_to_lexical(TextFormat::HIGHLIGHT, content, context)
+            }
+            Inline::QuoteInline(QuoteInline { content, .. }) => {
+                // Wrap in "66..99" curly quotes
+                let mut quoted = inlines_to_lexical(content, context);
+                quoted.insert(
+                    0,
+                    lexical::InlineNode::Text(TextNode {
+                        text: "“".into(),
+                        ..Default::default()
+                    }),
+                );
+                quoted.push(lexical::InlineNode::Text(TextNode {
+                    text: "”".into(),
+                    ..Default::default()
+                }));
+                quoted
+            }
+            Inline::StyledInline(styled) => {
+                // Unwrap content and record loss of styling code
+                // Unable to do anything more sophisticated because inline HTML is not supported
+                // at present.
+                context.losses.add_prop(&styled, "code");
+                inlines_to_lexical(&styled.content, context)
             }
             Inline::CodeInline(CodeInline { code, .. }) => formatted_to_lexical(
                 TextFormat::CODE,
@@ -90,14 +114,76 @@ fn inline_from_lexical(inline: lexical::InlineNode, context: &mut LexicalDecodeC
 fn inline_to_lexical(inline: &Inline, context: &mut LexicalEncodeContext) -> lexical::InlineNode {
     use Inline::*;
     match inline {
-        Text(inline) => text_to_lexical(inline, context),
+        CodeExpression(code_expr) => code_expr_to_lexical(code_expr),
         Link(link) => link_to_lexical(link, context),
+        MathInline(math) => math_to_lexical(math),
+        Text(inline) => text_to_lexical(inline, context),
 
         _ => {
             context.losses.add(inline.node_type().to_string());
             lexical::InlineNode::Text(lexical::TextNode::default())
         }
     }
+}
+
+fn code_expr_to_lexical(code: &CodeExpression) -> lexical::InlineNode {
+    // If the expression has an output then encode that as text,
+    // otherwise, encode the code as inline code
+    if let Some(output) = &code.output {
+        lexical::InlineNode::Text(lexical::TextNode {
+            text: codec_text::to_text(output),
+            ..Default::default()
+        })
+    } else {
+        lexical::InlineNode::Text(lexical::TextNode {
+            text: code.code.to_string(),
+            format: TextFormat::CODE,
+            ..Default::default()
+        })
+    }
+}
+
+fn link_from_lexical(link: lexical::LinkNode, context: &mut LexicalDecodeContext) -> Inline {
+    Inline::Link(Link {
+        title: link.title,
+        rel: link.rel,
+        target: link.url,
+        content: inlines_from_lexical(link.children, context),
+        ..Default::default()
+    })
+}
+
+fn link_to_lexical(link: &Link, context: &mut LexicalEncodeContext) -> lexical::InlineNode {
+    let children = inlines_to_lexical(&link.content, context);
+    let url = link.target.clone();
+    let title = link.title.clone();
+    let rel = link.rel.clone();
+
+    lexical::InlineNode::Link(lexical::LinkNode {
+        children,
+        url,
+        title,
+        rel,
+        ..Default::default()
+    })
+}
+
+fn math_to_lexical(math: &MathInline) -> lexical::InlineNode {
+    // Lexical & Koenig do not support inline math, nor inline HTML, so encode as in Markdown
+    // (using dollar delimiters). Then, at least the math will be editable.
+    // With Ghost, if the theme includes KaTex, the math will also be rendered.
+
+    if let Some(lang) = &math.math_language {
+        let lang = lang.to_lowercase();
+        if !(lang == "tex" || lang == "latex") {
+            tracing::warn!("Math written in `{lang}` may not render correctly")
+        }
+    }
+
+    lexical::InlineNode::Text(lexical::TextNode {
+        text: ["$", &math.code, "$"].concat(),
+        ..Default::default()
+    })
 }
 
 fn text_from_lexical(format: lexical::TextFormat, value: String) -> Inline {
@@ -164,29 +250,4 @@ fn text_to_lexical(text: &Text, context: &mut LexicalEncodeContext) -> lexical::
             ..Default::default()
         }),
     }
-}
-
-fn link_from_lexical(link: lexical::LinkNode, context: &mut LexicalDecodeContext) -> Inline {
-    Inline::Link(Link {
-        title: link.title,
-        rel: link.rel,
-        target: link.url,
-        content: inlines_from_lexical(link.children, context),
-        ..Default::default()
-    })
-}
-
-fn link_to_lexical(link: &Link, context: &mut LexicalEncodeContext) -> lexical::InlineNode {
-    let children = inlines_to_lexical(&link.content, context);
-    let url = link.target.clone();
-    let title = link.title.clone();
-    let rel = link.rel.clone();
-
-    lexical::InlineNode::Link(lexical::LinkNode {
-        children,
-        url,
-        title,
-        rel,
-        ..Default::default()
-    })
 }

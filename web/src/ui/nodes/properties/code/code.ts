@@ -1,4 +1,5 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
+import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import {
   foldGutter,
   defaultHighlightStyle,
@@ -8,13 +9,14 @@ import {
   StreamLanguage,
 } from '@codemirror/language'
 import { Diagnostic, linter, setDiagnostics } from '@codemirror/lint'
-import { EditorState, Extension } from '@codemirror/state'
-import { lineNumbers, EditorView } from '@codemirror/view'
+import { Compartment, EditorState, Extension } from '@codemirror/state'
+import { lineNumbers, EditorView, keymap, ViewUpdate } from '@codemirror/view'
 import { ExecutionRequired, NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
 import { LitElement, PropertyValues, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
+import { patchValue, patchValueExecute } from '../../../../clients/commands'
 import { CompilationMessage } from '../../../../nodes/compilation-message'
 import { ExecutionMessage } from '../../../../nodes/execution-message'
 import { withTwind } from '../../../../twind'
@@ -27,6 +29,7 @@ import {
   stencilaTheme,
   provenanceTooltip,
   createLinterDiagnostics,
+  clipBoardKeyBindings,
 } from './utils'
 
 /**
@@ -41,6 +44,20 @@ export class UINodeCode extends LitElement {
    */
   @property()
   type: NodeType
+
+  /**
+   * Id of the node whose code is being rendered
+   */
+  @property({ attribute: 'node-id' })
+  nodeId: string
+
+  /**
+   * Name of the node property that the code is for
+   *
+   * Used when sending patches to update the code.
+   */
+  @property({ attribute: 'node-property' })
+  nodeProperty: string = 'code'
 
   /**
    * The code to be rendered
@@ -97,9 +114,117 @@ export class UINodeCode extends LitElement {
   containerClasses?: string
 
   /**
+   * Limits the editor to single line
+   */
+  @property({ type: Boolean, attribute: 'single-line' })
+  singleLine: boolean = false
+
+  /**
    * A CodeMirror editor for the code
    */
   private editorView?: EditorView
+
+  // Compartments for toggling on editor functionality
+
+  private viewEditable: Compartment
+
+  private viewReadOnly: Compartment
+
+  private viewAuthorship: Compartment
+
+  private authorshipExtensions: Extension | Extension[] = []
+
+  /**
+   * Whether the code is currently being edited
+   *
+   * Used to ignore incoming changes from the server
+   * (patches applied to the `code` attribute) while the
+   * user is actively editing the code.
+   */
+  isBeingEdited: boolean = false
+
+  /**
+   * Runs the current code
+   *
+   * Dispatches a `path-value-execute` command so the code is up to date upon execution
+   */
+  private runCode() {
+    const value = this.editorView.state.doc.toString()
+    this.dispatchEvent(
+      patchValueExecute(this.type, this.nodeId, this.nodeProperty, value)
+    )
+  }
+
+  /**
+   * Returns a codemirror `Extension`, which dispatches a
+   * debounced `patchValue` event when the document is
+   * changed via user input.
+   */
+  private patchInput() {
+    // Millisecond debounce for debouncing timers
+    const BEING_EDITED_TIMEOUT = 5_000
+    const PATCH_DEBOUNCE = 300
+
+    let isBeingEditedTimer: NodeJS.Timeout
+    let patchTimer: NodeJS.Timeout
+    return EditorView.updateListener.of((update: ViewUpdate) => {
+      if (update.docChanged) {
+        // Check whether this is a user event so we can ignore changes coming in
+        // from the server. It is necessary to list all user event types that may
+        // change the content
+        // See https://codemirror.net/docs/ref/#state.Transaction^userEvent
+        let isUserEvent = false
+        for (const t of update.transactions) {
+          if (
+            t.isUserEvent('input') ||
+            t.isUserEvent('delete') ||
+            t.isUserEvent('move') ||
+            t.isUserEvent('select') ||
+            t.isUserEvent('undo') ||
+            t.isUserEvent('redo')
+          ) {
+            isUserEvent = true
+            break
+          }
+        }
+
+        if (!isUserEvent) {
+          return
+        }
+
+        // Ignore any incoming changes from server for a while
+        this.isBeingEdited = true
+        clearTimeout(isBeingEditedTimer)
+        isBeingEditedTimer = setTimeout(() => {
+          this.isBeingEdited = false
+        }, BEING_EDITED_TIMEOUT)
+
+        // Send patch to server with debounce
+        const newValue = update.state.doc.toString()
+        clearTimeout(patchTimer)
+        patchTimer = setTimeout(() => {
+          this.dispatchEvent(
+            patchValue(this.type, this.nodeId, this.nodeProperty, newValue)
+          )
+        }, PATCH_DEBOUNCE)
+      }
+    })
+  }
+
+  /**
+   * Update the editable and readonly extension of the `editorView`, and toggle authorship extensions
+   */
+  private updateViewEditability() {
+    this.editorView.dispatch({
+      effects: [
+        this.viewEditable.reconfigure(EditorView.editable.of(!this.readOnly)),
+        this.viewReadOnly.reconfigure(EditorState.readOnly.of(this.readOnly)),
+        this.viewAuthorship.reconfigure(
+          this.readOnly ? this.authorshipExtensions : []
+        ),
+      ],
+    })
+  }
 
   /**
    * Array of CodeMirror `LanguageDescription` objects available for the edit view
@@ -228,7 +353,7 @@ export class UINodeCode extends LitElement {
     const linterExtension = [linter(() => this.diagnostics)]
 
     const authorshipMarkers = this.getAuthorshipMarkers()
-    const authorshipExtensions = authorshipMarkers
+    this.authorshipExtensions = authorshipMarkers
       ? [
           EditorView.decorations.of(
             createProvenanceDecorations(authorshipMarkers)
@@ -237,15 +362,45 @@ export class UINodeCode extends LitElement {
         ]
       : []
 
+    this.viewEditable = new Compartment()
+    this.viewReadOnly = new Compartment()
+    this.viewAuthorship = new Compartment()
+
+    const singleLineEditor = EditorState.transactionFilter.of((tr) =>
+      tr.newDoc.lines > 1 ? [] : tr
+    )
+
+    const filteredKeyMap = defaultKeymap.filter((kb) => {
+      if (kb.key) {
+        return !['mod-enter', 'ctrl-enter'].includes(kb.key.toLowerCase())
+      }
+      return true
+    })
+
     return [
-      EditorView.editable.of(!this.readOnly),
-      EditorState.readOnly.of(this.readOnly),
+      this.patchInput(),
+      this.viewEditable.of(EditorView.editable.of(!this.readOnly)),
+      this.viewReadOnly.of(EditorState.readOnly.of(this.readOnly)),
       syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+      this.singleLine ? singleLineEditor : [],
       ...languageExtension,
       ...linterExtension,
-      ...authorshipExtensions,
+      this.viewAuthorship.of(this.readOnly ? this.authorshipExtensions : []),
       this.noGutters ? [] : [lineNumbers(), foldGutter()],
+      history(),
+      keymap.of(filteredKeyMap),
+      keymap.of(historyKeymap),
+      keymap.of(clipBoardKeyBindings),
       stencilaTheme,
+      keymap.of([
+        {
+          key: 'Ctrl-Enter',
+          run: () => {
+            this.runCode()
+            return true
+          },
+        },
+      ]),
     ]
   }
 
@@ -356,11 +511,14 @@ export class UINodeCode extends LitElement {
         // Always update messages when editor first created
         this.updateMessages()
       })
+    } else if (changedProperties.has('readOnly')) {
+      // update the editorView readonly state
+      this.updateViewEditability()
     } else if (changedProperties.has('code')) {
-      // Update the editor state
+      // Update the editor state if not currently being edited
       const view = this.editorView
       const state = view?.state
-      if (view && state) {
+      if (!this.isBeingEdited && view && state) {
         view.dispatch(
           state.update({
             changes: { from: 0, to: state.doc.length, insert: this.code },

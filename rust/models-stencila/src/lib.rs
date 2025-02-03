@@ -16,7 +16,7 @@ use model::{
 
 /// A model available via Stencila Cloud
 #[derive(Default, Clone, Serialize, Deserialize)]
-#[serde(crate = "model::common::serde")]
+#[serde(rename_all = "camelCase", crate = "model::common::serde")]
 pub struct StencilaModel {
     /// The name of the provider e.g. openai
     provider: String,
@@ -29,6 +29,15 @@ pub struct StencilaModel {
 
     /// The version of the model e.g. 4o-mini-2024-07-18
     version: String,
+
+    /// The overall quality score of the model
+    quality_score: Option<u32>,
+
+    /// The cost score of the model
+    cost_score: Option<u32>,
+
+    /// The speed score of the model
+    speed_score: Option<u32>,
 
     /// The HTTP client for performing tasks via the Stencila Cloud API
     #[serde(skip)]
@@ -77,6 +86,18 @@ impl Model for StencilaModel {
 
     fn supported_outputs(&self) -> &[ModelIO] {
         &[ModelIO::Text]
+    }
+
+    fn quality_score(&self) -> Option<u32> {
+        self.quality_score
+    }
+
+    fn cost_score(&self) -> Option<u32> {
+        self.cost_score
+    }
+
+    fn speed_score(&self) -> Option<u32> {
+        self.speed_score
     }
 
     async fn perform_task(&self, task: &ModelTask) -> Result<ModelOutput> {

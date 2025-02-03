@@ -1,3 +1,4 @@
+import { InlineTypeList } from '@stencila/types'
 import { apply } from '@twind/core'
 import { html, PropertyValueMap } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
@@ -94,17 +95,19 @@ export class UIBaseCard extends UIBaseClass {
       'rounded-t-sm',
       `bg-[${borderColour}]`,
       'font-medium',
+      'select-none',
       'transition duration-100 ease-in',
       this.canCollapse && `cursor-pointer hover:bg-[${borderColour}]/90`,
       ...additionalStyles,
     ])
 
     const canClose =
-      this.depth > 0 &&
-      !(
-        ChatMessage.shouldExpand(this, this.type) ||
-        SuggestionBlock.shouldExpand(this, this.type)
-      )
+      (this.depth > 0 &&
+        !(
+          ChatMessage.shouldExpand(this, this.type) ||
+          SuggestionBlock.shouldExpand(this, this.type)
+        )) ||
+      InlineTypeList.includes(this.type)
 
     const icon = this.headerIcon ?? this.ui.icon
 

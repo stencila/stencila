@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 common = { path = "../common" }
+derive_more = { workspace = true }
 format = { path = "../format" }
 node-id = { path = "../node-id" }
 node-type = { path = "../node-type" }

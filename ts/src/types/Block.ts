@@ -11,7 +11,6 @@ import { type ChatMessageGroup } from "./ChatMessageGroup.js";
 import { type Claim } from "./Claim.js";
 import { type CodeBlock } from "./CodeBlock.js";
 import { type CodeChunk } from "./CodeChunk.js";
-import { type DeleteBlock } from "./DeleteBlock.js";
 import { type Figure } from "./Figure.js";
 import { type File } from "./File.js";
 import { type ForBlock } from "./ForBlock.js";
@@ -20,16 +19,13 @@ import { type Heading } from "./Heading.js";
 import { type IfBlock } from "./IfBlock.js";
 import { type ImageObject } from "./ImageObject.js";
 import { type IncludeBlock } from "./IncludeBlock.js";
-import { type InsertBlock } from "./InsertBlock.js";
 import { type InstructionBlock } from "./InstructionBlock.js";
 import { type List } from "./List.js";
 import { type MathBlock } from "./MathBlock.js";
-import { type ModifyBlock } from "./ModifyBlock.js";
 import { type Paragraph } from "./Paragraph.js";
 import { type PromptBlock } from "./PromptBlock.js";
 import { type QuoteBlock } from "./QuoteBlock.js";
 import { type RawBlock } from "./RawBlock.js";
-import { type ReplaceBlock } from "./ReplaceBlock.js";
 import { type Section } from "./Section.js";
 import { type StyledBlock } from "./StyledBlock.js";
 import { type SuggestionBlock } from "./SuggestionBlock.js";
@@ -51,7 +47,6 @@ export type Block =
   Claim |
   CodeBlock |
   CodeChunk |
-  DeleteBlock |
   Figure |
   File |
   ForBlock |
@@ -60,16 +55,13 @@ export type Block =
   IfBlock |
   ImageObject |
   IncludeBlock |
-  InsertBlock |
   InstructionBlock |
   List |
   MathBlock |
-  ModifyBlock |
   Paragraph |
   PromptBlock |
   QuoteBlock |
   RawBlock |
-  ReplaceBlock |
   Section |
   StyledBlock |
   SuggestionBlock |
@@ -92,7 +84,6 @@ export function block(other: Block): Block {
     case "Claim":
     case "CodeBlock":
     case "CodeChunk":
-    case "DeleteBlock":
     case "Figure":
     case "File":
     case "ForBlock":
@@ -101,16 +92,13 @@ export function block(other: Block): Block {
     case "IfBlock":
     case "ImageObject":
     case "IncludeBlock":
-    case "InsertBlock":
     case "InstructionBlock":
     case "List":
     case "MathBlock":
-    case "ModifyBlock":
     case "Paragraph":
     case "PromptBlock":
     case "QuoteBlock":
     case "RawBlock":
-    case "ReplaceBlock":
     case "Section":
     case "StyledBlock":
     case "SuggestionBlock":

@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 /// A table in the current document
-#[derive(Default, Clone, Trace)]
+#[derive(Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct Table {
     /// The label of the table
@@ -57,7 +57,7 @@ impl Table {
 }
 
 /// The tables in the current document
-#[derive(Default, Clone, Trace)]
+#[derive(Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct Tables {
     pub items: Vec<Table>,

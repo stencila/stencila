@@ -8,10 +8,21 @@ impl Executable for CodeExpression {
         let node_id = self.node_id();
         tracing::trace!("Compiling CodeExpression {node_id}");
 
-        let info = parsers::parse(
-            &self.code,
-            self.programming_language.as_deref().unwrap_or_default(),
-        );
+        // Get the programming language, falling back to using the executor's current language
+        let lang = executor.programming_language(&self.programming_language);
+
+        // Parse the code to determine if it or the language has changed since last time
+        let info = parsers::parse(&self.code, &lang, &self.options.compilation_digest);
+
+        // Add code to the linting context
+        executor.linting_code(&node_id, &self.code.to_string(), &lang, info.changed.yes());
+
+        // Return early if no change
+        if info.changed.no() {
+            tracing::trace!("Skipping compiling CodeExpression {node_id}");
+
+            return WalkControl::Break;
+        }
 
         let execution_required =
             execution_required_digests(&self.options.execution_digest, &info.compilation_digest);

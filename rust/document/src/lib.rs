@@ -7,6 +7,7 @@ use std::{
     time::{Duration, SystemTime},
 };
 
+use codecs::PoshMap;
 use common::{
     clap::{self, ValueEnum},
     eyre::{bail, eyre, Result},
@@ -14,12 +15,14 @@ use common::{
     strum::{Display, EnumString},
     tokio::{
         self,
+        fs::read_to_string,
         sync::{broadcast, mpsc, watch, RwLock},
         time::sleep,
     },
     tracing,
 };
 use kernels::Kernels;
+use node_diagnostics::diagnostics;
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
@@ -39,7 +42,7 @@ mod task_update;
 mod track;
 
 // Re-exports for convenience of consuming crates
-pub use codecs::{DecodeOptions, EncodeOptions, Format, LossesResponse};
+pub use codecs::{self, DecodeOptions, EncodeOptions, Format, LossesResponse};
 pub use schema;
 pub use sync_dom::DomPatch;
 
@@ -83,8 +86,11 @@ pub enum Command {
     /// Export the document
     ExportDocument((PathBuf, EncodeOptions)),
 
-    /// Compile the entire document
+    /// Compile the document
     CompileDocument,
+
+    /// Lint the document
+    LintDocument { format: bool, fix: bool },
 
     /// Execute the entire document
     ExecuteDocument(ExecuteOptions),
@@ -545,6 +551,14 @@ impl Document {
         self.path.as_deref()
     }
 
+    /// Get the parent directory of the document
+    pub fn directory(&self) -> &Path {
+        self.path
+            .as_ref()
+            .and_then(|path| path.parent())
+            .unwrap_or_else(|| self.home.as_ref())
+    }
+
     /// Get the file name of the document
     pub fn file_name(&self) -> Option<&str> {
         self.path
@@ -821,11 +835,22 @@ impl Document {
     }
 
     /// Compile the document
+    ///
+    /// Note that this does not do any linting. Use the [`Document::lint`] function for that.
     #[tracing::instrument(skip(self))]
     pub async fn compile(&self, wait: CommandWait) -> Result<()> {
         tracing::trace!("Compiling document");
 
         self.command(Command::CompileDocument, wait).await
+    }
+
+    /// Lint the document
+    #[tracing::instrument(skip(self))]
+    pub async fn lint(&self, format: bool, fix: bool, wait: CommandWait) -> Result<()> {
+        tracing::trace!("Linting document");
+
+        self.command(Command::LintDocument { format, fix }, wait)
+            .await
     }
 
     /// Execute the document
@@ -834,5 +859,51 @@ impl Document {
         tracing::trace!("Executing document");
 
         self.command(Command::ExecuteDocument(options), wait).await
+    }
+
+    /// Print diagnostics for the document
+    pub async fn diagnostics(&self) -> Result<usize> {
+        let diagnostics = diagnostics(&*self.root.read().await);
+
+        // No diagnostics so return early
+        if diagnostics.is_empty() {
+            return Ok(0);
+        }
+
+        // If the document has a path read it so that diagnostics can be printed
+        // with the original document source as context.
+        let mut source = String::new();
+        let generated;
+        let (path, poshmap) = if let Some(path) = self.path.as_ref() {
+            source = read_to_string(path).await?;
+
+            let format = Format::from_path(path);
+
+            let result = codecs::to_string_with_info(
+                &*self.root.read().await,
+                Some(EncodeOptions {
+                    format: Some(format),
+                    ..Default::default()
+                }),
+            )
+            .await?;
+            generated = result.0;
+            let mapping = result.1.mapping;
+
+            let poshmap = PoshMap::new(&source, &generated, mapping);
+
+            (path.to_string_lossy().to_string(), Some(poshmap))
+        } else {
+            (String::from("<file>"), None)
+        };
+
+        let count = diagnostics.len();
+
+        // Print each of the diagnostics to stderr
+        for diagnostic in diagnostics {
+            diagnostic.to_stderr_pretty(&path, &source, &poshmap)?;
+        }
+
+        Ok(count)
     }
 }

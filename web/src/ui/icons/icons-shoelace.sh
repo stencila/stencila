@@ -64,6 +64,7 @@ icons=(
     info-circle
     lightbulb
     lightning
+    lightning-charge-fill
     lock
     paperclip
     person

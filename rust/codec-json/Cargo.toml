@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 codec = { path = "../codec" }
 version = { path = "../version" }
+zip = { workspace = true }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }

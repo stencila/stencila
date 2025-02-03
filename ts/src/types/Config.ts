@@ -1,22 +1,22 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
-import { Entity } from "./Entity.js";
+import { ConfigPublish } from "./ConfigPublish.js";
 
 /**
  * Stencila document configuration options.
  */
-export class Config extends Entity {
-  // @ts-expect-error 'not assignable to the same property in base type'
-  type: "Config";
-
+export class Config {
   /**
    * The styling theme to use for the document
    */
   theme?: string;
 
+  /**
+   * Publishing configuration options
+   */
+  publish?: ConfigPublish;
+
   constructor(options?: Partial<Config>) {
-    super();
-    this.type = "Config";
     if (options) Object.assign(this, options);
     
   }

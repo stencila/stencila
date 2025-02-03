@@ -280,6 +280,15 @@ export class ImageObject extends Entity {
       return this.renderContent()
     }
 
+    // render with the `insert` chip in model chat response
+    if (this.isWithinModelChatMessage()) {
+      return html`
+        <div class="group relative">
+          ${this.renderInsertChip()}${this.renderContent()}
+        </div>
+      `
+    }
+
     return this.parentNodeIs('CodeChunk')
       ? this.renderBlockOnDemand()
       : this.renderInlineOnDemand()

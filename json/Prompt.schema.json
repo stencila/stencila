@@ -27,6 +27,7 @@
     "id",
     "executionMode",
     "executionBounds",
+    "frontmatter",
     "nodeTypes",
     "nodeCount",
     "queryPatterns"
@@ -632,7 +633,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "$ref": "ExecutionMode.schema.json"
@@ -653,7 +655,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "$ref": "ExecutionBounds.schema.json"
@@ -886,6 +889,24 @@
       "items": {
         "$ref": "ExecutionMessage.schema.json"
       }
+    },
+    "frontmatter": {
+      "@id": "stencila:frontmatter",
+      "description": "Frontmatter containing document metadata.",
+      "$comment": "Currently assumed to be YAML or JSON.",
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "type": "string"
     },
     "instructionTypes": {
       "@id": "stencila:instructionTypes",

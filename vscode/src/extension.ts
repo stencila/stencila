@@ -27,6 +27,7 @@ import { registerWalkthroughCommands } from "./walkthroughs";
 import { registerStencilaShell } from "./shell";
 import { registerSetupView } from "./setup";
 import { event, registerEventing } from "./events";
+import { workspaceSetup } from "./workspace";
 
 let client: LanguageClient | undefined;
 
@@ -64,7 +65,16 @@ export async function activate(context: vscode.ExtensionContext) {
   // Check status of extension
   checkExtensionStatus(context);
 
+  // Run any workspace setup
+  workspaceSetup(context);
+
+  // Start the LSP server
   await startServer(context);
+
+  // Initialize lists to avoid waiting on first render of sidebars and webviews
+  await vscode.commands.executeCommand("stencila.kernels.refresh");
+  await vscode.commands.executeCommand("stencila.prompts.refresh");
+  await vscode.commands.executeCommand("stencila.models.refresh");
 }
 
 /**
@@ -72,7 +82,7 @@ export async function activate(context: vscode.ExtensionContext) {
  *
  * TODO: launch a welcome document on first install.
  */
-async function checkExtensionStatus(context: vscode.ExtensionContext) {
+function checkExtensionStatus(context: vscode.ExtensionContext) {
   const current = context.extension.packageJSON.version;
   const previous = context.globalState.get<string>("extensionVersion");
 
@@ -127,6 +137,7 @@ async function startServer(context: vscode.ExtensionContext) {
       { language: "smd" },
       { language: "myst" },
       { language: "qmd" },
+      { language: "latex" },
     ],
     markdown: {
       isTrusted: true,

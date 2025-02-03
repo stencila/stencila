@@ -12,13 +12,10 @@ use codec::{
         eyre::{eyre, Result},
         once_cell::sync::Lazy,
         regex::Regex,
-        serde_json::{self, json},
-        serde_yaml, tracing,
     },
     format::Format,
     schema::{
-        shortcuts::t, Article, Block, Chat, Inline, Node, NodeId, NodeType, Null, Prompt,
-        VisitorMut, WalkControl,
+        Article, Block, Chat, Inline, Node, NodeId, NodeType, Null, Prompt, VisitorMut, WalkControl,
     },
     DecodeInfo, DecodeOptions, Losses, Mapping,
 };
@@ -27,8 +24,11 @@ use self::{blocks::mds_to_blocks, inlines::mds_to_inlines};
 
 mod blocks;
 mod check;
+mod frontmatter;
 mod inlines;
 mod shared;
+
+pub use frontmatter::frontmatter as decode_frontmatter;
 
 /// Decode a Markdown string to a Stencila Schema [`Node`]
 pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
@@ -56,9 +56,8 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
 
     // Do any necessary pre-processing of Markdown
     let md = match format {
-        Format::Myst => myst_to_md(content),
-        Format::Qmd => qmd_to_md(content),
-        _ => preprocess_md(content),
+        Format::Myst => preprocess_myst(content),
+        _ => preprocess(content),
     };
 
     // Parse Markdown to a MDAST root node and get its children
@@ -73,13 +72,25 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
     let content = blocks::mds_to_blocks(children, &mut context);
 
     // Decode frontmatter (which may have a `type`, but defaults to `Article`)
-    let frontmatter = context.frontmatter();
-    let mut node = if let Some(Node::Article(rest)) = frontmatter {
-        Node::Article(Article { content, ..rest })
-    } else if let Some(Node::Prompt(rest)) = frontmatter {
-        Node::Prompt(Prompt { content, ..rest })
-    } else if let Some(Node::Chat(rest)) = frontmatter {
-        Node::Chat(Chat { content, ..rest })
+    let mut node = if let Some(yaml) = context.yaml.take() {
+        match decode_frontmatter(&yaml, None).0 {
+            Node::Article(rest) => Node::Article(Article {
+                content,
+                frontmatter: Some(yaml),
+                ..rest
+            }),
+            Node::Prompt(rest) => Node::Prompt(Prompt {
+                content,
+                frontmatter: Some(yaml),
+                ..rest
+            }),
+            Node::Chat(rest) => Node::Chat(Chat { content, ..rest }),
+            _ => Node::Article(Article {
+                frontmatter: Some(yaml),
+                content,
+                ..Default::default()
+            }),
+        }
     } else {
         Node::Article(Article::new(content))
     };
@@ -142,22 +153,84 @@ fn decode_inlines(md: &str, context: &mut Context) -> Vec<Inline> {
 }
 
 /// Preprocess Markdown
-///
-/// See issue #2438 for why this is necessary.
-fn preprocess_md(input: &str) -> String {
+pub fn preprocess(input: &str) -> String {
     let mut output = String::new();
 
     let mut empty_line_needed = false;
+    let mut html_tag = None;
+    let mut in_math_block = false;
     for line in input.lines() {
+        // Wrap certain top level HTML tags in `RawBlock`s
+        if line.starts_with("<") && line.ends_with(">") {
+            if let Some(tag) = html_tag {
+                if line.starts_with(&["</", tag].concat()) {
+                    html_tag = None;
+
+                    output.push_str(line);
+                    output.push_str("\n``````````\n\n");
+                    continue;
+                }
+            } else if line == "<hr>" {
+                output.push_str("***\n\n");
+                continue;
+            } else {
+                if line.starts_with("<div") {
+                    html_tag = Some("div")
+                } else if line.starts_with("<table") {
+                    html_tag = Some("table")
+                } else if line.starts_with("<details") {
+                    html_tag = Some("details")
+                }
+
+                if html_tag.is_some() {
+                    output.push_str("``````````html raw\n");
+                    output.push_str(line);
+                    output.push('\n');
+                    continue;
+                }
+            }
+        }
+
+        // If the previous line needs an empty line after it ensure that
         if empty_line_needed && !line.is_empty() {
             output.push('\n');
         }
 
-        output.push_str(line);
-        output.push('\n');
+        let in_special = in_math_block || html_tag.is_some();
 
-        empty_line_needed = line.starts_with(":::")
-            && (line.trim_end().ends_with(":::") || line.trim_end().ends_with(">>>"));
+        if !in_special && line.starts_with(":::") {
+            // Ensure that there is an empty line before this line but
+            // not if this is at the start of the document
+            if !output.is_empty() && !output.ends_with("\n\n") {
+                if output.ends_with('\n') {
+                    output.push('\n');
+                } else {
+                    output.push_str("\n\n");
+                }
+            }
+            // Signal that an empty line is required before any following line
+            empty_line_needed = true;
+        } else {
+            empty_line_needed = false;
+        }
+
+        // Convert LaTeX style math blocks and inlines. This is done because LLMs often
+        // use LaTeX style delimiters when not prompted otherwise. This may be put behind
+        // an option if found to interfere with user expectations.
+        let line = if !in_special && line.trim_start() == r"\[" {
+            in_math_block = true;
+            "$$".to_string()
+        } else if in_math_block && line.trim_start() == r"\]" {
+            in_math_block = false;
+            "$$".to_string()
+        } else if !in_special {
+            line.replace(r"\(", r"$").replace(r"\)", r"$")
+        } else {
+            line.to_string()
+        };
+
+        output.push_str(&line);
+        output.push('\n');
     }
 
     output
@@ -167,7 +240,7 @@ fn preprocess_md(input: &str) -> String {
 ///
 /// This conversion allows for more straightforward decoding in subsequent
 /// decoding steps because all MyST directives become code blocks.
-fn myst_to_md(myst: &str) -> String {
+fn preprocess_myst(myst: &str) -> String {
     fn colons_to_backticks(line: &str) -> String {
         let chars = line.chars();
 
@@ -214,44 +287,13 @@ fn myst_to_md(myst: &str) -> String {
     md
 }
 
-/// Convert QMD to Markdown parsable by the main parser
-///
-/// Ensures all lines starting with `:::` are surrounded by a blank line.
-fn qmd_to_md(input: &str) -> String {
-    let mut output = String::new();
-
-    let mut empty_line_needed = false;
-    for line in input.lines() {
-        if empty_line_needed && !line.is_empty() {
-            output.push('\n');
-        }
-
-        let colons = line.starts_with(":::");
-
-        if colons {
-            if !output.ends_with("\n\n") {
-                if output.ends_with('\n') {
-                    output.push('\n');
-                } else {
-                    output.push_str("\n\n");
-                }
-            }
-            empty_line_needed = true;
-        } else {
-            empty_line_needed = false;
-        }
-
-        output.push_str(line);
-        output.push('\n');
-    }
-
-    output
-}
-
 /// Markdown parsing options
 fn parse_options() -> ParseOptions {
     let mut options = ParseOptions::gfm();
     options.constructs.frontmatter = true;
+
+    // Enable block math
+    options.constructs.math_flow = true;
 
     // Do not parse inline code since we have a custom parser for that
     options.constructs.code_text = false;
@@ -264,8 +306,9 @@ fn parse_options() -> ParseOptions {
     // Do not parse GFM single strikethrough since we use that for subscripts
     options.constructs.gfm_strikethrough = false;
 
-    // Enable block math
-    options.constructs.math_flow = true;
+    // Do not parse GFM autolinks because this interferes with our parsing
+    // of <a> and <img> HTML tags. Instead we implement that separately.
+    options.constructs.gfm_autolink_literal = false;
 
     // Do not handle embedded HTML, instead parse manually
     options.constructs.html_text = false;
@@ -365,97 +408,6 @@ impl Context {
     /// Remove an entry for a node id from the mapping
     fn map_remove(&mut self, node_id: NodeId) {
         self.mapping.remove(node_id);
-    }
-
-    /// Parse any YAML frontmatter
-    fn frontmatter(&mut self) -> Option<Node> {
-        let yaml = self.yaml.as_ref()?;
-
-        // Deserialize YAML to a value, and add `type` properties if necessary
-        let mut value = match serde_yaml::from_str(yaml) {
-            Ok(serde_json::Value::Object(mut value)) => {
-                if let Some(typ) = value.get("type").and_then(|typ| typ.as_str()) {
-                    // Ensure that `content` is present for types that require it, so that
-                    // `serde_json::from_value` succeeds
-                    if matches!(typ, "Article" | "Prompt" | "Chat")
-                        && value.get("content").is_none()
-                    {
-                        value.insert("content".to_string(), json!([]));
-                    }
-                } else {
-                    value.insert("type".into(), json!("Article"));
-                    value.insert("content".into(), json!([]));
-                }
-
-                if let Some(config) = value
-                    .get_mut("config")
-                    .and_then(|config: &mut serde_json::Value| config.as_object_mut())
-                {
-                    // Ensure that `config` has `type: Config`
-                    config.insert("type".into(), json!("Config"));
-                }
-
-                json!(value)
-            }
-            Ok(_) => {
-                tracing::debug!("YAML frontmatter is not an object, will be ignored");
-                return None;
-            }
-            Err(error) => {
-                tracing::warn!(
-                    "Error while parsing YAML frontmatter, will be ignored: {}",
-                    error
-                );
-                return None;
-            }
-        };
-
-        // Parse title and abstract as Markdown (need to do here before deserializing to node
-        // and remove from value so does not cause an error when deserializing)
-        let (title, abs) = if let Some(object) = value.as_object_mut() {
-            let title = object
-                .remove("title")
-                .and_then(|value| value.as_str().map(String::from))
-                .map(|title| decode_inlines(&title, self));
-            let abs = object
-                .remove("abstract")
-                .and_then(|value| value.as_str().map(String::from))
-                .map(|abs| decode_blocks(&abs, self));
-            (title, abs)
-        } else {
-            (None, None)
-        };
-
-        // Prompts require a title and the above stanza remove it, so add a placeholder
-        // (replaced below) to ensure value gets deserialized as a prompt
-        if let Some("Prompt") = value.get("type").and_then(|typ| typ.as_str()) {
-            value["title"] = json!([]);
-        }
-
-        // Deserialize to a `Node`: note that `type` is ensured to be present
-        let Ok(mut node) = serde_json::from_value::<Node>(value) else {
-            tracing::warn!("Error while parsing YAML frontmatter, will be ignored",);
-            return None;
-        };
-
-        // Set title and abstract for node types that have them
-        match &mut node {
-            Node::Article(article) => {
-                article.title = title;
-                article.r#abstract = abs;
-            }
-            Node::Prompt(prompt) => {
-                prompt.title = title.unwrap_or_else(|| vec![t("Untitled")]);
-                prompt.options.r#abstract = abs;
-            }
-            Node::Chat(chat) => {
-                chat.title = title;
-                chat.options.r#abstract = abs;
-            }
-            _ => {}
-        }
-
-        Some(node)
     }
 }
 

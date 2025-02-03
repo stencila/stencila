@@ -3,10 +3,12 @@ use std::{
     str,
 };
 
+use derive_more::Deref;
+
 use common::eyre::bail;
 #[allow(unused)]
 use common::{
-    bs58, derive_more::Deref, eyre::Report, once_cell::sync::Lazy, serde_with::DeserializeFromStr,
+    bs58, eyre::Report, once_cell::sync::Lazy, serde_with::DeserializeFromStr,
     serde_with::SerializeDisplay, uuid::Uuid,
 };
 

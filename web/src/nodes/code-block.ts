@@ -1,25 +1,40 @@
 import { html } from 'lit'
 import { customElement } from 'lit/decorators'
 
+import { withTwind } from '../twind'
 import { getTitleIcon } from '../ui/nodes/properties/programming-language'
+
+import { CodeStatic } from './code-static'
 
 import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/provenance'
 
-import { CodeStatic } from './code-static'
-
 @customElement('stencila-code-block')
+@withTwind()
 export class CodeBlock extends CodeStatic {
   override render() {
+    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
+      return this.renderContent()
+    }
+
+    // render with the `insert` chip in model chat response
+    if (this.isWithinModelChatMessage()) {
+      return html`
+        <div class="group relative">
+          ${this.renderInsertChip()} ${this.renderCard()}
+        </div>
+      `
+    }
+
+    return this.renderCard()
+  }
+
+  private renderCard() {
     const { icon, title } = getTitleIcon(this.programmingLanguage) ?? {
       title: 'Code Block',
       icon: 'code',
-    }
-
-    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
-      return this.renderContent()
     }
 
     return html`
@@ -30,15 +45,6 @@ export class CodeBlock extends CodeStatic {
         header-icon=${icon}
         header-title=${title}
       >
-        <div slot="header-right">
-          <stencila-ui-node-chat-commands
-            type="CodeBlock"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-chat-commands>
-        </div>
-
         <div slot="body">
           <stencila-ui-node-authors type="CodeBlock">
             <stencila-ui-node-provenance slot="provenance">
@@ -59,6 +65,7 @@ export class CodeBlock extends CodeStatic {
         <stencila-ui-node-code
           type="CodeBlock"
           code=${this.code}
+          node-id=${this.id}
           .code-authorship=${this.codeAuthorship}
           language=${this.programmingLanguage}
           read-only

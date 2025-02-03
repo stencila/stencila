@@ -1,7 +1,20 @@
+use std::{
+    fs::read_to_string,
+    io::Write,
+    path::Path,
+    process::{Command, Stdio},
+};
+
 use kernel_micro::{
-    common::eyre::Result, format::Format, schema::MessageLevel, Kernel, KernelAvailability,
-    KernelForks, KernelInstance, KernelInterrupt, KernelKill, KernelProvider, KernelTerminate,
-    Microkernel,
+    common::{eyre::Result, serde::Deserialize, serde_json, tempfile, tracing},
+    format::Format,
+    schema::{
+        AuthorRole, AuthorRoleName, CodeLocation, CompilationMessage, MessageLevel,
+        SoftwareApplication, Timestamp,
+    },
+    Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
+    KernelLint, KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider,
+    KernelTerminate, Microkernel,
 };
 
 /// A kernel for executing R code
@@ -27,6 +40,24 @@ impl Kernel for RKernel {
         vec![Format::R]
     }
 
+    fn supports_linting(&self) -> KernelLinting {
+        let styler = Command::new("Rscript")
+            .arg("-e")
+            .arg("styler::style_file")
+            .stdout(Stdio::null())
+            .status()
+            .map_or(false, |status| status.success());
+
+        let lintr = Command::new("Rscript")
+            .arg("-e")
+            .arg("lintr::lint")
+            .stdout(Stdio::null())
+            .status()
+            .map_or(false, |status| status.success());
+
+        KernelLinting::new(styler, lintr, false)
+    }
+
     fn supports_interrupt(&self) -> KernelInterrupt {
         self.microkernel_supports_interrupt()
     }
@@ -48,13 +79,118 @@ impl Kernel for RKernel {
     }
 }
 
+impl KernelLint for RKernel {
+    #[tracing::instrument(skip(self, code))]
+    async fn lint(
+        &self,
+        code: &str,
+        _dir: &Path,
+        options: KernelLintingOptions,
+    ) -> Result<KernelLintingOutput> {
+        tracing::trace!("Linting R code");
+
+        // Write the code to a temporary file
+        // styler requires that this have an R extension
+        let mut temp_file = tempfile::Builder::new().suffix(".R").tempfile()?;
+        write!(temp_file, "{}", code)?;
+        let temp_path = temp_file.path();
+        let temp_path_str = temp_path.to_string_lossy();
+
+        // Construct R code to format and lint, so we can do a single call to R
+        // which is faster than doing two
+        let mut r = String::new();
+
+        let mut authors: Vec<AuthorRole> = Vec::new();
+
+        // Format code if specified and styler is available
+        // Suppress outputs (including error for non existent styler package) to avoid them being read
+        // in as linter diagnostics.
+        if options.format {
+            r.push_str(&format!(
+                "sink(tempfile()); suppressMessages(suppressWarnings(try(styler::style_file('{temp_path_str}', strict=TRUE), silent=TRUE))); sink();"
+            ));
+        }
+
+        r.push_str(&format!(
+            "jsonlite::toJSON(lintr::lint('{temp_path_str}'), auto_unbox=T)"
+        ));
+
+        // Run command with JSON output to parse into messages
+        let messages = if let Ok(output) = Command::new("Rscript").arg("-e").arg(r).output() {
+            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+
+            // Successfully ran ESLint so add as an author (regardless of whether it made any fixes)
+            authors.push(
+                SoftwareApplication::new("LintR".to_string()).into_author_role(
+                    AuthorRoleName::Linter,
+                    Some(Format::R),
+                    Some(Timestamp::now()),
+                ),
+            );
+
+            // A diagnostic message from lintr
+            #[derive(Deserialize)]
+            #[serde(crate = "kernel_micro::common::serde")]
+            struct LintrMessage {
+                r#type: String,
+                message: String,
+                line_number: u64,
+                column_number: u64,
+            }
+
+            let lintr_messages = serde_json::from_str::<Vec<LintrMessage>>(&stdout)?;
+            if lintr_messages.is_empty() {
+                None
+            } else {
+                let messages = lintr_messages
+                    .into_iter()
+                    .map(|msg| CompilationMessage {
+                        error_type: Some("Linting".into()),
+                        level: match msg.r#type.as_str() {
+                            "style" => MessageLevel::Debug,
+                            "warning" => MessageLevel::Warning,
+                            _ => MessageLevel::Error,
+                        },
+                        message: msg.message,
+                        code_location: Some(CodeLocation {
+                            start_line: Some(msg.line_number.saturating_sub(1)),
+                            start_column: Some(msg.column_number.saturating_sub(1)),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    })
+                    .collect();
+
+                Some(messages)
+            }
+        } else {
+            None
+        };
+
+        // If formatted, read in the possibly changed code
+        let code = if options.format {
+            let new_code = read_to_string(temp_path)?;
+            (new_code != code).then_some(new_code)
+        } else {
+            None
+        };
+
+        Ok(KernelLintingOutput {
+            code,
+            messages,
+            authors: (!authors.is_empty()).then_some(authors),
+            ..Default::default()
+        })
+    }
+}
+
 impl Microkernel for RKernel {
     fn executable_name(&self) -> String {
         "Rscript".to_string()
     }
 
-    fn microkernel_script(&self) -> String {
-        include_str!("kernel.r").to_string()
+    fn microkernel_script(&self) -> (String, String) {
+        ("kernel.r".into(), include_str!("kernel.r").into())
     }
 
     fn default_message_level(&self) -> MessageLevel {
@@ -73,7 +209,7 @@ mod tests {
         },
         schema::{
             Array, ArrayHint, ArrayValidator, BooleanValidator, Datatable, DatatableColumn,
-            DatatableColumnHint, DatatableHint, EnumValidator, ExecutionMessage, Hint,
+            DatatableColumnHint, DatatableHint, EnumValidator, ExecutionMessage, Hint, ImageObject,
             IntegerValidator, Node, Null, NumberValidator, Object, ObjectHint, Primitive,
             StringHint, StringValidator, Validator, Variable,
         },
@@ -271,6 +407,53 @@ b",
         );
         assert!(messages[0].stack_trace.is_none());
         assert_eq!(outputs, vec![]);
+
+        // Still get outputs when base::warnings are emitted (both execute and evaluate)
+        let (outputs, messages) = kernel
+            .execute(
+                r#"
+warns <- function() {
+    base::warning("a warning")
+    1 + 2
+}
+warns()
+"#,
+            )
+            .await?;
+        assert_eq!(messages[0].message, "a warning");
+        assert_eq!(messages[0].level, MessageLevel::Warning);
+        assert_eq!(outputs, vec![Node::Integer(3)]);
+
+        // This is a regression test for an annoying, hard to fix issues where ggplots
+        // where not included in outputs if they had any warnings
+        let (outputs, messages) = kernel
+            .execute(
+                r#"
+library(ggplot2)
+ggplot(data.frame(x=c(1, 2, NA), y=c(2, 4, NA)), aes(x=x,y=y)) + geom_point()
+"#,
+            )
+            .await?;
+        assert_eq!(
+            messages[0].message,
+            "Removed 1 rows containing missing values (`geom_point()`)."
+        );
+        assert_eq!(messages[0].level, MessageLevel::Warning);
+        assert_eq!(outputs.len(), 1);
+        let Some(Node::ImageObject(ImageObject { content_url, .. })) = outputs.first() else {
+            bail!("expected an image object");
+        };
+        let Some(base64) = content_url.strip_prefix("data:image/png;base64,") else {
+            bail!("expected an data URI");
+        };
+        assert!(!base64.is_empty());
+
+        let (output, messages) = kernel
+            .evaluate(r#"base::warning("another warning"); 6*7"#)
+            .await?;
+        assert_eq!(messages[0].message, "another warning");
+        assert_eq!(messages[0].level, MessageLevel::Warning);
+        assert_eq!(output, Node::Integer(42));
 
         Ok(())
     }
@@ -664,8 +847,11 @@ df1 = data.frame(
             let (outputs, messages) = instance.execute(code).await?;
             assert_eq!(messages, []);
             assert_eq!(outputs.len(), 1);
-            if let Some(Node::ImageObject(image)) = outputs.first() {
-                assert!(image.content_url.starts_with("data:image/png;base64"));
+            if let Some(Node::ImageObject(ImageObject { content_url, .. })) = outputs.first() {
+                let Some(base64) = content_url.strip_prefix("data:image/png;base64,") else {
+                    bail!("expected an data URI");
+                };
+                assert!(!base64.is_empty());
             } else {
                 bail!("Expected an image, got: {outputs:?}")
             }
@@ -696,8 +882,11 @@ df1 = data.frame(
             let (outputs, messages) = instance.execute(code).await?;
             assert_eq!(messages, []);
             assert_eq!(outputs.len(), 1);
-            if let Some(Node::ImageObject(image)) = outputs.first() {
-                assert!(image.content_url.starts_with("data:image/png;base64"));
+            if let Some(Node::ImageObject(ImageObject { content_url, .. })) = outputs.first() {
+                let Some(base64) = content_url.strip_prefix("data:image/png;base64,") else {
+                    bail!("expected an data URI");
+                };
+                assert!(!base64.is_empty());
             } else {
                 bail!("Expected an image, got: {outputs:?}")
             }

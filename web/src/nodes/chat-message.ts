@@ -1,16 +1,15 @@
 import { NodeType } from '@stencila/types'
 import { apply } from '@twind/core'
-import { html } from 'lit'
+import { html, PropertyValues } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
-import { patchValue } from '../clients/commands'
 import { withTwind } from '../twind'
 import { booleanConverter } from '../utilities/booleanConverter'
 import { closestGlobally } from '../utilities/closestGlobally'
 
 import { Executable } from './executable'
 
-import '../ui/nodes/chat-message-inputs'
+import '../ui/nodes/chat/chat-message-inputs'
 
 /**
  * Web component representing a Stencila `ChatMessage` node
@@ -34,41 +33,14 @@ export class ChatMessage extends Executable {
     attribute: 'is-selected',
     converter: booleanConverter,
   })
-  isSelected?: boolean
+  isSelected?: boolean = false
 
   /**
-   * When the message is selected send a patch to the message group.
-   * In Rust, this is handled by a custom patch operation handler so that only one
-   * message is ever selected.
+   * Indicates whether to render the execution messages slot
    */
-  private onSelected() {
-    const group = this.closestGlobally('stencila-chat-message-group')
-    if (!group) {
-      return
-    }
+  private hasExecutionMessages: boolean = false
 
-    // Set `isSelected` on all siblings (and this) and determine the
-    // index of this in the messages for the patch
-    let thisIndex
-    Array.from(this.parentNode.children).forEach(
-      (message: ChatMessage, index) => {
-        const selected = message.isSameNode(this)
-        message.isSelected = selected
-        if (selected) {
-          thisIndex = index
-        }
-      }
-    )
-
-    this.dispatchEvent(
-      patchValue(
-        'ChatMessageGroup',
-        group.id,
-        ['messages', thisIndex, 'isSelected'],
-        true
-      )
-    )
-  }
+  private observer: MutationObserver
 
   /**
    * Should a node card, possibly within a chat message, be expanded?
@@ -96,6 +68,35 @@ export class ChatMessage extends Executable {
     )
   }
 
+  override connectedCallback(): void {
+    super.connectedCallback()
+
+    // set up observer for changes in the execution message slot
+    this.observer = new MutationObserver(() => {
+      const messages = this.querySelector('[slot="execution-messages"]')
+      if (messages && messages.children.length > 0) {
+        this.hasExecutionMessages = true
+      } else {
+        this.hasExecutionMessages = false
+      }
+    })
+
+    this.observer.observe(this, { childList: true })
+  }
+
+  protected override firstUpdated(changedProperties: PropertyValues): void {
+    super.firstUpdated(changedProperties)
+    // set first message in group as selected by default
+    if (this.isWithin('ChatMessageGroup')) {
+      this.isSelected = this.parentNode.children[0].isSameNode(this)
+    }
+  }
+
+  override disconnectedCallback(): void {
+    super.disconnectedCallback()
+    this.observer.disconnect()
+  }
+
   override render() {
     // These styles are applied here, rather than any container in
     // a chat because in a chat message group the messages within
@@ -115,6 +116,14 @@ export class ChatMessage extends Executable {
   private renderSystemMessage(style: string) {
     return html`
       <div class="${style} my-3 p-3 bg-indigo-100 rounded">
+        ${this.hasExecutionMessages
+          ? html` <div class="bg-gray-100 rounded">
+              <slot name="execution-messages"></slot>
+            </div>`
+          : ''}
+        <div class="bg-gray-100 rounded">
+          <slot name="execution-messages"></slot>
+        </div>
         <slot name="content"></slot>
       </div>
     `
@@ -123,6 +132,13 @@ export class ChatMessage extends Executable {
   private renderUserMessage(style: string) {
     return html`
       <div class="${style} flex justify-end">
+        ${this.hasExecutionMessages
+          ? html`
+              <div>
+                <slot name="execution-messages"></slot>
+              </div>
+            `
+          : ''}
         <div class="my-3 p-3 bg-blue-50 rounded w-content">
           <slot name="content"></slot>
           <slot name="files"></slot>
@@ -132,17 +148,45 @@ export class ChatMessage extends Executable {
   }
 
   private renderModelMessage(style: string) {
-    return html`<div class="${style} my-3 p-3">
-      <slot name="author" class="text-blue-900"></slot>
-      ${this.executionStatus === 'Running'
-        ? this.renderRunningIndicator()
-        : html`
+    const inGroup = this.isWithin('ChatMessageGroup')
+
+    if (!inGroup) {
+      return html`
+        <div class="${style} my-3">
+          <div class="mb-4">
+            <slot
+              name="author"
+              class=${this.executionStatus === 'Running'
+                ? 'text-gray-400'
+                : 'text-brand-blue'}
+            ></slot>
+          </div>
+          ${this.hasExecutionMessages
+            ? html` <div class="bg-gray-100 rounded">
+                <slot name="execution-messages"></slot>
+              </div>`
+            : ''}
+          <slot name="content"></slot>
+          ${this.executionStatus === 'Running'
+            ? this.renderRunningIndicator()
+            : ''}
+        </div>
+      `
+    }
+
+    return this.isSelected
+      ? html`
+          <div class="${style} my-3">
+            <div class="bg-gray-100 rounded">
+              <slot name="execution-messages"></slot>
+            </div>
             <slot name="content"></slot>
-            ${this.isWithin('ChatMessageGroup')
-              ? this.renderSelectButton()
+            ${this.executionStatus === 'Running'
+              ? this.renderRunningIndicator()
               : ''}
-          `}
-    </div>`
+          </div>
+        `
+      : html``
   }
 
   private renderRunningIndicator() {
@@ -155,20 +199,6 @@ export class ChatMessage extends Executable {
         <div class=${dotClasses} style="animation-delay: 0ms"></div>
         <div class=${dotClasses} style="animation-delay: 250ms"></div>
         <div class=${dotClasses} style="animation-delay: 500ms"></div>
-      </div>
-    `
-  }
-
-  private renderSelectButton() {
-    return html`
-      <div class="flex justify-center w-full">
-        <sl-tooltip content="Select this response">
-          <stencila-ui-icon-button
-            name=${this.isSelected ? 'checkCircleFill' : 'checkCircle'}
-            ?disabled=${this.isSelected}
-            @click=${this.onSelected}
-          ></stencila-ui-icon-button>
-        </sl-tooltip>
       </div>
     `
   }

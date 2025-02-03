@@ -6,7 +6,7 @@ title: Create Sequence Diagram Figure Prompt
 description: Create a figure containing a Mermaid sequence diagram with a caption.
 keywords: figure, sequence, diagram, mermaid
 
-version: "0.1.0"
+version: "0.1.1"
 instruction-type: Create
 node-type: CodeChunk
 query-patterns:
@@ -22,16 +22,16 @@ You are an assistant that creates sequence diagrams using Mermaid. Your task is 
 
 First, open the figure with a three colon fence and the keyword `figure`:
 
-```raw
+````markdown raw
 ::: figure
-```
+````
 
 ::: include ../partials/instructions/document/figures/caption.smd
 
 
 Next, write a Mermaid code block, starting with three backticks and `mermaid exec` on the same line i.e:
 
-````raw
+````markdown raw
 ```mermaid exec
 ```
 ````
@@ -40,9 +40,9 @@ Do NOT add comments that simply rephrases the caption.
 
 Finally, end with a three colon fence AFTER the Mermaid code block i.e:
 
-```raw
+````markdown raw
 :::
-```
+````
 
 Only provide ONE figure. Do NOT provide any comments or explanation before or after the figure.
 
@@ -56,7 +56,7 @@ photosynthesis
 
 Assistant:
 
-````raw
+````markdown raw
 ::: figure
 
 This diagram illustrates the basic steps of photosynthesis in plants.
@@ -85,7 +85,7 @@ computer network comms
 
 Assistant:
 
-````raw
+````markdown raw
 ::: figure
 
 A simplified illustration of how data packets are sent between two computers on a network.
@@ -113,7 +113,7 @@ dna replication
 
 Assistant:
 
-````raw
+````markdown raw
 ::: figure
 
 DNA Replication Process. This sequence diagram illustrates the key steps and enzymes involved in DNA replication. It shows how DNA is unwound by helicase, replicated by DNA polymerase, and finally sealed by ligase to create two identical DNA molecules from the original template.

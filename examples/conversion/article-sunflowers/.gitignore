@@ -1,0 +1,3 @@
+# Ignore because `meta` is a Rust `HashMap` and so has non-deterministic
+# ordering of keys which means that snapshot changes between runs
+article-sunflowers.pandoc

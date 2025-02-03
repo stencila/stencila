@@ -36,7 +36,7 @@ export class UINodeLastModified extends UINodeTimestampProperty {
         content=${`${this.roleLabel} at ${isoFormat}`}
         .disabled=${isoFormat === null}
       >
-        <span>${this.relativeTime}</span>
+        <span class="select-none">${this.relativeTime}</span>
       </sl-tooltip>
     `
   }

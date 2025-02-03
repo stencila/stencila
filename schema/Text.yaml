@@ -1,16 +1,16 @@
 title: Text
-'@id': schema:Text
+"@id": schema:Text
 nick: txt
 extends: Entity
 category: prose
 description: Textual content.
 $comment: |
   Intended mostly for use for inline text e.g. the text in a paragraph.
-  
+
   Differs from the primitive `String` type in that it has a `type` and `id` property.
   The `id` property allows use to identify text nodes with a sequence of inline nodes
   for better diffing.
-  
+
   Also, in Rust, the `value` property is implemented as a CRDT.
 dom:
   derive: false
@@ -25,11 +25,11 @@ required:
   - value
 properties:
   value:
-    '@id': 'schema:value'
+    "@id": "schema:value"
     description: The value of the text content
     $ref: Cord
     patch:
-      formats: [md, smd, myst, ipynb, qmd]
+      formats: [all]
     dom:
       elem: none
     html:

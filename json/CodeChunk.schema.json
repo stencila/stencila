@@ -18,6 +18,9 @@
       "executable": "yes"
     }
   },
+  "latex": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },
@@ -75,7 +78,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "$ref": "ExecutionMode.schema.json"
@@ -96,7 +100,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "$ref": "ExecutionBounds.schema.json"
@@ -342,7 +347,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "jats": {
@@ -384,7 +390,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "jats": {
@@ -462,6 +469,9 @@
           "ipynb"
         ]
       },
+      "jats": {
+        "attr": "label-type"
+      },
       "proptest": {
         "min": {
           "description": "No label type",
@@ -486,6 +496,9 @@
           "qmd",
           "ipynb"
         ]
+      },
+      "jats": {
+        "elem": "label"
       },
       "proptest": {
         "min": {
@@ -519,6 +532,9 @@
           "qmd"
         ]
       },
+      "jats": {
+        "attr": "label-automatically"
+      },
       "type": "boolean"
     },
     "caption": {
@@ -536,6 +552,9 @@
       "walk": true,
       "dom": {
         "elem": "div"
+      },
+      "jats": {
+        "elem": "caption"
       },
       "proptest": {
         "min": {

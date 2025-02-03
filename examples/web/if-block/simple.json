@@ -1,0 +1,269 @@
+{
+  "$schema": "https://stencila.org/v2.0.0-beta.20/Article.schema.json",
+  "@context": "https://stencila.org/v2.0.0-beta.20/context.jsonld",
+  "type": "Article",
+  "authors": [
+    {
+      "type": "AuthorRole",
+      "author": {
+        "type": "Person",
+        "affiliations": [],
+        "name": "Mike Parkin"
+      },
+      "roleName": "Writer",
+      "format": "Stencila Markdown",
+      "lastModified": {
+        "type": "Timestamp",
+        "value": 1736297103605,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ],
+  "provenance": [
+    {
+      "type": "ProvenanceCount",
+      "provenanceCategory": "Hw",
+      "characterCount": 32,
+      "characterPercent": 100
+    }
+  ],
+  "content": [
+    {
+      "type": "IfBlock",
+      "clauses": [
+        {
+          "type": "IfBlockClause",
+          "code": {
+            "string": "true",
+            "authorship": [
+              [
+                1,
+                0,
+                0,
+                4
+              ]
+            ]
+          },
+          "authors": [
+            {
+              "type": "AuthorRole",
+              "author": {
+                "type": "Person",
+                "affiliations": [],
+                "name": "Mike Parkin"
+              },
+              "roleName": "Writer",
+              "format": "Stencila Markdown",
+              "lastModified": {
+                "type": "Timestamp",
+                "value": 1736297103605,
+                "timeUnit": "Millisecond"
+              }
+            }
+          ],
+          "provenance": [
+            {
+              "type": "ProvenanceCount",
+              "provenanceCategory": "Hw",
+              "characterCount": 17,
+              "characterPercent": 100
+            }
+          ],
+          "isActive": true,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Hello, world!",
+                    "authorship": [
+                      [
+                        1,
+                        0,
+                        0,
+                        13
+                      ]
+                    ]
+                  }
+                }
+              ],
+              "authors": [
+                {
+                  "type": "AuthorRole",
+                  "author": {
+                    "type": "Person",
+                    "affiliations": [],
+                    "name": "Mike Parkin"
+                  },
+                  "roleName": "Writer",
+                  "format": "Stencila Markdown",
+                  "lastModified": {
+                    "type": "Timestamp",
+                    "value": 1736297103605,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ],
+              "provenance": [
+                {
+                  "type": "ProvenanceCount",
+                  "provenanceCategory": "Hw",
+                  "characterCount": 13,
+                  "characterPercent": 100
+                }
+              ]
+            }
+          ],
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 4187628911664894414
+          },
+          "executionDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 4187628911664894414
+          },
+          "executionCount": 1,
+          "executionRequired": "No",
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1736297121127,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 2,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {
+          "type": "IfBlockClause",
+          "code": {
+            "string": "",
+            "authorship": [
+              [
+                1,
+                0,
+                0,
+                0
+              ]
+            ]
+          },
+          "authors": [
+            {
+              "type": "AuthorRole",
+              "author": {
+                "type": "Person",
+                "affiliations": [],
+                "name": "Mike Parkin"
+              },
+              "roleName": "Writer",
+              "format": "Stencila Markdown",
+              "lastModified": {
+                "type": "Timestamp",
+                "value": 1736297103605,
+                "timeUnit": "Millisecond"
+              }
+            }
+          ],
+          "provenance": [
+            {
+              "type": "ProvenanceCount",
+              "provenanceCategory": "Hw",
+              "characterCount": 15,
+              "characterPercent": 100
+            }
+          ],
+          "isActive": false,
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "Goodbye, world!",
+                    "authorship": [
+                      [
+                        1,
+                        0,
+                        0,
+                        15
+                      ]
+                    ]
+                  }
+                }
+              ],
+              "authors": [
+                {
+                  "type": "AuthorRole",
+                  "author": {
+                    "type": "Person",
+                    "affiliations": [],
+                    "name": "Mike Parkin"
+                  },
+                  "roleName": "Writer",
+                  "format": "Stencila Markdown",
+                  "lastModified": {
+                    "type": "Timestamp",
+                    "value": 1736297103605,
+                    "timeUnit": "Millisecond"
+                  }
+                }
+              ],
+              "provenance": [
+                {
+                  "type": "ProvenanceCount",
+                  "provenanceCategory": "Hw",
+                  "characterCount": 15,
+                  "characterPercent": 100
+                }
+              ]
+            }
+          ],
+          "compilationDigest": {
+            "type": "CompilationDigest",
+            "stateDigest": 9336520420413539212
+          },
+          "executionRequired": "NeverExecuted"
+        }
+      ],
+      "compilationDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 4540776512690506132
+      },
+      "executionDigest": {
+        "type": "CompilationDigest",
+        "stateDigest": 4540776512690506132
+      },
+      "executionCount": 1,
+      "executionRequired": "No",
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1736297121127,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 2,
+        "timeUnit": "Millisecond"
+      }
+    }
+  ],
+  "executionCount": 1,
+  "executionRequired": "No",
+  "executionStatus": "Succeeded",
+  "executionEnded": {
+    "type": "Timestamp",
+    "value": 1736297121127,
+    "timeUnit": "Millisecond"
+  },
+  "executionDuration": {
+    "type": "Duration",
+    "value": 2,
+    "timeUnit": "Millisecond"
+  }
+}

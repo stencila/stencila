@@ -1,9 +1,11 @@
-use codec::Losses;
+use codec::{format::Format, Losses};
 use pandoc_types::definition as pandoc;
 
 /// The context for encoding to Pandoc AST
 #[derive(Default)]
 pub(super) struct PandocEncodeContext {
+    #[allow(unused)]
+    pub format: Format,
     pub losses: Losses,
 
     /// Encode paragraphs as Pandoc `Plain` blocks in places
@@ -14,6 +16,7 @@ pub(super) struct PandocEncodeContext {
 /// The context for decoding from Pandoc AST
 #[derive(Default)]
 pub(super) struct PandocDecodeContext {
+    pub format: Format,
     pub losses: Losses,
 }
 

@@ -1,6 +1,19 @@
+use std::{
+    fs::{read_to_string, write},
+    path::Path,
+    process::{Command, Stdio},
+};
+
 use kernel_micro::{
-    common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, KernelProvider, KernelTerminate, Microkernel,
+    common::{eyre::Result, serde::Deserialize, serde_json, tempfile, tracing},
+    format::Format,
+    schema::{
+        AuthorRole, AuthorRoleName, CodeLocation, CompilationMessage, MessageLevel,
+        SoftwareApplication, Timestamp,
+    },
+    Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
+    KernelLint, KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider,
+    KernelTerminate, Microkernel,
 };
 
 /// A kernel for executing JavaScript code in Node.js
@@ -26,6 +39,33 @@ impl Kernel for NodeJsKernel {
         vec![Format::JavaScript]
     }
 
+    #[allow(unreachable_code)]
+    fn supports_linting(&self) -> KernelLinting {
+        // Note: NodeJS linting is preliminary and can be slow so is
+        // currently disabled
+        return KernelLinting::No;
+
+        let format = Command::new("npx")
+            .arg("--no") // Do not install prettier if not already
+            .arg("--")
+            .arg("prettier")
+            .arg("--version") // Smaller output than without
+            .stdout(Stdio::null())
+            .status()
+            .map_or(false, |status| status.success());
+
+        let fix = Command::new("npx")
+            .arg("--no") // Do not install eslint if not already
+            .arg("--")
+            .arg("eslint")
+            .arg("--version") // To prevent eslint waiting for input
+            .stdout(Stdio::null())
+            .status()
+            .map_or(false, |status| status.success());
+
+        KernelLinting::new(format, fix, fix)
+    }
+
     fn supports_interrupt(&self) -> KernelInterrupt {
         self.microkernel_supports_interrupt()
     }
@@ -49,13 +89,175 @@ impl Kernel for NodeJsKernel {
     }
 }
 
+impl KernelLint for NodeJsKernel {
+    #[tracing::instrument(skip(self, code))]
+    async fn lint(
+        &self,
+        code: &str,
+        _dir: &Path,
+        options: KernelLintingOptions,
+    ) -> Result<KernelLintingOutput> {
+        tracing::trace!("Linting Node.js code");
+
+        // It is difficult (impossible?) to get eslint to work on an out
+        // of tree file (e.g. in /tmp) so this creates one next to the
+        // current document.
+        let temp_dir = tempfile::Builder::new()
+            .prefix("stencila-lint-")
+            .tempdir_in(".")?;
+
+        // Write the code to a temporary file
+        let code_path = temp_dir.path().join("code.js");
+        write(&code_path, code)?;
+        let code_path_str = code_path.to_string_lossy();
+
+        let mut authors: Vec<AuthorRole> = Vec::new();
+
+        // Format code if specified
+        // Does this optimistically with no error if it fails
+        if options.format {
+            let result = Command::new("npx")
+                .arg("--no") // Do not install prettier if not already
+                .arg("--")
+                .arg("prettier")
+                .arg("--write")
+                .arg(&*code_path_str)
+                .output();
+
+            if let Ok(output) = result {
+                let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+                if !stdout.contains("unchanged") {
+                    // Successfully ran Prettier, and it made changes, so add as an author
+                    authors.push(
+                        SoftwareApplication::new("Prettier".to_string()).into_author_role(
+                            AuthorRoleName::Formatter,
+                            Some(Format::JavaScript),
+                            Some(Timestamp::now()),
+                        ),
+                    );
+                }
+            }
+        }
+
+        // Need a config file
+        // TODO: walk up the tree to find any existing config
+        let config_path = temp_dir.path().join("eslint.config.mjs");
+        write(
+            &config_path,
+            r#"
+import pluginJs from "@eslint/js";
+export default [
+    pluginJs.configs.recommended,
+];
+"#,
+        )?;
+        let config_path_str = config_path.to_string_lossy();
+
+        // Run eslint to get diagnostics and output as JSON
+        let mut cmd = Command::new("npx");
+        cmd.arg("eslint")
+            .arg("--format=json")
+            .arg("--config")
+            .arg(&*config_path_str)
+            .arg(&*code_path_str);
+
+        if options.fix {
+            cmd.arg("--fix");
+        }
+
+        // Run ESLint with JSON output to parse into messages
+        let messages = if let Ok(output) = cmd.output() {
+            let stdout = String::from_utf8_lossy(&output.stdout).to_string();
+
+            // Successfully ran ESLint so add as an author (regardless of whether it made any fixes)
+            authors.push(
+                SoftwareApplication::new("ESLint".to_string()).into_author_role(
+                    AuthorRoleName::Linter,
+                    Some(Format::JavaScript),
+                    Some(Timestamp::now()),
+                ),
+            );
+
+            // A diagnostic report from ESlint
+            #[derive(Deserialize)]
+            #[serde(crate = "kernel_micro::common::serde")]
+            struct EslintReport {
+                messages: Vec<EslintMessage>,
+            }
+            #[derive(Deserialize)]
+            #[serde(rename_all = "camelCase", crate = "kernel_micro::common::serde")]
+            struct EslintMessage {
+                severity: u8,
+                rule_id: Option<String>,
+                message: String,
+                line: u64,
+                column: u64,
+                end_line: Option<u64>,
+                end_column: Option<u64>,
+            }
+
+            let mut eslint_reports = serde_json::from_str::<Vec<EslintReport>>(&stdout)?;
+            if eslint_reports.is_empty() {
+                None
+            } else {
+                let messages = eslint_reports
+                    .swap_remove(0)
+                    .messages
+                    .into_iter()
+                    .map(|msg| CompilationMessage {
+                        error_type: Some("Linting".into()),
+                        level: match msg.severity {
+                            1 => MessageLevel::Warning,
+                            _ => MessageLevel::Error,
+                        },
+                        message: format!(
+                            "{}{}",
+                            msg.message,
+                            msg.rule_id
+                                .map(|rule| format!(" (ESLint {rule})"))
+                                .unwrap_or_default()
+                        ),
+                        code_location: Some(CodeLocation {
+                            start_line: Some(msg.line.saturating_sub(1)),
+                            start_column: Some(msg.column.saturating_sub(1)),
+                            end_line: msg.end_line.map(|line| line.saturating_sub(1)),
+                            end_column: msg.end_column.map(|col| col.saturating_sub(1)),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    })
+                    .collect();
+
+                Some(messages)
+            }
+        } else {
+            None
+        };
+
+        // If formatted or fixed, read in the possible changed code
+        let code = if options.format || options.fix {
+            let new_code = read_to_string(code_path)?;
+            (new_code != code).then_some(new_code)
+        } else {
+            None
+        };
+
+        Ok(KernelLintingOutput {
+            code,
+            messages,
+            authors: (!authors.is_empty()).then_some(authors),
+            ..Default::default()
+        })
+    }
+}
+
 impl Microkernel for NodeJsKernel {
     fn executable_name(&self) -> String {
         "node".to_string()
     }
 
-    fn microkernel_script(&self) -> String {
-        include_str!("kernel.js").to_string()
+    fn microkernel_script(&self) -> (String, String) {
+        ("kernel.js".into(), include_str!("kernel.js").into())
     }
 }
 
@@ -355,6 +557,12 @@ console.error("Error message");
     /// Standard kernel test for listing installed packages
     #[test_log::test(tokio::test)]
     async fn packages() -> Result<()> {
+        #[allow(clippy::print_stderr)]
+        if std::env::var("CI").is_ok() {
+            eprintln!("Skipping test on CI because requires `npm install` has been run (not always the case)");
+            return Ok(());
+        }
+
         let Some(instance) = start_instance::<NodeJsKernel>().await? else {
             return Ok(());
         };
@@ -366,6 +574,7 @@ console.error("Error message");
     }
 
     /// Standard kernel test for variable listing
+    #[cfg(not(target_os = "windows"))] // TODO: Fix on windows
     #[test_log::test(tokio::test)]
     async fn var_listing() -> Result<()> {
         let Some(instance) = create_instance::<NodeJsKernel>().await? else {
@@ -456,6 +665,7 @@ var para = {type: "Paragraph", content:[]}
     }
 
     /// Standard kernel test for variable management
+    #[cfg(not(target_os = "windows"))] // TODO: Fix on windows
     #[test_log::test(tokio::test)]
     async fn var_management() -> Result<()> {
         let Some(instance) = create_instance::<NodeJsKernel>().await? else {
@@ -466,6 +676,7 @@ var para = {type: "Paragraph", content:[]}
     }
 
     /// Standard kernel test for forking
+    #[cfg(not(target_os = "windows"))]
     #[test_log::test(tokio::test)]
     async fn forking() -> Result<()> {
         let Some(instance) = create_instance::<NodeJsKernel>().await? else {
@@ -477,6 +688,7 @@ var para = {type: "Paragraph", content:[]}
 
     /// Custom test to check that modules imported in the main kernel instance are
     /// available in the forked instance
+    #[cfg(not(target_os = "windows"))]
     #[test_log::test(tokio::test)]
     async fn forking_imports() -> Result<()> {
         let Some(mut instance) = start_instance::<NodeJsKernel>().await? else {
@@ -526,6 +738,7 @@ console.log(typeof fs.read, typeof path.join, typeof crypto.createCipher)
     }
 
     /// Standard kernel test for signals
+    #[cfg(not(target_os = "windows"))]
     #[test_log::test(tokio::test)]
     async fn signals() -> Result<()> {
         let Some(instance) = create_instance::<NodeJsKernel>().await? else {

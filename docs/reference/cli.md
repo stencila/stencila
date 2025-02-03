@@ -9,10 +9,12 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila convert`↴](#stencila-convert)
 * [`stencila sync`↴](#stencila-sync)
 * [`stencila compile`↴](#stencila-compile)
+* [`stencila lint`↴](#stencila-lint)
 * [`stencila execute`↴](#stencila-execute)
 * [`stencila render`↴](#stencila-render)
 * [`stencila preview`↴](#stencila-preview)
 * [`stencila publish`↴](#stencila-publish)
+* [`stencila publish zenodo`↴](#stencila-publish-zenodo)
 * [`stencila publish ghost`↴](#stencila-publish-ghost)
 * [`stencila publish stencila`↴](#stencila-publish-stencila)
 * [`stencila serve`↴](#stencila-serve)
@@ -25,13 +27,14 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila prompts reset`↴](#stencila-prompts-reset)
 * [`stencila models`↴](#stencila-models)
 * [`stencila models list`↴](#stencila-models-list)
-* [`stencila models execute`↴](#stencila-models-execute)
+* [`stencila models run`↴](#stencila-models-run)
 * [`stencila kernels`↴](#stencila-kernels)
 * [`stencila kernels list`↴](#stencila-kernels-list)
 * [`stencila kernels info`↴](#stencila-kernels-info)
 * [`stencila kernels packages`↴](#stencila-kernels-packages)
 * [`stencila kernels execute`↴](#stencila-kernels-execute)
 * [`stencila kernels evaluate`↴](#stencila-kernels-evaluate)
+* [`stencila kernels lint`↴](#stencila-kernels-lint)
 * [`stencila codecs`↴](#stencila-codecs)
 * [`stencila codecs list`↴](#stencila-codecs-list)
 * [`stencila plugins`↴](#stencila-plugins)
@@ -63,6 +66,7 @@ CLI subcommands and global options
 * `convert` — Convert a document to another format
 * `sync` — Synchronize a document between formats
 * `compile` — Compile a document
+* `lint` — Lint one or more documents
 * `execute` — Execute a document
 * `render` — Render a document
 * `preview` — Preview a document or site
@@ -82,36 +86,6 @@ CLI subcommands and global options
 ###### **Options:**
 
 * `--debug` — Display debug level logging and detailed error reports
-
-   Equivalent to using `--log-level=debug`, `--log-format=pretty`, and `--error-details=all`
-* `--trace` — Display trace level logging and detailed error reports
-
-   Equivalent to using `--log-level=trace`, `--log-format=pretty`, and `--error-details=all`
-* `--log-level <LOG_LEVEL>` — The minimum log level to output
-
-  Default value: `info`
-
-  Possible values: `trace`, `debug`, `info`, `warn`, `error`
-
-* `--log-filter <LOG_FILTER>` — A filter for log entries
-
-   Allows more fine-grained control over which log entries are shown. To additionally see lower level entries for a specific crates use syntax such as `tokio=debug`.
-
-  Default value: `globset=warn,hyper=info,hyper_util=info,ignore=warn,mio=info,notify=warn,ort=error,reqwest=info,sled=info,tokio=info,tungstenite=info`
-* `--log-format <LOG_FORMAT>` — The log format to use
-
-   When `auto`, uses `simple` for terminals and `json` for non-TTY devices.
-
-  Default value: `auto`
-
-  Possible values: `auto`, `simple`, `compact`, `pretty`, `full`, `json`
-
-* `--error-details <ERROR_DETAILS>` — The details to include in error reports
-
-   `auto`, `all`, or a comma separated list including `location`, `span`, or `env`.
-
-  Default value: `auto`
-* `--error-link` — Output a link to more easily report an issue
 
 
 
@@ -340,6 +314,23 @@ Compile a document
 
 
 
+## `stencila lint`
+
+Lint one or more documents
+
+**Usage:** `stencila lint [OPTIONS] [FILES]...`
+
+###### **Arguments:**
+
+* `<FILES>` — The files to lint
+
+###### **Options:**
+
+* `--format` — Format the file if necessary
+* `--fix` — Fix any linting issues
+
+
+
 ## `stencila execute`
 
 Execute a document
@@ -545,8 +536,163 @@ Publish one or more documents
 
 ###### **Subcommands:**
 
+* `zenodo` — Publish to Zenodo
 * `ghost` — Publish to Ghost
 * `stencila` — Publish to Stencila Cloud
+
+
+
+## `stencila publish zenodo`
+
+Publish to Zenodo
+
+**Usage:** `stencila publish zenodo [OPTIONS] [PATH]`
+
+
+Further information
+
+Authentication
+
+To deposit a document at Zenodo, you must first have an authentication token that has the deposit:actions scope enabled.
+
+To create an authentication token, log into Zenodo, visit your account's dashboard, then click Applications, followed by + New Token within the Personal access tokens  section. Give the token a name and enable the deposit:actions the scope. Enable the deposit:write scope to enable the --force flag.
+
+To inform Stencila about the new token, add it as the STENCILA_ZENODO_TOKEN environment variable or include it as the --token <TOKEN> option.
+
+Recommended workflow
+
+We recommend starting with the Zenodo Sandbox at <https://sandbox.zenodo.org/>.
+
+    $ export STENCILA_ZENODO_TOKEN="<TOKEN>" # from https://sandbox.zenodo.org/
+    $ stencila publish zenodo <DOCUMENT_PATH>
+    🎉 Draft deposition submitted
+    🌐 URL: https://sandbox.zenodo.org/deposit/<deposit-id> (visit to check details and publish)
+    📑 DOI: 10.5282/zenodo.<deposit-id>
+    Note: This deposit has been submitted to the Zenodo Sandbox.
+    Note: Use the --zenodo flag to resubmit to the production Zenodo server.
+
+You should now review the deposit, make any corrections and then click publish from Zenodo's web interface when you're happy. If you wish to skip the review process and publish immediately, then use the --force flag.
+
+Now that you have an understanding of the process, you should move to the Zenodo production server at <https://zenodo.org/>. This involves creating an authentication token there, informing Stencila about it and then adding the --zenodo flag as a command-line argument.
+
+    $ export STENCILA_ZENODO_TOKEN="<TOKEN>" # from https://zenodo.org/
+    $ stencila publish zenodo --zenodo <DOCUMENT_PATH>
+    🎉 Draft deposition submitted
+    🌐 URL: https://zenodo.org/deposit/<deposit-id> (visit to check details and publish)
+    📑 DOI: 10.5281/zenodo.<deposit-id>
+
+Metadata
+
+Metadata for the deposition is provided by command-line arguments, falling back to metadata found within the document, then Stencila's defaults.
+
+Zenodo requires that deposits have metadata such as title and description. It also requires that you describe which resource type and/or publication type the deposit is.
+
+By default, Stencila describes your document as a publication, with the preprint sub-type. You can use the --lesson flag to describe your document as a lesson. To use another publication sub-type, review the list in the documentation above and provide it as the --publication=[<PUBLICATION_TYPE>] option.
+
+Every source format has its own mechanism for providing metadata. For example, within Stencila Markdown (.smd files), you add YAML front matter:
+
+  ---
+  title: Example Stencila Markdown
+  description: An example of a Stencila Markdown document with embedded metadata
+  ---
+
+
+###### **Arguments:**
+
+* `<PATH>` — Path to location of what to publish
+
+  Default value: `.`
+
+###### **Options:**
+
+* `--token <TOKEN>` — Zenodo authentication token
+
+   To create one, log into Zenodo, visit your account's page, then click "Applications", followed by "+ New Token" within the "Personal access tokens" section. Give the token a name and enable the "deposit:actions" the scope.
+
+   Enable the "deposit:write" scope to enable the `--force` flag.
+* `--sandbox` — Publish to the Zenodo Sandbox for testing
+
+   The Zenodo Sandbox is available at https://sandbox.zenodo.org. It requires its own access key that is independent from the Zenodo production server.
+
+   [default]
+
+  Default value: `true`
+* `--zenodo <ZENODO>` — Specify Zenodo instance, defaults to the public-facing production server
+
+   Use this option to publish to a custom Zenodo instance. Provide just the domain name or IP address with an optional port, e.g. `zenodo.example.org` or `zenodo.example.org:8000`.
+
+  Default value: `zenodo.org`
+* `--lesson` — Upload document as a "lesson"
+* `--reserve-doi` — Reserve a DOI for the deposition (overrides DOI in Article metadata, if any)
+* `--doi <DOI>` — Supply an existing DOI
+
+   Use this field to provide a DOI that has already been issued for the material you are depositing.
+* `--publication-date <YYYY-MM-DD>` — Publication date
+
+   Provide the date formatted as YYYY-MM-DD, e.g. 2012-03-10.
+
+   When omitted, Zenodo will use today's date.
+* `--title <TITLE>` — Title to use for the deposit
+
+   Required when the information is not available within the document.
+* `--description <DESCRIPTION>` — Description to use within the deposition
+
+   Required when the information is not available within the document. HTML is allowed.
+* `--license <LICENSE>` — License Identifier (examples: cc-by, cc0)
+* `--closed` — Closed Access
+
+   Public access of the deposition is not allowed.
+
+   Shorthand for `--access-right=closed`.
+* `--restricted` — Set `--access-right` to restricted
+* `--embargoed <YYYY-MM-DD>` — Provide a date when the embargo ends
+* `--access-conditions <ACCESS_CONDITIONS>` — Conditions to fulfill to access deposition
+
+   Describe the conditions of access to the deposition for be accessed when --access-right=restricted. HTML is allowed.
+* `--access-right <ACCESS_RIGHT>` — Access right
+
+  Default value: `open`
+
+  Possible values:
+  - `open`:
+    Open Access. Sets the default license to CC-BY, e.g. --license='cc-by'.
+  - `embargoed`:
+    Embargoed Access. Requires --access_conditions, --license, and --embargoed=<DATE>.
+  - `restricted`:
+    Restricted Access. Requires --access_conditions.
+  - `closed`:
+    Closed Access.
+
+* `--keywords <KEYWORDS>` — Comma-delimited list of keywords
+
+   To add multiple keywords, separate them with commas: --keywords=testing,software
+
+   To include spaces in keywords, surround the list with quotes[*]: --keywords='testing,software,software testing'
+
+   [*] The exact syntax will depend on your shell language.
+* `--method <METHOD>` — Methodology
+
+   Free-form description of the methodology used in this research. HTML is allowed.
+* `--notes <NOTES>` — Additional Notes
+
+   Any additional notes that to do not fit within the description. HTML is allowed.
+* `--version <VERSION>` — Version of document
+
+   NOTE: this is a free text field and all inputs are be accepted. However, the suggested format is a semantically versioned tag (see more details on semantic versioning at semver.org).
+* `--publication <PUBLICATION_TYPE>` — Upload document as a "publication"
+
+   Provide one of the publication types from Zenodo's controlled vocabulary.
+
+  Default value: `preprint`
+
+  Possible values: `annotation-collection`, `book`, `section`, `conference-paper`, `data-management-plan`, `article`, `patent`, `preprint`, `deliverable`, `milestone`, `proposal`, `report`, `software-documentation`, `taxonomic-treatment`, `technical-note`, `thesis`, `working-paper`, `other`
+
+* `--force` — Publish the deposition immediately
+
+   Requires that access token provided by the `--token` option has the "deposit:write" scope.
+
+   WARNING: This is permanent. It will be impossible to review the deposition or make changes to it before it is publicly viewable. Publication cannot be revoked.
+* `--dry-run` — Dry run mode - no actual upload
 
 
 
@@ -588,9 +734,24 @@ Publish to Ghost
 
   Default value: `true`
 * `--pull` — Update file from an existing Ghost post or page
+* `--id <ID>` — Ghost id of the page or post
+* `--title <TITLE>` — Title for page or post
+* `--draft` — Mark page or post as draft
+
+  Default value: `true`
+* `--publish` — Publish page or post
+* `--schedule <SCHEDULE>` — Schedule page or post
+* `--slug <SLUG>` — Set slug(URL slug the page or post will be available at)
+* `--tag <TAGS>` — Tags for page or post
+* `--excerpt <EXCERPT>` — Excerpt for page or post
+
+   Defaults to the article description
+* `--featured` — Feature post or page
+* `--inject-code-header <INJECT_CODE_HEADER>` — Inject HTML header
+* `--inject-code-footer <INJECT_CODE_FOOTER>` — Inject HTML footer
 * `--dry-run` — Dry run test
 
-   When set, stencila will perform the document conversion but skip the publication to Ghost.
+   When set, Stencila will perform the document conversion but skip the publication to Ghost.
 
   Default value: `false`
 
@@ -707,17 +868,17 @@ List the prompts available
 
 Show a prompt
 
-**Usage:** `stencila prompts show [OPTIONS] <ID>`
+**Usage:** `stencila prompts show [OPTIONS] <NAME>`
 
 ###### **Arguments:**
 
-* `<ID>` — The id of the prompt to show
+* `<NAME>` — The name of the prompt to show
 
 ###### **Options:**
 
 * `-t`, `--to <TO>` — The format to show the prompt in
 
-  Default value: `yaml`
+  Default value: `md`
 
 
 
@@ -767,7 +928,7 @@ Manage generative models
 ###### **Subcommands:**
 
 * `list` — List the models available
-* `execute` — Execute a model task
+* `run` — Run a model task
 
 
 
@@ -786,13 +947,13 @@ List the models available
 
 
 
-## `stencila models execute`
+## `stencila models run`
 
-Execute a model task
+Run a model task
 
-Mainly intended for testing of model selection and routing.
+Mainly intended for testing of model selection and routing. Displays the task sent to the model and the generated output returned from it.
 
-**Usage:** `stencila models execute [OPTIONS] <PROMPT>`
+**Usage:** `stencila models run [OPTIONS] <PROMPT>`
 
 ###### **Arguments:**
 
@@ -818,6 +979,7 @@ Manage execution kernels
 * `packages` — List packages available to a kernel
 * `execute` — Execute code in a kernel
 * `evaluate` — Evaluate a code expression in a kernel
+* `lint` — Lint code using the linting tool/s associated with a kernel
 
 
 
@@ -904,6 +1066,27 @@ Mainly intended for quick testing of kernels during development.
 
 * `<NAME>` — The name of the kernel to evaluate code in
 * `<CODE>` — The code expression to evaluate
+
+
+
+## `stencila kernels lint`
+
+Lint code using the linting tool/s associated with a kernel
+
+Note that this does not affect the file. It only prints how it would be formatted/fixed and any diagnostics.
+
+Mainly intended for testing of linting by kernels during development of Stencila.
+
+**Usage:** `stencila kernels lint [OPTIONS] <FILE>`
+
+###### **Arguments:**
+
+* `<FILE>` — The file to lint
+
+###### **Options:**
+
+* `--format` — Format the code
+* `--fix` — Fix warnings and errors where possible
 
 
 

@@ -3,10 +3,10 @@ use std::{collections::HashMap, str::FromStr};
 use markdown::{mdast, unist::Position};
 use winnow::{
     ascii::{alphanumeric1, multispace0, multispace1, space0, Caseless},
-    combinator::{alt, delimited, eof, opt, preceded, separated, separated_pair, terminated},
+    combinator::{alt, delimited, eof, opt, preceded, separated, terminated},
     stream::AsChar,
     token::{take_till, take_until, take_while},
-    IResult, Located, PResult, Parser,
+    LocatingSlice as Located, ModalResult, Parser,
 };
 
 use codec::{
@@ -19,12 +19,11 @@ use codec::{
     schema::{
         shortcuts, Admonition, AdmonitionType, Author, Block, CallArgument, CallBlock, Chat,
         ChatMessage, ChatMessageGroup, ChatMessageOptions, Claim, CodeBlock, CodeChunk,
-        DeleteBlock, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
-        IncludeBlock, Inline, InsertBlock, InstructionBlock, InstructionMessage, LabelType, List,
-        ListItem, ListOrder, MathBlock, ModifyBlock, Node, Paragraph, PromptBlock, QuoteBlock,
-        RawBlock, ReplaceBlock, Section, SoftwareApplication, StyledBlock, SuggestionBlock,
-        SuggestionStatus, Table, TableCell, TableRow, TableRowType, Text, ThematicBreak,
-        Walkthrough, WalkthroughStep,
+        ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause, IncludeBlock, Inline,
+        InstructionBlock, InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock,
+        Node, Paragraph, PromptBlock, QuoteBlock, RawBlock, Section, SoftwareApplication,
+        StyledBlock, SuggestionBlock, SuggestionStatus, Table, TableCell, TableRow, TableRowType,
+        Text, ThematicBreak, Walkthrough, WalkthroughStep,
     },
 };
 
@@ -88,20 +87,6 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                 let children = pop_blocks(&mut blocks, &mut boundaries);
 
                 match divider {
-                    Divider::With => {
-                        if let Some(block) = blocks.last_mut() {
-                            match block {
-                                Block::ReplaceBlock(ReplaceBlock { content, .. })
-                                | Block::ModifyBlock(ModifyBlock { content, .. }) => {
-                                    *content = children;
-                                }
-
-                                _ => tracing::warn!("Found a `::: with` without a preceding `::: replace` or `::: modify`")
-                            }
-                        }
-
-                        boundaries.push(blocks.len());
-                    }
                     Divider::Else => {
                         if let Some(block) = blocks.last_mut() {
                             match block {
@@ -505,7 +490,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
 }
 
 /// Parse a "div": a paragraph starting with at least three semicolons
-fn block(input: &mut Located<&str>) -> PResult<Block> {
+fn block(input: &mut Located<&str>) -> ModalResult<Block> {
     alt((
         chat,
         preceded(
@@ -522,10 +507,6 @@ fn block(input: &mut Located<&str>) -> PResult<Block> {
                 instruction_block,
                 suggestion_block,
                 chat_message,
-                delete_block,
-                insert_block,
-                replace_block,
-                modify_block,
                 claim,
                 styled_block,
                 // Section parser is permissive of label so needs to
@@ -538,7 +519,7 @@ fn block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`Admonition`] node
-fn admonition_qmd(input: &mut Located<&str>) -> PResult<Block> {
+fn admonition_qmd(input: &mut Located<&str>) -> ModalResult<Block> {
     delimited(
         "{.callout-",
         (
@@ -582,7 +563,7 @@ fn admonition_qmd(input: &mut Located<&str>) -> PResult<Block> {
 /// Parse an argument to a `CallBlock`.
 ///
 /// Arguments must be key-value or key-symbol pairs separated by `=`.
-fn call_arg(input: &mut Located<&str>) -> PResult<CallArgument> {
+fn call_arg(input: &mut Located<&str>) -> ModalResult<CallArgument> {
     // TODO allow for programming language to be specified
     (
         terminated(name, delimited(multispace0, "=", multispace0)),
@@ -601,11 +582,11 @@ fn call_arg(input: &mut Located<&str>) -> PResult<CallArgument> {
 }
 
 /// Parse a [`CallBlock`] node
-fn call_block(input: &mut Located<&str>) -> PResult<Block> {
+fn call_block(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
-        ("call", multispace1),
+        ("call", multispace0),
         (
-            take_till(1.., '('),
+            take_till(0.., '('),
             opt(delimited(
                 ('(', multispace0),
                 separated(0.., call_arg, delimited(multispace0, ",", multispace0)),
@@ -630,10 +611,10 @@ fn call_block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse an [`IncludeBlock`] node
-fn include_block(input: &mut Located<&str>) -> PResult<Block> {
+fn include_block(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
-        (alt(("include", "inc")), multispace1),
-        (take_while(1.., |c| c != '{'), opt(attrs)),
+        ("include", multispace0),
+        (take_while(0.., |c| c != '{'), opt(attrs)),
     )
     .map(|(source, attrs)| {
         let mut options: IndexMap<&str, _> = attrs.unwrap_or_default().into_iter().collect();
@@ -650,7 +631,7 @@ fn include_block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`PromptBlock`] node
-fn prompt_block(input: &mut Located<&str>) -> PResult<Block> {
+fn prompt_block(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         "prompt",
         (
@@ -684,7 +665,7 @@ fn prompt_block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`Claim`] node
-fn claim(input: &mut Located<&str>) -> PResult<Block> {
+fn claim(input: &mut Located<&str>) -> ModalResult<Block> {
     (
         terminated(
             alt((
@@ -712,7 +693,7 @@ fn claim(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`CodeChunk`] node with a label and/or caption
-fn code_chunk(input: &mut Located<&str>) -> PResult<Block> {
+fn code_chunk(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         ("chunk", multispace0),
         (
@@ -746,7 +727,7 @@ fn code_chunk(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`Chat`] node
-fn chat(input: &mut Located<&str>) -> PResult<Block> {
+fn chat(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         "/",
         (
@@ -790,7 +771,7 @@ fn chat(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`ChatMessage`] or [`ChatMessageGroup`] node
-fn chat_message(input: &mut Located<&str>) -> PResult<Block> {
+fn chat_message(input: &mut Located<&str>) -> ModalResult<Block> {
     (
         preceded(
             Caseless("msg/"),
@@ -834,7 +815,7 @@ fn chat_message(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`Figure`] node with a label and/or caption
-fn figure(input: &mut Located<&str>) -> PResult<Block> {
+fn figure(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         (
             alt((Caseless("figure"), Caseless("fig"), Caseless("fig."))),
@@ -853,20 +834,18 @@ fn figure(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`ForBlock`] node
-fn for_block(input: &mut Located<&str>) -> PResult<Block> {
+fn for_block(input: &mut Located<&str>) -> ModalResult<Block> {
     alt((
         // Stencila Markdown
         preceded(
-            ("for", multispace1),
+            ("for", multispace0),
             (
-                separated_pair(
-                    name,
-                    (multispace1, "in", multispace1),
-                    alt((
-                        delimited('`', take_until(0.., '`'), '`'),
-                        take_while(1.., |c| c != '{'),
-                    )),
-                ),
+                opt(name),
+                opt((multispace0, "in", multispace0)),
+                alt((
+                    delimited('`', take_until(0.., '`'), '`'),
+                    take_while(0.., |c| c != '{'),
+                )),
                 opt(preceded(multispace0, attrs)),
             ),
         ),
@@ -874,20 +853,18 @@ fn for_block(input: &mut Located<&str>) -> PResult<Block> {
         preceded(
             ("{for}", multispace0),
             (
-                separated_pair(
-                    name,
-                    (multispace1, "in", multispace1),
-                    take_while(1.., |c| c != '{'),
-                ),
+                opt(name),
+                opt((multispace0, "in", multispace0)),
+                take_while(0.., |c| c != '{'),
                 "".value(None),
             ),
         ),
     ))
-    .map(|((variable, expr), options)| {
+    .map(|(variable, _, expr, options)| {
         let options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
 
         Block::ForBlock(ForBlock {
-            variable: variable.into(),
+            variable: variable.map(|var| var.into()).unwrap_or_default(),
             code: expr.trim().into(),
             programming_language: options.first().map(|(name, _)| name.to_string()),
             execution_mode: execution_mode_from_options(options),
@@ -898,18 +875,18 @@ fn for_block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse an `if` or `elif` fenced div into an [`IfBlockClause`]
-fn if_elif(input: &mut Located<&str>) -> PResult<(bool, IfBlockClause)> {
+fn if_elif(input: &mut Located<&str>) -> ModalResult<(bool, IfBlockClause)> {
     alt((
         // Stencila Markdown
         (
             delimited(
                 (take_while(3.., ':'), space0),
                 alt(("if", "elif")),
-                multispace1,
+                multispace0,
             ),
             alt((
                 delimited('`', take_until(0.., '`'), '`'),
-                take_while(1.., |c| c != '{'),
+                take_while(0.., |c| c != '{'),
             )),
             opt(preceded(multispace0, attrs)),
         ),
@@ -920,7 +897,7 @@ fn if_elif(input: &mut Located<&str>) -> PResult<(bool, IfBlockClause)> {
                 alt(("if", "elif")),
                 ('}', multispace0),
             ),
-            take_while(1.., |_| true),
+            take_while(0.., |_| true),
             "".value(None),
         ),
     ))
@@ -941,7 +918,7 @@ fn if_elif(input: &mut Located<&str>) -> PResult<(bool, IfBlockClause)> {
 }
 
 /// Start an [`InstructionBlock`]
-fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
+fn instruction_block(input: &mut Located<&str>) -> ModalResult<Block> {
     (
         instruction_type,
         opt(preceded(multispace1, execution_mode)),
@@ -1021,7 +998,7 @@ fn instruction_block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`SuggestionBlock`] node
-fn suggestion_block(input: &mut Located<&str>) -> PResult<Block> {
+fn suggestion_block(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         ("suggest", multispace0),
         (
@@ -1066,70 +1043,8 @@ fn suggestion_block(input: &mut Located<&str>) -> PResult<Block> {
     .parse_next(input)
 }
 
-/// Parse a [`InsertBlock`] node
-fn insert_block(input: &mut Located<&str>) -> PResult<Block> {
-    preceded(
-        (alt(("insert", "ins")), multispace0),
-        opt(take_while(1.., |_| true)),
-    )
-    .map(|feedback| {
-        Block::InsertBlock(InsertBlock {
-            feedback: feedback.map(String::from),
-            ..Default::default()
-        })
-    })
-    .parse_next(input)
-}
-
-/// Parse a [`DeleteBlock`] node
-fn delete_block(input: &mut Located<&str>) -> PResult<Block> {
-    preceded(
-        (alt(("delete", "del")), multispace0),
-        opt(take_while(1.., |_| true)),
-    )
-    .map(|feedback| {
-        Block::DeleteBlock(DeleteBlock {
-            feedback: feedback.map(String::from),
-            ..Default::default()
-        })
-    })
-    .parse_next(input)
-}
-
-/// Parse a [`ReplaceBlock`] node
-fn replace_block(input: &mut Located<&str>) -> PResult<Block> {
-    delimited(
-        (alt(("replace", "rep")), multispace0),
-        opt(take_while(1.., |_| true)),
-        opt(delimited(multispace0, "::: with", multispace0)),
-    )
-    .map(|feedback| {
-        Block::ReplaceBlock(ReplaceBlock {
-            feedback: feedback.map(String::from),
-            ..Default::default()
-        })
-    })
-    .parse_next(input)
-}
-
-/// Parse a [`ModifyBlock`] node
-fn modify_block(input: &mut Located<&str>) -> PResult<Block> {
-    delimited(
-        (alt(("modify", "mod")), multispace0),
-        opt(take_while(1.., |_| true)),
-        opt(delimited(multispace0, "::: with", multispace0)),
-    )
-    .map(|feedback| {
-        Block::ModifyBlock(ModifyBlock {
-            feedback: feedback.map(String::from),
-            ..Default::default()
-        })
-    })
-    .parse_next(input)
-}
-
 /// Parse a [`Section`] node
-fn section(input: &mut Located<&str>) -> PResult<Block> {
+fn section(input: &mut Located<&str>) -> ModalResult<Block> {
     alphanumeric1
         .map(|section_type: &str| {
             Block::Section(Section {
@@ -1141,7 +1056,7 @@ fn section(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`StyledBlock`] node
-fn styled_block(input: &mut Located<&str>) -> PResult<Block> {
+fn styled_block(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         (alt((Caseless("styled"), Caseless("style"))), multispace0),
         take_while(0.., |_| true),
@@ -1156,7 +1071,7 @@ fn styled_block(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a [`Table`] with a label and/or caption
-fn table(input: &mut Located<&str>) -> PResult<Block> {
+fn table(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         (Caseless("table"), multispace0),
         opt(take_while(1.., |_| true)),
@@ -1172,12 +1087,11 @@ fn table(input: &mut Located<&str>) -> PResult<Block> {
 }
 
 /// Parse a divider between sections of content
-fn divider(input: &mut &str) -> PResult<Divider> {
+fn divider(input: &mut &str) -> ModalResult<Divider> {
     delimited(
         (take_while(3.., ':'), space0),
         alt((
             alt(("else", "{else}")).map(|_| Divider::Else),
-            "with".map(|_| Divider::With),
             "".map(|_| Divider::End),
         )),
         (space0, eof),
@@ -1187,7 +1101,6 @@ fn divider(input: &mut &str) -> PResult<Divider> {
 
 #[derive(Debug, PartialEq)]
 enum Divider {
-    With,
     Else,
     End,
 }
@@ -1195,8 +1108,6 @@ enum Divider {
 /// Finalize a block by assigning children etc
 fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context) {
     if let Block::SuggestionBlock(SuggestionBlock { content, .. })
-    | Block::DeleteBlock(DeleteBlock { content, .. })
-    | Block::InsertBlock(InsertBlock { content, .. })
     | Block::ChatMessage(ChatMessage { content, .. })
     | Block::Claim(Claim { content, .. })
     | Block::Section(Section { content, .. })
@@ -1326,9 +1237,6 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
         } else {
             *content = (!children.is_empty()).then_some(children);
         }
-    } else if let Block::ReplaceBlock(replace_block) = parent {
-        // At the end of replace block `::with` so set replacement
-        replace_block.replacement = children;
     } else if let Block::Table(table) = parent {
         if children
             .iter()
@@ -1844,7 +1752,7 @@ fn mds_to_quote_block_or_admonition(mds: Vec<mdast::Node>, context: &mut Context
         .unwrap_or_default();
 
     #[allow(clippy::type_complexity)]
-    let parsed: IResult<&str, (&str, Option<&str>, Option<&str>, Option<char>)> = (
+    let parsed: ModalResult<(&str, (&str, Option<&str>, Option<&str>, Option<char>))> = (
         delimited("[!", take_until(1.., "]"), "]"),
         opt(preceded(space0, alt(("+", "-")))),
         opt(preceded(space0, take_while(1.., |c| c != '\n'))),
@@ -1987,7 +1895,36 @@ mod tests {
     }
 
     #[test]
+    fn test_incomplete_block() {
+        // Incomplete (e.g. partially written in editor)
+        assert_eq!(
+            include_block(&mut Located::new("include")).unwrap(),
+            Block::IncludeBlock(IncludeBlock {
+                source: "".to_string(),
+                ..Default::default()
+            })
+        );
+    }
+
+    #[test]
     fn test_call_block() {
+        // Incomplete (e.g. partially written in editor)
+        assert_eq!(
+            call_block(&mut Located::new("call")).unwrap(),
+            Block::CallBlock(CallBlock {
+                source: "".to_string(),
+                ..Default::default()
+            })
+        );
+        assert_eq!(
+            call_block(&mut Located::new("call file.md")).unwrap(),
+            Block::CallBlock(CallBlock {
+                source: "file.md".to_string(),
+                ..Default::default()
+            })
+        );
+
+        // No args
         assert_eq!(
             call_block(&mut Located::new("call file.md ()")).unwrap(),
             Block::CallBlock(CallBlock {
@@ -1995,6 +1932,8 @@ mod tests {
                 ..Default::default()
             })
         );
+
+        // With args
         assert_eq!(
             call_block(&mut Located::new("call file.md (a=1)")).unwrap(),
             Block::CallBlock(CallBlock {
@@ -2099,6 +2038,32 @@ mod tests {
 
     #[test]
     fn test_for_block() {
+        // Incomplete (e.g. partially written in editor)
+        assert_eq!(
+            for_block(&mut Located::new("for")).unwrap(),
+            Block::ForBlock(ForBlock {
+                variable: "".to_string(),
+                code: "".into(),
+                ..Default::default()
+            })
+        );
+        assert_eq!(
+            for_block(&mut Located::new("for item")).unwrap(),
+            Block::ForBlock(ForBlock {
+                variable: "item".to_string(),
+                code: "".into(),
+                ..Default::default()
+            })
+        );
+        assert_eq!(
+            for_block(&mut Located::new("for item in")).unwrap(),
+            Block::ForBlock(ForBlock {
+                variable: "item".to_string(),
+                code: "".into(),
+                ..Default::default()
+            })
+        );
+
         // Simple
         assert_eq!(
             for_block(&mut Located::new("for item in expr")).unwrap(),
@@ -2169,6 +2134,18 @@ mod tests {
 
     #[test]
     fn test_if_elif() {
+        // Incomplete (e.g. partially written in editor)
+        assert_eq!(
+            if_elif(&mut Located::new("::: if")).unwrap(),
+            (
+                true,
+                IfBlockClause {
+                    code: "".into(),
+                    ..Default::default()
+                }
+            )
+        );
+
         // Simple
         assert_eq!(
             if_elif(&mut Located::new("::: if expr")).unwrap(),
@@ -2262,9 +2239,6 @@ mod tests {
 
     #[test]
     fn test_divider() {
-        assert_eq!(divider(&mut "::: with").unwrap(), Divider::With);
-        assert_eq!(divider(&mut "::::: with  ").unwrap(), Divider::With);
-
         assert_eq!(divider(&mut "::: else").unwrap(), Divider::Else);
         assert_eq!(divider(&mut "::::: else  ").unwrap(), Divider::Else);
 

@@ -13,10 +13,10 @@ use super::timestamp::Timestamp;
 /// Abstract base type for nodes that indicate a suggested change to inline content.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "SuggestionInline")]
+#[display("SuggestionInline")]
 #[patch(authors_on = "self")]
 pub struct SuggestionInline {
     /// The type of this item.

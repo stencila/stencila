@@ -16,7 +16,7 @@ use common::{
     tokio::sync::RwLock,
     tracing,
 };
-use document::Document;
+use document::{CommandWait, Document};
 
 /// Handle to format a document
 #[tracing::instrument(skip(doc))]
@@ -25,6 +25,16 @@ pub(crate) async fn request(
     format: Format,
     source: Arc<RwLock<String>>,
 ) -> Result<Option<Vec<TextEdit>>, ResponseError> {
+    // Format code within the document
+    // This is only done here, when the user explicitly wants to format the document
+    // and not in `format_doc` which is called when new content is inserted
+    // for example from an LLM
+    doc.read()
+        .await
+        .lint(true, false, CommandWait::Yes)
+        .await
+        .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))?;
+
     format_doc(doc, format, source).await
 }
 

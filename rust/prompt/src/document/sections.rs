@@ -4,7 +4,7 @@ use crate::prelude::*;
 type Section = String;
 
 /// The sections in a document
-#[derive(Default, Clone, Trace)]
+#[derive(Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct Sections {
     items: Vec<Section>,

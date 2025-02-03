@@ -10,6 +10,9 @@
   "category": "flow",
   "description": "Call another document, optionally with arguments, and include its executed content.",
   "status": "under-development",
+  "latex": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },
@@ -62,7 +65,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "$ref": "ExecutionMode.schema.json"
@@ -83,7 +87,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "$ref": "ExecutionBounds.schema.json"
@@ -329,7 +334,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex"
         ]
       },
       "proptest": {

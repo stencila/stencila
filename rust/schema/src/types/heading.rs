@@ -15,7 +15,7 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "Heading")]
+#[display("Heading")]
 #[patch(authors_on = "self")]
 #[html(special)]
 #[jats(elem = "title", special)]
@@ -32,7 +32,7 @@ pub struct Heading {
 
     /// The level of the heading.
     #[default = 0]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "lexical", format = "koenig")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "lexical", format = "koenig")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"1"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"1..=6i64"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"0..=6i64"#))]

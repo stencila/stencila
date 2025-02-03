@@ -15,13 +15,15 @@ codec-html-trait = { path = "../codec-html-trait" }
 codec-info = { path = "../codec-info" }
 codec-jats-trait = { path = "../codec-jats-trait" }
 codec-json5-trait = { path = "../codec-json5-trait" }
+codec-latex-trait = { path = "../codec-latex-trait" }
 codec-markdown-trait = { path = "../codec-markdown-trait" }
 codec-text-trait = { path = "../codec-text-trait" }
 common = { path = "../common" }
+derive_more = { workspace = true }
 format = { path = "../format" }
 human_name = "2.0.3"
 images = { path = "../images" }
-interim = { version = "0.1.2", features = ["chrono"] }
+interim = { version = "0.2.0", features = ["chrono_0_4"] }
 monostate = { workspace = true }
 node-id = { path = "../node-id" }
 node-patch-derive = { path = "../node-patch-derive" }

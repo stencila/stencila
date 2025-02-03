@@ -6,7 +6,7 @@ import { CreativeWork } from "./CreativeWork.js";
 import { IntegerOrString } from "./IntegerOrString.js";
 import { List } from "./List.js";
 import { Node } from "./Node.js";
-import { Object } from "./Object.js";
+import { type Object } from "./Object.js";
 
 /**
  * An article, including news and scholarly articles.
@@ -29,6 +29,11 @@ export class Article extends CreativeWork {
    * Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".
    */
   pagination?: string;
+
+  /**
+   * Frontmatter containing document metadata.
+   */
+  frontmatter?: string;
 
   /**
    * Configuration options for the document.

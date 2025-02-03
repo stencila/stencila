@@ -18,16 +18,21 @@ panic = "abort"
 [workspace.dependencies]
 base64 = "0.22.0"
 cached = { version = "0.54.0", features = ["async"] }
+derive_more = { version = "1.0.0", features = ["display", "deref", "deref_mut", "into_iterator"] }
+directories = "6.0.0"
 flate2 = "1.0.35"
 fs4 = { version = "0.12.0", features = ["tokio"] }
-is-terminal = "0.4.12"
 mime = "0.3.17"
 mime_guess = "2.0.5"
 monostate = "0.1.12"
-quick-xml = "0.37.0"
+quick-xml = "0.37.2"
+rand = "0.9.0"
 serde = { version = "1.0.217", features = ["derive", "rc"] }
-semver = { version = "1.0.24", features = ["serde"] }
+semver = { version = "1.0.25", features = ["serde"] }
 smart-default = "0.7.1"
+test-log = { version = "0.2.17", default-features = false, features = ["trace"] }
+which = "7.0.1"
+zip = "2.2.2"
 
 [workspace.lints.rust]
 unsafe_code = "deny"

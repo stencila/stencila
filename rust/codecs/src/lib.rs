@@ -103,7 +103,7 @@ pub fn to_path_is_supported(path: &Path) -> bool {
 }
 
 /// Decode a Stencila Schema node from a string
-#[tracing::instrument]
+#[tracing::instrument(skip(str))]
 pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node> {
     let (node, DecodeInfo { losses, .. }) = from_str_with_info(str, options.clone()).await?;
     if !losses.is_empty() {
@@ -122,7 +122,7 @@ pub async fn from_str(str: &str, options: Option<DecodeOptions>) -> Result<Node>
 }
 
 /// Decode a Stencila Schema node from a string with decoding losses
-#[tracing::instrument]
+#[tracing::instrument(skip(str))]
 pub async fn from_str_with_info(
     str: &str,
     options: Option<DecodeOptions>,
@@ -356,8 +356,12 @@ pub async fn convert(
 
     match output {
         Some(output) => {
-            to_path(&node, output, encode_options).await?;
-            Ok(String::new())
+            if output == PathBuf::from("-") {
+                to_string(&node, encode_options).await
+            } else {
+                to_path(&node, output, encode_options).await?;
+                Ok(String::new())
+            }
         }
         None => to_string(&node, encode_options).await,
     }

@@ -7,6 +7,7 @@ mod compile;
 mod convert;
 pub mod errors;
 mod execute;
+mod lint;
 pub mod logging;
 mod new;
 mod options;

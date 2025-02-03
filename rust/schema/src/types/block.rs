@@ -11,7 +11,6 @@ use super::chat_message_group::ChatMessageGroup;
 use super::claim::Claim;
 use super::code_block::CodeBlock;
 use super::code_chunk::CodeChunk;
-use super::delete_block::DeleteBlock;
 use super::figure::Figure;
 use super::file::File;
 use super::for_block::ForBlock;
@@ -20,16 +19,13 @@ use super::heading::Heading;
 use super::if_block::IfBlock;
 use super::image_object::ImageObject;
 use super::include_block::IncludeBlock;
-use super::insert_block::InsertBlock;
 use super::instruction_block::InstructionBlock;
 use super::list::List;
 use super::math_block::MathBlock;
-use super::modify_block::ModifyBlock;
 use super::paragraph::Paragraph;
 use super::prompt_block::PromptBlock;
 use super::quote_block::QuoteBlock;
 use super::raw_block::RawBlock;
-use super::replace_block::ReplaceBlock;
 use super::section::Section;
 use super::styled_block::StyledBlock;
 use super::suggestion_block::SuggestionBlock;
@@ -39,7 +35,7 @@ use super::video_object::VideoObject;
 use super::walkthrough::Walkthrough;
 
 /// Union type in block content node types.
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(untagged, crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 pub enum Block {
@@ -82,12 +78,6 @@ pub enum Block {
     CodeChunk(CodeChunk),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
-    #[cfg_attr(feature = "proptest-low", proptest(skip))]
-    #[cfg_attr(feature = "proptest-high", proptest(skip))]
-    #[cfg_attr(feature = "proptest-max", proptest(skip))]
-    DeleteBlock(DeleteBlock),
-
-    #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Figure(Figure),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
@@ -123,23 +113,11 @@ pub enum Block {
     #[cfg_attr(feature = "proptest-low", proptest(skip))]
     #[cfg_attr(feature = "proptest-high", proptest(skip))]
     #[cfg_attr(feature = "proptest-max", proptest(skip))]
-    InsertBlock(InsertBlock),
-
-    #[cfg_attr(feature = "proptest-min", proptest(skip))]
-    #[cfg_attr(feature = "proptest-low", proptest(skip))]
-    #[cfg_attr(feature = "proptest-high", proptest(skip))]
-    #[cfg_attr(feature = "proptest-max", proptest(skip))]
     InstructionBlock(InstructionBlock),
 
     List(List),
 
     MathBlock(MathBlock),
-
-    #[cfg_attr(feature = "proptest-min", proptest(skip))]
-    #[cfg_attr(feature = "proptest-low", proptest(skip))]
-    #[cfg_attr(feature = "proptest-high", proptest(skip))]
-    #[cfg_attr(feature = "proptest-max", proptest(skip))]
-    ModifyBlock(ModifyBlock),
 
     #[default]
     Paragraph(Paragraph),
@@ -153,12 +131,6 @@ pub enum Block {
     QuoteBlock(QuoteBlock),
 
     RawBlock(RawBlock),
-
-    #[cfg_attr(feature = "proptest-min", proptest(skip))]
-    #[cfg_attr(feature = "proptest-low", proptest(skip))]
-    #[cfg_attr(feature = "proptest-high", proptest(skip))]
-    #[cfg_attr(feature = "proptest-max", proptest(skip))]
-    ReplaceBlock(ReplaceBlock),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Section(Section),

@@ -1,10 +1,12 @@
 use codec::{
+    common::{serde_json::from_value, tracing},
     format::Format,
     schema::{
         shortcuts::{art, p, t},
         transforms::blocks_to_inlines,
-        AudioObject, Block, CodeBlock, File, Heading, ImageObject, Inline, List, ListItem, ListOrder, 
-        Paragraph, QuoteBlock, RawBlock, Table, Text, ThematicBreak, VideoObject,
+        AudioObject, Block, CodeBlock, File, Heading, ImageObject, Inline, List, ListItem,
+        ListOrder, MathBlock, Paragraph, QuoteBlock, RawBlock, Table, Text, ThematicBreak,
+        VideoObject,
     },
 };
 use codec_text::to_text;
@@ -56,6 +58,7 @@ fn block_from_lexical(block: lexical::BlockNode, context: &mut LexicalDecodeCont
         lexical::BlockNode::Paragraph(paragraph) => paragraph_from_lexical(paragraph, context),
 
         lexical::BlockNode::List(list) => list_from_lexical(list, context),
+        lexical::BlockNode::LineBreak(..) => loss!("LineBreak"),
 
         lexical::BlockNode::Quote(lexical::QuoteNode { children, .. })
         | lexical::BlockNode::ExtendedQuote(lexical::ExtendedQuoteNode { children, .. })
@@ -93,6 +96,7 @@ fn block_to_lexical(block: &Block, context: &mut LexicalEncodeContext) -> lexica
         List(list) => list_to_lexical(list, context),
         QuoteBlock(quote) => quote_to_lexical(quote, context),
         CodeBlock(code_block) => code_block_to_lexical(code_block, context),
+        MathBlock(math_block) => math_block_to_lexical(math_block),
         Table(table) => table_to_lexical(table, context),
         ImageObject(image) => image_to_lexical(image, context),
         AudioObject(audio) => audio_to_lexical(audio),
@@ -171,6 +175,13 @@ fn paragraph_to_lexical(
     paragraph: &Paragraph,
     context: &mut LexicalEncodeContext,
 ) -> lexical::BlockNode {
+    // If the paragraph only has an image, then create a Lexical image, rather than a paragraph
+    if let (1, Some(Inline::ImageObject(image))) =
+        (paragraph.content.len(), paragraph.content.first())
+    {
+        return image_to_lexical(image, context);
+    }
+
     let children = inlines_to_lexical(&paragraph.content, context);
 
     lexical::BlockNode::Paragraph(lexical::ParagraphNode {
@@ -195,10 +206,70 @@ fn list_from_lexical(list: lexical::ListNode, context: &mut LexicalDecodeContext
     let items = list
         .children
         .into_iter()
-        .map(|child| ListItem::new(vec![p(inlines_from_lexical(child.children, context))]))
+        .map(|child| {
+            ListItem {
+                content: child
+                    .children
+                    .into_iter()
+                    .fold(Vec::new(), |mut blocks, block| {
+                        // split on linebreaks
+                        match block {
+                            lexical::BlockNode::LineBreak(..) => {
+                                blocks.push(Vec::new());
+                            }
+                            _ => {
+                                if blocks.is_empty() {
+                                    blocks.push(Vec::new());
+                                }
+                                match blocks.last_mut() {
+                                    Some(vec) => vec.push(block),
+                                    None => blocks.push(Vec::new()),
+                                };
+                            }
+                        }
+                        blocks
+                    })
+                    .into_iter()
+                    .flat_map(|blocks| {
+                        blocks
+                            .into_iter()
+                            .flat_map(|block| {
+                                if let lexical::BlockNode::Unknown(value) = block {
+                                    let inlines = if let Ok(text_node) =
+                                        from_value::<lexical::TextNode>(value.clone())
+                                    {
+                                        vec![lexical::InlineNode::Text(text_node)]
+                                    } else if let Ok(extended_text) =
+                                        from_value::<lexical::ExtendedTextNode>(value.clone())
+                                    {
+                                        vec![lexical::InlineNode::ExtendedText(extended_text)]
+                                    } else if let Ok(link) =
+                                        from_value::<lexical::LinkNode>(value.clone())
+                                    {
+                                        vec![lexical::InlineNode::Link(link)]
+                                    } else if let Ok(hashtag) =
+                                        from_value::<lexical::HashTagNode>(value.clone())
+                                    {
+                                        vec![lexical::InlineNode::HashTag(hashtag)]
+                                    } else {
+                                        vec![lexical::InlineNode::Unknown(value)]
+                                    };
+
+                                    vec![p(inlines_from_lexical(inlines, context))]
+                                } else {
+                                    blocks_from_lexical(vec![block], context)
+                                }
+                            })
+                            .collect::<Vec<Block>>()
+                    })
+                    // wrap each split in a paragraph
+                    .collect(),
+                ..Default::default()
+            }
+        })
         .collect();
 
-    let order = match list.list_type{
+    let order = match list.list_type {
         lexical::ListType::Number => ListOrder::Ascending,
         lexical::ListType::Bullet => ListOrder::Unordered,
     };
@@ -211,29 +282,60 @@ fn list_from_lexical(list: lexical::ListNode, context: &mut LexicalDecodeContext
 }
 
 fn list_to_lexical(list: &List, context: &mut LexicalEncodeContext) -> lexical::BlockNode {
-    let children = list
+    if list
         .items
         .iter()
-        .map(|item| list_item_to_lexical(item, context))
-        .collect();
+        .flat_map(|item| &item.content)
+        .any(|block| matches!(block, Block::List(List { .. })))
+    {
+        let markdown = match codec_markdown::encode(&art([Block::List(list.clone())]), None) {
+            Ok((md, ..)) => md,
+            Err(error) => {
+                // If encoding fails (should very, rarely if at all)
+                // record loss and return empty string
+                context.losses.add(format!("Markdown: {error}"));
+                String::new()
+            }
+        };
 
-    let list_type = match list.order{
-        ListOrder::Ascending | ListOrder::Descending => lexical::ListType::Number,
-        ListOrder::Unordered => lexical::ListType::Bullet,
-    };
+        lexical::BlockNode::Markdown(lexical::MarkdownNode {
+            markdown,
+            ..Default::default()
+        })
+    } else {
+        let children = list
+            .items
+            .iter()
+            .map(|item| list_item_to_lexical(item, context))
+            .collect();
 
-    lexical::BlockNode::List(lexical::ListNode {
-        list_type,
-        children,
-        ..Default::default()
-    })
+        let list_type = match list.order {
+            ListOrder::Ascending | ListOrder::Descending => lexical::ListType::Number,
+            ListOrder::Unordered => lexical::ListType::Bullet,
+        };
+
+        lexical::BlockNode::List(lexical::ListNode {
+            list_type,
+            children,
+            ..Default::default()
+        })
+    }
 }
 
 fn list_item_to_lexical(
     list_item: &ListItem,
     context: &mut LexicalEncodeContext,
 ) -> lexical::ListItemNode {
-    let children = inlines_to_lexical(&blocks_to_inlines(list_item.content.clone()), context);
+    let mut children = Vec::new();
+
+    for (i, block) in list_item.content.clone().into_iter().enumerate() {
+        if i != 0 {
+            children.push(lexical::BlockNode::LineBreak(lexical::LineBreakNode {
+                ..Default::default()
+            }));
+        }
+        children.push(block_to_lexical(&block, context));
+    }
 
     lexical::ListItemNode {
         children,
@@ -329,6 +431,40 @@ fn code_block_to_lexical(
     lexical::BlockNode::CodeBlock(lexical::CodeBlockNode {
         code: code_block.code.to_string(),
         language: code_block.programming_language.clone(),
+        ..Default::default()
+    })
+}
+
+fn math_block_to_lexical(math: &MathBlock) -> lexical::BlockNode {
+    // If the math is LaTeX then represent as Markdown paragraph so the
+    // user can edit it and KaTeX (if the theme has it) can render it.
+    // Otherwise, if there is MathML (e.g. compiled from AsciiMath) then
+    // represent as a HTML block so it can at least be rendered.
+
+    if let Some(lang) = &math.math_language {
+        let lang = lang.to_lowercase();
+        if !(lang == "tex" || lang == "latex") {
+            if math.options.mathml.is_some() {
+                // We could just put the MathML in the HTML block but
+                // by encoding using DOM HTML we get that plus the original
+                // language and source code which allows us to convert back
+                // in the future.
+                let html = codec_dom::encode(math);
+                return lexical::BlockNode::Html(lexical::HtmlNode {
+                    html,
+                    ..Default::default()
+                });
+            }
+
+            tracing::warn!("Math written in `{lang}` may not render correctly")
+        }
+    }
+
+    lexical::BlockNode::Paragraph(lexical::ParagraphNode {
+        children: vec![lexical::InlineNode::Text(lexical::TextNode {
+            text: ["$$ ", &math.code, " $$"].concat(),
+            ..Default::default()
+        })],
         ..Default::default()
     })
 }

@@ -35,11 +35,26 @@ export class ForBlock extends CodeExecutable {
   }
 
   override render() {
-    const { colour, borderColour } = nodeUi('ForBlock')
-
     if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return html`<slot name="iterations"></slot>`
     }
+
+    // render with the `insert` chip in model chat response
+    if (this.isWithinModelChatMessage()) {
+      return html`
+        <div class="group relative">
+          ${this.renderInsertChip()} ${this.renderCard()}
+        </div>
+      `
+    }
+
+    return this.renderCard()
+  }
+
+  private renderCard() {
+    const { colour, borderColour } = nodeUi('ForBlock')
+
+    const readOnly = ['Running', 'Pending'].includes(this.executionStatus)
 
     return html`
       <stencila-ui-block-on-demand
@@ -50,17 +65,12 @@ export class ForBlock extends CodeExecutable {
         ?noVisibleContent=${!this.hasIterations}
       >
         <div slot="header-right">
-          <stencila-ui-node-chat-commands
-            type="ForBlock"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-chat-commands>
-
           <stencila-ui-node-execution-commands
             type="ForBlock"
             node-id=${this.id}
             depth=${this.depth}
+            status=${this.executionStatus}
+            required=${this.executionRequired}
           >
           </stencila-ui-node-execution-commands>
         </div>
@@ -100,10 +110,13 @@ export class ForBlock extends CodeExecutable {
 
             <stencila-ui-node-code
               type="ForBlock"
+              node-id=${this.id}
+              node-property="variable"
               code=${this.variable}
               language=${this.programmingLanguage}
               execution-required=${this.executionRequired}
-              read-only
+              ?read-only=${readOnly}
+              single-line
               no-gutters
               container-classes="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
               class="flex-grow flex items-center max-w-[30%]"
@@ -114,9 +127,12 @@ export class ForBlock extends CodeExecutable {
 
             <stencila-ui-node-code
               type="ForBlock"
+              node-id=${this.id}
+              node-property="code"
               code=${this.code}
               language=${this.programmingLanguage}
-              read-only
+              ?read-only=${readOnly}
+              single-line
               no-gutters
               container-classes="inline-block w-full border border-[${borderColour}] rounded overflow-hidden"
               class="flex-grow flex items-center max-w-[60%]"

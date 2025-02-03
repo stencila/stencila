@@ -44,6 +44,8 @@ export class CodeExpression extends CodeExecutable {
           node-id=${this.id}
           type="CodeExpression"
           depth=${this.depth}
+          status=${this.executionStatus}
+          required=${this.executionRequired}
         >
         </stencila-ui-node-execution-commands>
       </span>
@@ -73,6 +75,7 @@ export class CodeExpression extends CodeExecutable {
         <stencila-ui-node-code
           type="CodeExpression"
           code=${this.code}
+          node-id=${this.id}
           .code-authorship=${this.codeAuthorship}
           language=${this.programmingLanguage}
           execution-required=${this.executionRequired}

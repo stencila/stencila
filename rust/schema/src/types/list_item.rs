@@ -17,7 +17,7 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
-#[display(fmt = "ListItem")]
+#[display("ListItem")]
 #[html(elem = "li")]
 #[jats(elem = "list-item")]
 pub struct ListItem {
@@ -50,10 +50,12 @@ pub struct ListItem {
     #[serde(alias = "is-checked", alias = "is_checked")]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[jats(attr = "is-checked")]
     pub is_checked: Option<Boolean>,
 
     /// The position of the item in a series or sequence of items.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[jats(attr = "position")]
     pub position: Option<Integer>,
 
     /// Non-core optional fields

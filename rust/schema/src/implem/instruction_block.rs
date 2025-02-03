@@ -268,7 +268,10 @@ impl PatchNode for InstructionBlock {
                             .op_additional(path, PatchOp::Insert(blocks));
                     }
                 }
-                InstructionType::Edit | InstructionType::Fix | InstructionType::Describe => {
+                InstructionType::Edit
+                | InstructionType::Fix
+                | InstructionType::Describe
+                | InstructionType::Discuss => {
                     // Merge the accepted content into the existing content and replace
                     // the instruction with that merged content
                     let merged = if let Some(content) = self.content.as_ref() {
@@ -444,18 +447,6 @@ impl PatchNode for InstructionBlock {
 impl MarkdownCodec for InstructionBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         if context.render || matches!(context.format, Format::Llmd) {
-            // Record any execution messages
-            if let Some(messages) = &self.options.execution_messages {
-                for message in messages {
-                    context.add_message(
-                        self.node_type(),
-                        self.node_id(),
-                        message.level.clone().into(),
-                        message.message.to_string(),
-                    );
-                }
-            }
-
             // Encode content only
             if let Some(content) = &self.content {
                 content.to_markdown(context);

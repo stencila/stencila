@@ -66,11 +66,6 @@ def ci(code: str):
 
 
 @beartype
-def dei(content: ConvertibleToInline) -> T.DeleteInline:
-    return T.DeleteInline(content=convert_to_inlines(content))
-
-
-@beartype
 def em(content: str | T.Text) -> T.Emphasis:
     # Emphasis actually takes a list, but if these are shortcuts...
     if isinstance(content, str):
@@ -81,11 +76,6 @@ def em(content: str | T.Text) -> T.Emphasis:
 @beartype
 def img(url: str) -> T.ImageObject:
     return T.ImageObject(content_url=url)
-
-
-@beartype
-def isi(content: ConvertibleToInline) -> T.InsertInline:
-    return T.InsertInline(content=convert_to_inlines(content))
 
 
 @beartype
@@ -106,16 +96,6 @@ def nte(note_type: T.NoteType, content: ConvertibleToBlocks) -> T.Note:
 @beartype
 def par(name: str) -> T.Parameter:
     return T.Parameter(name=name)
-
-
-@beartype
-def rei(
-    content: ConvertibleToInline, replacement: ConvertibleToInline
-) -> T.ReplaceInline:
-    return T.ReplaceInline(
-        content=convert_to_inlines(content),
-        replacement=convert_to_inlines(replacement),
-    )
 
 
 @beartype
@@ -201,11 +181,6 @@ def cc(code: str, *, lang: str | None = None) -> T.CodeChunk:
 
 
 @beartype
-def deb(content: ConvertibleToBlocks) -> T.DeleteBlock:
-    return T.DeleteBlock(content=convert_to_blocks(content))
-
-
-@beartype
 def fig(content: ConvertibleToBlocks) -> T.Figure:
     return T.Figure(content=convert_to_blocks(content))
 
@@ -270,11 +245,6 @@ def inb(source: str) -> T.IncludeBlock:
 
 
 @beartype
-def isb(content: ConvertibleToBlocks) -> T.InsertBlock:
-    return T.InsertBlock(content=convert_to_blocks(content))
-
-
-@beartype
 def ol(items: list[T.ListItem]) -> T.List:
     return T.List(items=items, order=T.ListOrder.Ascending)
 
@@ -302,16 +272,6 @@ def p(*args: ConvertibleToInline) -> T.Paragraph:
 @beartype
 def qb(content: ConvertibleToBlocks) -> T.QuoteBlock:
     return T.QuoteBlock(content=convert_to_blocks(content))
-
-
-@beartype
-def reb(
-    content: ConvertibleToBlocks, replacement: ConvertibleToBlocks
-) -> T.ReplaceBlock:
-    return T.ReplaceBlock(
-        content=convert_to_blocks(content),
-        replacement=convert_to_blocks(replacement),
-    )
 
 
 @beartype

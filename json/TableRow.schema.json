@@ -15,6 +15,9 @@
   "html": {
     "elem": "tr"
   },
+  "jats": {
+    "special": true
+  },
   "proptest": {},
   "required": [
     "type",

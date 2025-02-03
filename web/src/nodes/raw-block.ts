@@ -1,16 +1,18 @@
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
+import { withTwind } from '../twind'
 import { getTitleIcon } from '../ui/nodes/properties/programming-language'
+
+import { Entity } from './entity'
 
 import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/provenance'
 
-import { Entity } from './entity'
-
 @customElement('stencila-raw-block')
+@withTwind()
 export class RawBlock extends Entity {
   @property()
   format: string
@@ -26,6 +28,18 @@ export class RawBlock extends Entity {
       return html`<slot name="content"></slot>`
     }
 
+    if (this.isWithinModelChatMessage()) {
+      return html`
+        <div class="group relative">
+          ${this.renderInsertChip()} ${this.renderCard()}
+        </div>
+      `
+    }
+
+    return this.renderCard()
+  }
+
+  private renderCard() {
     const { title, icon } = getTitleIcon(this.format) ?? {
       title: this.format,
       icon: 'fileTypeRaw',
@@ -39,15 +53,6 @@ export class RawBlock extends Entity {
         header-icon=${icon}
         header-title="Raw ${title}"
       >
-        <div slot="header-right">
-          <stencila-ui-node-chat-commands
-            type="RawBlock"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-chat-commands>
-        </div>
-
         <div slot="body">
           <stencila-ui-node-authors type="RawBlock">
             <stencila-ui-node-provenance slot="provenance">
@@ -59,9 +64,9 @@ export class RawBlock extends Entity {
           <stencila-ui-node-code
             type="RawBlock"
             code=${this.content}
+            node-id=${this.id}
             .code-authorship=${this.contentAuthorship}
             language=${this.format}
-            read-only
           >
             <slot name="compilation-messages" slot="messages"></slot>
           </stencila-ui-node-code>

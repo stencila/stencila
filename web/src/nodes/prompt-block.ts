@@ -80,6 +80,20 @@ export class PromptBlock extends Executable {
   }
 
   /**
+   * When the user clears the prompt set it to inferred locally an in Rust
+   */
+  private onPromptCleared(event: InputEvent) {
+    event.stopPropagation() // Avoid opening select options
+
+    const select = event.target as HTMLInputElement
+    select.value = ''
+
+    this.target = '?'
+
+    this.dispatchEvent(patchValue('PromptBlock', this.id, 'target', null))
+  }
+
+  /**
    * Shorten a prompt id if possible
    *
    * Equivalent to the Rust `prompts::shorten` function.
@@ -161,27 +175,34 @@ export class PromptBlock extends Executable {
       return html``
     }
 
+    const inChat = this.isWithin('Chat')
+
     const { colour, textColour, borderColour } = this.ui
 
     const headerClasses = apply(
       'flex flex-row items-center gap-x-2',
       'w-full',
-      'px-3 py-1',
       `bg-[${colour}]`,
       `text-[${textColour}] text-xs leading-tight font-sans`,
-      `border-t border-[${borderColour}]`
+      inChat ? '' : `px-3 py-1 border-t border-[${borderColour}]`,
+      'select-none'
     )
 
     // Render as the property of a chat or instruction block
     if (this.isProperty()) {
       return html`
-        <div class=${headerClasses}>
-          Prompt ${this.renderPromptSelect(textColour)}
-          ${this.renderShowHideContent()}
-        </div>
+        <div>
+          <div class=${headerClasses}>
+            <label class=${inChat ? 'hidden' : ''}>Prompt </label>
+            ${this.renderPromptSelect(inChat, borderColour, textColour)}
+            ${this.renderShowHideContent()}
+          </div>
 
-        <div class="bg-white/50 ${this.showContent ? '' : 'hidden'}">
-          ${this.renderContent()}
+          <stencila-ui-collapsible-animation
+            class="${this.showContent ? 'opened' : ''}"
+          >
+            ${this.renderContent()}
+          </stencila-ui-collapsible-animation>
         </div>
       `
     }
@@ -198,6 +219,8 @@ export class PromptBlock extends Executable {
         <stencila-ui-node-execution-commands
           type="PromptBlock"
           node-id=${this.id}
+          status=${this.executionStatus}
+          required=${this.executionRequired}
         >
         </stencila-ui-node-execution-commands>
       </span>
@@ -223,7 +246,7 @@ export class PromptBlock extends Executable {
         </stencila-ui-node-execution-messages>
 
         <div class=${headerClasses}>
-          Prompt ${this.renderPromptSelect(textColour)}
+          ${this.renderPromptSelect(inChat, borderColour, textColour)}
         </div>
       </div>
 
@@ -231,7 +254,11 @@ export class PromptBlock extends Executable {
     </stencila-ui-block-in-flow>`
   }
 
-  private renderPromptSelect(textColour: string) {
+  private renderPromptSelect(
+    inChat: boolean,
+    borderColour: string,
+    textColour: string
+  ) {
     // Filter prompts if necessary
     const prompts = this.instructionType
       ? data.prompts.filter(
@@ -250,7 +277,7 @@ export class PromptBlock extends Executable {
     `
 
     let options
-    if (this.instructionType) {
+    if (!inChat && this.instructionType) {
       // Only show prompts for the instruction type
       options = prompts.map(promptOption)
     } else {
@@ -306,7 +333,41 @@ export class PromptBlock extends Executable {
       }
     }
 
+    const prefix = inChat
+      ? html`<sl-tooltip
+          content="Prompt used for chat"
+          placement="right"
+          slot="prefix"
+          ><stencila-ui-icon
+            class="text-lg text-[${textColour}] mr-2"
+            name="cardText"
+          ></stencila-ui-icon
+        ></sl-tooltip>`
+      : this.target?.endsWith('?')
+        ? html`<sl-tooltip
+            content="Prompt is guessed from message"
+            placement="right"
+            slot="prefix"
+            ><stencila-ui-icon
+              class="text-lg text-[${textColour}] mr-2"
+              name="questionCircle"
+            ></stencila-ui-icon
+          ></sl-tooltip>`
+        : html`<sl-tooltip
+            content="Guess prompt from message"
+            placement="right"
+            slot="prefix"
+            ><stencila-ui-icon-button
+              class="text-lg text-[${textColour}] mr-2"
+              name="dashCircle"
+              @click=${this.onPromptCleared}
+            ></stencila-ui-icon-button
+          ></sl-tooltip>`
+
     const style = css`
+      &::part(combobox) {
+        border-color: ${borderColour};
+      }
       &::part(display-input) {
         font-size: 0.75rem;
         color: ${textColour};
@@ -318,12 +379,11 @@ export class PromptBlock extends Executable {
 
     return html`<sl-select
       class="w-full ${style}"
-      clearable
       size="small"
       value=${target}
-      @sl-change=${(e: InputEvent) => this.onPromptChanged(e)}
+      @sl-change=${this.onPromptChanged}
     >
-      ${options}
+      ${prefix} ${options}
     </sl-select>`
   }
 
@@ -332,6 +392,7 @@ export class PromptBlock extends Executable {
       content=${this.showContent ? 'Hide content' : 'Show content'}
     >
       <stencila-ui-icon-button
+        class="text-base"
         name=${this.showContent ? 'eyeSlash' : 'eye'}
         @click=${(e: Event) => {
           // Stop the click behavior of the card header parent element
@@ -343,11 +404,15 @@ export class PromptBlock extends Executable {
   }
 
   private renderContent() {
-    return html`<div
-      class="max-w-prose mx-auto p-3"
-      style="color: var(--default-text-colour);"
-    >
-      <slot name="content"></slot>
-    </div>`
+    return html`
+      <div class="bg-white/50 w-full max-h-[90vh] rounded overflow-y-auto mt-2">
+        <div
+          class="max-w-[50rem] mx-auto pl-16 pr-5"
+          style="color: var(--default-text-colour);"
+        >
+          <slot name="content"></slot>
+        </div>
+      </div>
+    `
   }
 }

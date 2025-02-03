@@ -26,4 +26,4 @@ npm install
 sed -i "3i## $VERSION $(date '+%Y-%m-%d')\n\n\n" CHANGELOG.md
 
 echo "🏁 Updated version"
-echo "Check update install-cli.sh if needs be, changes to package.json and other files, add details to the CHANGELOG.md and commit"
+echo "Update VERSION in install-cli.sh if needs be, check changes to package.json and other files, add details to the CHANGELOG.md and commit"

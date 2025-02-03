@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 /// An inline math node in the current document
-#[derive(Default, Clone, Trace)]
+#[derive(Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct MathInline {
     /// The language of the inline math
@@ -48,7 +48,7 @@ impl MathInline {
 /// (e.g. CodeChunks), this collection does not have the notion
 /// of the `current` inline math since there are no nested nodes
 /// in a inline math (just strings).
-#[derive(Default, Clone, Trace)]
+#[derive(Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct MathInlines {
     items: Vec<MathInline>,

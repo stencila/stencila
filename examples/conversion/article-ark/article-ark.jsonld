@@ -62,17 +62,6 @@
           }
         },
         {
-          "@type": "stencila:DeleteInline",
-          "stencila:content": [
-            {
-              "@type": "Text",
-              "value": {
-                "string": ", delete"
-              }
-            }
-          ]
-        },
-        {
           "@type": "Text",
           "value": {
             "string": ", "
@@ -103,17 +92,6 @@
               "@type": "Text",
               "value": {
                 "string": "image"
-              }
-            }
-          ]
-        },
-        {
-          "@type": "stencila:InsertInline",
-          "stencila:content": [
-            {
-              "@type": "Text",
-              "value": {
-                "string": ", insert"
               }
             }
           ]
@@ -195,25 +173,6 @@
               "@type": "Text",
               "value": {
                 "string": "inline quote"
-              }
-            }
-          ]
-        },
-        {
-          "@type": "stencila:ReplaceInline",
-          "stencila:content": [
-            {
-              "@type": "Text",
-              "value": {
-                "string": ", old"
-              }
-            }
-          ],
-          "stencila:replacement": [
-            {
-              "@type": "Text",
-              "value": {
-                "string": ", new"
               }
             }
           ]
@@ -384,22 +343,6 @@
       }
     },
     {
-      "@type": "stencila:DeleteBlock",
-      "stencila:content": [
-        {
-          "@type": "stencila:Paragraph",
-          "stencila:content": [
-            {
-              "@type": "Text",
-              "value": {
-                "string": "This paragraph is to be deleted"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
       "@type": "stencila:Figure",
       "stencila:content": [
         {
@@ -476,22 +419,6 @@
       "stencila:source": "this/is/an/include"
     },
     {
-      "@type": "stencila:InsertBlock",
-      "stencila:content": [
-        {
-          "@type": "stencila:Paragraph",
-          "stencila:content": [
-            {
-              "@type": "Text",
-              "value": {
-                "string": "This paragraph is to be inserted"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
       "@type": "ItemList",
       "itemListElement": [
         {
@@ -530,35 +457,6 @@
               "@type": "Text",
               "value": {
                 "string": "This is a quote block"
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "@type": "stencila:ReplaceBlock",
-      "stencila:content": [
-        {
-          "@type": "stencila:Paragraph",
-          "stencila:content": [
-            {
-              "@type": "Text",
-              "value": {
-                "string": "Old paragraph"
-              }
-            }
-          ]
-        }
-      ],
-      "stencila:replacement": [
-        {
-          "@type": "stencila:Paragraph",
-          "stencila:content": [
-            {
-              "@type": "Text",
-              "value": {
-                "string": "New paragraph"
               }
             }
           ]

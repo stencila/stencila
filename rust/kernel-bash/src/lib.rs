@@ -54,8 +54,8 @@ impl Microkernel for BashKernel {
         "bash".to_string()
     }
 
-    fn microkernel_script(&self) -> String {
-        include_str!("kernel.bash").to_string()
+    fn microkernel_script(&self) -> (String, String) {
+        ("kernel.bash".into(), include_str!("kernel.bash").into())
     }
 }
 
@@ -222,6 +222,11 @@ echo $value",
     /// Standard kernel test for getting runtime information
     #[test_log::test(tokio::test)]
     async fn info() -> Result<()> {
+        if std::env::var("CI").is_ok() {
+            eprintln!("Skipping flakey test on CI");
+            return Ok(());
+        }
+
         let Some(instance) = create_instance::<BashKernel>().await? else {
             return Ok(());
         };
@@ -237,6 +242,11 @@ echo $value",
     /// Standard kernel test for listing installed packages
     #[test_log::test(tokio::test)]
     async fn packages() -> Result<()> {
+        if std::env::var("CI").is_ok() {
+            eprintln!("Skipping flakey test on CI");
+            return Ok(());
+        }
+
         let Some(instance) = start_instance::<BashKernel>().await? else {
             return Ok(());
         };

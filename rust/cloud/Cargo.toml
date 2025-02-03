@@ -4,6 +4,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+cached = { workspace = true }
 common = { "path" = "../common" }
 secrets = { "path" = "../secrets" }
 

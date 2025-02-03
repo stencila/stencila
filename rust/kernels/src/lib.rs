@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     env, fmt,
     path::{Path, PathBuf},
     sync::Arc,
@@ -7,6 +8,7 @@ use std::{
 use kernel::{
     common::{
         eyre::{bail, Result},
+        once_cell::sync::Lazy,
         tokio::{
             self,
             sync::{broadcast, mpsc, Mutex, RwLock},
@@ -15,8 +17,8 @@ use kernel::{
     },
     format::Format,
     schema::{ExecutionMessage, Node},
-    Kernel, KernelForks, KernelInstance, KernelVariableRequest, KernelVariableRequester,
-    KernelVariableResponse,
+    Kernel, KernelForks, KernelInstance, KernelLint, KernelLinting, KernelLintingOutput,
+    KernelVariableRequest, KernelVariableRequester, KernelVariableResponse,
 };
 use kernel_asciimath::AsciiMathKernel;
 use kernel_bash::BashKernel;
@@ -33,25 +35,34 @@ use kernel_tex::TexKernel;
 #[cfg(feature = "kernel-rhai")]
 use kernel_rhai::RhaiKernel;
 
-pub use kernel::{KernelAvailability, KernelProvider, KernelSpecification, KernelType};
+pub use kernel::{
+    KernelAvailability, KernelLintingOptions, KernelProvider, KernelSpecification, KernelType,
+};
 
 pub mod cli;
 
 /// Get a list of available kernels
 pub async fn list() -> Vec<Box<dyn Kernel>> {
     let mut kernels = vec![
-        // First so that it gets used for `js` rather than `NodeJsKernel`
-        Box::<QuickJsKernel>::default() as Box<dyn Kernel>,
-        Box::<AsciiMathKernel>::default() as Box<dyn Kernel>,
-        Box::<BashKernel>::default() as Box<dyn Kernel>,
-        Box::<GraphvizKernel>::default() as Box<dyn Kernel>,
-        Box::<JinjaKernel>::default() as Box<dyn Kernel>,
-        Box::<MermaidKernel>::default() as Box<dyn Kernel>,
-        Box::<NodeJsKernel>::default() as Box<dyn Kernel>,
+        // The order here is important it is used in places like
+        // `stencila kernels list`, LSP completion lists, and other user interfaces
+
+        // Programming
         Box::<PythonKernel>::default() as Box<dyn Kernel>,
         Box::<RKernel>::default() as Box<dyn Kernel>,
-        Box::<StyleKernel>::default() as Box<dyn Kernel>,
+        Box::<QuickJsKernel>::default() as Box<dyn Kernel>,
+        Box::<NodeJsKernel>::default() as Box<dyn Kernel>,
+        Box::<BashKernel>::default() as Box<dyn Kernel>,
+        // Diagrams
+        Box::<MermaidKernel>::default() as Box<dyn Kernel>,
+        Box::<GraphvizKernel>::default() as Box<dyn Kernel>,
+        // Templating
+        Box::<JinjaKernel>::default() as Box<dyn Kernel>,
+        // Math
+        Box::<AsciiMathKernel>::default() as Box<dyn Kernel>,
         Box::<TexKernel>::default() as Box<dyn Kernel>,
+        // Styling
+        Box::<StyleKernel>::default() as Box<dyn Kernel>,
     ];
 
     #[cfg(feature = "kernel-rhai")]
@@ -74,6 +85,55 @@ pub async fn get(name: &str) -> Option<Box<dyn Kernel>> {
     }
 
     None
+}
+
+/// Lint some code
+///
+/// # Arguments
+///
+/// - `code`: the code to be linted
+/// - `dir`: the directory of the document the code is in
+/// - `language`: the language of the code
+/// - `options`: linting options
+pub async fn lint(
+    code: &str,
+    dir: &Path,
+    format: &Format,
+    options: KernelLintingOptions,
+) -> Result<KernelLintingOutput> {
+    // Cache linting support for each kernel to avoid relatively expensive
+    // calls to `supports_linting` on each call of this function.
+    static SUPPORT: Lazy<Arc<RwLock<HashMap<String, KernelLinting>>>> = Lazy::new(Arc::default);
+
+    for kernel in list().await {
+        if !kernel.supports_language(format) {
+            continue;
+        }
+
+        let name = kernel.name();
+
+        if let Some(support) = SUPPORT.read().await.get(&name) {
+            if matches!(support, KernelLinting::No) {
+                continue;
+            }
+        }
+
+        let support = kernel.supports_linting();
+        SUPPORT.write().await.insert(name.clone(), support);
+
+        if matches!(support, KernelLinting::No) {
+            continue;
+        }
+
+        match name.as_str() {
+            "nodejs" => return NodeJsKernel.lint(code, dir, options).await,
+            "python" => return PythonKernel.lint(code, dir, options).await,
+            "r" => return RKernel.lint(code, dir, options).await,
+            _ => {}
+        }
+    }
+
+    bail!("No available kernel supports linting of {format}")
 }
 
 /// Get the default kernel (used when no language is specified)

@@ -5,11 +5,11 @@ edition = "2021"
 
 [dependencies]
 kernel = { path = "../kernel" }
-rquickjs = { version = "0.6.2", features = ["futures", "macro", "parallel"] }
+rquickjs = { git = "https://github.com/DelSkayn/rquickjs", rev = "6a606077abd476c3b4a6095988adf4572d9fcfba", features = ["futures", "macro", "parallel"] }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }
-test-log = { version = "0.2.15", default-features = false, features = ["trace"] }
+test-log = { workspace = true }
 
 [lints]
 workspace = true

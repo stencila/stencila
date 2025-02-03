@@ -19,6 +19,7 @@ endif
 setup:
 	cargo install cargo-binstall
 	cargo binstall --no-confirm cargo-audit cargo-insta cargo-llvm-cov cargo-machete cargo-outdated cargo-watch
+	cargo --list
 
 # Make formatting and linting fixes
 fix:
@@ -39,8 +40,8 @@ test-setup:
 
 # Run tests
 test: test-setup	
-	# Run all the test in the workspace
-	cargo test --workspace --no-fail-fast -- --nocapture
+	# Run all the test in the workspace (except `node` which is tested elsewhere)
+	cargo test --workspace --no-fail-fast --exclude node -- --nocapture
 	
 	# Run proptests
 	make proptest-min proptest-low proptest-high proptest-max
@@ -52,7 +53,7 @@ cover: test-setup
 	
 	cargo llvm-cov test --workspace --no-report
 	
-	# SKIP: NO TESTS cargo llvm-cov test --no-report -p codecs --features proptest-min --test proptests
+	cargo llvm-cov test --no-report -p codecs --features proptest-min --test proptests
 	
 	cargo llvm-cov test --no-report -p codecs --features proptest-low --test proptests
 	

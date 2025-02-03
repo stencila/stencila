@@ -824,6 +824,8 @@ mod tests {
     use super::*;
 
     /// Test the `resolve_path` method using the `routing` example
+    /// Skip on windows because of path incompatibility (\ v /)
+    #[cfg(not(target_os = "windows"))]
     #[tokio::test]
     async fn test_resolve_path() -> Result<()> {
         let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))

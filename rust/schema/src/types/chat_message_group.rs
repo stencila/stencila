@@ -8,10 +8,10 @@ use super::string::String;
 /// A group of messages, usually alternative model messages, within a `Chat`.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display(fmt = "ChatMessageGroup")]
+#[display("ChatMessageGroup")]
 #[patch(apply_with = "ChatMessageGroup::apply_patch_op")]
 pub struct ChatMessageGroup {
     /// The type of this item.

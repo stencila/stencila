@@ -171,10 +171,14 @@ impl Executable for IfBlockClause {
         let node_id = self.node_id();
         tracing::trace!("Compiling IfBlockClause {node_id}");
 
-        let info = parsers::parse(
-            &self.code,
-            self.programming_language.as_deref().unwrap_or_default(),
-        );
+        // Get the programming language, falling back to using the executor's current language
+        let lang = executor.programming_language(&self.programming_language);
+
+        // Parse the code to determine if it or the language has changed since last time
+        let info = parsers::parse(&self.code, &lang, &self.options.compilation_digest);
+
+        // Add code to the linting context
+        executor.linting_code(&node_id, &self.code.to_string(), &lang, info.changed.yes());
 
         // Note that, unlike a `ForBlock`, the `content` of the clause does not need to be part of
         // the compilation digest because it does not affect the result of execution (which is

@@ -91,11 +91,14 @@ impl Schemas {
             .schemas
             .iter()
             .filter_map(|(name, schema)| {
-                (schema.r#type.is_none() && schema.any_of.is_none() && !schema.r#abstract)
-                    .then_some(Schema {
-                        r#ref: Some(name.to_string()),
-                        ..Default::default()
-                    })
+                (schema.r#type.is_none()
+                    && schema.any_of.is_none()
+                    && !schema.r#abstract
+                    && !schema.is_config())
+                .then_some(Schema {
+                    r#ref: Some(name.to_string()),
+                    ..Default::default()
+                })
             })
             .collect_vec();
         entities.sort_by(|a, b| a.r#ref.cmp(&b.r#ref));

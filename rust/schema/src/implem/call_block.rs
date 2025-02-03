@@ -2,21 +2,35 @@ use codec_info::{lost_exec_options, lost_options};
 
 use crate::{prelude::*, CallBlock};
 
+impl LatexCodec for CallBlock {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        const ENVIRON: &str = "call";
+
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .add_loss("CallBlock.arguments")
+            .merge_losses(lost_options!(
+                self,
+                id,
+                media_type,
+                select,
+                execution_mode,
+                execution_bounds
+            ))
+            .merge_losses(lost_exec_options!(self))
+            .environ_begin(ENVIRON)
+            .char('{')
+            .property_str(NodeProperty::Source, &self.source)
+            .char('}')
+            .newline()
+            .environ_end(ENVIRON)
+            .exit_node();
+    }
+}
+
 impl MarkdownCodec for CallBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         if context.render || matches!(context.format, Format::Llmd) {
-            // Record any execution messages
-            if let Some(messages) = &self.options.execution_messages {
-                for message in messages {
-                    context.add_message(
-                        self.node_type(),
-                        self.node_id(),
-                        message.level.clone().into(),
-                        message.message.to_string(),
-                    );
-                }
-            }
-
             // Encode content only
             if let Some(content) = &self.content {
                 content.to_markdown(context);

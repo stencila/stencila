@@ -126,6 +126,14 @@ impl JatsCodec for Object {
     }
 }
 
+impl LatexCodec for Object {
+    fn to_latex(&self, context: &mut LatexEncodeContext) {
+        let (text, losses) = self.to_text();
+        context.str(&text);
+        context.merge_losses(losses);
+    }
+}
+
 impl MarkdownCodec for Object {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         let (text, losses) = self.to_text();

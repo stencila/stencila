@@ -8,7 +8,7 @@ use server::{self, ServeOptions};
 use version::STENCILA_VERSION;
 
 use crate::{
-    compile, convert, execute,
+    compile, convert, execute, lint,
     logging::{LoggingFormat, LoggingLevel},
     new, preview, render, sync, uninstall, upgrade,
 };
@@ -21,8 +21,6 @@ pub struct Cli {
     pub command: Command,
 
     /// Display debug level logging and detailed error reports
-    ///
-    /// Equivalent to using `--log-level=debug`, `--log-format=pretty`, and `--error-details=all`
     #[arg(
         long,
         global = true,
@@ -34,11 +32,10 @@ pub struct Cli {
     pub debug: bool,
 
     /// Display trace level logging and detailed error reports
-    ///
-    /// Equivalent to using `--log-level=trace`, `--log-format=pretty`, and `--error-details=all`
     #[arg(
         long,
         global = true,
+        hide = true,
         conflicts_with = "debug",
         conflicts_with = "log_level",
         conflicts_with = "log_format",
@@ -47,7 +44,7 @@ pub struct Cli {
     pub trace: bool,
 
     /// The minimum log level to output
-    #[arg(long, default_value = "info", global = true)]
+    #[arg(long, default_value = "info", global = true, hide = true)]
     pub log_level: LoggingLevel,
 
     /// A filter for log entries
@@ -57,8 +54,9 @@ pub struct Cli {
     /// syntax such as `tokio=debug`.
     #[arg(
         long,
-        default_value = "globset=warn,hyper=info,hyper_util=info,ignore=warn,mio=info,notify=warn,ort=error,reqwest=info,sled=info,tokio=info,tungstenite=info",
-        global = true
+        default_value = "globset=warn,hyper=info,hyper_util=info,ignore=warn,keyring=info,mio=info,notify=warn,ort=error,reqwest=info,sled=info,tokio=info,tungstenite=info",
+        global = true,
+        hide = true
     )]
     pub log_filter: String,
 
@@ -66,17 +64,17 @@ pub struct Cli {
     ///
     /// When `auto`, uses `simple` for terminals and `json`
     /// for non-TTY devices.
-    #[arg(long, default_value = "auto", global = true)]
+    #[arg(long, default_value = "auto", global = true, hide = true)]
     pub log_format: LoggingFormat,
 
     /// The details to include in error reports
     ///
     /// `auto`, `all`, or a comma separated list including `location`, `span`, or `env`.
-    #[arg(long, default_value = "auto", global = true)]
+    #[arg(long, default_value = "auto", global = true, hide = true)]
     pub error_details: String,
 
     /// Output a link to more easily report an issue
-    #[arg(long, global = true)]
+    #[arg(long, global = true, hide = true)]
     pub error_link: bool,
 }
 
@@ -109,6 +107,7 @@ pub enum Command {
     Sync(sync::Cli),
 
     Compile(compile::Cli),
+    Lint(lint::Cli),
     Execute(execute::Cli),
     Render(render::Cli),
 
@@ -165,6 +164,7 @@ impl Cli {
             Command::Sync(sync) => sync.run().await?,
 
             Command::Compile(compile) => compile.run().await?,
+            Command::Lint(lint) => lint.run().await?,
             Command::Execute(execute) => execute.run().await?,
             Command::Render(render) => render.run().await?,
 

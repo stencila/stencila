@@ -1,6 +1,8 @@
 use std::{env, sync::OnceLock};
 
-use common::serde::Deserialize;
+use cached::proc_macro::cached;
+
+use common::{serde::Deserialize, tracing};
 
 /// The base URL for the Stencila Cloud API
 ///
@@ -24,6 +26,12 @@ const API_KEY_NAME: &str = "STENCILA_API_TOKEN";
 static API_KEY: OnceLock<String> = OnceLock::new();
 
 /// Get the API key for the Stencila Cloud API
+///
+/// This function is cached (with short TTL) to avoid repeated attempts to get the
+/// secret if not set. Otherwise this function is called for each model in the
+/// list of models to calculate the `availability` method.
+#[cached(time = 15, name = "API_KEY_GET")]
+#[tracing::instrument]
 pub fn api_key() -> Option<String> {
     API_KEY.get().cloned().or_else(|| {
         secrets::env_or_get(API_KEY_NAME).ok().inspect(|key| {

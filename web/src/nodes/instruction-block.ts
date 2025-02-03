@@ -227,6 +227,19 @@ export class InstructionBlock extends Instruction {
       `
     }
 
+    // render with the `insert` chip in model chat response
+    if (this.isWithinModelChatMessage()) {
+      return html`
+        <div class="group relative">
+          ${this.renderInsertChip()} ${this.renderCard()}
+        </div>
+      `
+    }
+
+    return this.renderCard()
+  }
+
+  private renderCard() {
     const { borderColour } = nodeUi('InstructionBlock')
 
     return html`<stencila-ui-block-on-demand
@@ -241,6 +254,8 @@ export class InstructionBlock extends Instruction {
           type="InstructionBlock"
           node-id=${this.id}
           depth=${this.depth}
+          status=${this.executionStatus}
+          required=${this.executionRequired}
         >
         </stencila-ui-node-execution-commands>
       </span>
