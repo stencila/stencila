@@ -124,6 +124,8 @@ export class UINodeCode extends LitElement {
    */
   private editorView?: EditorView
 
+  // Compartments for toggling on editor functionality
+
   private viewEditable: Compartment
 
   private viewReadOnly: Compartment
@@ -144,12 +146,12 @@ export class UINodeCode extends LitElement {
   /**
    * Runs the current code
    *
-   * dispatches a `path-value-execute` command so the code is up to date upon execution
+   * Dispatches a `path-value-execute` command so the code is up to date upon execution
    */
   private runCode() {
     const value = this.editorView.state.doc.toString()
     this.dispatchEvent(
-      patchValueExecute(this.nodeType, this.nodeId, this.nodeProperty, value)
+      patchValueExecute(this.type, this.nodeId, this.nodeProperty, value)
     )
   }
 
@@ -394,7 +396,6 @@ export class UINodeCode extends LitElement {
         {
           key: 'Ctrl-Enter',
           run: () => {
-            console.log('hi')
             this.runCode()
             return true
           },
