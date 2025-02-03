@@ -184,6 +184,7 @@ export const clipBoardKeyBindings = [
           to: view.state.selection.main.to,
           insert: '',
         },
+        userEvent: 'delete.cut',
       })
       return true // Cut successful
     },
@@ -200,6 +201,7 @@ export const clipBoardKeyBindings = [
           to: view.state.selection.main.from,
           insert: text,
         },
+        userEvent: 'input.paste',
       })
       return true // Paste successful
     },
