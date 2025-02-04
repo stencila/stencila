@@ -14,7 +14,7 @@ use axum::{
     },
     http::{header::CONTENT_TYPE, HeaderName, HeaderValue, StatusCode},
     response::{IntoResponse, Response},
-    routing::{get, post},
+    routing::get,
     Json, Router,
 };
 
@@ -40,7 +40,7 @@ use common::{
     tracing,
     uuid::Uuid,
 };
-use document::{Command, CommandWait, Document, SyncDirection};
+use document::{CommandWait, Document, SyncDirection};
 use format::Format;
 
 use crate::{
@@ -117,6 +117,7 @@ impl Documents {
     }
 
     /// Close a document by [`Uuid`]
+    #[allow(unused)]
     async fn close(&self, uuid: &Uuid) -> Result<()> {
         self.docs.write().await.remove(uuid);
 
@@ -216,12 +217,7 @@ fn resolve_path(path: PathBuf) -> Result<Option<PathBuf>, InternalError> {
 
 /// Create a router for document routes
 pub fn router() -> Router<ServerState> {
-    Router::new()
-        .route("/open/{*path}", get(open_document))
-        .route("/{id}/close", post(close_document))
-        .route("/{id}/command", post(command_document))
-        .route("/{id}/export", get(export_document))
-        .route("/{id}/websocket", get(websocket_for_document))
+    Router::new().route("/{id}/websocket", get(websocket_for_document))
 }
 
 /// Serve the root path
@@ -463,68 +459,6 @@ async fn open_document(
         id: uuid.to_string(),
     })
     .into_response())
-}
-
-/// Handle a request to close a document
-async fn close_document(
-    State(ServerState { docs, .. }): State<ServerState>,
-    Path(uuid): Path<String>,
-) -> Result<Response, InternalError> {
-    let Ok(uuid) = Uuid::parse_str(&uuid) else {
-        return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
-    };
-
-    docs.close(&uuid).await.map_err(InternalError::new)?;
-
-    Ok(StatusCode::OK.into_response())
-}
-
-/// Handle a request to perform a document command
-async fn command_document(
-    State(ServerState { docs, .. }): State<ServerState>,
-    Path(uuid): Path<String>,
-    Json(command): Json<Command>,
-) -> Result<Response, InternalError> {
-    let Ok(doc) = docs.by_uuid_string(&uuid).await else {
-        return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
-    };
-
-    doc.command(command, CommandWait::No)
-        .await
-        .map_err(InternalError::new)?;
-
-    Ok(StatusCode::OK.into_response())
-}
-
-/// Handle a request to export a document
-///
-/// TODO: This should add correct MIME type to response
-/// and handle binary formats.
-async fn export_document(
-    State(ServerState { docs, .. }): State<ServerState>,
-    Path(uuid): Path<String>,
-    Query(query): Query<HashMap<String, String>>,
-) -> Result<Response, InternalError> {
-    let Ok(doc) = docs.by_uuid_string(&uuid).await else {
-        return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
-    };
-
-    let format = query
-        .get("format")
-        .map(|format| Format::from_name(format))
-        .unwrap_or(Format::Json);
-
-    let options = Some(EncodeOptions {
-        format: Some(format.clone()),
-        ..Default::default()
-    });
-
-    let content = doc
-        .dump(format, options)
-        .await
-        .map_err(InternalError::new)?;
-
-    Ok(content.into_response())
 }
 
 /// Handle a WebSocket upgrade request
