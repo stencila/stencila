@@ -28,9 +28,7 @@
         "src/themes/default.css",
         "src/themes/stencila.css",
         "src/views/dynamic.ts",
-        "src/views/live.ts",
-        "src/views/print.ts",
-        "src/views/static.ts"
+        "src/views/print.ts"
       ],
       "distDir": "./dist"
     },
