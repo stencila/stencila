@@ -33,10 +33,7 @@ use common::{
     },
     tracing,
 };
-use document::{
-    Command, CommandNodes, CommandScope, CommandStatus, ContentType, Document, SaveDocumentSidecar,
-    SaveDocumentSource,
-};
+use document::{Command, CommandNodes, CommandScope, CommandStatus, ContentType, Document};
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
@@ -83,7 +80,6 @@ pub(super) const INSERT_INSTRUCTION: &str = "stencila.insert-instruction";
 pub(super) const CREATE_CHAT: &str = "stencila.create-chat";
 pub(super) const DELETE_CHAT: &str = "stencila.delete-chat";
 
-pub(super) const SAVE_DOC: &str = "stencila.save-doc";
 pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
 
 /// Get the list of commands that the language server supports
@@ -117,7 +113,6 @@ pub(super) fn commands() -> Vec<String> {
         INSERT_INSTRUCTION,
         CREATE_CHAT,
         DELETE_CHAT,
-        SAVE_DOC,
         EXPORT_DOC,
     ]
     .into_iter()
@@ -923,20 +918,15 @@ pub(super) async fn execute_command(
 
             return Ok(None);
         }
-        SAVE_DOC => (
-            "Saving document with sidecar".to_string(),
-            Command::SaveDocument((SaveDocumentSource::Yes, SaveDocumentSidecar::Yes)),
-            false,
-            false,
-        ),
         EXPORT_DOC => {
             let path = path_buf_arg(args.next())?;
-            (
-                "Exporting document".to_string(),
-                Command::ExportDocument((path, EncodeOptions::default())),
-                false,
-                false,
-            )
+
+            let doc = doc.read().await;
+            doc.export(&path, Some(EncodeOptions::default()))
+                .await
+                .map_err(internal_error)?;
+
+            return Ok(None);
         }
         command => return Err(invalid_request(format!("Unknown command `{command}`"))),
     };

@@ -7,13 +7,13 @@ use common::{
 use document::Document;
 use schema::NodeType;
 
-/// Create a new document with sidecar file
+/// Create a new, tracked, document
 #[derive(Debug, Parser)]
 pub struct Cli {
     /// The path of the document to create
     path: PathBuf,
 
-    /// Overwrite the document, and any sidecar file, if they already exist
+    /// Overwrite the document, if it already exists
     #[arg(long, short)]
     force: bool,
 

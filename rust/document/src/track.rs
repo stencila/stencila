@@ -5,6 +5,7 @@ use std::{
     time::UNIX_EPOCH,
 };
 
+use schema::Node;
 use url::Url;
 
 use codecs::EncodeOptions;
@@ -16,7 +17,10 @@ use common::{
     serde_json,
     serde_with::skip_serializing_none,
     strum::Display,
-    tokio::fs::{create_dir_all, read_to_string, remove_file, rename, write},
+    tokio::{
+        self,
+        fs::{create_dir_all, read_to_string, remove_file, rename, write},
+    },
     tracing,
 };
 use format::Format;
@@ -227,35 +231,6 @@ fn workspace_relative_path(
     Ok(relative_path)
 }
 
-/// Store a document in a tracking directory
-async fn store_doc(tracking_dir: &Path, doc_path: &Path, id: usize) -> Result<Format> {
-    let format = Format::from_path(doc_path);
-    let stored_path = tracking_dir.join(format!("{id:04}.{}.json", format.extension()));
-
-    let doc = Document::open(doc_path).await?;
-    doc.export(
-        &stored_path,
-        Some(EncodeOptions {
-            compact: Some(false),
-            ..Default::default()
-        }),
-    )
-    .await?;
-
-    Ok(format)
-}
-
-/// Remove a stored document in a tracking directory
-async fn unstore_doc(tracking_dir: &Path, id: usize) -> Result<()> {
-    let stored_path = tracking_dir.join(format!("{id:04}.json"));
-
-    if stored_path.exists() {
-        remove_file(stored_path).await?;
-    }
-
-    Ok(())
-}
-
 /// Create a new document id based on existing entries
 fn new_id(entries: &DocumentTrackingEntries) -> usize {
     entries
@@ -304,6 +279,10 @@ pub struct DocumentTracking {
 }
 
 impl DocumentTracking {
+    pub fn storage_file(&self) -> String {
+        format!("{:04}.{}.json", self.id, self.format.extension())
+    }
+
     pub fn status(
         &self,
         workspace_dir: &Path,
@@ -382,7 +361,7 @@ impl Document {
         if let Some(remote) = remote {
             Document::track_remote(path, remote).await?;
         } else {
-            Document::track_path(path).await?;
+            Document::track_path(path, None).await?;
         }
 
         Ok(())
@@ -394,7 +373,8 @@ impl Document {
         let tracking = self
             .tracking()
             .await?
-            .and_then(|tracking| tracking.remotes)
+            .and_then(|(.., entry)| entry)
+            .and_then(|entry| entry.remotes)
             .and_then(|mut remotes| remotes.remove(&remote))
             .unwrap_or_default();
 
@@ -414,7 +394,8 @@ impl Document {
         let tracking = self
             .tracking()
             .await?
-            .and_then(|tracking| tracking.remotes)
+            .and_then(|(.., entry)| entry)
+            .and_then(|entry| entry.remotes)
             .and_then(|mut remotes| remotes.remove(&remote))
             .unwrap_or_default();
 
@@ -428,6 +409,42 @@ impl Document {
         .await
     }
 
+    /// Store the document in the workspace tracking directory
+    pub async fn store(&self) -> Result<()> {
+        let Some(path) = &self.path else {
+            bail!("Can't store document, it has no path yet; save it first")
+        };
+
+        // Get the storage path for the document, ensuring it is tracked
+        let (.., storage_path) = Document::track_path(path, Some(time_now())).await?;
+
+        let root = self.root.read().await;
+        codec_json::to_path(
+            &root,
+            &storage_path,
+            Some(EncodeOptions {
+                compact: Some(false),
+                ..Default::default()
+            }),
+        )?;
+
+        Ok(())
+    }
+
+    /// Restore a document from the workspace tracking directory
+    pub fn restore(path: &Path) -> Result<Node> {
+        // Get the storage path for the document
+        let result = tokio::task::block_in_place(move || {
+            let rt = tokio::runtime::Handle::current();
+            rt.block_on(async move { Document::tracking_storage(path).await })
+        });
+        let Some(storage_path) = result? else {
+            bail!("No tracking storage path for document {}", path.display())
+        };
+
+        Ok(codec_json::from_path(&storage_path, None)?.0)
+    }
+
     /// Start tracking a document path
     ///
     /// Starts tracking the path by saving the document at the
@@ -437,7 +454,7 @@ impl Document {
     /// If the path is already being tracked (i.e. it has an entry
     /// in the tracking file) returns true, otherwise false.
     #[tracing::instrument]
-    pub async fn track_path(path: &Path) -> Result<bool> {
+    pub async fn track_path(path: &Path, stored_at: Option<u64>) -> Result<(bool, PathBuf)> {
         if !(path.exists() && path.is_file()) {
             bail!("Path does not exist or is not a file: {}", path.display())
         }
@@ -452,31 +469,33 @@ impl Document {
         let relative_path = workspace_relative_path(&tracking_dir, path, true)?;
 
         // Reuse existing id or create a new one
-        let (already_tracked, id) = match entries.get(&relative_path) {
-            Some(entry) => (true, entry.id),
-            None => (false, new_id(&entries)),
-        };
+        if entries.contains_key(&relative_path) {
+            let entry = entries.get_mut(&relative_path).expect("checked above");
+            let storage_path = tracking_dir.join(entry.storage_file());
 
-        // Store the doc
-        let format = store_doc(&tracking_dir, path, id).await?;
-        let stored_at = Some(time_now());
-
-        // Update tracking file
-        entries
-            .entry(relative_path)
-            .and_modify(|entry| {
-                entry.format = format.clone();
+            if stored_at.is_some() {
                 entry.stored_at = stored_at;
-            })
-            .or_insert_with(|| DocumentTracking {
+            }
+            write_tracking(&tracking_dir, &entries).await?;
+
+            return Ok((true, storage_path));
+        } else {
+            let id = new_id(&entries);
+            let format = Format::from_path(path);
+
+            let entry = DocumentTracking {
                 id,
                 format,
                 stored_at,
                 ..Default::default()
-            });
-        write_tracking(&tracking_dir, &entries).await?;
+            };
+            let storage_path = tracking_dir.join(entry.storage_file());
 
-        Ok(already_tracked)
+            entries.insert(relative_path, entry);
+            write_tracking(&tracking_dir, &entries).await?;
+
+            Ok((false, storage_path))
+        }
     }
 
     /// Start tracking a document remote
@@ -526,22 +545,18 @@ impl Document {
             ),
         };
 
-        // Store the doc
-        let format = store_doc(&tracking_dir, path, id).await?;
-        let stored_at = Some(time_now());
+        let format = Format::from_path(path);
 
         // Update tracking file
         entries
             .entry(relative_path)
             .and_modify(|entry| {
                 entry.format = format.clone();
-                entry.stored_at = stored_at;
                 entry.remotes = remotes.clone();
             })
             .or_insert_with(|| DocumentTracking {
                 id,
                 format,
-                stored_at,
                 remotes,
                 ..Default::default()
             });
@@ -580,19 +595,21 @@ impl Document {
         };
         let relative_path = workspace_relative_path(&tracking_dir, path, false)?;
 
-        let mut id = None;
+        let mut storage_file = None;
         entries.retain(|path, entry| {
             if path == &relative_path {
-                id = Some(entry.id);
+                storage_file = Some(entry.storage_file());
                 false
             } else {
                 true
             }
         });
 
-        if let Some(id) = id {
-            // Unstore the doc
-            unstore_doc(&tracking_dir, id).await?;
+        if let Some(storage_file) = storage_file {
+            let stored_path = tracking_dir.join(storage_file);
+            if stored_path.exists() {
+                remove_file(stored_path).await?;
+            }
 
             // Update tracking file
             write_tracking(&tracking_dir, &entries).await?;
@@ -658,7 +675,7 @@ impl Document {
         // This is a simple, unoptimized implementation
         Document::untrack_path(from).await?;
         rename(from, to).await?;
-        Document::track_path(to).await?;
+        Document::track_path(to, None).await?;
 
         Ok(())
     }
@@ -683,8 +700,7 @@ impl Document {
     /// it is new and has not been saved yet).
     ///
     /// See [`Document::tracking_path`].
-    #[tracing::instrument(skip(self))]
-    pub async fn tracking(&self) -> Result<Option<DocumentTracking>> {
+    pub async fn tracking(&self) -> Result<Option<(PathBuf, Option<DocumentTracking>)>> {
         let Some(path) = &self.path else {
             return Ok(None);
         };
@@ -692,15 +708,21 @@ impl Document {
         Document::tracking_path(path).await
     }
 
-    /// Get the tracking information of a file
-    #[tracing::instrument]
-    pub async fn tracking_path(path: &Path) -> Result<Option<DocumentTracking>> {
+    /// Get the tracking information for a document path
+    pub async fn tracking_path(path: &Path) -> Result<Option<(PathBuf, Option<DocumentTracking>)>> {
         let Some((tracking_dir, mut entries)) = read_tracking(path, false).await? else {
             return Ok(None);
         };
         let relative_path = workspace_relative_path(&tracking_dir, path, false)?;
 
-        Ok(entries.remove(&relative_path))
+        Ok(Some((tracking_dir, entries.remove(&relative_path))))
+    }
+
+    /// Get the tracking storage file path for a document path
+    pub async fn tracking_storage(path: &Path) -> Result<Option<PathBuf>> {
+        Ok(Document::tracking_path(path)
+            .await?
+            .and_then(|(dir, entry)| entry.map(|entry| dir.join(entry.storage_file()))))
     }
 
     /// Get the tracking information for all tracked files in the workspace
@@ -719,7 +741,8 @@ impl Document {
         match self
             .tracking()
             .await?
-            .and_then(|tracking| tracking.remotes)
+            .and_then(|(.., entry)| entry)
+            .and_then(|entry| entry.remotes)
             .map(|remotes| remotes.keys().cloned().collect_vec())
         {
             Some(urls) => Ok(urls),

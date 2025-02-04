@@ -49,7 +49,7 @@ impl Init {
         tracking_file(&self.dir, true).await?;
 
         if !self.no_gitignore {
-            write(self.dir.join(".stencila").join(".gitignore"), "track/*\n").await?;
+            write(self.dir.join(".stencila").join(".gitignore"), "*\n").await?;
         }
 
         eprintln!(
@@ -87,7 +87,7 @@ impl Track {
                 self.file.display()
             );
         } else {
-            let already_tracked = Document::track_path(&self.file).await?;
+            let (already_tracked, ..) = Document::track_path(&self.file, None).await?;
             eprintln!(
                 "🟢 {} tracking `{}`",
                 if already_tracked {
@@ -227,7 +227,9 @@ impl Status {
             let statuses = try_join_all(futures).await?;
             statuses
                 .into_iter()
-                .flat_map(|(path, tracking)| tracking.map(|tracking| (path, tracking)))
+                .flat_map(|(path, tracking)| {
+                    tracking.and_then(|tracking| tracking.1.map(|entry| (path, entry)))
+                })
                 .collect()
         };
 

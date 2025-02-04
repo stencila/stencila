@@ -6,7 +6,7 @@ use common::{
     clap::{self, Parser},
     eyre::Result,
 };
-use document::{CommandWait, Document, SaveDocumentSidecar, SaveDocumentSource};
+use document::{CommandWait, Document};
 use format::Format;
 
 use crate::options::{EncodeOptions, StripOptions};
@@ -65,12 +65,7 @@ impl Cli {
         doc.diagnostics().await?;
 
         if !no_save {
-            doc.save_with(
-                CommandWait::Yes,
-                SaveDocumentSource::Yes,
-                SaveDocumentSidecar::Yes,
-            )
-            .await?;
+            doc.save().await?;
         }
 
         if output.is_some() || to.is_some() {

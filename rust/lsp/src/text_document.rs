@@ -26,7 +26,7 @@ use common::{
     },
     tracing,
 };
-use document::{CommandWait, Document, SaveDocumentSidecar, SaveDocumentSource};
+use document::Document;
 use schema::{
     Author, AuthorRole, AuthorRoleName, Duration, ExecutionBounds, ExecutionMessage, ExecutionMode,
     ExecutionRequired, ExecutionStatus, Node, NodeId, NodeType, Person, ProvenanceCount, Timestamp,
@@ -900,18 +900,22 @@ pub(super) fn did_save(
 ) -> ControlFlow<Result<(), Error>> {
     if let Some(text_doc) = state.documents.get(&params.text_document.uri) {
         let doc = text_doc.doc.clone();
-        let client = state.client.clone();
-        save(
-            doc,
-            // Do not save the document source since that was already saved
-            // by the editor and the state may differ and we don't want to
-            // overwrite it
-            SaveDocumentSource::No,
-            // Only save the sidecar if it already exists
-            SaveDocumentSidecar::IfExists,
-            client,
-        )
-        .ok();
+        let mut client = state.client.clone();
+
+        tokio::spawn(async move {
+            let doc = doc.read().await;
+
+            // Use `store`, rather than `save`, so that the text file that has just been
+            // saved by the LSP client does not get written over.
+            if let Err(error) = doc.store().await {
+                client
+                    .show_message(ShowMessageParams {
+                        typ: MessageType::ERROR,
+                        message: format!("Error saving document: {error}"),
+                    })
+                    .ok();
+            }
+        });
     }
 
     ControlFlow::Continue(())
@@ -930,28 +934,4 @@ pub(super) fn did_close(
     state.documents.remove(&params.text_document.uri);
 
     ControlFlow::Continue(())
-}
-
-/**
- * Save a document
- */
-pub fn save(
-    doc: Arc<RwLock<Document>>,
-    source: SaveDocumentSource,
-    sidecar: SaveDocumentSidecar,
-    mut client: ClientSocket,
-) -> Result<(), ResponseError> {
-    tokio::spawn(async move {
-        let doc = doc.read().await;
-        if let Err(error) = doc.save_with(CommandWait::Yes, source, sidecar).await {
-            client
-                .show_message(ShowMessageParams {
-                    typ: MessageType::ERROR,
-                    message: format!("Error saving document: {error}"),
-                })
-                .ok();
-        }
-    });
-
-    Ok(())
 }
