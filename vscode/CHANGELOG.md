@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.0.23 2025-02-05
+
+- Based on Stencila CLI v2.0.0-beta.25 which includes new document tracking functionality.
+
 ## 0.0.22 2025-01-31
 
 - Fixes and improvements to "Chat to create..." context menu.
