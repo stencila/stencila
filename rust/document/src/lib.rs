@@ -30,7 +30,9 @@ use schema::{
     Prompt,
 };
 
+#[allow(clippy::print_stderr)]
 pub mod cli;
+
 mod config;
 mod sync_directory;
 mod sync_dom;
@@ -494,8 +496,8 @@ impl Document {
         // Create a document at the path and track it (which will create a tracking file)
         // and save it (which create the file itself)
         let doc = Self::at(path, Some(node_type))?;
-        doc.track().await?;
         doc.save().await?;
+        doc.track(None).await?;
         Ok(doc)
     }
 

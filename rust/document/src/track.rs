@@ -1,575 +1,71 @@
 use std::{
-    cmp::Ordering,
+    collections::BTreeMap,
     env::current_dir,
-    hash::{Hash, Hasher},
     path::{Path, PathBuf},
     time::UNIX_EPOCH,
 };
 
-use fs4::tokio::AsyncFileExt;
+use url::Url;
 
+use codecs::EncodeOptions;
 use common::{
+    chrono::Utc,
     eyre::{bail, OptionExt, Result},
-    futures::future::try_join_all,
     itertools::Itertools,
-    once_cell::sync::Lazy,
-    regex::Regex,
-    seahash::SeaHasher,
-    serde::Serialize,
+    serde::{Deserialize, Serialize},
+    serde_json,
     serde_with::skip_serializing_none,
     strum::Display,
-    tokio::{
-        fs::{create_dir_all, read_dir, read_to_string, remove_file, rename, File, OpenOptions},
-        io::{AsyncReadExt, AsyncSeekExt, AsyncWriteExt, SeekFrom},
-    },
+    tokio::fs::{create_dir_all, read_to_string, remove_file, rename, write},
     tracing,
 };
-use schema::{Node, NodeId};
+use format::Format;
 
 use crate::Document;
 
-#[derive(Default, Display, Serialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
-pub enum DocumentStatusFlag {
-    /// The file is of a format that does not support tracking
-    #[default]
-    Unsupported,
+const STENCILA_DIR: &str = ".stencila";
+const TRACKING_DIR: &str = "track";
+const TRACKING_FILE: &str = "docs.json";
 
-    /// The file is not tracked: it does not have a document id,
-    /// or if it does there is no tracking file for it
-    Untracked,
+/// Get the path of the Stencila tracking directory for a workspace directory
+pub async fn tracking_dir(workspace_dir: &Path, ensure: bool) -> Result<PathBuf> {
+    let tracking_dir = workspace_dir.join(STENCILA_DIR).join(TRACKING_DIR);
 
-    /// The document is currently in-memory only so it can not
-    /// yet be tracked
-    Unsaved,
+    if ensure && !tracking_dir.exists() {
+        create_dir_all(&tracking_dir).await?;
+    }
 
-    /// There is an entry for the file in a tracked paths file
-    /// but that path no longer exists in the tracked directory
-    Deleted,
-
-    /// There is an entry for the file in a tracked paths file,
-    /// and the file exists, but it is has no document Id(String),
-    IdMissing(String),
-
-    /// There is an entry for the file in a tracked paths file,
-    /// and the file exists, but it is has a different document id.
-    IdDifferent(String, String),
-
-    /// The file is ahead of the tracking file: it has changed
-    /// to it since it was last synced
-    Ahead,
-
-    /// The file is behind the tracking file: there have been
-    /// changes to a linked file which have not been propagated
-    /// to the file
-    Behind,
-
-    /// The file is synced with the tracking file: they have the
-    /// same modification time
-    Synced,
+    Ok(tracking_dir)
 }
 
-#[skip_serializing_none]
-#[derive(Default, Serialize)]
-#[serde(rename_all = "camelCase", crate = "common::serde")]
-pub struct DocumentStatus {
-    pub path: Option<PathBuf>,
-    pub status: DocumentStatusFlag,
-    pub modified_at: Option<u64>,
-    pub tracked_at: Option<u64>,
-    pub doc_id: Option<String>,
+/// Get the path of the Stencila tracking file for a workspace directory
+pub async fn tracking_file(workspace_dir: &Path, ensure: bool) -> Result<PathBuf> {
+    let tracking_dir = tracking_dir(workspace_dir, ensure).await?;
+
+    let tracking_file = tracking_dir.join(TRACKING_FILE);
+    if ensure && !tracking_file.exists() {
+        write(&tracking_file, "{}\n").await?;
+    }
+
+    Ok(tracking_file)
 }
 
-impl DocumentStatus {
-    fn unsaved() -> Self {
-        Self {
-            status: DocumentStatusFlag::Unsaved,
-            ..Default::default()
-        }
-    }
-
-    fn id_missing(path: &Path, doc_id: &str) -> Self {
-        Self {
-            status: DocumentStatusFlag::IdMissing(doc_id.into()),
-            path: Some(path.to_path_buf()),
-            ..Default::default()
-        }
-    }
-
-    fn id_different(path: &Path, doc_id: &str, found_doc_id: &str) -> Self {
-        Self {
-            status: DocumentStatusFlag::IdDifferent(doc_id.into(), found_doc_id.into()),
-            path: Some(path.to_path_buf()),
-            ..Default::default()
-        }
-    }
-
-    fn deleted(path: &Path) -> Self {
-        Self {
-            status: DocumentStatusFlag::Deleted,
-            path: Some(path.to_path_buf()),
-            ..Default::default()
-        }
-    }
-
-    fn unsupported(path: &Path) -> Self {
-        Self {
-            status: DocumentStatusFlag::Unsupported,
-            path: Some(path.to_path_buf()),
-            ..Default::default()
-        }
-    }
-
-    fn untracked(path: &Path, modified_at: u64, doc_id: Option<String>) -> Self {
-        Self {
-            status: DocumentStatusFlag::Untracked,
-            path: Some(path.to_path_buf()),
-            modified_at: Some(modified_at),
-            doc_id,
-            ..Default::default()
-        }
-    }
-
-    fn new(path: &Path, modified_at: u64, tracked_at: u64, doc_id: String) -> Self {
-        use DocumentStatusFlag::*;
-        let status = match modified_at.cmp(&tracked_at) {
-            Ordering::Equal => Synced,
-            Ordering::Greater => Ahead,
-            Ordering::Less => Behind,
-        };
-
-        Self {
-            status,
-            path: Some(path.to_path_buf()),
-            modified_at: Some(modified_at),
-            tracked_at: Some(tracked_at),
-            doc_id: Some(doc_id),
-        }
-    }
+/// Get the path of the workspace directory for a given tracking directory
+fn workspace_dir(tracking_dir: &Path) -> Result<&Path> {
+    tracking_dir
+        .parent()
+        .ok_or_eyre("No parent")?
+        .parent()
+        .ok_or_eyre("No grandparent")
 }
 
-impl Document {
-    /// Get the id of a document
-    pub async fn id(&self) -> Option<String> {
-        let root = &*self.root.read().await;
-
-        match root {
-            Node::Article(article) => article.id.clone(),
-            Node::Chat(chat) => chat.id.clone(),
-            Node::Prompt(prompt) => prompt.id.clone(),
-            _ => None,
-        }
-    }
-
-    /// Track a document
-    ///
-    /// Ensures that the root node of the document has an `id`
-    /// and that `id` is not already being used in tracking directory.
-    #[tracing::instrument(skip(self))]
-    pub async fn track(&self) -> Result<()> {
-        tracing::trace!("Tracking document");
-
-        // Get the existing document id, or else generate one
-        let id = self
-            .mutate(|root| {
-                let id = if let Node::Article(article) = root {
-                    if let Some(id) = &article.id {
-                        id
-                    } else {
-                        article.id = Some(id_random());
-                        article.id.as_ref().expect("just assigned")
-                    }
-                } else if let Node::Chat(chat) = root {
-                    if let Some(id) = &chat.id {
-                        id
-                    } else {
-                        chat.id = Some(id_random());
-                        chat.id.as_ref().expect("just assigned")
-                    }
-                } else if let Node::Prompt(prompt) = root {
-                    if let Some(id) = &prompt.id {
-                        id
-                    } else {
-                        prompt.id = Some(id_random());
-                        prompt.id.as_ref().expect("just assigned")
-                    }
-                } else {
-                    bail!(
-                        "Tracking of `{}` documents is not yet supported",
-                        root.node_type()
-                    )
-                };
-                Ok(id.clone())
-            })
-            .await?;
-
-        let Some(path) = &self.path else {
-            bail!("Can't track document, it has no path yet")
-        };
-
-        // Get the tracking files for the id
-        let tracking_dir = tracking_dir(path, true).await?;
-        let (tracked_paths, tracked_json) = tracking_files(&tracking_dir, &id).await?;
-
-        // Lock tracked paths file for exclusive access
-        let mut tracked_paths_file = tracked_paths_lock(&tracked_paths).await?;
-
-        // Write JSON
-        self.export(&tracked_json, None).await?;
-
-        // Add path of document
-        tracked_paths_add(&tracking_dir, &mut tracked_paths_file, path).await?;
-
-        // Unlock the tracked paths file
-        tracked_paths_unlock(tracked_paths_file).await
-    }
-
-    /// Track a document
-    #[tracing::instrument]
-    pub async fn track_path(path: &Path) -> Result<()> {
-        let doc = Document::open(path).await?;
-        doc.track().await?;
-        doc.save().await?;
-
-        Ok(())
-    }
-
-    /// Untrack a document
-    #[tracing::instrument(skip(self))]
-    pub async fn untrack(&self) -> Result<()> {
-        tracing::trace!("Un-tracking document");
-
-        // Get the existing document id, and remove it, but only if it
-        // starts with 'doc_'
-        let id = self
-            .mutate(|root| {
-                const DOC: &str = "doc_";
-                fn starts_with_doc(id: &Option<String>) -> bool {
-                    id.as_ref()
-                        .map(|id| id.starts_with(DOC))
-                        .unwrap_or_default()
-                }
-
-                if let Node::Article(article) = root {
-                    if starts_with_doc(&article.id) {
-                        article.id.take()
-                    } else {
-                        article.id.clone()
-                    }
-                } else if let Node::Chat(chat) = root {
-                    if starts_with_doc(&chat.id) {
-                        chat.id.take()
-                    } else {
-                        chat.id.clone()
-                    }
-                } else if let Node::Prompt(prompt) = root {
-                    if starts_with_doc(&prompt.id) {
-                        prompt.id.take()
-                    } else {
-                        prompt.id.clone()
-                    }
-                } else {
-                    None
-                }
-            })
-            .await;
-
-        // Early return if no path or id
-        let Some(id) = id else {
-            return Ok(());
-        };
-        let Some(path) = &self.path else {
-            return Ok(());
-        };
-
-        // Get the closest tracking dir and return early if none found
-        let tracking_dir = tracking_dir(path, false).await?;
-        if !tracking_dir.exists() {
-            return Ok(());
-        }
-
-        // Get the tracking files for the id.
-        let (tracked_paths, tracked_json) = tracking_files(&tracking_dir, &id).await?;
-
-        // Lock tracked paths file for exclusive access
-        let mut tracked_paths_file = tracked_paths_lock(&tracked_paths).await?;
-
-        // Remove path of document
-        let has_paths = tracked_paths_remove(&tracking_dir, &mut tracked_paths_file, path).await?;
-
-        // Remove both tracking files if no more paths in the tracked paths
-        if !has_paths {
-            if tracked_json.exists() {
-                remove_file(&tracked_json).await?
-            };
-            if tracked_paths.exists() {
-                remove_file(tracked_paths).await?
-            }
-        }
-
-        // Unlock the tracked paths file
-        tracked_paths_unlock(tracked_paths_file).await
-    }
-
-    /// Untrack the path
-    ///
-    /// This is called from outside the document and so allows for more
-    /// removing tracking files for document files that have been deleted or
-    /// have broken ids.
-    pub async fn untrack_path(path: &Path) -> Result<()> {
-        if path.exists() && path.is_file() && codecs::from_path_is_supported(path) {
-            // Untrack the document
-            let doc = Document::open(path).await?;
-            doc.untrack().await?;
-            doc.save().await?;
-
-            // It is tempting to return early here, but for documents with
-            // missing or different ids from those in the tracking directory
-            // we need to continue so that can be cleaned up.
-        }
-
-        // Get the closest tracking dir, returning early if none found
-        let tracking_dir = tracking_dir(path, false).await?;
-        if !tracking_dir.exists() {
-            return Ok(());
-        }
-
-        // Given that we can't open the path to get the id (it doesn't exist of is not
-        // a file) we need to iterate over all the tracked paths files and remove the
-        // path from each. We could stop at the first file it is found in, but not
-        // doing so is "safer".
-        let mut dir_entries = read_dir(&tracking_dir).await?;
-        while let Ok(Some(entry)) = dir_entries.next_entry().await {
-            // For each `.paths` file
-            let tracked_paths = entry.path();
-            if tracked_paths.extension().unwrap_or_default() == "paths" {
-                // Remove the path from the tracked paths
-                let mut tracked_paths_file = tracked_paths_lock(&tracked_paths).await?;
-                let has_paths =
-                    tracked_paths_remove(&tracking_dir, &mut tracked_paths_file, path).await?;
-
-                // Remove both tracking files if no more entries in the tracking paths
-                if !has_paths {
-                    let id = tracked_paths
-                        .file_stem()
-                        .unwrap_or_default()
-                        .to_string_lossy();
-                    let json = tracking_dir.join(format!("{id}.json"));
-                    if json.exists() {
-                        remove_file(&json).await?
-                    };
-
-                    if tracked_paths.exists() {
-                        remove_file(tracked_paths).await?
-                    }
-                }
-
-                // Unlock the tracked paths file
-                tracked_paths_unlock(tracked_paths_file).await?;
-            }
-        }
-
-        Ok(())
-    }
-
-    /// Get the tracking status of a document
-    pub async fn status(&self) -> Result<DocumentStatus> {
-        // Get the path of the source file, returning early if not exists
-        let Some(path) = &self.path else {
-            return Ok(DocumentStatus::unsaved());
-        };
-        if !path.exists() {
-            return Ok(DocumentStatus::unsaved());
-        }
-
-        // Get the modification time of file
-        let modified_at = modification_time(path)?;
-
-        // Get the document id, returning early if none
-        let Some(id) = self.id().await else {
-            return Ok(DocumentStatus::untracked(path, modified_at, None));
-        };
-
-        // Get the path to the tracked JSON, returning early if it does not exist
-        let tracking_dir = tracking_dir(path, false).await?;
-        if !tracking_dir.exists() {
-            return Ok(DocumentStatus::untracked(path, modified_at, Some(id)));
-        }
-        let (.., tracked_json) = tracking_files(&tracking_dir, &id).await?;
-        if !tracked_json.exists() {
-            return Ok(DocumentStatus::untracked(path, modified_at, Some(id)));
-        }
-
-        // Get the modification time of tracked JSON
-        let tracked_at = modification_time(&tracked_json)?;
-
-        Ok(DocumentStatus::new(path, modified_at, tracked_at, id))
-    }
-
-    /// Get the tracking status of a path
-    ///
-    /// This is called from outside the document and so allows for more
-    /// granularity of status flags such a `Deleted`.
-    ///
-    /// If an expected document id is provided it can also return
-    /// `IdMissing` or `IdDifferent`.
-    pub async fn status_path(
-        path: PathBuf,
-        expected_doc_id: Option<String>,
-    ) -> Result<DocumentStatus> {
-        if !path.exists() {
-            return Ok(DocumentStatus::deleted(&path));
-        }
-
-        if !path.is_file() || !codecs::from_path_is_supported(&path) {
-            return Ok(DocumentStatus::unsupported(&path));
-        }
-
-        let doc = Self::open(&path).await?;
-        let status = doc.status().await?;
-
-        if let Some(expected_doc_id) = &expected_doc_id {
-            if let Some(found_doc_id) = &status.doc_id {
-                if found_doc_id != expected_doc_id {
-                    return Ok(DocumentStatus::id_different(
-                        &path,
-                        expected_doc_id,
-                        found_doc_id,
-                    ));
-                }
-            } else {
-                return Ok(DocumentStatus::id_missing(&path, expected_doc_id));
-            }
-        }
-
-        Ok(status)
-    }
-
-    /// Get the tracking status of all known tracked files
-    pub async fn status_tracked(path: &Path) -> Result<Vec<DocumentStatus>> {
-        let tracking_dir = tracking_dir(path, false).await?;
-
-        // Return early if no tracking dir found
-        if !tracking_dir.exists() {
-            tracing::debug!("No tracking dir found for {path:?}");
-            return Ok(Vec::new());
-        }
-
-        tracing::debug!("Tracking dir for {path:?}: {tracking_dir:?}");
-
-        // Paths need to be made relative to the parent of the `.stencila` directory
-        let tracked_dir = tracked_dir(&tracking_dir)?;
-
-        // Get a list of all tracked path / doc id combinations
-        let mut tracked_paths = Vec::new();
-        let mut dir_entries = read_dir(&tracking_dir).await?;
-        while let Ok(Some(entry)) = dir_entries.next_entry().await {
-            let path = entry.path();
-            if path.extension().unwrap_or_default() == "paths" {
-                let Some(doc_id) = path.file_stem() else {
-                    continue;
-                };
-                let doc_id = doc_id.to_string_lossy().to_string();
-                for line in read_to_string(path).await?.lines() {
-                    let path = tracked_dir.join(line);
-                    tracked_paths.push((path, doc_id.clone()))
-                }
-            }
-        }
-        tracked_paths.sort();
-
-        // Get the the status of each tracked path
-        let futures = tracked_paths
-            .into_iter()
-            .map(|(path, doc_id)| async move { Self::status_path(path, Some(doc_id)).await });
-        let mut statuses = try_join_all(futures).await?;
-
-        // Make the paths in the statuses relative to the tracked dir
-        for status in statuses.iter_mut() {
-            if let Some(path) = status.path.clone() {
-                status.path = path
-                    .strip_prefix(tracked_dir)
-                    .map(|path| path.to_path_buf())
-                    .ok();
-            }
-        }
-
-        Ok(statuses)
-    }
-
-    /// Move a file and update any tracking information
-    pub async fn move_path(from: &Path, to: &Path) -> Result<()> {
-        // Move the file if necessary
-        if from.exists() {
-            rename(from, to).await?
-        }
-
-        // Get the closest tracking dir, returning early if none found
-        let tracking_dir = tracking_dir(from, false).await?;
-        if !tracking_dir.exists() {
-            return Ok(());
-        }
-
-        // Make the paths relative to the tracking directory
-        let tracked_dir = tracked_dir(&tracking_dir)?;
-        let old_relative_path = match from.canonicalize() {
-            Ok(path) => path.strip_prefix(tracked_dir)?.to_path_buf(),
-            Err(..) => from.to_path_buf(),
-        };
-        let new_relative_path = match to.canonicalize() {
-            Ok(path) => path.strip_prefix(tracked_dir)?.to_path_buf(),
-            Err(..) => to.to_path_buf(),
-        };
-
-        // Updated all tracked paths files by replacing the old path with the new one.
-        let mut dir_entries = read_dir(&tracking_dir).await?;
-        while let Ok(Some(entry)) = dir_entries.next_entry().await {
-            // For each `.paths` file
-            let tracked_paths = entry.path();
-            if tracked_paths.extension().unwrap_or_default() == "paths" {
-                // Replace matching lines in the file
-                let mut tracked_paths_file = tracked_paths_lock(&tracked_paths).await?;
-                tracked_paths_replace(
-                    &mut tracked_paths_file,
-                    &old_relative_path,
-                    &new_relative_path,
-                )
-                .await?;
-
-                // Unlock the tracked paths file
-                tracked_paths_unlock(tracked_paths_file).await?;
-            }
-        }
-
-        Ok(())
-    }
-
-    /// Remove a file and any associated tracking information
-    pub async fn remove_path(path: &Path) -> Result<()> {
-        // Remove the file if necessary
-        if path.exists() {
-            remove_file(path).await?;
-        }
-
-        // Untrack the file
-        Document::untrack_path(path).await
-    }
-}
-
-/// Generate a new random document id
-fn id_random() -> String {
-    NodeId::random([b'd', b'o', b'c']).to_string()
-}
-
-/// Get the path of the closest `.stencila` directory
+/// Get the path of the closest `.stencila` directory to a path
 ///
 /// If the `path` is a file then starts with the parent directory of that file.
 /// Walks up the directory tree until a `.stencila` or `.git` directory is found.
 /// If none is found, and `ensure` is true, then creates one, next to the `.git`
 /// directory if any, or in the starting directory.
-async fn stencila_dir(path: &Path, ensure: bool) -> Result<PathBuf> {
-    const STENCILA_DIR: &str = ".stencila";
-
+pub async fn closest_stencila_dir(path: &Path, ensure: bool) -> Result<PathBuf> {
     // Get a canonicalized starting path
     // This allows for accepting files that do not exist by finding the
     // closest ancestor dir that does exist. This is necessary when a
@@ -630,217 +126,604 @@ async fn stencila_dir(path: &Path, ensure: bool) -> Result<PathBuf> {
     Ok(stencila_dir)
 }
 
-/// Get the path of the closest tracking directory
-async fn tracking_dir(path: &Path, ensure: bool) -> Result<PathBuf> {
-    const TRACKING_DIR: &str = "tracked";
+/// Get the path of closest working dir to a path
+pub async fn closest_workspace_dir(path: &Path, ensure: bool) -> Result<PathBuf> {
+    let stencila_dir = closest_stencila_dir(path, ensure).await?;
+    match stencila_dir.parent() {
+        Some(working_dir) => Ok(working_dir.to_path_buf()),
+        None => bail!(
+            "The `{STENCILA_DIR}` directory `{}` has no parent",
+            stencila_dir.display()
+        ),
+    }
+}
 
-    // Note: must call `stencila_dir` with ensure even through checking for ensure
-    // below, to ensure that walk stops at closes Git repo
-    let tracking_dir = stencila_dir(path, true).await?.join(TRACKING_DIR);
+/// Get the path of closest tracking file to a path
+async fn closest_tracking_file(path: &Path, ensure: bool) -> Result<PathBuf> {
+    tracking_file(&closest_workspace_dir(path, ensure).await?, ensure).await
+}
 
-    if ensure && !tracking_dir.exists() {
-        create_dir_all(&tracking_dir).await?;
+/// Get the closest tracking entries to a path, if any
+async fn closest_tracking_entries(path: &Path) -> Result<Option<DocumentTrackingEntries>> {
+    let tracking_file = closest_tracking_file(path, false).await?;
+    if !tracking_file.exists() {
+        return Ok(None);
     }
 
-    Ok(tracking_dir)
+    let tracking_data = read_to_string(&tracking_file).await?;
+
+    Ok(Some(serde_json::from_str(&tracking_data)?))
 }
 
-/// Get the path of the tracked directory from the path of the tracking directory
-fn tracked_dir(path: &Path) -> Result<&Path> {
-    path.parent()
-        .and_then(|path| path.parent())
-        .ok_or_eyre("Unable to get tracked directory")
-}
-
-/// Get the path of the tracking files for the document id
-async fn tracking_files(tracking_dir: &Path, id: &str) -> Result<(PathBuf, PathBuf)> {
-    let file_stem = file_stem_for_id(id);
-
-    let tracked_paths = tracking_dir.join(format!("{file_stem}.paths"));
-    let tracked_json = tracking_dir.join(format!("{file_stem}.json"));
-
-    Ok((tracked_paths, tracked_json))
-}
-
-/// Open and lock a tracked paths file
-async fn tracked_paths_lock(tracked_paths: &Path) -> Result<File> {
-    let file = OpenOptions::new()
-        .read(true)
-        .write(true)
-        .create(true)
-        .truncate(false)
-        .open(tracked_paths)
-        .await?;
-
-    file.lock_exclusive()?;
-
-    Ok(file)
-}
-
-/// Unlock a tracked paths file
-async fn tracked_paths_unlock(tracked_paths_file: File) -> Result<()> {
-    Ok(tracked_paths_file.unlock_async().await?)
-}
-
-/// Add a path to the tracked paths if it does not yet exist there
-async fn tracked_paths_add(
-    tracking_dir: &Path,
-    tracked_paths_file: &mut File,
+/// Read the closest tracking dir and entries to a path and ensure they exist
+///
+/// If there is no closest tracking dir, one will be created.
+async fn read_tracking(
     path: &Path,
-) -> Result<()> {
-    // Get the path relative to the tracked directory
-    // Note: this allows for paths that do not yet exist i.e. files that are being
-    // created but not yet saved
-    let tracked_dir = tracked_dir(tracking_dir)?;
-    let relative_path = match path.canonicalize() {
-        Ok(path) => path.strip_prefix(tracked_dir)?.to_path_buf(),
-        Err(..) => path.to_path_buf(),
+    ensure: bool,
+) -> Result<Option<(PathBuf, DocumentTrackingEntries)>> {
+    // Do not require that file exists because user may be un-tracking a file that
+    // has already been deleted. If it does not exist then use the current
+    // directory to resolve the tracking directory
+    let origin_path = if path.exists() {
+        path.to_path_buf()
+    } else {
+        current_dir()?
     };
-    let relative_path = relative_path.to_string_lossy();
 
-    // Read the file and if none of the lines equal the path, append it
-    let mut content = String::new();
-    tracked_paths_file.read_to_string(&mut content).await?;
-    let has_path = content.lines().any(|line| line == relative_path);
+    let tracking_file = closest_tracking_file(&origin_path, ensure).await?;
+    if !tracking_file.exists() {
+        return Ok(None);
+    }
+    let tracking_dir = tracking_file
+        .parent()
+        .ok_or_eyre("no parent")?
+        .to_path_buf();
 
-    // Append line if missing
-    if !has_path {
-        tracked_paths_file.seek(SeekFrom::End(0)).await?;
-        tracked_paths_file
-            .write_all([&relative_path, "\n"].concat().as_bytes())
-            .await?;
+    let tracking_data = read_to_string(&tracking_file).await?;
+    let entries = serde_json::from_str(&tracking_data).unwrap_or_default();
+
+    Ok(Some((tracking_dir, entries)))
+}
+
+/// Write tracking entries to the tracking file in a tracking directory
+async fn write_tracking(
+    tracking_dir: &Path,
+    tracking_entries: &DocumentTrackingEntries,
+) -> Result<()> {
+    let tracking_file = tracking_dir.join(TRACKING_FILE);
+    let json = serde_json::to_string_pretty(tracking_entries)?;
+    write(&tracking_file, json).await?;
+
+    Ok(())
+}
+
+/// Make a path relative to the workspace directory of a tracking directory
+fn workspace_relative_path(
+    tracking_dir: &Path,
+    doc_path: &Path,
+    must_exist: bool,
+) -> Result<PathBuf> {
+    let workspace_dir = workspace_dir(tracking_dir)?.canonicalize()?;
+
+    let relative_path = match doc_path.canonicalize() {
+        // The document exists so make relative to the working directory
+        Ok(doc_path) => match doc_path.strip_prefix(workspace_dir) {
+            Ok(path) => path.to_path_buf(),
+            Err(..) => bail!(
+                "Path is not in the workspace being tracked: {}",
+                doc_path.display()
+            ),
+        },
+        // The document does not exist
+        Err(..) => {
+            if must_exist {
+                bail!("File does not exist: {}", doc_path.display())
+            }
+            doc_path.to_path_buf()
+        }
+    };
+
+    Ok(relative_path)
+}
+
+/// Store a document in a tracking directory
+async fn store_doc(tracking_dir: &Path, doc_path: &Path, id: usize) -> Result<Format> {
+    let format = Format::from_path(doc_path);
+    let stored_path = tracking_dir.join(format!("{id:04}.{}.json", format.extension()));
+
+    let doc = Document::open(doc_path).await?;
+    doc.export(
+        &stored_path,
+        Some(EncodeOptions {
+            compact: Some(false),
+            ..Default::default()
+        }),
+    )
+    .await?;
+
+    Ok(format)
+}
+
+/// Remove a stored document in a tracking directory
+async fn unstore_doc(tracking_dir: &Path, id: usize) -> Result<()> {
+    let stored_path = tracking_dir.join(format!("{id:04}.json"));
+
+    if stored_path.exists() {
+        remove_file(stored_path).await?;
     }
 
     Ok(())
 }
 
-/// Remove a path from the tracked paths
-async fn tracked_paths_remove(
-    tracking_dir: &Path,
-    tracked_paths_file: &mut File,
-    path: &Path,
-) -> Result<bool> {
-    // Get the path relative to the tracked directory
-    // Note: this allows for paths that no longer exist i.e. removing a tracked file
-    // that has been deleted
-    let tracked_dir = tracked_dir(tracking_dir)?;
-    let relative_path = match path.canonicalize() {
-        Ok(path) => path.strip_prefix(tracked_dir)?.to_path_buf(),
-        Err(..) => path.to_path_buf(),
-    };
-    let relative_path = relative_path.to_string_lossy();
-
-    // Read the file and filter out the lines that equal the path
-    let mut old_paths = String::new();
-    tracked_paths_file.read_to_string(&mut old_paths).await?;
-    let new_paths = old_paths
-        .lines()
-        .filter(|&line| line != relative_path)
-        .join("\n");
-
-    let has_paths = !new_paths.is_empty();
-    if has_paths {
-        // Truncate and write file
-        tracked_paths_file.set_len(0).await?;
-        tracked_paths_file.seek(SeekFrom::Start(0)).await?;
-        tracked_paths_file
-            .write_all([&new_paths, "\n"].concat().as_bytes())
-            .await?;
-    }
-
-    Ok(has_paths)
+/// Create a new document id based on existing entries
+fn new_id(entries: &DocumentTrackingEntries) -> usize {
+    entries
+        .values()
+        .map(|entry| &entry.id)
+        .max()
+        .map_or_else(|| 1, |max| max.saturating_add(1))
 }
 
-/// Replace a path in the tracked paths
-async fn tracked_paths_replace(
-    tracked_paths_file: &mut File,
-    old_relative_path: &Path,
-    new_relative_path: &Path,
-) -> Result<()> {
-    // Read the file
-    let mut old_paths = String::new();
-    tracked_paths_file.read_to_string(&mut old_paths).await?;
-
-    let old_relative_path = old_relative_path.to_string_lossy();
-    let new_relative_path = new_relative_path.to_string_lossy();
-
-    // Filter out the lines that equal the old path and add the new one
-    let mut new_paths = old_paths
-        .lines()
-        .filter(|&line| line != old_relative_path)
-        .collect_vec();
-    new_paths.push(&new_relative_path);
-    let new_paths = new_paths.join("\n");
-
-    // Truncate and write file
-    tracked_paths_file.set_len(0).await?;
-    tracked_paths_file.seek(SeekFrom::Start(0)).await?;
-    tracked_paths_file
-        .write_all([&new_paths, "\n"].concat().as_bytes())
-        .await?;
-
-    Ok(())
+/// Get the timestamp now
+fn time_now() -> u64 {
+    Utc::now().timestamp() as u64
 }
 
 /// Get the modification time of a path
-fn modification_time(path: &Path) -> Result<u64> {
+fn time_modified(path: &Path) -> Result<u64> {
     let metadata = std::fs::File::open(path)?.metadata()?;
     Ok(metadata.modified()?.duration_since(UNIX_EPOCH)?.as_secs())
 }
 
-/// Generate a valid filename for an id
-///
-/// If an invalid characters replaces them with hyphen and
-/// add a hash for uniqueness.
-pub fn file_stem_for_id(id: &str) -> String {
-    static INVALID_CHARS: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r#"[\s.<>:"/\\|?*\x00-\x1F]"#).expect("invalid regex"));
+pub type DocumentTrackingEntries = BTreeMap<PathBuf, DocumentTracking>;
+pub type DocumentRemoteEntries = BTreeMap<Url, DocumentRemote>;
 
-    // Sanitize by replacing invalid chars with hyphens
-    let sanitized = INVALID_CHARS.replace_all(id, "-");
+/// Tracking information for a tracked location
+#[skip_serializing_none]
+#[derive(Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+pub struct DocumentTracking {
+    /// The tracking id for the document
+    pub id: usize,
 
-    // If no sanitation, just return original
-    if sanitized == id {
-        return id.to_string();
-    }
+    /// The format of the file
+    ///
+    /// Mainly used so that the stored file can end in `.<EXT>.json`
+    /// so that the user can use `.gitignore` patterns based on the extension.
+    pub format: Format,
 
-    // Create hash for uniqueness
-    let mut hasher = SeaHasher::new();
-    id.as_bytes().hash(&mut hasher);
-    let hash = format!("{:.8x}", hasher.finish());
+    /// The last time the document was stored in the tracking directory
+    pub stored_at: Option<u64>,
 
-    // Combine parts with length limit
+    /// The source that the file was stored from
+    pub stored_from: Option<String>,
 
-    if sanitized.len() > 32 {
-        format!("{}-{}", &sanitized[..32], hash)
-    } else {
-        format!("{}-{}", sanitized, hash)
+    /// The remotes that are tracked for the path
+    pub remotes: Option<BTreeMap<Url, DocumentRemote>>,
+}
+
+impl DocumentTracking {
+    pub fn status(
+        &self,
+        workspace_dir: &Path,
+        path: &Path,
+    ) -> (DocumentTrackingStatus, Option<u64>) {
+        let path = workspace_dir.join(path);
+
+        if !path.exists() {
+            return (DocumentTrackingStatus::Deleted, None);
+        }
+
+        let modified_at = time_modified(&path).ok();
+
+        let status = if modified_at >= self.stored_at.map(|stored_at| stored_at.saturating_add(10))
+        {
+            DocumentTrackingStatus::Ahead
+        } else if modified_at < self.stored_at {
+            DocumentTrackingStatus::Behind
+        } else {
+            DocumentTrackingStatus::Synced
+        };
+
+        (status, modified_at)
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+#[skip_serializing_none]
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+pub struct DocumentRemote {
+    /// The last time the document was pulled from the remote
+    pub pulled_at: Option<u64>,
 
-    #[test]
-    fn test_filename_sanitization() {
-        assert_eq!(file_stem_for_id("doc_123"), "doc_123");
+    /// The last time the document was pushed from the remote
+    pub pushed_at: Option<u64>,
+}
 
-        assert_eq!(file_stem_for_id(""), "");
-        assert_eq!(file_stem_for_id(" "), "--7d017dd9b4dd6a17");
-        assert_eq!(file_stem_for_id("  "), "---bc60483fa376d879");
+#[derive(Default, Display, Serialize, Deserialize)]
+#[serde(crate = "common::serde")]
+pub enum DocumentTrackingStatus {
+    /// The workspace file is of a format that does not support tracking
+    #[default]
+    Unsupported,
 
-        assert_eq!(
-            file_stem_for_id("hello/world"),
-            "hello-world-98441892c2bff380"
-        );
-        assert_eq!(
-            file_stem_for_id("file*name?foo.bar"),
-            "file-name-foo-bar-f2d200db1d4eff93"
-        );
-        assert_eq!(
-            file_stem_for_id("file/name\\foo\"bar"),
-            "file-name-foo-bar-1e8631e402c9df43"
-        );
+    /// There is an entry for the workspace file in the tracking file
+    /// but that path no longer exists in the workspace directory
+    Deleted,
+
+    /// The workspace file is ahead of the tracking file: it has changed
+    /// since it was last synced
+    Ahead,
+
+    /// The workspace file is behind the tracking file: there have been
+    /// changes to the tracking file which have not been propagated
+    /// to the workspace file
+    Behind,
+
+    /// The workspace file is synced with the tracking file: they have the
+    /// same modification time
+    Synced,
+}
+
+impl Document {
+    /// Start, or continue, tracking the document
+    ///
+    /// Will error if the document does not have path yet (i.e. if
+    /// it is new and has not been saved yet).
+    ///
+    /// See [`Document::track_path`].
+    #[tracing::instrument(skip(self))]
+    pub async fn track(&self, remote: Option<(Url, DocumentRemote)>) -> Result<()> {
+        let Some(path) = &self.path else {
+            bail!("Can't track document, it has no path yet; save it first")
+        };
+
+        if let Some(remote) = remote {
+            Document::track_remote(path, remote).await?;
+        } else {
+            Document::track_path(path).await?;
+        }
+
+        Ok(())
+    }
+
+    /// Start, or continue, tracking the document with a record of it
+    /// being pulled from a remote
+    pub async fn track_remote_pulled(&self, remote: Url) -> Result<()> {
+        let tracking = self
+            .tracking()
+            .await?
+            .and_then(|tracking| tracking.remotes)
+            .and_then(|mut remotes| remotes.remove(&remote))
+            .unwrap_or_default();
+
+        self.track(Some((
+            remote,
+            DocumentRemote {
+                pulled_at: Some(time_now()),
+                ..tracking
+            },
+        )))
+        .await
+    }
+
+    /// Start, or continue, tracking the document with a record of it
+    /// being pushed to a remote
+    pub async fn track_remote_pushed(&self, remote: Url) -> Result<()> {
+        let tracking = self
+            .tracking()
+            .await?
+            .and_then(|tracking| tracking.remotes)
+            .and_then(|mut remotes| remotes.remove(&remote))
+            .unwrap_or_default();
+
+        self.track(Some((
+            remote,
+            DocumentRemote {
+                pushed_at: Some(time_now()),
+                ..tracking
+            },
+        )))
+        .await
+    }
+
+    /// Start tracking a document path
+    ///
+    /// Starts tracking the path by saving the document at the
+    /// path to `.stencila/track/<ID>.json` and adding an entry
+    /// to the tracking file at `.stencila/track/docs.json`.
+    ///
+    /// If the path is already being tracked (i.e. it has an entry
+    /// in the tracking file) returns true, otherwise false.
+    #[tracing::instrument]
+    pub async fn track_path(path: &Path) -> Result<bool> {
+        if !(path.exists() && path.is_file()) {
+            bail!("Path does not exist or is not a file: {}", path.display())
+        }
+
+        if !codecs::from_path_is_supported(path) {
+            bail!("File format is not supported: {}", path.display())
+        }
+
+        let (tracking_dir, mut entries) = read_tracking(path, true)
+            .await?
+            .ok_or_eyre("no tracking file despite ensure")?;
+        let relative_path = workspace_relative_path(&tracking_dir, path, true)?;
+
+        // Reuse existing id or create a new one
+        let (already_tracked, id) = match entries.get(&relative_path) {
+            Some(entry) => (true, entry.id),
+            None => (false, new_id(&entries)),
+        };
+
+        // Store the doc
+        let format = store_doc(&tracking_dir, path, id).await?;
+        let stored_at = Some(time_now());
+
+        // Update tracking file
+        entries
+            .entry(relative_path)
+            .and_modify(|entry| {
+                entry.format = format.clone();
+                entry.stored_at = stored_at;
+            })
+            .or_insert_with(|| DocumentTracking {
+                id,
+                format,
+                stored_at,
+                ..Default::default()
+            });
+        write_tracking(&tracking_dir, &entries).await?;
+
+        Ok(already_tracked)
+    }
+
+    /// Start tracking a document remote
+    ///
+    /// Starts tracking the remote by saving the document at the path
+    /// to `.stencila/track/<ID>.json` and, if necessary, adding an
+    /// entry to the tracking file at `.stencila/track/docs.json`.
+    ///
+    /// If the path or remote is already being tracked (i.e. there is
+    /// a corresponding entry in the tracking file) the exiting
+    /// document id will be used. Returns true if both the path and the
+    /// remote are being tracked, otherwise false.
+    #[tracing::instrument]
+    pub async fn track_remote(path: &Path, (url, remote): (Url, DocumentRemote)) -> Result<bool> {
+        if !(path.exists() && path.is_file()) {
+            bail!("Path does not exist or is not a file: {}", path.display())
+        }
+
+        if !codecs::from_path_is_supported(path) {
+            bail!("File format is not supported: {}", path.display())
+        }
+
+        let (tracking_dir, mut entries) = read_tracking(path, true)
+            .await?
+            .ok_or_eyre("no tracking file despite ensure")?;
+        let relative_path = workspace_relative_path(&tracking_dir, path, true)?;
+
+        // Reuse existing id or create a new one, update existing remotes or create new ones
+        let (already_tracked, id, remotes) = match entries.get_mut(&relative_path) {
+            Some(entry) => {
+                let (already_tracked, remotes) = if let Some(remotes) = entry.remotes.as_mut() {
+                    remotes.insert(url, remote);
+                    (true, Some(remotes.clone()))
+                } else {
+                    (
+                        false,
+                        Some(DocumentRemoteEntries::from([(url.clone(), remote)])),
+                    )
+                };
+
+                (already_tracked, entry.id, remotes)
+            }
+            None => (
+                false,
+                new_id(&entries),
+                Some(DocumentRemoteEntries::from([(url.clone(), remote)])),
+            ),
+        };
+
+        // Store the doc
+        let format = store_doc(&tracking_dir, path, id).await?;
+        let stored_at = Some(time_now());
+
+        // Update tracking file
+        entries
+            .entry(relative_path)
+            .and_modify(|entry| {
+                entry.format = format.clone();
+                entry.stored_at = stored_at;
+                entry.remotes = remotes.clone();
+            })
+            .or_insert_with(|| DocumentTracking {
+                id,
+                format,
+                stored_at,
+                remotes,
+                ..Default::default()
+            });
+        write_tracking(&tracking_dir, &entries).await?;
+
+        Ok(already_tracked)
+    }
+
+    /// Stop tracking the document
+    ///
+    /// Will error if the document does not have a path yet (i.e. if
+    /// it is new and has not been saved yet).
+    ///
+    /// See [`Document::untrack_path`].
+    #[tracing::instrument(skip(self))]
+    pub async fn untrack(&self) -> Result<()> {
+        let Some(path) = &self.path else {
+            bail!("Can't untrack document, it has no path yet")
+        };
+
+        Document::untrack_path(path).await
+    }
+
+    /// Stop tracking a document path
+    ///
+    /// Removes the entry for the path in the tracking file at `.stencila/track/docs.json` and
+    /// the corresponding `.stencila/track/<ID>.json`. Does not remove any other
+    /// entries for the document id in the tracking file.
+    ///
+    /// Gives a warning if the path is not being tracked.
+    #[tracing::instrument]
+    pub async fn untrack_path(path: &Path) -> Result<()> {
+        let Some((tracking_dir, mut entries)) = read_tracking(path, false).await? else {
+            tracing::warn!("Path is not being tracked: {}", path.display());
+            return Ok(());
+        };
+        let relative_path = workspace_relative_path(&tracking_dir, path, false)?;
+
+        let mut id = None;
+        entries.retain(|path, entry| {
+            if path == &relative_path {
+                id = Some(entry.id);
+                false
+            } else {
+                true
+            }
+        });
+
+        if let Some(id) = id {
+            // Unstore the doc
+            unstore_doc(&tracking_dir, id).await?;
+
+            // Update tracking file
+            write_tracking(&tracking_dir, &entries).await?;
+        } else {
+            tracing::warn!("Path is not being tracked: {}", path.display());
+        }
+
+        Ok(())
+    }
+
+    /// Stop tracking a document remote
+    ///
+    /// Removes the entry for the remote in the tracking file at `.stencila/track/docs.json`
+    /// but does not remove the corresponding `.stencila/track/<ID>.json`.
+    ///
+    /// Gives a warning if the path, or the remote, is not being tracked.
+    #[tracing::instrument]
+    pub async fn untrack_remote(path: &Path, remote: &Url) -> Result<()> {
+        let Some((tracking_dir, mut entries)) = read_tracking(path, false).await? else {
+            tracing::warn!("Path is not being tracked: {}", path.display());
+            return Ok(());
+        };
+        let relative_path = workspace_relative_path(&tracking_dir, path, false)?;
+
+        let Some(entry) = entries.get_mut(&relative_path) else {
+            tracing::warn!("Path is not being tracked: {}", path.display());
+            return Ok(());
+        };
+
+        // Remove the remote
+        if entry
+            .remotes
+            .as_mut()
+            .and_then(|remotes| remotes.remove(remote))
+            .is_none()
+        {
+            tracing::warn!(
+                "Remote is note being tracked for path `{}`: {}",
+                path.display(),
+                remote
+            );
+            return Ok(());
+        }
+
+        // Update tracking file
+        write_tracking(&tracking_dir, &entries).await?;
+
+        Ok(())
+    }
+
+    /// Move a tracked document
+    ///
+    /// Moves (renames) the file and updates the entry in the tracking file
+    /// at `.stencila/track/docs.json`.
+    ///
+    /// If there is no entry for the `from` path then the `to` path will
+    /// be tracked.
+    ///
+    /// Will error if the from `path` does not yet exist. Will create parent
+    /// directories of the `to` path if necessary.
+    #[tracing::instrument]
+    pub async fn move_path(from: &Path, to: &Path) -> Result<()> {
+        // This is a simple, unoptimized implementation
+        Document::untrack_path(from).await?;
+        rename(from, to).await?;
+        Document::track_path(to).await?;
+
+        Ok(())
+    }
+
+    /// Remove a tracked document
+    ///
+    /// Removes the file from the workspace, the corresponding
+    /// entry in the tracking file at `.stencila/track/docs.json`,
+    /// and the corresponding `.stencila/track/<ID>.json`.
+    #[tracing::instrument]
+    pub async fn remove_path(path: &Path) -> Result<()> {
+        Document::untrack_path(path).await?;
+
+        remove_file(path).await?;
+
+        Ok(())
+    }
+
+    /// Get the tracking information for the document
+    ///
+    /// Will error if the document does not have path yet (i.e. if
+    /// it is new and has not been saved yet).
+    ///
+    /// See [`Document::tracking_path`].
+    #[tracing::instrument(skip(self))]
+    pub async fn tracking(&self) -> Result<Option<DocumentTracking>> {
+        let Some(path) = &self.path else {
+            return Ok(None);
+        };
+
+        Document::tracking_path(path).await
+    }
+
+    /// Get the tracking information of a file
+    #[tracing::instrument]
+    pub async fn tracking_path(path: &Path) -> Result<Option<DocumentTracking>> {
+        let Some((tracking_dir, mut entries)) = read_tracking(path, false).await? else {
+            return Ok(None);
+        };
+        let relative_path = workspace_relative_path(&tracking_dir, path, false)?;
+
+        Ok(entries.remove(&relative_path))
+    }
+
+    /// Get the tracking information for all tracked files in the workspace
+    ///
+    /// Finds the closest `.stencila` directory to the path (be it a file or directory),
+    /// reads the tracking file, if any, and returns a vector tracking information
+    pub async fn tracking_all(path: &Path) -> Result<Option<DocumentTrackingEntries>> {
+        closest_tracking_entries(path).await
+    }
+
+    /// Returns a list of tracked remotes for a document
+    ///
+    /// Used when pushing or pulling the document. If the document is not tracked
+    /// or has no tracked remotes, will return an empty vector.
+    pub async fn remotes(&self) -> Result<Vec<Url>> {
+        match self
+            .tracking()
+            .await?
+            .and_then(|tracking| tracking.remotes)
+            .map(|remotes| remotes.keys().cloned().collect_vec())
+        {
+            Some(urls) => Ok(urls),
+            None => Ok(Vec::new()),
+        }
     }
 }

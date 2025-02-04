@@ -1,6 +1,5 @@
 use std::{
     env::current_dir,
-    fs::create_dir_all,
     path::PathBuf,
     time::{SystemTime, UNIX_EPOCH},
 };
@@ -14,15 +13,15 @@ use common::{
     chrono::TimeDelta,
     chrono_humanize,
     clap::{self, Parser},
-    eyre::{bail, Result},
+    eyre::{bail, Report, Result},
     futures::future::try_join_all,
-    indexmap::IndexMap,
-    itertools::Itertools,
+    reqwest::Url,
+    tokio::fs::write,
 };
 
-use crate::track::DocumentStatus;
+use crate::track::{closest_workspace_dir, tracking_file, DocumentRemote};
 
-use super::{track::DocumentStatusFlag, Document};
+use super::{track::DocumentTrackingStatus, Document};
 
 /// Initialize document tracking in a folder
 #[derive(Debug, Parser)]
@@ -32,49 +31,105 @@ pub struct Init {
     /// Defaults to the current directory.
     #[arg(default_value = ".")]
     dir: PathBuf,
+
+    /// Do not create a `.gitignore` file
+    #[arg(long)]
+    no_gitignore: bool,
 }
 
 impl Init {
     pub async fn run(self) -> Result<()> {
-        let path = self.dir.canonicalize()?.join(".stencila").join("tracked");
+        if !self.dir.exists() {
+            bail!(
+                "Workspace directory `{}` does not exist",
+                self.dir.display()
+            );
+        }
 
-        if !path.exists() {
-            create_dir_all(&path)?
+        tracking_file(&self.dir, true).await?;
+
+        if !self.no_gitignore {
+            write(self.dir.join(".stencila").join(".gitignore"), "track/*\n").await?;
+        }
+
+        eprintln!(
+            "🟢 Initialized document tracking in `{}`",
+            self.dir.display()
+        );
+
+        Ok(())
+    }
+}
+
+/// Start tracking a document
+#[derive(Debug, Parser)]
+pub struct Track {
+    /// The path to the local file to track
+    file: PathBuf,
+
+    /// The URL of the remote to track
+    url: Option<Url>,
+}
+
+impl Track {
+    pub async fn run(self) -> Result<()> {
+        if let Some(url) = self.url {
+            let already_tracked =
+                Document::track_remote(&self.file, (url.clone(), DocumentRemote::default()))
+                    .await?;
+            eprintln!(
+                "🟢 {} tracking {url} for `{}`",
+                if already_tracked {
+                    "Continued"
+                } else {
+                    "Started"
+                },
+                self.file.display()
+            );
+        } else {
+            let already_tracked = Document::track_path(&self.file).await?;
+            eprintln!(
+                "🟢 {} tracking `{}`",
+                if already_tracked {
+                    "Continued"
+                } else {
+                    "Started"
+                },
+                self.file.display()
+            );
         }
 
         Ok(())
     }
 }
 
-/// Start tracking a file
-#[derive(Debug, Parser)]
-pub struct Track {
-    /// The path of the file to track
-    file: PathBuf,
-}
-
-impl Track {
-    pub async fn run(self) -> Result<()> {
-        Document::track_path(&self.file).await
-    }
-}
-
-/// Stop tracking a file
+/// Stop tracking a document
 #[derive(Debug, Parser)]
 pub struct Untrack {
     /// The path of the file to stop tracking
     file: PathBuf,
+
+    /// The URL of the remote to stop tracking
+    url: Option<Url>,
 }
 
 impl Untrack {
     pub async fn run(self) -> Result<()> {
-        Document::untrack_path(&self.file).await
+        if let Some(url) = self.url {
+            Document::untrack_remote(&self.file, &url).await?;
+            eprintln!("🟥 Stopped tracking {url} for `{}`", self.file.display());
+        } else {
+            Document::untrack_path(&self.file).await?;
+            eprintln!("🟥 Stopped tracking `{}`", self.file.display());
+        }
+
+        Ok(())
     }
 }
 
-/// Move a tracked file
+/// Move a tracked document
 ///
-/// Moves the file to the new path (if it still exists at the
+/// Moves the document file to the new path (if it still exists at the
 /// old path) and updates any tracking information.
 #[derive(Debug, Parser)]
 #[clap(alias = "mv")]
@@ -103,9 +158,9 @@ impl Move {
     }
 }
 
-/// Remove a tracked file
+/// Remove a tracked document
 ///
-/// Deletes the file (if it still exists) and removes
+/// Deletes the document file (if it still exists) and removes
 /// any tracking data from the `.stencila` directory.
 #[derive(Debug, Parser)]
 #[clap(alias = "rm")]
@@ -113,7 +168,7 @@ pub struct Remove {
     /// The path of the file to remove
     file: PathBuf,
 
-    /// Do not
+    /// Do not ask for confirmation of removal
     #[arg(long, short)]
     force: bool,
 }
@@ -134,7 +189,7 @@ impl Remove {
     }
 }
 
-/// Get the tracking status documents
+/// Get the tracking status of documents
 #[derive(Debug, Parser)]
 pub struct Status {
     /// The paths of the files to get status for
@@ -149,7 +204,13 @@ impl Status {
     pub async fn run(self) -> Result<()> {
         let statuses = if self.files.is_empty() {
             // No paths provided, so get statuses from tracking dir
-            Document::status_tracked(&current_dir()?).await?
+            match Document::tracking_all(&current_dir()?).await? {
+                Some(statuses) => statuses,
+                None => {
+                    eprintln!("⚪️ Path is not in a folder being tracked by Stencila");
+                    return Ok(());
+                }
+            }
         } else {
             // Check that each path exists
             for path in self.files.iter() {
@@ -159,11 +220,15 @@ impl Status {
             }
 
             // Get status of each file
-            let futures = self
-                .files
+            let futures = self.files.into_iter().map(|path| async {
+                let status = Document::tracking_path(&path).await?;
+                Ok::<_, Report>((path, status))
+            });
+            let statuses = try_join_all(futures).await?;
+            statuses
                 .into_iter()
-                .map(|path| Document::status_path(path, None));
-            try_join_all(futures).await?
+                .flat_map(|(path, tracking)| tracking.map(|tracking| (path, tracking)))
+                .collect()
         };
 
         if let Some(format) = self.r#as {
@@ -172,71 +237,64 @@ impl Status {
             return Ok(());
         }
 
-        // Find documents with more than two statuses so they can be associated in table
-        let mut map: IndexMap<String, Vec<PathBuf>> = IndexMap::new();
-        for status in &statuses {
-            if let (Some(doc_id), Some(path)) = (&status.doc_id, &status.path) {
-                map.entry(doc_id.to_string())
-                    .or_insert_with(Vec::new)
-                    .push(path.clone());
-            }
-        }
-        let groups: Vec<String> = map
-            .into_iter()
-            .filter_map(|(doc_id, paths)| (paths.len() > 1).then_some(doc_id))
-            .collect();
+        let workspace_dir = closest_workspace_dir(&current_dir()?, false).await?;
 
         let mut table = table::new();
-        table.set_header(["File", "Linked", "Status", "Modified", "Tracked"]);
+        table.set_header([
+            "File\n↳ Remote",
+            "Status",
+            "Modified\n↳ Pulled",
+            "Stored\n↳ Pushed",
+        ]);
 
-        for DocumentStatus {
-            path,
-            status,
-            modified_at,
-            tracked_at,
-            doc_id,
-        } in statuses
-        {
-            let path = path.unwrap_or_default().to_string_lossy().to_string();
+        for (path, entry) in statuses {
+            let (status, modified_at) = entry.status(&workspace_dir, &path);
 
-            let linked = if let Some((group, ..)) =
-                doc_id.and_then(|doc_id| groups.iter().find_position(|&id| id == &doc_id))
-            {
-                // Cycle through first 14 ANSI colors for groups
-                let color = Color::AnsiValue(1 + (group as u8) % 14);
-                Cell::new(format!("={group}")).fg(color)
-            } else {
-                Cell::new("")
-            };
-
-            use DocumentStatusFlag::*;
+            use DocumentTrackingStatus::*;
             let (attr, color) = match status {
                 Unsupported => (Attribute::Dim, Color::DarkGrey),
-                Untracked => (Attribute::Reset, Color::Blue),
-                Unsaved => (Attribute::Dim, Color::DarkGrey),
-                IdMissing(..) => (Attribute::Bold, Color::Magenta),
-                IdDifferent(..) => (Attribute::Bold, Color::Magenta),
                 Deleted => (Attribute::Bold, Color::Red),
-                Synced => (Attribute::Reset, Color::Green),
+                Synced => (Attribute::Bold, Color::Green),
                 Ahead => (Attribute::Bold, Color::Yellow),
                 Behind => (Attribute::Bold, Color::Red),
             };
-            let status = match status {
-                IdMissing(id) => format!("Missing id ({id})"),
-                IdDifferent(id1, id2) => format!("Different ids ({id1} != {id2})"),
-                _ => status.to_string(),
-            };
-
-            let modified_at = humanize_timestamp(modified_at)?;
-            let tracked_at = humanize_timestamp(tracked_at)?;
 
             table.add_row([
-                Cell::new(path).add_attribute(attr),
-                linked,
-                Cell::new(status).fg(color),
-                Cell::new(modified_at),
-                Cell::new(tracked_at),
+                Cell::new(path.to_string_lossy()).add_attribute(attr),
+                // Currently, only show status for deleted files
+                Cell::new(if matches!(status, DocumentTrackingStatus::Deleted) {
+                    status.to_string()
+                } else {
+                    String::new()
+                })
+                .fg(color),
+                // Do not show time if deleted
+                Cell::new(if matches!(status, DocumentTrackingStatus::Deleted) {
+                    String::new()
+                } else {
+                    humanize_timestamp(modified_at)?
+                }),
+                Cell::new(humanize_timestamp(entry.stored_at)?),
             ]);
+
+            for (url, remote) in entry.remotes.iter().flatten() {
+                table.add_row([
+                    Cell::new(format!("↳ {url}")),
+                    Cell::new("").fg(color),
+                    Cell::new(format!("↳ {}", humanize_timestamp(remote.pulled_at)?))
+                        .add_attribute(if remote.pulled_at.is_none() {
+                            Attribute::Dim
+                        } else {
+                            Attribute::Reset
+                        }),
+                    Cell::new(format!("↳ {}", humanize_timestamp(remote.pushed_at)?))
+                        .add_attribute(if remote.pushed_at.is_none() {
+                            Attribute::Dim
+                        } else {
+                            Attribute::Reset
+                        }),
+                ]);
+            }
         }
 
         table.to_stdout();
@@ -249,7 +307,7 @@ fn humanize_timestamp(time: Option<u64>) -> Result<String> {
     use chrono_humanize::{Accuracy, HumanTime, Tense};
 
     let Some(time) = time else {
-        return Ok(String::from(""));
+        return Ok(String::from("never"));
     };
 
     let seconds = SystemTime::now()
