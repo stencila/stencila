@@ -1,0 +1,391 @@
+/*
+
+ Applies the default styles to all stencila Node custom web elements
+
+*/
+
+/* apply tailwind typography to relevant elements */
+stencila-heading h1,
+stencila-heading h2,
+stencila-heading h3,
+stencila-heading h4,
+stencila-heading h5,
+stencila-heading h6,
+stencila-paragraph p,
+stencila-list ul,
+stencila-list ol,
+stencila-list dl,
+stencila-table table,
+stencila-table caption,
+stencila-datatable table,
+stencila-quote-block blockquote,
+stencila-image-object img,
+stencila-figure img,
+stencila-figure caption,
+stencila-code-chunk code,
+stencila-code-chunk caption,
+stencila-code-figure code,
+stencila-code-expression code,
+stencila-code-block code,
+stencila-code-inline code {
+  font-family: var(--font-family-serif);
+  color: var(--default-text-colour);
+  @apply prose lg:prose-lg;
+}
+
+/* headings */
+
+stencila-heading {
+  display: block;
+  border: 1px solid transparent;
+
+  + stencila-paragraph {
+    p {
+      margin-top: 0;
+    }
+  }
+}
+
+stencila-heading {
+  display: block;
+  border: 1px solid transparent;
+
+  + stencila-paragraph {
+    p {
+      margin-top: 0;
+    }
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 500;
+    @apply w-full;
+  }
+
+  h1 {
+    margin-top: 3.5rem;
+    line-height: 1.1;
+    @apply mb-4 text-3xl lg:text-4xl;
+  }
+
+  h2 {
+    margin-top: 2.5rem;
+    line-height: 1.1;
+    @apply text-2xl lg:text-3xl;
+  }
+
+  h3 {
+    margin-top: 2rem;
+  }
+
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply mb-1.5 w-full;
+  }
+}
+
+/* ------------ */
+
+/* paragraph */
+
+stencila-paragraph {
+  p {
+    @apply mt-4 mb-0 pr-0 align-baseline leading-snug;
+  }
+
+  display: block;
+  border: 1px solid transparent;
+
+  &:has(+ stencila-heading) {
+    p {
+      margin-bottom: 0;
+    }
+  }
+}
+
+/* ------------ */
+
+/* tables, datatable and figures */
+
+stencila-figure {
+  figure {
+    @apply my-4 mx-0;
+  }
+}
+
+stencila-table,
+stencila-datatable {
+  table {
+    @apply my-4 border-collapse border-spacing-0 table-auto;
+
+    tr:first-child,
+    thead {
+      stencila-text {
+        font-weight: bold !important;
+      }
+
+      td,
+      th {
+        @apply pb-3;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    tr:nth-child(2) {
+      td {
+        @apply pt-3;
+      }
+    }
+
+    td,
+    th {
+      @apply p-0 w-fit pr-3 text-nowrap;
+    }
+
+    td[data-type='number'],
+    td[data-type='integer'] {
+      text-align: right;
+    }
+
+    p {
+      @apply m-0;
+    }
+
+    stencila-paragraph {
+      display: contents;
+    }
+
+    stencila-paragraph *,
+    stencila-ui-block-on-demand,
+    stencila-ui-block-on-demand * {
+      max-width: fit-content;
+    }
+
+    div:not(.chip) {
+      display: contents;
+    }
+  }
+}
+
+stencila-datatable {
+  table {
+    @apply mx-0;
+  }
+
+  tr:first-child {
+    td {
+      @apply pt-3 pb-0;
+      border: unset;
+    }
+  }
+
+  tr:nth-child(2) {
+    td {
+      @apply pt-0;
+    }
+  }
+}
+
+stencila-table,
+stencila-figure,
+stencila-code-chunk {
+  caption {
+    @apply text-left;
+  }
+
+  [slot='caption'] {
+    @apply block;
+
+    stencila-paragraph {
+      p {
+        @apply mt-4;
+        @apply text-sm text-black text-left;
+      }
+
+      .table-label,
+      .figure-label {
+        @apply font-bold after:content-[":"];
+      }
+    }
+  }
+
+  &[label-type='FigureLabel'] {
+    [slot='caption'] {
+      @apply mb-4;
+
+      stencila-paragraph:first-child {
+        p {
+          @apply mt-0;
+        }
+      }
+    }
+  }
+
+  [slot='caption'] + [slot='outputs'] {
+    @apply mt-0;
+  }
+}
+
+/* ------------ */
+
+/* admonitions  */
+
+stencila-admonition {
+  p[slot='title'] {
+    @apply my-0;
+  }
+
+  [slot='content'] {
+    stencila-paragraph:first-child {
+      p {
+        @apply mt-0;
+      }
+    }
+  }
+}
+
+/* ------------ */
+
+/* quote blocks */
+
+stencila-quote-block {
+  blockquote {
+    @apply border-solid border-y-0 border-l-2 border-r-0 border-black/20 bg-black/5 py-4 pl-3 m-6;
+
+    p {
+      @apply m-0 pb-0;
+    }
+
+    blockquote {
+      @apply m-0 mt-2 ml-3 border-black/20;
+    }
+  }
+}
+
+/* ------------ */
+
+/* images */
+
+stencila-figure,
+stencila-image-object {
+  img {
+    @apply object-cover max-w-full aspect-auto m-auto block;
+  }
+}
+
+/* ------------ */
+
+/* lists */
+
+stencila-list-item {
+  stencila-paragraph {
+    margin: 0;
+
+    p {
+      margin: 0;
+    }
+  }
+}
+
+/* ------------ */
+
+/* code elements */
+
+stencila-ui-node-code {
+  max-width: 100%;
+}
+
+stencila-code-chunk {
+  [slot='outputs'] {
+    stencila-boolean,
+    stencila-integer,
+    stencila-number,
+    stencila-string,
+    stencila-array,
+    stencila-object {
+      @apply block font-mono prose;
+    }
+  }
+
+  + stencila-paragraph {
+    p {
+      @apply mt-0;
+    }
+  }
+}
+
+stencila-code-expression,
+stencila-code-inline {
+  code {
+    font-family: var(--code-font-family);
+    font-size: var(--code-font-size);
+    background-color: var(--code-bg-colour);
+    @apply rounded-sm font-normal px-0.5;
+
+    /* remove backticks inserted by the tw typography .prose */
+    &::before,
+    &::after {
+      content: '';
+    }
+  }
+}
+
+/* ------------ */
+
+/* math elements */
+
+stencila-math-block,
+stencila-math-inline {
+  [slot='mathml'] {
+    math {
+      font-family: var(--mathml-font-family);
+    }
+  }
+}
+
+/* ------------ */
+
+/* Ai model instruction related elements */
+
+stencila-instruction-block {
+  &:has(+ stencila-heading) {
+    ol {
+      @apply mb-0;
+    }
+  }
+
+  &:has(+ stencila-paragraph) {
+    table {
+      @apply mb-0;
+    }
+  }
+
+  [slot='messages'] {
+    @apply hidden;
+  }
+}
+
+stencila-chat-message[message-role='User'] {
+  [slot='content'] {
+    stencila-paragraph:first-child {
+      p {
+        @apply mt-0;
+      }
+    }
+  }
+}
+
+stencila-suggestion-block {
+  [slot='content'] {
+    color: var(--default-text-colour);
+  }
+}
+
+/* ------------ */

@@ -39,6 +39,20 @@ export const patchValue = (
   })
 
 /**
+ * Create a `patch-value-execute` command event
+ */
+export const patchValueExecute = (
+  nodeType: NodeType,
+  nodeId: NodeId,
+  patchPath: string | number | Array<string | number>,
+  value: null | boolean | number | string
+) =>
+  documentCommandEvent({
+    command: 'patch-value-execute',
+    args: [nodeType, nodeId, patchPath, value],
+  })
+
+/**
  * Create a `patch-clone` command event
  */
 export const patchClone = (

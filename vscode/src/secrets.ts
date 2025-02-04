@@ -21,7 +21,7 @@
 
 import * as vscode from "vscode";
 
-import { PROVIDER_ID } from "./authentication";
+import { PROVIDER_ID, stencilaApiTokenEnvVar } from "./authentication";
 import { event } from "./events";
 
 const SECRET_NAMES = [
@@ -39,9 +39,13 @@ export async function collectSecrets(
 
   // If the user has a Stencila Cloud auth session then
   // use it's token as the STENCILA_API_TOKEN
-  const session = await vscode.authentication.getSession(PROVIDER_ID, []);
-  if (session) {
-    secrets["STENCILA_API_TOKEN"] = session.accessToken;
+  if (stencilaApiTokenEnvVar) {
+    secrets["STENCILA_API_TOKEN"] = stencilaApiTokenEnvVar;
+  } else {
+    const session = await vscode.authentication.getSession(PROVIDER_ID, []);
+    if (session) {
+      secrets["STENCILA_API_TOKEN"] = session.accessToken;
+    }
   }
 
   // Collect other secrets

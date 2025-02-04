@@ -3,6 +3,7 @@ import { apply } from '@twind/core'
 import { html } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 
+import { patchValue, patchValueExecute } from '../clients/commands'
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
 
@@ -39,10 +40,48 @@ export class IncludeBlock extends Executable {
   private hasContent = false
 
   /**
+   * Whether the include block is read-only.
+   *
+   * Currently always false, but in the future, this may depend on the context.
+   */
+  private readonly = false
+
+  /**
    * A mutation observer to update the `hasContent` state when
    * the `content` slot changes
    */
   private contentObserver: MutationObserver
+
+  /**
+   * A timer on the <input> used to debounce changes
+   */
+  private inputTimer: NodeJS.Timeout
+
+  /**
+   * Send the patch event upon input change
+   */
+  private onInputChange(e: InputEvent) {
+    const value = (e.target as HTMLInputElement).value
+    if (this.inputTimer) {
+      clearTimeout(this.inputTimer)
+    }
+    this.inputTimer = setTimeout(() => {
+      this.dispatchEvent(patchValue('IncludeBlock', this.id, 'source', value))
+    }, 300)
+  }
+
+  /**
+   * Key press event handler to execute upon 'Ctrl+Enter'
+   */
+  private onKeydown(e: KeyboardEvent) {
+    if (e.ctrlKey && e.key === 'Enter') {
+      e.preventDefault()
+      const value = (e.target as HTMLInputElement).value
+      this.dispatchEvent(
+        patchValueExecute('IncludeBlock', this.id, 'source', value)
+      )
+    }
+  }
 
   /**
    * Handle a change, including on initial load, of the `content` slot
@@ -154,8 +193,10 @@ export class IncludeBlock extends Executable {
           <input
             class="flex-grow rounded-sm border border-[${borderColour}] px-2 font-mono h-[2em] outline-black"
             value=${this.source}
-            readonly
-            disabled
+            @input=${this.onInputChange}
+            @keydown=${this.onKeydown}
+            ?readonly=${this.readonly}
+            ?disabled=${this.readonly}
           />
         </sl-tooltip>
 

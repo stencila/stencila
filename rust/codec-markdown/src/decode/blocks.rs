@@ -3,7 +3,7 @@ use std::{collections::HashMap, str::FromStr};
 use markdown::{mdast, unist::Position};
 use winnow::{
     ascii::{alphanumeric1, multispace0, multispace1, space0, Caseless},
-    combinator::{alt, delimited, eof, opt, preceded, separated, separated_pair, terminated},
+    combinator::{alt, delimited, eof, opt, preceded, separated, terminated},
     stream::AsChar,
     token::{take_till, take_until, take_while},
     LocatingSlice as Located, ModalResult, Parser,
@@ -584,9 +584,9 @@ fn call_arg(input: &mut Located<&str>) -> ModalResult<CallArgument> {
 /// Parse a [`CallBlock`] node
 fn call_block(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
-        ("call", multispace1),
+        ("call", multispace0),
         (
-            take_till(1.., '('),
+            take_till(0.., '('),
             opt(delimited(
                 ('(', multispace0),
                 separated(0.., call_arg, delimited(multispace0, ",", multispace0)),
@@ -613,8 +613,8 @@ fn call_block(input: &mut Located<&str>) -> ModalResult<Block> {
 /// Parse an [`IncludeBlock`] node
 fn include_block(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
-        (alt(("include", "inc")), multispace1),
-        (take_while(1.., |c| c != '{'), opt(attrs)),
+        ("include", multispace0),
+        (take_while(0.., |c| c != '{'), opt(attrs)),
     )
     .map(|(source, attrs)| {
         let mut options: IndexMap<&str, _> = attrs.unwrap_or_default().into_iter().collect();
@@ -838,16 +838,14 @@ fn for_block(input: &mut Located<&str>) -> ModalResult<Block> {
     alt((
         // Stencila Markdown
         preceded(
-            ("for", multispace1),
+            ("for", multispace0),
             (
-                separated_pair(
-                    name,
-                    (multispace1, "in", multispace1),
-                    alt((
-                        delimited('`', take_until(0.., '`'), '`'),
-                        take_while(1.., |c| c != '{'),
-                    )),
-                ),
+                opt(name),
+                opt((multispace0, "in", multispace0)),
+                alt((
+                    delimited('`', take_until(0.., '`'), '`'),
+                    take_while(0.., |c| c != '{'),
+                )),
                 opt(preceded(multispace0, attrs)),
             ),
         ),
@@ -855,20 +853,18 @@ fn for_block(input: &mut Located<&str>) -> ModalResult<Block> {
         preceded(
             ("{for}", multispace0),
             (
-                separated_pair(
-                    name,
-                    (multispace1, "in", multispace1),
-                    take_while(1.., |c| c != '{'),
-                ),
+                opt(name),
+                opt((multispace0, "in", multispace0)),
+                take_while(0.., |c| c != '{'),
                 "".value(None),
             ),
         ),
     ))
-    .map(|((variable, expr), options)| {
+    .map(|(variable, _, expr, options)| {
         let options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
 
         Block::ForBlock(ForBlock {
-            variable: variable.into(),
+            variable: variable.map(|var| var.into()).unwrap_or_default(),
             code: expr.trim().into(),
             programming_language: options.first().map(|(name, _)| name.to_string()),
             execution_mode: execution_mode_from_options(options),
@@ -886,11 +882,11 @@ fn if_elif(input: &mut Located<&str>) -> ModalResult<(bool, IfBlockClause)> {
             delimited(
                 (take_while(3.., ':'), space0),
                 alt(("if", "elif")),
-                multispace1,
+                multispace0,
             ),
             alt((
                 delimited('`', take_until(0.., '`'), '`'),
-                take_while(1.., |c| c != '{'),
+                take_while(0.., |c| c != '{'),
             )),
             opt(preceded(multispace0, attrs)),
         ),
@@ -901,7 +897,7 @@ fn if_elif(input: &mut Located<&str>) -> ModalResult<(bool, IfBlockClause)> {
                 alt(("if", "elif")),
                 ('}', multispace0),
             ),
-            take_while(1.., |_| true),
+            take_while(0.., |_| true),
             "".value(None),
         ),
     ))
@@ -1899,7 +1895,36 @@ mod tests {
     }
 
     #[test]
+    fn test_incomplete_block() {
+        // Incomplete (e.g. partially written in editor)
+        assert_eq!(
+            include_block(&mut Located::new("include")).unwrap(),
+            Block::IncludeBlock(IncludeBlock {
+                source: "".to_string(),
+                ..Default::default()
+            })
+        );
+    }
+
+    #[test]
     fn test_call_block() {
+        // Incomplete (e.g. partially written in editor)
+        assert_eq!(
+            call_block(&mut Located::new("call")).unwrap(),
+            Block::CallBlock(CallBlock {
+                source: "".to_string(),
+                ..Default::default()
+            })
+        );
+        assert_eq!(
+            call_block(&mut Located::new("call file.md")).unwrap(),
+            Block::CallBlock(CallBlock {
+                source: "file.md".to_string(),
+                ..Default::default()
+            })
+        );
+
+        // No args
         assert_eq!(
             call_block(&mut Located::new("call file.md ()")).unwrap(),
             Block::CallBlock(CallBlock {
@@ -1907,6 +1932,8 @@ mod tests {
                 ..Default::default()
             })
         );
+
+        // With args
         assert_eq!(
             call_block(&mut Located::new("call file.md (a=1)")).unwrap(),
             Block::CallBlock(CallBlock {
@@ -2011,6 +2038,32 @@ mod tests {
 
     #[test]
     fn test_for_block() {
+        // Incomplete (e.g. partially written in editor)
+        assert_eq!(
+            for_block(&mut Located::new("for")).unwrap(),
+            Block::ForBlock(ForBlock {
+                variable: "".to_string(),
+                code: "".into(),
+                ..Default::default()
+            })
+        );
+        assert_eq!(
+            for_block(&mut Located::new("for item")).unwrap(),
+            Block::ForBlock(ForBlock {
+                variable: "item".to_string(),
+                code: "".into(),
+                ..Default::default()
+            })
+        );
+        assert_eq!(
+            for_block(&mut Located::new("for item in")).unwrap(),
+            Block::ForBlock(ForBlock {
+                variable: "item".to_string(),
+                code: "".into(),
+                ..Default::default()
+            })
+        );
+
         // Simple
         assert_eq!(
             for_block(&mut Located::new("for item in expr")).unwrap(),
@@ -2081,6 +2134,18 @@ mod tests {
 
     #[test]
     fn test_if_elif() {
+        // Incomplete (e.g. partially written in editor)
+        assert_eq!(
+            if_elif(&mut Located::new("::: if")).unwrap(),
+            (
+                true,
+                IfBlockClause {
+                    code: "".into(),
+                    ..Default::default()
+                }
+            )
+        );
+
         // Simple
         assert_eq!(
             if_elif(&mut Located::new("::: if expr")).unwrap(),

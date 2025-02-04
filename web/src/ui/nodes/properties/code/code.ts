@@ -1,11 +1,5 @@
 import '@shoelace-style/shoelace/dist/components/icon/icon'
-import {
-  defaultKeymap,
-  history,
-  undo,
-  redo,
-  historyKeymap,
-} from '@codemirror/commands'
+import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
 import {
   foldGutter,
   defaultHighlightStyle,
@@ -22,7 +16,7 @@ import { apply } from '@twind/core'
 import { LitElement, PropertyValues, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
-import { patchValue } from '../../../../clients/commands'
+import { patchValue, patchValueExecute } from '../../../../clients/commands'
 import { CompilationMessage } from '../../../../nodes/compilation-message'
 import { ExecutionMessage } from '../../../../nodes/execution-message'
 import { withTwind } from '../../../../twind'
@@ -130,9 +124,15 @@ export class UINodeCode extends LitElement {
    */
   private editorView?: EditorView
 
+  // Compartments for toggling on editor functionality
+
   private viewEditable: Compartment
 
   private viewReadOnly: Compartment
+
+  private viewAuthorship: Compartment
+
+  private authorshipExtensions: Extension | Extension[] = []
 
   /**
    * Whether the code is currently being edited
@@ -142,6 +142,18 @@ export class UINodeCode extends LitElement {
    * user is actively editing the code.
    */
   isBeingEdited: boolean = false
+
+  /**
+   * Runs the current code
+   *
+   * Dispatches a `path-value-execute` command so the code is up to date upon execution
+   */
+  private runCode() {
+    const value = this.editorView.state.doc.toString()
+    this.dispatchEvent(
+      patchValueExecute(this.type, this.nodeId, this.nodeProperty, value)
+    )
+  }
 
   /**
    * Returns a codemirror `Extension`, which dispatches a
@@ -200,13 +212,16 @@ export class UINodeCode extends LitElement {
   }
 
   /**
-   * Update the editable and readonly extension of the `editorView`
+   * Update the editable and readonly extension of the `editorView`, and toggle authorship extensions
    */
   private updateViewEditability() {
     this.editorView.dispatch({
       effects: [
         this.viewEditable.reconfigure(EditorView.editable.of(!this.readOnly)),
         this.viewReadOnly.reconfigure(EditorState.readOnly.of(this.readOnly)),
+        this.viewAuthorship.reconfigure(
+          this.readOnly ? this.authorshipExtensions : []
+        ),
       ],
     })
   }
@@ -338,7 +353,7 @@ export class UINodeCode extends LitElement {
     const linterExtension = [linter(() => this.diagnostics)]
 
     const authorshipMarkers = this.getAuthorshipMarkers()
-    const authorshipExtensions = authorshipMarkers
+    this.authorshipExtensions = authorshipMarkers
       ? [
           EditorView.decorations.of(
             createProvenanceDecorations(authorshipMarkers)
@@ -349,10 +364,18 @@ export class UINodeCode extends LitElement {
 
     this.viewEditable = new Compartment()
     this.viewReadOnly = new Compartment()
+    this.viewAuthorship = new Compartment()
 
     const singleLineEditor = EditorState.transactionFilter.of((tr) =>
       tr.newDoc.lines > 1 ? [] : tr
     )
+
+    const filteredKeyMap = defaultKeymap.filter((kb) => {
+      if (kb.key) {
+        return !['mod-enter', 'ctrl-enter'].includes(kb.key.toLowerCase())
+      }
+      return true
+    })
 
     return [
       this.patchInput(),
@@ -362,13 +385,22 @@ export class UINodeCode extends LitElement {
       this.singleLine ? singleLineEditor : [],
       ...languageExtension,
       ...linterExtension,
-      ...authorshipExtensions,
+      this.viewAuthorship.of(this.readOnly ? this.authorshipExtensions : []),
       this.noGutters ? [] : [lineNumbers(), foldGutter()],
       history(),
-      keymap.of(defaultKeymap),
+      keymap.of(filteredKeyMap),
       keymap.of(historyKeymap),
       keymap.of(clipBoardKeyBindings),
       stencilaTheme,
+      keymap.of([
+        {
+          key: 'Ctrl-Enter',
+          run: () => {
+            this.runCode()
+            return true
+          },
+        },
+      ]),
     ]
   }
 

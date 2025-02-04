@@ -9,23 +9,36 @@ export const PROVIDER_ID = "stencila";
 const CLOUD_URL = "https://stencila.cloud";
 const API_URL = "https://api.stencila.cloud/v1";
 
+// The presence of the `STENCILA_API_TOKEN` env var is used to
+// determine whether or not to register authentication provider
+// and let the user know if they try to use other signin/signout commands
+export const stencilaApiTokenEnvVar = process.env.STENCILA_API_TOKEN;
+
 /**
  * Register the Stencila Cloud authentication provider
  */
 export function registerAuthenticationProvider(
   context: vscode.ExtensionContext
 ) {
-  context.subscriptions.push(
-    vscode.authentication.registerAuthenticationProvider(
-      PROVIDER_ID,
-      "Stencila Cloud",
-      new StencilaCloudProvider(context),
-      { supportsMultipleAccounts: false }
-    )
-  );
+  if (!stencilaApiTokenEnvVar) {
+    context.subscriptions.push(
+      vscode.authentication.registerAuthenticationProvider(
+        PROVIDER_ID,
+        "Stencila Cloud",
+        new StencilaCloudProvider(context),
+        { supportsMultipleAccounts: false }
+      )
+    );
+  }
 
   context.subscriptions.push(
     vscode.commands.registerCommand("stencila.cloud.signin", async () => {
+      if (stencilaApiTokenEnvVar) {
+        return await vscode.window.showInformationMessage(
+          `Already signed in to Stencila Cloud using STENCILA_API_TOKEN environment variable`
+        );
+      }
+
       try {
         const session = await vscode.authentication.getSession(
           PROVIDER_ID,
@@ -51,6 +64,12 @@ export function registerAuthenticationProvider(
 
   context.subscriptions.push(
     vscode.commands.registerCommand("stencila.cloud.signin-token", async () => {
+      if (stencilaApiTokenEnvVar) {
+        return await vscode.window.showInformationMessage(
+          `Already signed in to Stencila Cloud using STENCILA_API_TOKEN environment variable`
+        );
+      }
+
       // Ask user to input the token value
       const secretValue = await vscode.window.showInputBox({
         prompt: `Enter an Access Token from your Stencila Cloud account`,
@@ -73,6 +92,12 @@ export function registerAuthenticationProvider(
 
   context.subscriptions.push(
     vscode.commands.registerCommand("stencila.cloud.signout", async () => {
+      if (stencilaApiTokenEnvVar) {
+        return vscode.window.showInformationMessage(
+          `Signed in to Stencila Cloud using STENCILA_API_TOKEN environment variable. Remove it to sign out.`
+        );
+      }
+
       try {
         const session = await vscode.authentication.getSession(
           PROVIDER_ID,
