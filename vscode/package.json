@@ -213,12 +213,6 @@
         "icon": "$(comment-discussion)"
       },
       {
-        "command": "stencila.insert-chat.suggest",
-        "category": "Stencila",
-        "title": "Chat to suggest content",
-        "icon": "$(comment-discussion)"
-      },
-      {
         "command": "stencila.insert-chat.create",
         "category": "Stencila",
         "title": "Chat to create"
@@ -296,12 +290,12 @@
       {
         "command": "stencila.insert-chat.edit",
         "category": "Stencila",
-        "title": "Chat to edit selection"
+        "title": "Chat to edit selection (coming soon!)"
       },
       {
         "command": "stencila.insert-chat.fix",
         "category": "Stencila",
-        "title": "Chat to fix selection"
+        "title": "Chat to fix selection (coming soon!)"
       },
       {
         "command": "stencila.insert-command-create",
