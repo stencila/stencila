@@ -77,9 +77,18 @@ pub fn check(force: bool) -> JoinHandle<Option<String>> {
             serde_json::from_str(&json)?
         };
 
-        if latest.version() != *STENCILA_VERSION {
-            UPGRADE_AVAILABLE.store(true, Ordering::SeqCst);
-            Ok::<_, Report>(Some(latest.version()))
+        // Both versions are expected to be semver, but if they are not then, then
+        // the will return None
+        if let (Ok(latest_semver), Ok(current_semver)) = (
+            semver::Version::parse(&latest.version()),
+            semver::Version::parse(STENCILA_VERSION),
+        ) {
+            if latest_semver > current_semver {
+                UPGRADE_AVAILABLE.store(true, Ordering::SeqCst);
+                Ok::<_, Report>(Some(latest.version()))
+            } else {
+                Ok(None)
+            }
         } else {
             Ok(None)
         }

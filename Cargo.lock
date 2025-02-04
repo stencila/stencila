@@ -873,6 +873,7 @@ dependencies = [
  "schema",
  "secrets",
  "self-replace",
+ "semver",
  "server",
  "tracing-error",
  "tracing-subscriber",
