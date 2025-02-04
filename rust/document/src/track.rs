@@ -434,6 +434,9 @@ impl Document {
     /// Restore a document from the workspace tracking directory
     pub fn restore(path: &Path) -> Result<Node> {
         // Get the storage path for the document
+        // Currently, this function needs to be sync because of where is is called from
+        // and hence we need to do this blocking to await on `tracking_storage`.
+        // This may be able to be avoided in the future.
         let result = tokio::task::block_in_place(move || {
             let rt = tokio::runtime::Handle::current();
             rt.block_on(async move { Document::tracking_storage(path).await })
