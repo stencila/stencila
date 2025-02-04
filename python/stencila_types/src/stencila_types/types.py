@@ -224,6 +224,17 @@ class ConfigPublishGhostType(StrEnum):
     Post = "Post"
 
 
+class ConfigPublishZenodoAccessRight(StrEnum):
+    """
+    The access right type
+    """
+
+    Open = "Open"
+    Embargoed = "Embargoed"
+    Restricted = "Restricted"
+    Closed = "Closed"
+
+
 class ExecutionBounds(StrEnum):
     """
     The bounds placed on the execution of a document node.

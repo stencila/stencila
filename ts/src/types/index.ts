@@ -45,6 +45,7 @@ export * from "./ConfigPublishGhost.js";
 export * from "./ConfigPublishGhostState.js";
 export * from "./ConfigPublishGhostType.js";
 export * from "./ConfigPublishZenodo.js";
+export * from "./ConfigPublishZenodoAccessRight.js";
 export * from "./ConstantValidator.js";
 export * from "./ContactPoint.js";
 export * from "./Cord.js";
