@@ -52,15 +52,12 @@ body {
 /*
   extra rules for 'dynamic' and 'vscode' views
 */
-[view='dynamic'],
-[view='vscode'] {
+stencila-dynamic-view,
+stencila-vscode-view {
   > [root] {
-    /* @apply prose lg:prose-lg max-w-prose; */
-
+    @apply max-w-prose;
     font-family: var(--font-family-serif);
     color: var(--default-text-colour);
-
-    max-width: 100%;
 
     > section {
       @apply min-w-80 w-full mx-auto;
@@ -78,10 +75,6 @@ body {
     li {
       @apply m-0 list-item w-full;
     }
-
-    /* table {
-      @apply mx-10;
-    } */
 
     stencila-figure,
     stencila-ui-block-on-demand {
