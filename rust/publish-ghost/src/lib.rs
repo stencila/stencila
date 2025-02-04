@@ -21,7 +21,9 @@ use common::{
 };
 use document::{
     codecs,
-    schema::{shortcuts::t, ConfigPublishGhostState, ConfigPublishGhostType, PropertyValueOrString,  Node},
+    schema::{
+        shortcuts::t, ConfigPublishGhostState, ConfigPublishGhostType, Node, PropertyValueOrString,
+    },
     CommandWait, DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
 };
 
@@ -551,7 +553,7 @@ impl Cli {
                                     slug = self.slug.clone();
                                 }
                                 if !self.featured {
-                                    featured = publisher.featured.clone();
+                                    featured = publisher.featured;
                                 } else {
                                     featured = Some(self.featured);
                                 }
@@ -598,7 +600,7 @@ impl Cli {
                         }
                     }
                 }
-                return Ok((title, slug, featured, excerpt, status, schedule, tags));
+                Ok((title, slug, featured, excerpt, status, schedule, tags))
             })
             .await?;
 

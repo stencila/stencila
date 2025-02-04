@@ -614,11 +614,12 @@ impl Cli {
             deposit["metadata"]["doi"] = json!(doi)
         }
 
-        tracing::debug!("{:?}",metadata_from_doc);
+        tracing::debug!("{:?}", metadata_from_doc);
         if let Some(metadata) = metadata_from_doc.clone() {
             if let Some(access_right) = metadata.5 {
-                tracing::debug!("access_right:{:?}",access_right);
-                deposit["metadata"]["access_right"] = json!(access_right.to_string().to_lowercase().clone());
+                tracing::debug!("access_right:{:?}", access_right);
+                deposit["metadata"]["access_right"] =
+                    json!(access_right.to_string().to_lowercase().clone());
             } else {
                 deposit["metadata"]["access_right"] = json!(self.access_right.clone());
             }
