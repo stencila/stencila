@@ -55,6 +55,7 @@ export class ForBlock extends CodeExecutable {
     const { colour, borderColour } = nodeUi('ForBlock')
 
     const readOnly = ['Running', 'Pending'].includes(this.executionStatus)
+    const hasDocRoot = this.hasDocumentRootNode()
 
     return html`
       <stencila-ui-block-on-demand
@@ -63,6 +64,7 @@ export class ForBlock extends CodeExecutable {
         depth=${this.depth}
         ?removeContentPadding=${true}
         ?noVisibleContent=${!this.hasIterations}
+        ?no-root=${!hasDocRoot}
       >
         <div slot="header-right">
           <stencila-ui-node-execution-commands

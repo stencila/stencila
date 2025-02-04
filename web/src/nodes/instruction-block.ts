@@ -242,12 +242,15 @@ export class InstructionBlock extends Instruction {
   private renderCard() {
     const { borderColour } = nodeUi('InstructionBlock')
 
+    const hasDocRoot = this.hasDocumentRootNode()
+
     return html`<stencila-ui-block-on-demand
       type="InstructionBlock"
       node-id=${this.id}
       depth=${this.depth}
       header-title="${this.instructionType} Command"
       ?noVisibleContent=${this.hasContent && !this.hasSuggestions}
+      ?no-root=${!hasDocRoot}
     >
       <span slot="header-right" class="flex">
         <stencila-ui-node-execution-commands

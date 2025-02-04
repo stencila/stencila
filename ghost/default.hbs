@@ -8,7 +8,7 @@
     
     <link rel="stylesheet" href="{{asset "built/index.css"}}" />
     <link rel="stylesheet" href="{{asset "built/tailwind.css"}}" />
-    <link rel="stylesheet" href="{{asset "built/stencila-web/themes/default.css"}}">
+    <link rel="stylesheet" href="{{asset "built/stencila-web/themes/nodes.css"}}">
 
     <script src="{{asset "built/index.js"}}" defer></script>
     <script src="{{asset "built/stencila-web/views/ghost.js"}}"></script>
@@ -37,7 +37,7 @@
             <div class="gh-head-menu flex items-center">
                 {{navigation}}
             </div>
-            <a class="gh-burger" role="button" aria-label="menu">
+            <a id="header-burger" class="gh-burger" role="button" aria-label="menu">
                 <div class="gh-burger-box">
                     <div class="gh-burger-inner"></div>
                 </div>

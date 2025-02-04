@@ -141,13 +141,23 @@ export abstract class Entity extends LitElement {
   }
 
   /**
-   *  Whether the node is within a model chat message
+   * Whether the node is within a model chat message
    */
   protected isWithinModelChatMessage() {
     return (
       this.isWithin('ChatMessage') &&
       this.closestGlobally('stencila-chat-message[message-role="Model"]') !==
         null
+    )
+  }
+
+  /**
+   * Whether the entity has a parent [root] node
+   */
+  protected hasDocumentRootNode() {
+    return (
+      this.closestGlobally('stencila-article[root]') !== null ||
+      this.closestGlobally('stencila-prompt[root]') !== null
     )
   }
 

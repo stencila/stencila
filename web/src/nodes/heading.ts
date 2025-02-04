@@ -73,11 +73,14 @@ export class Heading extends Entity {
       `
     }
 
+    const hasDocRoot = this.hasDocumentRootNode()
+
     return html`
       <stencila-ui-block-on-demand
         type="Heading"
         node-id=${this.id}
         depth=${this.depth}
+        ?no-root=${!hasDocRoot}
       >
         <div slot="body">
           <stencila-ui-node-authors type="Heading">

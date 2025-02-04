@@ -32,11 +32,13 @@ export class MathBlock extends Math {
   }
 
   private renderCard() {
+    const hasDocRoot = this.hasDocumentRootNode()
     return html`
       <stencila-ui-block-on-demand
         type="MathBlock"
         node-id=${this.id}
         depth=${this.depth}
+        ?no-root=${!hasDocRoot}
       >
         <div slot="body">
           <stencila-ui-node-authors type="MathBlock">

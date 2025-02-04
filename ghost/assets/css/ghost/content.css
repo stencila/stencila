@@ -98,13 +98,13 @@
 }
 
 @media (max-width: 650px) {
-    .gh-canvas blockquote,
+    /* .gh-canvas blockquote,
     .gh-canvas ol,
     .gh-canvas ul,
     .gh-canvas dl,
     .gh-canvas p {
         font-size: 1.8rem;
-    }
+    } */
 
     .gh-content blockquote::before {
         left: -4vmin;

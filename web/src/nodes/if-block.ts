@@ -47,6 +47,7 @@ export class IfBlock extends Executable {
   }
 
   private renderCard() {
+    const hasDocRoot = this.hasDocumentRootNode()
     return html`
       <stencila-ui-block-on-demand
         type="IfBlock"
@@ -54,6 +55,7 @@ export class IfBlock extends Executable {
         depth=${this.depth}
         ?removeContentPadding=${true}
         ?noVisibleContent=${!this.hasClauses}
+        ?no-root=${!hasDocRoot}
       >
         <div slot="header-right">
           <stencila-ui-node-execution-commands

@@ -22,11 +22,14 @@ export class Figure extends Entity {
       return this.renderContent()
     }
 
+    const hasDocRoot = this.hasDocumentRootNode()
+
     return html`
       <stencila-ui-block-on-demand
         type="Figure"
         node-id=${this.id}
         depth=${this.depth}
+        ?no-root=${!hasDocRoot}
       >
         <div slot="body">
           <stencila-ui-node-authors type="Figure">

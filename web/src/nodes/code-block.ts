@@ -37,6 +37,8 @@ export class CodeBlock extends CodeStatic {
       icon: 'code',
     }
 
+    const hasDocRoot = this.hasDocumentRootNode()
+
     return html`
       <stencila-ui-block-on-demand
         type="CodeBlock"
@@ -44,6 +46,7 @@ export class CodeBlock extends CodeStatic {
         depth=${this.depth}
         header-icon=${icon}
         header-title=${title}
+        ?no-root=${!hasDocRoot}
       >
         <div slot="body">
           <stencila-ui-node-authors type="CodeBlock">

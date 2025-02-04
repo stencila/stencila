@@ -11,14 +11,27 @@ Ghost provides support for facebook and x(formaly twitter) which can be configur
 This theme adds support for 
 'whatsapp', 'instagram', 'github', 'discord', 'youtube'.
 
-To add 
+To add these links, in the admin view go to **Settings** >> **Design & branding**, click "customise" to open the design view, then in the sidebar click "theme", here you will see the inputs for various social media links. Fill these out and they will appear in the page footer.
 
 
 ## Routing
 
 This them will utililse the custom [routes.yml](https://ghost.org/docs/themes/routing/).
 
-More to come.
+In your ghost admin navigate to **Settings** > **Labs**, then in the 'Routes' section click "Upload routes file" to upload the `theme-routes.yml` file in this directory
+
+## Setting up pages
+
+To configure the home and document viewer pages create two new pages:
+
+- To create a home page, create a new page (or use an existing one). In the page editing view, open the sidebar and add 'home' to the slug input. Save and this page will now be you home page.
+
+- To create a doc viewer page, create a new page, In the page editing view, open the sidebar and add 'docview' to the slug input. To create 'sections' ofr docs in the sidebar.
+
+
+
+# ----------------------- 
+# OLD README BELOW 
 
 
 # Ghost Starter Theme

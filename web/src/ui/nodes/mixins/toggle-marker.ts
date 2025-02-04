@@ -97,7 +97,7 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
      */
     protected isInitiallyExpanded() {
       // Expand if the root node
-      if (this.depth === 0) {
+      if (this.depth === 0 && !this.noDocRoot) {
         return true
       }
 

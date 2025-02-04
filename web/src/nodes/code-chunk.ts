@@ -70,6 +70,8 @@ export class CodeChunk extends CodeExecutable {
 
     const readOnly = ['Running', 'Pending'].includes(this.executionStatus)
 
+    const hasDocRoot = this.hasDocumentRootNode()
+
     return html`
       <stencila-ui-block-on-demand
         type="CodeChunk"
@@ -78,6 +80,7 @@ export class CodeChunk extends CodeExecutable {
         header-icon=${icon}
         header-title=${title}
         ?noVisibleContent=${!this.hasOutputs}
+        ?no-root=${!hasDocRoot}
       >
         <span slot="header-right" class="flex flex-row items-center gap-3">
           <stencila-ui-node-execution-commands
