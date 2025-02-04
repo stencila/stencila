@@ -283,9 +283,6 @@ impl Cli {
         let url = url::Url::from_str(&doc_url)?;
         doc.track_remote_pushed(url).await?;
 
-        // Save the document to disk
-        doc.save().await?;
-
         tracing::info!(
             "Successfully created {doc_url} from {}",
             doc.file_name().unwrap_or("document")
@@ -471,9 +468,6 @@ impl Cli {
         // Track that the doc was pulled from Ghost
         let url = url::Url::from_str(&doc_url)?;
         doc.track_remote_pulled(url).await?;
-
-        // Save the document to disk
-        doc.save().await?;
 
         tracing::info!(
             "Successfully updated {} from {doc_url}",
