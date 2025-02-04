@@ -826,7 +826,7 @@ mod tests {
     /// Test the `resolve_path` method using the `routing` example
     /// Skip on windows because of path incompatibility (\ v /)
     #[cfg(not(target_os = "windows"))]
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_resolve_path() -> Result<()> {
         let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../../examples/projects/routing")
