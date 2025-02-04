@@ -5,21 +5,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap');
 @import url('../fonts/stix-two-math/stix-two-math.css');
 
+@import './nodes.css';
+
 :root {
   /* custom properties */
   --default-text-colour: #171817;
+  --font-family-serif: 'Source Serif 4', Georgia, 'Times New Roman', Times,
+    serif;
 
   /* code */
   --code-font-family: 'IBM Plex Mono', monospace;
   --code-bg-colour: rgba(217, 217, 217, 1);
   --code-font-size: 0.875rem;
 
+  /* math */
   --mathml-font-family: 'STIX Two Math';
 
   /* component specific vars */
   --ui-lastmod-display: block;
 }
 
+/* apply padding to if the stencila `[root]` elements is article or prompt (for web and vscode preview) */
 :root:has(stencila-article[root], stencila-prompt[root]) {
   padding: 3rem 4rem;
 }
@@ -43,341 +49,20 @@ body {
   margin: 1cm;
 }
 
-[root] {
-  @apply prose lg:prose-lg;
-
-  font-family: 'Source Serif 4', Georgia, 'Times New Roman', Times, serif;
-  color: var(--default-text-colour);
-
-  > section {
-    @apply min-w-80 w-full mx-auto;
-    max-width: 72ch;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-weight: 500;
-    @apply w-full;
-  }
-
-  h1 {
-    margin-top: 3.5rem;
-    line-height: 1.1;
-    @apply mb-4 text-3xl lg:text-4xl;
-  }
-
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    @apply mb-1.5 w-full;
-  }
-
-  h2 {
-    margin-top: 2.5rem;
-    line-height: 1.1;
-    @apply text-2xl lg:text-3xl;
-  }
-
-  h3 {
-    margin-top: 2rem;
-  }
-
-  p {
-    @apply mt-4 mb-0 pr-0 align-baseline leading-snug;
-  }
-
-  figure {
-    @apply my-4 mx-0;
-  }
-
-  table {
-    @apply my-4 border-collapse border-spacing-0 table-auto;
-
-    tr:first-child,
-    thead {
-      stencila-text {
-        font-weight: bold !important;
-      }
-
-      td,
-      th {
-        @apply pb-3;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.3);
-      }
-    }
-
-    tr:nth-child(2) {
-      td {
-        @apply pt-3;
-      }
-    }
-
-    td,
-    th {
-      @apply p-0 w-fit pr-3 text-nowrap;
-    }
-
-    td[data-type='number'],
-    td[data-type='integer'] {
-      text-align: right;
-    }
-
-    p {
-      @apply m-0;
-    }
-
-    stencila-paragraph {
-      display: contents;
-    }
-
-    stencila-paragraph *,
-    stencila-ui-block-on-demand,
-    stencila-ui-block-on-demand * {
-      max-width: fit-content;
-    }
-
-    div:not(.chip) {
-      display: contents;
-    }
-  }
-
-  figure,
-  stencila-image-object {
-    img {
-      @apply object-cover max-w-full aspect-auto m-auto block;
-    }
-  }
-
-  blockquote {
-    @apply border-solid border-y-0 border-l-2 border-r-0 border-black/20 bg-black/5 py-4 pl-3 m-6;
-
-    p {
-      @apply m-0 pb-0;
-    }
-
-    blockquote {
-      @apply m-0 mt-2 ml-3 border-black/20;
-    }
-  }
-
-  stencila-code-chunk {
-    [slot='outputs'] {
-      @apply my-4;
-
-      stencila-boolean,
-      stencila-integer,
-      stencila-number,
-      stencila-string,
-      stencila-array,
-      stencila-object {
-        @apply font-mono prose;
-      }
-    }
-
-    + stencila-paragraph {
-      p {
-        @apply mt-0;
-      }
-    }
-  }
-
-  stencila-heading {
-    display: block;
-    border: 1px solid transparent;
-
-    + stencila-paragraph {
-      p {
-        margin-top: 0;
-      }
-    }
-  }
-
-  stencila-paragraph {
-    display: block;
-    /* background: orange; */
-    border: 1px solid transparent;
-
-    &:has(+ stencila-heading) {
-      p {
-        margin-bottom: 0;
-      }
-    }
-  }
-
-  stencila-instruction-block {
-    &:has(+ stencila-heading) {
-      ol {
-        @apply mb-0;
-      }
-    }
-
-    &:has(+ stencila-paragraph) {
-      table {
-        @apply mb-0;
-      }
-    }
-
-    [slot='messages'] {
-      @apply hidden;
-    }
-  }
-
-  stencila-list-item {
-    stencila-paragraph {
-      margin: 0;
-
-      p {
-        margin: 0;
-      }
-    }
-  }
-
-  stencila-ui-node-code {
-    max-width: 100%;
-  }
-
-  stencila-datatable {
-    table {
-      @apply mx-0;
-    }
-
-    tr:first-child {
-      td {
-        @apply pt-3 pb-0;
-        border: unset;
-      }
-    }
-
-    tr:nth-child(2) {
-      td {
-        @apply pt-0;
-      }
-    }
-  }
-
-  stencila-code-chunk {
-    [slot='outputs'] {
-      stencila-boolean,
-      stencila-integer,
-      stencila-number,
-      stencila-string,
-      stencila-array,
-      stencila-object {
-        @apply block;
-      }
-    }
-  }
-
-  stencila-code-expression,
-  stencila-code-inline {
-    code {
-      font-family: var(--code-font-family);
-      font-size: var(--code-font-size);
-      background-color: var(--code-bg-colour);
-      @apply rounded-sm font-normal px-0.5;
-
-      /* remove backticks inserted by the tw typography .prose */
-      &::before,
-      &::after {
-        content: '';
-      }
-    }
-  }
-
-  /* math ml */
-  stencila-math-block,
-  stencila-math-inline {
-    [slot='mathml'] {
-      math {
-        font-family: var(--mathml-font-family);
-      }
-    }
-  }
-
-  /* Table and figure captions */
-
-  stencila-table,
-  stencila-figure,
-  stencila-code-chunk {
-    caption {
-      @apply text-left;
-    }
-
-    [slot='caption'] {
-      @apply block;
-
-      stencila-paragraph {
-        p {
-          @apply mt-4;
-          @apply text-sm text-black text-left;
-        }
-
-        .table-label,
-        .figure-label {
-          @apply font-bold after:content-[":"];
-        }
-      }
-    }
-
-    &[label-type='FigureLabel'] {
-      [slot='caption'] {
-        @apply mb-4;
-
-        stencila-paragraph:first-child {
-          p {
-            @apply mt-0;
-          }
-        }
-      }
-    }
-
-    [slot='caption'] + [slot='outputs'] {
-      @apply mt-0;
-    }
-  }
-
-  stencila-admonition {
-    p[slot='title'] {
-      @apply my-0;
-    }
-
-    [slot='content'] {
-      stencila-paragraph:first-child {
-        p {
-          @apply mt-0;
-        }
-      }
-    }
-  }
-
-  stencila-chat-message[message-role='User'] {
-    [slot='content'] {
-      stencila-paragraph:first-child {
-        p {
-          @apply mt-0;
-        }
-      }
-    }
-  }
-
-  stencila-suggestion-block {
-    [slot='content'] {
-      color: var(--default-text-colour);
-    }
-  }
-}
-
-[view='dynamic'],
-[view='vscode'] {
+/*
+  extra rules for 'dynamic' and 'vscode' views
+*/
+stencila-dynamic-view,
+stencila-vscode-view {
   > [root] {
     @apply max-w-prose;
-    max-width: 100%;
+    font-family: var(--font-family-serif);
+    color: var(--default-text-colour);
+
+    > section {
+      @apply min-w-80 w-full mx-auto;
+      max-width: 72ch;
+    }
 
     h1 {
       margin-top: 2rem;
@@ -389,16 +74,6 @@ body {
 
     li {
       @apply m-0 list-item w-full;
-    }
-
-    table {
-      @apply mx-10;
-    }
-
-    stencila-datatable {
-      table {
-        @apply mx-0;
-      }
     }
 
     stencila-figure,
