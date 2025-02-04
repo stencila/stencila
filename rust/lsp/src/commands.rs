@@ -37,10 +37,10 @@ use document::{Command, CommandNodes, CommandScope, CommandStatus, ContentType, 
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
-    replicate, Article, AuthorRole, AuthorRoleName, Block, Chat, ChatOptions, InstructionBlock,
-    InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodeProperty, NodeType,
-    Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock, SuggestionBlock,
-    SuggestionStatus, Timestamp,
+    replicate, Article, AuthorRole, AuthorRoleName, Block, Chat, ChatOptions, ExecutionMode,
+    InstructionBlock, InstructionMessage, InstructionType, ModelParameters, Node, NodeId,
+    NodeProperty, NodeType, Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock,
+    SuggestionBlock, SuggestionStatus, Timestamp,
 };
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
@@ -412,7 +412,7 @@ pub(super) async fn execute_command(
                     node_id: Some(node_id),
                     ops: vec![(
                         PatchPath::from(NodeProperty::ExecutionMode),
-                        PatchOp::Set(PatchValue::String("Locked".to_string())),
+                        PatchOp::Set(ExecutionMode::Lock.to_value().unwrap_or_default()),
                     )],
                     ..Default::default()
                 }),
