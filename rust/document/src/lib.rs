@@ -20,7 +20,6 @@ use common::{
         time::sleep,
     },
     tracing,
-    type_safe_id::{StaticType, TypeSafeId},
 };
 use kernels::Kernels;
 use node_diagnostics::diagnostics;
@@ -31,6 +30,9 @@ use schema::{
     Prompt,
 };
 
+#[allow(clippy::print_stderr)]
+pub mod cli;
+
 mod config;
 mod sync_directory;
 mod sync_dom;
@@ -39,20 +41,12 @@ mod sync_format;
 mod sync_object;
 mod task_command;
 mod task_update;
+mod track;
 
 // Re-exports for convenience of consuming crates
 pub use codecs::{self, DecodeOptions, EncodeOptions, Format, LossesResponse};
 pub use schema;
 pub use sync_dom::DomPatch;
-
-#[derive(Default)]
-pub struct Document_;
-
-impl StaticType for Document_ {
-    const TYPE: &'static str = "doc";
-}
-
-pub type DocumentId = TypeSafeId<Document_>;
 
 /// The synchronization mode between documents and external resources
 ///
@@ -88,12 +82,6 @@ pub struct LogEntry {
 #[serde(tag = "command", rename_all = "kebab-case", crate = "common::serde")]
 #[allow(clippy::large_enum_variant)]
 pub enum Command {
-    /// Save the document
-    SaveDocument((SaveDocumentSource, SaveDocumentSidecar)),
-
-    /// Export the document
-    ExportDocument((PathBuf, EncodeOptions)),
-
     /// Compile the document
     CompileDocument,
 
@@ -140,25 +128,6 @@ pub enum Command {
         text: String,
         files: Option<Vec<File>>,
     },
-}
-
-/// Whether the document source file should be saved
-#[derive(Default, Debug, Display, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "kebab-case", crate = "common::serde")]
-pub enum SaveDocumentSource {
-    #[default]
-    Yes,
-    No,
-}
-
-/// Whether the document sidecar file should be saved
-#[derive(Default, Debug, Display, Clone, Serialize, Deserialize, PartialEq)]
-#[serde(rename_all = "kebab-case", crate = "common::serde")]
-pub enum SaveDocumentSidecar {
-    Yes,
-    #[default]
-    IfExists,
-    No,
 }
 
 /// The type of content in a
@@ -308,9 +277,6 @@ type DocumentCommandStatusReceiver = broadcast::Receiver<(u64, CommandStatus)>;
 #[allow(unused)]
 #[derive(Debug)]
 pub struct Document {
-    /// The document's id
-    id: DocumentId,
-
     /// The document's home directory
     home: PathBuf,
 
@@ -343,39 +309,12 @@ pub struct Document {
 }
 
 impl Document {
-    /// Get the path to the sidecar file for a document
-    ///
-    /// Returns the first existing path matching a hard-coded, ordered list
-    /// of possible sidecar formats, falling back to `<path>.json.zip` if no sidecar file exists.
-    pub fn sidecar_path(path: &Path) -> PathBuf {
-        static SIDECAR_FORMATS: [Format; 2] = [Format::JsonZip, Format::Json];
-
-        // See if any existing paths have one of the formats.
-        //
-        // NOTE: Having extensions with two dots requires us to set an extension on different
-        // instances of the original path inside the loop. Otherwise you can end up with `.json.json` etc
-        for format in &SIDECAR_FORMATS {
-            let mut candidate = path.to_path_buf();
-            candidate.set_extension(format.extension());
-            if candidate.exists() {
-                return candidate;
-            }
-        }
-
-        // Fallback to using the preferred format (the first in SIDECAR_FORMATS)
-        let mut path = path.to_path_buf();
-        path.set_extension(SIDECAR_FORMATS[0].extension());
-        path
-    }
-
     /// Initialize a new document
     ///
     /// Initializes the document's "watch", "update", "patch", and "command" channels, and
     /// starts the corresponding background tasks.
     #[tracing::instrument]
     pub fn init(home: PathBuf, path: Option<PathBuf>, node_type: Option<NodeType>) -> Result<Self> {
-        let id = DocumentId::new();
-
         // Create the document's kernels with the same home directory
         let kernels = Arc::new(RwLock::new(Kernels::new(&home)));
 
@@ -391,23 +330,7 @@ impl Document {
 
         // Create the root node from the sidecar file or an empty article
         let root = match &path {
-            Some(path) => {
-                let sidecar = Self::sidecar_path(path);
-                if sidecar.exists() {
-                    match codec_json::from_path(&sidecar, None) {
-                        Ok((node, ..)) => node,
-                        Err(error) => {
-                            tracing::warn!(
-                                "Unable to read sidecar file {}: {error}",
-                                sidecar.display()
-                            );
-                            root_default()
-                        }
-                    }
-                } else {
-                    root_default()
-                }
-            }
+            Some(path) => Document::restore(path).ok().unwrap_or_else(&root_default),
             None => root_default(),
         };
         let (watch_sender, watch_receiver) = watch::channel(root.clone());
@@ -440,7 +363,6 @@ impl Document {
         // Start the command task
         {
             let home = home.clone();
-            let path = path.clone();
             let root = root.clone();
             let kernels = kernels.clone();
             let patch_sender = patch_sender.clone();
@@ -449,7 +371,6 @@ impl Document {
                     command_receiver,
                     command_status_sender,
                     home,
-                    path,
                     root,
                     kernels,
                     patch_sender,
@@ -459,7 +380,6 @@ impl Document {
         }
 
         Ok(Self {
-            id,
             home,
             path,
             root,
@@ -474,67 +394,43 @@ impl Document {
     }
 
     /// Create a new in-memory document
-    pub fn new(node_type: NodeType) -> Result<Self> {
+    pub async fn new(node_type: NodeType) -> Result<Self> {
         let home = std::env::current_dir()?;
         Self::init(home, None, Some(node_type))
     }
 
     /// Initialize a document at a path
     ///
-    /// Note that this does not read the document from the path. Use `open`
+    /// Note that this simply associates the document with the path.
+    /// It does not read the document from the path. Use `open`
     /// or `synced` for that.
-    fn at(path: &Path) -> Result<Self> {
+    async fn at(path: &Path, node_type: Option<NodeType>) -> Result<Self> {
         let home = path
             .parent()
             .ok_or_else(|| eyre!("path has no parent; is it a file?"))?
             .to_path_buf();
 
-        Self::init(home, Some(path.to_path_buf()), None)
+        Self::init(home, Some(path.to_path_buf()), node_type)
     }
 
     /// Create a new document at a path
     #[tracing::instrument]
-    pub async fn create(
-        path: &Path,
-        force: bool,
-        node_type: NodeType,
-        sidecar_format: Option<Format>,
-    ) -> Result<Self> {
+    pub async fn create(path: &Path, force: bool, node_type: NodeType) -> Result<Self> {
         // Check for existing file
-        if path.exists() && !force {
-            bail!("File already exists; remove the file or use the `--force` option")
+        if path.exists() {
+            if !force {
+                bail!("File already exists; remove the file or use the `--force` option")
+            } else {
+                // TODO: untrack and delete the existing file
+            }
         }
 
-        // Check for existing sidecar (regardless of its format)
-        let sidecar = Self::sidecar_path(path);
-        if sidecar.exists() && !force {
-            bail!(
-                "Sidecar file already exists at `{}`; remove the file or use the `--force` option",
-                sidecar.display()
-            )
-        }
-
-        // If a sidecar format was specified then use that
-        let sidecar = if let Some(format) = sidecar_format {
-            let mut path = path.to_path_buf();
-            path.set_extension(format.extension());
-            path
-        } else {
-            sidecar
-        };
-
-        // Create the empty article and write to path
-        let node = match node_type {
-            NodeType::Article => Node::Article(Article::default()),
-            NodeType::Prompt => Node::Prompt(Prompt::default()),
-            _ => bail!("Unsupported document type: {node_type}"),
-        };
-        codecs::to_path(&node, path, None).await?;
-
-        // Create the sidecar file
-        codecs::to_path(&node, &sidecar, None).await?;
-
-        Self::at(path)
+        // Create a document at the path and track it (which will create a tracking file)
+        // and save it (which create the file itself)
+        let doc = Self::at(path, Some(node_type)).await?;
+        doc.save().await?;
+        doc.track(None).await?;
+        Ok(doc)
     }
 
     /// Open an existing document
@@ -551,19 +447,20 @@ impl Document {
             bail!("File does not exist: {}", path.display());
         }
 
-        let doc = Self::at(path)?;
+        let doc = Self::at(path, None).await?;
 
         let mut import = true;
 
-        let sidecar = Self::sidecar_path(path);
-        if sidecar.exists() {
-            fn modification_time(path: &Path) -> io::Result<SystemTime> {
-                let metadata = std::fs::File::open(path)?.metadata()?;
-                metadata.modified()
-            }
+        if let Some(storage_path) = Document::tracking_storage(path).await? {
+            if storage_path.exists() {
+                fn modification_time(path: &Path) -> io::Result<SystemTime> {
+                    let metadata = std::fs::File::open(path)?.metadata()?;
+                    metadata.modified()
+                }
 
-            if modification_time(path)? <= modification_time(&sidecar)? {
-                import = false;
+                if modification_time(path)? <= modification_time(&storage_path)? {
+                    import = false;
+                }
             }
         }
 
@@ -582,11 +479,6 @@ impl Document {
         doc.sync_file(path, sync, None, None).await?;
 
         Ok(doc)
-    }
-
-    /// Get the id of the document
-    pub fn id(&self) -> &DocumentId {
-        &self.id
     }
 
     /// Get the path of the document
@@ -608,6 +500,16 @@ impl Document {
             .as_ref()
             .and_then(|path| path.file_name())
             .and_then(|name| name.to_str())
+    }
+
+    /// The format of the document
+    ///
+    /// Will return `Format::Unknown` if the document has no path
+    pub fn format(&self) -> Format {
+        match &self.path {
+            Some(path) => Format::from_path(path),
+            None => Format::Unknown,
+        }
     }
 
     /// Inspect the root node of the document using a function or closure
@@ -757,6 +659,30 @@ impl Document {
         codecs::to_path(&root, dest, options).await
     }
 
+    /// Save the document
+    #[tracing::instrument(skip(self))]
+    pub async fn save(&self) -> Result<()> {
+        tracing::trace!("Saving document");
+
+        let Some(path) = self.path() else {
+            bail!("Unable to save document; it has no path yet");
+        };
+
+        self.export(
+            path,
+            Some(EncodeOptions {
+                // Ignore losses because lossless tracking storage file is encoded next.
+                losses: LossesResponse::Ignore,
+                ..Default::default()
+            }),
+        )
+        .await?;
+
+        self.store().await?;
+
+        Ok(())
+    }
+
     /// Subscribe to updates to the document's root node
     pub fn watch(&self) -> watch::Receiver<Node> {
         self.watch_receiver.clone()
@@ -846,35 +772,6 @@ impl Document {
         sleep(Duration::from_millis(100)).await;
 
         Ok(())
-    }
-
-    /// Save the document
-    #[tracing::instrument(skip(self))]
-    pub async fn save(&self, wait: CommandWait) -> Result<()> {
-        tracing::trace!("Saving document");
-
-        self.command(
-            Command::SaveDocument((
-                SaveDocumentSource::default(),
-                SaveDocumentSidecar::default(),
-            )),
-            wait,
-        )
-        .await
-    }
-
-    /// Save the document with non-default options
-    #[tracing::instrument(skip(self))]
-    pub async fn save_with(
-        &self,
-        wait: CommandWait,
-        source: SaveDocumentSource,
-        sidecar: SaveDocumentSidecar,
-    ) -> Result<()> {
-        tracing::trace!("Saving document");
-
-        self.command(Command::SaveDocument((source, sidecar)), wait)
-            .await
     }
 
     /// Compile the document

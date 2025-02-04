@@ -504,7 +504,7 @@ mod tests {
     #[timeout(1000)]
     async fn receive_patches() -> Result<()> {
         // Create a document and start syncing with Markdown buffer
-        let document = Document::new(NodeType::Article)?;
+        let document = Document::new(NodeType::Article).await?;
 
         let (patch_sender, patch_receiver) = channel::<FormatPatch>(1);
         document
@@ -580,7 +580,7 @@ mod tests {
     #[tokio::test]
     async fn send_patches() -> Result<()> {
         // Create a document and start syncing with Markdown buffer
-        let document = Document::new(NodeType::Article)?;
+        let document = Document::new(NodeType::Article).await?;
 
         let (patch_sender, mut patch_receiver) = channel::<FormatPatch>(4);
         document

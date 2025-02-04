@@ -4,6 +4,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+cli-utils = { path = "../cli-utils" }
 codec-json = { path = "../codec-json" }
 codecs = { path = "../codecs" }
 common = { path = "../common" }
@@ -17,6 +18,7 @@ node-diagnostics = { path = "../node-diagnostics" }
 node-strip = { path = "../node-strip" }
 notify = { version = "8.0.0", default-features = false, features = ["macos_kqueue"] }
 schema = { path = "../schema" }
+url = { workspace = true }
 
 [dev-dependencies]
 common-dev = { path = "../common-dev" }

@@ -222,31 +222,6 @@ nodeTypes: []
     )
   );
 
-  // Save document command which requires that document is not untitled
-  context.subscriptions.push(
-    vscode.commands.registerCommand("stencila.invoke.save-doc", async () => {
-      const editor = vscode.window.activeTextEditor;
-      if (!editor) {
-        vscode.window.showErrorMessage("No active editor");
-        return;
-      }
-
-      const document = editor.document;
-
-      if (document.isUntitled) {
-        vscode.window.showWarningMessage(
-          "Please save the document's source file first."
-        );
-        return;
-      }
-
-      vscode.commands.executeCommand(
-        `stencila.save-doc`,
-        document.uri.toString()
-      );
-    })
-  );
-
   // Export document command which requires user entered file path
   // so must be invoked from here
   context.subscriptions.push(

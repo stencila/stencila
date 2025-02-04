@@ -1,5 +1,6 @@
 use std::{
     path::{Path, PathBuf},
+    str::FromStr,
     time::{SystemTime, UNIX_EPOCH},
 };
 
@@ -21,7 +22,7 @@ use common::{
 };
 use document::{
     codecs,
-    schema::{shortcuts::t, Node, Primitive, PropertyValueOrString},
+    schema::{shortcuts::t, Node, Primitive},
     CommandWait, DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
 };
 
@@ -31,12 +32,9 @@ const SECRET_NAME: &str = "GHOST_ADMIN_API_KEY";
 /// Publish to Ghost
 #[derive(Debug, Parser)]
 pub struct Cli {
-    /// Path to the file or directory to publish
-    ///
-    /// Defaults to the current directory.
-    #[arg(default_value = ".")]
-    #[arg(display_order(0))]
-    path: PathBuf,
+    /// Paths to the files to publish
+    #[arg(required = true, display_order(0))]
+    paths: Vec<PathBuf>,
 
     /// The Ghost domain
     ///
@@ -163,53 +161,52 @@ pub struct Cli {
 
 impl Cli {
     /// Run the CLI command
-    pub async fn run(self) -> Result<()> {
-        if !self.path.exists() {
-            bail!("Path does not exist: {}", self.path.display())
+    pub async fn run(&self) -> Result<()> {
+        for path in &self.paths {
+            self.process(path).await?;
         }
 
-        if !self.path.is_file() {
+        Ok(())
+    }
+
+    /// Process a path
+    async fn process(&self, path: &Path) -> Result<()> {
+        if !path.exists() {
+            bail!("Path does not exist: {}", path.display())
+        }
+
+        if !path.is_file() {
             bail!("Only publishing files is currently supported")
         }
 
         // Open and compile document
-        let doc = Document::open(&self.path).await?;
+        let doc = Document::open(path).await?;
         doc.compile(CommandWait::Yes).await?;
 
-        // Get Ghost URL of the document, if any.
-        let doc_url = doc
-            .inspect(|root| {
-                let Node::Article(article) = root else {
-                    return None;
-                };
-
-                let Some(ids) = &article.options.identifiers else {
-                    return None;
-                };
-
-                for id in ids {
-                    if let PropertyValueOrString::String(id) = id {
-                        if let Some(host) = &self.ghost {
-                            if let Some(id) = self.id.clone() {
-                                let page_or_post = if self.post { "posts" } else { "pages" };
-                                return Some(format!(
-                                    "https://{host}/ghost/api/admin/{page_or_post}/{id}"
-                                ));
-                            }
-                            // If a host is provided then return the first URL on that host
-                            else if id.starts_with(&format!("https://{host}/ghost/api/admin/")) {
-                                return Some(id.clone());
-                            }
-                        } else if id.starts_with("https://") && id.contains("/ghost/api/admin/") {
-                            // Otherwise, return the first URL on any Ghost host
-                            return Some(id.clone());
-                        }
+        // Determine if the document has a Ghost URL
+        let doc_url = if let (Some(host), Some(id)) = (&self.ghost, &self.id) {
+            // Both host and id specified on CLI so use that
+            Some(format!(
+                "https://{host}/ghost/api/admin/{}/{id}",
+                if self.post { "posts" } else { "pages" }
+            ))
+        } else {
+            // Try to find Ghost URL in the document's remotes
+            doc.remotes().await?.iter().find_map(|url| {
+                let url = url.to_string();
+                if let Some(host) = &self.ghost {
+                    // If a host is provided then return the first URL on that host
+                    if url.starts_with(&format!("https://{host}/ghost/api/admin/")) {
+                        return Some(url);
                     }
+                } else if url.starts_with("https://") && url.contains("/ghost/api/admin/") {
+                    // Otherwise, return the first URL on any Ghost host
+                    return Some(url);
                 }
 
                 None
             })
-            .await;
+        };
 
         // Dispatch to method based on action and presence of existing doc URL
         match (self.push, self.pull, doc_url) {
@@ -282,23 +279,9 @@ impl Cli {
             .context("interpreting Location HTTP header")?
             .to_string();
 
-        // TODO: decide if args such as tags should be writen to sidecar file
-
-        // Add the URL to the article's identifiers
-        let url = doc_url.clone();
-        doc.mutate(move |root| {
-            let Node::Article(article) = root else { return };
-
-            let identifier = PropertyValueOrString::String(url.clone());
-            match article.options.identifiers.as_mut() {
-                Some(ids) => ids.push(identifier),
-                None => article.options.identifiers = Some(vec![identifier]),
-            }
-        })
-        .await;
-
-        // Save the document to disk
-        doc.save(CommandWait::Yes).await?;
+        // Track that the document was pushed to Ghost
+        let url = url::Url::from_str(&doc_url)?;
+        doc.track_remote_pushed(url).await?;
 
         tracing::info!(
             "Successfully created {doc_url} from {}",
@@ -359,10 +342,15 @@ impl Cli {
 
         // Handle response
         if response.status().is_success() {
+            // Track that the doc was pushed to Ghost
+            let url = url::Url::from_str(&doc_url)?;
+            doc.track_remote_pushed(url).await?;
+
             tracing::info!(
                 "Successfully updated {doc_url} from {}",
                 doc.file_name().unwrap_or("document")
             );
+
             Ok(())
         } else {
             error_for_response(response).await
@@ -477,8 +465,9 @@ impl Cli {
             .await?;
         }
 
-        // Save the document to disk
-        doc.save(CommandWait::Yes).await?;
+        // Track that the doc was pulled from Ghost
+        let url = url::Url::from_str(&doc_url)?;
+        doc.track_remote_pulled(url).await?;
 
         tracing::info!(
             "Successfully updated {} from {doc_url}",
