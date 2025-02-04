@@ -30,6 +30,7 @@ serde = { version = "1.0.217", features = ["derive", "rc"] }
 semver = { version = "1.0.25", features = ["serde"] }
 smart-default = "0.7.1"
 test-log = { version = "0.2.17", default-features = false, features = ["trace"] }
+url = { version = "2.5.4", features = ["serde"] }
 which = "7.0.1"
 zip = "2.2.2"
 

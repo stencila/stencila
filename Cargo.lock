@@ -1981,6 +1981,7 @@ dependencies = [
  "node-strip",
  "notify",
  "schema",
+ "url",
 ]
 
 [[package]]
