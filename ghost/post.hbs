@@ -1,9 +1,13 @@
 {{!< default}}
 
 {{#post}}
+{{#get "pages" filter="slug:docview" limit="1" include="tags" }}
+  {{#foreach pages limit="1" as |page|}}
+    {{> docview post=../.. page=page currentSlug=../../slug }}    
+  {{/foreach }}
+{{/get}}
 
 
-{{> docview post=. page=page }}
 {{!-- <article class="gh-article {{post_class}}">
 
     <header class="gh-header gh-canvas">

@@ -11,45 +11,40 @@
     <div id="sidebar" class="fixed flex-none bg-gray-50 lg:sticky top-20 pl-12 lg:pl-0 left-0 lg:top-32 h-[calc(100vh-5rem)] overflow-y-auto z-20">        
         <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 lg:hidden hover:text-gray-400">{{> icons/x }}</button>
         <aside class="w-64 pr-4 py-12 h-full border-r border-gray-200">
+            {{#page}}
             <nav>
-                <ul>
-                    {{!-- {{#if (eq context "home")}} --}}
-                    <li class="mb-4">
-                        <a href="/docview" class="text-lg font-semibold text-blue-600 hover:text-blue-800">Welcome</a>
-                    </li>
-                    {{!-- {{/if}} --}}
-
-                    {{#get "posts" limit="all" order="title asc"}}
-                        <div 
-                            id="menu" 
-                            posts='[
-                                {{#foreach posts}}
-                                    {
-                                        "title": "{{title}}",
-                                        "url": "{{url}}" 
-                                    }{{#if @last}}{{else}},{{/if}}
-                                {{/foreach}}
-                            ]
-                            '
-                        >
-                        </div>
-                        {{#foreach posts}}
-                            <li class="mb-2">
-                                <a href="{{url}}" class="text-gray-700 hover:text-gray-900">
-                                    {{title}}
-                                </a>
-                            </li>
-                        {{/foreach}}
-                    {{/get}}
-                </ul>
+                <div class="mb-4">
+                    <a href="/docview" class="text-lg font-semibold {{#match ../currentSlug "=" slug}}text-brand-blue{{else}}text-gray-800 hover:text-brand-blue{{/match}}">{{title}}</a>
+                </div>
             </nav>
-            {{!-- {{#page}}
-            {{#foreach tags}}
-
-            <p>{{name}}</p>
-                
-            {{/foreach}}
-            {{/page}} --}}
+                {{#foreach tags}}
+                    <h4 class="mb-4 font-bold">{{name}}</h4>
+                    <ul class="ml-4 mb-8">
+                        {{#get "posts" filter="tags:{{slug}}" limit="all" order="title asc"}}
+                            <div 
+                                id="menu" 
+                                posts='[
+                                    {{#foreach posts}}
+                                        {
+                                            "title": "{{title}}",
+                                            "url": "{{url}}" 
+                                        }{{#if @last}}{{else}},{{/if}}
+                                    {{/foreach}}
+                                ]
+                                '
+                            >
+                            </div>
+                            {{#foreach posts as |post|}}
+                                <li class="mb-2">
+                                    <a href="{{post.url}}" class="{{#match ../../../../currentSlug "=" post.slug}}text-brand-blue font-semibold{{else}}text-gray-700 hover:text-brand-blue{{/match}}">
+                                        {{post.title}}
+                                    </a>
+                                </li>
+                            {{/foreach}}
+                        {{/get}}
+                    </ul>
+                {{/foreach}}
+            {{/page}}
         </aside>
     </div>
         <div class="flex-auto">
@@ -113,7 +108,7 @@
                     {{content}}
                 </div>
 
-                <footer class="gh-footer gh-canvas">
+                <footer class="mt-8 gh-footer gh-canvas">
 
                     <div class="gh-post-authors">
                         Written by {{#foreach authors}}<a href="{{url}}">{{name}}</a>{{/foreach}}
@@ -130,11 +125,11 @@
             </article>
 
             <aside class="gh-readmore">
-                <div class="gh-readmore-inner gh-container">
-                    <div class="gh-readmore-next">
-                        {{#next_post}}<a href="{{url}}">{{> "icons/arrow-left"}} <h4>{{title}}</h4></a>{{/next_post}}
+                <div class="gh-readmore-inner gh-container text-2xl">
+                    <div class="gh-readmore-next hover:text-gray-400">
+                        {{#next_post}}<a href="{{url}}" class="flex items-center">{{> "icons/arrow-left"}} <h4>{{title}}</h4></a>{{/next_post}}
                     </div>
-                    <div class="gh-readmore-prev">
+                    <div class="gh-readmore-prev hover:text-gray-400">
                         {{#prev_post}}<a href="{{url}}">
                             <h4>{{title}}</h4> {{> "icons/arrow-right"}}
                         </a>{{/prev_post}}
