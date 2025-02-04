@@ -6,6 +6,12 @@ This document contains the help content for the `stencila` command-line program.
 
 * [`stencila`↴](#stencila)
 * [`stencila new`↴](#stencila-new)
+* [`stencila init`↴](#stencila-init)
+* [`stencila status`↴](#stencila-status)
+* [`stencila track`↴](#stencila-track)
+* [`stencila untrack`↴](#stencila-untrack)
+* [`stencila move`↴](#stencila-move)
+* [`stencila remove`↴](#stencila-remove)
 * [`stencila convert`↴](#stencila-convert)
 * [`stencila sync`↴](#stencila-sync)
 * [`stencila compile`↴](#stencila-compile)
@@ -62,7 +68,13 @@ CLI subcommands and global options
 
 ###### **Subcommands:**
 
-* `new` — Create a new document with sidecar file
+* `new` — Create a new, tracked, document
+* `init` — Initialize document tracking in a folder
+* `status` — Get the tracking status of documents
+* `track` — Start tracking a document
+* `untrack` — Stop tracking a document
+* `move` — Move a tracked document
+* `remove` — Remove a tracked document
 * `convert` — Convert a document to another format
 * `sync` — Synchronize a document between formats
 * `compile` — Compile a document
@@ -91,7 +103,7 @@ CLI subcommands and global options
 
 ## `stencila new`
 
-Create a new document with sidecar file
+Create a new, tracked, document
 
 **Usage:** `stencila new [OPTIONS] <PATH>`
 
@@ -101,17 +113,115 @@ Create a new document with sidecar file
 
 ###### **Options:**
 
-* `-f`, `--force` — Overwrite the document, and any sidecar file, if they already exist
+* `-f`, `--force` — Overwrite the document, if it already exists
 * `-t`, `--type <TYPE>` — The type of document to create
 
   Default value: `article`
 
-  Possible values: `article`, `prompt`
+  Possible values: `article`, `chat`, `prompt`
 
-* `-s`, `--sidecar <SIDECAR>` — The format of the sidecar file
 
-  Possible values: `json.zip`, `json`
 
+
+## `stencila init`
+
+Initialize document tracking in a folder
+
+**Usage:** `stencila init [OPTIONS] [DIR]`
+
+###### **Arguments:**
+
+* `<DIR>` — The directory to start document tracking in
+
+   Defaults to the current directory.
+
+  Default value: `.`
+
+###### **Options:**
+
+* `--no-gitignore` — Do not create a `.gitignore` file
+
+
+
+## `stencila status`
+
+Get the tracking status of documents
+
+**Usage:** `stencila status [OPTIONS] [FILES]...`
+
+###### **Arguments:**
+
+* `<FILES>` — The paths of the files to get status for
+
+###### **Options:**
+
+* `-a`, `--as <AS>` — Output the status as JSON or YAML
+
+  Possible values: `json`, `yaml`
+
+
+
+
+## `stencila track`
+
+Start tracking a document
+
+**Usage:** `stencila track <FILE> [URL]`
+
+###### **Arguments:**
+
+* `<FILE>` — The path to the local file to track
+* `<URL>` — The URL of the remote to track
+
+
+
+## `stencila untrack`
+
+Stop tracking a document
+
+**Usage:** `stencila untrack <FILE> [URL]`
+
+###### **Arguments:**
+
+* `<FILE>` — The path of the file to stop tracking
+* `<URL>` — The URL of the remote to stop tracking
+
+
+
+## `stencila move`
+
+Move a tracked document
+
+Moves the document file to the new path (if it still exists at the old path) and updates any tracking information.
+
+**Usage:** `stencila move [OPTIONS] <FROM> <TO>`
+
+###### **Arguments:**
+
+* `<FROM>` — The old path of the file
+* `<TO>` — The new path of the file
+
+###### **Options:**
+
+* `-f`, `--force` — Overwrite the destination path if it already exists
+
+
+
+## `stencila remove`
+
+Remove a tracked document
+
+Deletes the document file (if it still exists) and removes any tracking data from the `.stencila` directory.
+
+**Usage:** `stencila remove [OPTIONS] <FILE>`
+
+###### **Arguments:**
+
+* `<FILE>` — The path of the file to remove
+
+###### **Options:**
+
+* `-f`, `--force` — Do not ask for confirmation of removal
 
 
 
@@ -700,15 +810,11 @@ Every source format has its own mechanism for providing metadata. For example, w
 
 Publish to Ghost
 
-**Usage:** `stencila publish ghost [OPTIONS] [PATH]`
+**Usage:** `stencila publish ghost [OPTIONS] <PATHS>...`
 
 ###### **Arguments:**
 
-* `<PATH>` — Path to the file or directory to publish
-
-   Defaults to the current directory.
-
-  Default value: `.`
+* `<PATHS>` — Paths to the files to publish
 
 ###### **Options:**
 
