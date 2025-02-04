@@ -32,12 +32,9 @@ const SECRET_NAME: &str = "GHOST_ADMIN_API_KEY";
 /// Publish to Ghost
 #[derive(Debug, Parser)]
 pub struct Cli {
-    /// Path to the file or directory to publish
-    ///
-    /// Defaults to the current directory.
-    #[arg(default_value = ".")]
-    #[arg(display_order(0))]
-    path: PathBuf,
+    /// Paths to the files to publish
+    #[arg(required = true, display_order(0))]
+    paths: Vec<PathBuf>,
 
     /// The Ghost domain
     ///
@@ -164,17 +161,26 @@ pub struct Cli {
 
 impl Cli {
     /// Run the CLI command
-    pub async fn run(self) -> Result<()> {
-        if !self.path.exists() {
-            bail!("Path does not exist: {}", self.path.display())
+    pub async fn run(&self) -> Result<()> {
+        for path in &self.paths {
+            self.process(path).await?;
         }
 
-        if !self.path.is_file() {
+        Ok(())
+    }
+
+    /// Process a path
+    async fn process(&self, path: &Path) -> Result<()> {
+        if !path.exists() {
+            bail!("Path does not exist: {}", path.display())
+        }
+
+        if !path.is_file() {
             bail!("Only publishing files is currently supported")
         }
 
         // Open and compile document
-        let doc = Document::open(&self.path).await?;
+        let doc = Document::open(path).await?;
         doc.compile(CommandWait::Yes).await?;
 
         // Determine if the document has a Ghost URL
