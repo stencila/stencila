@@ -48,8 +48,9 @@ RUN exts=(\
 # Add custom OpenVSCode Server settings
 COPY settings.jsonc .openvscode-server/data/Machine/settings.json
 
-# Copy the setup and entrypoint scripts
-COPY setup.sh entrypoint.sh ./
-RUN chmod +x setup.sh entrypoint.sh
+# Copy over Stencila workspace files
+COPY setup.sh .stencila/workspace/
 
-ENTRYPOINT ["/bin/sh", "entrypoint.sh"]
+# Copy over and specify the entrypoint script
+COPY entrypoint.sh .
+ENTRYPOINT ["/bin/bash", "entrypoint.sh"]
