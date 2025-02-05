@@ -23,7 +23,7 @@
 <body class="{{body_class}}">
 <div class="gh-viewport">
 
-    <header id="gh-head" class="sticky top-0 w-full flex items-center h-20 lg:h-32 z-20 border-b border-black/20 bg-white z-40">
+    <header id="main-header" class="sticky top-0 w-full flex items-center h-20 lg:h-32 z-20 border-b border-black/20 bg-white z-40">
         <nav class="container mx-auto px-2 flex flex-row justify-between items-center">
             <div class="text-2xl lg:text-3xl max-w-[150px] lg:max-w-[250px] mr-4">
                 <a href="{{@site.url}}">    
@@ -71,9 +71,9 @@
                         <hr/>
                         {{#if @site.members_enabled}}
                             {{^if @member}}
-                            <a class="block text-xl py-2" href="{{@site.signup_url}}">Subscribe</a>
+                            <a class="block text-xl py-2 hover:text-[var(--ghost-accent-color)]" href="{{@site.signup_url}}">Subscribe</a>
                             {{else}}
-                            <a class="block text-xl py-2" href="#/portal/account">Account</a>
+                            <a class="block text-xl py-2 hover:text-[var(--ghost-accent-color)]" href="#/portal/account">Account</a>
                             {{/if}}
                         {{/if}}
                         <div>

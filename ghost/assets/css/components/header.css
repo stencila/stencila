@@ -15,7 +15,7 @@
 
 #site-nav-menu .nav a {
   display: inline-block;
-  padding: 2rem 0;
+  padding: 1rem 0;
 }
 
 #site-nav-menu .nav-current a {
@@ -41,5 +41,10 @@
   display: block;
   font-size: 1.25rem;
   padding: 0.5rem 0;
+}
+
+#main-header .nav a:hover,
+#main-header .nav li.nav-current a {
+  color: var(--ghost-accent-color)
 }
 
