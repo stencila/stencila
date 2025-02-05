@@ -11,7 +11,7 @@
         </div>
     </button>
     <div id="sidebar" class="fixed flex-none bg-gray-50 lg:sticky top-20 pl-12 lg:pl-0 left-0 lg:top-32 h-[calc(100vh-5rem)] overflow-y-auto z-20">        
-        <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 lg:hidden hover:text-gray-400">{{> icons/x }}</button>
+        <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 lg:hidden hover:text-gray-400">{{> icons/chevron-left }}</button>
         <aside class="w-64 pr-4 py-12 h-full border-r border-gray-200">
             {{#page}}
             <nav>
@@ -21,19 +21,27 @@
             </nav>
                 <ul>
                     {{#foreach tags}}
-                        <div>
-                            <h4 class="mb-4 font-bold">{{name}}</h4>
-                            {{#get "posts" filter="tags:{{slug}}" limit="all" order="title asc"}}
-                                {{#foreach posts as |post|}}
-                                    <li class="mb-2 ml-4">
-                                        <a href="{{post.url}}" class="{{#match ../../../../currentSlug "=" post.slug}}text-[var(--ghost-accent-color)] font-semibold{{else}}text-gray-700 hover:text-[var(--ghost-accent-color)]{{/match}}">
-                                            {{post.title}}
-                                        </a>
-                                    </li>
-                                {{/foreach}}
-                            {{/get}}
-                        </div>
+                        <li>
+                            <button class="collapse-toggle">
+                                <div class="flex items-center mb-4">
+                                    <h4 class="font-bold mr-4">{{name}}</h4>
+                                    <div class="chevron w-4 h-4 transform">{{> icons/chevron-down}}</div>
+                                </div>
+                            </button>
+                            <ul class="collapsible-section">
+                                {{#get "posts" filter="tags:{{slug}}" limit="all" order="title asc"}}
+                                    {{#foreach posts as |post|}}
+                                        <li class="mb-2 ml-4">
+                                            <a href="{{post.url}}" class="{{#match ../../../../currentSlug "=" post.slug}}text-[var(--ghost-accent-color)] font-semibold{{else}}text-gray-700 hover:text-[var(--ghost-accent-color)]{{/match}}">
+                                                {{post.title}}
+                                            </a>
+                                        </li>
+                                    {{/foreach}}
+                                {{/get}}
+                            </ul>
+                        </li>
                     {{/foreach}}
+                    {{!-- place the posts with no tags at all beneath --}}
                     {{#get "posts" filter="tags:-null" limit="all" order="title asc"}}
                         {{#foreach posts as |post|}}
                             <li class="mb-2">

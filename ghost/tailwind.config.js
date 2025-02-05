@@ -3,6 +3,7 @@ export default {
   content: [
     "./*.hbs",
     "./**/*.hbs",
+    "./assets/js/**/*.js"
   ],
   theme: {
     extend: {
