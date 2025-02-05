@@ -27,7 +27,7 @@ if [[ -n "${GITHUB_REPO:-}" ]]; then
     if [[ -n "${REPO_REF:-}" ]]; then
         echo "📥 Checking out $REPO_REF"
         git fetch --depth=1 origin "$REPO_REF"
-        git checkout "$REPO_REF"
+        git checkout FETCH_HEAD
     else
         # Derive the default branch name from the remote HEAD reference
         echo "📥 Checking out default branch"
