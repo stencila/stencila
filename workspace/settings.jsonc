@@ -1,0 +1,22 @@
+{
+  // See here for settings that are available and their defaults
+  // https://code.visualstudio.com/docs/getstarted/settings#_default-settings
+
+  // Customize browser window title & theme
+  "window.title": "${activeEditorShort}${separator}Stencila",
+  "workbench.colorTheme": "Stencila Light",
+
+  // Open the readme file, if there is one, falling back to the welcome page
+  "workbench.startupEditor": "readme",
+
+  // Avoid dialogs and notifications on startup
+  "git.openRepositoryInParentFolders": "always",
+
+  "files.associations": {
+    "*.md": "smd"
+  },
+
+  "[smd]": {
+    "editor.wordWrap": "on"
+  }
+}
