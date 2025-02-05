@@ -34,15 +34,11 @@
                     {{/if}}
                 </a>
             </div>
-            <div class="gh-head-menu flex items-center">
+            <div id="site-nav-menu" class="flex items-center hidden lg:block">
                 {{navigation}}
             </div>
-            <a id="header-burger" class="gh-burger" role="button" aria-label="menu">
-                <div class="gh-burger-box">
-                    <div class="gh-burger-inner"></div>
-                </div>
-            </a>
-            <div class="gh-head-actions">
+            
+            <div class="gh-head-actions hidden lg:block">
                 <div class="gh-head-actions-list">
                     {{search}}
                     {{#if @site.members_enabled}}
@@ -52,6 +48,38 @@
                         <a class="gh-button gh-button-small" href="#/portal/account">Account</a>
                         {{/if}}
                     {{/if}}
+                </div>
+            </div>
+            {{!-- mobile collapsible menu --}}
+            <div class="relative block lg:hidden">
+                <a id="mobile-menu-trigger" class="relative w-10 h-10 flex items-center justify-center hover:text-[var(--ghost-accent-color)]" role="button" aria-label="menu">
+                    <div id="burger-icon" class="transition-all duration-300 ease-in-out">
+                        <span class="block w-6 h-0.5 bg-[currentColor] mb-1"></span>
+                        <span class="block w-6 h-0.5 bg-[currentColor] mb-1"></span>
+                        <span class="block w-6 h-0.5 bg-[currentColor]"></span>
+                    </div>
+                    <div id="chevron-icon" class="w-6 h-6 hidden transition-transform transform rotate-0 duration-300 ease-in-out">
+                        {{!-- <svg class="w-6 h-6 text-black" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg> --}}
+                        {{> icons/chevron-down}}
+                    </div>
+                </a>
+                <div id="mobile-menu-container" class="absolute right-0 top-full bg-gray-50 mt-2 w-48 shadow-lg rounded-lg origin-top transition-all duration-300 ease-in-out z-20">
+                    <div class="p-4">
+                        {{navigation}}
+                        <hr/>
+                        {{#if @site.members_enabled}}
+                            {{^if @member}}
+                            <a class="block text-xl py-2" href="{{@site.signup_url}}">Subscribe</a>
+                            {{else}}
+                            <a class="block text-xl py-2" href="#/portal/account">Account</a>
+                            {{/if}}
+                        {{/if}}
+                        <div>
+                            {{search}}
+                        </div>
+                    </div>
                 </div>
             </div>
         </nav>

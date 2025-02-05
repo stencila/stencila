@@ -14,9 +14,9 @@ production stylesheet in assets/built/screen.css using: npm run dev
 @import "components/forms.css";
 @import "components/buttons.css";
 @import "components/sidebar.css";
+@import "components/header.css";
 
 /* Ghost components */
-@import "ghost/header.css";
 @import "ghost/content.css";
 @import "ghost/readmore.css";
 @import "ghost/members.css";

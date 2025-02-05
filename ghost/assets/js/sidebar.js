@@ -13,4 +13,3 @@ export default function sidebar () {
     sidebarElement.classList.toggle('open')
   })
 }
-

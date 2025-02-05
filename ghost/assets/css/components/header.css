@@ -1,0 +1,45 @@
+/* main site nav menu */
+
+#site-nav-menu .nav {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  list-style: none;
+}
+
+
+#site-nav-menu .nav li {
+  margin: 0 1.5vmin 0 0;
+  padding: 0;
+}
+
+#site-nav-menu .nav a {
+  display: inline-block;
+  padding: 2rem 0;
+}
+
+#site-nav-menu .nav-current a {
+  box-shadow: 0 -1px 0 0 currentcolor inset;
+}
+
+
+/* mobile menu */
+
+#mobile-menu-container {
+  scale: 0;
+  opacity: 0;
+  visibility: hidden;
+}
+
+#mobile-menu-container.open  {
+  scale: 1;
+  opacity: 1;
+  visibility: visible;
+}
+
+#mobile-menu-container .nav a {
+  display: block;
+  font-size: 1.25rem;
+  padding: 0.5rem 0;
+}
+
