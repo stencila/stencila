@@ -1,7 +1,7 @@
 
 <div class="container mx-auto px-2">
   <div class="relative flex">
-    <div class="hidden lg:block absolute h-full top-0 left-0 -translate-x-full h-full w-screen bg-gray-50"></div>
+    <div class="hidden lg:block absolute h-full top-0 left-0 -translate-x-full h-full w-screen bg-green-50"></div>
     <!-- Mobile Menu Toggle -->
     <button class="fixed top-24 lg:top-36 left-8 flex items-center justify-center leading-none bg-brand-blue text-white hover:text-brand-blue hover:bg-white hover:border border-brand-blue p-3 w-12 h-12 rounded-full shadow-lg lg:hidden block" id="sidebar-toggle">
         <div>
@@ -10,29 +10,31 @@
             <span class="block w-6 h-0.5 bg-[currentColor]"></span>
         </div>
     </button>
-    <div id="sidebar" class="fixed flex-none bg-gray-50 lg:sticky top-20 pl-12 lg:pl-0 left-0 lg:top-32 h-[calc(100vh-5rem)] overflow-y-auto z-20">        
+    <div id="sidebar" class="fixed flex-none bg-green-50 lg:sticky top-20 pl-12 lg:pl-0 left-0 lg:top-32 h-[calc(100vh-5rem)] overflow-y-auto z-20 text-green-900">        
         <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 lg:hidden hover:text-gray-400">{{> icons/chevron-left }}</button>
-        <aside class="w-64 pr-4 py-12 h-full border-r border-gray-200">
+        <aside class="w-72 pr-4 py-12 h-full border-r border-green-200">
             {{#page}}
             <nav>
                 <div class="mb-4">
-                    <a href="/docview" class="text-lg font-semibold {{#match ../currentSlug "=" slug}}text-[var(--ghost-accent-color)]{{else}}text-gray-800 hover:text-brand-blue{{/match}}">{{title}}</a>
+                    <a href="/docview" class="text-lg font-semibold {{#match ../currentSlug "=" slug}}text-[var(--ghost-accent-color)]{{else}} hover:text-brand-blue{{/match}}">{{title}}</a>
                 </div>
             </nav>
                 <ul>
                     {{#foreach tags}}
                         <li>
-                            <button class="collapse-toggle">
-                                <div class="flex items-center mb-4">
-                                    <h4 class="font-bold mr-4">{{name}}</h4>
+                            <button class="collapse-toggle hover:text-[var(--ghost-accent-color)]">
+                                <div class="flex items-center gap-4 mb-4">
+                                    <span class="w-4 h-4">{{>icons/square}}</span>
+                                    <h4 class="font-bold">{{name}}</h4>
                                     <div class="chevron w-4 h-4 transform">{{> icons/chevron-down}}</div>
                                 </div>
                             </button>
                             <ul class="collapsible-section">
                                 {{#get "posts" filter="tags:{{slug}}" limit="all" order="title asc"}}
                                     {{#foreach posts as |post|}}
-                                        <li class="mb-2 ml-4">
-                                            <a href="{{post.url}}" class="{{#match ../../../../currentSlug "=" post.slug}}text-[var(--ghost-accent-color)] font-semibold{{else}}text-gray-700 hover:text-[var(--ghost-accent-color)]{{/match}}">
+                                        <li class="mb-2 ml-4 flex items-start hover:text-[var(--ghost-accent-color)]">
+                                            <div class="w-4 h-4 mr-4 mt-1 flex-none">{{>icons/paragraph}}</div>
+                                            <a href="{{post.url}}" class="{{#match ../../../../currentSlug "=" post.slug}}text-[var(--ghost-accent-color)] font-semibold underline{{else}} hover:text-[var(--ghost-accent-color)]{{/match}}">
                                                 {{post.title}}
                                             </a>
                                         </li>
@@ -44,8 +46,9 @@
                     {{!-- place the posts with no tags at all beneath --}}
                     {{#get "posts" filter="tags:-null" limit="all" order="title asc"}}
                         {{#foreach posts as |post|}}
-                            <li class="mb-2">
-                                <a href="{{post.url}}" class="{{#match ../../../currentSlug "=" post.slug}}text-[var(--ghost-accent-color)] font-semibold{{else}}text-gray-700 hover:text-[var(--ghost-accent-color)]{{/match}}">
+                            <li class="mb-2 flex items-start hover:text-[var(--ghost-accent-color)]">
+                                <div class="w-4 h-4 mr-4 mt-1 flex-none">{{>icons/paragraph}}</div>
+                                <a href="{{post.url}}" class="{{#match ../../../currentSlug "=" post.slug}}text-[var(--ghost-accent-color)] font-semibold underline{{else}} hover:text-[var(--ghost-accent-color)]{{/match}}">
                                     {{post.title}}
                                 </a>
                             </li>

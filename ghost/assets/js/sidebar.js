@@ -27,9 +27,9 @@ export function menuCollapse() {
           section.classList.toggle("collapsed");
           const chevron = button.querySelector('.chevron')
           if (section.classList.contains("collapsed")) {
-            chevron.classList.add('rotate-90')
+            chevron.classList.add('-rotate-90')
           } else {
-            chevron.classList.remove('rotate-90')
+            chevron.classList.remove('-rotate-90')
           }
       });
   });
