@@ -110,7 +110,7 @@ export class UINodeAuthor extends LitElement {
     return html`
       <div class="@container w-full">
         <div class="flex flex-col gap-x-2 font-sans mb-4 @xs:flex-row @xs:mb-0">
-          <div class="flex flex-row flex-grow">
+          <div class="flex flex-row flex-grow min-w-0">
             <div class="flex items-center justify-center mr-2">
               <div
                 class="w-6 h-6 flex items-center justify-center grow-0 stretch-0"
@@ -118,7 +118,7 @@ export class UINodeAuthor extends LitElement {
                 ${this.renderIconOrAvatar()}
               </div>
             </div>
-            <div class="grow flex flex-col justify-center">
+            <div class="grow flex flex-col justify-center w-full">
               <span
                 class=${`text-2xs leading-none ${this.roleName ? '' : 'hidden'}`}
                 >${this.roleName}
@@ -127,14 +127,16 @@ export class UINodeAuthor extends LitElement {
                   : ''}</span
               >
               <span
-                class="text-xs leading-5 overflow-hidden whitespace-nowrap text-ellipsis inline-block"
-                >${this.renderName()}</span
+                class="block text-xs w-[90%] leading-5 overflow-hidden whitespace-nowrap text-ellipsis inline-block"
               >
+                ${this.renderName()}
+              </span>
               ${this.details
                 ? html`<span
-                    class=${`text-2xs leading-none overflow-hidden whitespace-nowrap text-ellipsis inline-block`}
-                    >${this.details}</span
-                  >`
+                    class=${`block text-2xs w-[90%] leading-none overflow-hidden whitespace-nowrap text-ellipsis inline-block`}
+                  >
+                    ${this.details}
+                  </span>`
                 : ''}
             </div>
           </div>

@@ -55,28 +55,27 @@ body {
 stencila-dynamic-view,
 stencila-vscode-view {
   > [root] {
-    @apply max-w-prose;
-    font-family: var(--font-family-serif);
-    color: var(--default-text-colour);
+    font-family: var(--font-family-serif, inherit);
+    color: var(--default-text-colour, inherit);
 
     > section {
       @apply min-w-80 w-full mx-auto;
       max-width: 72ch;
     }
 
-    h1 {
+    /* h1 {
       margin-top: 2rem;
-    }
+    } */
 
-    figure {
+    /* figure {
       @apply m-0;
     }
 
     li {
       @apply m-0 list-item w-full;
-    }
+    } */
 
-    stencila-figure,
+    /* stencila-figure,
     stencila-ui-block-on-demand {
       figure {
         @apply my-3 mx-0 max-w-full;
@@ -105,7 +104,7 @@ stencila-vscode-view {
       [slot='caption'] {
         @apply block;
       }
-    }
+    } */
   }
 
   /* Headings TOC nav */
