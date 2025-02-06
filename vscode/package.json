@@ -794,11 +794,6 @@
       ],
       "editor/context": [
         {
-          "command": "stencila.insert-chat.suggest",
-          "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/",
-          "group": "000-Stencila@1"
-        },
-        {
           "submenu": "stencila.insert-chat.create-submenu",
           "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/",
           "group": "000-Stencila@2"
