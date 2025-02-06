@@ -12,9 +12,9 @@ elif [[ -f "requirements.txt" ]]; then
     PYTHON_DEPS=true
 fi
 
-if [[ -n "${PYTHON_DEPS:-}" ]]; then
+if [[ -z "$PYTHON_DEPS" ]]; then
     echo "📦 Using and installing default pyproject.toml"
-    cp .stencila/workspace/defaults/pyproject.toml .
+    cp .stencila/workspace/pyproject.toml .
     uv venv && uv sync
 fi
 
