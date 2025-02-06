@@ -47,9 +47,9 @@ pub struct QuickJsKernel;
 
 const NAME: &str = "quickjs";
 
-// From https://github.com/bellard/quickjs/blob/6e2e68fd0896957f92eb6c242a2e048c1ef3cae0/VERSION
-// which is the commit used in the currently used version of https://github.com/DelSkayn/rquickjs
-const QUICKJS_VERSION: &str = "2024-02-14";
+// The current (2025-02-06) version of https://github.com/quickjs-ng/quickjs/ used
+// by https://github.com/DelSkayn/rquickjs
+const QUICKJS_VERSION: &str = "0.8.0";
 
 impl Kernel for QuickJsKernel {
     fn name(&self) -> String {
