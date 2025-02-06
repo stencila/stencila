@@ -9,7 +9,8 @@
   // Open the readme file, if there is one, falling back to the welcome page
   "workbench.startupEditor": "readme",
 
-  // Avoid dialogs and notifications on startup
+  // Avoid dialogs and notifications on startup,
+  "security.workspace.trust.startupPrompt": "never",
   "git.openRepositoryInParentFolders": "always",
 
   "files.associations": {
