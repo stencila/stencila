@@ -25,10 +25,15 @@ RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | d
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
     | tee /etc/apt/sources.list.d/github-cli.list
 
+# Import the CRAN GPG key and add CRAN's official package repository
+RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9 && \
+    echo "deb https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/" \
+    | tee /etc/apt/sources.list.d/cran.list
+
 # Update & install packages
 RUN apt-get update && \
     apt-get install -y \
-        gh pandoc && \
+        gh pandoc r-base && \
     rm -rf /var/lib/apt/lists/*
 
 # Install uv
@@ -41,7 +46,11 @@ RUN uv python install && \
     uv tool install ruff && \
     uv tool install pyright[nodejs]
 
-# Preinstall extensions
+# Install R package management tools
+RUN Rscript -e "install.packages(c('pak', 'renv'))"
+ENV RENV_CONFIG_PAK_ENABLED=TRUE
+
+# Preinstall VSCode extensions
 RUN exts=(\
     stencila.stencila \
     streetsidesoftware.code-spell-checker \
@@ -54,8 +63,10 @@ COPY settings.jsonc .openvscode-server/data/Machine/settings.json
 # Copy over Stencila workspace files
 COPY defaults/* .stencila/workspace/
 
-# Install default packages for Python so that they are cached in the image
-RUN cd .stencila/workspace && uv sync
+# Install default packages for Python and R so that they are cached in the image
+RUN cd .stencila/workspace && \
+    uv sync && \
+    Rscript -e "renv::install()"
 
 # Copy over and specify the entrypoint script
 COPY entrypoint.sh .

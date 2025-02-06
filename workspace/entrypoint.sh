@@ -42,7 +42,7 @@ if [[ -n "${GITHUB_REPO:-}" ]]; then
     echo "➡️  Moving workspace files"
     dest_dir="$GITHUB_REPO/${REPO_SUBDIR:-}/.stencila/workspace"
     mkdir -p "$dest_dir"
-    mv .stencila/workspace/*.{sh,toml} "$dest_dir/"
+    mv .stencila/workspace/{pyproject.toml,DESCRIPTION,setup.sh} "$dest_dir/"
 fi
 
 # Start OpenVSCode Server

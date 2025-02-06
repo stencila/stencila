@@ -12,10 +12,24 @@ elif [[ -f "requirements.txt" ]]; then
     PYTHON_DEPS=true
 fi
 
-if [[ -z "$PYTHON_DEPS" ]]; then
-    echo "📦 Using and installing default pyproject.toml"
-    cp .stencila/workspace/pyproject.toml .
+if [[ -f "renv.lock" ]]; then
+    echo "📦 Installing dependencies from renv.lock"
+    Rscript -e "invisible(renv::restore())"
+    R_DEPS=true
+elif [[ -f "DESCRIPTION" ]]; then
+    echo "📦 Installing dependencies from DESCRIPTION file"
+    Rscript -e "invisible(renv::install())"
+    R_DEPS=true
+fi
+
+if [[ -z "$PYTHON_DEPS" && -z "$R_DEPS" ]]; then
+    echo "📦 Installing Python packages in default pyproject.toml"
+    cp .stencila/workspace/pyproject.toml ./
     uv venv && uv sync
+
+    echo "📦 Installing R packages in default DESCRIPTION file" 
+    cp .stencila/workspace/DESCRIPTION ./
+    Rscript -e "invisible(renv::install())"
 fi
 
 echo "🎉 Setup complete!"

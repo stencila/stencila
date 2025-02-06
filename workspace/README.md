@@ -11,3 +11,9 @@ This image is based on [`gitpod-io/openvscode-server`](https://github.com/gitpod
 - [GitHub CLI](https://cli.github.com/)
 
 - Python and tooling e.g. [`uv`](https://docs.astral.sh/uv/) and [`ruff`](https://docs.astral.sh/ruff/)
+
+- Commonly used Python packages such as `pandas`, `polars`, `matplotlib`, and `plotly`.
+
+- R and tooling e.g. [`lintr`](https://github.com/r-lib/lintr/) and [`styler`](https://github.com/r-lib/styler)
+
+- Commonly used R packages such as `tidyverse` and `data.table`.
