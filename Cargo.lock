@@ -3296,7 +3296,7 @@ checksum = "678cf5bdb3ba63a264e6e0c9eee36538ca1d2da0afa4dd801c1f96309e710765"
 [[package]]
 name = "layout-rs"
 version = "0.1.2"
-source = "git+https://github.com/nadavrot/layout?rev=2ce7e8e6261f9b02eb80b2a4534cb9d827393abf#2ce7e8e6261f9b02eb80b2a4534cb9d827393abf"
+source = "git+https://github.com/nadavrot/layout?rev=9ff0d4976df64b9dc5684db7088e73499d1243d1#9ff0d4976df64b9dc5684db7088e73499d1243d1"
 
 [[package]]
 name = "lazy_static"
