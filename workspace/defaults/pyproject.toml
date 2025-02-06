@@ -11,6 +11,5 @@ dependencies = [
     "seaborn>=0.13.2",
     "plotly>=6.0.0",
     "altair[all]>=5.5.0",
-    "plotnine>=0.14.5",
-    "pyright>=1.1.393",
+    "plotnine>=0.14.5"
 ]
