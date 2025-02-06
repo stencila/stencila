@@ -36,6 +36,16 @@ compile: install walkthroughs
 	npm run compile
 	cargo build -p cli
 
+# Build and run Docker image for local testing of extension in that environment
+# It copies the local debug version of the CLI binary, rather than
+# downloading it like `make build` (below) does.
+docker:
+	npm run compile
+	cp ../target/debug/stencila cli/
+	npm run package
+	docker build . --tag stencila-vsix-test
+	echo "Run using something like: docker run -it --rm --publish 8080:3000 -eSTENCILA_API_TOKEN=... stencila-vsix-test"
+
 # Build the extension including installing the CLI
 build: install walkthroughs
 	npm run compile

@@ -1211,7 +1211,7 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "test": "vscode-test",
-    "package": "npm run package-vsix"
+    "package": "npx vsce package"
   },
   "dependencies": {
     "posthog-js": "1.207.6",
