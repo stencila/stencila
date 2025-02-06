@@ -67,19 +67,19 @@ stencila-heading {
   }
 
   h1 {
-    margin-top: 3.5rem;
+    margin-top: 3rem;
     line-height: 1.1;
     @apply mb-4 text-3xl lg:text-4xl;
   }
 
   h2 {
-    margin-top: 2.5rem;
+    margin-top: 2rem;
     line-height: 1.1;
     @apply text-2xl lg:text-3xl;
   }
 
   h3 {
-    margin-top: 2rem;
+    margin-top: 1.5rem;
   }
 
   h2,
