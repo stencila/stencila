@@ -63,8 +63,9 @@ export class RawBlock extends Entity {
 
           <stencila-ui-node-code
             type="RawBlock"
-            code=${this.content}
             node-id=${this.id}
+            node-property="content"
+            code=${this.content}
             .code-authorship=${this.contentAuthorship}
             language=${this.format}
           >
