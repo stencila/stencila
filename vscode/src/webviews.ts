@@ -69,10 +69,15 @@ type ReceivedMessage =
   | ClientReadyMessage
   | DomResetMessage
   | CommandMessage
-  | ScrollSyncMessage;
+  | ScrollSyncMessage
+  | SystemDataReceivedMessage;
 
 interface ClientReadyMessage {
   type: "client-ready";
+}
+
+interface SystemDataReceivedMessage {
+  type: "system-data-received";
 }
 
 interface DomResetMessage {
@@ -297,13 +302,22 @@ export async function initializeWebViewPanel(
     </html>
   `;
 
-  // Send system data to the webview
-  await panel.webview.postMessage({
-    type: "system-data",
-    kernels: await vscode.commands.executeCommand("stencila.kernels.list"),
-    prompts: await vscode.commands.executeCommand("stencila.prompts.list"),
-    models: await vscode.commands.executeCommand("stencila.models.list"),
-  });
+  // Send system data to the webview until the `system-data-received` message is received
+  // This is necessary because the webview may not be ready to receive the message initially
+  // and so the first messages may be ignored.
+  const kernels = await vscode.commands.executeCommand("stencila.kernels.list");
+  const prompts = await vscode.commands.executeCommand("stencila.prompts.list");
+  const models = await vscode.commands.executeCommand("stencila.models.list");
+  const sendSystemData = async () => {
+    await panel.webview.postMessage({
+      type: "system-data",
+      kernels,
+      prompts,
+      models,
+    });
+  };
+  await sendSystemData();
+  const sendSystemDataInterval = setInterval(sendSystemData, 500);
 
   const disposables: vscode.Disposable[] = [];
 
@@ -349,6 +363,11 @@ export async function initializeWebViewPanel(
     (message: ReceivedMessage) => {
       if (message.type === "client-ready") {
         clientIsReady = true;
+        return;
+      }
+
+      if (message.type === "system-data-received") {
+        clearInterval(sendSystemDataInterval);
         return;
       }
 
