@@ -3,7 +3,8 @@ FROM gitpod/openvscode-server:latest
 ENV OVS_HOME="/home/.openvscode-server"
 ENV OVS="${OVS_HOME}/bin/openvscode-server"
 
-# Base image uses different so switch to root for installs
+# Base image uses non-root user so switch to root for installs
+# See https://github.com/gitpod-io/openvscode-server?tab=readme-ov-file#custom-environment
 USER root
 
 # Use bash instead of sh in the following RUNs
@@ -36,6 +37,14 @@ RUN apt-get update && \
         gh pandoc r-base && \
     rm -rf /var/lib/apt/lists/*
 
+# Create the R library directory (if it doesn't exist) and set its permissions to allow non-root user to install
+RUN mkdir -p /usr/local/lib/R/site-library && \
+    chmod -R 0777 /usr/local/lib/R/site-library
+
+# Switch back to user so they can write to the workspace files if they wish
+# (e.g. when they install new packages)
+USER openvscode-server
+
 # Install uv
 RUN curl -LsSf https://astral.sh/uv/install.sh | sh
 ENV PATH="/home/workspace/.local/bin:$PATH"
@@ -61,7 +70,8 @@ RUN exts=(\
 COPY settings.jsonc .openvscode-server/data/Machine/settings.json
 
 # Copy over Stencila workspace files
-COPY defaults/* .stencila/workspace/
+RUN mkdir -p .stencila/workspace
+COPY --chown=openvscode-server:openvscode-server defaults/* .stencila/workspace/
 
 # Install default packages for Python and R so that they are cached in the image
 RUN cd .stencila/workspace && \
