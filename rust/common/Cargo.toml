@@ -6,11 +6,11 @@ edition = "2021"
 [dependencies]
 Inflector = "0.11.4"
 async-recursion = "1.1.1"
-async-trait = "0.1.85"
+async-trait = "0.1.86"
 bs58 = "0.5.1"
 chrono = { version = "0.4.39", features = ["serde"] }
 chrono-humanize = "0.2.3"
-clap = { version = "4.5.27", features = ["derive", "color", "env", "wrap_help"] }
+clap = { version = "4.5.28", features = ["derive", "color", "env", "wrap_help"] }
 derivative = "2.2.0"
 eyre = "0.6.12"
 futures = "0.3.31"
@@ -31,13 +31,13 @@ similar = { version = "2.7.0", features = ["serde", "unicode"] }
 smart-default = { workspace = true }
 smol_str = "0.2.1"
 strum = { version = "0.26.3", features = ["derive"] }
-syn = "2.0.96"
+syn = "2.0.98"
 tar = "0.4.43"
 tempfile = "3.16.0"
 tokio = { version = "1.43.0", features = ["full", "tracing"] }
-toml = "0.8.19"
+toml = "0.8.20"
 tracing = { version = "0.1.41", features = ["log"] }
-uuid = { version = "1.12.1", features = ["v4"] }
+uuid = { version = "1.13.1", features = ["v4"] }
 
 [lints]
 workspace = true
