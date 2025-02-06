@@ -6,7 +6,7 @@ use markdown::mdast;
 use winnow::{
     ascii::{dec_int, digit1, float, multispace0, multispace1, take_escaped, Caseless},
     combinator::{alt, delimited, not, opt, peek, preceded, separated, separated_pair, terminated},
-    error::{ErrMode, ErrorKind, ParserError},
+    error::ParserError,
     stream::Stream,
     token::{none_of, take_until, take_while},
     LocatingSlice as Located, ModalResult, Parser,
@@ -318,7 +318,7 @@ fn array_node(input: &mut Located<&str>) -> ModalResult<Node> {
     let json5 = ('[', take_until_unbalanced('[', ']'), ']')
         .take()
         .parse_next(input)?;
-    Node::from_json5(json5).map_err(|_| ErrMode::from_error_kind(input, ErrorKind::Verify))
+    Node::from_json5(json5).map_err(|_| ParserError::from_input(input))
 }
 
 /// Parse a JSON5-style curly braced object into an `Object` node
@@ -326,7 +326,7 @@ fn object_node(input: &mut Located<&str>) -> ModalResult<Node> {
     let json5 = ('{', take_until_unbalanced('{', '}'), '}')
         .take()
         .parse_next(input)?;
-    Node::from_json5(json5).map_err(|_| ErrMode::from_error_kind(input, ErrorKind::Verify))
+    Node::from_json5(json5).map_err(|_| ParserError::from_input(input))
 }
 
 /// Convert a [`Node`] to a `String`
