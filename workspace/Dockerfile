@@ -31,12 +31,15 @@ RUN apt-get update && \
         gh pandoc && \
     rm -rf /var/lib/apt/lists/*
 
-# Install uv & ruff
-RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
-    curl -LsSf https://astral.sh/ruff/install.sh | sh
+# Install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/home/workspace/.local/bin:$PATH"
 
-# Install latest Python using uv
-RUN .local/bin/uv python install
+# Install Python and tools using uv
+# This places ruff and pyright in /home/workspace/.local/bin with is on $PATH
+RUN uv python install && \
+    uv tool install ruff && \
+    uv tool install pyright[nodejs]
 
 # Preinstall extensions
 RUN exts=(\
@@ -49,7 +52,10 @@ RUN exts=(\
 COPY settings.jsonc .openvscode-server/data/Machine/settings.json
 
 # Copy over Stencila workspace files
-COPY setup.sh .stencila/workspace/
+COPY defaults/* .stencila/workspace/
+
+# Install default packages for Python so that they are cached in the image
+RUN cd .stencila/workspace && uv sync
 
 # Copy over and specify the entrypoint script
 COPY entrypoint.sh .

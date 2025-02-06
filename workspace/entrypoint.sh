@@ -40,9 +40,9 @@ if [[ -n "${GITHUB_REPO:-}" ]]; then
     # If REPO_SUBDIR is set, the workspace should end up in "$GITHUB_REPO/$REPO_SUBDIR/.stencila/workspace".
     # If REPO_SUBDIR is not set, it will be "$GITHUB_REPO/.stencila/workspace".
     echo "➡️  Moving workspace files"
-    dest_dir="$GITHUB_REPO/${REPO_SUBDIR:-}/.stencila"
+    dest_dir="$GITHUB_REPO/${REPO_SUBDIR:-}/.stencila/workspace"
     mkdir -p "$dest_dir"
-    mv .stencila/workspace "$dest_dir/"
+    mv .stencila/workspace/*.{sh,toml} "$dest_dir/"
 fi
 
 # Start OpenVSCode Server

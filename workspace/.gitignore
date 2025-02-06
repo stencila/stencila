@@ -1,0 +1,2 @@
+# Ignore because we want versions to be the latest on each build
+defaults/uv.lock
