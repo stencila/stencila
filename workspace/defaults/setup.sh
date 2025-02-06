@@ -26,10 +26,6 @@ if [[ -z "$PYTHON_DEPS" && -z "$R_DEPS" ]]; then
     echo "📦 Installing Python packages in default pyproject.toml"
     cp .stencila/workspace/pyproject.toml ./
     uv venv && uv sync
-
-    echo "📦 Installing R packages in default DESCRIPTION file" 
-    cp .stencila/workspace/DESCRIPTION ./
-    Rscript -e "invisible(renv::install())"
 fi
 
 echo "🎉 Setup complete!"
