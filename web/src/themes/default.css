@@ -60,7 +60,7 @@ stencila-vscode-view {
 
     > section {
       @apply min-w-80 w-full mx-auto;
-      max-width: 72ch;
+      max-width: 75ch;
     }
   }
 
