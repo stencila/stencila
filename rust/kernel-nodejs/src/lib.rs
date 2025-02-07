@@ -702,7 +702,7 @@ const fs = require("fs");
 let path = require("path");
 var crypto = require("crypto");
 
-console.log(typeof fs.read, typeof path.join, typeof crypto.createCipher)
+console.log(typeof fs.read, typeof path.join, typeof crypto.createHash)
 "#,
             )
             .await?;
@@ -720,7 +720,7 @@ console.log(typeof fs.read, typeof path.join, typeof crypto.createCipher)
         let (outputs, messages) = fork
             .execute(
                 r#"
-console.log(typeof fs.read, typeof path.join, typeof crypto.createCipher)
+console.log(typeof fs.read, typeof path.join, typeof crypto.createHash)
 "#,
             )
             .await?;
