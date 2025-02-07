@@ -403,7 +403,7 @@ b",
         assert_eq!(messages[0].error_type.as_deref(), Some("RuntimeError"));
         assert_eq!(
             messages[0].message,
-            "Can't subset columns that don't exist.\n✖ Column `foo` doesn't exist."
+            "Can't select columns that don't exist.\n✖ Column `foo` doesn't exist."
         );
         assert!(messages[0].stack_trace.is_none());
         assert_eq!(outputs, vec![]);
@@ -436,7 +436,7 @@ ggplot(data.frame(x=c(1, 2, NA), y=c(2, 4, NA)), aes(x=x,y=y)) + geom_point()
             .await?;
         assert_eq!(
             messages[0].message,
-            "Removed 1 rows containing missing values (`geom_point()`)."
+            "Removed 1 row containing missing values or values outside the scale range\n(`geom_point()`)."
         );
         assert_eq!(messages[0].level, MessageLevel::Warning);
         assert_eq!(outputs.len(), 1);
