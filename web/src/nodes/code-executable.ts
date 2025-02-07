@@ -1,3 +1,4 @@
+import { ExecutionBounds } from '@stencila/types'
 import { property } from 'lit/decorators.js'
 
 import { Executable } from './executable'
@@ -21,4 +22,10 @@ export abstract class CodeExecutable extends Executable {
 
   @property({ attribute: 'programming-language' })
   programmingLanguage?: string
+
+  @property({ attribute: 'execution-bounds' })
+  executionBounds?: ExecutionBounds
+  
+  @property({ attribute: 'execution-bounded' })
+  executionBounded?: ExecutionBounds
 }

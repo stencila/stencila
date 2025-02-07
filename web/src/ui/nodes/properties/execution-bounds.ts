@@ -33,35 +33,27 @@ export class UINodeExecutionBounds extends UIBaseClass {
 
     const icon = (value: ExecutionBounds): IconName => {
       switch (value) {
-        case 'Default':
-          return 'asterisk'
         case 'Main':
-          return 'arrowUpCircle'
+          return 'arrowNarrowUp'
         case 'Fork':
           return 'arrowRampRight3'
         case 'Limit':
           return 'coneStriped'
         case 'Box':
           return 'box'
-        case 'Skip':
-          return 'ban'
       }
     }
 
     const help = (value: ExecutionBounds): string => {
       switch (value) {
-        case 'Default':
-          return 'Use the configured default'
         case 'Main':
-          return 'Execute within the main set of kernels'
+          return 'Execute within main kernel'
         case 'Fork':
-          return 'Execute within a forked set of kernels'
+          return 'Execute within forked kernel'
         case 'Limit':
-          return 'Execute within a forked set of kernels with limited capabilities'
+          return 'Execute within forked kernel with limited capabilities'
         case 'Box':
-          return 'Execute within a forked set of kernels within a sandbox'
-        case 'Skip':
-          return 'Skip execution'
+          return 'Execute within forked kernel within a sandbox'
       }
     }
 
@@ -73,12 +65,11 @@ export class UINodeExecutionBounds extends UIBaseClass {
     `
 
     const alternatives: ExecutionBounds[] = [
-      'Default',
       'Main',
       'Fork',
-      'Limit',
-      'Box',
-      'Skip',
+      // Following variants not provided until implemented
+      //'Limit',
+      //'Box',
     ]
 
     const menuItems = alternatives.map(
@@ -99,11 +90,21 @@ export class UINodeExecutionBounds extends UIBaseClass {
 
     let value = this.value
     if (value.length == 0) {
-      value = 'Default'
+      value = 'Main'
     }
 
     return html`
       <div class="flex flex-row gap-1 items-center">
+        <sl-tooltip content=${help(value)}>
+          <div class="flex flex-row gap-1 items-center">
+            <stencila-ui-icon
+              class="text-base"
+              name=${icon(value)}
+            ></stencila-ui-icon>
+            ${value}
+          </div>
+        </sl-tooltip>
+
         <sl-dropdown>
           <stencila-ui-icon-button
             name="chevronDown"
@@ -114,16 +115,6 @@ export class UINodeExecutionBounds extends UIBaseClass {
             >${menuItems}</sl-menu
           >
         </sl-dropdown>
-
-        <sl-tooltip content="Execution bounds within this node">
-          <div class="flex flex-row gap-1 items-center">
-            <stencila-ui-icon
-              class="text-base"
-              name=${icon(value)}
-            ></stencila-ui-icon>
-            ${value}
-          </div>
-        </sl-tooltip>
       </div>
     `
   }

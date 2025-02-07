@@ -71,7 +71,6 @@ export class IfBlock extends Executable {
             type="IfBlock"
             node-id=${this.id}
             mode=${this.executionMode}
-            bounds=${this.executionBounds}
             .tags=${this.executionTags}
             status=${this.executionStatus}
             required=${this.executionRequired}
