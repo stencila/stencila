@@ -9,11 +9,12 @@ use schema::{
     authorship,
     shortcuts::{ci, h3, p, t},
     Author, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ChatMessageGroup,
-    ChatMessageOptions, InstructionMessage, InstructionType, MessagePart, MessageRole,
-    ModelParameters, Patch, PatchPath, PatchSlot, SoftwareApplication,
+    ChatMessageOptions, ExecutionBounds, InstructionMessage, InstructionType, MessagePart,
+    MessageRole, ModelParameters, Patch, PatchPath, PatchSlot, SoftwareApplication,
 };
 
 use crate::{
+    code_utils::apply_execution_bounds,
     interrupt_impl,
     model_utils::{
         blocks_to_message_part, blocks_to_system_message, file_to_message_part,
@@ -296,6 +297,9 @@ impl Executable for Chat {
                         tracing::error!("While applying authorship to content: {error}");
                     }
 
+                    // Apply execution bounds
+                    apply_execution_bounds(&mut content, ExecutionBounds::Fork);
+
                     // Execute the content. Note that this is spawned as an async task so that
                     // the message can be updated with the unexecuted content first.
                     {
@@ -427,12 +431,13 @@ impl Executable for Chat {
                                         }
                                     };
 
-                                // Apply model and user authorship to new blocks
+                                // Apply model and user authorship and execution bounds to new blocks
                                 if let Err(error) = authorship(&mut new_content, authors.clone()) {
                                     tracing::error!(
                                         "While applying authorship to content: {error}"
                                     );
                                 }
+                                apply_execution_bounds(&mut new_content, ExecutionBounds::Fork);
 
                                 // Reset the content so only the new blocks are executed
                                 content = new_content.clone();

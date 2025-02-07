@@ -15,10 +15,10 @@ use common::{
 use kernels::{KernelLintingOptions, Kernels};
 use prompts::prompt::{DocumentContext, InstructionContext};
 use schema::{
-    AuthorRole, AuthorRoleName, Block, CompilationDigest, CompilationMessage,
-    ExecutionMode, ExecutionStatus, Inline, Link, List, ListItem, ListOrder, Node, NodeId,
-    NodeProperty, NodeType, Paragraph, Patch, PatchNode, PatchOp, PatchPath, PatchValue, Timestamp,
-    VisitorAsync, WalkControl, WalkNode,
+    AuthorRole, AuthorRoleName, Block, CompilationDigest, CompilationMessage, ExecutionMode,
+    ExecutionStatus, Inline, Link, List, ListItem, ListOrder, Node, NodeId, NodeProperty, NodeType,
+    Paragraph, Patch, PatchNode, PatchOp, PatchPath, PatchValue, Timestamp, VisitorAsync,
+    WalkControl, WalkNode,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -30,6 +30,7 @@ mod call_block;
 mod chat;
 mod code_chunk;
 mod code_expression;
+mod code_utils;
 mod figure;
 mod for_block;
 mod heading;
