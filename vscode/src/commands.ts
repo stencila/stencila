@@ -9,8 +9,8 @@ import { createNodeViewPanel, createDocumentViewPanel } from "./webviews";
  * Register document related commands provided by the extension
  */
 export function registerDocumentCommands(context: vscode.ExtensionContext) {
-  // Keep track of the most recently active text editor for
-  // some of the commands below
+  // Keep track of the most recently active text editor as a fallback in
+  // commands below
   let lastTextEditor: vscode.TextEditor | null = null;
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor((editor) => {
@@ -226,7 +226,7 @@ nodeTypes: []
   // so must be invoked from here
   context.subscriptions.push(
     vscode.commands.registerCommand("stencila.invoke.export-doc", async () => {
-      const editor = vscode.window.activeTextEditor;
+      const editor = vscode.window.activeTextEditor ?? lastTextEditor;
       if (!editor) {
         vscode.window.showErrorMessage("No active editor");
         return;
@@ -293,7 +293,7 @@ nodeTypes: []
     vscode.commands.registerCommand(
       "stencila.view-doc",
       async (docUri, nodeType) => {
-        const editor = vscode.window.activeTextEditor;
+        const editor = vscode.window.activeTextEditor ?? lastTextEditor;
         if (!editor) {
           vscode.window.showErrorMessage("No active editor");
           return;
@@ -309,7 +309,7 @@ nodeTypes: []
     vscode.commands.registerCommand(
       "stencila.view-node",
       async (docUri, nodeType, nodeId) => {
-        const editor = vscode.window.activeTextEditor;
+        const editor = vscode.window.activeTextEditor ?? lastTextEditor;
         if (!editor) {
           vscode.window.showErrorMessage("No active editor");
           return;
@@ -329,7 +329,7 @@ nodeTypes: []
     vscode.commands.registerCommand(
       "stencila.view-node-authors",
       async (docUri, nodeType, nodeId) => {
-        const editor = vscode.window.activeTextEditor;
+        const editor = vscode.window.activeTextEditor ?? lastTextEditor;
         if (!editor) {
           vscode.window.showErrorMessage("No active editor");
           return;
@@ -352,7 +352,7 @@ nodeTypes: []
   // The new chat will be anchored at the end of the document
   context.subscriptions.push(
     vscode.commands.registerCommand(`stencila.chat-doc`, async () => {
-      const editor = vscode.window.activeTextEditor;
+      const editor = vscode.window.activeTextEditor ?? lastTextEditor;
       if (!editor) {
         vscode.window.showErrorMessage("No active editor");
         return;
