@@ -64,7 +64,7 @@ export class MathBlock extends Math {
 
   private renderContent() {
     return html`
-      <div class="px-4 py-3">
+      <div class="px-4 py-3 text-base">
         <slot name="mathml"></slot>
       </div>
     `
