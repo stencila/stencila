@@ -127,11 +127,6 @@
   },
   "anyOf": [
     {
-      "@id": "stencila:Default",
-      "description": "Use the bounds configured in the document, workspace or user settings.",
-      "const": "Default"
-    },
-    {
       "@id": "stencila:Main",
       "description": "Execute within the main set of kernels.",
       "const": "Main"
@@ -150,12 +145,7 @@
       "@id": "stencila:Box",
       "description": "Execute within a forked set of kernels within a sandbox.",
       "const": "Box"
-    },
-    {
-      "@id": "stencila:Skip",
-      "description": "Skip execution.",
-      "const": "Skip"
     }
   ],
-  "default": "Default"
+  "default": "Main"
 }

@@ -3,7 +3,7 @@
  * Under which circumstances a node should be executed.
  */
 export type ExecutionMode =
-  'Default' |
+  'Demand' |
   'Need' |
   'Always' |
   'Auto' |

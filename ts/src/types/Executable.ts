@@ -4,7 +4,6 @@ import { CompilationDigest } from "./CompilationDigest.js";
 import { CompilationMessage } from "./CompilationMessage.js";
 import { Duration } from "./Duration.js";
 import { Entity } from "./Entity.js";
-import { ExecutionBounds } from "./ExecutionBounds.js";
 import { ExecutionDependant } from "./ExecutionDependant.js";
 import { ExecutionDependency } from "./ExecutionDependency.js";
 import { ExecutionMessage } from "./ExecutionMessage.js";
@@ -26,11 +25,6 @@ export class Executable extends Entity {
    * Under which circumstances the node should be executed.
    */
   executionMode?: ExecutionMode;
-
-  /**
-   * Under which circumstances child nodes should be executed.
-   */
-  executionBounds?: ExecutionBounds;
 
   /**
    * A digest of the content, semantics and dependencies of the node.
@@ -81,11 +75,6 @@ export class Executable extends Entity {
    * The id of the kernel instance that performed the last execution.
    */
   executionInstance?: string;
-
-  /**
-   * The bounds, if any, on the last execution.
-   */
-  executionBounded?: ExecutionBounds;
 
   /**
    * The timestamp when the last execution ended.

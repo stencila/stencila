@@ -49,13 +49,6 @@ pub struct IfBlockClause {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
 
-    /// Under which circumstances child nodes should be executed.
-    #[serde(alias = "execution-bounds", alias = "execution_bounds")]
-    #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub execution_bounds: Option<ExecutionBounds>,
-
     /// The code.
     #[strip(code)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
@@ -76,6 +69,13 @@ pub struct IfBlockClause {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
     #[jats(attr = "language")]
     pub programming_language: Option<String>,
+
+    /// The environment in which code should be executed.
+    #[serde(alias = "execution-bounds", alias = "execution_bounds")]
+    #[strip(execution)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub execution_bounds: Option<ExecutionBounds>,
 
     /// The authors of the executable code.
     #[serde(alias = "author")]
@@ -198,12 +198,6 @@ pub struct IfBlockClauseOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_instance: Option<String>,
 
-    /// The bounds, if any, on the last execution.
-    #[serde(alias = "execution-bounded", alias = "execution_bounded")]
-    #[strip(execution)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub execution_bounded: Option<ExecutionBounds>,
-
     /// The timestamp when the last execution ended.
     #[serde(alias = "execution-ended", alias = "execution_ended")]
     #[strip(execution, timestamps)]
@@ -225,6 +219,12 @@ pub struct IfBlockClauseOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
+
+    /// The execution bounds, if any, on the last execution.
+    #[serde(alias = "execution-bounded", alias = "execution_bounded")]
+    #[strip(execution)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub execution_bounded: Option<ExecutionBounds>,
 }
 
 impl IfBlockClause {
