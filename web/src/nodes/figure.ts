@@ -22,6 +22,27 @@ export class Figure extends Entity {
       return this.renderContent()
     }
 
+    // render with the `insert` chip in model chat response
+    if (this.isWithinModelChatMessage()) {
+      return html`
+        <div class="group relative">
+          ${this.renderInsertChip()} ${this.renderCard()}
+        </div>
+      `
+    }
+
+    return this.renderCard()
+  }
+
+  private renderContent() {
+    return html`
+      <figure class="m-0">
+        <slot name="content"></slot>
+      </figure>
+    `
+  }
+
+  private renderCard() {
     return html`
       <stencila-ui-block-on-demand
         type="Figure"
@@ -38,14 +59,6 @@ export class Figure extends Entity {
         </div>
         <div slot="content">${this.renderContent()}</div>
       </stencila-ui-block-on-demand>
-    `
-  }
-
-  private renderContent() {
-    return html`
-      <figure class="m-0">
-        <slot name="content"></slot>
-      </figure>
     `
   }
 }
