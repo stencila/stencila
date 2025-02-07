@@ -4,7 +4,6 @@ import { apply, css } from '@twind/core'
 import { html, LitElement } from 'lit'
 import { property, state } from 'lit/decorators'
 
-import { nodePatchEvent, NodePatch } from '../clients/nodes'
 import { DocumentAccess, DocumentView, NodeId } from '../types'
 import { EntityContext, entityContext } from '../ui/nodes/entity-context'
 import { closestGlobally } from '../utilities/closestGlobally'
@@ -189,16 +188,6 @@ export abstract class Entity extends LitElement {
     return this.closestGlobally('[view]')?.getAttribute(
       'access'
     ) as DocumentAccess
-  }
-
-  /**
-   * Patch the node that this web component represents
-   *
-   * Emits a `CustomEvent` containing a `NodePatch` which is forwarded by
-   * the `NodesClient` to the document on the server.
-   */
-  protected patchNode(patch: NodePatch) {
-    this.dispatchEvent(nodePatchEvent(patch))
   }
 
   override render() {

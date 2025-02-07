@@ -3,7 +3,7 @@
   "displayName": "Stencila",
   "publisher": "stencila",
   "description": "Documents with Scientific Intelligence",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "license": "Apache-2.0",
   "author": "Stencila and contributors",
   "homepage": "https://github.com/stencila/stencila/tree/main/vscode#readme",
@@ -213,12 +213,6 @@
         "icon": "$(comment-discussion)"
       },
       {
-        "command": "stencila.insert-chat.suggest",
-        "category": "Stencila",
-        "title": "Chat to suggest content",
-        "icon": "$(comment-discussion)"
-      },
-      {
         "command": "stencila.insert-chat.create",
         "category": "Stencila",
         "title": "Chat to create"
@@ -296,12 +290,12 @@
       {
         "command": "stencila.insert-chat.edit",
         "category": "Stencila",
-        "title": "Chat to edit selection"
+        "title": "Chat to edit selection (coming soon!)"
       },
       {
         "command": "stencila.insert-chat.fix",
         "category": "Stencila",
-        "title": "Chat to fix selection"
+        "title": "Chat to fix selection (coming soon!)"
       },
       {
         "command": "stencila.insert-command-create",
@@ -424,13 +418,6 @@
         "title": "Accept current suggestion and archive command",
         "shortTitle": "Accept suggestion",
         "icon": "$(archive)"
-      },
-      {
-        "command": "stencila.invoke.save-doc",
-        "category": "Stencila",
-        "title": "Save document with sidecar file",
-        "shortTitle": "Save doc",
-        "icon": "$(save-all)"
       },
       {
         "command": "stencila.invoke.export-doc",
@@ -771,10 +758,6 @@
           "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
         },
         {
-          "command": "stencila.invoke.save-doc",
-          "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
-        },
-        {
           "command": "stencila.invoke.export-doc",
           "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
         },
@@ -810,11 +793,6 @@
         }
       ],
       "editor/context": [
-        {
-          "command": "stencila.insert-chat.suggest",
-          "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/",
-          "group": "000-Stencila@1"
-        },
         {
           "submenu": "stencila.insert-chat.create-submenu",
           "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/",
@@ -1233,7 +1211,7 @@
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
     "test": "vscode-test",
-    "package": "npm run package-vsix"
+    "package": "npx vsce package"
   },
   "dependencies": {
     "posthog-js": "1.207.6",

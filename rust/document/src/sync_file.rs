@@ -44,7 +44,7 @@ impl Document {
         }
         if Some(path) == self.path.as_deref() {
             // If the path is the path of this document, then it should already
-            // be loaded, including handling any sidecar file, so just return root node
+            // be loaded, so just return root node
             is_directory = node_is_dir(&*self.root.read().await);
         } else {
             // Before starting watches import and/or export to the synced path

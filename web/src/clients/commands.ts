@@ -1,8 +1,6 @@
 import { ExecutionMode, File, InstructionType, NodeType } from '@stencila/types'
 
-import type { DocumentAccess, DocumentId, NodeId } from '../types'
-
-import { RestClient } from './rest'
+import type { NodeId } from '../types'
 
 export interface DocumentCommand {
   command: string
@@ -149,22 +147,3 @@ export const reviseNode = (
     command: 'revise-node',
     args: [nodeType, nodeId, feedback],
   })
-
-export class CommandsClient extends RestClient {
-  /**
-   * Create a new `CommandsClient`
-   *
-   * @param docId The id of the document that will be sent commands
-   * @param elem The HTML element from which events will be forwarded
-   */
-  constructor(docId: DocumentId, _access: DocumentAccess, elem: HTMLElement) {
-    super()
-
-    elem.addEventListener(
-      DOCUMENT_COMMAND_EVENT,
-      async (event: CustomEvent) => {
-        await RestClient.documentCommand(docId, event.detail)
-      }
-    )
-  }
-}

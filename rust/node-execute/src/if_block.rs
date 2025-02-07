@@ -229,12 +229,15 @@ impl Executable for IfBlockClause {
 
         let is_empty = self.code.trim().is_empty();
         let (is_active, mut status) = if !is_empty {
+            // Get the programming language, falling back to using the executor's current language
+            let lang = executor.programming_language(&self.programming_language);
+
             // Evaluate code in kernels
             let (output, mut code_messages, ..) = executor
                 .kernels
                 .write()
                 .await
-                .evaluate(&self.code, self.programming_language.as_deref())
+                .evaluate(&self.code, lang.as_deref())
                 .await
                 .unwrap_or_else(|error| {
                     (

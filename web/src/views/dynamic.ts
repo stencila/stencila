@@ -1,7 +1,6 @@
 import { NodeType } from '@stencila/types'
 import { customElement, property } from 'lit/decorators.js'
 
-import { CommandsClient } from '../clients/commands'
 import { DomClient } from '../clients/dom'
 import type { DocumentId, DocumentAccess } from '../types'
 
@@ -64,12 +63,6 @@ export class DynamicView extends DocumentView {
     const renderRoot = super.createRenderRoot()
 
     this.domClient = new DomClient(this.doc, renderRoot as HTMLElement)
-
-    this.nodesClient = new CommandsClient(
-      this.doc,
-      this.access,
-      renderRoot as HTMLElement
-    )
 
     return renderRoot
   }

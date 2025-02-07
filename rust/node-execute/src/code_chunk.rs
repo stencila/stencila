@@ -150,10 +150,13 @@ impl Executable for CodeChunk {
         if !self.code.trim().is_empty() {
             let started = Timestamp::now();
 
+            // Get the programming language, falling back to using the executor's current language
+            let lang = executor.programming_language(&self.programming_language);
+
             let (outputs, messages, instance) = executor
                 .kernels()
                 .await
-                .execute(&self.code, self.programming_language.as_deref())
+                .execute(&self.code, lang.as_deref())
                 .await
                 .unwrap_or_else(|error| {
                     (

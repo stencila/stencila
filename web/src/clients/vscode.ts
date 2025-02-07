@@ -54,6 +54,7 @@ type SentMessage =
   | DomResetMessage
   | CommandMessage
   | ScrollSyncMessage
+  | SystemDataReceivedMessage
 
 interface ClientReadyMessage {
   type: 'client-ready'
@@ -68,6 +69,10 @@ interface CommandMessage {
   command: string
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [k: string]: any
+}
+
+interface SystemDataReceivedMessage {
+  type: 'system-data-received'
 }
 
 interface VSCode {
@@ -484,5 +489,7 @@ window.addEventListener(
     if (models) {
       data.models = models
     }
+
+    vscode.postMessage({ type: 'system-data-received' })
   }
 )

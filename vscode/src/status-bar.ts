@@ -143,11 +143,6 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
             description: "Chat about the current document",
             command: "stencila.chat-doc",
           },
-          {
-            label: "$(save-all) Save",
-            description: "Save the current document with a sidecar file",
-            command: "stencila.invoke.save-doc",
-          }
         );
       }
 

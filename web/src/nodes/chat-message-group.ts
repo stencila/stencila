@@ -93,7 +93,7 @@ export class ChatMessageGroup extends Entity {
     return html`
       <div class="mt-4">
         ${this.renderGroupHeader()}
-        <div class="min-w-[45ch] max-w-prose mx-auto mb-3">
+        <div class="min-w-[45ch] max-w-[80ch] mx-auto mb-3">
           <slot
             name="messages"
             @slotchange=${this.handleMessageSlotChange}

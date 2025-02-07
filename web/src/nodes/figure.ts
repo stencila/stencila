@@ -39,8 +39,7 @@ export class Figure extends Entity {
             <slot name="authors"></slot>
           </stencila-ui-node-authors>
         </div>
-
-        ${this.renderContent()}
+        <div slot="content">${this.renderContent()}</div>
       </stencila-ui-block-on-demand>
     `
   }

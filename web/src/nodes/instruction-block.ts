@@ -295,7 +295,7 @@ export class InstructionBlock extends Instruction {
         ${this.renderSuggestionsHeader()}
       </div>
 
-      <div slot="content" class="max-w-prose mx-auto">
+      <div slot="content" class="max-w-[80ch] mx-auto">
         <div
           class="content-container ${!(
             this.activeSuggestion === null ||

@@ -1,8 +1,8 @@
 use std::path::PathBuf;
 
-use codecs::{to_path, DecodeOptions, EncodeOptions, LossesResponse};
+use codecs::DecodeOptions;
 use common::{
-    eyre::{bail, Report, Result},
+    eyre::{bail, Result},
     itertools::Itertools,
     tokio::{self, task::JoinHandle},
     tracing,
@@ -17,7 +17,6 @@ use schema::{
 use crate::{
     Command, CommandNodes, CommandStatus, ContentType, Document, DocumentCommandReceiver,
     DocumentCommandStatusSender, DocumentKernels, DocumentPatchSender, DocumentRoot,
-    SaveDocumentSidecar, SaveDocumentSource,
 };
 
 impl Document {
@@ -27,7 +26,6 @@ impl Document {
         mut command_receiver: DocumentCommandReceiver,
         status_sender: DocumentCommandStatusSender,
         home: PathBuf,
-        path: Option<PathBuf>,
         root: DocumentRoot,
         kernels: DocumentKernels,
         patch_sender: DocumentPatchSender,
@@ -132,7 +130,6 @@ impl Document {
             }
 
             let home = home.clone();
-            let path = path.clone();
             let root = root.clone();
             let kernels = kernels.clone();
             let patch_sender = patch_sender.clone();
@@ -317,74 +314,6 @@ impl Document {
                     // If these have fallen down to here it means that no execution was happening at the time
                     // so just ignore them
                     send_status(&status_sender, command_id, CommandStatus::Ignored);
-                }
-
-                // Note: the following commands are not cancellable so
-                // the `current_command_details` variable is not set
-                SaveDocument((source, sidecar)) => {
-                    // Save the document to its source and sidecar
-                    if let Some(path) = &path {
-                        let status_sender = status_sender.clone();
-                        let path = path.to_path_buf();
-                        tokio::spawn(async move {
-                            let root = &*root.read().await;
-                            let status = match async {
-                                if matches!(source, SaveDocumentSource::Yes) {
-                                    to_path(
-                                        root,
-                                        &path,
-                                        Some(EncodeOptions {
-                                            // Ignore losses because lossless sidecar file is
-                                            // encoded next.
-                                            losses: LossesResponse::Ignore,
-                                            ..Default::default()
-                                        }),
-                                    )
-                                    .await?;
-                                }
-
-                                if !matches!(sidecar, SaveDocumentSidecar::No) {
-                                    let path = Document::sidecar_path(&path);
-                                    if matches!(sidecar, SaveDocumentSidecar::Yes)
-                                        || (matches!(sidecar, SaveDocumentSidecar::IfExists)
-                                            && path.exists())
-                                    {
-                                        to_path(root, &path, None).await?;
-                                    }
-                                }
-
-                                Ok::<(), Report>(())
-                            }
-                            .await
-                            {
-                                Ok(..) => CommandStatus::Succeeded,
-                                Err(error) => {
-                                    CommandStatus::Failed(format!("While saving: {error}"))
-                                }
-                            };
-                            send_status(&status_sender, command_id, status);
-                        });
-                    } else {
-                        send_status(
-                            &status_sender,
-                            command_id,
-                            CommandStatus::Failed("Document does not have a path".to_string()),
-                        );
-                    }
-                }
-                ExportDocument((path, options)) => {
-                    // Export the document to a path (usually a different format)
-                    let status_sender = status_sender.clone();
-                    tokio::spawn(async move {
-                        let root = &*root.read().await;
-                        let status = match to_path(root, &path, Some(options)).await {
-                            Ok(..) => CommandStatus::Succeeded,
-                            Err(error) => {
-                                CommandStatus::Failed(format!("While encoding to path: {error}"))
-                            }
-                        };
-                        send_status(&status_sender, command_id, status);
-                    });
                 }
             }
         }

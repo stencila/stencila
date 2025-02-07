@@ -2,7 +2,6 @@ use std::{
     cmp::Ordering,
     collections::HashMap,
     path::{Component, PathBuf},
-    str::FromStr,
     sync::Arc,
     time::UNIX_EPOCH,
 };
@@ -15,7 +14,7 @@ use axum::{
     },
     http::{header::CONTENT_TYPE, HeaderName, HeaderValue, StatusCode},
     response::{IntoResponse, Response},
-    routing::{get, post},
+    routing::get,
     Json, Router,
 };
 
@@ -41,7 +40,7 @@ use common::{
     tracing,
     uuid::Uuid,
 };
-use document::{Command, CommandWait, Document, DocumentId, SyncDirection};
+use document::{CommandWait, Document, SyncDirection};
 use format::Format;
 
 use crate::{
@@ -61,21 +60,39 @@ pub(crate) struct Documents {
 }
 
 impl Documents {
+    /// Get a document by [`Uuid`]
+    async fn by_uuid(&self, uuid: &Uuid) -> Result<Arc<Document>> {
+        let doc = self
+            .docs
+            .read()
+            .await
+            .get(uuid)
+            .ok_or_else(|| eyre!("No doc with UUID `{uuid}`"))?
+            .clone();
+
+        Ok(doc)
+    }
+
+    /// Get a document by UUID string
+    async fn by_uuid_string(&self, uuid: &str) -> Result<Arc<Document>> {
+        self.by_uuid(&Uuid::parse_str(uuid)?).await
+    }
+
     /// Get a document by path
     ///
     /// At present this always returns the trunk document for the path.
     /// In the future, based on arguments and/or the user's permissions on the
     /// document, will return a branch or a twig document.
-    pub async fn by_path(
+    async fn by_path(
         &self,
         path: &std::path::Path,
         sync: Option<SyncDirection>,
-    ) -> Result<Arc<Document>> {
+    ) -> Result<(Uuid, Arc<Document>)> {
         {
             // In block to ensure lock is dropped when no longer needed
             let paths = self.paths.read().await;
             if let Some(uuid) = paths.get(path) {
-                return self.by_uuid(uuid).await;
+                return Ok((*uuid, self.by_uuid(uuid).await?));
             }
         }
 
@@ -89,43 +106,26 @@ impl Documents {
         // Compile the document (so math, headings list, etc can be properly encoded to HTML)
         doc.compile(CommandWait::Yes).await?;
 
-        let uuid = doc.id().uuid();
+        let uuid = Uuid::new_v4();
 
         self.paths.write().await.insert(path.to_path_buf(), uuid);
         self.docs.write().await.insert(uuid, Arc::new(doc));
 
-        self.by_uuid(&uuid).await
+        let doc = self.by_uuid(&uuid).await?;
+
+        Ok((uuid, doc))
     }
 
-    /// Get a document by [`DocumentId`]
-    pub async fn by_id(&self, id: &DocumentId) -> Result<Arc<Document>> {
-        self.by_uuid(&id.uuid()).await
-    }
-
-    /// Get a document by [`Uuid`]
-    pub async fn by_uuid(&self, uuid: &Uuid) -> Result<Arc<Document>> {
-        let doc = self
-            .docs
-            .read()
-            .await
-            .get(uuid)
-            .ok_or_else(|| eyre!("No doc with UUID `{uuid}`"))?
-            .clone();
-
-        Ok(doc)
-    }
-
-    /// Close a document by [`DocumentId`]
-    pub async fn close(&self, id: &DocumentId) -> Result<()> {
-        let uuid = id.uuid();
-
-        self.docs.write().await.remove(&uuid);
+    /// Close a document by [`Uuid`]
+    #[allow(unused)]
+    async fn close(&self, uuid: &Uuid) -> Result<()> {
+        self.docs.write().await.remove(uuid);
 
         // TODO: When there are multiple docs for a path this will need to be revised.
         self.paths
             .write()
             .await
-            .retain(|_, entry_uuid| entry_uuid != &uuid);
+            .retain(|_, entry_uuid| entry_uuid != uuid);
 
         Ok(())
     }
@@ -217,12 +217,7 @@ fn resolve_path(path: PathBuf) -> Result<Option<PathBuf>, InternalError> {
 
 /// Create a router for document routes
 pub fn router() -> Router<ServerState> {
-    Router::new()
-        .route("/open/{*path}", get(open_document))
-        .route("/{id}/close", post(close_document))
-        .route("/{id}/command", post(command_document))
-        .route("/{id}/export", get(export_document))
-        .route("/{id}/websocket", get(websocket_for_document))
+    Router::new().route("/{id}/websocket", get(websocket_for_document))
 }
 
 /// Serve the root path
@@ -284,11 +279,10 @@ pub async fn serve_path(
     }
 
     // Get the document for the path
-    let doc = docs
+    let (uuid, doc) = docs
         .by_path(&path, sync)
         .await
         .map_err(InternalError::new)?;
-    let doc_id = doc.id();
     let config = doc.config().await.map_err(InternalError::new)?;
 
     // Get various query parameters
@@ -339,7 +333,7 @@ pub async fn serve_path(
         .dump(Format::Dom, None)
         .await
         .map_err(InternalError::new)?;
-    let body = format!("<stencila-{view}-view doc={doc_id} type={root_type} view={view} access={access} theme={theme} format={format}>{root_html}</stencila-{view}-view>");
+    let body = format!("<stencila-{view}-view doc={uuid} type={root_type} view={view} access={access} theme={theme} format={format}>{root_html}</stencila-{view}-view>");
 
     // The version path segment for static assets (JS & CSS)
     let version = if cfg!(debug_assertions) {
@@ -450,11 +444,10 @@ async fn open_document(
     };
 
     // Get the document for the path
-    let doc = docs
+    let (uuid, ..) = docs
         .by_path(&path, sync)
         .await
         .map_err(InternalError::new)?;
-    let doc_id = doc.id();
 
     #[derive(Serialize)]
     #[serde(crate = "common::serde")]
@@ -463,77 +456,9 @@ async fn open_document(
     }
 
     Ok(Json(OpenResponse {
-        id: doc_id.to_string(),
+        id: uuid.to_string(),
     })
     .into_response())
-}
-
-/// Parse a string as a `DocumentId` and return the corresponding document
-async fn doc_by_id(docs: &Arc<Documents>, id: &str) -> Result<Arc<Document>> {
-    let id = DocumentId::from_str(id)?;
-    docs.by_id(&id).await
-}
-
-/// Handle a request to close a document
-async fn close_document(
-    State(ServerState { docs, .. }): State<ServerState>,
-    Path(id): Path<String>,
-) -> Result<Response, InternalError> {
-    let Ok(id) = DocumentId::from_str(&id) else {
-        return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
-    };
-
-    docs.close(&id).await.map_err(InternalError::new)?;
-
-    Ok(StatusCode::OK.into_response())
-}
-
-/// Handle a request to perform a document command
-async fn command_document(
-    State(ServerState { docs, .. }): State<ServerState>,
-    Path(id): Path<String>,
-    Json(command): Json<Command>,
-) -> Result<Response, InternalError> {
-    let Ok(doc) = doc_by_id(&docs, &id).await else {
-        return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
-    };
-
-    doc.command(command, CommandWait::No)
-        .await
-        .map_err(InternalError::new)?;
-
-    Ok(StatusCode::OK.into_response())
-}
-
-/// Handle a request to export a document
-///
-/// TODO: This should add correct MIME type to response
-/// and handle binary formats.
-async fn export_document(
-    State(ServerState { docs, .. }): State<ServerState>,
-    Path(id): Path<String>,
-    Query(query): Query<HashMap<String, String>>,
-) -> Result<Response, InternalError> {
-    let Ok(doc) = doc_by_id(&docs, &id).await else {
-        return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
-    };
-
-    let format = query
-        .get("format")
-        .map(|format| Format::from_name(format))
-        .unwrap_or(Format::Json);
-
-    let options = Some(EncodeOptions {
-        format: Some(format.clone()),
-        ..Default::default()
-    });
-
-    let content = doc
-        .dump(format, options)
-        .await
-        .map_err(InternalError::new)?;
-
-    Ok(content.into_response())
 }
 
 /// Handle a WebSocket upgrade request
@@ -542,9 +467,9 @@ async fn websocket_for_document(
         dir, docs, sync, ..
     }): State<ServerState>,
     ws: WebSocketUpgrade,
-    Path(id): Path<String>,
+    Path(uuid): Path<String>,
 ) -> Result<Response, InternalError> {
-    let Ok(doc) = doc_by_id(&docs, &id).await else {
+    let Ok(doc) = docs.by_uuid_string(&uuid).await else {
         return Ok((StatusCode::BAD_REQUEST, "Invalid document id").into_response());
     };
 
@@ -835,7 +760,7 @@ mod tests {
     /// Test the `resolve_path` method using the `routing` example
     /// Skip on windows because of path incompatibility (\ v /)
     #[cfg(not(target_os = "windows"))]
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn test_resolve_path() -> Result<()> {
         let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../../examples/projects/routing")

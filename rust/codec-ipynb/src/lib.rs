@@ -155,9 +155,19 @@ fn node_from_notebook(notebook: Notebook) -> Result<(Node, Losses)> {
         (!authors.is_empty()).then_some(authors)
     });
 
+    // Get any Stencila metadata
+    let mut id = None;
+    if let Some(stencila) = notebook.metadata.additional.get("stencila") {
+        id = stencila
+            .get("id")
+            .and_then(|id| id.as_str())
+            .map(String::from);
+    };
+
     let node = Node::Article(Article {
         content,
         authors,
+        id,
         ..Default::default()
     });
 
@@ -166,10 +176,7 @@ fn node_from_notebook(notebook: Notebook) -> Result<(Node, Losses)> {
 
 /// Convert a Stencila [`Node`] to a Jupyter [`Notebook`]
 fn node_to_notebook(node: &Node) -> Result<(Notebook, Losses)> {
-    let Node::Article(Article {
-        content, authors, ..
-    }) = node
-    else {
+    let Node::Article(article) = node else {
         bail!("Unable to encode a `{node}` as a notebook")
     };
 
@@ -177,7 +184,7 @@ fn node_to_notebook(node: &Node) -> Result<(Notebook, Losses)> {
     let mut md = String::new();
     let mut node_id = None;
 
-    for block in content {
+    for block in &article.content {
         match block {
             Block::CodeChunk(..) | Block::RawBlock(..) => {
                 let cell = match block {
@@ -227,7 +234,8 @@ fn node_to_notebook(node: &Node) -> Result<(Notebook, Losses)> {
         });
     }
 
-    let authors = authors
+    let authors = article
+        .authors
         .iter()
         .flatten()
         .map(|author| match author {
@@ -239,12 +247,18 @@ fn node_to_notebook(node: &Node) -> Result<(Notebook, Losses)> {
         })
         .collect();
 
+    // Create a Stencila metadata object
+    let mut stencila = HashMap::new();
+    if let Some(id) = &article.id {
+        stencila.insert("id", json!(id));
+    }
+    let stencila = serde_json::to_value(stencila)?;
+
     let metadata = Metadata {
-        // TODO: Encode other article metadata
         kernelspec: None,
         language_info: None,
         authors,
-        additional: HashMap::new(),
+        additional: HashMap::from([("stencila".to_string(), stencila)]),
     };
 
     let notebook = Notebook::V4(NotebookV4 {
