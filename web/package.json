@@ -112,6 +112,7 @@
     "@parcel/transformer-inline-string": "2.13.3",
     "@parcel/transformer-typescript-tsc": "2.13.3",
     "@playwright/test": "1.49.1",
+    "@types/katex": "^0.16.7",
     "@types/plotly.js-dist-min": "2.3.4",
     "glob": "11.0.1",
     "parcel": "2.13.3",
