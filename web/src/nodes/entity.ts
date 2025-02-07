@@ -11,6 +11,8 @@ import { getModeParam } from '../utilities/getModeParam'
 
 import '../ui/nodes/node-insert'
 
+import '../shoelace'
+
 /**
  * Abstract base class for web components representing Stencila Schema `Entity` node types
  *
@@ -87,7 +89,9 @@ export abstract class Entity extends LitElement {
   override connectedCallback(): void {
     super.connectedCallback()
 
-    this.parentNodeType = this.ancestors.split('.').pop() as NodeType
+    this.parentNodeType = this.ancestors
+      ? (this.ancestors.split('.').pop() as NodeType)
+      : null
 
     this.context.nodeId = this.id
 
@@ -124,7 +128,7 @@ export abstract class Entity extends LitElement {
   protected isWithin(nodeType: NodeType): boolean {
     return (
       this.parentNodeType === nodeType ||
-      this.ancestors.includes(`${nodeType}.`)
+      (this.ancestors && this.ancestors.includes(`${nodeType}.`))
     )
   }
 

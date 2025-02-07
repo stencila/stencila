@@ -154,7 +154,9 @@ export class PromptBlock extends Executable {
   override connectedCallback(): void {
     super.connectedCallback()
 
-    this.ui = nodeUi(this.isProperty() ? this.parentNodeType : 'PromptBlock')
+    this.ui = nodeUi(
+      this.isProperty() ? (this.parentNodeType ?? 'PromptBlock') : 'PromptBlock'
+    )
 
     this.showContent = !(
       this.parentNodeIs('Chat') || this.parentNodeIs('InstructionBlock')
