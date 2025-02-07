@@ -1,7 +1,7 @@
 use crate::prelude::*;
 
 /// A heading in the current document
-#[derive(Default, Clone, Trace, JsLifetime)]
+#[derive(Debug, Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct Heading {
     // The level of the heading
@@ -49,7 +49,7 @@ impl Heading {
 }
 
 /// The headings in a document
-#[derive(Default, Clone, Trace, JsLifetime)]
+#[derive(Debug, Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct Headings {
     items: Vec<Heading>,

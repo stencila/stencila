@@ -133,7 +133,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             Node::Chat(node) => node.inspect(self),
             Node::Prompt(node) => node.inspect(self),
             _ => {
-                tracing::warn!("Node type `{node}` not inspected");
+                tracing::trace!("Node type `{node}` not inspected");
             }
         };
 

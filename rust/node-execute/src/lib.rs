@@ -457,6 +457,18 @@ impl Executor {
         })
     }
 
+    /// Create a fork of the executor that walks over temporaries
+    /// 
+    /// This empties any temporaries, and resets the `last_block`
+    /// since neither should be used within temporary chats
+    fn fork_for_temporaries(&self) -> Self {
+        Self {
+            temporaries: Vec::new(),
+            last_block: None,
+            ..self.clone()
+        }
+    }
+
     /// Run [`Phase::Compile`]
     async fn compile(&mut self, root: &mut Node) -> Result<()> {
         self.phase = Phase::Compile;
@@ -464,6 +476,7 @@ impl Executor {
         self.figure_count = 0;
         self.equation_count = 0;
         self.linting_context.clear();
+        self.last_block = None;
         root.walk_async(self).await?;
 
         Ok(())
@@ -825,6 +838,7 @@ impl Executor {
         self.document_context = DocumentContext::default();
 
         self.phase = Phase::Prepare;
+        self.last_block = None;
         root.walk_async(self).await
     }
 
@@ -834,6 +848,7 @@ impl Executor {
         self.temporaries.clear();
 
         self.phase = Phase::Execute;
+        self.last_block = None;
         root.walk_async(self).await?;
 
         // Execute any un-executed temporary nodes (those not walked in `visit_block`)
@@ -847,6 +862,7 @@ impl Executor {
     /// Run [`Phase::Interrupt`]
     async fn interrupt(&mut self, root: &mut Node) -> Result<()> {
         self.phase = Phase::Interrupt;
+        self.last_block = None;
         root.walk_async(self).await
     }
 
@@ -1079,16 +1095,25 @@ impl VisitorAsync for Executor {
         let current_block = block.node_id();
 
         if !self.temporaries.is_empty() {
-            // Execute those where last block is same as previous (including no previous)
-            let mut execute = Vec::new();
+            // Visit those where last block is same as previous (including no previous)
+            let mut visit = Vec::new();
             for (index, (previous, next, ..)) in self.temporaries.iter().enumerate() {
-                if &self.last_block == previous || &current_block == next {
-                    execute.push(index);
+                if (previous.is_some() && &self.last_block == previous)
+                    || (next.is_some() && &current_block == next)
+                {
+                    visit.push(index);
                 }
             }
-            for (shift, index) in execute.iter().enumerate() {
-                let (.., mut node) = self.temporaries.remove(index - shift);
-                self.visit_node(&mut node).await?;
+
+            // If any to be visited here fork the executor so that the document context etc
+            // is not modified by what is in the temporary chat but the chat gets the current
+            // document context, figure numbers etc.
+            if !visit.is_empty() {
+                let mut fork = self.fork_for_temporaries();
+                for (shift, index) in visit.iter().enumerate() {
+                    let (.., mut node) = self.temporaries.remove(index - shift);
+                    fork.visit_node(&mut node).await?;
+                }
             }
         }
 

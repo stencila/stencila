@@ -199,15 +199,6 @@ export class IncludeBlock extends Executable {
             ?disabled=${this.readonly}
           />
         </sl-tooltip>
-
-        <sl-tooltip
-          content="Open source document in another tab"
-          placement="top-end"
-        >
-          <a class="flex items-center" href=${this.source} target="_blank">
-            <stencila-ui-icon name="boxArrowUpRight"></stencila-ui-icon>
-          </a>
-        </sl-tooltip>
       </div>
     `
   }

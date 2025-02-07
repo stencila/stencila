@@ -7,7 +7,7 @@ use crate::prelude::*;
 ///
 /// For convenience, the type of the node is available as a property, and
 /// the value of the node is both a JavaScript object and as Markdown.
-#[derive(Clone, Trace, JsLifetime)]
+#[derive(Debug, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct Node {
     /// The type of the node
