@@ -7,7 +7,7 @@ mod tests {
     use common::{eyre::Result, tokio};
     use document::schema::{ConfigPublishGhostState, ConfigPublishGhostType};
 
-    #[tokio::test] // Changed to regular test
+    #[tokio::test]
     async fn test_ghost_config_parsing() -> Result<()> {
         // Create temporary directory with test file
         let dir = tempdir()?;
@@ -30,13 +30,11 @@ config:
 
         std::fs::write(&file_path, content)?;
 
-        // Synchronous document processing
-        let doc = Document::open(&file_path).await?; // Using wait() for sync access
+        let doc = Document::open(&file_path).await?;
 
         let ghost_config = doc
             .inspect(|root| {
                 if let Node::Article(article) = root {
-                    // Return cloned configuration to avoid reference lifetime issues
                     article
                         .config
                         .as_ref()
