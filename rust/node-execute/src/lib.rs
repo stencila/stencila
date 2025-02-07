@@ -458,7 +458,7 @@ impl Executor {
     }
 
     /// Create a fork of the executor that walks over temporaries
-    /// 
+    ///
     /// This empties any temporaries, and resets the `last_block`
     /// since neither should be used within temporary chats
     fn fork_for_temporaries(&self) -> Self {
