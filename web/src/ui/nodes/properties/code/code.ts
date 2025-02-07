@@ -458,6 +458,7 @@ export class UINodeCode extends LitElement {
     })
     this.messagesObserver.observe(messagesElem, {
       childList: true,
+      subtree: true,
     })
   }
 
@@ -467,7 +468,11 @@ export class UINodeCode extends LitElement {
    */
   private updateMessages(messagesElem?: HTMLElement) {
     if (messagesElem) {
-      this.messages = Array.from(messagesElem.children ?? []).filter(
+      this.messages = Array.from(
+        messagesElem.querySelectorAll(
+          'stencila-compilation-message,stencila-execution-message'
+        ) ?? []
+      ).filter(
         (message: CompilationMessage | ExecutionMessage) =>
           message?.message?.length > 0
       ) as (CompilationMessage | ExecutionMessage)[]
