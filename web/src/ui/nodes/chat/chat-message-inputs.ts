@@ -157,7 +157,7 @@ export class UIChatMessageInputs extends UIBaseClass {
     return html`
       <div class="bg-white rounded border border-[${borderColour}] p-2">
         <textarea
-          class="w-full resize-none overflow-hidden outline-none px-1 py-1"
+          class="w-full resize-none overflow-hidden outline-none px-1 py-1 text-base"
           placeholder=""
           rows=${1}
           @input=${this.onTextInput}
