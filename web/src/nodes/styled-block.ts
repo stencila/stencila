@@ -59,6 +59,7 @@ export class StyledBlock extends Styled {
             node-id=${this.id}
             .code-authorship=${this.codeAuthorship}
             language=${this.styleLanguage}
+            ?read-only=${!this.hasDocumentRootNode()}
           >
             <slot name="compilation-messages" slot="messages"></slot>
           </stencila-ui-node-code>

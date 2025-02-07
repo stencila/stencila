@@ -60,9 +60,9 @@
     </div>
         <div class="flex-auto">
             {{#post}}
-            <article class="gh-article {{post_class}}">
+            <article class="gh-article {{post_class}} font-serif leading-snug">
 
-                <header class="gh-header gh-canvas font-serif">
+                <header class="gh-header gh-canvas">
                     <span class="gh-post-meta"><time datetime="{{date format="YYYY-MM-DD"}}">{{date format="D MMM YYYY"}}</time> <span class="bull">&bull;</span> {{reading_time}}</span>
                     <h1 class=" text-3xl lg:text-5xl">{{title}}</h1>
 
@@ -135,7 +135,7 @@
 
             </article>
 
-            <aside class="gh-readmore">
+            <aside class="gh-readmore font-sans">
                 <div class="gh-readmore-inner gh-container text-2xl">
                     <div class="gh-readmore-next hover:text-gray-400">
                         {{#next_post}}<a href="{{url}}" class="flex items-center">{{> "icons/arrow-left"}} <h4>{{title}}</h4></a>{{/next_post}}

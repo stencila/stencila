@@ -10,7 +10,6 @@ export default {
       fontFamily: {
         sans: [
           'Inter',
-          // The default Tailwind font stack from https://tailwindcss.com/docs/font-family
           'ui-sans-serif',
           'system-ui',
           'sans-serif',
@@ -19,6 +18,15 @@ export default {
           'Segoe UI Symbol',
           'Noto Color Emoji',
         ],
+        serif: [
+          '"Source Serif 4"',
+          'ui-serif', 
+          'Georgia', 
+          'Cambria',
+          '"Times New Roman"',
+          'Times',
+          'serif'
+        ]
       },
       height: {
         header: '5rem'

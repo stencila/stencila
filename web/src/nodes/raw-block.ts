@@ -68,6 +68,7 @@ export class RawBlock extends Entity {
             code=${this.content}
             .code-authorship=${this.contentAuthorship}
             language=${this.format}
+            ?read-only=${!this.hasDocumentRootNode()}
           >
             <slot name="compilation-messages" slot="messages"></slot>
           </stencila-ui-node-code>

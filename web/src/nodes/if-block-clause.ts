@@ -146,7 +146,9 @@ export class IfBlockClause extends CodeExecutable {
       iconName = 'elifClause'
     }
 
-    const readOnly = ['Running', 'Pending'].includes(this.executionStatus)
+    const readOnly =
+      ['Running', 'Pending'].includes(this.executionStatus) ||
+      !this.hasDocumentRootNode()
 
     const headerStyle = apply([
       'px-3 py-1.5 flex items-center',
