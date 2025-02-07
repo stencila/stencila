@@ -214,6 +214,7 @@ export class UINodesSelected extends UIBaseClass {
           .selectedNodes=${this.selectedNodes}
           size="large"
           .handleTagRemove=${this.handleTagRemove.bind(this)}
+          ?clearOnInsert=${true}
         >
         </stencila-ui-node-insert>
       </sl-popup>
