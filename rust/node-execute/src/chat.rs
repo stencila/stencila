@@ -9,8 +9,8 @@ use schema::{
     authorship,
     shortcuts::{ci, h3, p, t},
     Author, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ChatMessageGroup,
-    ChatMessageOptions, ExecutionBounds, InstructionMessage, InstructionType, MessagePart,
-    MessageRole, ModelParameters, Patch, PatchPath, PatchSlot, SoftwareApplication,
+    ChatMessageOptions, InstructionMessage, InstructionType, MessagePart, MessageRole,
+    ModelParameters, Patch, PatchPath, PatchSlot, SoftwareApplication,
 };
 
 use crate::{
@@ -280,7 +280,6 @@ impl Executable for Chat {
 
         // Wait for each future to complete and patch content
         let max_retries = self.model_parameters.maximum_retries.unwrap_or(0);
-        let execution_bounds = self.execution_bounds.clone().unwrap_or_default();
         while let Some((model_id, message_id, mut task, started, ended, result)) =
             futures.next().await
         {
@@ -297,9 +296,9 @@ impl Executable for Chat {
                         tracing::error!("While applying authorship to content: {error}");
                     }
 
-                    // Execute the content if not skipped. Note that this is spawned as an async task so that
+                    // Execute the content. Note that this is spawned as an async task so that
                     // the message can be updated with the unexecuted content first.
-                    if !matches!(execution_bounds, ExecutionBounds::Skip) {
+                    {
                         let mut fork = executor.fork_for_all();
                         let mut content = content.clone();
                         let message_id = message_id.clone();

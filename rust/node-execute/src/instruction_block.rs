@@ -7,8 +7,8 @@ use common::{
     tokio,
 };
 use schema::{
-    Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, CompilationDigest, ExecutionBounds,
-    InstructionBlock, SoftwareApplication,
+    Author, AuthorRole, AuthorRoleAuthor, AuthorRoleName, CompilationDigest, InstructionBlock,
+    SoftwareApplication,
 };
 
 use crate::{interrupt_impl, prelude::*, state_digest};
@@ -199,7 +199,6 @@ impl Executable for InstructionBlock {
 
         // Wait for each future, adding the suggestion (or error message) to the instruction
         // as it arrives, and then (optionally) executing the suggestion
-        let bounds = self.execution_bounds.clone().unwrap_or_default();
         while let Some(result) = futures.next().await {
             match result {
                 Ok(mut suggestion) => {
@@ -208,15 +207,12 @@ impl Executable for InstructionBlock {
                         [push(NodeProperty::Suggestions, suggestion.clone())],
                     );
 
-                    if !matches!(bounds, ExecutionBounds::Skip) {
-                        let mut fork = executor.fork_for_all();
-                        tokio::spawn(async move {
-                            if let Err(error) = fork.compile_prepare_execute(&mut suggestion).await
-                            {
-                                tracing::error!("While executing suggestion: {error}");
-                            }
-                        });
-                    }
+                    let mut fork = executor.fork_for_all();
+                    tokio::spawn(async move {
+                        if let Err(error) = fork.compile_prepare_execute(&mut suggestion).await {
+                            tracing::error!("While executing suggestion: {error}");
+                        }
+                    });
                 }
                 Err(error) => messages.push(error_to_execution_message(
                     "While executing instruction",

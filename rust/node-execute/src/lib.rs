@@ -15,7 +15,7 @@ use common::{
 use kernels::{KernelLintingOptions, Kernels};
 use prompts::prompt::{DocumentContext, InstructionContext};
 use schema::{
-    AuthorRole, AuthorRoleName, Block, CompilationDigest, CompilationMessage, ExecutionBounds,
+    AuthorRole, AuthorRoleName, Block, CompilationDigest, CompilationMessage,
     ExecutionMode, ExecutionStatus, Inline, Link, List, ListItem, ListOrder, Node, NodeId,
     NodeProperty, NodeType, Paragraph, Patch, PatchNode, PatchOp, PatchPath, PatchValue, Timestamp,
     VisitorAsync, WalkControl, WalkNode,
@@ -172,9 +172,6 @@ pub struct Executor {
     /// Currently, only used during [`Phase::Prepare`] and defaults
     /// to pending.
     execution_status: ExecutionStatus,
-
-    /// The bounds on execution
-    execution_bounds: ExecutionBounds,
 
     /// The document context for prompts
     document_context: DocumentContext,
@@ -382,7 +379,6 @@ impl Executor {
             node_ids,
             phase: Phase::Prepare,
             execution_status: ExecutionStatus::Pending,
-            execution_bounds: ExecutionBounds::Main,
             document_context: DocumentContext::default(),
             instruction_context: None,
             headings: Vec::new(),
@@ -446,13 +442,9 @@ impl Executor {
     /// without effecting the main kernel processes. Specifically, this
     /// is used to execute suggestions.
     async fn fork_for_execute(&self) -> Result<Self> {
-        let kernels = self.kernels().await.fork().await?;
-        let kernels = Arc::new(RwLock::new(kernels));
-
         Ok(Self {
             phase: Phase::Execute,
-            execution_bounds: ExecutionBounds::Fork,
-            kernels,
+            kernels: self.fork_kernels().await?,
             ..self.clone()
         })
     }
@@ -467,6 +459,12 @@ impl Executor {
             last_block: None,
             ..self.clone()
         }
+    }
+
+    /// Create a fork of the executor's kernels
+    async fn fork_kernels(&self) -> Result<Arc<RwLock<Kernels>>> {
+        let kernels = self.kernels().await.fork().await?;
+        Ok(Arc::new(RwLock::new(kernels)))
     }
 
     /// Run [`Phase::Compile`]
@@ -938,18 +936,25 @@ impl Executor {
             return Some(ExecutionStatus::Pending);
         }
 
+        // If the node is locked then do not execute
         if matches!(execution_mode, Some(ExecutionMode::Lock)) {
             return Some(ExecutionStatus::Locked);
         }
 
+        // If the executor has any node ids then the current
+        // node id must be amongst them
         if let Some(node_ids) = &self.node_ids {
-            // If the executor has any node ids then the current
-            // node id must be amongst them
             return if node_ids.contains(node_id) {
                 Some(ExecutionStatus::Pending)
             } else {
                 None
             };
+        }
+
+        // If the node is only to be executed on demand, and there are no node
+        // ids, or the node is not among them (checked above) then do not execute
+        if matches!(execution_mode, Some(ExecutionMode::Demand)) {
+            return Some(ExecutionStatus::Skipped);
         }
 
         if matches!(
@@ -963,11 +968,13 @@ impl Executor {
             return Some(ExecutionStatus::Skipped);
         }
 
-        // Check execution mode of node after `skip_` options
+        // If no `skip_` options applied and node is always to be execute then execute
         if matches!(execution_mode, Some(ExecutionMode::Always)) {
             return Some(ExecutionStatus::Pending);
         }
 
+        // Only remaining execution variant to be checked for is `Need`, so check that
+        // node needs to be executed
         if (compilation_digest.is_none() && execution_digest.is_none())
             || compilation_digest != execution_digest
         {

@@ -153,18 +153,50 @@ impl Executable for CodeChunk {
             // Get the programming language, falling back to using the executor's current language
             let lang = executor.programming_language(&self.programming_language);
 
-            let (outputs, messages, instance) = executor
-                .kernels()
-                .await
-                .execute(&self.code, lang.as_deref())
-                .await
-                .unwrap_or_else(|error| {
-                    (
-                        Vec::new(),
-                        vec![error_to_execution_message("While executing code", error)],
-                        String::new(),
-                    )
-                });
+            // Get the kernels to execute within, based on the the execution bounds
+            let (kernels, message, bounded) = match self.execution_bounds {
+                Some(ExecutionBounds::Main) | None => (Some(executor.kernels.clone()), None, None),
+                Some(ExecutionBounds::Fork) => match executor.fork_kernels().await {
+                    Ok(kernels) => (Some(kernels), None, Some(ExecutionBounds::Fork)),
+                    Err(error) => (
+                        None,
+                        Some(error_to_execution_message("While forking kernels", error)),
+                        None
+                    ),
+                },
+                _ => (
+                    None,
+                    Some(ExecutionMessage::new(
+                        MessageLevel::Error,
+                        format!(
+                            "Execution bounds `{}` not yet supported",
+                            self.execution_bounds.clone().unwrap_or_default()
+                        ),
+                    )),
+                    None
+                ),
+            };
+
+            let (outputs, messages, instance) = if let Some(kernels) = kernels {
+                kernels
+                    .write()
+                    .await
+                    .execute(&self.code, lang.as_deref())
+                    .await
+                    .unwrap_or_else(|error| {
+                        (
+                            Vec::new(),
+                            vec![error_to_execution_message("While executing code", error)],
+                            String::new(),
+                        )
+                    })
+            } else {
+                (
+                    Vec::new(),
+                    message.map(|message| vec![message]).unwrap_or_default(),
+                    String::new(),
+                )
+            };
 
             let outputs = (!outputs.is_empty()).then_some(outputs);
             let messages = (!messages.is_empty()).then_some(messages);
@@ -172,7 +204,6 @@ impl Executable for CodeChunk {
             let ended = Timestamp::now();
 
             let status = execution_status(&messages);
-            let bounded = execution_bounded(executor);
             let required = execution_required_status(&status);
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
