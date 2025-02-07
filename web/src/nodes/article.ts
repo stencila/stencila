@@ -76,7 +76,7 @@ export class StencilaArticle extends LitElement {
 
   override render() {
     return html`
-      <aside class="min-w-80 max-w-prose mx-auto">
+      <aside class="min-w-80 max-w-[80ch] mx-auto">
         <stencila-ui-authors-provenance>
           <div class="flex flex-col gap-y-4">
             <div slot="authors">

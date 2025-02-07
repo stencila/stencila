@@ -59,8 +59,7 @@ stencila-vscode-view {
     color: var(--default-text-colour, inherit);
 
     > section {
-      @apply min-w-80 w-full mx-auto;
-      max-width: 75ch;
+      @apply min-w-[40ch] max-w-[80ch] w-full mx-auto;
     }
   }
 
