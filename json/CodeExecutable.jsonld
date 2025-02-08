@@ -282,9 +282,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "executionBounds",
       "rdfs:comment": "The environment in which code should be executed.",
-      "schema:domainIncludes": {
-        "@id": "stencila:CodeExecutable"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:ModelParameters"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "stencila:ExecutionBounds"
       }

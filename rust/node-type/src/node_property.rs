@@ -89,6 +89,7 @@ pub enum NodeProperty {
     ErrorType,
     ExclusiveMaximum,
     ExclusiveMinimum,
+    ExecuteContent,
     ExecutionBounded,
     ExecutionBounds,
     ExecutionCount,

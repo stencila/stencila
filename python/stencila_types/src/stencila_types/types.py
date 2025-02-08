@@ -2177,8 +2177,14 @@ class ModelParameters(Entity):
     random_seed: int | None = None
     """The random seed used for the model (if possible)"""
 
+    execute_content: bool | None = None
+    """Automatically execute generated content."""
+
+    execution_bounds: ExecutionBounds | None = None
+    """The environment in which code should be executed."""
+
     maximum_retries: UnsignedInteger | None = None
-    """The maximum number of retries."""
+    """When executing content, the maximum number of retries."""
 
 
 @dataclass(kw_only=True, repr=False)

@@ -2,6 +2,8 @@
 
 use crate::prelude::*;
 
+use super::boolean::Boolean;
+use super::execution_bounds::ExecutionBounds;
 use super::integer::Integer;
 use super::string::String;
 use super::unsigned_integer::UnsignedInteger;
@@ -62,7 +64,15 @@ pub struct ModelParameters {
     #[serde(alias = "random-seed", alias = "random_seed", alias = "rand-seed", alias = "rand_seed", alias = "seed")]
     pub random_seed: Option<Integer>,
 
-    /// The maximum number of retries.
+    /// Automatically execute generated content.
+    #[serde(alias = "execute-content", alias = "execute_content")]
+    pub execute_content: Option<Boolean>,
+
+    /// The environment in which code should be executed.
+    #[serde(alias = "execution-bounds", alias = "execution_bounds")]
+    pub execution_bounds: Option<ExecutionBounds>,
+
+    /// When executing content, the maximum number of retries.
     #[serde(alias = "retries", alias = "maximum-retries", alias = "maximum_retries")]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub maximum_retries: Option<UnsignedInteger>,

@@ -24,6 +24,8 @@
     "minimumScore",
     "temperature",
     "randomSeed",
+    "executeContent",
+    "executionBounds",
     "maximumRetries"
   ],
   "properties": {
@@ -201,9 +203,27 @@
       ],
       "type": "integer"
     },
+    "executeContent": {
+      "@id": "stencila:executeContent",
+      "description": "Automatically execute generated content.",
+      "aliases": [
+        "execute-content",
+        "execute_content"
+      ],
+      "type": "boolean"
+    },
+    "executionBounds": {
+      "@id": "stencila:executionBounds",
+      "description": "The environment in which code should be executed.",
+      "aliases": [
+        "execution-bounds",
+        "execution_bounds"
+      ],
+      "$ref": "ExecutionBounds.schema.json"
+    },
     "maximumRetries": {
-      "@id": "stencila:retries",
-      "description": "The maximum number of retries.",
+      "@id": "stencila:maximumRetries",
+      "description": "When executing content, the maximum number of retries.",
       "aliases": [
         "retries",
         "maximum-retries",
