@@ -6,7 +6,6 @@ use super::block::Block;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
 use super::duration::Duration;
-use super::execution_bounds::ExecutionBounds;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
 use super::execution_message::ExecutionMessage;
@@ -42,12 +41,6 @@ pub struct PromptBlock {
     #[strip(execution)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     pub execution_mode: Option<ExecutionMode>,
-
-    /// Under which circumstances child nodes should be executed.
-    #[serde(alias = "execution-bounds", alias = "execution_bounds")]
-    #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
-    pub execution_bounds: Option<ExecutionBounds>,
 
     /// The type of instruction the  being used for
     #[serde(alias = "instruction-type", alias = "instruction_type")]
@@ -157,11 +150,6 @@ pub struct PromptBlockOptions {
     #[serde(alias = "execution-instance", alias = "execution_instance")]
     #[strip(execution)]
     pub execution_instance: Option<String>,
-
-    /// The bounds, if any, on the last execution.
-    #[serde(alias = "execution-bounded", alias = "execution_bounded")]
-    #[strip(execution)]
-    pub execution_bounded: Option<ExecutionBounds>,
 
     /// The timestamp when the last execution ended.
     #[serde(alias = "execution-ended", alias = "execution_ended")]

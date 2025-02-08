@@ -8,14 +8,7 @@ impl LatexCodec for IncludeBlock {
 
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(
-                self,
-                id,
-                media_type,
-                select,
-                execution_mode,
-                execution_bounds
-            ))
+            .merge_losses(lost_options!(self, id, media_type, select, execution_mode))
             .merge_losses(lost_exec_options!(self))
             .environ_begin(ENVIRON)
             .char('{')

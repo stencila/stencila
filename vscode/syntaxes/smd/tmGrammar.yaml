@@ -182,11 +182,11 @@ repository:
         (exec)
         (?:
           \s+
-          (always|auto|need|lock)\b
+          (always|auto|demand|need|lock)\b
         )*
         (?:
           \s+
-          (fork|limit|box|skip)\b
+          (fork|limit|box|main)\b
         )?
         (?:.*)
       $
@@ -214,11 +214,11 @@ repository:
         (exec)
         (?:
           \s+
-          (always|auto|need|lock)\b
+          (always|auto|demand|need|lock)\b
         )?
         (?:
           \s+
-          (fork|limit|box|skip)\b
+          (fork|limit|box|main)\b
         )?
         (?:.*)
       $
@@ -242,11 +242,11 @@ repository:
         (exec)
         (?:
           \s+
-          (always|auto|need|lock)
+          (always|auto|demand|need|lock)
         )?
         (?:
           \s+
-          (fork|limit|box|skip)\b
+          (fork|limit|box|main)\b
         )?
         (?:.*)
       $
@@ -272,11 +272,7 @@ repository:
         )
         (?:
           \s+
-          (always|auto|need|lock)\b
-        )?
-        (?:
-          \s+
-          (fork|limit|box|skip)\b
+          (always|auto|demand|need|lock)\b
         )?
         (?:
           \s+

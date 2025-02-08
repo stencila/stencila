@@ -12,7 +12,6 @@ use super::creative_work_type::CreativeWorkType;
 use super::creative_work_type_or_text::CreativeWorkTypeOrText;
 use super::date::Date;
 use super::duration::Duration;
-use super::execution_bounds::ExecutionBounds;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
 use super::execution_message::ExecutionMessage;
@@ -161,13 +160,6 @@ pub struct Article {
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_mode: Option<ExecutionMode>,
-
-    /// Under which circumstances child nodes should be executed.
-    #[serde(alias = "execution-bounds", alias = "execution_bounds")]
-    #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub execution_bounds: Option<ExecutionBounds>,
 
     /// Frontmatter containing document metadata.
     #[strip(metadata)]
@@ -426,12 +418,6 @@ pub struct ArticleOptions {
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_instance: Option<String>,
-
-    /// The bounds, if any, on the last execution.
-    #[serde(alias = "execution-bounded", alias = "execution_bounded")]
-    #[strip(execution)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub execution_bounded: Option<ExecutionBounds>,
 
     /// The timestamp when the last execution ended.
     #[serde(alias = "execution-ended", alias = "execution_ended")]

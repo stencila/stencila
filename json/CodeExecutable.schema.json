@@ -17,8 +17,8 @@
   "core": [
     "id",
     "executionMode",
-    "executionBounds",
     "programmingLanguage",
+    "executionBounds",
     "authors",
     "provenance"
   ],
@@ -62,28 +62,6 @@
         ]
       },
       "$ref": "ExecutionMode.schema.json"
-    },
-    "executionBounds": {
-      "@id": "stencila:executionBounds",
-      "description": "Under which circumstances child nodes should be executed.",
-      "aliases": [
-        "execution-bounds",
-        "execution_bounds"
-      ],
-      "strip": [
-        "execution"
-      ],
-      "patch": {
-        "formats": [
-          "md",
-          "smd",
-          "myst",
-          "ipynb",
-          "qmd",
-          "latex"
-        ]
-      },
-      "$ref": "ExecutionBounds.schema.json"
     },
     "compilationDigest": {
       "@id": "stencila:compilationDigest",
@@ -250,18 +228,6 @@
       ],
       "type": "string"
     },
-    "executionBounded": {
-      "@id": "stencila:executionBounded",
-      "description": "The bounds, if any, on the last execution.",
-      "aliases": [
-        "execution-bounded",
-        "execution_bounded"
-      ],
-      "strip": [
-        "execution"
-      ],
-      "$ref": "ExecutionBounds.schema.json"
-    },
     "executionEnded": {
       "@id": "stencila:executionEnded",
       "description": "The timestamp when the last execution ended.",
@@ -395,6 +361,40 @@
         }
       },
       "type": "string"
+    },
+    "executionBounds": {
+      "@id": "stencila:executionBounds",
+      "description": "The environment in which code should be executed.",
+      "aliases": [
+        "execution-bounds",
+        "execution_bounds"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd",
+          "latex"
+        ]
+      },
+      "$ref": "ExecutionBounds.schema.json"
+    },
+    "executionBounded": {
+      "@id": "stencila:executionBounded",
+      "description": "The execution bounds, if any, on the last execution.",
+      "aliases": [
+        "execution-bounded",
+        "execution_bounded"
+      ],
+      "strip": [
+        "execution"
+      ],
+      "$ref": "ExecutionBounds.schema.json"
     },
     "authors": {
       "@id": "schema:author",

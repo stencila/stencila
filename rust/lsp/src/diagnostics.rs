@@ -16,8 +16,8 @@ use common::{
     tracing,
 };
 use schema::{
-    Author, AuthorRoleName, ExecutionBounds, ExecutionRequired, ExecutionStatus, MessageLevel,
-    NodeType, StringOrNumber,
+    Author, AuthorRoleName, ExecutionBounds, ExecutionMode, ExecutionRequired, ExecutionStatus,
+    MessageLevel, NodeType, StringOrNumber,
 };
 
 use crate::text_document::{TextNode, TextNodeExecution};
@@ -172,6 +172,8 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
                 message += "locked"
             } else if matches!(status, ExecutionStatus::Rejected) {
                 message += "rejected suggestion";
+            } else if matches!(execution.mode, Some(ExecutionMode::Demand)) {
+                message += "only runs on demand";
             }
 
             if let Some(ended) = &execution.ended {

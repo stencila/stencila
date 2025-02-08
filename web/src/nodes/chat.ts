@@ -360,7 +360,6 @@ export class Chat extends Executable {
             type="Chat"
             node-id=${this.id}
             mode=${this.executionMode}
-            bounds=${this.executionBounds}
             .tags=${this.executionTags}
             status=${this.executionStatus}
             required=${this.executionRequired}

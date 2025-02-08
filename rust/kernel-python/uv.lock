@@ -141,7 +141,7 @@ wheels = [
 ]
 
 [[package]]
-name = "kernel-python"
+name = "kernel-python-tests"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

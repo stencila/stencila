@@ -222,12 +222,10 @@ class ExecutionBounds(StrEnum):
     The bounds placed on the execution of a document node.
     """
 
-    Default = "Default"
     Main = "Main"
     Fork = "Fork"
     Limit = "Limit"
     Box = "Box"
-    Skip = "Skip"
 
 
 class ExecutionDependantRelation(StrEnum):
@@ -259,7 +257,7 @@ class ExecutionMode(StrEnum):
     Under which circumstances a node should be executed.
     """
 
-    Default = "Default"
+    Demand = "Demand"
     Need = "Need"
     Always = "Always"
     Auto = "Auto"
@@ -640,9 +638,6 @@ class Executable(Entity):
     execution_mode: ExecutionMode | None = None
     """Under which circumstances the node should be executed."""
 
-    execution_bounds: ExecutionBounds | None = None
-    """Under which circumstances child nodes should be executed."""
-
     compilation_digest: CompilationDigest | None = None
     """A digest of the content, semantics and dependencies of the node."""
 
@@ -673,9 +668,6 @@ class Executable(Entity):
     execution_instance: str | None = None
     """The id of the kernel instance that performed the last execution."""
 
-    execution_bounded: ExecutionBounds | None = None
-    """The bounds, if any, on the last execution."""
-
     execution_ended: Timestamp | None = None
     """The timestamp when the last execution ended."""
 
@@ -699,6 +691,12 @@ class CodeExecutable(Executable):
 
     programming_language: str | None = None
     """The programming language of the code."""
+
+    execution_bounds: ExecutionBounds | None = None
+    """The environment in which code should be executed."""
+
+    execution_bounded: ExecutionBounds | None = None
+    """The execution bounds, if any, on the last execution."""
 
     authors: list[Author] | None = None
     """The authors of the executable code."""

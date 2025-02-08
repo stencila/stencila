@@ -1,4 +1,4 @@
-use std::{fs::read_to_string, io::Write, path::Path, process::Command};
+use std::{cmp::Ordering, fs::read_to_string, io::Write, path::Path, process::Command};
 
 use which::which;
 
@@ -268,6 +268,19 @@ impl KernelLint for PythonKernel {
                 messages.push(message);
             }
         }
+
+        // Sort messages by location (necessary because there may be more than one linter)
+        messages.sort_by(|a, b| match (&a.code_location, &b.code_location) {
+            (Some(a), Some(b)) => match (a.start_line, b.start_line) {
+                (Some(a), Some(b)) => a.cmp(&b),
+                (Some(..), None) => Ordering::Less,
+                (None, Some(..)) => Ordering::Greater,
+                (None, None) => Ordering::Equal,
+            },
+            (Some(..), None) => Ordering::Less,
+            (None, Some(..)) => Ordering::Greater,
+            (None, None) => Ordering::Equal,
+        });
 
         // Read the updated file if formatted or fixed
         let code = if options.format || options.fix {

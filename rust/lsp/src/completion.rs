@@ -352,8 +352,8 @@ async fn kernel_snippets(line_num: u32) -> Result<Option<CompletionResponse>, Re
 
 /// Provide list of keyword for execution mode and bounds
 fn execution_keywords(line: &str) -> Result<Option<CompletionResponse>, ResponseError> {
-    const MODE: [&str; 4] = ["auto", "always", "lock", "need"];
-    const BOUNDS: [&str; 5] = ["fork", "limit", "box", "skip", "main"];
+    const MODE: [&str; 5] = ["auto", "always", "lock", "need", "demand"];
+    const BOUNDS: [&str; 4] = ["fork", "limit", "box", "main"];
 
     let has_bounds = BOUNDS.iter().any(|word| line.contains(word));
     if has_bounds {

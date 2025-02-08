@@ -23,7 +23,7 @@ export class UINodeExecutionBounded extends LitElement {
     switch (this.value) {
       case 'Main': {
         icon = 'arrowNarrowUp'
-        tooltip = 'Executed in the main kernel set'
+        tooltip = 'Executed in main kernel'
         break
       }
       case 'Fork': {

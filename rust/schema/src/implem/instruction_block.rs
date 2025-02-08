@@ -1,10 +1,7 @@
 use codec_info::{lost_exec_options, lost_options};
 use common::{eyre::Ok, tracing};
 
-use crate::{
-    merge, patch, prelude::*, ExecutionBounds, ExecutionMode, InstructionBlock, InstructionType,
-    Node,
-};
+use crate::{merge, patch, prelude::*, ExecutionMode, InstructionBlock, InstructionType, Node};
 
 /// Implementation of [`PatchNode`] for [`InstructionBlock`] to customize diffing and
 /// patching from Markdown-based formats
@@ -49,7 +46,6 @@ impl PatchNode for InstructionBlock {
             compare_property!(message),
             compare_property!(model_parameters),
             compare_property!(execution_mode),
-            compare_property!(execution_bounds),
         ];
 
         if context.format_is_markdown_flavor() {
@@ -103,7 +99,6 @@ impl PatchNode for InstructionBlock {
         diff_property!(Message, message);
         diff_property!(ModelParameters, model_parameters);
         diff_property!(ExecutionMode, execution_mode);
-        diff_property!(ExecutionBounds, execution_bounds);
 
         if context.format_is_markdown_flavor() {
             // Other node is from a Markdown based format where the `content` is either the
@@ -168,7 +163,6 @@ impl PatchNode for InstructionBlock {
         patch_properties!(
             // Core
             (ExecutionMode, self.execution_mode),
-            (ExecutionBounds, self.execution_bounds),
             (InstructionType, self.instruction_type),
             (Prompt, self.prompt),
             (Message, self.message),
@@ -187,7 +181,6 @@ impl PatchNode for InstructionBlock {
             (ExecutionRequired, self.options.execution_required),
             (ExecutionStatus, self.options.execution_status),
             (ExecutionInstance, self.options.execution_instance),
-            (ExecutionBounded, self.options.execution_bounded),
             (ExecutionEnded, self.options.execution_ended),
             (ExecutionDuration, self.options.execution_duration),
             (ExecutionMessages, self.options.execution_messages),
@@ -418,7 +411,6 @@ impl PatchNode for InstructionBlock {
         apply_properties!(
             // Core
             (ExecutionMode, self.execution_mode),
-            (ExecutionBounds, self.execution_bounds),
             (InstructionType, self.instruction_type),
             (Prompt, self.prompt),
             (Message, self.message),
@@ -436,7 +428,6 @@ impl PatchNode for InstructionBlock {
             (ExecutionRequired, self.options.execution_required),
             (ExecutionStatus, self.options.execution_status),
             (ExecutionInstance, self.options.execution_instance),
-            (ExecutionBounded, self.options.execution_bounded),
             (ExecutionEnded, self.options.execution_ended),
             (ExecutionDuration, self.options.execution_duration),
             (ExecutionMessages, self.options.execution_messages),
@@ -484,20 +475,10 @@ impl MarkdownCodec for InstructionBlock {
                         }
 
                         if let Some(mode) = &self.execution_mode {
-                            if !matches!(mode, ExecutionMode::Default) {
+                            if !matches!(mode, ExecutionMode::Need) {
                                 context.myst_directive_option(
                                     NodeProperty::ExecutionMode,
                                     Some("mode"),
-                                    &mode.to_string().to_lowercase(),
-                                );
-                            }
-                        }
-
-                        if let Some(mode) = &self.execution_bounds {
-                            if !matches!(mode, ExecutionBounds::Default) {
-                                context.myst_directive_option(
-                                    NodeProperty::ExecutionBounds,
-                                    Some("bounds"),
                                     &mode.to_string().to_lowercase(),
                                 );
                             }
@@ -544,19 +525,10 @@ impl MarkdownCodec for InstructionBlock {
             .push_prop_str(NodeProperty::InstructionType, &instruction_type);
 
         if let Some(mode) = &self.execution_mode {
-            if !matches!(mode, ExecutionMode::Default) {
+            if !matches!(mode, ExecutionMode::Need) {
                 context.space().push_prop_str(
                     NodeProperty::ExecutionMode,
                     &mode.to_string().to_lowercase(),
-                );
-            }
-        }
-
-        if let Some(bounds) = &self.execution_bounds {
-            if !matches!(bounds, ExecutionBounds::Default) {
-                context.space().push_prop_str(
-                    NodeProperty::ExecutionBounds,
-                    &bounds.to_string().to_lowercase(),
                 );
             }
         }

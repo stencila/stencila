@@ -11,6 +11,7 @@ required:
   - code
 core:
   - programmingLanguage
+  - executionBounds
   - authors
   - provenance
 properties:
@@ -61,6 +62,18 @@ properties:
       max:
         description: Generate an arbitrary string.
         strategy: option::of(String::arbitrary())
+  executionBounds:
+    '@id': stencila:executionBounds
+    description: The environment in which code should be executed.
+    $ref: ExecutionBounds
+    strip: [execution]
+    patch:
+      formats: [md, smd, myst, ipynb, qmd, latex]
+  executionBounded:
+    '@id': stencila:executionBounded
+    description: The execution bounds, if any, on the last execution.
+    strip: [execution]
+    $ref: ExecutionBounds
   authors:
     "@id": schema:author
     description: The authors of the executable code.

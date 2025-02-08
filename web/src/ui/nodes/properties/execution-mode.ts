@@ -31,14 +31,25 @@ export class UINodeExecutionMode extends UIBaseClass {
   override render() {
     const { borderColour, textColour } = this.ui
 
+    const title = (value: ExecutionMode): string => {
+      switch (value) {
+        case 'Demand':
+          return 'On Demand'
+        case 'Need':
+          return 'As Needed'
+        default:
+          return value
+      }
+    }
+
     const icon = (value: ExecutionMode): IconName => {
       switch (value) {
-        case 'Default':
-          return 'asterisk'
+        case 'Demand':
+          return 'play'
         case 'Need':
-          return 'playCircle'
+          return 'playFill'
         case 'Always':
-          return 'fastForwardCircle'
+          return 'asterisk'
         case 'Auto':
           return 'lightning'
         case 'Lock':
@@ -48,10 +59,10 @@ export class UINodeExecutionMode extends UIBaseClass {
 
     const help = (value: ExecutionMode): string => {
       switch (value) {
-        case 'Default':
-          return 'Use the configured default'
+        case 'Demand':
+          return 'Run on demand only'
         case 'Need':
-          return 'Run when needed (e.g. when stale and document is run), and on demand'
+          return 'Run when stale, and on demand'
         case 'Always':
           return 'Always run, including on demand'
         case 'Auto':
@@ -69,7 +80,7 @@ export class UINodeExecutionMode extends UIBaseClass {
     `
 
     const alternatives: ExecutionMode[] = [
-      'Default',
+      'Demand',
       'Need',
       'Always',
       'Auto',
@@ -85,7 +96,7 @@ export class UINodeExecutionMode extends UIBaseClass {
           <div class="px-2 text-[${textColour}]">
             <div class="flex flex-row gap-2">
               <stencila-ui-icon name=${icon(value)}></stencila-ui-icon>
-              <span class="text-xs">${value}</span>
+              <span class="text-xs">${title(value)}</span>
             </div>
             <div class="mt-1 text-[0.65rem] opacity-70">${help(value)}</div>
           </div>
@@ -94,11 +105,21 @@ export class UINodeExecutionMode extends UIBaseClass {
 
     let value = this.value
     if (value.length == 0) {
-      value = 'Default'
+      value = 'Need'
     }
 
     return html`
       <div class="flex flex-row gap-1 items-center">
+        <sl-tooltip content=${help(value)}>
+          <div class="flex flex-row gap-1 items-center">
+            <stencila-ui-icon
+              class="text-base"
+              name=${icon(value)}
+            ></stencila-ui-icon>
+            ${title(value)}
+          </div>
+        </sl-tooltip>
+
         <sl-dropdown>
           <stencila-ui-icon-button
             name="chevronDown"
@@ -109,16 +130,6 @@ export class UINodeExecutionMode extends UIBaseClass {
             >${menuItems}</sl-menu
           >
         </sl-dropdown>
-
-        <sl-tooltip content="Execution mode for this node">
-          <div class="flex flex-row gap-1 items-center">
-            <stencila-ui-icon
-              class="text-base"
-              name=${icon(value)}
-            ></stencila-ui-icon>
-            ${value}
-          </div>
-        </sl-tooltip>
       </div>
     `
   }

@@ -7,11 +7,8 @@ use crate::prelude::*;
 #[serde(crate = "common::serde")]
 #[strum(ascii_case_insensitive, crate = "common::strum")]
 pub enum ExecutionBounds {
-    /// Use the bounds configured in the document, workspace or user settings.
-    #[default]
-    Default,
-
     /// Execute within the main set of kernels.
+    #[default]
     Main,
 
     /// Execute within a forked set of kernels.
@@ -22,7 +19,4 @@ pub enum ExecutionBounds {
 
     /// Execute within a forked set of kernels within a sandbox.
     Box,
-
-    /// Skip execution.
-    Skip,
 }
