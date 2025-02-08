@@ -280,7 +280,12 @@ impl Executable for Chat {
         }
 
         // Wait for each future to complete and patch content
-        let max_retries = self.model_parameters.maximum_retries.unwrap_or(0);
+        let execute_content = self.model_parameters.execute_content.unwrap_or(false);
+        let execution_bounds = self
+            .model_parameters
+            .execution_bounds
+            .unwrap_or(ExecutionBounds::Fork);
+        let maximum_retries = self.model_parameters.maximum_retries.unwrap_or(0);
         while let Some((model_id, message_id, mut task, started, ended, result)) =
             futures.next().await
         {
@@ -298,11 +303,11 @@ impl Executable for Chat {
                     }
 
                     // Apply execution bounds
-                    apply_execution_bounds(&mut content, ExecutionBounds::Fork);
+                    apply_execution_bounds(&mut content, execution_bounds);
 
                     // Execute the content. Note that this is spawned as an async task so that
                     // the message can be updated with the unexecuted content first.
-                    {
+                    if execute_content {
                         let mut fork = executor.fork_for_all();
                         let mut content = content.clone();
                         let message_id = message_id.clone();
@@ -330,7 +335,7 @@ impl Executable for Chat {
                                 };
 
                                 // Stop retrying if no retries or diagnostics
-                                if max_retries == 0 || diags.is_empty() {
+                                if maximum_retries == 0 || diags.is_empty() {
                                     break;
                                 }
 
@@ -348,7 +353,7 @@ impl Executable for Chat {
                                 // Stop if hit maximum number of retries
                                 // Note that this check occurs after the execute to allow the final
                                 // retry to be executed
-                                if retries >= max_retries {
+                                if retries >= maximum_retries {
                                     // Let the user know we are giving up
                                     if retries > 0 {
                                         let message = p([
@@ -371,7 +376,7 @@ impl Executable for Chat {
                                 // Add content indicating the retry and the reason for it
                                 // and update message status indicating that updating message
                                 let message = vec![
-                                    h3([t(format!("Retry {retries} of {max_retries}"))]),
+                                    h3([t(format!("Retry {retries} of {maximum_retries}"))]),
                                     p([t(format!("Trying again due to {level}: ")), ci(message)]),
                                 ];
                                 fork.patch(
@@ -437,7 +442,7 @@ impl Executable for Chat {
                                         "While applying authorship to content: {error}"
                                     );
                                 }
-                                apply_execution_bounds(&mut new_content, ExecutionBounds::Fork);
+                                apply_execution_bounds(&mut new_content, execution_bounds);
 
                                 // Reset the content so only the new blocks are executed
                                 content = new_content.clone();
