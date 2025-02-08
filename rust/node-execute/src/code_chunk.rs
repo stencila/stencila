@@ -120,6 +120,16 @@ impl Executable for CodeChunk {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
+        // Get the programming language, falling back to using the executor's current language
+        let lang = executor.programming_language(&self.programming_language);
+
+        // Add code to the linting context regardless of whether executed.
+        // Do this during execution phase, for code chunks only,
+        // because needed for linting code in chats and instructions which is generated during the
+        // execute phase. If this is not done, then the linting context, lacks the variable declarations
+        // imports etc in this code
+        executor.linting_code(&node_id, &self.code.to_string(), &lang, true);
+
         // Enter the code chunk context
         executor.document_context.code_chunks.enter();
 
@@ -150,9 +160,6 @@ impl Executable for CodeChunk {
         if !self.code.trim().is_empty() {
             let started = Timestamp::now();
 
-            // Get the programming language, falling back to using the executor's current language
-            let lang = executor.programming_language(&self.programming_language);
-
             // Get the kernels to execute within, based on the the execution bounds
             let (kernels, message, bounded) = match self.execution_bounds {
                 Some(ExecutionBounds::Main) | None => (Some(executor.kernels.clone()), None, None),
@@ -161,7 +168,7 @@ impl Executable for CodeChunk {
                     Err(error) => (
                         None,
                         Some(error_to_execution_message("While forking kernels", error)),
-                        None
+                        None,
                     ),
                 },
                 _ => (
@@ -173,7 +180,7 @@ impl Executable for CodeChunk {
                             self.execution_bounds.clone().unwrap_or_default()
                         ),
                     )),
-                    None
+                    None,
                 ),
             };
 
