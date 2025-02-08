@@ -8,12 +8,10 @@
 
 The `ExecutionBounds` type has these members:
 
-- `Default`
 - `Main`
 - `Fork`
 - `Limit`
 - `Box`
-- `Skip`
 
 ## Bindings
 

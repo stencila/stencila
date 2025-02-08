@@ -8,7 +8,7 @@
 
 The `ExecutionMode` type has these members:
 
-- `Default`
+- `Demand`
 - `Need`
 - `Always`
 - `Auto`
