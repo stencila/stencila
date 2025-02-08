@@ -528,7 +528,7 @@ impl PatchContext {
             authors
                 .iter()
                 .map(|author| AuthorRole {
-                    role_name: role_name.clone(),
+                    role_name,
                     ..author.clone()
                 })
                 .collect()

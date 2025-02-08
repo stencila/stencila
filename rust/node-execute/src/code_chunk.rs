@@ -59,14 +59,14 @@ impl Executable for CodeChunk {
         // has been called.
         self.options.compilation_digest = Some(info.compilation_digest.clone());
         self.options.execution_tags = info.execution_tags.clone();
-        self.options.execution_required = Some(execution_required.clone());
+        self.options.execution_required = Some(execution_required);
 
         executor.patch(
             &node_id,
             [
                 set(NodeProperty::CompilationDigest, info.compilation_digest),
                 set(NodeProperty::ExecutionTags, info.execution_tags),
-                set(NodeProperty::ExecutionRequired, execution_required.clone()),
+                set(NodeProperty::ExecutionRequired, execution_required),
             ],
         );
 
@@ -108,7 +108,7 @@ impl Executable for CodeChunk {
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            self.options.execution_status = Some(status.clone());
+            self.options.execution_status = Some(status);
             executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
         }
 
@@ -177,7 +177,7 @@ impl Executable for CodeChunk {
                         MessageLevel::Error,
                         format!(
                             "Execution bounds `{}` not yet supported",
-                            self.execution_bounds.clone().unwrap_or_default()
+                            self.execution_bounds.unwrap_or_default()
                         ),
                     )),
                     None,

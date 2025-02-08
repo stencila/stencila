@@ -726,7 +726,7 @@ impl KernelInstance for MicrokernelInstance {
             let mut stdout_reader = BufReader::new(stdout_file);
             let mut stderr_reader = BufReader::new(stderr_file);
 
-            let default_message_level = self.default_message_level.clone();
+            let default_message_level = self.default_message_level;
 
             // Emit any startup warnings and clear streams
             startup_warnings(
@@ -1086,7 +1086,7 @@ async fn receive_results<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
         .map(|message| -> ExecutionMessage {
             match serde_json::from_str(&message) {
                 Ok(message) => message,
-                Err(..) => ExecutionMessage::new(default_message_level.clone(), message),
+                Err(..) => ExecutionMessage::new(*default_message_level, message),
             }
         })
         .collect_vec();

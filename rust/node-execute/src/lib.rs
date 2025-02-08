@@ -982,7 +982,7 @@ impl Executor {
             // If the node has never been executed (both digests are none),
             // or if the digest has changed since last executed, then return
             // `self.execution_status` (usually Pending)
-            Some(self.execution_status.clone())
+            Some(self.execution_status)
         } else {
             // No change to execution status required
             None

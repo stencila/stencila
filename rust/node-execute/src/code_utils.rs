@@ -17,7 +17,7 @@ impl VisitorMut for ApplyBounds {
             execution_bounds, ..
         }) = block
         {
-            *execution_bounds = Some(self.execution_bounds.clone());
+            *execution_bounds = Some(self.execution_bounds);
         }
 
         WalkControl::Continue

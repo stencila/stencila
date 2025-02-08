@@ -490,7 +490,7 @@ fn decode_table_section(
 ) -> Vec<TableRow> {
     node.children()
         .filter(|child| child.tag_name().name() == "tr")
-        .map(|child| decode_table_row(path, &child, losses, depth, row_type.clone()))
+        .map(|child| decode_table_row(path, &child, losses, depth, row_type))
         .collect()
 }
 

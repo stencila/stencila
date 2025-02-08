@@ -94,7 +94,7 @@ impl Executable for PromptBlock {
             execution_required_digests(&self.options.execution_digest, &compilation_digest);
 
         self.options.compilation_digest = Some(compilation_digest.clone());
-        self.options.execution_required = Some(execution_required.clone());
+        self.options.execution_required = Some(execution_required);
         executor.patch(
             &node_id,
             [
@@ -123,7 +123,7 @@ impl Executable for PromptBlock {
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            self.options.execution_status = Some(status.clone());
+            self.options.execution_status = Some(status);
             executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
         }
 
@@ -139,7 +139,7 @@ impl Executable for PromptBlock {
 
         // Always execute, so mark as running
         let status = ExecutionStatus::Running;
-        self.options.execution_status = Some(status.clone());
+        self.options.execution_status = Some(status);
         executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
 
         let started = Timestamp::now();

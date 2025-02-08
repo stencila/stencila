@@ -69,7 +69,7 @@ impl Executable for ForBlock {
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            self.options.execution_status = Some(status.clone());
+            self.options.execution_status = Some(status);
             executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
         }
 

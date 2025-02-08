@@ -941,7 +941,7 @@ fn instruction_block(input: &mut Located<&str>) -> ModalResult<Block> {
                 let node_types = node_type.map(|node_type| vec![node_type.to_string()]);
 
                 let mut prompt = PromptBlock {
-                    instruction_type: Some(instruction_type.clone()),
+                    instruction_type: Some(instruction_type),
                     relative_position,
                     node_types,
                     target: prompt.map(String::from),

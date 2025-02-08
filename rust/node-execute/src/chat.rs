@@ -264,7 +264,7 @@ impl Executable for Chat {
             tracing::trace!("Creating task for {model_id}");
 
             let task = ModelTask::new(
-                self.prompt.instruction_type.clone().unwrap_or_default(),
+                self.prompt.instruction_type.unwrap_or_default(),
                 ModelParameters {
                     model_ids: Some(vec![model_id.clone()]),
                     ..*self.model_parameters.clone()
@@ -552,7 +552,7 @@ fn msg_to_instr_msg(msg: &ChatMessage) -> Option<InstructionMessage> {
     }
 
     Some(InstructionMessage {
-        role: Some(msg.role.clone()),
+        role: Some(msg.role),
         parts,
         ..Default::default()
     })
