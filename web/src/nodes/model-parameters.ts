@@ -1,3 +1,4 @@
+import { ExecutionBounds } from '@stencila/types'
 import { apply, css } from '@twind/core'
 import { html, TemplateResult } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
@@ -7,6 +8,7 @@ import { data, Model } from '../system'
 import { withTwind } from '../twind'
 import { iconMaybe } from '../ui/icons/icon'
 import { NodeTypeUI, nodeUi } from '../ui/nodes/icons-and-colours'
+import { booleanConverter } from '../utilities/booleanConverter'
 
 import { Entity } from './entity'
 
@@ -15,6 +17,7 @@ import '@shoelace-style/shoelace/dist/components/dropdown/dropdown.js'
 import '@shoelace-style/shoelace/dist/components/option/option.js'
 import '@shoelace-style/shoelace/dist/components/range/range.js'
 import '@shoelace-style/shoelace/dist/components/select/select.js'
+import '@shoelace-style/shoelace/dist/components/switch/switch.js'
 
 type ModelParametersWeightField = 'speedWeight' | 'costWeight' | 'qualityWeight'
 
@@ -49,6 +52,12 @@ export class ModelParameters extends Entity {
 
   @property({ attribute: 'random-seed', type: Number })
   randomSeed?: number
+
+  @property({ attribute: 'execute-content', converter: booleanConverter })
+  executeContent?: boolean
+
+  @property({ attribute: 'execution-bounds' })
+  executionBounds?: ExecutionBounds
 
   @property({ attribute: 'maximum-retries', type: Number })
   maximumRetries?: number
@@ -280,9 +289,36 @@ export class ModelParameters extends Entity {
    */
   private onPropertyChanged(
     event: InputEvent,
-    property: 'minimumScore' | 'replicates' | 'temperature' | 'maximumRetries'
+    property:
+      | 'minimumScore'
+      | 'replicates'
+      | 'temperature'
+      | 'executeContent'
+      | 'maximumRetries'
   ) {
-    this[property] = parseInt((event.target as HTMLInputElement).value)
+    if (property == 'executeContent') {
+      console.log((event.target as HTMLInputElement).checked)
+      this.executeContent = (event.target as HTMLInputElement).checked
+    } else {
+      this[property] = parseInt((event.target as HTMLInputElement).value)
+    }
+
+    // Turn on `executeContent` if the user set `maximumRetries` greater than zero
+    if (
+      property === 'maximumRetries' &&
+      this.maximumRetries > 0 &&
+      this.executeContent !== true
+    ) {
+      this.executeContent = true
+      this.dispatchEvent(
+        patchValue(
+          'ModelParameters',
+          this.id,
+          'executeContent',
+          this.executeContent
+        )
+      )
+    }
 
     this.dispatchEvent(
       patchValue('ModelParameters', this.id, property, this[property])
@@ -392,7 +428,7 @@ export class ModelParameters extends Entity {
     const { borderColour, textColour, colour } = this.parentNodeUI
 
     const headerClasses = apply(
-      'flex flex-row items-center gap-2 mt-6 mb-2 text-xs'
+      'flex flex-row items-center gap-2 mt-6 mb-1 text-xs'
     )
     const weightsClasses = apply('items-center my-1 w-full')
     const rangeStyle = `
@@ -401,6 +437,10 @@ export class ModelParameters extends Entity {
       --sl-color-primary-500: ${borderColour};
       --track-color-active: ${borderColour};
       --track-color-inactive: ${colour};
+    `
+    const switchStyle = `
+      --sl-color-primary-600: ${textColour};
+      --sl-color-primary-500: ${borderColour};
     `
 
     const help = (content: string) =>
@@ -516,13 +556,40 @@ export class ModelParameters extends Entity {
               this.onPropertyChanged(e, 'replicates')}
           ></sl-range>
 
+          <div
+            class="flex items-center gap-2 mt-6 text-xs text-[${textColour}]"
+          >
+            <sl-switch
+              style=${switchStyle}
+              class="text-xs"
+              size="small"
+              name="executeContent"
+              ?checked=${this.executeContent}
+              @sl-change=${(e: InputEvent) =>
+                this.onPropertyChanged(e, 'executeContent')}
+            >
+              Execute generated content
+            </sl-switch>
+
+            <stencila-ui-node-execution-bounds
+              type="ModelParameters"
+              node-id=${this.id}
+              value=${this.executionBounds}
+            >
+            </stencila-ui-node-execution-bounds>
+
+            ${help(
+              'When enabled, AI generated code will be automatically executed. Use with care, in forked kernels, and preferably in sandboxed environments.'
+            )}
+          </div>
+
           <span class=${headerClasses}>
             <stencila-ui-icon
               class="text-lg"
               name="arrowRepeat"
             ></stencila-ui-icon>
-            Maximum number of retries
-            ${help('Maximum number of retries by each model')}
+            Maximum number of execution retries
+            ${help('Maximum number of execution retries by each model')}
           </span>
           <sl-range
             class="w-full"
