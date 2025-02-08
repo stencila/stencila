@@ -13,13 +13,11 @@ struct ApplyBounds {
 
 impl VisitorMut for ApplyBounds {
     fn visit_block(&mut self, block: &mut Block) -> WalkControl {
-        match block {
-            Block::CodeChunk(CodeChunk {
-                execution_bounds, ..
-            }) => {
-                *execution_bounds = Some(self.execution_bounds.clone());
-            }
-            _ => {}
+        if let Block::CodeChunk(CodeChunk {
+            execution_bounds, ..
+        }) = block
+        {
+            *execution_bounds = Some(self.execution_bounds.clone());
         }
 
         WalkControl::Continue
