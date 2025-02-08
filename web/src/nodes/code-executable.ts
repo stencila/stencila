@@ -25,7 +25,7 @@ export abstract class CodeExecutable extends Executable {
 
   @property({ attribute: 'execution-bounds' })
   executionBounds?: ExecutionBounds
-  
+
   @property({ attribute: 'execution-bounded' })
   executionBounded?: ExecutionBounds
 }
