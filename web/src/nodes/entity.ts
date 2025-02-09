@@ -155,12 +155,13 @@ export abstract class Entity extends LitElement {
   }
 
   /**
-   * Whether the entity has a parent [root] node
+   * Whether the entity has a parent [root] node, or is the current [root]
    */
   protected hasDocumentRootNode() {
     return (
       this.closestGlobally('stencila-article[root]') !== null ||
-      this.closestGlobally('stencila-prompt[root]') !== null
+      this.closestGlobally('stencila-prompt[root]') !== null ||
+      this.hasAttribute('root')
     )
   }
 

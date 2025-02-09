@@ -8,9 +8,12 @@ import mobileMenu from "./mobileMenu";
 import infiniteScroll from "./infiniteScroll";
 import { sidebar, menuCollapse } from './sidebar';
 
+import pagination from './pagination';
+
 
 // Call the menu and infinite scroll functions
 mobileMenu();
 infiniteScroll();
 sidebar();
+pagination();
 menuCollapse();

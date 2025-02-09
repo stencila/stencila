@@ -12,11 +12,11 @@
     </button>
     <div id="sidebar" class="fixed flex-none bg-green-50 lg:sticky top-20 pl-12 lg:pl-0 left-0 lg:top-32 h-[calc(100vh-5rem)] overflow-y-auto z-20 text-green-900">        
         <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 lg:hidden hover:text-gray-400">{{> icons/chevron-left }}</button>
-        <aside class="w-72 pr-4 py-12 h-full border-r border-green-200">
+        <aside class="w-72 pr-4 py-12 h-full border-r border-green-200 rounded-tr-md rounded-br-md">
             {{#page}}
             <nav>
                 <div class="mb-4">
-                    <a href="/docview" class="text-lg font-semibold {{#match ../currentSlug "=" slug}}text-[var(--ghost-accent-color)]{{else}} hover:text-brand-blue{{/match}}">{{title}}</a>
+                    <a href="/docview" class="text-lg font-semibold {{#match ../currentSlug "=" slug}}active text-[var(--ghost-accent-color)]{{else}} hover:text-brand-blue{{/match}}">{{title}}</a>
                 </div>
             </nav>
                 <ul>
@@ -34,7 +34,7 @@
                                     {{#foreach posts as |post|}}
                                         <li class="mb-2 ml-4 flex items-start hover:text-[var(--ghost-accent-color)]">
                                             <div class="w-4 h-4 mr-4 mt-1 flex-none">{{>icons/paragraph}}</div>
-                                            <a href="{{post.url}}" class="{{#match ../../../../currentSlug "=" post.slug}}text-[var(--ghost-accent-color)] font-semibold underline{{else}} hover:text-[var(--ghost-accent-color)]{{/match}}">
+                                            <a href="{{post.url}}" class="{{#match ../../../../currentSlug "=" post.slug}}active text-[var(--ghost-accent-color)] font-semibold underline{{else}} hover:text-[var(--ghost-accent-color)]{{/match}}">
                                                 {{post.title}}
                                             </a>
                                         </li>
@@ -48,7 +48,7 @@
                         {{#foreach posts as |post|}}
                             <li class="mb-2 flex items-start hover:text-[var(--ghost-accent-color)]">
                                 <div class="w-4 h-4 mr-4 mt-1 flex-none">{{>icons/paragraph}}</div>
-                                <a href="{{post.url}}" class="{{#match ../../../currentSlug "=" post.slug}}text-[var(--ghost-accent-color)] font-semibold underline{{else}} hover:text-[var(--ghost-accent-color)]{{/match}}">
+                                <a href="{{post.url}}" class="{{#match ../../../currentSlug "=" post.slug}}active text-[var(--ghost-accent-color)] font-semibold underline{{else}} hover:text-[var(--ghost-accent-color)]{{/match}}">
                                     {{post.title}}
                                 </a>
                             </li>
@@ -134,11 +134,26 @@
                 </footer>
 
             </article>
-
-            <aside class="gh-readmore font-sans">
+            <aside class="font-sans w-full py-8">
+                <div class="flex justify-between gap-8 px-8 text-lg font-semibold w-full">
+                    <div class="hover:text-gray-400 p-2">
+                        <a id="prev-link" href="#" class="hidden flex items-center gap-4">
+                            <span class="w-4 h-6 flex-none">{{>"icons/arrow-left"}}</span>
+                            <h4>Previous</h4>
+                        </a>
+                    </div>
+                    <div class="hover:text-gray-400 p-2">
+                        <a id="next-link" href="#" class="hidden flex items-center gap-4 ">
+                            <h4 class="text-right">Next</h4>
+                            <span class="w-4 h-6 flex-none">{{>"icons/arrow-right"}}</span>
+                        </a>
+                    </div>
+                </div>
+            </aside>
+            {{!-- <aside class="gh-readmore font-sans">
                 <div class="gh-readmore-inner gh-container text-2xl">
-                    <div class="gh-readmore-next hover:text-gray-400">
-                        {{#next_post}}<a href="{{url}}" class="flex items-center">{{> "icons/arrow-left"}} <h4>{{title}}</h4></a>{{/next_post}}
+                    <div class="hover:text-gray-400">
+                        {{#next_post}}<a href="{{url}}" class="flex items-center">{{> "icons/arrow-left"}}<h4>{{title}}</h4></a>{{/next_post}}
                     </div>
                     <div class="gh-readmore-prev hover:text-gray-400">
                         {{#prev_post}}<a href="{{url}}">
@@ -146,7 +161,7 @@
                         </a>{{/prev_post}}
                     </div>
                 </div>
-            </aside>
+            </aside> --}}
             {{/post}}
         </div>
     </div>

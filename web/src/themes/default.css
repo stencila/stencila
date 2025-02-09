@@ -55,6 +55,7 @@ body {
 stencila-dynamic-view,
 stencila-vscode-view {
   > [root] {
+    @apply prose prose-lg;
     font-family: var(--font-family-serif, inherit);
     color: var(--default-text-colour, inherit);
 

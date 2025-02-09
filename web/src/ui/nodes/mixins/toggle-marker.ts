@@ -121,6 +121,8 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
     override connectedCallback(): void {
       super.connectedCallback()
 
+      console.log(this.isInitiallyExpanded())
+
       this.toggle = this.isInitiallyExpanded()
     }
 

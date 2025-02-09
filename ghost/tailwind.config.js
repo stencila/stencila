@@ -73,7 +73,10 @@ export default {
         },
       },
     },
-    plugins: [require('autoprefixer')],
+    plugins: [
+      require('autoprefixer'),
+      require('@tailwindcss/typography'),
+     ],
   }
 }
 
