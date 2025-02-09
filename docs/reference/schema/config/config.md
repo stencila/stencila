@@ -6,10 +6,11 @@
 
 The `Config` type has these properties:
 
-| Name      | Aliases | `@id` | Type                                                                                                             | Description                               | Inherited from |
-| --------- | ------- | ----- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------- | -------------- |
-| `theme`   | -       | ``    | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                  | The styling theme to use for the document | -              |
-| `publish` | -       | ``    | [`ConfigPublish`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/config/config-publish.md) | Publishing configuration options          | -              |
+| Name      | Aliases | `@id` | Type                                                                                                             | Description                                                        | Inherited from |
+| --------- | ------- | ----- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | -------------- |
+| `theme`   | -       | ``    | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                  | The styling theme to use for the document                          | -              |
+| `models`  | -       | ``    | [`ConfigModels`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/config/config-models.md)   | The parameters used for selecting and running generative AI models | -              |
+| `publish` | -       | ``    | [`ConfigPublish`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/config/config-publish.md) | Publishing configuration options                                   | -              |
 
 ## Related
 
