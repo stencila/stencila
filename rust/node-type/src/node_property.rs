@@ -179,6 +179,7 @@ pub enum NodeProperty {
     MinimumScore,
     ModelIds,
     ModelParameters,
+    Models,
     MultipleOf,
     Name,
     NativeHint,

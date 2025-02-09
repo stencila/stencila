@@ -7,6 +7,7 @@
   "description": "Stencila document configuration options.",
   "core": [
     "theme",
+    "models",
     "publish"
   ],
   "properties": {
@@ -18,6 +19,15 @@
         ]
       },
       "type": "string"
+    },
+    "models": {
+      "description": "The parameters used for selecting and running generative AI models",
+      "patch": {
+        "formats": [
+          "all"
+        ]
+      },
+      "$ref": "ConfigModels.schema.json"
     },
     "publish": {
       "description": "Publishing configuration options",

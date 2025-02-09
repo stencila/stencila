@@ -2,29 +2,32 @@
 
 use crate::prelude::*;
 
-use super::config_models::ConfigModels;
-use super::config_publish::ConfigPublish;
-use super::string::String;
+use super::boolean::Boolean;
+use super::execution_bounds::ExecutionBounds;
+use super::number::Number;
 
-/// Stencila document configuration options.
+/// Model selection and execution options.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display("Config")]
-pub struct Config {
-    /// The styling theme to use for the document
+#[display("ConfigModels")]
+pub struct ConfigModels {
+    /// Automatically execute generated content.
+    #[serde(alias = "execute-content", alias = "execute_content")]
     #[patch(format = "all")]
-    pub theme: Option<String>,
+    pub execute_content: Option<Boolean>,
 
-    /// The parameters used for selecting and running generative AI models
+    /// The execution boundaries on model generated code.
+    #[serde(alias = "execution-bounds", alias = "execution_bounds")]
     #[patch(format = "all")]
-    pub models: Option<ConfigModels>,
+    pub execution_bounds: Option<ExecutionBounds>,
 
-    /// Publishing configuration options
+    /// When executing model generated content, the maximum number of retries.
+    #[serde(alias = "max-retries", alias = "maximum-retries", alias = "execution-retries", alias = "retries", alias = "maximum_retries")]
     #[patch(format = "all")]
-    pub publish: Option<ConfigPublish>,
+    pub maximum_retries: Option<Number>,
 
     /// A unique identifier for a node within a document
     
@@ -32,8 +35,8 @@ pub struct Config {
     pub uid: NodeUid
 }
 
-impl Config {
-    const NICK: [u8; 3] = [99, 102, 103];
+impl ConfigModels {
+    const NICK: [u8; 3] = [99, 102, 109];
     
     pub fn node_type(&self) -> NodeType {
         NodeType::Config
