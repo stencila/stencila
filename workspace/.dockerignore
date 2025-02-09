@@ -1,0 +1,8 @@
+# Do not include Python virtual env or uv lock file
+defaults/.venv
+defaults/uv.lock
+
+# Do not include R virtual env or lock file
+defaults/renv
+defaults/renv.lock
+defaults/.Rprofile

@@ -1,0 +1,12 @@
+Package: stencilar
+Title: Default R packages for Stencila workspaces
+Version: 0.0.0.9000
+Description: Default Python packages for Stencila workspaces. Used when a workspace does not specify a renv.lock file"
+License: MIT
+Encoding: UTF-8
+Imports:
+  Cairo,
+  data.table,
+  lintr,
+  styler,
+  tidyverse
