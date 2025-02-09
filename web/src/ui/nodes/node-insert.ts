@@ -37,6 +37,13 @@ export class UINodeInsert extends LitElement {
   size: 'small' | 'large'
 
   /**
+   * Set to true if this element should clear its selected nodes
+   * after successfully inserting.
+   */
+  @property({ type: Boolean })
+  clearOnInsert: boolean = false
+
+  /**
    * Handler for the `sl-remove` event in the `large` size element.
    *
    * Will take a single string arg for the `id` of the removed node
@@ -55,7 +62,9 @@ export class UINodeInsert extends LitElement {
     window.getSelection().removeAllRanges()
 
     // Clear the selected nodes so popup is hidden
-    this.selectedNodes = []
+    if (this.clearOnInsert) {
+      this.selectedNodes = []
+    }
   }
 
   protected override render() {

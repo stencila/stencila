@@ -1,6 +1,7 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
+import { ExecutionBounds } from "./ExecutionBounds.js";
 import { Integer } from "./Integer.js";
 import { UnsignedInteger } from "./UnsignedInteger.js";
 
@@ -52,7 +53,17 @@ export class ModelParameters extends Entity {
   randomSeed?: Integer;
 
   /**
-   * The maximum number of retries.
+   * Automatically execute generated content.
+   */
+  executeContent?: boolean;
+
+  /**
+   * The environment in which code should be executed.
+   */
+  executionBounds?: ExecutionBounds;
+
+  /**
+   * When executing content, the maximum number of retries.
    */
   maximumRetries?: UnsignedInteger;
 

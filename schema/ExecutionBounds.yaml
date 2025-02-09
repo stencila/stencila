@@ -3,11 +3,8 @@ title: ExecutionBounds
 extends: Enumeration
 category: flow
 description: The bounds placed on the execution of a document node.
-default: Default
+default: Main
 anyOf:
-  - const: Default
-    '@id': stencila:Default
-    description: Use the bounds configured in the document, workspace or user settings.
   - const: Main
     '@id': stencila:Main
     description: Execute within the main set of kernels.
@@ -20,6 +17,3 @@ anyOf:
   - const: Box
     '@id': stencila:Box
     description: Execute within a forked set of kernels within a sandbox.
-  - const: Skip
-    '@id': stencila:Skip
-    description: Skip execution.

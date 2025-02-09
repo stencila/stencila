@@ -128,7 +128,10 @@ export class CodeChunk extends CodeExecutable {
             execution-required=${this.executionRequired}
             ?read-only=${readOnly}
           >
-            <slot name="execution-messages" slot="messages"></slot>
+            <div slot="messages">
+              <slot name="compilation-messages"></slot>
+              <slot name="execution-messages"></slot>
+            </div>
           </stencila-ui-node-code>
         </div>
         <div slot="content">${this.renderContent()}</div>

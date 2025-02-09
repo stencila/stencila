@@ -85,7 +85,7 @@ fn node_infos(node: &TextNode, items: &mut Vec<NodeInfo>) {
         items.push(NodeInfo {
             range: node.range,
             node_type: node.node_type.to_string(),
-            execution_status: node.execution.as_ref().and_then(|exec| exec.status.clone()),
+            execution_status: node.execution.as_ref().and_then(|exec| exec.status),
         });
     }
 

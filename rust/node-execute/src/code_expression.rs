@@ -46,11 +46,11 @@ impl Executable for CodeExpression {
         if let Some(status) = executor.node_execution_status(
             self.node_type(),
             &node_id,
-            &self.execution_mode.clone().or(Some(ExecutionMode::Always)),
+            &self.execution_mode.or(Some(ExecutionMode::Always)),
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            self.options.execution_status = Some(status.clone());
+            self.options.execution_status = Some(status);
             executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
         }
 
@@ -135,7 +135,7 @@ impl Executable for CodeExpression {
             executor.patch(
                 &node_id,
                 [
-                    set(NodeProperty::ExecutionStatus, status.clone()),
+                    set(NodeProperty::ExecutionStatus, status),
                     set(NodeProperty::ExecutionRequired, required),
                     set(NodeProperty::ExecutionMessages, messages),
                     set(NodeProperty::ExecutionDuration, duration),

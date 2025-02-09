@@ -528,7 +528,7 @@ impl PatchContext {
             authors
                 .iter()
                 .map(|author| AuthorRole {
-                    role_name: role_name.clone(),
+                    role_name,
                     ..author.clone()
                 })
                 .collect()
@@ -797,6 +797,12 @@ impl From<PatchSlot> for PatchPath {
 impl<const N: usize> From<[PatchSlot; N]> for PatchPath {
     fn from(value: [PatchSlot; N]) -> Self {
         Self(value.into())
+    }
+}
+
+impl<const N: usize> From<[NodeProperty; N]> for PatchPath {
+    fn from(value: [NodeProperty; N]) -> Self {
+        Self(value.into_iter().map(PatchSlot::from).collect())
     }
 }
 

@@ -28,7 +28,7 @@ impl Timestamp {
 
         Ok(Duration {
             value: self.value - other.value,
-            time_unit: self.time_unit.clone(),
+            time_unit: self.time_unit,
             ..Default::default()
         })
     }

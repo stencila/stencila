@@ -922,7 +922,6 @@ fn instruction_block(input: &mut Located<&str>) -> ModalResult<Block> {
     (
         instruction_type,
         opt(preceded(multispace1, execution_mode)),
-        opt(preceded(multispace1, execution_bounds)),
         opt(preceded(multispace1, relative_position)),
         opt(preceded(multispace1, node_type)),
         opt(preceded(multispace1, prompt)),
@@ -933,7 +932,6 @@ fn instruction_block(input: &mut Located<&str>) -> ModalResult<Block> {
             |(
                 instruction_type,
                 execution_mode,
-                execution_bounds,
                 relative_position,
                 node_type,
                 prompt,
@@ -943,7 +941,7 @@ fn instruction_block(input: &mut Located<&str>) -> ModalResult<Block> {
                 let node_types = node_type.map(|node_type| vec![node_type.to_string()]);
 
                 let mut prompt = PromptBlock {
-                    instruction_type: Some(instruction_type.clone()),
+                    instruction_type: Some(instruction_type),
                     relative_position,
                     node_types,
                     target: prompt.map(String::from),
@@ -989,7 +987,6 @@ fn instruction_block(input: &mut Located<&str>) -> ModalResult<Block> {
                     model_parameters,
                     content,
                     execution_mode,
-                    execution_bounds,
                     ..Default::default()
                 })
             },
@@ -1569,7 +1566,6 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
             let model_parameters = serde_json::from_value(json!(options)).unwrap_or_default();
 
             let execution_mode = options.get("mode").and_then(|value| value.parse().ok());
-            let execution_bounds = options.get("bounds").and_then(|value| value.parse().ok());
 
             Block::InstructionBlock(InstructionBlock {
                 instruction_type: name.parse().unwrap_or_default(),
@@ -1577,7 +1573,6 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
                 message: args.map(InstructionMessage::from).unwrap_or_default(),
                 model_parameters,
                 execution_mode,
-                execution_bounds,
                 content: if !value.trim().is_empty() {
                     Some(decode_blocks(&value, context))
                 } else {

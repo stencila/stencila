@@ -59,7 +59,6 @@ export class CallBlock extends IncludeBlock {
             type="CallBlock"
             node-id=${this.id}
             mode=${this.executionMode}
-            bounds=${this.executionBounds}
             .tags=${this.executionTags}
             status=${this.executionStatus}
             required=${this.executionRequired}

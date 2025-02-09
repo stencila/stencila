@@ -1,6 +1,7 @@
 use common::{
     futures::{stream::FuturesUnordered, StreamExt},
     itertools::Itertools,
+    serde_json::json,
     tokio,
 };
 use models::ModelTask;
@@ -10,16 +11,18 @@ use schema::{
     shortcuts::{ci, h3, p, t},
     Author, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ChatMessageGroup,
     ChatMessageOptions, ExecutionBounds, InstructionMessage, InstructionType, MessagePart,
-    MessageRole, ModelParameters, Patch, PatchPath, PatchSlot, SoftwareApplication,
+    MessageRole, ModelParameters, Patch, PatchPath, SoftwareApplication,
 };
 
 use crate::{
+    code_utils::apply_execution_bounds,
     interrupt_impl,
     model_utils::{
         blocks_to_message_part, blocks_to_system_message, file_to_message_part,
         model_task_to_blocks_and_authors,
     },
     prelude::*,
+    ExecuteOptions,
 };
 
 impl Executable for Chat {
@@ -27,6 +30,8 @@ impl Executable for Chat {
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
         tracing::trace!("Compiling Chat {node_id}");
+
+        let mut ops = Vec::new();
 
         // If the prompt does not yet have a target then default to a general discussion prompt
         // if not embedded in a document, otherwise a document focussed prompt. This is a fallback and
@@ -45,15 +50,46 @@ impl Executable for Chat {
             .to_string();
 
             self.prompt.target = Some(target.clone());
+            ops.push((
+                PatchPath::from([NodeProperty::Prompt, NodeProperty::Target]),
+                PatchOp::Set(PatchValue::String(target)),
+            ));
+        }
+
+        // Apply configuration settings to model parameters
+        if let Some(config) = executor
+            .config
+            .as_ref()
+            .and_then(|config| config.models.as_ref())
+        {
+            if self.model_parameters.execute_content.is_none() {
+                self.model_parameters.execute_content = config.execute_content;
+                ops.push((
+                    PatchPath::from([NodeProperty::ModelParameters, NodeProperty::ExecuteContent]),
+                    PatchOp::Set(PatchValue::Json(json!(config.execute_content))),
+                ));
+            }
+            if self.model_parameters.execution_bounds.is_none() {
+                self.model_parameters.execution_bounds = config.execution_bounds;
+                ops.push((
+                    PatchPath::from([NodeProperty::ModelParameters, NodeProperty::ExecutionBounds]),
+                    PatchOp::Set(PatchValue::Json(json!(config.execution_bounds))),
+                ));
+            }
+            if self.model_parameters.maximum_retries.is_none() {
+                let num = config.maximum_retries.map(|num| num as u64);
+                self.model_parameters.maximum_retries = num;
+                ops.push((
+                    PatchPath::from([NodeProperty::ModelParameters, NodeProperty::MaximumRetries]),
+                    PatchOp::Set(PatchValue::Json(json!(num))),
+                ));
+            }
+        }
+
+        if !ops.is_empty() {
             executor.send_patch(Patch {
                 node_id: Some(node_id),
-                ops: vec![(
-                    PatchPath::from([
-                        PatchSlot::from(NodeProperty::Prompt),
-                        PatchSlot::from(NodeProperty::Target),
-                    ]),
-                    PatchOp::Set(PatchValue::String(target)),
-                )],
+                ops,
                 ..Default::default()
             });
         }
@@ -71,11 +107,13 @@ impl Executable for Chat {
         let node_id = self.node_id();
         tracing::trace!("Preparing Chat {node_id}");
 
+        let ExecuteOptions { force_all, .. } = executor.execute_options.clone().unwrap_or_default();
+
         // Check if this chat is to be executed:
         // - force_all is on
         // - no node ids and this is not an embedded chat (`is_temporary` is None)
         // - node id is this chat
-        let is_pending = executor.execute_options.force_all
+        let is_pending = force_all
             || (executor.node_ids.is_none() && self.is_temporary.is_none())
             || executor.node_ids.iter().flatten().any(|id| id == &node_id);
 
@@ -263,7 +301,7 @@ impl Executable for Chat {
             tracing::trace!("Creating task for {model_id}");
 
             let task = ModelTask::new(
-                self.prompt.instruction_type.clone().unwrap_or_default(),
+                self.prompt.instruction_type.unwrap_or_default(),
                 ModelParameters {
                     model_ids: Some(vec![model_id.clone()]),
                     ..*self.model_parameters.clone()
@@ -279,8 +317,12 @@ impl Executable for Chat {
         }
 
         // Wait for each future to complete and patch content
-        let max_retries = self.model_parameters.maximum_retries.unwrap_or(0);
-        let execution_bounds = self.execution_bounds.clone().unwrap_or_default();
+        let execute_content = self.model_parameters.execute_content.unwrap_or(false);
+        let execution_bounds = self
+            .model_parameters
+            .execution_bounds
+            .unwrap_or(ExecutionBounds::Fork);
+        let maximum_retries = self.model_parameters.maximum_retries.unwrap_or(0);
         while let Some((model_id, message_id, mut task, started, ended, result)) =
             futures.next().await
         {
@@ -297,9 +339,12 @@ impl Executable for Chat {
                         tracing::error!("While applying authorship to content: {error}");
                     }
 
-                    // Execute the content if not skipped. Note that this is spawned as an async task so that
+                    // Apply execution bounds
+                    apply_execution_bounds(&mut content, execution_bounds);
+
+                    // Execute the content. Note that this is spawned as an async task so that
                     // the message can be updated with the unexecuted content first.
-                    if !matches!(execution_bounds, ExecutionBounds::Skip) {
+                    if execute_content {
                         let mut fork = executor.fork_for_all();
                         let mut content = content.clone();
                         let message_id = message_id.clone();
@@ -327,7 +372,7 @@ impl Executable for Chat {
                                 };
 
                                 // Stop retrying if no retries or diagnostics
-                                if max_retries == 0 || diags.is_empty() {
+                                if maximum_retries == 0 || diags.is_empty() {
                                     break;
                                 }
 
@@ -345,7 +390,7 @@ impl Executable for Chat {
                                 // Stop if hit maximum number of retries
                                 // Note that this check occurs after the execute to allow the final
                                 // retry to be executed
-                                if retries >= max_retries {
+                                if retries >= maximum_retries {
                                     // Let the user know we are giving up
                                     if retries > 0 {
                                         let message = p([
@@ -368,7 +413,7 @@ impl Executable for Chat {
                                 // Add content indicating the retry and the reason for it
                                 // and update message status indicating that updating message
                                 let message = vec![
-                                    h3([t(format!("Retry {retries} of {max_retries}"))]),
+                                    h3([t(format!("Retry {retries} of {maximum_retries}"))]),
                                     p([t(format!("Trying again due to {level}: ")), ci(message)]),
                                 ];
                                 fork.patch(
@@ -428,12 +473,13 @@ impl Executable for Chat {
                                         }
                                     };
 
-                                // Apply model and user authorship to new blocks
+                                // Apply model and user authorship and execution bounds to new blocks
                                 if let Err(error) = authorship(&mut new_content, authors.clone()) {
                                     tracing::error!(
                                         "While applying authorship to content: {error}"
                                     );
                                 }
+                                apply_execution_bounds(&mut new_content, execution_bounds);
 
                                 // Reset the content so only the new blocks are executed
                                 content = new_content.clone();
@@ -543,7 +589,7 @@ fn msg_to_instr_msg(msg: &ChatMessage) -> Option<InstructionMessage> {
     }
 
     Some(InstructionMessage {
-        role: Some(msg.role.clone()),
+        role: Some(msg.role),
         parts,
         ..Default::default()
     })

@@ -14,10 +14,12 @@ core:
   - minimumScore
   - temperature
   - randomSeed
+  - executeContent
+  - executionBounds
   - maximumRetries
 properties:
   modelIds:
-    '@id': stencila:modelIds
+    "@id": stencila:modelIds
     description: The ids of the models to select.
     $comment: |
       Each item can be a partial model id string (e.g. "gpt"). The first model found that equals
@@ -33,7 +35,7 @@ properties:
     patch:
       formats: [md, smd, myst, ipynb, qmd]
   replicates:
-    '@id': stencila:replicates
+    "@id": stencila:replicates
     description: The number of replicate inferences to run per model id.
     $ref: UnsignedInteger
     aliases:
@@ -41,7 +43,7 @@ properties:
     patch:
       formats: [md, smd, myst, ipynb, qmd]
   qualityWeight:
-    '@id': stencila:qualityWeight
+    "@id": stencila:qualityWeight
     description: The relative weighting given to model quality (0-100).
     $ref: UnsignedInteger
     aliases:
@@ -50,7 +52,7 @@ properties:
     patch:
       formats: [md, smd, myst, ipynb, qmd]
   costWeight:
-    '@id': stencila:costWeight
+    "@id": stencila:costWeight
     description: The relative weighting given to model cost (0-100).
     $ref: UnsignedInteger
     aliases:
@@ -58,7 +60,7 @@ properties:
     patch:
       formats: [md, smd, myst, ipynb, qmd]
   speedWeight:
-    '@id': stencila:speedWeight
+    "@id": stencila:speedWeight
     description: The relative weighting given to model speed (0-100).
     $ref: UnsignedInteger
     aliases:
@@ -66,7 +68,7 @@ properties:
     patch:
       formats: [md, smd, myst, ipynb, qmd]
   minimumScore:
-    '@id': stencila:minimumScore
+    "@id": stencila:minimumScore
     description: The minimum score for models to be selected (0-100).
     $ref: UnsignedInteger
     aliases:
@@ -78,7 +80,7 @@ properties:
     patch:
       formats: [md, smd, myst, ipynb, qmd]
   temperature:
-    '@id': stencila:temperature
+    "@id": stencila:temperature
     description: The temperature option for model inference (0-100).
     $comment: |
       The lower the temperature, the more deterministic the output because the most
@@ -90,7 +92,7 @@ properties:
     patch:
       formats: [md, smd, myst, ipynb, qmd]
   randomSeed:
-    '@id': stencila:randomSeed
+    "@id": stencila:randomSeed
     description: The random seed used for the model (if possible)
     type: integer
     aliases:
@@ -99,9 +101,17 @@ properties:
       - rand-seed
       - rand_seed
       - seed
+  executeContent:
+    "@id": stencila:executeContent
+    description: Automatically execute generated content.
+    type: boolean
+  executionBounds:
+    "@id": stencila:executionBounds
+    description: The environment in which code should be executed.
+    $ref: ExecutionBounds
   maximumRetries:
-    '@id': stencila:retries
-    description: The maximum number of retries.
+    "@id": stencila:maximumRetries
+    description: When executing content, the maximum number of retries.
     $ref: UnsignedInteger
     aliases:
       - retries

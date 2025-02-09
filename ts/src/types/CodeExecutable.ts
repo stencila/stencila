@@ -3,6 +3,7 @@
 import { Author } from "./Author.js";
 import { Cord } from "./Cord.js";
 import { Executable } from "./Executable.js";
+import { ExecutionBounds } from "./ExecutionBounds.js";
 import { ProvenanceCount } from "./ProvenanceCount.js";
 
 /**
@@ -21,6 +22,16 @@ export class CodeExecutable extends Executable {
    * The programming language of the code.
    */
   programmingLanguage?: string;
+
+  /**
+   * The environment in which code should be executed.
+   */
+  executionBounds?: ExecutionBounds;
+
+  /**
+   * The execution bounds, if any, on the last execution.
+   */
+  executionBounded?: ExecutionBounds;
 
   /**
    * The authors of the executable code.

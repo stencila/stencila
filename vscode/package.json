@@ -570,7 +570,7 @@
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
       },
       {
-        "command": "stencila.invoke.create-chat",
+        "command": "stencila.extract-chat",
         "key": "ctrl+/",
         "mac": "cmd+/",
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|qmd|myst|latex)$/"

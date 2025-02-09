@@ -114,10 +114,39 @@
       }
     },
     {
-      "@id": "stencila:retries",
+      "@id": "stencila:executeContent",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executeContent",
+      "rdfs:comment": "Automatically execute generated content.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ModelParameters"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
+      "@id": "stencila:executionBounds",
+      "@type": "rdfs:Property",
+      "rdfs:label": "executionBounds",
+      "rdfs:comment": "The environment in which code should be executed.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:ModelParameters"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:ExecutionBounds"
+      }
+    },
+    {
+      "@id": "stencila:maximumRetries",
       "@type": "rdfs:Property",
       "rdfs:label": "maximumRetries",
-      "rdfs:comment": "The maximum number of retries.",
+      "rdfs:comment": "When executing content, the maximum number of retries.",
       "schema:domainIncludes": {
         "@id": "stencila:ModelParameters"
       },

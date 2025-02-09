@@ -121,7 +121,7 @@ impl Model for OllamaModel {
             .messages
             .iter()
             .map(|message| {
-                let role = match message.role.clone().unwrap_or_default() {
+                let role = match message.role.unwrap_or_default() {
                     schema::MessageRole::Model => MessageRole::Assistant,
                     schema::MessageRole::System => MessageRole::System,
                     schema::MessageRole::User => MessageRole::User,

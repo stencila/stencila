@@ -147,7 +147,6 @@ export class IncludeBlock extends Executable {
             type="IncludeBlock"
             node-id=${this.id}
             mode=${this.executionMode}
-            bounds=${this.executionBounds}
             .tags=${this.executionTags}
             status=${this.executionStatus}
             required=${this.executionRequired}
@@ -201,15 +200,6 @@ export class IncludeBlock extends Executable {
             ?readonly=${this.readonly}
             ?disabled=${this.readonly}
           />
-        </sl-tooltip>
-
-        <sl-tooltip
-          content="Open source document in another tab"
-          placement="top-end"
-        >
-          <a class="flex items-center" href=${this.source} target="_blank">
-            <stencila-ui-icon name="boxArrowUpRight"></stencila-ui-icon>
-          </a>
         </sl-tooltip>
       </div>
     `

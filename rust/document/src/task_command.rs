@@ -54,7 +54,7 @@ impl Document {
             {
                 if !current_task.is_finished() {
                     match (&command, current_command) {
-                        (CompileDocument | ExecuteDocument(..), ExecuteDocument(..)) => {
+                        (CompileDocument { .. } | ExecuteDocument(..), ExecuteDocument(..)) => {
                             tracing::debug!("Ignoring document command: already executing");
                             send_status(&status_sender, command_id, CommandStatus::Ignored);
 
@@ -193,11 +193,11 @@ impl Document {
                     };
                     send_status(&status_sender, command_id, status);
                 }
-                CompileDocument => {
+                CompileDocument { config } => {
                     let status_sender = status_sender.clone();
                     let task = tokio::spawn(async move {
                         let status = if let Err(error) =
-                            compile(home, root, kernels, Some(patch_sender)).await
+                            compile(home, root, kernels, Some(patch_sender), config).await
                         {
                             CommandStatus::Failed(format!("While compiling document: {error}"))
                         } else {
@@ -207,11 +207,15 @@ impl Document {
                     });
                     current_command_details = Some((command, command_id, task));
                 }
-                LintDocument { format, fix } => {
+                LintDocument {
+                    format,
+                    fix,
+                    config,
+                } => {
                     let status_sender = status_sender.clone();
                     let task = tokio::spawn(async move {
                         let status = if let Err(error) =
-                            lint(home, root, kernels, Some(patch_sender), format, fix).await
+                            lint(home, root, kernels, Some(patch_sender), format, fix, config).await
                         {
                             CommandStatus::Failed(format!("While linting document: {error}"))
                         } else {

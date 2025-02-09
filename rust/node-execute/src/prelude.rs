@@ -7,7 +7,7 @@ pub use schema::{
     NodeProperty, Null, PatchNode, PatchOp, PatchValue, Primitive, Timestamp, WalkControl,
     WalkNode,
 };
-use schema::{CompilationDigest, CompilationMessage, ExecutionBounds};
+use schema::{CompilationDigest, CompilationMessage};
 
 pub(crate) use crate::{Executable, Executor};
 
@@ -85,12 +85,6 @@ pub fn execution_status(messages: &Option<Vec<ExecutionMessage>>) -> ExecutionSt
     } else {
         ExecutionStatus::Succeeded
     }
-}
-
-/// Create a value for `execution_bounded` based on the executor's `kind`
-pub fn execution_bounded(executor: &Executor) -> Option<ExecutionBounds> {
-    (!matches!(executor.execution_bounds, ExecutionBounds::Main))
-        .then_some(executor.execution_bounds.clone())
 }
 
 /// Create a value for `execution_required` based on execution and compilation digests

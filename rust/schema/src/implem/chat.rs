@@ -89,7 +89,6 @@ impl MarkdownCodec for Chat {
                     &self
                         .prompt
                         .instruction_type
-                        .clone()
                         .unwrap_or_default()
                         .to_string()
                         .to_lowercase(),

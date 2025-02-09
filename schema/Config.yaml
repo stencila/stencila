@@ -4,11 +4,17 @@ category: config
 description: Stencila document configuration options.
 core:
   - theme
+  - models
   - publish
 properties:
   theme:
     description: The styling theme to use for the document
     type: string
+    patch:
+      formats: [all]
+  models:
+    description: The parameters used for selecting and running generative AI models
+    $ref: ConfigModels
     patch:
       formats: [all]
   publish:

@@ -45,12 +45,6 @@ pub struct Button {
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     pub execution_mode: Option<ExecutionMode>,
 
-    /// Under which circumstances child nodes should be executed.
-    #[serde(alias = "execution-bounds", alias = "execution_bounds")]
-    #[strip(execution)]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
-    pub execution_bounds: Option<ExecutionBounds>,
-
     /// The code.
     #[strip(code)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
@@ -63,6 +57,12 @@ pub struct Button {
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[jats(attr = "language")]
     pub programming_language: Option<String>,
+
+    /// The environment in which code should be executed.
+    #[serde(alias = "execution-bounds", alias = "execution_bounds")]
+    #[strip(execution)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
+    pub execution_bounds: Option<ExecutionBounds>,
 
     /// The authors of the executable code.
     #[serde(alias = "author")]
@@ -160,11 +160,6 @@ pub struct ButtonOptions {
     #[strip(execution)]
     pub execution_instance: Option<String>,
 
-    /// The bounds, if any, on the last execution.
-    #[serde(alias = "execution-bounded", alias = "execution_bounded")]
-    #[strip(execution)]
-    pub execution_bounded: Option<ExecutionBounds>,
-
     /// The timestamp when the last execution ended.
     #[serde(alias = "execution-ended", alias = "execution_ended")]
     #[strip(execution, timestamps)]
@@ -183,6 +178,11 @@ pub struct ButtonOptions {
     #[strip(execution)]
     #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
+
+    /// The execution bounds, if any, on the last execution.
+    #[serde(alias = "execution-bounded", alias = "execution_bounded")]
+    #[strip(execution)]
+    pub execution_bounded: Option<ExecutionBounds>,
 
     /// Whether the button is currently disabled
     #[serde(alias = "is-disabled", alias = "is_disabled")]

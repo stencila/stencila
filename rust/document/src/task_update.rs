@@ -3,7 +3,7 @@ use common::{
     tracing,
 };
 use node_execute::ExecuteOptions;
-use schema::{Node, PatchNode, PatchOp};
+use schema::{Config, Node, PatchNode, PatchOp};
 
 use crate::{
     Command, CommandNodes, CommandScope, Document, DocumentCommandSender, DocumentPatchReceiver,
@@ -67,7 +67,7 @@ impl Document {
                             }
                         }
                     } else if let Err(error) = schema::patch(root, patch) {
-                        tracing::error!("While applying patch to root: {error}");
+                        tracing::debug!("While applying patch to root: {error}");
                     }
 
                     (compile, lint, execute)
@@ -89,13 +89,22 @@ impl Document {
 
             // Lint, or just compile, if requested.
             if lint || compile {
+                // Get config from the root.
+                // TODO: allow for config to be specified in file
+                let root = &*root.read().await;
+                let config = match root {
+                    Node::Article(article) => article.config.clone().unwrap_or_default(),
+                    _ => Config::default(),
+                };
+
                 let command = if lint {
                     Command::LintDocument {
                         format: false,
                         fix: false,
+                        config,
                     }
                 } else {
-                    Command::CompileDocument
+                    Command::CompileDocument { config }
                 };
 
                 if let Err(error) = command_sender.send((command, 0)).await {

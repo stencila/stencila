@@ -38,26 +38,28 @@ pub(super) fn name<'s>(input: &mut Located<&'s str>) -> ModalResult<&'s str> {
 
 /// Parse an execution mode variant
 pub(super) fn execution_mode(input: &mut Located<&str>) -> ModalResult<ExecutionMode> {
-    alt(("always", "auto", "need", "lock"))
-        .map(|typ| match typ {
-            "always" => ExecutionMode::Always,
-            "auto" => ExecutionMode::Auto,
-            "need" => ExecutionMode::Need,
-            "lock" => ExecutionMode::Lock,
-            _ => unreachable!(),
-        })
-        .parse_next(input)
+    alt((
+        "always", "auto", "demanded", "demand", "needed", "need", "lock",
+    ))
+    .map(|typ| match typ {
+        "always" => ExecutionMode::Always,
+        "auto" => ExecutionMode::Auto,
+        "demanded" | "demand" => ExecutionMode::Demand,
+        "needed" | "need" => ExecutionMode::Need,
+        "locked" | "lock" => ExecutionMode::Lock,
+        _ => unreachable!(),
+    })
+    .parse_next(input)
 }
 
 /// Parse an execution bounds variant
 pub(super) fn execution_bounds(input: &mut Located<&str>) -> ModalResult<ExecutionBounds> {
-    alt(("main", "fork", "limit", "box", "skip"))
+    alt(("main", "fork", "limit", "box"))
         .map(|typ| match typ {
             "main" => ExecutionBounds::Main,
             "fork" => ExecutionBounds::Fork,
             "limit" => ExecutionBounds::Limit,
             "box" => ExecutionBounds::Box,
-            "skip" => ExecutionBounds::Skip,
             _ => unreachable!(),
         })
         .parse_next(input)

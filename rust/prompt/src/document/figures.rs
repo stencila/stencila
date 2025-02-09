@@ -3,7 +3,7 @@ use crate::prelude::*;
 /// A figure in the current document
 ///
 /// Currently, only the figure caption is used.
-#[derive(Default, Clone, Trace, JsLifetime)]
+#[derive(Debug, Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct Figure {
     /// The label of the figure
@@ -54,7 +54,7 @@ impl Figure {
 }
 
 /// The figures in the current document
-#[derive(Default, Clone, Trace, JsLifetime)]
+#[derive(Debug, Default, Clone, Trace, JsLifetime)]
 #[rquickjs::class]
 pub struct Figures {
     pub items: Vec<Figure>,

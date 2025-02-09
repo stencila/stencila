@@ -52,7 +52,7 @@ impl Executable for IfBlock {
             &self.options.compilation_digest,
             &self.options.execution_digest,
         ) {
-            self.options.execution_status = Some(status.clone());
+            self.options.execution_status = Some(status);
             executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
         }
 
@@ -111,7 +111,7 @@ impl Executable for IfBlock {
 
                 if let Some(clause_status) = &clause.options.execution_status {
                     if clause_status > &status {
-                        status = clause_status.clone();
+                        status = *clause_status;
                     }
                 }
 
@@ -306,7 +306,7 @@ impl Executable for IfBlockClause {
 
         // Update `execution_status` on `self` so that parent `IfBlock`
         // can update its status based on clauses
-        self.options.execution_status = Some(status.clone());
+        self.options.execution_status = Some(status);
 
         // Set other properties that may be using in rendering
         self.options.execution_messages = messages.clone();

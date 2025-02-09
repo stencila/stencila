@@ -133,7 +133,7 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             Node::Chat(node) => node.inspect(self),
             Node::Prompt(node) => node.inspect(self),
             _ => {
-                tracing::warn!("Node type `{node}` not inspected");
+                tracing::trace!("Node type `{node}` not inspected");
             }
         };
 
@@ -287,8 +287,8 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             .map(range16_to_range);
 
         let execution = Some(TextNodeExecution {
-            status: clause.options.execution_status.clone(),
-            required: clause.options.execution_required.clone(),
+            status: clause.options.execution_status,
+            required: clause.options.execution_required,
             duration: clause.options.execution_duration.clone(),
             ended: clause.options.execution_ended.clone(),
             messages,
@@ -386,9 +386,9 @@ trait Inspect {
 impl Inspect for ChatMessage {
     fn inspect(&self, inspector: &mut Inspector) {
         let execution = Some(TextNodeExecution {
-            mode: self.execution_mode.clone(),
-            status: self.options.execution_status.clone(),
-            required: self.options.execution_required.clone(),
+            mode: self.execution_mode,
+            status: self.options.execution_status,
+            required: self.options.execution_required,
             duration: self.options.execution_duration.clone(),
             ended: self.options.execution_ended.clone(),
             messages: self.options.execution_messages.clone(),
@@ -472,10 +472,10 @@ impl Inspect for CodeChunk {
             .map(range16_to_range);
 
         let execution = Some(TextNodeExecution {
-            mode: self.execution_mode.clone(),
-            status: self.options.execution_status.clone(),
-            required: self.options.execution_required.clone(),
-            bounded: self.options.execution_bounded.clone(),
+            mode: self.execution_mode,
+            status: self.options.execution_status,
+            required: self.options.execution_required,
+            bounded: self.options.execution_bounded,
             duration: self.options.execution_duration.clone(),
             ended: self.options.execution_ended.clone(),
             outputs: self.outputs.as_ref().map(|outputs| outputs.len()),
@@ -514,9 +514,9 @@ impl Inspect for CodeExpression {
             .map(range16_to_range);
 
         let execution = Some(TextNodeExecution {
-            mode: self.execution_mode.clone(),
-            status: self.options.execution_status.clone(),
-            required: self.options.execution_required.clone(),
+            mode: self.execution_mode,
+            status: self.options.execution_status,
+            required: self.options.execution_required,
             duration: self.options.execution_duration.clone(),
             ended: self.options.execution_ended.clone(),
             outputs: self.output.is_some().then_some(1),
@@ -536,9 +536,9 @@ impl Inspect for CodeExpression {
 impl Inspect for InstructionBlock {
     fn inspect(&self, inspector: &mut Inspector) {
         let mut execution = Some(TextNodeExecution {
-            mode: self.execution_mode.clone(),
-            status: self.options.execution_status.clone(),
-            required: self.options.execution_required.clone(),
+            mode: self.execution_mode,
+            status: self.options.execution_status,
+            required: self.options.execution_required,
             duration: self.options.execution_duration.clone(),
             ended: self.options.execution_ended.clone(),
             messages: self.options.execution_messages.clone(),
@@ -608,9 +608,9 @@ impl Inspect for ForBlock {
             .map(range16_to_range);
 
         let execution = Some(TextNodeExecution {
-            mode: self.execution_mode.clone(),
-            status: self.options.execution_status.clone(),
-            required: self.options.execution_required.clone(),
+            mode: self.execution_mode,
+            status: self.options.execution_status,
+            required: self.options.execution_required,
             duration: self.options.execution_duration.clone(),
             ended: self.options.execution_ended.clone(),
             messages,
@@ -1014,9 +1014,9 @@ fn compilation_to_execution_message(message: &CompilationMessage) -> ExecutionMe
     ExecutionMessage {
         // For linting messages, limit level to warning
         level: if matches!(message.error_type.as_deref(), Some("Linting")) {
-            message.level.clone().min(MessageLevel::Warning)
+            message.level.min(MessageLevel::Warning)
         } else {
-            message.level.clone()
+            message.level
         },
         message: message.message.clone(),
         code_location: message.code_location.clone(),

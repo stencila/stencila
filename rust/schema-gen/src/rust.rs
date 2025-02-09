@@ -1203,6 +1203,7 @@ impl {title} {{
         };
 
         if unit_variants {
+            derives.push("Copy");
             derives.push("strum::EnumString");
         };
 

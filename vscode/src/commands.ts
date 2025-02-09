@@ -438,6 +438,16 @@ nodeTypes: []
     )
   );
 
+  // Extract and run a chat written in the document
+  // e.g. `/create code`
+  context.subscriptions.push(
+    vscode.commands.registerCommand("stencila.extract-chat", async () => {
+      await vscode.commands.executeCommand("stencila.invoke.create-chat", {
+        executeChat: true,
+      });
+    })
+  );
+
   // Typed wrapper to the `invoke.create-chat` command for convenience
   // of following commands
   async function insertChat(options: {

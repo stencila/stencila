@@ -156,7 +156,7 @@ impl LatexCodec for CodeChunk {
         }
 
         if let Some(mode) = &self.execution_mode {
-            if !matches!(mode, ExecutionMode::Default) {
+            if !matches!(mode, ExecutionMode::Need) {
                 context.str(" ").property_str(
                     NodeProperty::ExecutionMode,
                     &mode.to_string().to_lowercase(),
@@ -165,7 +165,7 @@ impl LatexCodec for CodeChunk {
         }
 
         if let Some(bounds) = &self.execution_bounds {
-            if !matches!(bounds, ExecutionBounds::Default) {
+            if !matches!(bounds, ExecutionBounds::Main) {
                 context.str(" ").property_str(
                     NodeProperty::ExecutionBounds,
                     &bounds.to_string().to_lowercase(),
@@ -269,7 +269,7 @@ impl MarkdownCodec for CodeChunk {
                     }
 
                     if let Some(mode) = &self.execution_mode {
-                        if !matches!(mode, ExecutionMode::Default) {
+                        if !matches!(mode, ExecutionMode::Need) {
                             context.myst_directive_option(
                                 NodeProperty::ExecutionMode,
                                 Some("mode"),
@@ -279,7 +279,7 @@ impl MarkdownCodec for CodeChunk {
                     }
 
                     if let Some(bounds) = &self.execution_bounds {
-                        if !matches!(bounds, ExecutionBounds::Default) {
+                        if !matches!(bounds, ExecutionBounds::Main) {
                             context.myst_directive_option(
                                 NodeProperty::ExecutionBounds,
                                 Some("bounds"),
@@ -422,7 +422,7 @@ impl MarkdownCodec for CodeChunk {
             }
 
             if let Some(mode) = &self.execution_mode {
-                if !matches!(mode, ExecutionMode::Default) {
+                if !matches!(mode, ExecutionMode::Need) {
                     context.push_str(" ").push_prop_str(
                         NodeProperty::ExecutionMode,
                         &mode.to_string().to_lowercase(),
@@ -431,7 +431,7 @@ impl MarkdownCodec for CodeChunk {
             }
 
             if let Some(bounds) = &self.execution_bounds {
-                if !matches!(bounds, ExecutionBounds::Default) {
+                if !matches!(bounds, ExecutionBounds::Main) {
                     context.push_str(" ").push_prop_str(
                         NodeProperty::ExecutionBounds,
                         &bounds.to_string().to_lowercase(),

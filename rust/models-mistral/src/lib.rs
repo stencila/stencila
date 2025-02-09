@@ -91,7 +91,7 @@ impl Model for MistralModel {
             .messages
             .iter()
             .map(|message| {
-                let role = match message.role.clone().unwrap_or_default() {
+                let role = match message.role.unwrap_or_default() {
                     MessageRole::Model => ChatRole::Assistant,
                     MessageRole::System => ChatRole::System,
                     MessageRole::User => ChatRole::User,

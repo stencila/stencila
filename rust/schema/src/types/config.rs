@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::config_models::ConfigModels;
 use super::config_publish::ConfigPublish;
 use super::string::String;
 
@@ -16,6 +17,10 @@ pub struct Config {
     /// The styling theme to use for the document
     #[patch(format = "all")]
     pub theme: Option<String>,
+
+    /// The parameters used for selecting and running generative AI models
+    #[patch(format = "all")]
+    pub models: Option<ConfigModels>,
 
     /// Publishing configuration options
     #[patch(format = "all")]

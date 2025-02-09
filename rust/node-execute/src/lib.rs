@@ -15,7 +15,7 @@ use common::{
 use kernels::{KernelLintingOptions, Kernels};
 use prompts::prompt::{DocumentContext, InstructionContext};
 use schema::{
-    AuthorRole, AuthorRoleName, Block, CompilationDigest, CompilationMessage, ExecutionBounds,
+    AuthorRole, AuthorRoleName, Block, CompilationDigest, CompilationMessage, Config,
     ExecutionMode, ExecutionStatus, Inline, Link, List, ListItem, ListOrder, Node, NodeId,
     NodeProperty, NodeType, Paragraph, Patch, PatchNode, PatchOp, PatchPath, PatchValue, Timestamp,
     VisitorAsync, WalkControl, WalkNode,
@@ -30,6 +30,7 @@ mod call_block;
 mod chat;
 mod code_chunk;
 mod code_expression;
+mod code_utils;
 mod figure;
 mod for_block;
 mod heading;
@@ -57,9 +58,11 @@ pub async fn compile(
     root: Arc<RwLock<Node>>,
     kernels: Arc<RwLock<Kernels>>,
     patch_sender: Option<UnboundedSender<Patch>>,
+    config: Config,
 ) -> Result<()> {
     let mut root = root.read().await.clone();
-    let mut executor = Executor::new(home, kernels, patch_sender, None, None);
+    let mut executor = Executor::new(home, kernels, patch_sender);
+    executor.config = Some(config);
     executor.compile(&mut root).await
 }
 
@@ -71,9 +74,11 @@ pub async fn lint(
     patch_sender: Option<UnboundedSender<Patch>>,
     format: bool,
     fix: bool,
+    config: Config,
 ) -> Result<()> {
     let mut root = root.read().await.clone();
-    let mut executor = Executor::new(home, kernels, patch_sender, None, None);
+    let mut executor = Executor::new(home, kernels, patch_sender);
+    executor.config = Some(config);
     executor.compile(&mut root).await?;
     executor.lint(&mut root, format, fix).await
 }
@@ -85,10 +90,12 @@ pub async fn execute(
     kernels: Arc<RwLock<Kernels>>,
     patch_sender: Option<UnboundedSender<Patch>>,
     node_ids: Option<NodeIds>,
-    options: Option<ExecuteOptions>,
+    execute_options: Option<ExecuteOptions>,
 ) -> Result<()> {
     let mut root = root.read().await.clone();
-    let mut executor = Executor::new(home, kernels, patch_sender, node_ids, options);
+    let mut executor = Executor::new(home, kernels, patch_sender);
+    executor.node_ids = node_ids;
+    executor.execute_options = execute_options;
     executor.prepare(&mut root).await?;
     executor.execute(&mut root).await
 }
@@ -102,7 +109,8 @@ pub async fn interrupt(
     node_ids: Option<NodeIds>,
 ) -> Result<()> {
     let mut root = root.read().await.clone();
-    let mut executor = Executor::new(home, kernels, patch_sender, node_ids, None);
+    let mut executor = Executor::new(home, kernels, patch_sender);
+    executor.node_ids = node_ids;
     executor.interrupt(&mut root).await
 }
 
@@ -173,9 +181,6 @@ pub struct Executor {
     /// to pending.
     execution_status: ExecutionStatus,
 
-    /// The bounds on execution
-    execution_bounds: ExecutionBounds,
-
     /// The document context for prompts
     document_context: DocumentContext,
 
@@ -214,8 +219,11 @@ pub struct Executor {
     /// of child nodes.
     is_last: bool,
 
-    /// Options for execution
-    execute_options: ExecuteOptions,
+    /// Configuration options
+    config: Option<Config>,
+
+    /// Execution options
+    execute_options: Option<ExecuteOptions>,
 }
 
 /// Records information about a heading in order to created
@@ -372,17 +380,14 @@ impl Executor {
         home: PathBuf,
         kernels: Arc<RwLock<Kernels>>,
         patch_sender: Option<UnboundedSender<Patch>>,
-        node_ids: Option<NodeIds>,
-        options: Option<ExecuteOptions>,
     ) -> Self {
         Self {
             directory_stack: vec![home],
             kernels,
             patch_sender,
-            node_ids,
+            node_ids: None,
             phase: Phase::Prepare,
             execution_status: ExecutionStatus::Pending,
-            execution_bounds: ExecutionBounds::Main,
             document_context: DocumentContext::default(),
             instruction_context: None,
             headings: Vec::new(),
@@ -394,7 +399,8 @@ impl Executor {
             temporaries: Vec::new(),
             linting_context: Vec::new(),
             is_last: false,
-            execute_options: options.unwrap_or_default(),
+            config: None,
+            execute_options: None,
         }
     }
 
@@ -446,15 +452,29 @@ impl Executor {
     /// without effecting the main kernel processes. Specifically, this
     /// is used to execute suggestions.
     async fn fork_for_execute(&self) -> Result<Self> {
-        let kernels = self.kernels().await.fork().await?;
-        let kernels = Arc::new(RwLock::new(kernels));
-
         Ok(Self {
             phase: Phase::Execute,
-            execution_bounds: ExecutionBounds::Fork,
-            kernels,
+            kernels: self.fork_kernels().await?,
             ..self.clone()
         })
+    }
+
+    /// Create a fork of the executor that walks over temporaries
+    ///
+    /// This empties any temporaries, and resets the `last_block`
+    /// since neither should be used within temporary chats
+    fn fork_for_temporaries(&self) -> Self {
+        Self {
+            temporaries: Vec::new(),
+            last_block: None,
+            ..self.clone()
+        }
+    }
+
+    /// Create a fork of the executor's kernels
+    async fn fork_kernels(&self) -> Result<Arc<RwLock<Kernels>>> {
+        let kernels = self.kernels().await.fork().await?;
+        Ok(Arc::new(RwLock::new(kernels)))
     }
 
     /// Run [`Phase::Compile`]
@@ -464,6 +484,7 @@ impl Executor {
         self.figure_count = 0;
         self.equation_count = 0;
         self.linting_context.clear();
+        self.last_block = None;
         root.walk_async(self).await?;
 
         Ok(())
@@ -678,9 +699,9 @@ impl Executor {
                     }
 
                     // This should not happen because we only look for the nodes using this
-                    // language. But if it does, then generate a warning.
+                    // language. But if it does, then generate a debug message.
                     if !begun {
-                        tracing::warn!(
+                        tracing::debug!(
                             "Could not find formatted and/or fixed code for node `{node_id}`"
                         );
                         continue;
@@ -825,6 +846,7 @@ impl Executor {
         self.document_context = DocumentContext::default();
 
         self.phase = Phase::Prepare;
+        self.last_block = None;
         root.walk_async(self).await
     }
 
@@ -834,6 +856,7 @@ impl Executor {
         self.temporaries.clear();
 
         self.phase = Phase::Execute;
+        self.last_block = None;
         root.walk_async(self).await?;
 
         // Execute any un-executed temporary nodes (those not walked in `visit_block`)
@@ -847,6 +870,7 @@ impl Executor {
     /// Run [`Phase::Interrupt`]
     async fn interrupt(&mut self, root: &mut Node) -> Result<()> {
         self.phase = Phase::Interrupt;
+        self.last_block = None;
         root.walk_async(self).await
     }
 
@@ -918,17 +942,25 @@ impl Executor {
         compilation_digest: &Option<CompilationDigest>,
         execution_digest: &Option<CompilationDigest>,
     ) -> Option<ExecutionStatus> {
-        if self.execute_options.force_all {
+        let ExecuteOptions {
+            force_all,
+            skip_instructions,
+            skip_code,
+            ..
+        } = self.execute_options.clone().unwrap_or_default();
+
+        if force_all {
             return Some(ExecutionStatus::Pending);
         }
 
+        // If the node is locked then do not execute
         if matches!(execution_mode, Some(ExecutionMode::Lock)) {
             return Some(ExecutionStatus::Locked);
         }
 
+        // If the executor has any node ids then the current
+        // node id must be amongst them
         if let Some(node_ids) = &self.node_ids {
-            // If the executor has any node ids then the current
-            // node id must be amongst them
             return if node_ids.contains(node_id) {
                 Some(ExecutionStatus::Pending)
             } else {
@@ -936,29 +968,37 @@ impl Executor {
             };
         }
 
+        // If the node is only to be executed on demand, and there are no node
+        // ids, or the node is not among them (checked above) then do not execute
+        if matches!(execution_mode, Some(ExecutionMode::Demand)) {
+            return Some(ExecutionStatus::Skipped);
+        }
+
         if matches!(
             node_type,
             NodeType::InstructionBlock | NodeType::InstructionInline
         ) {
-            if self.execute_options.skip_instructions {
+            if skip_instructions {
                 return Some(ExecutionStatus::Skipped);
             }
-        } else if self.execute_options.skip_code {
+        } else if skip_code {
             return Some(ExecutionStatus::Skipped);
         }
 
-        // Check execution mode of node after `skip_` options
+        // If no `skip_` options applied and node is always to be execute then execute
         if matches!(execution_mode, Some(ExecutionMode::Always)) {
             return Some(ExecutionStatus::Pending);
         }
 
+        // Only remaining execution variant to be checked for is `Need`, so check that
+        // node needs to be executed
         if (compilation_digest.is_none() && execution_digest.is_none())
             || compilation_digest != execution_digest
         {
             // If the node has never been executed (both digests are none),
             // or if the digest has changed since last executed, then return
             // `self.execution_status` (usually Pending)
-            Some(self.execution_status.clone())
+            Some(self.execution_status)
         } else {
             // No change to execution status required
             None
@@ -1079,16 +1119,25 @@ impl VisitorAsync for Executor {
         let current_block = block.node_id();
 
         if !self.temporaries.is_empty() {
-            // Execute those where last block is same as previous (including no previous)
-            let mut execute = Vec::new();
+            // Visit those where last block is same as previous (including no previous)
+            let mut visit = Vec::new();
             for (index, (previous, next, ..)) in self.temporaries.iter().enumerate() {
-                if &self.last_block == previous || &current_block == next {
-                    execute.push(index);
+                if (previous.is_some() && &self.last_block == previous)
+                    || (next.is_some() && &current_block == next)
+                {
+                    visit.push(index);
                 }
             }
-            for (shift, index) in execute.iter().enumerate() {
-                let (.., mut node) = self.temporaries.remove(index - shift);
-                self.visit_node(&mut node).await?;
+
+            // If any to be visited here fork the executor so that the document context etc
+            // is not modified by what is in the temporary chat but the chat gets the current
+            // document context, figure numbers etc.
+            if !visit.is_empty() {
+                let mut fork = self.fork_for_temporaries();
+                for (shift, index) in visit.iter().enumerate() {
+                    let (.., mut node) = self.temporaries.remove(index - shift);
+                    fork.visit_node(&mut node).await?;
+                }
             }
         }
 

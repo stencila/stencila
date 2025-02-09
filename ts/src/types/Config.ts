@@ -1,5 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
+import { ConfigModels } from "./ConfigModels.js";
 import { ConfigPublish } from "./ConfigPublish.js";
 
 /**
@@ -10,6 +11,11 @@ export class Config {
    * The styling theme to use for the document
    */
   theme?: string;
+
+  /**
+   * The parameters used for selecting and running generative AI models
+   */
+  models?: ConfigModels;
 
   /**
    * Publishing configuration options
