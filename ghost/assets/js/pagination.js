@@ -8,7 +8,6 @@ export default function pagination() {
         const links = Array.from(sidebar.querySelectorAll("a"));
         const currentSlug = window.location.pathname; // Get the current URL path
         
-        console.log('links', links, currentSlug)
         let currentIndex = links.findIndex(link => link.classList.contains('active'));
 
         if (currentIndex !== -1) {
