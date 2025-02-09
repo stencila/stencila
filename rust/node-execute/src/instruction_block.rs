@@ -11,7 +11,7 @@ use schema::{
     SoftwareApplication,
 };
 
-use crate::{interrupt_impl, prelude::*, state_digest};
+use crate::{interrupt_impl, prelude::*, state_digest, ExecuteOptions};
 
 impl Executable for InstructionBlock {
     #[tracing::instrument(skip_all)]
@@ -75,6 +75,12 @@ impl Executable for InstructionBlock {
     async fn execute(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
+        let ExecuteOptions {
+            retain_suggestions,
+            dry_run,
+            ..
+        } = executor.execute_options.clone().unwrap_or_default();
+
         // Get options which may be overridden if this is a revision
         // Note: to avoid accidentally generating many replicates, hard code maximum 10 here
         let mut model_ids = self.model_parameters.model_ids.clone().clone();
@@ -84,7 +90,7 @@ impl Executable for InstructionBlock {
         // as indicated by previous suggestions being retained, then (a) set the number of replicates
         // to one, (b) use the same model as that which generated the active suggestion, and
         // (c) put the active suggestion last when sending to the model <<- TODO
-        if executor.execute_options.retain_suggestions {
+        if retain_suggestions {
             replicates = 1;
 
             if let (Some(index), Some(suggestions)) = (self.active_suggestion, &self.suggestions) {
@@ -166,7 +172,7 @@ impl Executable for InstructionBlock {
         }
 
         // Unless specified, clear existing suggestions
-        if !executor.execute_options.retain_suggestions {
+        if !retain_suggestions {
             executor.patch(&node_id, [none(NodeProperty::Suggestions)]);
         }
 
@@ -180,7 +186,6 @@ impl Executable for InstructionBlock {
             let prompter = prompter.clone();
             let system_prompt = system_prompt.to_string();
             let mut instruction = self.clone();
-            let dry_run = executor.execute_options.dry_run;
             if let Some(model_ids) = model_ids.clone() {
                 // Apply the model id for revisions
                 instruction.model_parameters.model_ids = Some(model_ids);

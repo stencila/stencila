@@ -800,6 +800,12 @@ impl<const N: usize> From<[PatchSlot; N]> for PatchPath {
     }
 }
 
+impl<const N: usize> From<[NodeProperty; N]> for PatchPath {
+    fn from(value: [NodeProperty; N]) -> Self {
+        Self(value.into_iter().map(PatchSlot::from).collect())
+    }
+}
+
 impl TryFrom<serde_json::Value> for PatchPath {
     type Error = Report;
 

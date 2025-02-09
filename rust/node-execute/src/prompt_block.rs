@@ -219,8 +219,6 @@ async fn prompt_executor(executor: &Executor, home: PathBuf) -> Result<Executor>
         home.clone(),
         Arc::new(RwLock::new(kernels)),
         executor.patch_sender.clone(),
-        None,
-        None,
     );
 
     // Push the home directory onto the stack
