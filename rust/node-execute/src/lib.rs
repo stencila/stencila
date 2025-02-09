@@ -15,10 +15,10 @@ use common::{
 use kernels::{KernelLintingOptions, Kernels};
 use prompts::prompt::{DocumentContext, InstructionContext};
 use schema::{
-    AuthorRole, AuthorRoleName, Block, CompilationDigest, CompilationMessage, ExecutionMode,
-    ExecutionStatus, Inline, Link, List, ListItem, ListOrder, Node, NodeId, NodeProperty, NodeType,
-    Paragraph, Patch, PatchNode, PatchOp, PatchPath, PatchValue, Timestamp, VisitorAsync,
-    WalkControl, WalkNode,
+    AuthorRole, AuthorRoleName, Block, CompilationDigest, CompilationMessage, Config,
+    ExecutionMode, ExecutionStatus, Inline, Link, List, ListItem, ListOrder, Node, NodeId,
+    NodeProperty, NodeType, Paragraph, Patch, PatchNode, PatchOp, PatchPath, PatchValue, Timestamp,
+    VisitorAsync, WalkControl, WalkNode,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -58,9 +58,11 @@ pub async fn compile(
     root: Arc<RwLock<Node>>,
     kernels: Arc<RwLock<Kernels>>,
     patch_sender: Option<UnboundedSender<Patch>>,
+    config: Config,
 ) -> Result<()> {
     let mut root = root.read().await.clone();
-    let mut executor = Executor::new(home, kernels, patch_sender, None, None);
+    let mut executor = Executor::new(home, kernels, patch_sender);
+    executor.config = Some(config);
     executor.compile(&mut root).await
 }
 
@@ -72,9 +74,11 @@ pub async fn lint(
     patch_sender: Option<UnboundedSender<Patch>>,
     format: bool,
     fix: bool,
+    config: Config,
 ) -> Result<()> {
     let mut root = root.read().await.clone();
-    let mut executor = Executor::new(home, kernels, patch_sender, None, None);
+    let mut executor = Executor::new(home, kernels, patch_sender);
+    executor.config = Some(config);
     executor.compile(&mut root).await?;
     executor.lint(&mut root, format, fix).await
 }
@@ -86,10 +90,12 @@ pub async fn execute(
     kernels: Arc<RwLock<Kernels>>,
     patch_sender: Option<UnboundedSender<Patch>>,
     node_ids: Option<NodeIds>,
-    options: Option<ExecuteOptions>,
+    execute_options: Option<ExecuteOptions>,
 ) -> Result<()> {
     let mut root = root.read().await.clone();
-    let mut executor = Executor::new(home, kernels, patch_sender, node_ids, options);
+    let mut executor = Executor::new(home, kernels, patch_sender);
+    executor.node_ids = node_ids;
+    executor.execute_options = execute_options;
     executor.prepare(&mut root).await?;
     executor.execute(&mut root).await
 }
@@ -103,7 +109,8 @@ pub async fn interrupt(
     node_ids: Option<NodeIds>,
 ) -> Result<()> {
     let mut root = root.read().await.clone();
-    let mut executor = Executor::new(home, kernels, patch_sender, node_ids, None);
+    let mut executor = Executor::new(home, kernels, patch_sender);
+    executor.node_ids = node_ids;
     executor.interrupt(&mut root).await
 }
 
@@ -212,8 +219,11 @@ pub struct Executor {
     /// of child nodes.
     is_last: bool,
 
-    /// Options for execution
-    execute_options: ExecuteOptions,
+    /// Configuration options
+    config: Option<Config>,
+
+    /// Execution options
+    execute_options: Option<ExecuteOptions>,
 }
 
 /// Records information about a heading in order to created
@@ -370,14 +380,12 @@ impl Executor {
         home: PathBuf,
         kernels: Arc<RwLock<Kernels>>,
         patch_sender: Option<UnboundedSender<Patch>>,
-        node_ids: Option<NodeIds>,
-        options: Option<ExecuteOptions>,
     ) -> Self {
         Self {
             directory_stack: vec![home],
             kernels,
             patch_sender,
-            node_ids,
+            node_ids: None,
             phase: Phase::Prepare,
             execution_status: ExecutionStatus::Pending,
             document_context: DocumentContext::default(),
@@ -391,7 +399,8 @@ impl Executor {
             temporaries: Vec::new(),
             linting_context: Vec::new(),
             is_last: false,
-            execute_options: options.unwrap_or_default(),
+            config: None,
+            execute_options: None,
         }
     }
 
@@ -690,9 +699,9 @@ impl Executor {
                     }
 
                     // This should not happen because we only look for the nodes using this
-                    // language. But if it does, then generate a warning.
+                    // language. But if it does, then generate a debug message.
                     if !begun {
-                        tracing::warn!(
+                        tracing::debug!(
                             "Could not find formatted and/or fixed code for node `{node_id}`"
                         );
                         continue;
@@ -933,7 +942,14 @@ impl Executor {
         compilation_digest: &Option<CompilationDigest>,
         execution_digest: &Option<CompilationDigest>,
     ) -> Option<ExecutionStatus> {
-        if self.execute_options.force_all {
+        let ExecuteOptions {
+            force_all,
+            skip_instructions,
+            skip_code,
+            ..
+        } = self.execute_options.clone().unwrap_or_default();
+
+        if force_all {
             return Some(ExecutionStatus::Pending);
         }
 
@@ -962,10 +978,10 @@ impl Executor {
             node_type,
             NodeType::InstructionBlock | NodeType::InstructionInline
         ) {
-            if self.execute_options.skip_instructions {
+            if skip_instructions {
                 return Some(ExecutionStatus::Skipped);
             }
-        } else if self.execute_options.skip_code {
+        } else if skip_code {
             return Some(ExecutionStatus::Skipped);
         }
 

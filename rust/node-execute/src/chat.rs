@@ -1,6 +1,7 @@
 use common::{
     futures::{stream::FuturesUnordered, StreamExt},
     itertools::Itertools,
+    serde_json::json,
     tokio,
 };
 use models::ModelTask;
@@ -10,7 +11,7 @@ use schema::{
     shortcuts::{ci, h3, p, t},
     Author, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ChatMessageGroup,
     ChatMessageOptions, ExecutionBounds, InstructionMessage, InstructionType, MessagePart,
-    MessageRole, ModelParameters, Patch, PatchPath, PatchSlot, SoftwareApplication,
+    MessageRole, ModelParameters, Patch, PatchPath, SoftwareApplication,
 };
 
 use crate::{
@@ -21,6 +22,7 @@ use crate::{
         model_task_to_blocks_and_authors,
     },
     prelude::*,
+    ExecuteOptions,
 };
 
 impl Executable for Chat {
@@ -28,6 +30,8 @@ impl Executable for Chat {
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
         tracing::trace!("Compiling Chat {node_id}");
+
+        let mut ops = Vec::new();
 
         // If the prompt does not yet have a target then default to a general discussion prompt
         // if not embedded in a document, otherwise a document focussed prompt. This is a fallback and
@@ -46,15 +50,46 @@ impl Executable for Chat {
             .to_string();
 
             self.prompt.target = Some(target.clone());
+            ops.push((
+                PatchPath::from([NodeProperty::Prompt, NodeProperty::Target]),
+                PatchOp::Set(PatchValue::String(target)),
+            ));
+        }
+
+        // Apply configuration settings to model parameters
+        if let Some(config) = executor
+            .config
+            .as_ref()
+            .and_then(|config| config.models.as_ref())
+        {
+            if self.model_parameters.execute_content.is_none() {
+                self.model_parameters.execute_content = config.execute_content;
+                ops.push((
+                    PatchPath::from([NodeProperty::ModelParameters, NodeProperty::ExecuteContent]),
+                    PatchOp::Set(PatchValue::Json(json!(config.execute_content))),
+                ));
+            }
+            if self.model_parameters.execution_bounds.is_none() {
+                self.model_parameters.execution_bounds = config.execution_bounds;
+                ops.push((
+                    PatchPath::from([NodeProperty::ModelParameters, NodeProperty::ExecutionBounds]),
+                    PatchOp::Set(PatchValue::Json(json!(config.execution_bounds))),
+                ));
+            }
+            if self.model_parameters.maximum_retries.is_none() {
+                let num = config.maximum_retries.map(|num| num as u64);
+                self.model_parameters.maximum_retries = num;
+                ops.push((
+                    PatchPath::from([NodeProperty::ModelParameters, NodeProperty::MaximumRetries]),
+                    PatchOp::Set(PatchValue::Json(json!(num))),
+                ));
+            }
+        }
+
+        if !ops.is_empty() {
             executor.send_patch(Patch {
                 node_id: Some(node_id),
-                ops: vec![(
-                    PatchPath::from([
-                        PatchSlot::from(NodeProperty::Prompt),
-                        PatchSlot::from(NodeProperty::Target),
-                    ]),
-                    PatchOp::Set(PatchValue::String(target)),
-                )],
+                ops,
                 ..Default::default()
             });
         }
@@ -72,11 +107,13 @@ impl Executable for Chat {
         let node_id = self.node_id();
         tracing::trace!("Preparing Chat {node_id}");
 
+        let ExecuteOptions { force_all, .. } = executor.execute_options.clone().unwrap_or_default();
+
         // Check if this chat is to be executed:
         // - force_all is on
         // - no node ids and this is not an embedded chat (`is_temporary` is None)
         // - node id is this chat
-        let is_pending = executor.execute_options.force_all
+        let is_pending = force_all
             || (executor.node_ids.is_none() && self.is_temporary.is_none())
             || executor.node_ids.iter().flatten().any(|id| id == &node_id);
 

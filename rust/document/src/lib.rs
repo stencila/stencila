@@ -26,8 +26,8 @@ use node_diagnostics::diagnostics;
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
-    authorship, Article, AuthorRole, Chat, File, Node, NodeId, NodeProperty, NodeType, Null, Patch,
-    Prompt,
+    authorship, Article, AuthorRole, Chat, Config, File, Node, NodeId, NodeProperty, NodeType,
+    Null, Patch, Prompt,
 };
 
 #[allow(clippy::print_stderr)]
@@ -83,10 +83,14 @@ pub struct LogEntry {
 #[allow(clippy::large_enum_variant)]
 pub enum Command {
     /// Compile the document
-    CompileDocument,
+    CompileDocument { config: Config },
 
     /// Lint the document
-    LintDocument { format: bool, fix: bool },
+    LintDocument {
+        format: bool,
+        fix: bool,
+        config: Config,
+    },
 
     /// Execute the entire document
     ExecuteDocument(ExecuteOptions),
@@ -328,7 +332,7 @@ impl Document {
             _ => Node::Null(Null),
         };
 
-        // Create the root node from the sidecar file or an empty article
+        // Create the root node from the store or an empty article
         let root = match &path {
             Some(path) => Document::restore(path).ok().unwrap_or_else(&root_default),
             None => root_default(),
@@ -781,7 +785,9 @@ impl Document {
     pub async fn compile(&self, wait: CommandWait) -> Result<()> {
         tracing::trace!("Compiling document");
 
-        self.command(Command::CompileDocument, wait).await
+        let config = self.config().await?;
+        self.command(Command::CompileDocument { config }, wait)
+            .await
     }
 
     /// Lint the document
@@ -789,8 +795,16 @@ impl Document {
     pub async fn lint(&self, format: bool, fix: bool, wait: CommandWait) -> Result<()> {
         tracing::trace!("Linting document");
 
-        self.command(Command::LintDocument { format, fix }, wait)
-            .await
+        let config = self.config().await?;
+        self.command(
+            Command::LintDocument {
+                format,
+                fix,
+                config,
+            },
+            wait,
+        )
+        .await
     }
 
     /// Execute the document
