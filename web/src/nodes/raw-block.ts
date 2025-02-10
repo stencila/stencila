@@ -23,6 +23,13 @@ export class RawBlock extends Entity {
   @property({ attribute: 'content-authorship' })
   contentAuthorship?: string
 
+  private resetContentCss(e: Event) {
+    const slotted = (e.target as HTMLSlotElement).assignedElements()[0]
+    if (slotted) {
+      slotted.classList.add('not-prose')
+    }
+  }
+
   override render() {
     if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return html`<slot name="content"></slot>`
@@ -75,7 +82,7 @@ export class RawBlock extends Entity {
         </div>
 
         <div slot="content">
-          <slot name="content"></slot>
+          <slot name="content" @slotchange=${this.resetContentCss}></slot>
         </div>
       </stencila-ui-block-on-demand>
     `

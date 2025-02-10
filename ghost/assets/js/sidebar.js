@@ -5,15 +5,15 @@ export function sidebar() {
   const sidebarButton = document.getElementById('sidebar-toggle')
 
   const sidebarElement = document.getElementById('sidebar')
+  if(sidebarButton && sidebarElement) {
+    sidebarButton.addEventListener('click', () => {
+      sidebarElement.classList.toggle('open')
+    })
 
-  sidebarButton.addEventListener('click', (e) => {
-    sidebarElement.classList.toggle('open')
-  })
-
-  document.getElementById('sidebar-close').addEventListener('click', (e) => {
-    console.log('hi')
-    sidebarElement.classList.toggle('open')
-  })
+    document.getElementById('sidebar-close').addEventListener('click', () => {
+      sidebarElement.classList.toggle('open')
+    })
+  }
 }
 
 /**

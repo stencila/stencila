@@ -9,6 +9,7 @@ import infiniteScroll from "./infiniteScroll";
 import { sidebar, menuCollapse } from './sidebar';
 
 import pagination from './pagination';
+import processRuntimeTwind from './twind';
 
 
 // Call the menu and infinite scroll functions
@@ -17,3 +18,5 @@ infiniteScroll();
 sidebar();
 pagination();
 menuCollapse();
+processRuntimeTwind();
+
