@@ -33,9 +33,6 @@ export default {
           'Noto Color Emoji',
         ]
       },
-      height: {
-        header: '5rem'
-      },
       colors: {
         transparent: 'transparent',
         white: '#fff',
