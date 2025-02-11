@@ -20,12 +20,14 @@ export default function mobileMenu() {
 
     // Close menu when clicking outside
     document.addEventListener("click", function (event) {
-        if (!menuTrigger.contains(event.target) && !menuContainer.contains(event.target)) {
-            isOpen = false;
-            menuContainer.classList.add("opacity-0", "scale-y-0");
-            menuContainer.classList.remove("opacity-100", "scale-y-100");
-            burgerIcon.classList.remove("hidden");
-            chevronIcon.classList.add("hidden");
+        if (menuContainer.classList.contains('open')) {
+            if (!menuTrigger.contains(event.target) && !menuContainer.contains(event.target)) {
+                isOpen = false;
+                menuContainer.classList.add("opacity-0", "scale-y-0");
+                menuContainer.classList.remove("opacity-100", "scale-y-100");
+                burgerIcon.classList.remove("hidden");
+                chevronIcon.classList.add("hidden");
+            }
         }
     });
 }

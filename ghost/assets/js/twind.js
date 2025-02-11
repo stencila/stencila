@@ -6,35 +6,32 @@ import { tw } from 'twind';
  * This is to be used in servless mode only, for static web publications such as ghost
  */
 export default function processTailwindAtRuntime() {
-    // Define custom elements to target
-    const rawBlocks = document.querySelectorAll('stencila-raw-block');
+  const rawBlocks = document.querySelectorAll('stencila-raw-block');
+  if (rawBlocks.length) {
+    rawBlocks.forEach(element => {
+      const slot = element.shadowRoot?.querySelector('slot[name="content"]');
+      if (!slot) {
+        return
+      };
+      requestAnimationFrame(() => {
+        const assignedNode = slot.assignedNodes()[0]
 
-    if (rawBlocks.length) {
-
-      rawBlocks.forEach(element => {
-        const slot = element.shadowRoot?.querySelector('slot[name="content"]');
-        if (!slot) {
-          return
-        };
-        requestAnimationFrame(() => {
-          const assignedNode = slot.assignedNodes()[0]
-
-          assignedNode.querySelectorAll('[class]').forEach(el => {
-              el.className = tw(el.className); // Process Tailwind classes correctly
-          });
+        assignedNode.querySelectorAll('[class]').forEach(el => {
+            el.className = tw(el.className); // Process Tailwind classes correctly
         });
       });
-    };
+    });
+  };
 
-    const styleBlocks = document.querySelectorAll('stencila-styled-block');
-    if (styleBlocks.length) {
-      styleBlocks.forEach((block) => {
-        if (block.hasAttribute('code')) {
-          const content = block.querySelector('[slot="content"]');
-          if (content) {
-            content.className = tw(block.getAttribute('code'));
-          };
+  const styleBlocks = document.querySelectorAll('stencila-styled-block');
+  if (styleBlocks.length) {
+    styleBlocks.forEach((block) => {
+      if (block.hasAttribute('code')) {
+        const content = block.querySelector('[slot="content"]');
+        if (content) {
+          content.className = tw(block.getAttribute('code'));
         };
-      });
-    };
+      };
+    });
+  };
 };

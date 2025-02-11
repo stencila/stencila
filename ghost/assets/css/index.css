@@ -12,7 +12,6 @@ production stylesheet in assets/built/screen.css using: npm run dev
 @import "vars.css";
 @import "components/global.css";
 @import "components/forms.css";
-@import "components/buttons.css";
 @import "components/sidebar.css";
 @import "components/header.css";
 
@@ -29,13 +28,57 @@ production stylesheet in assets/built/screen.css using: npm run dev
 /* Main - Your styles here! Edit below
 /* ---------------------------------------------------------- */
 
-html,
+html {
+    background: #ffffff;
+    font-size: 16px;
+    min-height: 100vh;
+}
+
 .gh-viewport {
+    position: relative;
     display: flex;
     flex-direction: column;
     min-height: 100vh;
-    background: #ffffff;
+    background: rgba(256,256,256,0.1);
     font-size: 16px;
+    z-index: 1;
+}
+
+
+.gh-viewport::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 300px;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle 50px at 40% 18%, color-mix(in srgb, var(--ghost-accent-color) 20%, transparent 10%) 100%, transparent 0%),
+        radial-gradient(circle 200px at 0% 10%, color-mix(in srgb, var(--ghost-accent-color) 10%, transparent 10%) 100%, transparent 0%),
+        radial-gradient(circle 60px at -10% 40%, color-mix(in srgb, var(--ghost-accent-color) 20%, transparent 10%) 100%, transparent 0%),
+        radial-gradient(circle 180px at 0% 55%, color-mix(in srgb, var(--ghost-accent-color) 10%, transparent 10%) 100%, transparent 0%);
+
+    background-size: 300px 3000px;
+    background-position: 0px -100px; /* Offset for a natural look */
+    background-repeat: repeat-y;
+    z-index: -1;
+}
+
+@media (min-width: 1024px) {
+    .gh-viewport::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 100%;
+        background-image: 
+            radial-gradient(circle 50px at 18% 40%, color-mix(in srgb, var(--ghost-accent-color) 20%, transparent 10%) 100% 100%, transparent 0%),
+            radial-gradient(circle 200px at 110% 40%, color-mix(in srgb, var(--ghost-accent-color) 10%, transparent 10%) 100% 100%, transparent 0%);
+        background-size: 300px 3000px;
+        background-position: 0px 20px; /* Offset for a natural look */
+        background-repeat: repeat-y;
+        z-index: -1;
+    }
 }
 
 .gh-main {
@@ -182,14 +225,14 @@ html,
     text-align: center;
 }
 
-.gh-post-meta {
+/* .gh-post-meta {
     display: block;
     margin: 0 0 1rem;
     font-size: 1.4rem;
     letter-spacing: 0.5px;
     text-transform: uppercase;
     opacity: 0.8;
-}
+} */
 
 .gh-excerpt {
     margin: 1rem 0 0 0;

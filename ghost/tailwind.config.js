@@ -26,7 +26,11 @@ export default {
           'Cambria',
           '"Times New Roman"',
           'Times',
-          'serif'
+          'serif',
+          'Apple Color Emoji',
+          'Segoe UI Emoji',
+          'Segoe UI Symbol',
+          'Noto Color Emoji',
         ]
       },
       height: {

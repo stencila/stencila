@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="{{asset "built/index.css"}}" />
     <link rel="stylesheet" href="{{asset "built/tailwind.css"}}" />
+    <link rel="stylesheet" href="{{asset "built/index.css"}}" />
     <link rel="stylesheet" href="{{asset "built/stencila-web/themes/nodes.css"}}">
     <link rel="stylesheet" href="{{asset "built/stencila-web/views/ghost.css"}}">
 
@@ -24,65 +24,7 @@
 <body class="{{body_class}}">
 <div class="gh-viewport">
 
-    <header id="main-header" class="sticky top-0 w-full flex items-center h-20 lg:h-32 z-20 border-b border-black/20 bg-white z-40">
-        <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-blue-100/100 via-blue-100/50 to-blue-100/10 -z-10"></div>
-        <nav class="container mx-auto px-2 flex flex-row justify-between items-center">
-            <div class="text-2xl lg:text-3xl max-w-[150px] lg:max-w-[250px] mr-4">
-                <a href="{{@site.url}}">    
-                    {{#if @site.logo}}
-                        <img src="{{@site.logo}}" alt="{{@site.title}}" width="100%" />
-                    {{else}}
-                        {{@site.title}}
-                    {{/if}}
-                </a>
-            </div>
-            <div id="site-nav-menu" class="flex items-center hidden lg:block">
-                {{navigation}}
-            </div>
-            
-            <div class="gh-head-actions hidden lg:block">
-                <div class="gh-head-actions-list">
-                    {{search}}
-                    {{#if @site.members_enabled}}
-                        {{^if @member}}
-                        <a class="gh-button gh-button-small" href="{{@site.signup_url}}">Subscribe</a>
-                        {{else}}
-                        <a class="gh-button gh-button-small" href="#/portal/account">Account</a>
-                        {{/if}}
-                    {{/if}}
-                </div>
-            </div>
-            {{!-- mobile collapsible menu --}}
-            <div class="relative block lg:hidden">
-                <a id="mobile-menu-trigger" class="relative w-10 h-10 flex items-center justify-center hover:text-[var(--ghost-accent-color)]" role="button" aria-label="menu">
-                    <div id="burger-icon" class="transition-all duration-300 ease-in-out">
-                        <span class="block w-6 h-0.5 bg-[currentColor] mb-1"></span>
-                        <span class="block w-6 h-0.5 bg-[currentColor] mb-1"></span>
-                        <span class="block w-6 h-0.5 bg-[currentColor]"></span>
-                    </div>
-                    <div id="chevron-icon" class="w-6 h-6 hidden transition-transform transform rotate-0 duration-300 ease-in-out">
-                        {{> icons/chevron-down}}
-                    </div>
-                </a>
-                <div id="mobile-menu-container" class="absolute right-0 top-full bg-gray-50 mt-2 w-48 shadow-lg rounded-lg origin-top transition-all duration-300 ease-in-out z-20">
-                    <div class="p-4">
-                        {{navigation}}
-                        <hr/>
-                        {{#if @site.members_enabled}}
-                            {{^if @member}}
-                            <a class="block text-xl py-2 hover:text-[var(--ghost-accent-color)]" href="{{@site.signup_url}}">Subscribe</a>
-                            {{else}}
-                            <a class="block text-xl py-2 hover:text-[var(--ghost-accent-color)]" href="#/portal/account">Account</a>
-                            {{/if}}
-                        {{/if}}
-                        <div>
-                            {{search}}
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </nav>
-    </header>
+    {{> header }}
 
     <main class="gh-main">
         {{{body}}}

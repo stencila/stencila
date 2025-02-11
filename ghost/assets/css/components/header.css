@@ -48,3 +48,16 @@
   color: var(--ghost-accent-color)
 }
 
+
+/* header background gradiant */
+
+
+#header-bg {
+  background: linear-gradient(
+                to right,
+                color-mix(in srgb, var(--ghost-accent-color) 1%, transparent 10%) 0%, 
+                color-mix(in srgb, var(--ghost-accent-color) 10%, transparent 10%) 50%,
+                color-mix(in srgb, var(--ghost-accent-color) 1%, transparent 10%) 100%
+              );
+}
+
