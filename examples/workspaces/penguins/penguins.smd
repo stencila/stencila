@@ -1,0 +1,21 @@
+---
+title: An analysis of the morphology of Adélie, Gentoo, and Chinstrap penguins from the Palmer Archipelago, Antarctica
+keywords: [penguin, morphology]
+genre: scientific article
+---
+
+# Introduction
+
+Antarctic penguins serve as critical bioindicators of ecosystem health and climate change impacts in the Southern Ocean, making their morphological characteristics of particular interest to researchers. The three brush-tailed penguin species of the Palmer Archipelago - Adélie (Pygoscelis adeliae), Gentoo (P. papua), and Chinstrap (P. antarcticus) - exhibit distinct physical traits that have evolved through adaptation to their specific ecological niches, providing valuable insights into their evolutionary history and ecological roles.
+
+# Methods
+
+```python exec
+import pandas as pd
+
+penguins = pd.read_csv("penguins.csv")
+```
+
+# References
+
+Gorman KB, Williams TD, Fraser WR (2014) Ecological Sexual Dimorphism and Environmental Variability within a Community of Antarctic Penguins (Genus Pygoscelis). PLoS ONE 9(3): e90081. https://doi.org/10.1371/journal.pone.0090081
