@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.0.24 2025-02-10
+
+- Various fixes and improvements to extension.
+
+- Based on Stencila CLI v2.0.0-beta.26.
+
 ## 0.0.23 2025-02-05
 
 - Based on Stencila CLI v2.0.0-beta.25 which includes new document tracking functionality.
