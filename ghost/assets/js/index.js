@@ -19,4 +19,3 @@ sidebar();
 pagination();
 menuCollapse();
 processRuntimeTwind();
-

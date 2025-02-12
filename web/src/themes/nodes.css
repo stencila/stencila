@@ -284,10 +284,24 @@ stencila-image-object {
 
 /* lists */
 
+stencila-list {
+  ul,
+  ol {
+    padding-left: 2rem;
+  }
+
+  ul {
+    list-style: disc;
+  }
+
+  ol {
+    list-style-type: decimal;
+  }
+}
+
 stencila-list-item {
   stencila-paragraph {
     margin: 0;
-
     p {
       margin: 0;
     }

@@ -1,4 +1,9 @@
-import { tw } from 'twind';
+import { tw, setup } from 'twind';
+
+setup({
+  preflight: false,
+  mode: 'silent',
+});
 
 /**
  * Process the tw css utility classes at runtime for the raw blocks and styled blocks.
