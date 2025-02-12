@@ -1,10 +1,12 @@
 # Change Log
 
+## 0.0.25 2025-02-11
+
+- Based on Stencila CLI v2.0.0-beta.26 which includes improvements and fixes including allowing configuration of models in document header.
+
 ## 0.0.24 2025-02-10
 
 - Various fixes and improvements to extension.
-
-- Based on Stencila CLI v2.0.0-beta.26.
 
 ## 0.0.23 2025-02-05
 

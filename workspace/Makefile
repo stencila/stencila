@@ -1,6 +1,10 @@
-# Build the docker image
+# Build the image
 build:
 	docker build --platform linux/amd64 --tag stencila/workspace .
+
+# Build the image from scratch
+build-no-cache:
+	docker build --no-cache --platform linux/amd64 --tag stencila/workspace .
 
 # Run the image as a server
 run: build
