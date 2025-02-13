@@ -241,7 +241,7 @@ impl Cli {
                     println!("🎂 Upgrade available: {STENCILA_VERSION} → {version}");
                 }
                 None => {
-                    println!("👍 No upgrade available: current version is the latest");
+                    println!("👍 No upgrade needed: current version is the latest");
                 }
             }
         } else if upgrade(self.force).await? {
