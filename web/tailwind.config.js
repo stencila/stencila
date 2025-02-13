@@ -7,7 +7,6 @@
  */
 export default {
   content: ['./src/**/*.ts'],
-  safelist: ['not-prose'],
   plugins: [
     require('@tailwindcss/typography'),
     require('@tailwindcss/container-queries'),

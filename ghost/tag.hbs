@@ -22,14 +22,10 @@
 
         </header>
         {{/tag}}
-
         <div class="gh-postfeed">
-        {{#foreach posts}}
-
-            {{> "card"}} {{!-- partials/card.hbs --}}
-
-        {{/foreach}}
+            {{#foreach posts}}
+                {{> "card"}}
+            {{/foreach}}
         </div>
-
     </div>
 </div>

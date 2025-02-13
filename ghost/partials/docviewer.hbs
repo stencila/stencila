@@ -33,7 +33,7 @@
                                     </div>
                                 </button>
                                 <ul class="collapsible-section">
-                                    {{#get "posts" filter="tags:{{slug}}" limit="all" order="title asc"}}
+                                    {{#get "posts" filter="tags:{{slug}}+tags:hash-doc" limit="all" order="title asc"}}
                                         {{#foreach posts as |post|}}
                                             <li class="mb-2 ml-4 flex items-start hover:text-[var(--ghost-accent-color)]">
                                                 <div class="w-4 h-4 mr-4 mt-1 flex-none">{{>icons/paragraph}}</div>
@@ -46,17 +46,6 @@
                                 </ul>
                             </li>
                         {{/foreach}}
-                        {{!-- place the posts with no tags at all beneath --}}
-                        {{#get "posts" filter="tags:-null" limit="all" order="title asc"}}
-                            {{#foreach posts as |post|}}
-                                <li class="mb-2 flex items-start hover:text-[var(--ghost-accent-color)]">
-                                    <div class="w-4 h-4 mr-4 mt-1 flex-none">{{>icons/paragraph}}</div>
-                                    <a href="{{post.url}}" class="{{#match ../../../currentSlug "=" post.slug}}active text-[var(--ghost-accent-color)] font-semibold underline{{else}} hover:text-[var(--ghost-accent-color)]{{/match}}">
-                                        {{post.title}}
-                                    </a>
-                                </li>
-                            {{/foreach}}
-                        {{/get}}
                     </ul>
                 {{/page}}
             </aside>

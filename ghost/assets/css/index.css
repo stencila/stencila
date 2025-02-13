@@ -63,7 +63,7 @@ html {
     z-index: -1;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 768px) {
     .gh-viewport::after {
         content: "";
         position: absolute;
@@ -160,7 +160,7 @@ html {
 .gh-card-meta {
     display: block;
     margin: 0 0 1rem;
-    font-size: 1.4rem;
+    font-size: 1.2rem;
     line-height: 1.2em;
     letter-spacing: 0.5px;
     text-transform: uppercase;
@@ -174,10 +174,6 @@ html {
     font-size: 1.6rem;
 }
 
-.gh-card-content p {
-    margin: 1.2rem 0;
-    padding: 0 3vmin;
-}
 
 .gh-card-content > strong {
     display: inline-block;

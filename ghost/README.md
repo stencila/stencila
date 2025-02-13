@@ -1,6 +1,46 @@
 # Stencila theme
 
+## Routing
 
+This them will utililse the custom [routes.yml](https://ghost.org/docs/themes/routing/).
+
+In your ghost admin navigate to **Settings** > **Labs**, then in the 'Routes' section click "Upload routes file" to upload the `theme-routes.yml` file in this directory
+
+## Setting up pages
+
+### home page
+
+To create a home page, In the admin panel, create a new page (or use an existing one).
+
+In the page editing view, open the settings sidebar and add 'home' into the slug input. Save and this page will now be you home page.
+
+Simply add content to the page in the page editing screen and this will show up on the 
+
+### doc view page
+
+To create a doc viewer page, create a new page, In the page editing view, open the sidebar and add 'docview' to the slug input. If you want your docs to be divided into collapsible sections in the menu, add tags to this page, for example if we add the tag 'API' to the page, the section will now show up in the sidebar.
+
+To add a the content posts (or 'docs'), to this page, create a post and tag it with the internal tag '#doc', then add the tag of the section you would like this to appear under
+
+### other post content pages
+
+To create more pages which contain categorised posts, ordered by publication, for example a blog, you can utilise the ghost tag taxonomy routing.
+
+Say you want to create a page called 'Articles', that shows a set of news posts. First create a post or posts, and tag them with the 'article' tag.
+
+Then in the admin panel and navigate to **settings** -> **navigation** and click 'customise'. To the primary navigation add a new entry, in this case it will be labelled 'Articles', and in the route, add "http://[your site domian]/tag/article", save and then refresh your site to see this route in the primary navigation. 
+
+When you navigate to this page, you should see your 'article' posts displayed in a grid format in publication order.
+
+*note, the slug in the page route, must match the tag you want to use.
+
+Add a new navigation route to 
+
+
+
+### create multiple docview pages
+
+This will require altering the base `theme-routes.yml` file and uploading into the admin settings again.
 
 ## Configuring social links
 
@@ -12,21 +52,6 @@ This theme adds support for
 'whatsapp', 'instagram', 'github', 'discord', 'youtube'.
 
 To add these links, in the admin view go to **Settings** >> **Design & branding**, click "customise" to open the design view, then in the sidebar click "theme", here you will see the inputs for various social media links. Fill these out and they will appear in the page footer.
-
-
-## Routing
-
-This them will utililse the custom [routes.yml](https://ghost.org/docs/themes/routing/).
-
-In your ghost admin navigate to **Settings** > **Labs**, then in the 'Routes' section click "Upload routes file" to upload the `theme-routes.yml` file in this directory
-
-## Setting up pages
-
-To configure the home and document viewer pages create two new pages:
-
-- To create a home page, create a new page (or use an existing one). In the page editing view, open the sidebar and add 'home' to the slug input. Save and this page will now be you home page.
-
-- To create a doc viewer page, create a new page, In the page editing view, open the sidebar and add 'docview' to the slug input. To create 'sections' ofr docs in the sidebar.
 
 
 
