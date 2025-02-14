@@ -1,4 +1,4 @@
-# Stencila theme
+# Stencila ghost theme
 
 ## Routing
 
@@ -22,17 +22,17 @@ To create a doc viewer page, create a new page, In the page editing view, open t
 
 To add a the content posts (or 'docs'), to this page, create a post and tag it with the internal tag '#doc', then add the tag of the section you would like this to appear under
 
-### other post content pages
+### Creating articles or blog posts
 
-To create more pages which contain categorised posts, ordered by publication, for example a blog, you can utilise the ghost tag taxonomy routing.
+To create posts that are not and a display page, ordered by publication, for example a blog, you can utilise the ghost tag taxonomy routing.
 
 Say you want to create a page called 'Articles', that shows a set of news posts. First create a post or posts, and tag them with the 'article' tag.
 
-Then in the admin panel and navigate to **settings** -> **navigation** and click 'customise'. To the primary navigation add a new entry, in this case it will be labelled 'Articles', and in the route, add "http://[your site domian]/tag/article", save and then refresh your site to see this route in the primary navigation. 
+Then in the admin panel and navigate to **Settings** -> **Navigation** and click **'customise'**. To the primary navigation add a new entry, in this case it will be labelled 'Articles', and in the route, add "http://[your site domian]/tag/article", save and then refresh your site to see this route in the primary navigation. 
 
-When you navigate to this page, you should see your 'article' posts displayed in a grid format in publication order.
+When you navigate to this page, you should dso you see your 'article' posts displayed in a grid format in publication order.
 
-*note, the slug in the page route, must match the tag you want to use.
+*note, the slug in the page route, must match th/e tag you want to use.
 
 Add a new navigation route to 
 
@@ -42,7 +42,7 @@ Add a new navigation route to
 
 This will require altering the base `theme-routes.yml` file and uploading into the admin settings again.
 
-## Configuring social links
+### Configuring social links
 
 All social links currently shown in the page footer.
 
@@ -51,7 +51,7 @@ Ghost provides support for facebook and x(formaly twitter) which can be configur
 This theme adds support for 
 'whatsapp', 'instagram', 'github', 'discord', 'youtube'.
 
-To add these links, in the admin view go to **Settings** >> **Design & branding**, click "customise" to open the design view, then in the sidebar click "theme", here you will see the inputs for various social media links. Fill these out and they will appear in the page footer.
+To add these links, in the admin view go to **Settings** -> **Design & branding**, click "customise" to open the design view, then in the sidebar click "theme", here you will see the inputs for various social media links. Fill these out and they will appear in the page footer.
 
 
 

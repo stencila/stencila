@@ -8,7 +8,7 @@
             {{/foreach }}
         {{/get}}
     {{else}}
-        <div class="container mx-auto px-2">
+        <div class="max-w-[1200px] mx-auto px-2">
             <article class="gh-article {{post_class}} font-serif leading-snug text-base lg:text-lg">
                 <header class="gh-header gh-canvas">
                     <span class="absolute top-4 right-0">
@@ -86,15 +86,15 @@
             </article>        
             <aside class="font-sans w-full py-8">
                 <div class="flex justify-between gap-8 px-8 text-lg font-semibold w-full">
-                    <div class="hover:text-gray-400 p-2">
-                        {{#next_post}}<a href="{{url}}" class="flex items-center gap-4">
+                    <div>
+                        {{#next_post in="primary_tag"}}<a href="{{url}}" class="flex items-center gap-4 p-4 border border-black rounded-md hover:text-gray-400 hover:border-gray-400 shadow-md hover:shadow-xl">
                             <span class="w-4 h-6 flex-none">{{>"icons/arrow-left"}}</span>
-                            <h4 class="text-xl">{{title}}</h4>
+                            <h4 class="text-base lg:text-xl">{{title}}</h4>
                         </a>{{/next_post}}
                     </div>
-                    <div class="hover:text-gray-400 p-2">
-                        {{#prev_post}}<a href="{{url}}" class="flex items-center gap-4 ">
-                            <h4 class="text-right text-xl">{{title}}</h4>
+                    <div >
+                        {{#prev_post in="primary_tag"}}<a href="{{url}}" class="flex items-center gap-4 p-4 border border-black rounded-md hover:text-gray-400 hover:border-gray-400 shadow-md hover:shadow-xl">
+                            <h4 class="text-right text-base lg:text-xl">{{title}}</h4>
                             <span class="w-4 h-6 flex-none">{{>"icons/arrow-right"}}</span>
                         </a>{{/prev_post}}
                     </div>

@@ -2,7 +2,7 @@
 routes:
   /:
     permalink: /
-    template: page
+    template: home
     data: page.home
 
 collections:

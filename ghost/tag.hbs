@@ -12,7 +12,7 @@
                 {{#if description}}
                     {{description}}
                 {{else}}
-                    A collection of {{plural ../pagination.total empty='posts' singular='% post' plural='% posts'}}
+                    {{plural ../pagination.total empty='posts' singular='% post' plural='% posts'}}
                 {{/if}}
             </p>
 
@@ -22,7 +22,7 @@
 
         </header>
         {{/tag}}
-        <div class="gh-postfeed">
+        <div class="mx-auto my-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {{#foreach posts}}
                 {{> "card"}}
             {{/foreach}}
