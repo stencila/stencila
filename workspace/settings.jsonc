@@ -1,22 +1,33 @@
 {
+  "$schema": "vscode://schemas/settings/machine",
+  
   // See here for settings that are available and their defaults
   // https://code.visualstudio.com/docs/getstarted/settings#_default-settings
+  //
+  // Note that some settings (e.g. "security.workspace.trust.enabled") can not be set
+  // here as they are user settings, not machine settings.
+  //
+  // Furthermore, with `openvscode-server`, user settings are stored in the browser,
+  // (see https://github.com/gitpod-io/openvscode-server/issues/129#issuecomment-932417022)
+  // and there is no way to set them, other than forking the repo.
+  // 
+  // It is possible to have a small extension updates settings on activation
+  // (see https://github.com/gitpod-io/openvscode-server/issues/535#issuecomment-1977979295)
+  // but that does help for things like avoiding workspace trust modals because
+  // they activate *after* the modal is accepted.
 
   // Customize browser window title & theme
   "window.title": "${activeEditorShort}${separator}Stencila",
   "workbench.colorTheme": "Stencila Light",
 
   // Open the readme file, if there is one, falling back to the welcome page
-  "workbench.startupEditor": "readme",
+  "workbench.startupEditor": "none",
 
   // Avoid dialogs and notifications on startup,
-  "security.workspace.trust.startupPrompt": "never",
   "git.openRepositoryInParentFolders": "always",
 
-  "files.associations": {
-    "*.md": "smd"
-  },
-
+  // Editor customizations
+  "editor.minimap.enabled": false,
   "[smd]": {
     "editor.wordWrap": "on"
   }
