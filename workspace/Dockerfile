@@ -70,11 +70,13 @@ RUN exts=(\
 COPY settings.jsonc .openvscode-server/data/Machine/settings.json
 
 # Copy over Stencila workspace files
-RUN mkdir -p .stencila/workspace
-COPY --chown=openvscode-server:openvscode-server defaults/* .stencila/workspace/
+# The directory `/home/workspace/stencila/defaults`, rather than using `.stencila` to
+# have the directory used as a `.stencila` folder by repos.
+RUN mkdir -p /home/workspace/stencila/defaults
+COPY --chown=openvscode-server:openvscode-server defaults/* /home/workspace/stencila/defaults/
 
 # Install default packages for Python and R so that they are cached in the image
-RUN cd .stencila/workspace && \
+RUN cd /home/workspace/stencila/defaults && \
     uv sync && \
     Rscript -e "renv::install()"
 
