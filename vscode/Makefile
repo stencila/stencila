@@ -33,6 +33,7 @@ walkthroughs:
 
 # Compile (build in development mode)
 compile: install walkthroughs
+	rm -rf out
 	npm run compile
 	cargo build -p cli
 
@@ -40,6 +41,7 @@ compile: install walkthroughs
 # It copies the local debug version of the CLI binary, rather than
 # downloading it like `make build` (below) does.
 docker:
+	rm -rf out
 	npm run compile
 	cp ../target/debug/stencila cli/
 	npm run package
