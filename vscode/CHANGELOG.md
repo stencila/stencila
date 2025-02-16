@@ -1,5 +1,11 @@
 # Change Log
 
+## 0.0.26 2025-02-16
+
+- Improved bundling and packaging of the extension
+
+- Changed how workspace setup script is found and run
+
 ## 0.0.25 2025-02-11
 
 - Based on Stencila CLI v2.0.0-beta.26 which includes improvements and fixes including allowing configuration of models in document header.
