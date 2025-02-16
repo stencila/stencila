@@ -1,5 +1,5 @@
 
-<div class="max-w-[1200px] w-full mx-auto px-2">
+<div class="page-container max-w-[1200px] w-full mx-auto px-2">
   <div class="relative flex">
     <div class="relative lg:sticky lg:top-32 lg:py-8 flex-none h-[calc(100vh-8rem)]">
         <div class="hidden lg:block absolute h-full top-0 left-0 -translate-x-full h-full w-screen py-8">
@@ -15,7 +15,7 @@
         </button>
         <div id="sidebar" class="fixed bg-green-50 lg:bg-green-50/80 lg:relative top-20 pl-12 lg:pl-0 left-0 lg:top-0 h-full overflow-y-auto z-20 text-green-900 border-r border-y border-green-200 rounded-tr-md rounded-br-md">        
             <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 lg:hidden hover:text-gray-400">{{> icons/chevron-left }}</button>
-            <aside class="w-72 pr-4 py-12 h-full">
+            <aside class="w-64 pr-4 py-12 h-full">
                 {{#page}}
                 <nav>
                     <div class="mb-4">
@@ -53,14 +53,18 @@
     </div>
     <div class="flex-auto basis-0 min-w-0">
         {{#post}}
-        <article class="gh-article {{post_class}} font-serif leading-snug text-base lg:text-lg">
-
-            <header class="gh-header gh-canvas">
+        <article class="gh-article relative font-serif leading-snug text-base lg:text-lg {{post_class}}">
+            <nav id="doc-toc-outer" class="hidden md:block fixed z-10 top-56 right-0 text-xs font-sans font-semibold p-4 bg-gray-50/50 border border-gray-50 rounded max-w-[140px]">
+                <a href="#main-heading" class="">{{title}}</a>
+                <div id="doc-toc-inner"></div>
+            </nav>
+            <header id="doc-header" class="gh-header gh-canvas">
                 <span class="absolute top-4 right-0">
                     {{#foreach authors}}<a href="{{url}}" class="hover:text-gray-400">{{name}}</a> &bull; {{/foreach}}
                     <span class="uppercase">{{reading_time}}</span>
                 </span>
-                <h1 class="text-3xl lg:text-5xl">{{title}}</h1>
+
+                <h1 id="main-heading" class="text-3xl lg:text-5xl">{{title}}</h1>
 
                 {{#if custom_excerpt}}
                 <p class="gh-excerpt">{{custom_excerpt}}</p>
@@ -111,15 +115,15 @@
                 {{/if}}
             </header>
 
-            <div class="gh-content gh-canvas">
+            <div id="doc-content" class="gh-content gh-canvas">
                 {{content}}
             </div>
 
             <footer class="mt-8 gh-footer gh-canvas">
 
-                <div class="gh-post-authors">
+                {{!-- <div class="gh-post-authors">
                     Written by {{#foreach authors}}<a href="{{url}}">{{name}}</a>{{/foreach}}
-                </div>
+                </div> --}}
 
                 {{#if comments}}
                 <section class="gh-post-comments">

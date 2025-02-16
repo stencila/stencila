@@ -1,0 +1,32 @@
+
+/* 
+  style rules for the doc viewer table of contents
+*/
+
+nav#doc-toc-outer ul {
+  list-style: none;
+}
+
+nav#doc-toc-outer li {
+  margin: 0.5rem 0;
+}
+
+nav#doc-toc-outer a:hover {
+  color: var(--ghost-accent-color)
+}
+
+nav#doc-toc-outer ul ul {
+  margin-left: 0.5rem;
+}
+
+nav#doc-toc-outer a {
+  display: block;       /* Ensures it takes up the full width */
+  white-space: nowrap;  /* Prevents text from wrapping */
+  overflow: hidden;     /* Hides overflowing text */
+  text-overflow: ellipsis; /* Adds the '...' when text overflows */
+  max-width: 100%;
+}
+
+nav#doc-toc-outer a.active {
+  text-decoration: underline;
+}

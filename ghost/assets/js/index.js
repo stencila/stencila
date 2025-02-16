@@ -7,6 +7,7 @@ import "../css/index.css";
 import mobileMenu from "./mobileMenu";
 import infiniteScroll from "./infiniteScroll";
 import { sidebar, menuCollapse } from './sidebar';
+import generateTableOfContents from './docviewer/toc';
 
 import pagination from './pagination';
 import processRuntimeTwind from './twind';
@@ -19,3 +20,5 @@ sidebar();
 pagination();
 menuCollapse();
 processRuntimeTwind();
+generateTableOfContents();
+
