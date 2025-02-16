@@ -245,3 +245,9 @@ html {
         font-size: 1.6rem;
     }
 }
+
+/* search icon */
+
+.search-link:hover {
+    color: var(--ghost-accent-color)
+}

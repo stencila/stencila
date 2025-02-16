@@ -16,10 +16,10 @@
       
       <div class="hidden lg:block">
           <div class="flex items-center gap-4">
-              {{search}}
+              <div class="search-link">{{search}}</div>
               {{#if @site.members_enabled}}
                   <a 
-                    class="hover:text-[var(--ghost-accent-color)] block p-3 border border-current rounded-md"
+                    class="hover:text-[var(--ghost-accent-color)] block p-3 border-2 border-current rounded-full font-semibold"
                     href="{{^if @member}}{{@site.signup_url}}{{else}}#/portal/account{{/if}}"
                   >
                     {{^if @member}}Subscribe{{else}}Account{{/if}}
