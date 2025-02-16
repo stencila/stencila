@@ -66,9 +66,6 @@ RUN exts=(\
     usernamehw.errorlens \
     ) && for ext in "${exts[@]}"; do ${OVS} --install-extension "${ext}"; done
 
-# Add custom OpenVSCode Server settings
-COPY settings.jsonc .openvscode-server/data/Machine/settings.json
-
 # Copy over Stencila workspace files
 # The directory `/home/workspace/stencila/defaults`, rather than using `.stencila` to
 # have the directory used as a `.stencila` folder by repos.
@@ -79,6 +76,11 @@ COPY --chown=openvscode-server:openvscode-server defaults/* /home/workspace/sten
 RUN cd /home/workspace/stencila/defaults && \
     uv sync && \
     Rscript -e "renv::install()"
+
+# Add OpenVSCode Server settings
+# Best to do this after time consuming installs above because nothing else in
+# the build depends on it and doing so makes it easier to iterate
+COPY settings.jsonc .openvscode-server/data/Machine/settings.json
 
 # Copy over and specify the entrypoint script
 COPY entrypoint.sh .
