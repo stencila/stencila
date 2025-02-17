@@ -66,6 +66,10 @@ RUN exts=(\
     usernamehw.errorlens \
     ) && for ext in "${exts[@]}"; do ${OVS} --install-extension "${ext}"; done
 
+# Make the Stencila CLI installed with the extension more readily available to the user
+RUN STENCILA_DIR=$(find /home/workspace/.openvscode-server/extensions -maxdepth 1 -type d -name 'stencila.stencila-*' | head -n 1) && \
+    ln -s "$STENCILA_DIR/cli/stencila" /home/workspace/.local/bin/stencila
+
 # Copy over Stencila workspace files
 # The directory `/home/workspace/stencila/defaults`, rather than using `.stencila` to
 # have the directory used as a `.stencila` folder by repos.
