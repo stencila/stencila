@@ -60,6 +60,15 @@ This theme adds support for
 
 To add these links, in the admin view go to **Settings** -> **Design & branding**, click "customise" to open the design view, then in the sidebar click "theme", here you will see the inputs for various social media links. Fill these out and they will appear in the page footer.
 
+### configuring site navigation
+
+
+Ghost sites have configurable primary and secondary navigation fields.
+
+In the stencila theme, the primary navigation relates to the site header nav menu.
+
+The secondary navigation is shown on the right side of the site footer
+
 
 ## Local Development
 

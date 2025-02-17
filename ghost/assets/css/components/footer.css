@@ -1,0 +1,12 @@
+#main-footer ul.nav {
+  display: flex;
+  flex-direction: column;
+}
+
+#main-footer ul.nav li {
+  margin: 0.25rem 0;
+}
+
+#main-footer ul.nav li:hover {
+  color: var(--ghost-accent-color);
+}

@@ -14,13 +14,13 @@ production stylesheet in assets/built/screen.css using: npm run dev
 @import "components/forms.css";
 @import "components/sidebar.css";
 @import "components/header.css";
+@import "components/footer.css";
 @import "components/toc.css";
 
 /* Ghost components */
 @import "ghost/content.css";
 @import "ghost/members.css";
 @import "ghost/errors.css";
-@import "ghost/footer.css";
 @import "ghost/badge.css";
 @import "ghost/pagination.css";
 @import "ghost/comments.css";
@@ -74,7 +74,9 @@ html {
         height: 100%;
         background-image: 
             radial-gradient(circle 50px at 18% 40%, color-mix(in srgb, var(--ghost-accent-color) 20%, transparent 10%) 100% 100%, transparent 0%),
-            radial-gradient(circle 200px at 110% 40%, color-mix(in srgb, var(--ghost-accent-color) 10%, transparent 10%) 100% 100%, transparent 0%);
+            radial-gradient(circle 200px at 110% 40%, color-mix(in srgb, var(--ghost-accent-color) 10%, transparent 10%) 100% 100%, transparent 0%),
+            radial-gradient(circle 180px at 110% 80%, color-mix(in srgb, var(--ghost-accent-color) 10%, transparent 10%) 100% 100%, transparent 0%),
+            radial-gradient(circle 60px at 110% 90%, color-mix(in srgb, var(--ghost-accent-color) 20%, transparent 10%) 100% 100%, transparent 0%);
         background-size: 300px 3000px;
         background-position: 0px 20px; /* Offset for a natural look */
         background-repeat: repeat-y;

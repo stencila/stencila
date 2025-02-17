@@ -15,7 +15,7 @@
                         {{#foreach authors}}<a href="{{url}}" class="hover:text-gray-400">{{name}}</a> &bull; {{/foreach}}
                         <span class="uppercase">{{reading_time}}</span>
                     </span>
-                    <h1 class="text-3xl lg:text-5xl">{{title}}</h1>
+                    <h1 class="text-4xl lg:text-6xl">{{title}}</h1>
 
                     {{#if custom_excerpt}}
                     <p class="gh-excerpt">{{custom_excerpt}}</p>
@@ -87,13 +87,13 @@
             <aside class="font-sans w-full py-8">
                 <div class="flex justify-between gap-8 px-8 text-lg font-semibold w-full">
                     <div>
-                        {{#next_post in="primary_tag"}}<a href="{{url}}" class="flex items-center gap-4 p-4 border border-black rounded-md hover:text-gray-400 hover:border-gray-400 shadow-md hover:shadow-xl">
+                        {{#next_post in="primary_tag"}}<a href="{{url}}" class="flex items-center gap-4 p-4 border border-black rounded-md bg-gray-50/50 hover:text-gray-400 hover:border-gray-400 shadow-md hover:shadow-xl">
                             <span class="w-4 h-6 flex-none">{{>"icons/arrow-left"}}</span>
                             <h4 class="text-base lg:text-xl">{{title}}</h4>
                         </a>{{/next_post}}
                     </div>
                     <div >
-                        {{#prev_post in="primary_tag"}}<a href="{{url}}" class="flex items-center gap-4 p-4 border border-black rounded-md hover:text-gray-400 hover:border-gray-400 shadow-md hover:shadow-xl">
+                        {{#prev_post in="primary_tag"}}<a href="{{url}}" class="flex items-center gap-4 p-4 border border-black rounded-md bg-gray-50/50 hover:text-gray-400 hover:border-gray-400 shadow-md hover:shadow-xl">
                             <h4 class="text-right text-base lg:text-xl">{{title}}</h4>
                             <span class="w-4 h-6 flex-none">{{>"icons/arrow-right"}}</span>
                         </a>{{/prev_post}}

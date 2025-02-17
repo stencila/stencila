@@ -64,10 +64,18 @@ export default function generateTableOfContents() {
   }
   
   const headings = article.querySelectorAll('h1, h2, h3');
-  const tocList = document.createElement('ul');
-  tocList.id = 'toc-inner';
 
-  let lastLevel = 1;
+  console.log(headings)
+
+  const tocList = document.createElement('ul');
+  tocList.id = 'toc-list';
+
+  const minLevel = Array.from(headings).reduce((min, heading) => {
+    const level = parseInt(heading.tagName[1]);
+    return Math.min(min, level);
+  }, 3);
+
+  let lastLevel = minLevel;
   let listStack = [tocList];
 
   let tocLinks = new Map();
@@ -82,6 +90,7 @@ export default function generateTableOfContents() {
         if (!heading.id) {
             heading.id = `toc-heading-${index}`;
         }
+
         
         link.href = `#`;
         link.textContent = heading.textContent;
@@ -109,14 +118,17 @@ export default function generateTableOfContents() {
 
         // Append item to the current last list
         listStack[listStack.length - 1].appendChild(item);
+
+        console.log(listStack)
+
         lastLevel = level;
     });
-
     toc.innerHTML = ''
+  
+    
     toc.appendChild(tocList);
   }
   
-
   adjustTocPosition(tocOuter, pageContainer)
   highlightActiveHeading(headings, tocLinks)
   window.addEventListener('resize', () => adjustTocPosition(tocOuter, pageContainer))
