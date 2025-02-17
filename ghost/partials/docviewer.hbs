@@ -1,5 +1,5 @@
 
-<div class="page-container max-w-[1200px] w-full mx-auto px-2">
+<div class="page-container container w-full mx-auto px-2">
   <div class="relative flex">
     <div class="relative lg:sticky lg:top-32 lg:py-8 flex-none h-[calc(100vh-8rem)]">
         <div class="hidden lg:block absolute h-full top-0 left-0 -translate-x-full h-full w-screen py-8">
@@ -54,10 +54,7 @@
     <div class="flex-auto basis-0 min-w-0">
         {{#post}}
         <article class="gh-article relative font-serif leading-snug text-base lg:text-lg {{post_class}}">
-            <nav id="doc-toc-outer" class="hidden md:block fixed z-10 top-56 right-0 text-xs font-sans font-semibold p-4 bg-gray-50/50 border border-gray-50 rounded max-w-[140px] invisible">
-                <a href="#main-heading">{{title}}</a>
-                <div id="doc-toc-inner"></div>
-            </nav>
+            {{> toc }}
             <header id="doc-header" class="gh-header gh-canvas">
                 <span class="absolute top-4 right-0">
                     {{#foreach authors}}<a href="{{url}}" class="hover:text-gray-400">{{name}}</a> &bull; {{/foreach}}

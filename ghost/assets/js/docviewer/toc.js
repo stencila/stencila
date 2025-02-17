@@ -27,7 +27,7 @@ function adjustTocPosition(toc, pageContainer) {
 /**
  * Adds active class to the link matching the heading closest to the top of the page
  */
-function highlightActiveHeading(headings, links) {
+function highlightActiveHeading(headings, links, menuContainer) {
   let closestHeading = null;
   let minDistance = Infinity;
   
@@ -40,6 +40,20 @@ function highlightActiveHeading(headings, links) {
           closestHeading = heading;
       }
   });
+
+  if (closestHeading) {
+    const activeLink = links.get(closestHeading);
+    if (activeLink) {
+      const offset = 20; // Adjust this value to control the offset
+      const containerRect = menuContainer.getBoundingClientRect();
+      const linkRect = activeLink.getBoundingClientRect();
+
+      menuContainer.scrollTo({
+        top: menuContainer.scrollTop + (linkRect.top - containerRect.top) - offset,
+        behavior: "smooth",
+      });
+    }
+  }
   
   links.forEach((link, heading) => {
       if (heading === closestHeading) {
@@ -130,8 +144,8 @@ export default function generateTableOfContents() {
   }
   
   adjustTocPosition(tocOuter, pageContainer)
-  highlightActiveHeading(headings, tocLinks)
+  highlightActiveHeading(headings, tocLinks, tocOuter)
   window.addEventListener('resize', () => adjustTocPosition(tocOuter, pageContainer))
-  window.addEventListener('scroll', () => highlightActiveHeading(headings, tocLinks))
+  window.addEventListener('scroll', () => highlightActiveHeading(headings, tocLinks, tocOuter))
   tocOuter.classList.remove('invisible')
 }

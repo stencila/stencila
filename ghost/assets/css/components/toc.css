@@ -30,3 +30,24 @@ nav#doc-toc-outer a {
 nav#doc-toc-outer a.active {
   text-decoration: underline;
 }
+
+
+nav#doc-toc-outer::-webkit-scrollbar {
+  width: 6px;  /* Set a small width */
+}
+
+/* Scrollbar thumb (the draggable part) */
+nav#doc-toc-outer::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.5); /* Subtle color */
+  border-radius: 3px;  /* Rounded edges */
+}
+
+/* Scrollbar thumb on hover */
+nav#doc-toc-outer::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 100, 100, 0.8); /* Slightly darker on hover */
+}
+
+/* Scrollbar track (optional, for styling the track area) */
+nav#doc-toc-outer::-webkit-scrollbar-track {
+  background: transparent; /* Makes it blend in */
+}
