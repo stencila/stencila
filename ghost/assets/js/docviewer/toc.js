@@ -16,7 +16,7 @@ function adjustTocPosition(toc, pageContainer) {
   const containerRect = pageContainer.getBoundingClientRect();
   const viewportWidth = window.innerWidth;
 
-  if (viewportWidth > 1200) { // Adjust based on your layout
+  if (viewportWidth > 1280) { // Adjust based on your layout
       const offsetRight = viewportWidth - (containerRect.left + containerRect.width);
       toc.style.right = `${offsetRight}px`;
   } else {

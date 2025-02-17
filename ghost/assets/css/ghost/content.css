@@ -35,6 +35,12 @@
     width: 100%;
 }
 
+/* anchor tags */
+
+.gh-content a {
+    color: var(--ghost-accent-color);
+    text-decoration: underline;
+}
 
 /* Content & Typography
 /* ---------------------------------------------------------- */
