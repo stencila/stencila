@@ -189,10 +189,6 @@ body:not(.gh-head-open) .gh-burger:hover .gh-burger-inner::after {
     grid-column-start: 1;
 }
 
-.gh-head-brandnav .gh-container {
-    grid-gap: 0;
-    grid-template-columns: auto max-content max-content;
-}
 .gh-head-brandnav .gh-head-brand {
      grid-column-start: 1;
 }
@@ -204,11 +200,6 @@ body:not(.gh-head-open) .gh-burger:hover .gh-burger-inner::after {
     padding: 0;
 }
 
-/* Center Stacked */
-.gh-head-stacked .gh-container {
-    grid-template-columns: 1fr;
-    grid-gap: 2vmin;
-}
 .gh-head-stacked .gh-head-brand {
      grid-column-start: 1;
      width: 100%;

@@ -12,35 +12,42 @@ In your ghost admin navigate to **Settings** > **Labs**, then in the 'Routes' se
 
 To create a home page, In the admin panel, create a new page (or use an existing one).
 
-In the page editing view, open the settings sidebar and add 'home' into the slug input. Save and this page will now be you home page.
-
-Simply add content to the page in the page editing screen and this will show up on the 
+In the page editing view, open the settings sidebar and add 'home' into the slug field. and save the page.
 
 ### doc view page
 
-To create a doc viewer page, create a new page, In the page editing view, open the sidebar and add 'docview' to the slug input. If you want your docs to be divided into collapsible sections in the menu, add tags to this page, for example if we add the tag 'API' to the page, the section will now show up in the sidebar.
+#### Page setup
 
-To add a the content posts (or 'docs'), to this page, create a post and tag it with the internal tag '#doc', then add the tag of the section you would like this to appear under
+To create a doc viewer page, create a new page, In the page editing view, open the sidebar and add 'docview' to the slug input.
 
-### Creating articles or blog posts
+To create the menu sections for your docs (for example: 'Get Started' or 'API Reference'), add these items as tags to the page's tag field.
 
-To create posts that are not and a display page, ordered by publication, for example a blog, you can utilise the ghost tag taxonomy routing.
+The content on the page will act as the document's cover/welcome page, will appear at the top of the sidebar menu.
 
-Say you want to create a page called 'Articles', that shows a set of news posts. First create a post or posts, and tag them with the 'article' tag.
+#### Creating posts for the doc view page
 
-Then in the admin panel and navigate to **Settings** -> **Navigation** and click **'customise'**. To the primary navigation add a new entry, in this case it will be labelled 'Articles', and in the route, add "http://[your site domian]/tag/article", save and then refresh your site to see this route in the primary navigation. 
+To add posts to the doc view page, create a new post and add the internal `#doc` tag, As well as the tag for the section of the docviewer it will appear under. eg. for a post called 'Introduction' to appear under the 'Get Started' section, you would add the tags '#doc' and 'Get Started' to the posts tags
 
-When you navigate to this page, you should dso you see your 'article' posts displayed in a grid format in publication order.
+By default ghost will sort posts in order of publishing date, so the current method for changing the order the post show in the menu would be to alter the posts publication date.
 
-*note, the slug in the page route, must match th/e tag you want to use.
+
+### Creating additional pages for articles, blog posts, tutorials, changelogs etc...
+
+To create posts that are not and a display page, ordered by publication, for example a blog, you can utilise ghost's tag [taxonomy](https://ghost.org/docs/themes/routing/#taxonomies) routing.
+
+For example, If you want to link users to apage that showing all posts tagged with 'article'.
+
+Go the to admin panel **Settings** -> **Navigation** and click **'customise'**. In the primary navigation tab add a new entry, and in the route, add "http://{{your site domian}}/tag/{{tag slug}}", save and then refresh your site to see this route in the primary navigation. 
+
+*note, the slug in the page route, must match the tag's 'slug' field you want to use. The slug may be different from the tag name, to find the slug; navigate to the 'Tags' on the main ghost admin screen, and check the 'slug' column.
 
 Add a new navigation route to 
-
-
 
 ### create multiple docview pages
 
 This will require altering the base `theme-routes.yml` file and uploading into the admin settings again.
+
+## Misc.
 
 ### Configuring social links
 
@@ -52,6 +59,27 @@ This theme adds support for
 'whatsapp', 'instagram', 'github', 'discord', 'youtube'.
 
 To add these links, in the admin view go to **Settings** -> **Design & branding**, click "customise" to open the design view, then in the sidebar click "theme", here you will see the inputs for various social media links. Fill these out and they will appear in the page footer.
+
+
+## Local Development
+
+This theme has created using the ghost theme [starter](https://github.com/TryGhost/Starter).
+
+Install the theme's dependencies inside the stencila theme directory with `npm install`.
+
+To start local development, [install ghost locally](https://ghost.org/docs/ghost-cli/) on your machine.
+Then create a link to the theme in your local ghost's `content/themes` directory
+
+```bash
+ln -s /path/to/stencila-theme /ghost/content/themes/stencila
+```
+
+In the browser navigate to your local ghost admin site (usually http://localhost:2368/ghost/).
+From the settings menu select **Theme** -> **Installed**, and activate 'stencila-ghost-theme'.
+
+To enable development with hot-loading, In the stencila theme directory and `npm run dev` to start the dev server.
+
+ghost themes use handlebars templating language, for more information refer to ghost's [developer documentaion](https://ghost.org/docs/themes/).
 
 
 

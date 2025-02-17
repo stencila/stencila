@@ -9,7 +9,7 @@
         {{/get}}
     {{else}}
         <div class="max-w-[1200px] mx-auto px-2">
-            <article class="gh-article {{post_class}} font-serif leading-snug text-base lg:text-lg">
+            <article class="gh-article relative {{post_class}} font-serif leading-snug text-base lg:text-lg">
                 <header class="gh-header gh-canvas">
                     <span class="absolute top-4 right-0">
                         {{#foreach authors}}<a href="{{url}}" class="hover:text-gray-400">{{name}}</a> &bull; {{/foreach}}
@@ -70,10 +70,10 @@
                     {{content}}
                 </div>
 
-                <footer class="mt-8 gh-footer gh-canvas">
+                <footer class="mt-16 gh-footer gh-canvas text-base">
 
                     <div class="gh-post-authors">
-                        Written by {{#foreach authors}}<a href="{{url}}">{{name}}</a>{{/foreach}}
+                        Written by {{#foreach authors}}<a class="hover:text-[var(--ghost-accent-color)]" href="{{url}}">{{name}}</a>{{/foreach}}
                     </div>
 
                     {{#if comments}}
