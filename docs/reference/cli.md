@@ -832,7 +832,7 @@ Publish to Ghost
 
    Does not apply when pushing to, or pulling from, and existing Ghost resource.
 
-  Default value: `true`
+  Default value: `false`
 * `--post` — Create a post
 
    Does not apply when pushing to, or pulling from, and existing Ghost resource.
@@ -844,7 +844,7 @@ Publish to Ghost
 * `--title <TITLE>` — Title for page or post
 * `--draft` — Mark page or post as draft
 
-  Default value: `true`
+  Default value: `false`
 * `--publish` — Publish page or post
 * `--schedule <SCHEDULE>` — Schedule page or post
 * `--slug <SLUG>` — Set slug(URL slug the page or post will be available at)

@@ -250,7 +250,6 @@ pub enum NodeProperty {
     StackTrace,
     StartColumn,
     StartLine,
-    StartPosition,
     State,
     StateDigest,
     Steps,

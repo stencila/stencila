@@ -6,11 +6,13 @@
 
 The `ConfigPublishGhost` type has these properties:
 
-| Name       | Aliases | `@id` | Type                                                                                              | Description                                        | Inherited from |
-| ---------- | ------- | ----- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------- | -------------- |
-| `slug`     | -       | ``    | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)   | The URL slug for the page or post.                 | -              |
-| `featured` | -       | ``    | [`Boolean`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md) | Whether the page or post is featured.              | -              |
-| `schedule` | -       | ``    | [`Date`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date.md)       | The date that the page or post is to be published. | -              |
+| Name       | Aliases | `@id` | Type                                                                                                                                   | Description                                          | Inherited from |
+| ---------- | ------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | -------------- |
+| `slug`     | -       | ``    | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                        | The URL slug for the page or post.                   | -              |
+| `featured` | -       | ``    | [`Boolean`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md)                                      | Whether the page or post is featured.                | -              |
+| `schedule` | -       | ``    | [`Date`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date.md)                                            | The date that the page or post is to be published.   | -              |
+| `state`    | -       | ``    | [`ConfigPublishGhostState`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/config/config-publish-ghost-state.md) | the state of the page or post eg draft or published. | -              |
+| `tags`     | `tag`   | ``    | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                                       | ghost tags.                                          | -              |
 
 ## Related
 
