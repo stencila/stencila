@@ -21,10 +21,7 @@ use common::{
 };
 use document::{
     codecs,
-    schema::{shortcuts::t, Node, Primitive},
-    schema::{
-        shortcuts::t, ConfigPublishGhostState, ConfigPublishGhostType, Node, PropertyValueOrString,
-    },
+    schema::{shortcuts::t, ConfigPublishGhostState, ConfigPublishGhostType, Node},
     CommandWait, DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
 };
 
