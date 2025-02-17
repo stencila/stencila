@@ -57,15 +57,13 @@ export default function generateTableOfContents() {
 
   const toc = document.querySelector('#doc-toc-inner');
 
-  const pageContainer = document.querySelector('.page-container')
+  const pageContainer = document.querySelector('.page-container');
 
-  if (!article || !toc) {
+  if (!article || !toc || !tocOuter) {
     return;
   }
   
   const headings = article.querySelectorAll('h1, h2, h3');
-
-  console.log(headings)
 
   const tocList = document.createElement('ul');
   tocList.id = 'toc-list';
@@ -103,28 +101,30 @@ export default function generateTableOfContents() {
 
         item.appendChild(link);
         tocLinks.set(heading, link);
-
-        if (level > lastLevel) {
-            // Create a new sublist and push it to the stack
-            const newList = document.createElement('ul');
-            listStack[listStack.length - 1].lastElementChild?.appendChild(newList);
-            listStack.push(newList);
-        } else if (level < lastLevel) {
-            // Pop to the correct level
-            while (listStack.length > (level - 1)) {
-                listStack.pop();
-            }
+    
+        // Adjust level relative to the minimum level found
+        const relativeLevel = level - minLevel + 1;
+        const currentRelativeLevel = lastLevel - minLevel + 1;
+    
+        if (relativeLevel > currentRelativeLevel) {
+          // Create a new sublist and push it to the stack
+          const newList = document.createElement('ul');
+          listStack[listStack.length - 1].lastElementChild?.appendChild(newList);
+          listStack.push(newList);
+        } else if (relativeLevel < currentRelativeLevel) {
+          // Pop to the correct level
+          while (listStack.length > relativeLevel) {
+            listStack.pop();
+          }
         }
 
         // Append item to the current last list
         listStack[listStack.length - 1].appendChild(item);
 
-        console.log(listStack)
-
         lastLevel = level;
     });
     toc.innerHTML = ''
-  
+    
     
     toc.appendChild(tocList);
   }
@@ -133,4 +133,5 @@ export default function generateTableOfContents() {
   highlightActiveHeading(headings, tocLinks)
   window.addEventListener('resize', () => adjustTocPosition(tocOuter, pageContainer))
   window.addEventListener('scroll', () => highlightActiveHeading(headings, tocLinks))
+  tocOuter.classList.remove('invisible')
 }

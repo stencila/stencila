@@ -54,7 +54,7 @@
     <div class="flex-auto basis-0 min-w-0">
         {{#post}}
         <article class="gh-article relative font-serif leading-snug text-base lg:text-lg {{post_class}}">
-            <nav id="doc-toc-outer" class="hidden md:block fixed z-10 top-56 right-0 text-xs font-sans font-semibold p-4 bg-gray-50/50 border border-gray-50 rounded max-w-[140px]">
+            <nav id="doc-toc-outer" class="hidden md:block fixed z-10 top-56 right-0 text-xs font-sans font-semibold p-4 bg-gray-50/50 border border-gray-50 rounded max-w-[140px] invisible">
                 <a href="#main-heading">{{title}}</a>
                 <div id="doc-toc-inner"></div>
             </nav>
@@ -120,10 +120,6 @@
             </div>
 
             <footer class="mt-8 gh-footer gh-canvas">
-
-                {{!-- <div class="gh-post-authors">
-                    Written by {{#foreach authors}}<a href="{{url}}">{{name}}</a>{{/foreach}}
-                </div> --}}
 
                 {{#if comments}}
                 <section class="gh-post-comments">
