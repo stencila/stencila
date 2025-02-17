@@ -885,11 +885,6 @@
       ],
       "view/title": [
         {
-          "command": "stencila.setup.refresh",
-          "when": "view == stencila-setup",
-          "group": "navigation"
-        },
-        {
           "command": "stencila.prompts.picker",
           "when": "view == stencila-prompts",
           "group": "navigation"
@@ -911,31 +906,6 @@
         }
       ],
       "view/item/context": [
-        {
-          "command": "stencila.cloud.signin",
-          "when": "view == stencila-setup && viewItem == stencila-cloud-signed-out",
-          "group": "inline"
-        },
-        {
-          "command": "stencila.cloud.signout",
-          "when": "view == stencila-setup && viewItem == stencila-cloud-signed-in",
-          "group": "inline"
-        },
-        {
-          "command": "stencila.secrets.set",
-          "when": "view == stencila-setup && viewItem == ai-api-key-none",
-          "group": "inline"
-        },
-        {
-          "command": "stencila.secrets.delete",
-          "when": "view == stencila-setup && viewItem == ai-api-key-some",
-          "group": "inline"
-        },
-        {
-          "command": "stencila.settings",
-          "when": "view == stencila-setup && viewItem == user-details",
-          "group": "inline"
-        },
         {
           "command": "stencila.kernels.use",
           "when": "view == stencila-kernels && viewItem == kernel",
@@ -1184,17 +1154,31 @@
           "id": "stencila-kernels",
           "name": "Kernels",
           "visibility": "collapsed"
-        },
-        {
-          "id": "stencila-setup",
-          "name": "Setup"
         }
       ]
     },
-    "viewsWelcome": [
+    "walkthroughs": [
       {
-        "view": "stencila-setup",
-        "contents": "Welcome to the Stencila VSCode extension.\n\nThe easiest way to get started with AI commands is to sign in to Stencila Cloud and use our smart model router.\n[Sign In to Stencila Cloud](command:stencila.cloud.signin)\nIf you already have an API key for one of the supported AI model providers you can use it instead\n[Add an API Key](command:stencila.secrets.set)\nYou can change your user details (used for content attribution), and other settings, at any time.\n[Open Stencila Settings](command:stencila.settings)\n\nYou can remove this view using the '...' menu at top right of the Stencila panel."
+        "id": "get-started",
+        "title": "Get Started with Stencila",
+        "featuredFor": [
+          "*.smd",
+          "*.qmd",
+          "*.myst",
+          "*.ipynb"
+        ],
+        "description": "A guide to getting started with the Stencila VSCode extension",
+        "steps": [
+          {
+            "id": "step1",
+            "title": "Commands Menu",
+            "description": "The Commands Menu provides a central place to access commonly used commands.\n\nOpen the menu by clicking on 'Stencila' in right of the bottom status bar. Quickly find the command you want by typing in the menu.",
+            "media": {
+              "image": "./images/command-menu.gif",
+              "altText": "Using the Stencila Commands Menu"
+            }
+          }
+        ]
       }
     ]
   },
