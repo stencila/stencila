@@ -12,7 +12,6 @@ use common::{
     chrono::{DateTime, Utc},
     clap::{self, Parser},
     eyre::{bail, eyre, Context, OptionExt, Result},
-    itertools::Itertools,
     reqwest::{multipart::Form, Client, Response, StatusCode},
     serde::{Deserialize, Serialize},
     serde_json,
@@ -23,6 +22,9 @@ use common::{
 use document::{
     codecs,
     schema::{shortcuts::t, Node, Primitive},
+    schema::{
+        shortcuts::t, ConfigPublishGhostState, ConfigPublishGhostType, Node, PropertyValueOrString,
+    },
     CommandWait, DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
 };
 
@@ -63,7 +65,7 @@ pub struct Cli {
     ///
     /// Does not apply when pushing to, or pulling from, and existing
     /// Ghost resource.
-    #[arg(long, conflicts_with = "post", default_value_t = true)]
+    #[arg(long, conflicts_with = "post", default_value_t = false)]
     #[arg(help_heading("Ghost Settings"), display_order(1))]
     page: bool,
 
@@ -105,7 +107,7 @@ pub struct Cli {
         long,
         group = "publish_type",
         conflicts_with = "pull",
-        default_value_t = true
+        default_value_t = false
     )]
     #[arg(help_heading("Post/Page Settings"), display_order(2))]
     draft: bool,
@@ -241,8 +243,26 @@ impl Cli {
         } else if self.page {
             ResourceType::Page
         } else {
-            // Default is `--post = true` so this should not occur
-            bail!("Please use either the --post or --page flag");
+            // get resource type from YAML header if none provided in cli
+            doc.inspect(|root: &Node| {
+                if let Node::Article(article) = root {
+                    if let Some(config) = &article.config {
+                        if let Some(publish) = &config.publish {
+                            if let Some(publisher) = &publish.ghost {
+                                if let Some(r#type) = &publisher.r#type {
+                                    return match r#type {
+                                        ConfigPublishGhostType::Page => ResourceType::Page,
+                                        ConfigPublishGhostType::Post => ResourceType::Post,
+                                    };
+                                }
+                            }
+                        }
+                    }
+                }
+                //Default to post
+                ResourceType::Post
+            })
+            .await
         };
 
         // Generate JWT for request
@@ -484,80 +504,95 @@ impl Cli {
         doc: &Document,
         updated_at: Option<String>,
     ) -> Result<Payload> {
-        // Status of page or post
-        let status = if self.publish {
-            Some(Status::Published)
-        } else if self.schedule.is_some() {
-            if self.schedule <= Some(Utc::now()) {
-                bail!(
-                    "Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",
-                    self.schedule,
-                    Utc::now()
-                );
-            }
-            Some(Status::Scheduled)
-        } else if self.draft {
-            Some(Status::Draft)
-        } else {
-            None
-        };
+        // Get document meta data if fields aren't filled
+        let (title, slug, featured, excerpt, status, schedule, tags) = doc
+            .inspect(|root: &Node| {
+                let mut title = None;
+                let mut slug = None;
+                let mut featured = None;
+                let mut excerpt = None;
+                let mut status = None;
+                let mut schedule: Option<DateTime<Utc>> = None;
+                let mut tags = None;
 
-        // Get document title and other metadata
-        let title = if self.title.is_none() {
-            doc.inspect(|root: &Node| {
                 if let Node::Article(article) = root {
-                    if let Some(inlines) = &article.title {
-                        return Some(codec_text::to_text(inlines));
+                    //Get document title
+                    if self.title.is_none() {
+                        if let Some(inlines) = &article.title {
+                            title = Some(codec_text::to_text(inlines));
+                        }
+                    } else {
+                        title = self.title.clone();
                     }
-                }
-                None
-            })
-            .await
-        } else {
-            self.title.clone()
-        };
 
-        // If no custom excerpt provided, use the article description
-        let excerpt = if self.excerpt.is_none() {
-            doc.inspect(|root: &Node| {
-                if let Node::Article(article) = root {
-                    article.description.clone()
-                } else {
-                    None
-                }
-            })
-            .await
-        } else {
-            self.excerpt.clone()
-        };
+                    // If no custom excerpt provided, use the article description
+                    if self.excerpt.is_none() {
+                        excerpt = article.description.clone();
+                    } else {
+                        excerpt = self.excerpt.clone();
+                    }
 
-        // If no tags provided, use the tags in the custom `tags` field of the YAML header
-        let tags = if self.tags.is_none() {
-            doc.inspect(|root: &Node| {
-                if let Node::Article(article) = root {
-                    if let Some(extra) = article.options.extra.clone() {
-                        if let Some(Primitive::Array(vector)) = extra.get("tags") {
-                            return Some(
-                                vector
-                                    .iter()
-                                    .filter_map(|primitive| {
-                                        if let Primitive::String(string) = primitive {
-                                            Some(string.into())
-                                        } else {
-                                            None
+                    //Get config meta data
+                    if let Some(config) = &article.config {
+                        if let Some(publish) = &config.publish {
+                            if let Some(publisher) = &publish.ghost {
+                                if self.slug.is_none() {
+                                    slug = publisher.slug.clone();
+                                } else {
+                                    slug = self.slug.clone();
+                                }
+                                if !self.featured {
+                                    featured = publisher.featured;
+                                } else {
+                                    featured = Some(self.featured);
+                                }
+                                if !self.publish && !self.draft && self.schedule.is_none() {
+                                    if let Some(doc_schedule) = &publisher.schedule {
+                                        status = Some(Status::Scheduled);
+                                        schedule =
+                                            DateTime::from_str(doc_schedule.value.as_str()).ok();
+                                        if schedule <= Some(Utc::now()){
+                                            bail!(
+                                                "Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",
+                                                self.schedule,
+                                                Utc::now()
+                                            );
                                         }
-                                    })
-                                    .collect_vec(),
-                            );
+                                    } else {
+                                        status = match publisher.state.clone() {
+                                            Some(ConfigPublishGhostState::Publish) => {
+                                                Some(Status::Published)
+                                            }
+                                            _ => Some(Status::Draft),
+                                        };
+                                    }
+                                } else {
+                                    //Defaults to draft
+                                    status = Some(Status::Draft);
+                                    if self.schedule.is_some() {
+                                        if self.schedule <= Some(Utc::now()) {
+                                            bail!(
+                                                "Scheduled time must be in the future, current time:{:?} , scheduled time:{:?}",
+                                                self.schedule,
+                                                Utc::now()
+                                            );
+                                        }
+                                        schedule = self.schedule;
+                                    }
+                                }
+                                if self.tags.is_none() {
+                                    tags = publisher.tags.clone();
+                                } else {
+                                    tags = self.tags.clone()
+                                }
+                            }
                         }
                     }
                 }
-                None
+                Ok((title, slug, featured, excerpt, status, schedule, tags))
             })
-            .await
-        } else {
-            self.tags.clone()
-        };
+            .await?;
+
         let tags = tags.map(|tag| tag.into_iter().map(|name| Tag { name }).collect());
 
         // Get the root node of the document
@@ -621,14 +656,14 @@ impl Cli {
 
         let resource = Resource {
             title: title.clone().or_else(|| Some("Untitled".into())),
-            slug: self.slug.clone().or(title),
+            slug: slug.clone().or(title),
             tags,
             custom_excerpt: excerpt,
             lexical: Some(lexical),
             status,
             updated_at,
-            published_at: self.schedule,
-            featured: Some(self.featured),
+            published_at: schedule,
+            featured,
             codeinjection_head: self.inject_code_header.clone(),
             codeinjection_foot: self.inject_code_footer.clone(),
             ..Default::default()

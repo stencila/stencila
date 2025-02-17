@@ -6,17 +6,56 @@
   "category": "config",
   "description": "Zenodo publishing options.",
   "core": [
+    "access_right",
+    "notes",
+    "method",
     "embargoed"
   ],
   "properties": {
     "embargoed": {
-      "description": "Whether the deposit is embargoed.",
+      "description": "The date of embargoed.",
       "patch": {
         "formats": [
           "all"
         ]
       },
-      "type": "boolean"
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
+      "$ref": "Date.schema.json"
+    },
+    "access_right": {
+      "description": "The access right of the document.",
+      "aliases": [
+        "access-right"
+      ],
+      "patch": {
+        "formats": [
+          "all"
+        ]
+      },
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
+      "$ref": "ConfigPublishZenodoAccessRight.schema.json"
+    },
+    "notes": {
+      "description": "extra notes about deposition.",
+      "patch": {
+        "formats": [
+          "all"
+        ]
+      },
+      "type": "string"
+    },
+    "method": {
+      "description": "The methodology of the study.",
+      "patch": {
+        "formats": [
+          "all"
+        ]
+      },
+      "type": "string"
     }
   }
 }

@@ -1,13 +1,31 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
+import { ConfigPublishZenodoAccessRight } from "./ConfigPublishZenodoAccessRight.js";
+import { Date } from "./Date.js";
+
 /**
  * Zenodo publishing options.
  */
 export class ConfigPublishZenodo {
   /**
-   * Whether the deposit is embargoed.
+   * The date of embargoed.
    */
-  embargoed?: boolean;
+  embargoed?: Date;
+
+  /**
+   * The access right of the document.
+   */
+  accessRight?: ConfigPublishZenodoAccessRight;
+
+  /**
+   * extra notes about deposition.
+   */
+  notes?: string;
+
+  /**
+   * The methodology of the study.
+   */
+  method?: string;
 
   constructor(options?: Partial<ConfigPublishZenodo>) {
     if (options) Object.assign(this, options);

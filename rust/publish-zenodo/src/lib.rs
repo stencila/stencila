@@ -4,6 +4,7 @@ use std::{path::PathBuf, str::FromStr};
 
 use cli_utils::{cli_hint, hint, message, parse_host, ToStdout};
 
+use codec::schema::ConfigPublishZenodoAccessRight;
 use common::{
     clap::{
         self,
@@ -459,17 +460,64 @@ impl Cli {
                 }
             }
 
-            Some((title, description, creators, doi))
+            // Config YAML header
+            let mut embargoed = None;
+            let mut access_right = None;
+            let mut notes = None;
+            let mut method = None;
+
+            tracing::debug!("article:{:?}",article);
+            if let Some(config) = &article.config {
+                tracing::debug!("config:{:?}",config);
+                if let Some(publish) = &config.publish {
+                    if let Some(publisher) = &publish.zenodo{
+                        embargoed = publisher.embargoed.clone();
+                        access_right = publisher.access_right.clone();
+                        notes = publisher.notes.clone();
+                        method = publisher.method.clone();
+                    }
+                }
+            }
+
+            Some((title, description, creators, doi, embargoed, access_right, notes, method))
         }).await;
 
         let mut doi_from_doc = None;
         let mut deposit = json!({ "metadata": json!({}) });
 
-        if let Some((title, description, creators, doi)) = metadata_from_doc {
+        if let Some((title, description, creators, doi, embargoed, access_right, notes, method)) =
+            metadata_from_doc.clone()
+        {
             deposit["metadata"]["title"] = json!(title);
             deposit["metadata"]["description"] = json!(description);
             deposit["metadata"]["creators"] = json!(creators);
             doi_from_doc = doi;
+
+            tracing::debug!("{:?}", embargoed);
+            tracing::debug!("{:?}", access_right);
+            if let Some(schema::Date {
+                value: embargo_date,
+                ..
+            }) = embargoed
+            {
+                debug_assert_eq!(
+                    access_right,
+                    Some(ConfigPublishZenodoAccessRight::Embargoed),
+                    "logic error: --embargoed={:?} is set, but --access_right={:?}",
+                    embargo_date,
+                    access_right
+                );
+                if access_right != Some(ConfigPublishZenodoAccessRight::Embargoed) {
+                    message!("Note: An embargo date ({}) has been provided, but access right is set to {:?}. Replacing access right to `embargoed`.", embargo_date, access_right);
+                }
+                deposit["metadata"]["embargo_date"] = json!(embargo_date);
+                deposit["metadata"]["access_right"] = json!("embargoed");
+            }
+
+            tracing::debug!("{:?}", notes);
+            deposit["metadata"]["notes"] = json!(notes);
+            tracing::debug!("{:?}", method);
+            deposit["metadata"]["method"] = json!(method);
         }
 
         if let Some(title_from_args) = self.title {
@@ -566,8 +614,21 @@ impl Cli {
             deposit["metadata"]["doi"] = json!(doi)
         }
 
-        deposit["metadata"]["access_right"] = json!(self.access_right.clone());
+        tracing::debug!("{:?}", metadata_from_doc);
+        if let Some(metadata) = metadata_from_doc.clone() {
+            if let Some(access_right) = metadata.5 {
+                tracing::debug!("access_right:{:?}", access_right);
+                deposit["metadata"]["access_right"] =
+                    json!(access_right.to_string().to_lowercase().clone());
+            } else {
+                deposit["metadata"]["access_right"] = json!(self.access_right.clone());
+            }
+        } else {
+            deposit["metadata"]["access_right"] = json!(self.access_right.clone());
+        }
+        //if let Some((..,license,..)) = metadata_from_doc.clone(){
         deposit["metadata"]["license"] = json!(self.license);
+        //}
 
         if cfg!(debug_assertions) {
             if let Some(license) = self.license {
