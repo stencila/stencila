@@ -2,18 +2,18 @@ use async_lsp::lsp_types::Range;
 
 use codec_text_trait::TextCodec;
 use codecs::{Mapping, PoshMap};
-use common::{itertools::Itertools, tracing};
+use common::tracing;
 use schema::{
     Admonition, Annotation, Article, AudioObject, Block, Button, CallBlock, Chat, ChatMessage,
     ChatMessageGroup, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeExpression, CodeInline,
-    CompilationMessage, Date, DateTime, Duration, Emphasis, ExecutionMessage, ExecutionStatus,
-    Figure, File, ForBlock, Form, Heading, IfBlock, IfBlockClause, ImageObject, IncludeBlock,
-    Inline, InstructionBlock, InstructionInline, LabelType, Link, List, ListItem, MathBlock,
-    MathInline, MediaObject, MessageLevel, Node, NodeId, NodeProperty, NodeType, Note, Paragraph,
-    Parameter, Prompt, PromptBlock, ProvenanceCount, QuoteBlock, QuoteInline, RawBlock, Section,
-    Strikeout, Strong, StyledBlock, StyledInline, Subscript, SuggestionBlock, SuggestionInline,
-    Superscript, Table, TableCell, TableRow, Text, ThematicBreak, Time, Timestamp, Underline,
-    VideoObject, Visitor, WalkControl, Walkthrough, WalkthroughStep,
+    Date, DateTime, Duration, Emphasis, ExecutionStatus, Figure, File, ForBlock, Form, Heading,
+    IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline, InstructionBlock, InstructionInline,
+    LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject, Node, NodeId,
+    NodeProperty, NodeType, Note, Paragraph, Parameter, Prompt, PromptBlock, ProvenanceCount,
+    QuoteBlock, QuoteInline, RawBlock, Section, Strikeout, Strong, StyledBlock, StyledInline,
+    Subscript, SuggestionBlock, SuggestionInline, Superscript, Table, TableCell, TableRow, Text,
+    ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl, Walkthrough,
+    WalkthroughStep,
 };
 
 use crate::{
@@ -276,11 +276,6 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
     fn visit_if_block_clause(&mut self, clause: &IfBlockClause) -> WalkControl {
         let node_id = clause.node_id();
 
-        let messages = compilation_and_execution_messages(
-            &clause.options.compilation_messages,
-            &clause.options.execution_messages,
-        );
-
         let code_range = self
             .poshmap
             .node_property_to_range16(&node_id, NodeProperty::Code)
@@ -291,7 +286,8 @@ impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
             required: clause.options.execution_required,
             duration: clause.options.execution_duration.clone(),
             ended: clause.options.execution_ended.clone(),
-            messages,
+            compilation_messages: clause.options.compilation_messages.clone(),
+            execution_messages: clause.options.execution_messages.clone(),
             code_range,
             ..Default::default()
         });
@@ -391,7 +387,8 @@ impl Inspect for ChatMessage {
             required: self.options.execution_required,
             duration: self.options.execution_duration.clone(),
             ended: self.options.execution_ended.clone(),
-            messages: self.options.execution_messages.clone(),
+            compilation_messages: self.options.compilation_messages.clone(),
+            execution_messages: self.options.execution_messages.clone(),
             ..Default::default()
         });
 
@@ -461,11 +458,6 @@ impl Inspect for CodeChunk {
 
         let node_id = self.node_id();
 
-        let messages = compilation_and_execution_messages(
-            &self.options.compilation_messages,
-            &self.options.execution_messages,
-        );
-
         let code_range = inspector
             .poshmap
             .node_property_to_range16(&node_id, NodeProperty::Code)
@@ -479,7 +471,8 @@ impl Inspect for CodeChunk {
             duration: self.options.execution_duration.clone(),
             ended: self.options.execution_ended.clone(),
             outputs: self.outputs.as_ref().map(|outputs| outputs.len()),
-            messages,
+            compilation_messages: self.options.compilation_messages.clone(),
+            execution_messages: self.options.execution_messages.clone(),
             code_range,
             ..Default::default()
         });
@@ -503,11 +496,6 @@ impl Inspect for CodeExpression {
     fn inspect(&self, inspector: &mut Inspector) {
         let node_id = self.node_id();
 
-        let messages = compilation_and_execution_messages(
-            &self.options.compilation_messages,
-            &self.options.execution_messages,
-        );
-
         let code_range = inspector
             .poshmap
             .node_property_to_range16(&node_id, NodeProperty::Code)
@@ -520,7 +508,8 @@ impl Inspect for CodeExpression {
             duration: self.options.execution_duration.clone(),
             ended: self.options.execution_ended.clone(),
             outputs: self.output.is_some().then_some(1),
-            messages,
+            compilation_messages: self.options.compilation_messages.clone(),
+            execution_messages: self.options.execution_messages.clone(),
             code_range,
             ..Default::default()
         });
@@ -541,7 +530,8 @@ impl Inspect for InstructionBlock {
             required: self.options.execution_required,
             duration: self.options.execution_duration.clone(),
             ended: self.options.execution_ended.clone(),
-            messages: self.options.execution_messages.clone(),
+            compilation_messages: self.options.compilation_messages.clone(),
+            execution_messages: self.options.execution_messages.clone(),
             ..Default::default()
         });
         let mut index_of = None;
@@ -597,11 +587,6 @@ impl Inspect for ForBlock {
     fn inspect(&self, inspector: &mut Inspector) {
         let node_id = self.node_id();
 
-        let messages = compilation_and_execution_messages(
-            &self.options.compilation_messages,
-            &self.options.execution_messages,
-        );
-
         let code_range = inspector
             .poshmap
             .node_property_to_range16(&node_id, NodeProperty::Code)
@@ -613,7 +598,8 @@ impl Inspect for ForBlock {
             required: self.options.execution_required,
             duration: self.options.execution_duration.clone(),
             ended: self.options.execution_ended.clone(),
-            messages,
+            compilation_messages: self.options.compilation_messages.clone(),
+            execution_messages: self.options.execution_messages.clone(),
             code_range,
             ..Default::default()
         });
@@ -680,15 +666,13 @@ impl Inspect for MathBlock {
     fn inspect(&self, inspector: &mut Inspector) {
         let node_id = self.node_id();
 
-        let messages = compilation_to_execution_messages(&self.options.compilation_messages);
-
         let code_range = inspector
             .poshmap
             .node_property_to_range16(&node_id, NodeProperty::Code)
             .map(range16_to_range);
 
         let execution = Some(TextNodeExecution {
-            messages,
+            compilation_messages: self.options.compilation_messages.clone(),
             code_range,
             ..Default::default()
         });
@@ -710,15 +694,13 @@ impl Inspect for RawBlock {
     fn inspect(&self, inspector: &mut Inspector) {
         let node_id = self.node_id();
 
-        let messages = compilation_to_execution_messages(&self.compilation_messages);
-
         let code_range = inspector
             .poshmap
             .node_property_to_range16(&node_id, NodeProperty::Content)
             .map(range16_to_range);
 
         let execution = Some(TextNodeExecution {
-            messages,
+            compilation_messages: self.compilation_messages.clone(),
             code_range,
             ..Default::default()
         });
@@ -808,15 +790,14 @@ macro_rules! root {
 
                 //eprintln!("INSPECT ROOT {}\n", self.node_id());
 
-                let messages = compilation_to_execution_messages(&self.options.compilation_messages);
-
                 let code_range = inspector
                     .poshmap
                     .node_property_to_range16(&node_id, NodeProperty::Frontmatter)
                     .map(range16_to_range);
 
                 let execution = Some(TextNodeExecution{
-                    messages,
+                    compilation_messages: self.options.compilation_messages.clone(),
+                    execution_messages: self.options.execution_messages.clone(),
                     code_range,
                     ..Default::default()
                 });
@@ -839,15 +820,13 @@ macro_rules! compiled_options {
 
                 let node_id = self.node_id();
 
-                let messages = compilation_to_execution_messages(&self.options.compilation_messages);
-
                 let code_range = inspector
                     .poshmap
                     .node_property_to_range16(&node_id, NodeProperty::Code)
                     .map(range16_to_range);
 
                 let execution = Some(TextNodeExecution{
-                    messages,
+                    compilation_messages: self.options.compilation_messages.clone(),
                     code_range,
                     ..Default::default()
                 });
@@ -910,11 +889,6 @@ macro_rules! executable {
 
                 let node_id = self.node_id();
 
-                let messages = compilation_and_execution_messages(
-                    &self.options.compilation_messages,
-                    &self.options.execution_messages,
-                );
-
                 let code_range = inspector
                     .poshmap
                     // TODO: Use the property appropriate to the type
@@ -927,7 +901,8 @@ macro_rules! executable {
                     required: self.options.execution_required.clone(),
                     duration: self.options.execution_duration.clone(),
                     ended: self.options.execution_ended.clone(),
-                    messages,
+                    compilation_messages: self.options.compilation_messages.clone(),
+                    execution_messages: self.options.execution_messages.clone(),
                     code_range,
                     ..Default::default()
                 });
@@ -952,11 +927,6 @@ macro_rules! executable_not_content {
 
                 let node_id = self.node_id();
 
-                let messages = compilation_and_execution_messages(
-                    &self.options.compilation_messages,
-                    &self.options.execution_messages,
-                );
-
                 let code_range = inspector
                     .poshmap
                     .node_property_to_range16(&node_id, NodeProperty::Source)
@@ -968,7 +938,8 @@ macro_rules! executable_not_content {
                     required: self.options.execution_required.clone(),
                     duration: self.options.execution_duration.clone(),
                     ended: self.options.execution_ended.clone(),
-                    messages,
+                    compilation_messages: self.options.compilation_messages.clone(),
+                    execution_messages: self.options.execution_messages.clone(),
                     code_range,
                     ..Default::default()
                 });
@@ -981,45 +952,3 @@ macro_rules! executable_not_content {
 }
 
 executable_not_content!(CallBlock, IncludeBlock, PromptBlock);
-
-/// Combine compilation and execution messages into a single vector for display
-fn compilation_and_execution_messages(
-    compilation_messages: &Option<Vec<CompilationMessage>>,
-    execution_messages: &Option<Vec<ExecutionMessage>>,
-) -> Option<Vec<ExecutionMessage>> {
-    let messages = compilation_messages
-        .iter()
-        .flatten()
-        .map(compilation_to_execution_message)
-        .chain(execution_messages.iter().flatten().cloned())
-        .collect_vec();
-
-    (!messages.is_empty()).then_some(messages)
-}
-
-/// Convert compilation messages to execution messages for display
-fn compilation_to_execution_messages(
-    messages: &Option<Vec<CompilationMessage>>,
-) -> Option<Vec<ExecutionMessage>> {
-    messages.as_ref().map(|messages| {
-        messages
-            .iter()
-            .map(compilation_to_execution_message)
-            .collect()
-    })
-}
-
-/// Convert a compilation message to an execution message for display
-fn compilation_to_execution_message(message: &CompilationMessage) -> ExecutionMessage {
-    ExecutionMessage {
-        // For linting messages, limit level to warning
-        level: if matches!(message.error_type.as_deref(), Some("Linting")) {
-            message.level.min(MessageLevel::Warning)
-        } else {
-            message.level
-        },
-        message: message.message.clone(),
-        code_location: message.code_location.clone(),
-        ..Default::default()
-    }
-}

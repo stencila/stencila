@@ -99,14 +99,40 @@
             }
           }
         },
+        "stencila.diagnostics.compilationMessages": {
+          "order": 21,
+          "description": "The minimum severity level of compilation messages (from code linting, math parsing, etc) to show in editor",
+          "enum": [
+            "Trace",
+            "Debug",
+            "Info",
+            "Warning",
+            "Error",
+            "Exception"
+          ],
+          "default": "Error"
+        },
+        "stencila.diagnostics.executionMessages": {
+          "order": 22,
+          "description": "The minimum severity level of execution messages (from runtime logging and exceptions) to show in editor",
+          "enum": [
+            "Trace",
+            "Debug",
+            "Info",
+            "Warning",
+            "Error",
+            "Exception"
+          ],
+          "default": "Warning"
+        },
         "stencila.gutter.enabled": {
-          "order": 4,
+          "order": 30,
           "description": "Enable gutter with markers for document node type and status.",
           "type": "boolean",
           "default": true
         },
         "stencila.gutter.markerWidth": {
-          "order": 5,
+          "order": 31,
           "description": "Width of document node type gutter markers.",
           "type": "number",
           "minimum": 1,
@@ -114,25 +140,25 @@
           "default": 4
         },
         "stencila.gutter.animateRunning": {
-          "order": 6,
+          "order": 32,
           "description": "Animate gutter marker for running document nodes.",
           "type": "boolean",
           "default": true
         },
         "stencila.linkedScrolling.previewFollowsEditor": {
-          "order": 7,
+          "order": 60,
           "description": "Synchronize the scroll position of the preview to the scroll position of the editor.",
           "type": "boolean",
           "default": true
         },
         "stencila.linkedScrolling.editorFollowsPreview": {
-          "order": 8,
+          "order": 61,
           "description": "Synchronize the scroll position of the editor to the scroll position of the preview.",
           "type": "boolean",
           "default": true
         },
         "stencila.languageServer.logLevel": {
-          "order": 9,
+          "order": 100,
           "description": "The logging level of the Stencila Language Server (server restart required)",
           "enum": [
             "trace",
@@ -144,7 +170,7 @@
           "default": "info"
         },
         "stencila.logging.usage": {
-          "order": 10,
+          "order": 130,
           "description": "Enable logging of extension usage events. Helps us fix bugs and improve usability.",
           "type": "boolean",
           "default": true,
