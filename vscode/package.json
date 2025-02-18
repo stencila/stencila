@@ -99,6 +99,21 @@
             }
           }
         },
+        "stencila.documents.onSave": {
+          "order": 15,
+          "description": "What action to take when a document is saved in the editor",
+          "enumDescriptions": [
+            "Do nothing",
+            "If the document is already being tracked, store it in the tracking directory",
+            "If the document is not yet tracked track it, and then store it in the tracking directory"
+          ],
+          "enum": [
+            "Nothing",
+            "Store",
+            "Track"
+          ],
+          "default": "Store"
+        },
         "stencila.diagnostics.compilationMessages": {
           "order": 21,
           "description": "The minimum severity level of compilation messages (from code linting, math parsing, etc) to show in editor",

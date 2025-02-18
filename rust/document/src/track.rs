@@ -711,7 +711,21 @@ impl Document {
         Document::tracking_path(path).await
     }
 
+    /// Is the document being tracked?
+    pub async fn is_tracked(&self) -> bool {
+        match self.tracking().await {
+            Ok(info) => matches!(info, Some((.., Some(..)))),
+            Err(error) => {
+                tracing::error!("While tracking: {error}");
+                return false;
+            }
+        }
+    }
+
     /// Get the tracking information for a document path
+    ///
+    /// Returns the path of the tracking directory and the tracking info for the document
+    /// if any.
     pub async fn tracking_path(path: &Path) -> Result<Option<(PathBuf, Option<DocumentTracking>)>> {
         let Some((tracking_dir, mut entries)) = read_tracking(path, false).await? else {
             return Ok(None);

@@ -33,7 +33,9 @@ use schema::{
     Person, ProvenanceCount, Timestamp, Visitor,
 };
 
-use crate::{diagnostics, inspect::Inspector, node_info, ServerOptions, ServerState};
+use crate::{
+    diagnostics, inspect::Inspector, node_info, DocumentsOnSave, ServerOptions, ServerState,
+};
 
 /// A Stencila `Node` within a `TextDocument`
 ///
@@ -903,6 +905,12 @@ pub(super) fn did_save(
     state: &mut ServerState,
     params: DidSaveTextDocumentParams,
 ) -> ControlFlow<Result<(), Error>> {
+    let on_save = state.options.documents.on_save;
+
+    if matches!(on_save, DocumentsOnSave::Nothing) {
+        return ControlFlow::Continue(());
+    }
+
     if let Some(text_doc) = state.documents.get(&params.text_document.uri) {
         let doc = text_doc.doc.clone();
         let mut client = state.client.clone();
@@ -910,13 +918,18 @@ pub(super) fn did_save(
         tokio::spawn(async move {
             let doc = doc.read().await;
 
+            // Do not do anything if the document is not tracked, unless option is set to track
+            if !doc.is_tracked().await && !matches!(on_save, DocumentsOnSave::Track) {
+                return;
+            }
+
             // Use `store`, rather than `save`, so that the text file that has just been
             // saved by the LSP client does not get written over.
             if let Err(error) = doc.store().await {
                 client
                     .show_message(ShowMessageParams {
                         typ: MessageType::ERROR,
-                        message: format!("Error saving document: {error}"),
+                        message: format!("Error storing document: {error}"),
                     })
                     .ok();
             }
