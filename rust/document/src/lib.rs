@@ -34,6 +34,7 @@ use schema::{
 pub mod cli;
 
 mod config;
+mod dirs;
 mod sync_directory;
 mod sync_dom;
 mod sync_file;
