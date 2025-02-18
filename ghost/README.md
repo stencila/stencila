@@ -2,9 +2,9 @@
 
 ## Routing
 
-This them will utililse the custom [routes.yml](https://ghost.org/docs/themes/routing/).
+This them will utililse ghosts [custom routing](https://ghost.org/docs/themes/routing/).
 
-In your ghost admin navigate to **Settings** > **Labs**, then in the 'Routes' section click "Upload routes file" to upload the `theme-routes.yml` file in this directory
+TO setup this theme in a ghost instance. Go to your Ghost admin navigate to **Settings** > **Labs**, then in the 'Routes' section click "Upload routes file" to upload the `base-theme-routes.yml` file in this directory
 
 ## Setting up pages
 
@@ -47,6 +47,31 @@ Add a new navigation route to
 
 This will require altering the base `theme-routes.yml` file and uploading into the admin settings again.
 
+Implementing this theme for the stencila website, we have two doc viewer style pages. We have replaced the base 'docviewer' collection with two document pages 'docs' and 'schema'.
+
+```yml
+collections:
+  /main-docs/:
+    permalink: /docs/{slug}/
+    template: index
+    data: page.docs
+    filter: "tag:hash-doc+tag:-hash-schema"
+
+  /schema-docs/:
+    permalink: /schema/{slug}/
+    template: index
+    data: page.schema
+    filter: "tag:hash-doc+tag:hash-schema"
+```
+
+To implement this or a similar structure, upload the routes.yml file via the admin settings "Labs" sections. We will create two pages, one with the slug 'docs' and another with the slug 'schema'.
+
+All posts are still tagged with the #doc tag, and the schema docs are also tagged with the '#schema' tag.
+
+__If there is a crossover of sections on either of the pages (eg. both pages have the 'API Reference' tag). You will need to create seperate tags for each page, or the #doc will show up under both sections on both pages. To achieve this you can name the seperate tags 'API Reference - docs' & 'API Reference - schema' then you can edit the tags 'Meta title' field so they both display as 'API Reference'.__
+
+
+
 ## Misc.
 
 ### Configuring social links
@@ -67,7 +92,7 @@ Ghost sites have configurable primary and secondary navigation fields.
 
 In the stencila theme, the primary navigation relates to the site header nav menu.
 
-The secondary navigation is shown on the right side of the site footer
+The secondary navigation is shown on the right side of the site footer.
 
 
 ## Local Development
@@ -85,6 +110,8 @@ ln -s /path/to/stencila-theme /ghost/content/themes/stencila
 
 In the browser navigate to your local ghost admin site (usually http://localhost:2368/ghost/).
 From the settings menu select **Theme** -> **Installed**, and activate 'stencila-ghost-theme'.
+
+After initialising the theme, upload the relevant `routes.yml` file in **Labs** -> **Routes**, and setup the pages accordingly.
 
 To enable development with hot-loading, In the stencila theme directory and `npm run dev` to start the dev server.
 

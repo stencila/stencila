@@ -37,7 +37,7 @@
 
 /* anchor tags */
 
-.gh-content a {
+.gh-content p a {
     color: var(--ghost-accent-color);
     text-decoration: underline;
 }
@@ -207,7 +207,7 @@ figcaption strong {
 /* Tables
 /* ---------------------------------------------------------- */
 
-.gh-content table {
+/* .gh-content table {
     border-collapse: collapse;
     width: 100%;
 }
@@ -240,4 +240,45 @@ figcaption strong {
 
 .gh-content tbody tr:last-child {
     border-bottom: 1px solid rgba(0,0,0,.1);
+} */
+
+
+/* tables */
+
+.gh-content > table {
+    display: block;
+    max-width: 100%;
+    width: 100%;
+    overflow-x: auto;
+    margin: 1rem 0;
+    border-collapse: collapse;
+    border-spacing: 0;
+    table-layout: auto;
 }
+
+.gh-content > table tr:first-child td,
+.gh-content > table tr:first-child th,
+.gh-content > table thead td,
+.gh-content > table thead th {
+    font-weight: bold !important;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+/* .gh-content > table tr:nth-child(2) td {
+    padding-top: 0.75rem;
+} */
+
+.gh-content > table tr:not(:first-child) {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+}
+
+
+.gh-content > table td,
+.gh-content > table th {
+    padding: 0.5rem;
+    padding-right: 0.75rem;
+    width: fit-content;
+    /* white-space: nowrap; */
+}
+

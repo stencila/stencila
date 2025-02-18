@@ -15,13 +15,13 @@
             </button>
             <div id="sidebar" class="fixed bg-green-50 xl:bg-green-50/80 xl:relative top-20 lg:top-36 pl-12 xl:pl-0 left-0 xl:top-0 h-full overflow-y-auto z-20 text-green-900 border-r border-y border-green-200 rounded-tr-md rounded-br-md">        
                 <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 xl:hidden hover:text-gray-400">{{> icons/chevron-left }}</button>
-                <aside class="w-64 pr-4 py-12 h-full">
+                <aside class="w-[280px] pr-4 py-12 h-full">
                     {{#page}}
-                    <nav>
-                        <div class="mb-4">
-                            <a href="/docview" class="text-lg font-semibold {{#match ../currentSlug "=" slug}}active text-[var(--ghost-accent-color)]{{else}} hover:text-brand-blue{{/match}}">{{title}}</a>
-                        </div>
-                    </nav>
+                        <nav>
+                            <div class="mb-4">
+                                <a href="/docview" class="text-lg font-semibold {{#match ../currentSlug "=" slug}}active text-[var(--ghost-accent-color)]{{else}} hover:text-brand-blue{{/match}}">{{title}}</a>
+                            </div>
+                        </nav>
                         <ul>
                             {{#foreach tags}}
                                 <li>
@@ -33,7 +33,7 @@
                                         </div>
                                     </button>
                                     <ul class="collapsible-section">
-                                        {{#get "posts" filter="tags:{{slug}}+tags:hash-doc" limit="all" order="title asc"}}
+                                        {{#get "posts" filter="tags:{{slug}}+tags:hash-doc" limit="all" order="published_at asc"}}
                                             {{#foreach posts as |post|}}
                                                 <li class="mb-2 ml-4 flex items-start hover:text-[var(--ghost-accent-color)]">
                                                     <div class="w-4 h-4 mr-4 mt-1 flex-none">{{>icons/paragraph}}</div>
