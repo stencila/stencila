@@ -1,5 +1,6 @@
 use std::{path::PathBuf, process::exit};
 
+use cli_utils::{AsFormat, Code, ToStdout};
 use common::{
     clap::{self, Parser},
     eyre::Result,
@@ -19,6 +20,10 @@ pub struct Cli {
     /// Fix any linting issues
     #[arg(long)]
     fix: bool,
+
+    /// Output any linting diagnostics as JSON or YAML
+    #[arg(long, short)]
+    r#as: Option<AsFormat>,
 }
 
 impl Cli {
@@ -33,11 +38,21 @@ impl Cli {
                 doc.save().await?;
             }
 
-            let count = doc.diagnostics().await?;
-            if count > 0 {
-                count_of_issues += count;
-                files_with_issues += 1;
+            if let Some(format) = self.r#as.clone() {
+                let diagnostics = doc.diagnostics().await;
+                count_of_issues += diagnostics.len();
+                Code::new_from(format.into(), &diagnostics)?.to_stdout();
+            } else {
+                let count = doc.diagnostics_print().await?;
+                if count > 0 {
+                    count_of_issues += count;
+                    files_with_issues += 1;
+                }
             }
+        }
+
+        if self.r#as.is_some() && count_of_issues > 0 {
+            exit(count_of_issues as i32)
         }
 
         #[allow(clippy::print_stderr)]

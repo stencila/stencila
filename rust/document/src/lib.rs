@@ -22,7 +22,7 @@ use common::{
     tracing,
 };
 use kernels::Kernels;
-use node_diagnostics::diagnostics;
+use node_diagnostics::{diagnostics, Diagnostic};
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
@@ -815,9 +815,14 @@ impl Document {
         self.command(Command::ExecuteDocument(options), wait).await
     }
 
+    /// Get diagnostics for the document
+    pub async fn diagnostics(&self) -> Vec<Diagnostic> {
+        diagnostics(&*self.root.read().await)
+    }
+
     /// Print diagnostics for the document
-    pub async fn diagnostics(&self) -> Result<usize> {
-        let diagnostics = diagnostics(&*self.root.read().await);
+    pub async fn diagnostics_print(&self) -> Result<usize> {
+        let diagnostics = self.diagnostics().await;
 
         // No diagnostics so return early
         if diagnostics.is_empty() {
