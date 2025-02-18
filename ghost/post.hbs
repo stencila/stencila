@@ -2,12 +2,15 @@
 
 {{#post}}
     {{#has tag="#doc"}}
-        {{#get "pages" filter="slug:docview" limit="1" include="tags" }}
-            {{#foreach pages limit="1" as |page|}}
-                {{> docviewer post=../.. page=page currentSlug=../../slug }}    
-            {{/foreach }}
-        {{/get}}
+        {{#foreach tags}}
+            {{#get "pages" filter="tag:{{slug}}" limit="1" include="tags" }}
+                {{#foreach pages limit="1" as |page|}}
+                    {{> docviewer post=../../.. page=page currentSlug=../../../slug }}    
+                {{/foreach }}
+            {{/get}}
+        {{/foreach}}
     {{else}}
+        {{!-- if not a #doc post, return the default layout --}}
         <div class="container mx-auto px-2">
             <article class="gh-article relative {{post_class}} font-serif leading-snug text-base lg:text-lg">
                 <header class="gh-header gh-canvas">

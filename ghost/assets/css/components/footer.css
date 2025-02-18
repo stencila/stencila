@@ -10,3 +10,12 @@
 #main-footer ul.nav li:hover {
   color: var(--ghost-accent-color);
 }
+
+/* media query to match tailwinds 'md' breakpoint */
+@media only screen and (max-width: 48rem) {
+  #main-footer ul.nav {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+  }
+}
