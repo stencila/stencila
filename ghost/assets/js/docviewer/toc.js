@@ -48,10 +48,15 @@ function highlightActiveHeading(headings, links, menuContainer) {
       const containerRect = menuContainer.getBoundingClientRect();
       const linkRect = activeLink.getBoundingClientRect();
 
-      menuContainer.scrollTo({
-        top: menuContainer.scrollTop + (linkRect.top - containerRect.top) - offset,
-        behavior: "smooth",
-      });
+      if (
+        linkRect.top <= containerRect.top &&
+        linkRect.bottom >= containerRect.bottom
+      ) {
+        menuContainer.scrollTo({
+          top: menuContainer.scrollTop + (linkRect.top - containerRect.top) - offset,
+          behavior: "smooth",
+        });
+      }
     }
   }
   
