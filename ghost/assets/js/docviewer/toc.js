@@ -69,7 +69,7 @@ export default function generateTableOfContents() {
   const article = document.querySelector('#doc-content');
   const tocOuter = document.querySelector('#doc-toc-outer');
 
-  const tocContainer = document.querySelector('#doc-toc-container')
+  const tocContainer = document.querySelector('#doc-toc-scroll-container')
 
   const toc = document.querySelector('#doc-toc-inner');
 

@@ -1,149 +1,149 @@
 
 <div class="page-container container w-full mx-auto px-2">
-  <div class="relative flex">
-    <div class="relative lg:sticky lg:top-32 lg:py-8 flex-none h-[calc(100vh-8rem)]">
-        <div class="hidden lg:block absolute h-full top-0 left-0 -translate-x-full h-full w-screen py-8">
-            <div class="bg-green-50 lg:bg-green-50/80 border-0 border-y border-green-200 w-full h-full"></div>
-        </div>
-        <!-- Mobile Menu Toggle -->
-        <button class="fixed z-20 top-24 lg:top-36 left-4 sm:left-8 flex items-center justify-center leading-none bg-brand-blue text-white hover:text-brand-blue hover:bg-white hover:border border-brand-blue w-12 h-12 rounded-full shadow-lg lg:hidden block" id="sidebar-toggle">
-            <div>
-                <span class="block w-6 h-0.5 bg-[currentColor] mb-1"></span>
-                <span class="block w-6 h-0.5 bg-[currentColor] mb-1"></span>
-                <span class="block w-6 h-0.5 bg-[currentColor]"></span>
+    <div class="relative flex">
+        <div class="relative xl:sticky xl:top-32 xl:py-8 flex-none h-[calc(100vh-8rem)]">
+            <div class="hidden xl:block absolute h-full top-0 left-0 -translate-x-full h-full w-screen py-8">
+                <div class="bg-green-50 xl:bg-green-50/80 border-0 border-y border-green-200 w-full h-full"></div>
             </div>
-        </button>
-        <div id="sidebar" class="fixed bg-green-50 lg:bg-green-50/80 lg:relative top-20 pl-12 lg:pl-0 left-0 lg:top-0 h-full overflow-y-auto z-20 text-green-900 border-r border-y border-green-200 rounded-tr-md rounded-br-md">        
-            <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 lg:hidden hover:text-gray-400">{{> icons/chevron-left }}</button>
-            <aside class="w-64 pr-4 py-12 h-full">
-                {{#page}}
-                <nav>
-                    <div class="mb-4">
-                        <a href="/docview" class="text-lg font-semibold {{#match ../currentSlug "=" slug}}active text-[var(--ghost-accent-color)]{{else}} hover:text-brand-blue{{/match}}">{{title}}</a>
-                    </div>
-                </nav>
-                    <ul>
-                        {{#foreach tags}}
-                            <li>
-                                <button class="collapse-toggle hover:text-[var(--ghost-accent-color)]">
-                                    <div class="flex items-center gap-4 mb-4">
-                                        <span class="w-4 h-4">{{>icons/square}}</span>
-                                        <h4 class="font-bold text-base">{{name}}</h4>
-                                        <div class="chevron w-4 h-4 transform">{{> icons/chevron-down}}</div>
-                                    </div>
-                                </button>
-                                <ul class="collapsible-section">
-                                    {{#get "posts" filter="tags:{{slug}}+tags:hash-doc" limit="all" order="title asc"}}
-                                        {{#foreach posts as |post|}}
-                                            <li class="mb-2 ml-4 flex items-start hover:text-[var(--ghost-accent-color)]">
-                                                <div class="w-4 h-4 mr-4 mt-1 flex-none">{{>icons/paragraph}}</div>
-                                                <a href="{{post.url}}" class="{{#match ../../../../currentSlug "=" post.slug}}active text-[var(--ghost-accent-color)] font-semibold underline{{else}} hover:text-[var(--ghost-accent-color)]{{/match}}">
-                                                    {{post.title}}
-                                                </a>
-                                            </li>
-                                        {{/foreach}}
-                                    {{/get}}
-                                </ul>
-                            </li>
-                        {{/foreach}}
-                    </ul>
-                {{/page}}
-            </aside>
+            <!-- Mobile Menu Toggle -->
+            <button class="fixed z-20 top-24 lg:top-36 xl:40 left-4 sm:left-8 flex items-center justify-center leading-none bg-brand-blue text-white hover:text-brand-blue hover:bg-white hover:border border-brand-blue w-12 h-12 rounded-full shadow-lg xl:hidden block" id="sidebar-toggle">
+                <div>
+                    <span class="block w-6 h-0.5 bg-[currentColor] mb-1"></span>
+                    <span class="block w-6 h-0.5 bg-[currentColor] mb-1"></span>
+                    <span class="block w-6 h-0.5 bg-[currentColor]"></span>
+                </div>
+            </button>
+            <div id="sidebar" class="fixed bg-green-50 xl:bg-green-50/80 xl:relative top-20 lg:top-36 pl-12 xl:pl-0 left-0 xl:top-0 h-full overflow-y-auto z-20 text-green-900 border-r border-y border-green-200 rounded-tr-md rounded-br-md">        
+                <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 xl:hidden hover:text-gray-400">{{> icons/chevron-left }}</button>
+                <aside class="w-64 pr-4 py-12 h-full">
+                    {{#page}}
+                    <nav>
+                        <div class="mb-4">
+                            <a href="/docview" class="text-lg font-semibold {{#match ../currentSlug "=" slug}}active text-[var(--ghost-accent-color)]{{else}} hover:text-brand-blue{{/match}}">{{title}}</a>
+                        </div>
+                    </nav>
+                        <ul>
+                            {{#foreach tags}}
+                                <li>
+                                    <button class="collapse-toggle hover:text-[var(--ghost-accent-color)]">
+                                        <div class="flex items-center gap-4 mb-4">
+                                            <span class="w-4 h-4">{{>icons/square}}</span>
+                                            <h4 class="font-bold text-base">{{name}}</h4>
+                                            <div class="chevron w-4 h-4 transform">{{> icons/chevron-down}}</div>
+                                        </div>
+                                    </button>
+                                    <ul class="collapsible-section">
+                                        {{#get "posts" filter="tags:{{slug}}+tags:hash-doc" limit="all" order="title asc"}}
+                                            {{#foreach posts as |post|}}
+                                                <li class="mb-2 ml-4 flex items-start hover:text-[var(--ghost-accent-color)]">
+                                                    <div class="w-4 h-4 mr-4 mt-1 flex-none">{{>icons/paragraph}}</div>
+                                                    <a href="{{post.url}}" class="{{#match ../../../../currentSlug "=" post.slug}}active text-[var(--ghost-accent-color)] font-semibold underline{{else}} hover:text-[var(--ghost-accent-color)]{{/match}}">
+                                                        {{post.title}}
+                                                    </a>
+                                                </li>
+                                            {{/foreach}}
+                                        {{/get}}
+                                    </ul>
+                                </li>
+                            {{/foreach}}
+                        </ul>
+                    {{/page}}
+                </aside>
+            </div>
         </div>
-    </div>
-    <div class="flex-auto basis-0 min-w-0">
-        {{#post}}
-        <article class="gh-article relative font-serif leading-snug text-base lg:text-lg {{post_class}}">
-            {{> toc }}
-            <header id="doc-header" class="gh-header gh-canvas mt-12 md:mt-0">
-                <span class="absolute top-4 right-0">
-                    {{#foreach authors}}<a href="{{url}}" class="hover:text-gray-400">{{name}}</a> &bull; {{/foreach}}
-                    <span class="uppercase">{{reading_time}}</span>
-                </span>
+        <div class="flex-auto basis-0 min-w-0">
+            {{#post}}
+            <article class="gh-article relative font-serif leading-snug text-base lg:text-lg {{post_class}}">
+                <header id="doc-header" class="gh-header gh-canvas text-left mt-12 md:mt-0">
+                    <span class="absolute top-4 right-0">
+                        {{#foreach authors}}<a href="{{url}}" class="hover:text-gray-400">{{name}}</a> &bull; {{/foreach}}
+                        <span class="uppercase">{{reading_time}}</span>
+                    </span>
 
-                <h1 id="main-heading" class="text-4xl lg:text-6xl">{{title}}</h1>
+                    <h1 id="main-heading" class="text-4xl lg:text-6xl text-left">{{title}}</h1>
 
-                {{#if custom_excerpt}}
-                <p class="gh-excerpt">{{custom_excerpt}}</p>
-                {{/if}}
-
-                {{#if feature_image}}
-                <figure class="gh-feature-image">
-                    <picture>
-                        <source 
-                        srcset="
-                        {{img_url feature_image size="xxs" format="avif"}} 30w,
-                        {{img_url feature_image size="xs" format="avif"}} 100w,
-                        {{img_url feature_image size="s" format="avif"}} 300w,
-                        {{img_url feature_image size="m" format="avif"}} 600w,
-                        {{img_url feature_image size="l" format="avif"}} 1200w,
-                        {{img_url feature_image size="xl" format="avif"}} 2000w"
-                        sizes="(min-width: 1200px) 1200px, 90vw" 
-                        type="image/avif"
-                        >
-                        <source 
-                        srcset="
-                        {{img_url feature_image size="xxs" format="webp"}} 30w,
-                        {{img_url feature_image size="xs" format="webp"}} 100w,
-                        {{img_url feature_image size="s" format="webp"}} 300w,
-                        {{img_url feature_image size="m" format="webp"}} 600w,
-                        {{img_url feature_image size="l" format="webp"}} 1200w,
-                        {{img_url feature_image size="xl" format="webp"}} 2000w"
-                        sizes="(min-width: 1200px) 1200px, 90vw" 
-                        type="image/webp"
-                        >
-                        <img
-                        srcset="
-                        {{img_url feature_image size="xxs"}} 30w,
-                        {{img_url feature_image size="xs"}} 100w,
-                        {{img_url feature_image size="s"}} 300w,
-                        {{img_url feature_image size="m"}} 600w,
-                        {{img_url feature_image size="l"}} 1200w,
-                        {{img_url feature_image size="xl"}} 2000w"
-                        sizes="(min-width: 1200px) 1200px, 90vw" 
-                        src="{{img_url feature_image size="l"}}"
-                        alt="{{#if feature_image_alt}}{{feature_image_alt}}{{else}}{{title}}{{/if}}"
-                        >
-                    </picture>
-                    {{#if feature_image_caption}}
-                        <figcaption>{{feature_image_caption}}</figcaption>
+                    {{#if custom_excerpt}}
+                    <p class="gh-excerpt text-left">{{custom_excerpt}}</p>
                     {{/if}}
-                </figure>
-                {{/if}}
-            </header>
 
-            <div id="doc-content" class="gh-content gh-canvas">
-                {{content}}
-            </div>
+                    {{#if feature_image}}
+                    <figure class="gh-feature-image">
+                        <picture>
+                            <source 
+                            srcset="
+                            {{img_url feature_image size="xxs" format="avif"}} 30w,
+                            {{img_url feature_image size="xs" format="avif"}} 100w,
+                            {{img_url feature_image size="s" format="avif"}} 300w,
+                            {{img_url feature_image size="m" format="avif"}} 600w,
+                            {{img_url feature_image size="l" format="avif"}} 1200w,
+                            {{img_url feature_image size="xl" format="avif"}} 2000w"
+                            sizes="(min-width: 1200px) 1200px, 90vw" 
+                            type="image/avif"
+                            >
+                            <source 
+                            srcset="
+                            {{img_url feature_image size="xxs" format="webp"}} 30w,
+                            {{img_url feature_image size="xs" format="webp"}} 100w,
+                            {{img_url feature_image size="s" format="webp"}} 300w,
+                            {{img_url feature_image size="m" format="webp"}} 600w,
+                            {{img_url feature_image size="l" format="webp"}} 1200w,
+                            {{img_url feature_image size="xl" format="webp"}} 2000w"
+                            sizes="(min-width: 1200px) 1200px, 90vw" 
+                            type="image/webp"
+                            >
+                            <img
+                            srcset="
+                            {{img_url feature_image size="xxs"}} 30w,
+                            {{img_url feature_image size="xs"}} 100w,
+                            {{img_url feature_image size="s"}} 300w,
+                            {{img_url feature_image size="m"}} 600w,
+                            {{img_url feature_image size="l"}} 1200w,
+                            {{img_url feature_image size="xl"}} 2000w"
+                            sizes="(min-width: 1200px) 1200px, 90vw" 
+                            src="{{img_url feature_image size="l"}}"
+                            alt="{{#if feature_image_alt}}{{feature_image_alt}}{{else}}{{title}}{{/if}}"
+                            >
+                        </picture>
+                        {{#if feature_image_caption}}
+                            <figcaption>{{feature_image_caption}}</figcaption>
+                        {{/if}}
+                    </figure>
+                    {{/if}}
+                </header>
 
-            <footer class="mt-8 gh-footer gh-canvas">
-
-                {{#if comments}}
-                <section class="gh-post-comments">
-                    {{comments}}
-                </section>
-                {{/if}}
-
-            </footer>
-
-        </article>
-        <aside class="font-sans w-full py-8">
-            <div class="flex justify-between gap-8 px-8 text-lg font-semibold w-full">
-                <div>
-                    <a id="prev-link" href="#" class="hidden flex items-center gap-4 p-4 border border-black rounded-md bg-gray-50/50 hover:text-gray-400 hover:border-gray-400 shadow-md hover:shadow-xl">
-                        <span class="w-4 h-6 flex-none">{{>"icons/arrow-left"}}</span>
-                        <h4 class="text-base lg:text-xl">Previous</h4>
-                    </a>
+                <div id="doc-content" class="gh-content gh-canvas">
+                    {{content}}
                 </div>
-                <div>
-                    <a id="next-link" href="#" class="hidden flex items-center gap-4 p-4 border border-black rounded-md bg-gray-50/50 hover:text-gray-400 hover:border-gray-400 shadow-md hover:shadow-xl">
-                        <h4 class="text-right text-base lg:text-xl">Next</h4>
-                        <span class="w-4 h-6 flex-none">{{>"icons/arrow-right"}}</span>
-                    </a>
+
+                <footer class="mt-8 gh-footer gh-canvas">
+
+                    {{#if comments}}
+                    <section class="gh-post-comments">
+                        {{comments}}
+                    </section>
+                    {{/if}}
+
+                </footer>
+
+            </article>
+            <aside class="font-sans w-full py-8">
+                <div class="flex justify-between gap-8 px-8 text-lg font-semibold w-full">
+                    <div>
+                        <a id="prev-link" href="#" class="hidden flex items-center gap-4 p-4 border border-black rounded-md bg-gray-50/50 hover:text-gray-400 hover:border-gray-400 shadow-md hover:shadow-xl">
+                            <span class="w-4 h-6 flex-none">{{>"icons/arrow-left"}}</span>
+                            <h4 class="text-base lg:text-xl">Previous</h4>
+                        </a>
+                    </div>
+                    <div>
+                        <a id="next-link" href="#" class="hidden flex items-center gap-4 p-4 border border-black rounded-md bg-gray-50/50 hover:text-gray-400 hover:border-gray-400 shadow-md hover:shadow-xl">
+                            <h4 class="text-right text-base lg:text-xl">Next</h4>
+                            <span class="w-4 h-6 flex-none">{{>"icons/arrow-right"}}</span>
+                        </a>
+                    </div>
                 </div>
-            </div>
-        </aside>
-        {{/post}}
-    </div>
+            </aside>
+            {{/post}}
+        </div>
+        {{> toc }}
     </div>
 </div>
