@@ -69,6 +69,8 @@ export default function generateTableOfContents() {
   const article = document.querySelector('#doc-content');
   const tocOuter = document.querySelector('#doc-toc-outer');
 
+  const tocContainer = document.querySelector('#doc-toc-container')
+
   const toc = document.querySelector('#doc-toc-inner');
 
   const pageContainer = document.querySelector('.page-container');
@@ -146,6 +148,6 @@ export default function generateTableOfContents() {
   adjustTocPosition(tocOuter, pageContainer)
   highlightActiveHeading(headings, tocLinks, tocOuter)
   window.addEventListener('resize', () => adjustTocPosition(tocOuter, pageContainer))
-  window.addEventListener('scroll', () => highlightActiveHeading(headings, tocLinks, tocOuter))
+  window.addEventListener('scroll', () => highlightActiveHeading(headings, tocLinks, tocContainer))
   tocOuter.classList.remove('invisible')
 }

@@ -6,7 +6,7 @@ import "../css/index.css";
 // Import JS
 import mobileMenu from "./mobileMenu";
 import infiniteScroll from "./infiniteScroll";
-import { sidebar, menuCollapse } from './sidebar';
+import { sidebar, menuCollapse } from './docviewer/sidebar';
 import generateTableOfContents from './docviewer/toc';
 
 import pagination from './pagination';

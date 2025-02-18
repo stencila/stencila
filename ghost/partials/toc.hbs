@@ -1,7 +1,9 @@
 <nav id="doc-toc-outer" class="hidden md:block fixed z-10 top-52 bottom-64 right-0 text-xs 
-    font-sans font-semibold p-4 bg-gray-50/50 border border-gray-50 rounded max-w-[140px] 
-    overflow-y-auto shadow max-h-[50vh] invisible"
+     max-w-[140px] 
+     h-auto max-h-[50vh] invisible"
 >
-    <a href="#main-heading">{{title}}</a>
-    <div id="doc-toc-inner"></div>
+    <div id="doc-toc-container" class="text-xs font-sans font-semibold p-4 bg-gray-50/50 border border-gray-50 rounded max-h-full overflow-y-auto">
+        <a href="#main-heading">{{title}}</a>
+        <div id="doc-toc-inner"></div>
+    </div>
 </nav>
