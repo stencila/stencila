@@ -665,7 +665,15 @@ pub(super) async fn execute_command(
             // Convert the nodes into blocks (if necessary) and replicate (to avoid having duplicate ids)
             let blocks: Vec<Block> = nodes
                 .into_iter()
-                .map(|node| replicate(&Block::try_from(node)?))
+                .map(|node| match node {
+                    Node::CodeChunk(mut chunk) => {
+                        // Remove any execution bounds on code chunks (will usually be `Fork` or `Box`)
+                        // when inserting into main document
+                        chunk.execution_bounds = None;
+                        Ok(Block::CodeChunk(chunk))
+                    }
+                    _ => replicate(&Block::try_from(node)?),
+                })
                 .try_collect()
                 .map_err(internal_error)?;
 
