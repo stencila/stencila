@@ -438,6 +438,10 @@ Lint one or more documents
 
 * `--format` — Format the file if necessary
 * `--fix` — Fix any linting issues
+* `-a`, `--as <AS>` — Output any linting diagnostics as JSON or YAML
+
+  Possible values: `json`, `yaml`
+
 
 
 
