@@ -1,0 +1,191 @@
+---
+config:
+  publish:
+    ghost:
+      state: publish
+      type: post
+      tags:
+      - Learning
+      - '#doc'
+description: Learn how to publish Stencila documents to the Ghost CMS.
+title: Publishing with Ghost
+---
+
+# Publishing to the Ghost CMS from the Command Line
+
+The `stencila publish` command has multiple "publishers" that allow Stencila users to be able to publish documents to various platforms. The [Ghost CMS](https://ghost.org/) is a web-based and open source content management system that enables modern pubishing workflows and capabilities. Using Ghost you can make a website, blog or newsletter. Similar to Medium and substack, Ghost can send emails to subscribers who register with your website. With Stencila and Ghost together you can push your Stencila documents to Ghost.
+
+This tutorial will show you how to take a Stencila document and push it to a Ghost instance. That Ghost instance could be one hosted at ghost.org via [Ghost (Pro)](https://ghost.org/pricing/) or one you self-host via docker or some other means. In either case the steps are the similar, and Ghost can be a robust and handy CMS system for many use cases.
+
+## Learning objectives
+
+By the end of this tutorial you should be able to:
+
+- Understand how Stencila Documents are translated to Ghost
+- Understand Stencila Metadata and how it maps to Ghost CMS Metadata
+- Learn how to create an API key for Ghost
+- Test publish a documet to a *.ghost.org account or self-hosted Ghost server
+
+## Stencila and CMS
+
+Stencila documents are converted to the [Stencila Schema](/docs/), a rich and descriptive Schema which describes different parts of a document. As such, there are various pieces of metadata that can be used in the CMS, and a few other variables supported by the CMS which can also be added as ad hoc metadata in your Stencila Documents.
+
+In this way you can create Stencila documents which are able to be pushed to your CMS in a way that they're self-describing as to things like `title`, `description`, `tags`. This tutorial is itself a Stencila document being pushed to Ghost. If you're curious you can see the source at [here](https://github.com/stencila/stencila/main/docs/tutorials/publish-to-ghost/tutorial.md).
+
+The `stencila publish ghost` cli command uses the Ghost API to publish your document into the Ghost CMS. To do this it needs to know the particular Ghost endpoint URL to post to, and you need to create an API key to give your Stencila CLI access to push to your Ghost instance.
+
+A basic form of the `publish` command is:
+
+```
+stencila publish ghost somefile.smd --ghost https://myhost.ghost.org --key XXXXXX --post
+```
+
+Lets break that down:
+
+1. Run the `stencila` CLI
+2. Run the `publish` subcommand
+3. Run the `ghost` variant of publish
+4. Use the contents of `somefile.smd` as the page content
+5. `--ghost` says use this particular Ghost server (can also be provided by setting STENCILA_GHOST_DOMAIN environment variable)
+6. `--key` is used to show you have permissions (can also be provided by setting STENCILA_GHOST_KEY environment variable)
+7. `--post` We'd like a post as opposed to a `--page`, see the Ghost documentation to understand the distinction.
+
+With this command the contents of the document will be pushed to the Ghost server.
+
+If you run `stencila publish ghost -h` you can learn about other flags:
+
+```
+Publish to Ghost
+
+Usage: stencila publish ghost [OPTIONS] [PATH]
+
+Arguments:
+  [PATH]  Path to the file or directory to publish [default: .]
+
+Options:
+      --id <ID>  Ghost id of the page or post
+      --dry-run  Dry run test
+      --debug    Display debug level logging and detailed error reports
+  -h, --help     Print help (see more with '--help')
+
+Ghost Settings:
+      --ghost <GHOST>  The Ghost domain [env: STENCILA_GHOST_DOMAIN=]
+      --key <KEY>      The Ghost Admin API key [env: STENCILA_GHOST_KEY=]
+      --page           Create a page
+      --post           Create a post
+      --pull           Update file from an existing Ghost post or page
+      --push           Create or update Ghost post or page from a file
+
+Post/Page Settings:
+      --draft                Mark page or post as draft
+      --publish              Publish page or post
+      --schedule <SCHEDULE>  Schedule page or post
+      --slug <SLUG>          Set slug(URL slug the page or post will be available at)
+      --title <TITLE>        Title for page or post
+
+Document Metadata:
+      --excerpt <EXCERPT>                        Excerpt for page or post
+      --featured                                 Feature post or page
+      --inject-code-footer <INJECT_CODE_FOOTER>  Inject HTML footer
+      --inject-code-header <INJECT_CODE_HEADER>  Inject HTML header
+      --tag <TAGS>                               Tags for page or post
+```
+
+To see a longer form of this with some examples, run `stencila publish ghost --help`
+
+That's a basic overview of how it works, lets dive into a bit more of a detailed example where we look at the various metdata fields that can be supported and a few more advanced features of the `publish ghost` Stencila subcommand.
+
+## Concepts
+
+The following concepts are useful to know about as you begin publishing Stencila documents to Ghost.
+
+- Stencila CLI
+- Markdown
+- API Keys
+- Lexical
+- **CLI** - The `stencila` command is referred to as the Stencila CLI, or command line interface. It is a command line tool which acts as the interface to Stencila for users and integrated systems. You can learn more about all the features of the CLI at the [CLI Reference page](https://FIXME). Stencila is written in the programming language Rust, and has many features that can be useful for developing runable and reproducible documents with a mix of prose and code.
+- **Markdown** - In this examples, documents are written in a special 'flavor' of Markdown known as 'Stencila Markdown'. Stencila Markdown is a superset of regular Markdown. To learn more about Stencila Markdown you can look at our [Stencila Markdown page](https://FIXME). To learn more about Markdown in general, you can try [a hands-on tutorial](https://www.markdowntutorial.com/l)
+- **API** - As we're using a remote installation of Ghost which we're using the Stencila API to push to, you'll need to create an API key to allow Stencila to talk to your Ghost server. The Stencila Publish command needs access to the [Admin API](https://ghost.org/docs/admin-api/) in order to publish posts or pages on your Ghost instance. To create an API key, you'll need to create a ['Custom Integration'](https://ghost.org/integrations/custom-integrations/)(instructions linked) on your Ghost instance.
+- **Lexical** - Ghost uses [Lexical](https://lexical.dev/), a JSON representation of the text that is then rendered to HTML for presentation. Stencila documents are converted to Lexical using the Stencila [`codec-lexical`](https://github.com/stencila/stencila/tree/main/rust/codec-lexical) Rust Crate.  You don't have to dive into this too deeply, but it is useful to understand if you wind up hitting edge cases around formatting problems on your final pages. Most basic Markdown formatting passes through just fine, some things don't pass through correctly. You can see known limitations in our [GitHub Issues](https://github.com/stencila/stencila/issues?q=is%3Aissue%20state%3Aopen%20lexical).
+
+## Creating a post
+
+To create a post, at a minimum you just need a document in a format supported by Stencila Codecs. In most of our documentation we use Stencila Markdown as a reference format, but it is useful to know that any supported format can be used, including (`.docx` and `.odt`). Different formats have more losses than others, so check our [formats documentation](https://FIXME) to see how conversions of specific document objects may or may not be supported.
+
+As we saw in the above example, you'll need:
+
+1. A Ghost server, [Self hosted](https://ghost.org/docs/hosting/) or [Ghost (Pro)](https://ghost.org/pricing/)
+2. With a [custom integration](https://ghost.org/integrations/custom-integrations/) and associated API key
+3. A source document in some flavor of Markdown (or other supported format)
+4. The [Stencila CLI](https://github.com/stencila/stencila/releases/tag/v2.0.0-beta.23) installed
+
+Say your server is:`https://myawesomepage.ghost.org`
+and your API key:
+`7a8c6d3feb104a0db8e7302:51f2e973aeb600af8620820a4381f1f7d9e18201e3b51494f20b61e32ab1ae3`
+
+You'd now be able to run:
+
+```
+export STENCILA_GHOST_DOMAIN=https://myawesomepage.ghost.org
+export STENCILA_GHOST_KEY=7a8c6d3feb104a0db8e7302:51f2e973aeb600af8620820a4381f1f7d9e18201e3b51494f20b61e32ab1ae3
+stencila publish ghost somefile.smd --post
+```
+
+You can select `--post` or `--page` to create a post or a page in your Ghost CMS.
+
+the contents of `somefile.smd` might be something like:
+
+```
+---
+title: My research report 
+description: A research report on something very interesting
+config: 
+  ghost:
+    tags: ['report','science']
+    slug: research-report
+    type: post # or page
+    status: draft # or publish
+---
+
+# Introduction 
+
+This report will detail some interesting topics. 
+
+## Methods 
+
+We used a very good method!
+
+## Conclusion 
+
+The end!
+```
+
+We can place Ghost-specific metadata in the config -> ghost yaml headers, thing such as Ghost tags, and the Ghost slug (the web page's URL) to this yaml header to specify how the content is pushed and if it will be a page / post or as a draft / published immediately.  
+
+With the above `stencila publish ghost` command, Stencila will convert the `.smd` file to Lexical, import it into Ghost and write back the ID of the file into the headers of the file. This ID, now persisted in the file, links the file to Ghost and prevents you from having to specify it at the commandline. In this way updates can be pushed to the document each time you make changes to the source text of the file.
+
+The metadata section after you push once would look like:
+
+```
+---
+title: My research report 
+description: A research report on something very interesting
+config:
+  ghost:
+    tags: ['report','science']
+    slug: research-report
+    status: draft
+    type: post
+---
+```
+
+This identifier in the `identifiers` key is what enables you to be able to re-run `stencila publish ghost` on the same file and have it update your CMS page. `description:` is mapped to the `excerpt` in Ghost and is used for [Open Graph](https://ogp.me/) metadata for the page, used for link previews and such.
+
+With this file connected by the `identifier` value, you'll be able to make additions or changes to the file and simply re-run `stencila publish ghost somefile.smd` against it and have any changes pushed up to Ghost.
+
+## Key Points
+
+- Stencila documents are converted to Lexical format (Ghost's native document format) and then converted to HTML by the Ghost CMS.
+- Metadata values in YAML headers can be used to simplify calls to the `publish ghost` utility. While many options can be specifed, or overridden using command-line flags, having values in the metadata can simplify things.
+- To create an API token in Ghost you need to create a custom integration and share with the Stencila CLI your Admin API token using either a commandline flag `--key` or environment variable `STENCILA_GHOST_KEY`
+- We've shown you how to push a test document up to your Ghost instance. Now you can create your own customizations and integrations to make runnable documents push to Ghost.

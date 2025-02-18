@@ -68,7 +68,7 @@ impl Cli {
         let doc = Document::open(&input).await?;
         doc.compile(CommandWait::Yes).await?;
         doc.execute(execute_options, CommandWait::Yes).await?;
-        doc.diagnostics().await?;
+        doc.diagnostics_print().await?;
 
         if !no_save {
             doc.save().await?;

@@ -3,7 +3,7 @@
   "displayName": "Stencila",
   "publisher": "stencila",
   "description": "Documents with Scientific Intelligence",
-  "version": "0.0.25",
+  "version": "0.0.26",
   "license": "Apache-2.0",
   "author": "Stencila and contributors",
   "homepage": "https://github.com/stencila/stencila/tree/main/vscode#readme",
@@ -99,14 +99,40 @@
             }
           }
         },
+        "stencila.diagnostics.compilationMessages": {
+          "order": 21,
+          "description": "The minimum severity level of compilation messages (from code linting, math parsing, etc) to show in editor",
+          "enum": [
+            "Trace",
+            "Debug",
+            "Info",
+            "Warning",
+            "Error",
+            "Exception"
+          ],
+          "default": "Error"
+        },
+        "stencila.diagnostics.executionMessages": {
+          "order": 22,
+          "description": "The minimum severity level of execution messages (from runtime logging and exceptions) to show in editor",
+          "enum": [
+            "Trace",
+            "Debug",
+            "Info",
+            "Warning",
+            "Error",
+            "Exception"
+          ],
+          "default": "Warning"
+        },
         "stencila.gutter.enabled": {
-          "order": 4,
+          "order": 30,
           "description": "Enable gutter with markers for document node type and status.",
           "type": "boolean",
           "default": true
         },
         "stencila.gutter.markerWidth": {
-          "order": 5,
+          "order": 31,
           "description": "Width of document node type gutter markers.",
           "type": "number",
           "minimum": 1,
@@ -114,25 +140,25 @@
           "default": 4
         },
         "stencila.gutter.animateRunning": {
-          "order": 6,
+          "order": 32,
           "description": "Animate gutter marker for running document nodes.",
           "type": "boolean",
           "default": true
         },
         "stencila.linkedScrolling.previewFollowsEditor": {
-          "order": 7,
+          "order": 60,
           "description": "Synchronize the scroll position of the preview to the scroll position of the editor.",
           "type": "boolean",
           "default": true
         },
         "stencila.linkedScrolling.editorFollowsPreview": {
-          "order": 8,
+          "order": 61,
           "description": "Synchronize the scroll position of the editor to the scroll position of the preview.",
           "type": "boolean",
           "default": true
         },
         "stencila.languageServer.logLevel": {
-          "order": 9,
+          "order": 100,
           "description": "The logging level of the Stencila Language Server (server restart required)",
           "enum": [
             "trace",
@@ -144,7 +170,7 @@
           "default": "info"
         },
         "stencila.logging.usage": {
-          "order": 10,
+          "order": 130,
           "description": "Enable logging of extension usage events. Helps us fix bugs and improve usability.",
           "type": "boolean",
           "default": true,
@@ -885,11 +911,6 @@
       ],
       "view/title": [
         {
-          "command": "stencila.setup.refresh",
-          "when": "view == stencila-setup",
-          "group": "navigation"
-        },
-        {
           "command": "stencila.prompts.picker",
           "when": "view == stencila-prompts",
           "group": "navigation"
@@ -911,31 +932,6 @@
         }
       ],
       "view/item/context": [
-        {
-          "command": "stencila.cloud.signin",
-          "when": "view == stencila-setup && viewItem == stencila-cloud-signed-out",
-          "group": "inline"
-        },
-        {
-          "command": "stencila.cloud.signout",
-          "when": "view == stencila-setup && viewItem == stencila-cloud-signed-in",
-          "group": "inline"
-        },
-        {
-          "command": "stencila.secrets.set",
-          "when": "view == stencila-setup && viewItem == ai-api-key-none",
-          "group": "inline"
-        },
-        {
-          "command": "stencila.secrets.delete",
-          "when": "view == stencila-setup && viewItem == ai-api-key-some",
-          "group": "inline"
-        },
-        {
-          "command": "stencila.settings",
-          "when": "view == stencila-setup && viewItem == user-details",
-          "group": "inline"
-        },
         {
           "command": "stencila.kernels.use",
           "when": "view == stencila-kernels && viewItem == kernel",
@@ -1184,29 +1180,43 @@
           "id": "stencila-kernels",
           "name": "Kernels",
           "visibility": "collapsed"
-        },
-        {
-          "id": "stencila-setup",
-          "name": "Setup"
         }
       ]
     },
-    "viewsWelcome": [
+    "walkthroughs": [
       {
-        "view": "stencila-setup",
-        "contents": "Welcome to the Stencila VSCode extension.\n\nThe easiest way to get started with AI commands is to sign in to Stencila Cloud and use our smart model router.\n[Sign In to Stencila Cloud](command:stencila.cloud.signin)\nIf you already have an API key for one of the supported AI model providers you can use it instead\n[Add an API Key](command:stencila.secrets.set)\nYou can change your user details (used for content attribution), and other settings, at any time.\n[Open Stencila Settings](command:stencila.settings)\n\nYou can remove this view using the '...' menu at top right of the Stencila panel."
+        "id": "get-started",
+        "title": "Get Started with Stencila",
+        "featuredFor": [
+          "*.smd",
+          "*.qmd",
+          "*.myst",
+          "*.ipynb"
+        ],
+        "description": "A guide to getting started with the Stencila VSCode extension",
+        "steps": [
+          {
+            "id": "step1",
+            "title": "Commands Menu",
+            "description": "The Commands Menu provides a central place to access commonly used commands.\n\nOpen the menu by clicking on 'Stencila' in right of the bottom status bar. Quickly find the command you want by typing in the menu.",
+            "media": {
+              "image": "./images/command-menu.gif",
+              "altText": "Using the Stencila Commands Menu"
+            }
+          }
+        ]
       }
     ]
   },
   "scripts": {
     "fix": "eslint 'src/**/*.ts' --fix",
-    "lint": "eslint 'src/**/*.ts'",
+    "lint": "eslint 'src/**/*.ts' && tsc --noEmit",
     "compile:web": "cd ../web/ && npm run build:vscode",
     "fetch:myst": "node syntaxes/myst/fetch.js",
     "fetch:qmd": "node syntaxes/qmd/fetch.js",
     "compile:smd": "node syntaxes/smd/compile.js",
     "compile:syntaxes": "npm run compile:smd",
-    "compile:ts": "tsc -p ./",
+    "compile:ts": "node esbuild.mjs",
     "compile": "npm run compile:web && npm run compile:syntaxes && npm run compile:ts",
     "watch": "tsc -watch -p ./",
     "pretest": "npm run compile && npm run lint",
@@ -1218,17 +1228,18 @@
     "vscode-languageclient": "9.0.1"
   },
   "devDependencies": {
-    "@eslint/js": "9.18.0",
+    "@eslint/js": "9.20.0",
     "@types/mocha": "10.0.10",
     "@types/node": "20.x",
     "@types/vscode": "1.84.0",
-    "@typescript-eslint/parser": "8.21.0",
+    "@typescript-eslint/parser": "8.24.0",
     "@vscode/test-cli": "0.0.10",
     "@vscode/test-electron": "2.4.1",
-    "@vscode/vsce": "3.2.1",
-    "eslint": "9.18.0",
+    "@vscode/vsce": "3.2.2",
+    "esbuild": "0.25.0",
+    "eslint": "9.20.1",
     "js-yaml": "4.1.0",
     "ovsx": "0.10.1",
-    "typescript-eslint": "8.21.0"
+    "typescript-eslint": "8.24.0"
   }
 }

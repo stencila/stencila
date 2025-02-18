@@ -7,9 +7,9 @@ use std::{ops::ControlFlow, path::PathBuf, sync::Arc};
 
 use async_lsp::{
     lsp_types::{
-        Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
-        DidOpenTextDocumentParams, DidSaveTextDocumentParams, MessageType, Position,
-        PublishDiagnosticsParams, Range, ShowMessageParams, Url,
+        Diagnostic as LspDiagnostic, DiagnosticSeverity, DidChangeTextDocumentParams,
+        DidCloseTextDocumentParams, DidOpenTextDocumentParams, DidSaveTextDocumentParams,
+        MessageType, Position, PublishDiagnosticsParams, Range, ShowMessageParams, Url,
     },
     ClientSocket, Error, ErrorCode, LanguageClient, ResponseError,
 };
@@ -28,12 +28,12 @@ use common::{
 };
 use document::Document;
 use schema::{
-    Author, AuthorRole, AuthorRoleName, Duration, ExecutionBounds, ExecutionMessage, ExecutionMode,
-    ExecutionRequired, ExecutionStatus, Node, NodeId, NodeType, Person, ProvenanceCount, Timestamp,
-    Visitor,
+    Author, AuthorRole, AuthorRoleName, CompilationMessage, Duration, ExecutionBounds,
+    ExecutionMessage, ExecutionMode, ExecutionRequired, ExecutionStatus, Node, NodeId, NodeType,
+    Person, ProvenanceCount, Timestamp, Visitor,
 };
 
-use crate::{diagnostics, inspect::Inspector, node_info, ServerState};
+use crate::{diagnostics, inspect::Inspector, node_info, ServerOptions, ServerState};
 
 /// A Stencila `Node` within a `TextDocument`
 ///
@@ -109,7 +109,8 @@ pub(super) struct TextNodeExecution {
     pub duration: Option<Duration>,
     pub ended: Option<Timestamp>,
     pub outputs: Option<usize>,
-    pub messages: Option<Vec<ExecutionMessage>>,
+    pub compilation_messages: Option<Vec<CompilationMessage>>,
+    pub execution_messages: Option<Vec<ExecutionMessage>>,
     pub code_range: Option<Range>,
     pub authors: Option<Vec<Author>>,
 }
@@ -490,7 +491,7 @@ impl TextDocument {
         format: String,
         source: String,
         client: ClientSocket,
-        user: Option<Person>,
+        options: ServerOptions,
     ) -> Result<Self, Report> {
         // Get path without percent encodings (e.g. for spaces)
         let path = percent_encoding::percent_decode_str(uri.path()).decode_utf8_lossy();
@@ -503,10 +504,14 @@ impl TextDocument {
 
         let format = Format::from_name(&format);
 
-        let person = user.unwrap_or_else(|| Person {
-            given_names: Some(vec!["Anonymous".to_string()]),
-            ..Default::default()
-        });
+        let person = options
+            .user
+            .as_ref()
+            .and_then(|user| user.object.clone())
+            .unwrap_or_else(|| Person {
+                given_names: Some(vec!["Anonymous".to_string()]),
+                ..Default::default()
+            });
         let author = AuthorRole {
             author: schema::AuthorRoleAuthor::Person(person),
             role_name: AuthorRoleName::Writer,
@@ -562,6 +567,7 @@ impl TextDocument {
                     source,
                     root,
                     client,
+                    options,
                 )
                 .await;
             });
@@ -760,7 +766,7 @@ impl TextDocument {
                     line: message.start_line.unwrap_or_default() as u32,
                     character: 0,
                 };
-                diagnostics.push(Diagnostic {
+                diagnostics.push(LspDiagnostic {
                     severity,
                     message: message.message,
                     range: Range {
@@ -781,6 +787,7 @@ impl TextDocument {
     }
 
     /// An async background task that watches the document
+    #[allow(clippy::too_many_arguments)]
     async fn watch_task(
         mut receiver: watch::Receiver<Node>,
         sync_state_sender: watch::Sender<SyncState>,
@@ -789,6 +796,7 @@ impl TextDocument {
         source: Arc<RwLock<String>>,
         root: Arc<RwLock<TextNode>>,
         mut client: ClientSocket,
+        options: ServerOptions,
     ) {
         while receiver.changed().await.is_ok() {
             let node = receiver.borrow_and_update().clone();
@@ -819,7 +827,7 @@ impl TextDocument {
 
             // Publish diagnostics and update the root TextNode
             if let Some(text_node) = inspector.root() {
-                diagnostics::publish(&uri, &text_node, &mut client);
+                diagnostics::publish(&uri, &text_node, &mut client, &options.diagnostics);
                 node_info::publish(&uri, &text_node, &mut client);
                 *root.write().await = text_node;
             }
@@ -853,13 +861,10 @@ pub(super) fn did_open(
     };
 
     let client = state.client.clone();
-    let user = state
-        .options
-        .user
-        .as_ref()
-        .and_then(|user| user.object.clone());
+    let options = state.options.clone();
 
-    let text_doc = match TextDocument::new(uri.clone(), node_type, format, source, client, user) {
+    let text_doc = match TextDocument::new(uri.clone(), node_type, format, source, client, options)
+    {
         Ok(doc) => doc,
         Err(error) => {
             return ControlFlow::Break(Err(Error::Response(ResponseError::new(

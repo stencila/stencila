@@ -16,11 +16,14 @@ use common::{
     tracing,
 };
 use schema::{
-    Author, AuthorRoleName, ExecutionBounds, ExecutionMode, ExecutionRequired, ExecutionStatus,
-    MessageLevel, NodeType, StringOrNumber,
+    Author, AuthorRoleName, CodeLocation, ExecutionBounds, ExecutionMode, ExecutionRequired,
+    ExecutionStatus, MessageLevel, NodeType, StringOrNumber,
 };
 
-use crate::text_document::{TextNode, TextNodeExecution};
+use crate::{
+    text_document::{TextNode, TextNodeExecution},
+    ServerOptionsDiagnostics,
+};
 
 /// A summary of the execution status of a node including
 /// its status, execution duration etc
@@ -50,7 +53,12 @@ impl Notification for PublishStatus {
 }
 
 /// Publish diagnostics
-pub(super) fn publish(uri: &Url, text_node: &TextNode, client: &mut ClientSocket) {
+pub(super) fn publish(
+    uri: &Url,
+    text_node: &TextNode,
+    client: &mut ClientSocket,
+    options: &ServerOptionsDiagnostics,
+) {
     // Publish status notifications. As for diagnostics intentionally publishes an
     // empty set so as to clear existing decorations.
     let statuses = statuses(text_node);
@@ -63,7 +71,7 @@ pub(super) fn publish(uri: &Url, text_node: &TextNode, client: &mut ClientSocket
 
     // Publish diagnostics. This intentionally publishes an empty set so as to clear
     // any existing diagnostics.
-    let diagnostics = diagnostics(text_node);
+    let diagnostics = diagnostics(text_node, options);
     if let Err(error) = client.publish_diagnostics(PublishDiagnosticsParams {
         uri: uri.clone(),
         diagnostics,
@@ -293,7 +301,7 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
 }
 
 /// Create [`Diagnostic`]s for a [`TextNode`]
-fn diagnostics(node: &TextNode) -> Vec<Diagnostic> {
+fn diagnostics(node: &TextNode, options: &ServerOptionsDiagnostics) -> Vec<Diagnostic> {
     let mut diags = Vec::new();
 
     // Do not show diagnostics for nodes without a range e.g. suggestions or original
@@ -303,29 +311,67 @@ fn diagnostics(node: &TextNode) -> Vec<Diagnostic> {
     }
 
     if let Some(execution) = node.execution.as_ref() {
-        diags.append(&mut execution_diagnostic(node, execution));
+        diags.append(&mut execution_diagnostic(node, execution, options));
     }
 
-    diags.append(&mut node.children.iter().flat_map(diagnostics).collect());
+    diags.append(
+        &mut node
+            .children
+            .iter()
+            .flat_map(|child| diagnostics(child, options))
+            .collect(),
+    );
 
     diags
 }
 
 /// Create [`Diagnostic`]s for a [`TextNodeExecution`]
-fn execution_diagnostic(node: &TextNode, execution: &TextNodeExecution) -> Vec<Diagnostic> {
-    // If the node has changed since the last execution do not return any
-    // diagnostics for it
-    if let Some(ExecutionRequired::StateChanged | ExecutionRequired::SemanticsChanged) =
-        &execution.required
-    {
-        return Vec::new();
+fn execution_diagnostic(
+    node: &TextNode,
+    execution: &TextNodeExecution,
+    options: &ServerOptionsDiagnostics,
+) -> Vec<Diagnostic> {
+    struct Message {
+        code_location: Option<CodeLocation>,
+        level: MessageLevel,
+        message: String,
+    }
+
+    let mut messages: Vec<Message> = execution
+        .compilation_messages
+        .iter()
+        .flatten()
+        .filter(|msg| msg.level >= options.compilation_messages)
+        .map(|msg| Message {
+            code_location: msg.code_location.clone(),
+            level: msg.level,
+            message: msg.formatted(),
+        })
+        .collect_vec();
+
+    // If the node has changed since the last execution do NOT include any execution messages
+    if !matches!(
+        execution.required,
+        Some(ExecutionRequired::StateChanged | ExecutionRequired::SemanticsChanged)
+    ) {
+        messages.append(
+            &mut execution
+                .execution_messages
+                .iter()
+                .flatten()
+                .filter(|msg| msg.level >= options.execution_messages)
+                .map(|msg| Message {
+                    code_location: msg.code_location.clone(),
+                    level: msg.level,
+                    message: msg.formatted(),
+                })
+                .collect_vec(),
+        );
     }
 
     // Create a diagnostic for each message
-    execution
-        .messages
-        .iter()
-        .flatten()
+    messages
+        .into_iter()
         .map(|message| {
             // Calculate range of diagnostic
             let range = if let Some(location) = &message.code_location {
@@ -386,7 +432,7 @@ fn execution_diagnostic(node: &TextNode, execution: &TextNodeExecution) -> Vec<D
             });
 
             // Format the message
-            let message = message.formatted();
+            let message = message.message;
 
             Diagnostic {
                 range,

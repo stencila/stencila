@@ -6,9 +6,9 @@ import * as vscode from "vscode";
 /**
  * Check for, and run, any workspace setup script
  *
- * Checks for a `.stencila/workspace/setup.sh` in the workspace.
- * If it exists, then opens up a new terminal and run that script
- * in it so the user can see progress.
+ * Checks for a `/home/workspace/stencila/defaults/setup.sh` script.
+ * If it exists, then opens up a new terminal and runs that script
+ * in the terminal so the user can see progress.
  */
 export function workspaceSetup(context: vscode.ExtensionContext) {
   // Get the workspace folder
@@ -17,11 +17,12 @@ export function workspaceSetup(context: vscode.ExtensionContext) {
     return; // No workspace is open
   }
 
-  const workspaceRoot = workspaceFolders[0].uri.fsPath;
   const setupScriptPath = path.join(
-    workspaceRoot,
-    ".stencila",
+    "/",
+    "home",
     "workspace",
+    "stencila",
+    "defaults",
     "setup.sh"
   );
 
@@ -43,10 +44,27 @@ export function workspaceSetup(context: vscode.ExtensionContext) {
   // Create and show terminal
   const terminal = vscode.window.createTerminal({
     name: "Stencila Workspace Setup",
-    message:
-      "Setting up your workspace by running the `.stencila/workspace/setup.sh` script",
+    location: { viewColumn: vscode.ViewColumn.Beside },
   });
   terminal.show();
+
+  // Refresh the file explorer when files are created
+  const watcher = vscode.workspace.createFileSystemWatcher("*");
+  watcher.onDidCreate(() => {
+    vscode.commands.executeCommand(
+      "workbench.files.action.refreshFilesExplorer"
+    );
+  });
+
+  // When the terminal closes update the file explorer and dispose of the watcher
+  const onClose = vscode.window.onDidCloseTerminal((closedTerminal) => {
+    if (closedTerminal.name === "Stencila Workspace Setup") {
+      vscode.commands.executeCommand(
+        "workbench.files.action.refreshFilesExplorer"
+      );
+      watcher.dispose();
+    }
+  });
 
   // Run the setup script
   // Using bash explicitly to ensure script runs properly on Unix-like systems
@@ -58,5 +76,5 @@ export function workspaceSetup(context: vscode.ExtensionContext) {
   }
 
   // Dispose of terminal when extension is deactivated
-  context.subscriptions.push(terminal);
+  context.subscriptions.push(terminal, watcher, onClose);
 }

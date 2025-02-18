@@ -208,6 +208,15 @@ class ClaimType(StrEnum):
     Corollary = "Corollary"
 
 
+class ConfigPublishGhostState(StrEnum):
+    """
+    The state of Ghost resource
+    """
+
+    Draft = "Draft"
+    Publish = "Publish"
+
+
 class ConfigPublishGhostType(StrEnum):
     """
     The type of Ghost resource
@@ -215,6 +224,17 @@ class ConfigPublishGhostType(StrEnum):
 
     Page = "Page"
     Post = "Post"
+
+
+class ConfigPublishZenodoAccessRight(StrEnum):
+    """
+    The access right type
+    """
+
+    Open = "Open"
+    Embargoed = "Embargoed"
+    Restricted = "Restricted"
+    Closed = "Closed"
 
 
 class ExecutionBounds(StrEnum):

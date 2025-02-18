@@ -3,7 +3,7 @@ use std::ops::Range;
 use ariadne::{Config, Label, Report, ReportKind, Source};
 
 use codec_info::{PoshMap, Position8, Positions};
-use common::{eyre::Result, strum::Display};
+use common::{eyre::Result, serde::Serialize, serde_with::skip_serializing_none, strum::Display};
 use format::Format;
 use schema::{
     Block, CodeLocation, CompilationMessage, Cord, ExecutionMessage, Inline, MessageLevel, Node,
@@ -36,6 +36,9 @@ where
         .collect()
 }
 
+#[skip_serializing_none]
+#[derive(Serialize)]
+#[serde(crate = "common::serde")]
 pub struct Diagnostic {
     /// The type of node that the diagnostic is for
     node_type: NodeType,
@@ -47,7 +50,10 @@ pub struct Diagnostic {
     level: DiagnosticLevel,
 
     /// The kind of diagnostic
-    kind: Option<String>,
+    kind: DiagnosticKind,
+
+    /// The error type, if any, of the diagnostic
+    error_type: Option<String>,
 
     /// The diagnostic's message
     message: String,
@@ -62,7 +68,8 @@ pub struct Diagnostic {
     code_location: Option<CodeLocation>,
 }
 
-#[derive(Clone, Copy, Display, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, Display, PartialEq, Eq, PartialOrd, Ord, Serialize)]
+#[serde(crate = "common::serde")]
 pub enum DiagnosticLevel {
     /// An advisory diagnostic
     Advice,
@@ -70,6 +77,14 @@ pub enum DiagnosticLevel {
     Warning,
     /// An error diagnostic
     Error,
+}
+
+#[derive(Clone, Display, PartialEq, Eq, PartialOrd, Ord, Serialize)]
+#[serde(crate = "common::serde")]
+pub enum DiagnosticKind {
+    Linting,
+    Compilation,
+    Execution,
 }
 
 impl From<&MessageLevel> for DiagnosticLevel {
@@ -151,10 +166,8 @@ impl Diagnostic {
         }
         details.push_str(&self.node_type.to_string());
         details.push(' ');
-        if let Some(kind) = &self.kind {
-            details.push_str(kind);
-            details.push(' ');
-        }
+        details.push_str(&kind.to_string());
+        details.push(' ');
 
         // Decide if using the document's source or the message's source
         let source = if !source.is_empty() {
@@ -249,15 +262,24 @@ impl Collector {
         let mut msgs = messages
             .iter()
             .flatten()
-            .map(|msg| Diagnostic {
-                node_type,
-                node_id: node_id.clone(),
-                level: DiagnosticLevel::from(&msg.level),
-                kind: msg.error_type.clone(),
-                message: msg.message.clone(),
-                format: lang.map(Format::from_name),
-                code: code.map(|cord| cord.to_string()),
-                code_location: msg.code_location.clone(),
+            .map(|msg| {
+                let kind = if msg.error_type.as_deref() == Some("Linting") {
+                    DiagnosticKind::Linting
+                } else {
+                    DiagnosticKind::Compilation
+                };
+
+                Diagnostic {
+                    node_type,
+                    node_id: node_id.clone(),
+                    level: DiagnosticLevel::from(&msg.level),
+                    kind,
+                    error_type: msg.error_type.clone(),
+                    message: msg.message.clone(),
+                    format: lang.map(Format::from_name),
+                    code: code.map(|cord| cord.to_string()),
+                    code_location: msg.code_location.clone(),
+                }
             })
             .collect();
         self.messages.append(&mut msgs)
@@ -279,7 +301,8 @@ impl Collector {
                 node_type,
                 node_id: node_id.clone(),
                 level: DiagnosticLevel::from(&msg.level),
-                kind: msg.error_type.clone(),
+                kind: DiagnosticKind::Execution,
+                error_type: msg.error_type.clone(),
                 message: msg.message.clone(),
                 format: lang.map(Format::from_name),
                 code: code.map(|cord| cord.to_string()),

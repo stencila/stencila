@@ -2,7 +2,9 @@
 
 use crate::prelude::*;
 
-use super::boolean::Boolean;
+use super::config_publish_zenodo_access_right::ConfigPublishZenodoAccessRight;
+use super::date::Date;
+use super::string::String;
 
 /// Zenodo publishing options.
 #[skip_serializing_none]
@@ -12,9 +14,24 @@ use super::boolean::Boolean;
 #[derive(derive_more::Display)]
 #[display("ConfigPublishZenodo")]
 pub struct ConfigPublishZenodo {
-    /// Whether the deposit is embargoed.
+    /// The date of embargoed.
+    #[serde(default, deserialize_with = "option_string_or_object")]
     #[patch(format = "all")]
-    pub embargoed: Option<Boolean>,
+    pub embargoed: Option<Date>,
+
+    /// The access right of the document.
+    #[serde(alias = "access-right")]
+    #[serde(default, deserialize_with = "option_string_or_object")]
+    #[patch(format = "all")]
+    pub access_right: Option<ConfigPublishZenodoAccessRight>,
+
+    /// extra notes about deposition.
+    #[patch(format = "all")]
+    pub notes: Option<String>,
+
+    /// The methodology of the study.
+    #[patch(format = "all")]
+    pub method: Option<String>,
 
     /// A unique identifier for a node within a document
     

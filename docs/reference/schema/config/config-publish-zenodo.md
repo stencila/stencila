@@ -6,9 +6,12 @@
 
 The `ConfigPublishZenodo` type has these properties:
 
-| Name        | Aliases | `@id` | Type                                                                                              | Description                       | Inherited from |
-| ----------- | ------- | ----- | ------------------------------------------------------------------------------------------------- | --------------------------------- | -------------- |
-| `embargoed` | -       | ``    | [`Boolean`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md) | Whether the deposit is embargoed. | -              |
+| Name           | Aliases        | `@id` | Type                                                                                                                                                  | Description                       | Inherited from |
+| -------------- | -------------- | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- | -------------- |
+| `embargoed`    | -              | ``    | [`Date`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date.md)                                                           | The date of embargoed.            | -              |
+| `access_right` | `access-right` | ``    | [`ConfigPublishZenodoAccessRight`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/config/config-publish-zenodo-access-right.md) | The access right of the document. | -              |
+| `notes`        | -              | ``    | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                       | extra notes about deposition.     | -              |
+| `method`       | -              | ``    | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                       | The methodology of the study.     | -              |
 
 ## Related
 
