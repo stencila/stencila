@@ -472,7 +472,7 @@ impl Cli {
                 if let Some(publish) = &config.publish {
                     if let Some(publisher) = &publish.zenodo{
                         embargoed = publisher.embargoed.clone();
-                        access_right = publisher.access_right.clone();
+                        access_right = publisher.access_right;
                         notes = publisher.notes.clone();
                         method = publisher.method.clone();
                     }

@@ -787,6 +787,7 @@ impl TextDocument {
     }
 
     /// An async background task that watches the document
+    #[allow(clippy::too_many_arguments)]
     async fn watch_task(
         mut receiver: watch::Receiver<Node>,
         sync_state_sender: watch::Sender<SyncState>,

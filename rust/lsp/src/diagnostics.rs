@@ -372,7 +372,7 @@ fn execution_diagnostic(
     // Create a diagnostic for each message
     messages
         .into_iter()
-        .filter_map(|message| {
+        .map(|message| {
             // Calculate range of diagnostic
             let range = if let Some(location) = &message.code_location {
                 // Use the available code location offset from range of the code if it is available
@@ -434,12 +434,12 @@ fn execution_diagnostic(
             // Format the message
             let message = message.message;
 
-            Some(Diagnostic {
+            Diagnostic {
                 range,
                 severity,
                 message,
                 ..Default::default()
-            })
+            }
         })
         .collect_vec()
 }
