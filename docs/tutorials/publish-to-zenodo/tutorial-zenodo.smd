@@ -1,11 +1,12 @@
 ---
 config:
-  ghost:
-    state: publish
-    type: post
-    tags:
-    - Learning
-    - '#doc'
+  publish:
+    ghost:
+      state: publish
+      type: post
+      tags:
+      - Learning
+      - '#doc'
 description: Learn how to publish Stencila documents to the Zenodo.
 title: Publishing documents to Zenodo
 ---
