@@ -214,14 +214,14 @@
       {
         "command": "stencila.new-qmd",
         "category": "Create",
-        "title": "New Quarto Markdown document",
+        "title": "New Quarto Markdown document (alpha)",
         "shortTitle": "Quarto Markdown",
         "icon": "$(new-file)"
       },
       {
         "command": "stencila.new-latex",
         "category": "Create",
-        "title": "New LaTeX document",
+        "title": "New LaTeX document (alpha)",
         "shortTitle": "LaTeX",
         "icon": "$(new-file)"
       },

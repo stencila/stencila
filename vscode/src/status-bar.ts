@@ -105,15 +105,6 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           ),
         },
         {
-          label: "New Quarto Markdown",
-          description: "Create a new Quarto Markdown file",
-          command: "stencila.new-qmd",
-          iconPath: vscode.Uri.joinPath(
-            context.extensionUri,
-            "icons/quarto-128.png"
-          ),
-        },
-        {
           label: "New MyST Markdown",
           description: "Create a new MyST Markdown file",
           command: "stencila.new-myst",
