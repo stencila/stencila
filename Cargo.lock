@@ -1967,6 +1967,7 @@ dependencies = [
 name = "document"
 version = "0.0.0"
 dependencies = [
+ "app",
  "cli-utils",
  "codec-json",
  "codecs",
