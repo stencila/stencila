@@ -640,7 +640,7 @@ impl Document {
             Ok(info) => matches!(info, Some((.., Some(..)))),
             Err(error) => {
                 tracing::error!("While tracking: {error}");
-                return false;
+                false
             }
         }
     }
