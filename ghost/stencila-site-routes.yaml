@@ -6,13 +6,13 @@ routes:
     data: page.home
 
 collections:
-  /main-docs/:
+  /docs/:
     permalink: /docs/{slug}/
     template: index
     data: page.docs
     filter: "tag:hash-doc+tag:-hash-schema"
 
-  /schema-docs/:
+  /schema/:
     permalink: /schema/{slug}/
     template: index
     data: page.schema

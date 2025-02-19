@@ -18,7 +18,8 @@
   padding: 1rem 0;
 }
 
-#site-nav-menu .nav-current a {
+#site-nav-menu .nav-current a,
+#site-nav-menu .nav-current-parent a {
   box-shadow: 0 -1px 0 0 currentcolor inset;
 }
 
