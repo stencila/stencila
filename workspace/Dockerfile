@@ -81,6 +81,9 @@ RUN cd /home/workspace/stencila/defaults && \
     uv sync && \
     Rscript -e "renv::install()"
 
+# Add Stencila user level config
+COPY config.yaml /home/workspace/.config/stencila/
+
 # Add OpenVSCode Server settings
 # Best to do this after time consuming installs above because nothing else in
 # the build depends on it and doing so makes it easier to iterate
