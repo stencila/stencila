@@ -1,16 +1,15 @@
 
 .collapsible-section {
-  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-  max-height: 15000px; /* Adjust as needed */
-  opacity: 1;
   overflow: hidden;
-}
-
-.collapsible-section.collapsed {
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
   max-height: 0;
   opacity: 0;
 }
 
+.collapsible-section.expand {
+  max-height: 15000px; /* Adjust as needed */
+  opacity: 1;
+}
 
 #sidebar::-webkit-scrollbar {
   width: 6px;  /* Set a small width */

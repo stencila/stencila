@@ -37,7 +37,9 @@
 
 /* anchor tags */
 
-.gh-content p a {
+.gh-content > p a,
+.gh-content > ul a,
+.gh-content > ol a {
     color: var(--ghost-accent-color);
     text-decoration: underline;
 }

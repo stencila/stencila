@@ -32,7 +32,13 @@
                                             <div class="chevron w-4 h-4 transform">{{> icons/chevron-down}}</div>
                                         </div>
                                     </button>
-                                    <ul class="collapsible-section">
+                                    <ul
+                                    {{#is "page"}}
+                                        class="collapsible-section {{#@first}}expand{{/@first}}"
+                                    {{else}}
+                                        class="collapsible-section {{#foreach ../../post.tags as |postTag|}}{{#match postTag.slug "=" ../slug}}expand{{/match}}{{/foreach}}"
+                                    {{/is}}
+                                    >
                                         {{#get "posts" filter="tags:{{slug}}+tags:hash-doc" limit="all" order="published_at asc"}}
                                             {{#foreach posts as |post|}}
                                                 <li class="mb-2 ml-4 flex items-start hover:text-[var(--ghost-accent-color)]">

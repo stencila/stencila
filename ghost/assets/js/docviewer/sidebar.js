@@ -22,14 +22,21 @@ export function sidebar() {
 export function menuCollapse() {
   document.querySelectorAll(".collapse-toggle").forEach(button => {
       const section = button.closest("li").querySelector(".collapsible-section");
+      
+      const chevron = button.querySelector('.chevron');
+
+      if (section.classList.contains("expand")) {
+        chevron.classList.remove('-rotate-90');
+      } else {
+        chevron.classList.add('-rotate-90');
+      };
 
       button.addEventListener("click", () => {
-          section.classList.toggle("collapsed");
-          const chevron = button.querySelector('.chevron');
-          if (section.classList.contains("collapsed")) {
-            chevron.classList.add('-rotate-90');
-          } else {
+          section.classList.toggle("expand");
+          if (section.classList.contains("expand")) {
             chevron.classList.remove('-rotate-90');
+          } else {
+            chevron.classList.add('-rotate-90');
           };
       });
   });
