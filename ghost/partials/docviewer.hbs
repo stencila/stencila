@@ -1,9 +1,9 @@
 
 <div class="page-container container w-full mx-auto px-2">
     <div class="relative flex">
-        <div class="relative xl:sticky xl:top-32 xl:py-8 flex-none h-[calc(100vh-8rem)]">
-            <div class="hidden xl:block absolute h-full top-0 left-0 -translate-x-full h-full w-screen py-8">
-                <div class="bg-green-50 xl:bg-green-50/80 border-0 border-y border-green-200 w-full h-full"></div>
+        <div class="relative xl:sticky xl:top-20 flex-none h-[calc(100vh-5rem)]">
+            <div class="hidden xl:block absolute h-full top-0 left-0 -translate-x-full h-full w-screen">
+                <div class="bg-gray-100 xl:bg-transparent w-full h-full"></div>
             </div>
             <!-- Mobile Menu Toggle -->
             <button class="fixed z-20 top-24 lg:top-36 xl:40 left-4 sm:left-8 flex items-center justify-center leading-none bg-brand-blue text-white hover:text-brand-blue hover:bg-white hover:border border-brand-blue w-12 h-12 rounded-full shadow-lg xl:hidden block" id="sidebar-toggle">
@@ -13,9 +13,9 @@
                     <span class="block w-6 h-0.5 bg-[currentColor]"></span>
                 </div>
             </button>
-            <div id="sidebar" class="fixed bg-green-50 xl:bg-green-50/80 xl:relative top-20 lg:top-36 pl-12 xl:pl-0 left-0 xl:top-0 h-full overflow-y-auto z-20 text-green-900 border-r border-y border-green-200 rounded-tr-md rounded-br-md">        
+            <div id="sidebar" class="fixed bg-gray-100 xl:bg-transparent xl:relative top-16 pl-12 xl:pl-0 left-0 xl:top-0 h-full overflow-y-auto z-20 text-gray-900 border-tr border-gray-200 xl:border-0">        
                 <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 xl:hidden hover:text-gray-400">{{> icons/chevron-left }}</button>
-                <aside class="w-[280px] pr-4 py-12 h-full">
+                <aside class="w-[280px] pr-4 py-16 h-full">
                     {{#page}}
                         <nav>
                             <div class="mb-4">
@@ -61,10 +61,6 @@
             {{#post}}
             <article class="gh-article relative leading-snug text-base lg:text-lg {{post_class}}">
                 <header id="doc-header" class="gh-header gh-canvas text-left mt-12 md:mt-0">
-                    <span class="absolute top-4 right-0">
-                        {{#foreach authors}}<a href="{{url}}" class="hover:text-gray-400">{{name}}</a> &bull; {{/foreach}}
-                        <span class="uppercase">{{reading_time}}</span>
-                    </span>
 
                     <h1 id="main-heading" class="text-4xl lg:text-6xl text-left">{{title}}</h1>
 

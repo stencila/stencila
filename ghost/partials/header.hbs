@@ -1,5 +1,5 @@
-<header id="main-header" class="sticky top-0 w-full flex items-center h-20 lg:h-32 z-20 border-b border-gray-100 bg-white z-40">
-  <div id="header-bg" class="absolute inset-0 w-full h-full  -z-10"></div>
+<header id="main-header" class="sticky top-0 w-full flex items-center h-16 lg:h-20 z-20 border-b border-gray-100 bg-gray-50 z-40 lg:py-4">
+  {{!-- <div id="header-bg" class="absolute inset-0 w-full h-full  -z-10"></div> --}}
   <nav class="container w-full mx-auto px-2 flex flex-row justify-between items-center">
       <div class="text-2xl lg:text-3xl max-w-[150px] lg:max-w-[250px] mr-4">
           <a href="{{@site.url}}">    
@@ -10,21 +10,22 @@
               {{/if}}
           </a>
       </div>
-      <div id="site-nav-menu" class="flex items-center hidden lg:block">
+      <div id="site-nav-menu" class="flex items-center hidden font-semibold lg:block">
           {{navigation}}
       </div>
       
       <div class="hidden lg:block">
-          <div class="flex items-center gap-4">
+          <div class="flex items-center gap-4 font-semibold">
               <div class="search-link">{{search}}</div>
               {{#if @site.members_enabled}}
                   <a 
-                    class="hover:text-[var(--ghost-accent-color)] block p-3 border-2 border-current rounded-full font-semibold"
+                    class="text-white block p-2 border border-brand-blue bg-brand-blue rounded font-semibold hover:bg-transparent hover:text-brand-blue"
                     href="{{^if @member}}{{@site.signup_url}}{{else}}#/portal/account{{/if}}"
                   >
                     {{^if @member}}Subscribe{{else}}Account{{/if}}
                   </a>
               {{/if}}
+              <div id="secondary-nav">{{navigation type="secondary"}}</div>
           </div>
       </div>
       {{!-- mobile collapsible menu --}}

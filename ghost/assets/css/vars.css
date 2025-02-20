@@ -10,6 +10,9 @@
     --color-success: #80b912;
     --color-error: #f05230;
 
+    --color-brand-blue: #2568ef;
+    --color-brand-green: #66ff6;
+
     /* Fonts */
     --font-sans-serif: 'Inter', 'ui-sans-serif', 'system-ui', sans-serif;
     --font-serif: Georgia, Times, serif;
