@@ -51,11 +51,9 @@ component_management:
     - component_id: sdk_node
       name: Node.js SDK
       paths:
-        - node/*
-        - node/**/*
+        - node/stencila-node/src/*.ts
 
     - component_id: sdk_python
       name: Python SDK
       paths:
-        - python/*
-        - python/**/*
+        - python/stencila/python/stencila/*.py
