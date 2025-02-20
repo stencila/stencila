@@ -14,7 +14,7 @@
                 </div>
             </button>
             <div id="sidebar" class="fixed bg-gray-100 xl:bg-transparent xl:relative top-16 pl-12 xl:pl-0 left-0 xl:top-0 h-full z-20 text-gray-900 border-tr border-gray-200 xl:border-0">        
-                <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 xl:hidden hover:text-gray-400">{{> icons/chevron-left }}</button>
+                <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 lg:top-6 xl:hidden hover:text-gray-400">{{> icons/chevron-left }}</button>
                 <aside class="w-[280px] pr-4 py-16 h-full overflow-y-auto">
                     {{#page}}
                         <nav>
@@ -128,6 +128,28 @@
                 </footer>
 
             </article>
+            {{#is 'page'}}
+            {{!-- if the doc viewer's 'front page' show the nav links for each section (will route to first post in each section) --}}
+                <div class="max-w-[720px] mx-auto">
+                    <h3 class="mb-8">Explore {{title}}:</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
+                    {{#foreach tags}}
+                        {{#get 'posts' filter="tags:{{slug}}+tags:hash-doc" limit="1" order="published_at asc"}}
+                            {{#foreach posts}}
+                                <a class="p-4 bg-gray-50 border border-gray-200 rounded-md shadow-md hover:shadow-xl" href="{{url}}">
+                                    <div class="w-full h-full flex flex-col justify-center">
+                                        <div class="text-lg font-semibold overflow-hidden whitespace-nowrap text-ellipsis">{{../../name}}</div>
+                                        {{#if ../../description}}
+                                            <p class="line-clamp-2 mt-4 text-sm">{{../../description}}</p>
+                                        {{/if}}
+                                    </div>
+                                </a>
+                            {{/foreach}}
+                        {{/get}}
+                    {{/foreach}}
+                    </div>
+                </div>
+            {{/is}}
             <aside class="font-sans w-full py-8">
                 <div class="flex justify-between gap-8 px-8 text-lg font-semibold w-full">
                     <div>
