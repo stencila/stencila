@@ -37,6 +37,8 @@ Re-usable card for linking to posts
         </div>
       {{/if}}
       <div class="p-4 text-center">
+          {{url}}
+
         <span><time datetime="{{date format="YYYY-MM-DD"}}">{{date format="D MMM YYYY"}}</time> <span class="bull">&bull;</span> {{reading_time}}</span>
         <h2 class="text-3xl {{^if @first}}text-xl mr-4{{/if}}">{{title}}</h2>
         <p class="my-4 {{#if @first}}text-base md:text-lg{{else}}text-xs md:text-sm{{/if}} leading-snug">{{excerpt}}</p>

@@ -18,6 +18,11 @@ collections:
     data: page.schema
     filter: "tag:hash-doc+tag:hash-schema"
 
+  /:
+    permalink: /{slug}/
+    template: post
+    filter: "tag:-hash-doc"
+
 taxonomies:
   tag: /tag/{slug}/
   author: /author/{slug}/

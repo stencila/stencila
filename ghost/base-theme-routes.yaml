@@ -10,6 +10,12 @@ collections:
     permalink: /docview/{slug}/
     template: index
     data: page.docview
+    filter: "tag:hash-doc"
+
+  /:
+    permalink: /{slug}/
+    template: post
+    filter: "tag:-hash-doc"
 
 taxonomies:
   tag: /tag/{slug}/
