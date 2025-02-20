@@ -1,8 +1,17 @@
-# Execution Bounds
-
-**The bounds placed on the execution of a document node.**
-
-**`@id`**: `stencila:ExecutionBounds`
+---
+title: Execution Bounds
+description: The bounds placed on the execution of a document node.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: execution-bounds
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Flow
+---
 
 ## Members
 
@@ -15,7 +24,7 @@ The `ExecutionBounds` type has these members:
 
 ## Bindings
 
-The `ExecutionBounds` type is represented in these bindings:
+The `ExecutionBounds` type is represented in:
 
 - [JSON-LD](https://stencila.org/ExecutionBounds.jsonld)
 - [JSON Schema](https://stencila.org/ExecutionBounds.schema.json)
@@ -25,4 +34,4 @@ The `ExecutionBounds` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`ExecutionBounds.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionBounds.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`ExecutionBounds.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionBounds.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -1,6 +1,17 @@
-# Config Publish Zenodo Access Right
-
-**The access right type**
+---
+title: Config Publish Zenodo Access Right
+description: The access right type
+config:
+  publish:
+    ghost:
+      type: page
+      slug: config-publish-zenodo-access-right
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Config
+---
 
 ## Members
 
@@ -13,7 +24,7 @@ The `ConfigPublishZenodoAccessRight` type has these members:
 
 ## Bindings
 
-The `ConfigPublishZenodoAccessRight` type is represented in these bindings:
+The `ConfigPublishZenodoAccessRight` type is represented in:
 
 - [JSON-LD](https://stencila.org/ConfigPublishZenodoAccessRight.jsonld)
 - [JSON Schema](https://stencila.org/ConfigPublishZenodoAccessRight.schema.json)
@@ -23,4 +34,4 @@ The `ConfigPublishZenodoAccessRight` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`ConfigPublishZenodoAccessRight.yaml`](https://github.com/stencila/stencila/blob/main/schema/ConfigPublishZenodoAccessRight.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`ConfigPublishZenodoAccessRight.yaml`](https://github.com/stencila/stencila/blob/main/schema/ConfigPublishZenodoAccessRight.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

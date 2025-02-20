@@ -1,8 +1,17 @@
-# Execution Dependant Relation
-
-**The relation between a node and its execution dependant.**
-
-**`@id`**: `stencila:ExecutionDependantRelation`
+---
+title: Execution Dependant Relation
+description: The relation between a node and its execution dependant.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: execution-dependant-relation
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Flow
+---
 
 ## Members
 
@@ -15,7 +24,7 @@ The `ExecutionDependantRelation` type has these members:
 
 ## Bindings
 
-The `ExecutionDependantRelation` type is represented in these bindings:
+The `ExecutionDependantRelation` type is represented in:
 
 - [JSON-LD](https://stencila.org/ExecutionDependantRelation.jsonld)
 - [JSON Schema](https://stencila.org/ExecutionDependantRelation.schema.json)
@@ -25,4 +34,4 @@ The `ExecutionDependantRelation` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`ExecutionDependantRelation.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionDependantRelation.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`ExecutionDependantRelation.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionDependantRelation.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

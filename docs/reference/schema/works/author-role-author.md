@@ -1,6 +1,17 @@
-# Author Role Author
-
-**Union type for things that can be an author in `AuthorRole`.**
+---
+title: Author Role Author
+description: Union type for things that can be an author in `AuthorRole`.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: author-role-author
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Works
+---
 
 This type merely exists to avoid the excessively long type name
 (`PersonOrOrganizationOrSoftwareApplicationOrThing`) that is otherwise generated.
@@ -8,20 +19,18 @@ The `Thing` variant is intended only for anonymous authors which is not known to
 be one the other variants and which should be given the name "anon".
 
 
-**`@id`**: `stencila:AuthorRoleAuthor`
-
 ## Members
 
 The `AuthorRoleAuthor` type has these members:
 
-- [`Person`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/person.md)
-- [`Organization`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/organization.md)
-- [`SoftwareApplication`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software-application.md)
-- [`Thing`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)
+- [`Person`](https://stencila.ghost.io/docs/reference/schema/person)
+- [`Organization`](https://stencila.ghost.io/docs/reference/schema/organization)
+- [`SoftwareApplication`](https://stencila.ghost.io/docs/reference/schema/software-application)
+- [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)
 
 ## Bindings
 
-The `AuthorRoleAuthor` type is represented in these bindings:
+The `AuthorRoleAuthor` type is represented in:
 
 - [JSON-LD](https://stencila.org/AuthorRoleAuthor.jsonld)
 - [JSON Schema](https://stencila.org/AuthorRoleAuthor.schema.json)
@@ -31,4 +40,4 @@ The `AuthorRoleAuthor` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`AuthorRoleAuthor.yaml`](https://github.com/stencila/stencila/blob/main/schema/AuthorRoleAuthor.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`AuthorRoleAuthor.yaml`](https://github.com/stencila/stencila/blob/main/schema/AuthorRoleAuthor.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

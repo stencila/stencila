@@ -1,8 +1,17 @@
-# Time Unit
-
-**A unit in which time can be measured.**
-
-**`@id`**: `stencila:TimeUnit`
+---
+title: Time Unit
+description: A unit in which time can be measured.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: time-unit
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Data
+---
 
 ## Members
 
@@ -24,7 +33,7 @@ The `TimeUnit` type has these members:
 
 ## Bindings
 
-The `TimeUnit` type is represented in these bindings:
+The `TimeUnit` type is represented in:
 
 - [JSON-LD](https://stencila.org/TimeUnit.jsonld)
 - [JSON Schema](https://stencila.org/TimeUnit.schema.json)
@@ -34,4 +43,4 @@ The `TimeUnit` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`TimeUnit.yaml`](https://github.com/stencila/stencila/blob/main/schema/TimeUnit.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`TimeUnit.yaml`](https://github.com/stencila/stencila/blob/main/schema/TimeUnit.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

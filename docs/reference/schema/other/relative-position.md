@@ -1,8 +1,17 @@
-# Relative Position
-
-**The relative position of a node to another.**
-
-**`@id`**: `stencila:RelativePosition`
+---
+title: Relative Position
+description: The relative position of a node to another.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: relative-position
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Other
+---
 
 ## Members
 
@@ -13,7 +22,7 @@ The `RelativePosition` type has these members:
 
 ## Bindings
 
-The `RelativePosition` type is represented in these bindings:
+The `RelativePosition` type is represented in:
 
 - [JSON-LD](https://stencila.org/RelativePosition.jsonld)
 - [JSON Schema](https://stencila.org/RelativePosition.schema.json)
@@ -23,4 +32,4 @@ The `RelativePosition` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`RelativePosition.yaml`](https://github.com/stencila/stencila/blob/main/schema/RelativePosition.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`RelativePosition.yaml`](https://github.com/stencila/stencila/blob/main/schema/RelativePosition.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

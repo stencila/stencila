@@ -1,76 +1,85 @@
-# Cite
-
-**A reference to a `CreativeWork` that is cited in another `CreativeWork`.**
+---
+title: Cite
+description: A reference to a `CreativeWork` that is cited in another `CreativeWork`.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: cite
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Prose
+---
 
 A `Cite` node is used within a [`CreativeWork`](./CreativeWork), usually an
 [`Article`](./Article), to refer to an other `CreativeWork`.
 Often a `Cite` will be associated with other citations, in a [`CiteGroup`](./CiteGroup).
 
 
-**`@id`**: `stencila:Cite`
-
 ## Properties
 
 The `Cite` type has these properties:
 
-| Name             | Aliases                              | `@id`                                                | Type                                                                                                                                                                                                 | Description                                                                                           | Inherited from                                                                                   |
-| ---------------- | ------------------------------------ | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `id`             | -                                    | [`schema:id`](https://schema.org/id)                 | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                      | The identifier for this item.                                                                         | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| `target`         | -                                    | [`schema:target`](https://schema.org/target)         | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                      | The target of the citation (URL or reference ID).                                                     | -                                                                                                |
-| `citationMode`   | `citation-mode`, `citation_mode`     | `stencila:citationMode`                              | [`CitationMode`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/citation-mode.md)                                                                                        | Determines how the citation is shown within the surrounding text.                                     | -                                                                                                |
-| `citationIntent` | `citation-intent`, `citation_intent` | `stencila:citationIntent`                            | [`CitationIntent`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/citation-intent.md)*                                                                                   | The type/s of the citation, both factually and rhetorically.                                          | -                                                                                                |
-| `content`        | -                                    | `stencila:content`                                   | [`Inline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/inline.md)*                                                                                                    | Optional structured content/text of this citation.                                                    | -                                                                                                |
-| `pageStart`      | `page-start`, `page_start`           | [`schema:pageStart`](https://schema.org/pageStart)   | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md) \| [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The page on which the work starts; for example "135" or "xiii".                                       | -                                                                                                |
-| `pageEnd`        | `page-end`, `page_end`               | [`schema:pageEnd`](https://schema.org/pageEnd)       | [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md) \| [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The page on which the work ends; for example "138" or "xvi".                                          | -                                                                                                |
-| `pagination`     | -                                    | [`schema:pagination`](https://schema.org/pagination) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                      | Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55". | -                                                                                                |
-| `citationPrefix` | `citation-prefix`, `citation_prefix` | `stencila:citationPrefix`                            | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                      | Text to show before the citation.                                                                     | -                                                                                                |
-| `citationSuffix` | `citation-suffix`, `citation_suffix` | `stencila:citationSuffix`                            | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                                                                                      | Text to show after the citation.                                                                      | -                                                                                                |
+| Name             | Description                                                                                           | Type                                                                                                                                       | Inherited from                                                     | `JSON-LD @id`                                        | Aliases                              |
+| ---------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------- | ------------------------------------ |
+| `id`             | The identifier for this item.                                                                         | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                         | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id)                 | -                                    |
+| `target`         | The target of the citation (URL or reference ID).                                                     | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                         | -                                                                  | [`schema:target`](https://schema.org/target)         | -                                    |
+| `citationMode`   | Determines how the citation is shown within the surrounding text.                                     | [`CitationMode`](https://stencila.ghost.io/docs/reference/schema/citation-mode)                                                            | -                                                                  | `stencila:citationMode`                              | `citation-mode`, `citation_mode`     |
+| `citationIntent` | The type/s of the citation, both factually and rhetorically.                                          | [`CitationIntent`](https://stencila.ghost.io/docs/reference/schema/citation-intent)*                                                       | -                                                                  | `stencila:citationIntent`                            | `citation-intent`, `citation_intent` |
+| `content`        | Optional structured content/text of this citation.                                                    | [`Inline`](https://stencila.ghost.io/docs/reference/schema/inline)*                                                                        | -                                                                  | `stencila:content`                                   | -                                    |
+| `pageStart`      | The page on which the work starts; for example "135" or "xiii".                                       | [`Integer`](https://stencila.ghost.io/docs/reference/schema/integer) \| [`String`](https://stencila.ghost.io/docs/reference/schema/string) | -                                                                  | [`schema:pageStart`](https://schema.org/pageStart)   | `page-start`, `page_start`           |
+| `pageEnd`        | The page on which the work ends; for example "138" or "xvi".                                          | [`Integer`](https://stencila.ghost.io/docs/reference/schema/integer) \| [`String`](https://stencila.ghost.io/docs/reference/schema/string) | -                                                                  | [`schema:pageEnd`](https://schema.org/pageEnd)       | `page-end`, `page_end`               |
+| `pagination`     | Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55". | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                         | -                                                                  | [`schema:pagination`](https://schema.org/pagination) | -                                    |
+| `citationPrefix` | Text to show before the citation.                                                                     | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                         | -                                                                  | `stencila:citationPrefix`                            | `citation-prefix`, `citation_prefix` |
+| `citationSuffix` | Text to show after the citation.                                                                      | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                         | -                                                                  | `stencila:citationSuffix`                            | `citation-suffix`, `citation_suffix` |
 
 ## Related
 
 The `Cite` type is related to these types:
 
-- Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
+- Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
 ## Formats
 
 The `Cite` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                                                               | Encoding     | Decoding   | Status              | Notes                              |
-| ---------------------------------------------------------------------------------------------------- | ------------ | ---------- | ------------------- | ---------------------------------- |
-| [DOM HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/dom.html.md)        | 🟢 No loss    |            | 🔶 Beta              |                                    |
-| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/html.md)                | 🔷 Low loss   |            | 🚧 Under development |                                    |
-| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md)                |              |            | 🚧 Under development | Encoded using special function     |
-| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/md.md)              | ⚠️ High loss |            | 🔶 Beta              | Encoded using implemented function |
-| [Stencila Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/smd.md)    | ⚠️ High loss |            | 🔶 Beta              |                                    |
-| [Quarto Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/qmd.md)      | ⚠️ High loss |            | 🔶 Beta              |                                    |
-| [MyST Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/myst.md)       | ⚠️ High loss |            | 🔶 Beta              |                                    |
-| [LLM Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/llmd.md)        | ⚠️ High loss |            | 🔶 Beta              |                                    |
-| [LaTeX](https://github.com/stencila/stencila/blob/main/docs/reference/formats/latex.md)              | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development |                                    |
-| [PDF](https://github.com/stencila/stencila/blob/main/docs/reference/formats/pdf.md)                  | 🔷 Low loss   |            | 🚧 Under development |                                    |
-| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)          | ⚠️ High loss |            | 🔶 Beta              |                                    |
-| [IPYNB](https://github.com/stencila/stencila/blob/main/docs/reference/formats/ipynb.md)              | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development |                                    |
-| [Microsoft Word DOCX](https://github.com/stencila/stencila/blob/main/docs/reference/formats/docx.md) | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development |                                    |
-| [OpenDocument ODT](https://github.com/stencila/stencila/blob/main/docs/reference/formats/odt.md)     | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development |                                    |
-| [TeX](https://github.com/stencila/stencila/blob/main/docs/reference/formats/tex.md)                  | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development |                                    |
-| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md)                | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                    |
-| [JSON+Zip](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.zip.md)        | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                    |
-| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json5.md)              | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                    |
-| [JSON-LD](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jsonld.md)           | 🟢 No loss    | 🟢 No loss  | 🔶 Beta              |                                    |
-| [CBOR](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.md)                | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                    |
-| [CBOR+Zstandard](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.zstd.md) | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                    |
-| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)                | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                    |
-| [Lexical JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/lexical.md)     | 🔷 Low loss   | 🔷 Low loss | ⚠️ Alpha            |                                    |
-| [Koenig JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/koenig.md)       | 🔷 Low loss   | 🔷 Low loss | ⚠️ Alpha            |                                    |
-| [Pandoc AST](https://github.com/stencila/stencila/blob/main/docs/reference/formats/pandoc.md)        | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development |                                    |
-| [Directory](https://github.com/stencila/stencila/blob/main/docs/reference/formats/directory.md)      |              |            | 🚧 Under development |                                    |
-| [Stencila Web Bundle](https://github.com/stencila/stencila/blob/main/docs/reference/formats/swb.md)  |              |            | ⚠️ Alpha            |                                    |
-| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/debug.md)              | 🔷 Low loss   |            | 🟢 Stable            |                                    |
+| Format                                                                       | Encoding     | Decoding   | Support                            | Notes |
+| ---------------------------------------------------------------------------- | ------------ | ---------- | ---------------------------------- | ----- |
+| [DOM HTML](https://stencila.ghost.io/docs/reference/formats/dom.html)        | 🟢 No loss    |            |                                    |
+| [HTML](https://stencila.ghost.io/docs/reference/formats/html)                | 🔷 Low loss   |            |                                    |
+| [JATS](https://stencila.ghost.io/docs/reference/formats/jats)                |              |            | Encoded using special function     |
+| [Markdown](https://stencila.ghost.io/docs/reference/formats/md)              | ⚠️ High loss |            | Encoded using implemented function |
+| [Stencila Markdown](https://stencila.ghost.io/docs/reference/formats/smd)    | ⚠️ High loss |            |                                    |
+| [Quarto Markdown](https://stencila.ghost.io/docs/reference/formats/qmd)      | ⚠️ High loss |            |                                    |
+| [MyST Markdown](https://stencila.ghost.io/docs/reference/formats/myst)       | ⚠️ High loss |            |                                    |
+| [LLM Markdown](https://stencila.ghost.io/docs/reference/formats/llmd)        | ⚠️ High loss |            |                                    |
+| [LaTeX](https://stencila.ghost.io/docs/reference/formats/latex)              | 🔷 Low loss   | 🔷 Low loss |                                    |
+| [PDF](https://stencila.ghost.io/docs/reference/formats/pdf)                  | 🔷 Low loss   |            |                                    |
+| [Plain text](https://stencila.ghost.io/docs/reference/formats/text)          | ⚠️ High loss |            |                                    |
+| [IPYNB](https://stencila.ghost.io/docs/reference/formats/ipynb)              | 🔷 Low loss   | 🔷 Low loss |                                    |
+| [Microsoft Word DOCX](https://stencila.ghost.io/docs/reference/formats/docx) | 🔷 Low loss   | 🔷 Low loss |                                    |
+| [OpenDocument ODT](https://stencila.ghost.io/docs/reference/formats/odt)     | 🔷 Low loss   | 🔷 Low loss |                                    |
+| [TeX](https://stencila.ghost.io/docs/reference/formats/tex)                  | 🔷 Low loss   | 🔷 Low loss |                                    |
+| [JSON](https://stencila.ghost.io/docs/reference/formats/json)                | 🟢 No loss    | 🟢 No loss  |                                    |
+| [JSON+Zip](https://stencila.ghost.io/docs/reference/formats/json.zip)        | 🟢 No loss    | 🟢 No loss  |                                    |
+| [JSON5](https://stencila.ghost.io/docs/reference/formats/json5)              | 🟢 No loss    | 🟢 No loss  |                                    |
+| [JSON-LD](https://stencila.ghost.io/docs/reference/formats/jsonld)           | 🟢 No loss    | 🟢 No loss  |                                    |
+| [CBOR](https://stencila.ghost.io/docs/reference/formats/cbor)                | 🟢 No loss    | 🟢 No loss  |                                    |
+| [CBOR+Zstandard](https://stencila.ghost.io/docs/reference/formats/cbor.zstd) | 🟢 No loss    | 🟢 No loss  |                                    |
+| [YAML](https://stencila.ghost.io/docs/reference/formats/yaml)                | 🟢 No loss    | 🟢 No loss  |                                    |
+| [Lexical JSON](https://stencila.ghost.io/docs/reference/formats/lexical)     | 🔷 Low loss   | 🔷 Low loss |                                    |
+| [Koenig JSON](https://stencila.ghost.io/docs/reference/formats/koenig)       | 🔷 Low loss   | 🔷 Low loss |                                    |
+| [Pandoc AST](https://stencila.ghost.io/docs/reference/formats/pandoc)        | 🔷 Low loss   | 🔷 Low loss |                                    |
+| [Directory](https://stencila.ghost.io/docs/reference/formats/directory)      |              |            |                                    |
+| [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
+| [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
 ## Bindings
 
-The `Cite` type is represented in these bindings:
+The `Cite` type is represented in:
 
 - [JSON-LD](https://stencila.org/Cite.jsonld)
 - [JSON Schema](https://stencila.org/Cite.schema.json)
@@ -80,4 +89,4 @@ The `Cite` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`Cite.yaml`](https://github.com/stencila/stencila/blob/main/schema/Cite.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`Cite.yaml`](https://github.com/stencila/stencila/blob/main/schema/Cite.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

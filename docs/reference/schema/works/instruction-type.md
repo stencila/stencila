@@ -1,8 +1,17 @@
-# Instruction Type
-
-**The type of an instruction describing the operation to be performed.**
-
-**`@id`**: `stencila:InstructionType`
+---
+title: Instruction Type
+description: The type of an instruction describing the operation to be performed.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: instruction-type
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Works
+---
 
 ## Members
 
@@ -16,7 +25,7 @@ The `InstructionType` type has these members:
 
 ## Bindings
 
-The `InstructionType` type is represented in these bindings:
+The `InstructionType` type is represented in:
 
 - [JSON-LD](https://stencila.org/InstructionType.jsonld)
 - [JSON Schema](https://stencila.org/InstructionType.schema.json)
@@ -26,4 +35,4 @@ The `InstructionType` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`InstructionType.yaml`](https://github.com/stencila/stencila/blob/main/schema/InstructionType.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`InstructionType.yaml`](https://github.com/stencila/stencila/blob/main/schema/InstructionType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -1,64 +1,75 @@
-# Config Publish Ghost
-
-**Ghost publishing options.**
+---
+title: Config Publish Ghost
+description: Ghost publishing options.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: config-publish-ghost
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Config
+---
 
 ## Properties
 
 The `ConfigPublishGhost` type has these properties:
 
-| Name       | Aliases | `@id` | Type                                                                                                                                   | Description                                          | Inherited from |
-| ---------- | ------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- | -------------- |
-| `slug`     | -       | ``    | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                                        | The URL slug for the page or post.                   | -              |
-| `featured` | -       | ``    | [`Boolean`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md)                                      | Whether the page or post is featured.                | -              |
-| `schedule` | -       | ``    | [`Date`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date.md)                                            | The date that the page or post is to be published.   | -              |
-| `state`    | -       | ``    | [`ConfigPublishGhostState`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/config/config-publish-ghost-state.md) | the state of the page or post eg draft or published. | -              |
-| `tags`     | `tag`   | ``    | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)*                                       | ghost tags.                                          | -              |
+| Name       | Description                                          | Type                                                                                                    | Inherited from | `JSON-LD @id` | Aliases |
+| ---------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------------- | ------------- | ------- |
+| `slug`     | The URL slug for the page or post.                   | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                      | -              | ``            | -       |
+| `featured` | Whether the page or post is featured.                | [`Boolean`](https://stencila.ghost.io/docs/reference/schema/boolean)                                    | -              | ``            | -       |
+| `schedule` | The date that the page or post is to be published.   | [`Date`](https://stencila.ghost.io/docs/reference/schema/date)                                          | -              | ``            | -       |
+| `state`    | the state of the page or post eg draft or published. | [`ConfigPublishGhostState`](https://stencila.ghost.io/docs/reference/schema/config-publish-ghost-state) | -              | ``            | -       |
+| `tags`     | ghost tags.                                          | [`String`](https://stencila.ghost.io/docs/reference/schema/string)*                                     | -              | ``            | `tag`   |
 
 ## Related
 
 The `ConfigPublishGhost` type is related to these types:
 
-- Parents: none
+- Parents: None
 - Children: none
 
 ## Formats
 
 The `ConfigPublishGhost` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                                                               | Encoding | Decoding | Status              | Notes |
-| ---------------------------------------------------------------------------------------------------- | -------- | -------- | ------------------- | ----- |
-| [DOM HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/dom.html.md)        |          |          | 🔶 Beta              |       |
-| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/html.md)                |          |          | 🚧 Under development |       |
-| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md)                |          |          | 🚧 Under development |       |
-| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/md.md)              |          |          | 🔶 Beta              |       |
-| [Stencila Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/smd.md)    |          |          | 🔶 Beta              |       |
-| [Quarto Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/qmd.md)      |          |          | 🔶 Beta              |       |
-| [MyST Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/myst.md)       |          |          | 🔶 Beta              |       |
-| [LLM Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/llmd.md)        |          |          | 🔶 Beta              |       |
-| [LaTeX](https://github.com/stencila/stencila/blob/main/docs/reference/formats/latex.md)              |          |          | 🚧 Under development |       |
-| [PDF](https://github.com/stencila/stencila/blob/main/docs/reference/formats/pdf.md)                  |          |          | 🚧 Under development |       |
-| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)          |          |          | 🔶 Beta              |       |
-| [IPYNB](https://github.com/stencila/stencila/blob/main/docs/reference/formats/ipynb.md)              |          |          | 🚧 Under development |       |
-| [Microsoft Word DOCX](https://github.com/stencila/stencila/blob/main/docs/reference/formats/docx.md) |          |          | 🚧 Under development |       |
-| [OpenDocument ODT](https://github.com/stencila/stencila/blob/main/docs/reference/formats/odt.md)     |          |          | 🚧 Under development |       |
-| [TeX](https://github.com/stencila/stencila/blob/main/docs/reference/formats/tex.md)                  |          |          | 🚧 Under development |       |
-| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md)                |          |          | 🟢 Stable            |       |
-| [JSON+Zip](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.zip.md)        |          |          | 🟢 Stable            |       |
-| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json5.md)              |          |          | 🟢 Stable            |       |
-| [JSON-LD](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jsonld.md)           |          |          | 🔶 Beta              |       |
-| [CBOR](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.md)                |          |          | 🟢 Stable            |       |
-| [CBOR+Zstandard](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.zstd.md) |          |          | 🟢 Stable            |       |
-| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)                |          |          | 🟢 Stable            |       |
-| [Lexical JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/lexical.md)     |          |          | ⚠️ Alpha            |       |
-| [Koenig JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/koenig.md)       |          |          | ⚠️ Alpha            |       |
-| [Pandoc AST](https://github.com/stencila/stencila/blob/main/docs/reference/formats/pandoc.md)        |          |          | 🚧 Under development |       |
-| [Directory](https://github.com/stencila/stencila/blob/main/docs/reference/formats/directory.md)      |          |          | 🚧 Under development |       |
-| [Stencila Web Bundle](https://github.com/stencila/stencila/blob/main/docs/reference/formats/swb.md)  |          |          | ⚠️ Alpha            |       |
-| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/debug.md)              |          |          | 🟢 Stable            |       |
+| Format                                                                       | Encoding | Decoding | Support | Notes |
+| ---------------------------------------------------------------------------- | -------- | -------- | ------- | ----- |
+| [DOM HTML](https://stencila.ghost.io/docs/reference/formats/dom.html)        |          |          |         |
+| [HTML](https://stencila.ghost.io/docs/reference/formats/html)                |          |          |         |
+| [JATS](https://stencila.ghost.io/docs/reference/formats/jats)                |          |          |         |
+| [Markdown](https://stencila.ghost.io/docs/reference/formats/md)              |          |          |         |
+| [Stencila Markdown](https://stencila.ghost.io/docs/reference/formats/smd)    |          |          |         |
+| [Quarto Markdown](https://stencila.ghost.io/docs/reference/formats/qmd)      |          |          |         |
+| [MyST Markdown](https://stencila.ghost.io/docs/reference/formats/myst)       |          |          |         |
+| [LLM Markdown](https://stencila.ghost.io/docs/reference/formats/llmd)        |          |          |         |
+| [LaTeX](https://stencila.ghost.io/docs/reference/formats/latex)              |          |          |         |
+| [PDF](https://stencila.ghost.io/docs/reference/formats/pdf)                  |          |          |         |
+| [Plain text](https://stencila.ghost.io/docs/reference/formats/text)          |          |          |         |
+| [IPYNB](https://stencila.ghost.io/docs/reference/formats/ipynb)              |          |          |         |
+| [Microsoft Word DOCX](https://stencila.ghost.io/docs/reference/formats/docx) |          |          |         |
+| [OpenDocument ODT](https://stencila.ghost.io/docs/reference/formats/odt)     |          |          |         |
+| [TeX](https://stencila.ghost.io/docs/reference/formats/tex)                  |          |          |         |
+| [JSON](https://stencila.ghost.io/docs/reference/formats/json)                |          |          |         |
+| [JSON+Zip](https://stencila.ghost.io/docs/reference/formats/json.zip)        |          |          |         |
+| [JSON5](https://stencila.ghost.io/docs/reference/formats/json5)              |          |          |         |
+| [JSON-LD](https://stencila.ghost.io/docs/reference/formats/jsonld)           |          |          |         |
+| [CBOR](https://stencila.ghost.io/docs/reference/formats/cbor)                |          |          |         |
+| [CBOR+Zstandard](https://stencila.ghost.io/docs/reference/formats/cbor.zstd) |          |          |         |
+| [YAML](https://stencila.ghost.io/docs/reference/formats/yaml)                |          |          |         |
+| [Lexical JSON](https://stencila.ghost.io/docs/reference/formats/lexical)     |          |          |         |
+| [Koenig JSON](https://stencila.ghost.io/docs/reference/formats/koenig)       |          |          |         |
+| [Pandoc AST](https://stencila.ghost.io/docs/reference/formats/pandoc)        |          |          |         |
+| [Directory](https://stencila.ghost.io/docs/reference/formats/directory)      |          |          |         |
+| [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |          |          |         |
+| [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              |          |          |         |
 
 ## Bindings
 
-The `ConfigPublishGhost` type is represented in these bindings:
+The `ConfigPublishGhost` type is represented in:
 
 - [JSON-LD](https://stencila.org/ConfigPublishGhost.jsonld)
 - [JSON Schema](https://stencila.org/ConfigPublishGhost.schema.json)
@@ -68,4 +79,4 @@ The `ConfigPublishGhost` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`ConfigPublishGhost.yaml`](https://github.com/stencila/stencila/blob/main/schema/ConfigPublishGhost.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`ConfigPublishGhost.yaml`](https://github.com/stencila/stencila/blob/main/schema/ConfigPublishGhost.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

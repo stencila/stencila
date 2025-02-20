@@ -1,8 +1,17 @@
-# Form Derive Action
-
-**Indicates the action (create, update or delete) to derive for a `Form`.**
-
-**`@id`**: `stencila:FormDeriveAction`
+---
+title: Form Derive Action
+description: Indicates the action (create, update or delete) to derive for a `Form`.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: form-derive-action
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Flow
+---
 
 ## Members
 
@@ -15,7 +24,7 @@ The `FormDeriveAction` type has these members:
 
 ## Bindings
 
-The `FormDeriveAction` type is represented in these bindings:
+The `FormDeriveAction` type is represented in:
 
 - [JSON-LD](https://stencila.org/FormDeriveAction.jsonld)
 - [JSON Schema](https://stencila.org/FormDeriveAction.schema.json)
@@ -25,4 +34,4 @@ The `FormDeriveAction` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`FormDeriveAction.yaml`](https://github.com/stencila/stencila/blob/main/schema/FormDeriveAction.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`FormDeriveAction.yaml`](https://github.com/stencila/stencila/blob/main/schema/FormDeriveAction.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

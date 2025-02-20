@@ -1,8 +1,17 @@
-# Message Level
-
-**The severity level of a message.**
-
-**`@id`**: `stencila:MessageLevel`
+---
+title: Message Level
+description: The severity level of a message.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: message-level
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Other
+---
 
 ## Members
 
@@ -17,7 +26,7 @@ The `MessageLevel` type has these members:
 
 ## Bindings
 
-The `MessageLevel` type is represented in these bindings:
+The `MessageLevel` type is represented in:
 
 - [JSON-LD](https://stencila.org/MessageLevel.jsonld)
 - [JSON Schema](https://stencila.org/MessageLevel.schema.json)
@@ -27,4 +36,4 @@ The `MessageLevel` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`MessageLevel.yaml`](https://github.com/stencila/stencila/blob/main/schema/MessageLevel.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`MessageLevel.yaml`](https://github.com/stencila/stencila/blob/main/schema/MessageLevel.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

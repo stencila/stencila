@@ -1,8 +1,17 @@
-# Suggestion Status
-
-**The status of an instruction.**
-
-**`@id`**: `stencila:SuggestionStatus`
+---
+title: Suggestion Status
+description: The status of an instruction.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: suggestion-status
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Edits
+---
 
 ## Members
 
@@ -14,7 +23,7 @@ The `SuggestionStatus` type has these members:
 
 ## Bindings
 
-The `SuggestionStatus` type is represented in these bindings:
+The `SuggestionStatus` type is represented in:
 
 - [JSON-LD](https://stencila.org/SuggestionStatus.jsonld)
 - [JSON Schema](https://stencila.org/SuggestionStatus.schema.json)
@@ -24,4 +33,4 @@ The `SuggestionStatus` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`SuggestionStatus.yaml`](https://github.com/stencila/stencila/blob/main/schema/SuggestionStatus.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`SuggestionStatus.yaml`](https://github.com/stencila/stencila/blob/main/schema/SuggestionStatus.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

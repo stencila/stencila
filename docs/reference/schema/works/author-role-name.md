@@ -1,8 +1,17 @@
-# Author Role Name
-
-**A `roleName` for an `AuthorRole`.**
-
-**`@id`**: `stencila:AuthorRoleName`
+---
+title: Author Role Name
+description: A `roleName` for an `AuthorRole`.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: author-role-name
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Works
+---
 
 ## Members
 
@@ -22,7 +31,7 @@ The `AuthorRoleName` type has these members:
 
 ## Bindings
 
-The `AuthorRoleName` type is represented in these bindings:
+The `AuthorRoleName` type is represented in:
 
 - [JSON-LD](https://stencila.org/AuthorRoleName.jsonld)
 - [JSON Schema](https://stencila.org/AuthorRoleName.schema.json)
@@ -32,4 +41,4 @@ The `AuthorRoleName` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`AuthorRoleName.yaml`](https://github.com/stencila/stencila/blob/main/schema/AuthorRoleName.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`AuthorRoleName.yaml`](https://github.com/stencila/stencila/blob/main/schema/AuthorRoleName.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

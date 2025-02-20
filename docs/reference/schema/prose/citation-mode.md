@@ -1,6 +1,17 @@
-# Citation Mode
-
-**The mode of a `Cite`.**
+---
+title: Citation Mode
+description: The mode of a `Cite`.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: citation-mode
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Prose
+---
 
 There are two main citation modes: parenthetical and narrative (a.k.a textual).
 See https://apastyle.apa.org/style-grammar-guidelines/citations/basic-principles/parenthetical-versus-narrative
@@ -20,8 +31,6 @@ LaTeX's `natbib` package has `\citep{}` (for `parenthetical`), `\citet{}` (for `
 See https://www.overleaf.com/learn/latex/Natbib_citation_styles.
 
 
-**`@id`**: `stencila:CitationMode`
-
 ## Members
 
 The `CitationMode` type has these members:
@@ -32,7 +41,7 @@ The `CitationMode` type has these members:
 
 ## Bindings
 
-The `CitationMode` type is represented in these bindings:
+The `CitationMode` type is represented in:
 
 - [JSON-LD](https://stencila.org/CitationMode.jsonld)
 - [JSON Schema](https://stencila.org/CitationMode.schema.json)
@@ -42,4 +51,4 @@ The `CitationMode` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`CitationMode.yaml`](https://github.com/stencila/stencila/blob/main/schema/CitationMode.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`CitationMode.yaml`](https://github.com/stencila/stencila/blob/main/schema/CitationMode.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

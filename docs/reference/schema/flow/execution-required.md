@@ -1,8 +1,17 @@
-# Execution Required
-
-**Whether, and why, the execution of a node is required or not.**
-
-**`@id`**: `stencila:ExecutionRequired`
+---
+title: Execution Required
+description: Whether, and why, the execution of a node is required or not.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: execution-required
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Flow
+---
 
 ## Members
 
@@ -22,7 +31,7 @@ The `ExecutionRequired` type has these members:
 
 ## Bindings
 
-The `ExecutionRequired` type is represented in these bindings:
+The `ExecutionRequired` type is represented in:
 
 - [JSON-LD](https://stencila.org/ExecutionRequired.jsonld)
 - [JSON Schema](https://stencila.org/ExecutionRequired.schema.json)
@@ -32,4 +41,4 @@ The `ExecutionRequired` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`ExecutionRequired.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionRequired.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`ExecutionRequired.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionRequired.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
