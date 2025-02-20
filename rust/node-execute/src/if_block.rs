@@ -278,9 +278,12 @@ impl Executable for IfBlockClause {
         } else if is_empty && executor.is_last {
             // If code is empty and this is the last clause then this is an `else` clause so will always
             // be active (if the `IfBlock` got this far in its execution)
-            tracing::trace!("Executing if clause content");
-            if let Err(error) = self.content.walk_async(executor).await {
-                messages.push(error_to_execution_message("While executing content", error))
+            tracing::trace!("Executing else clause content");
+            if let Err(error) = executor.compile_prepare_execute(&mut self.content).await {
+                messages.push(error_to_execution_message(
+                    "While executing else clause content",
+                    error,
+                ))
             };
 
             (true, ExecutionStatus::Running)
