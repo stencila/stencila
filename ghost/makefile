@@ -1,3 +1,3 @@
 # compiles the stencila web/ package for ghost
-compile-web:
+compile-stencila:
 	npm run compile-stencila

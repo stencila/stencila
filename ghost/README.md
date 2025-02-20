@@ -105,7 +105,13 @@ To start local development, [install ghost locally](https://ghost.org/docs/ghost
 Then create a link to the theme in your local ghost's `content/themes` directory
 
 ```bash
-ln -s /path/to/stencila-theme /ghost/content/themes/stencila
+ln -s /path/to/stencila/repo/ghost /ghost/content/themes/stencila
+```
+
+Then compile the stencila web components into the theme by running the following `make` command from the stencila repo root:
+
+```bash
+make -C ghost compile-stencila
 ```
 
 In the browser navigate to your local ghost admin site (usually http://localhost:2368/ghost/).

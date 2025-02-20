@@ -1,6 +1,19 @@
 {{!< default}}
 
 {{#post}}
+{{#has tag="#doc"}}
+    {{#foreach tags}}
+        {{^match slug '=' 'hash-doc' }}
+            {{#get "pages" filter="tag:{{slug}}+tag:-hash-doc" limit="1" include="tags" }}
+                {{#foreach pages limit="1" as |page|}}
+                    {{> docviewer post=../../.. frontPage=page currentSlug=../../../slug }}    
+                {{/foreach }}
+            {{/get}}
+        {{else}}
+        {{/match}}
+    {{/foreach}}
+{{else}}
+
 <article class="gh-article {{post_class}}">
     {{#match @page.show_title_and_feature_image}}
     <header class="gh-header gh-canvas">
@@ -26,4 +39,5 @@
     </div>
 
 </article>
+{{/has}}
 {{/post}}
