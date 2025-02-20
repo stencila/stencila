@@ -8,6 +8,9 @@ export default {
   ],
   theme: {
     extend: {
+      maxWidth: {
+        content: '112rem'
+      },
       fontFamily: {
         sans: [
           'Inter',

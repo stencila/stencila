@@ -1,21 +1,21 @@
 
-<div class="page-container container w-full mx-auto px-2">
+<div class="page-container content-container px-2">
     <div class="relative flex">
         <div class="relative xl:sticky xl:top-20 flex-none h-[calc(100vh-5rem)]">
             <div class="hidden xl:block absolute h-full top-0 left-0 -translate-x-full h-full w-screen">
                 <div class="bg-gray-100 xl:bg-transparent w-full h-full"></div>
             </div>
             <!-- Mobile Menu Toggle -->
-            <button class="fixed z-20 top-24 lg:top-36 xl:40 left-4 sm:left-8 flex items-center justify-center leading-none bg-brand-blue text-white hover:text-brand-blue hover:bg-white hover:border border-brand-blue w-12 h-12 rounded-full shadow-lg xl:hidden block" id="sidebar-toggle">
+            <button class="fixed z-20 top-20 lg:top-36 xl:40 left-4 sm:left-8 flex items-center justify-center leading-none bg-brand-blue/70 text-white hover:text-brand-blue hover:bg-white hover:border border-brand-blue w-12 h-12 rounded-full shadow-lg xl:hidden block" id="sidebar-toggle">
                 <div>
                     <span class="block w-6 h-0.5 bg-[currentColor] mb-1"></span>
                     <span class="block w-6 h-0.5 bg-[currentColor] mb-1"></span>
                     <span class="block w-6 h-0.5 bg-[currentColor]"></span>
                 </div>
             </button>
-            <div id="sidebar" class="fixed bg-gray-100 xl:bg-transparent xl:relative top-16 pl-12 xl:pl-0 left-0 xl:top-0 h-full overflow-y-auto z-20 text-gray-900 border-tr border-gray-200 xl:border-0">        
+            <div id="sidebar" class="fixed bg-gray-100 xl:bg-transparent xl:relative top-16 pl-12 xl:pl-0 left-0 xl:top-0 h-full z-20 text-gray-900 border-tr border-gray-200 xl:border-0">        
                 <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 xl:hidden hover:text-gray-400">{{> icons/chevron-left }}</button>
-                <aside class="w-[280px] pr-4 py-16 h-full">
+                <aside class="w-[280px] pr-4 py-16 h-full overflow-y-auto">
                     {{#page}}
                         <nav>
                             <div class="mb-4">

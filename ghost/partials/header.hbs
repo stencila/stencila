@@ -1,10 +1,10 @@
 <header id="main-header" class="sticky top-0 w-full flex items-center h-16 lg:h-20 z-20 border-b border-gray-100 bg-gray-50 z-40 lg:py-4">
   {{!-- <div id="header-bg" class="absolute inset-0 w-full h-full  -z-10"></div> --}}
-  <nav class="container w-full mx-auto px-2 flex flex-row justify-between items-center">
-      <div class="text-2xl lg:text-3xl max-w-[150px] lg:max-w-[250px] mr-4">
-          <a href="{{@site.url}}">    
+  <nav class="content-container flex flex-row justify-between items-center h-full">
+      <div class="text-2xl lg:text-3xl max-w-[150px] lg:max-w-[250px] mr-4 h-full">
+          <a href="{{@site.url}}" class="flex items-center h-full">    
               {{#if @site.logo}}
-                  <img src="{{@site.logo}}" alt="{{@site.title}}" width="100%" />
+                  <img src="{{@site.logo}}" alt="{{@site.title}}" class="w-auto h-full object-contain" />
               {{else}}
                   {{@site.title}}
               {{/if}}
