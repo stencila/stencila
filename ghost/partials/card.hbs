@@ -2,7 +2,7 @@
 Re-usable card for linking to posts
 --}}
 
-<article class="border border-black/20 rounded overflow-hidden bg-gray-50/50 {{post_class}} shadow-md hover:shadow-xl transition-shadow duration-300 {{#if @first}}sm:col-span-2 md:col-span-3{{/if}}">
+<article class="{{post_class}} border border-black/20 rounded overflow-hidden bg-gray-50/50 shadow-md hover:shadow-xl transition-shadow duration-300 {{#if @first}}sm:col-span-2 md:col-span-3{{/if}}">
   <a class="flex flex-col {{^if @first}}max-h-[540px] h-full{{/if}}" href="{{url}}">
       {{#if feature_image}}
         <div class="w-full h-1/2">

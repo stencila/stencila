@@ -46,7 +46,10 @@ export default function infiniteScroll() {
                     if (link) {
                         getNextPage(link).then(({posts, nextLink}) => {
                             posts.forEach(post => {
-                                document.querySelector('.gh-postfeed').append(post)
+                                const postFeed = document.querySelector('.gh-postfeed')
+                                if(postFeed) {
+                                    postFeed.append(post)
+                                }
                             })
 
                             if (nextLink) {
