@@ -23,8 +23,9 @@
   margin-left: auto;
   margin-right: auto;
   padding-left: 12.5%;
-  font-family: et-book, Palatino, 'Palatino Linotype', 'Palatino LT STD',
-    'Book Antiqua', Georgia, serif;
+  font-family:
+    et-book, Palatino, 'Palatino Linotype', 'Palatino LT STD', 'Book Antiqua',
+    Georgia, serif;
   background-color: #fffff8;
   color: #111;
   counter-reset: sidenote-counter;
@@ -159,8 +160,8 @@
       -webkit-linear-gradient(#fffff8, #fffff8),
       -webkit-linear-gradient(#fffff8, #fffff8),
       -webkit-linear-gradient(currentColor, currentColor);
-    background: linear-gradient(#fffff8, #fffff8),
-      linear-gradient(#fffff8, #fffff8),
+    background:
+      linear-gradient(#fffff8, #fffff8), linear-gradient(#fffff8, #fffff8),
       linear-gradient(currentColor, currentColor);
     -webkit-background-size:
       0.05em 1px,

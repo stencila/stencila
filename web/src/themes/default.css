@@ -10,8 +10,8 @@
 :root {
   /* custom properties */
   --default-text-colour: #171817;
-  --font-family-serif: 'Source Serif 4', Georgia, 'Times New Roman', Times,
-    serif;
+  --font-family-serif:
+    'Source Serif 4', Georgia, 'Times New Roman', Times, serif;
 
   /* code */
   --code-font-family: 'IBM Plex Mono', monospace;
