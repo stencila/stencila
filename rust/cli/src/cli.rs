@@ -1,6 +1,5 @@
-use app::DirType;
 use common::{
-    clap::{self, Args, Parser, Subcommand},
+    clap::{self, Parser, Subcommand},
     eyre::{bail, Result},
     tracing,
 };
@@ -97,6 +96,7 @@ pub enum Command {
     New(new::Cli),
 
     Init(document::cli::Init),
+    Config(document::cli::Config),
     Status(document::cli::Status),
     Track(document::cli::Track),
     Untrack(document::cli::Untrack),
@@ -127,17 +127,6 @@ pub enum Command {
 
     Upgrade(upgrade::Cli),
     Uninstall(uninstall::Cli),
-
-    Config(ConfigOptions),
-}
-
-#[derive(Debug, Args)]
-pub struct ConfigOptions {
-    #[arg(long, default_value = "config")]
-    dir: DirType,
-
-    #[arg(long)]
-    ensure: bool,
 }
 
 impl Cli {
@@ -154,6 +143,7 @@ impl Cli {
             Command::New(new) => new.run().await?,
 
             Command::Init(init) => init.run().await?,
+            Command::Config(config) => config.run().await?,
             Command::Status(status) => status.run().await?,
             Command::Track(track) => track.run().await?,
             Command::Untrack(untrack) => untrack.run().await?,
@@ -182,12 +172,6 @@ impl Cli {
 
             Command::Upgrade(upgrade) => upgrade.run().await?,
             Command::Uninstall(uninstall) => uninstall.run()?,
-
-            Command::Config(options) => {
-                // TODO: Make options.dir an option, and if it not there, show all folders.
-                let dir = app::get_app_dir(options.dir, options.ensure)?;
-                println!("{}", dir.display());
-            }
 
             // Handled before this function
             Command::Lsp => bail!("The LSP command should already been run"),

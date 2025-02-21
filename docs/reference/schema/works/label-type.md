@@ -1,8 +1,17 @@
-# Label Type
-
-**Indicates how a block (usually a `CodeChunk`) should be automatically labelled.**
-
-**`@id`**: `stencila:LabelType`
+---
+title: Label Type
+description: Indicates how a block (usually a `CodeChunk`) should be automatically labelled.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: label-type
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Works
+---
 
 ## Members
 
@@ -13,7 +22,7 @@ The `LabelType` type has these members:
 
 ## Bindings
 
-The `LabelType` type is represented in these bindings:
+The `LabelType` type is represented in:
 
 - [JSON-LD](https://stencila.org/LabelType.jsonld)
 - [JSON Schema](https://stencila.org/LabelType.schema.json)
@@ -23,4 +32,4 @@ The `LabelType` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`LabelType.yaml`](https://github.com/stencila/stencila/blob/main/schema/LabelType.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`LabelType.yaml`](https://github.com/stencila/stencila/blob/main/schema/LabelType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

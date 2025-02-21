@@ -1,52 +1,61 @@
-# Inline
-
-**Union type for valid inline content.**
-
-**`@id`**: `stencila:Inline`
+---
+title: Inline
+description: Union type for valid inline content.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: inline
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Prose
+---
 
 ## Members
 
 The `Inline` type has these members:
 
-- [`Annotation`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/annotation.md)
-- [`AudioObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio-object.md)
-- [`Button`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/button.md)
-- [`Cite`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)
-- [`CiteGroup`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite-group.md)
-- [`CodeExpression`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-expression.md)
-- [`CodeInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-inline.md)
-- [`Date`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date.md)
-- [`DateTime`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date-time.md)
-- [`Duration`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration.md)
-- [`Emphasis`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/emphasis.md)
-- [`ImageObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image-object.md)
-- [`InstructionInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction-inline.md)
-- [`Link`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/link.md)
-- [`MathInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math-inline.md)
-- [`MediaObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/media-object.md)
-- [`Note`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/note.md)
-- [`Parameter`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)
-- [`QuoteInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote-inline.md)
-- [`StyledInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled-inline.md)
-- [`Strikeout`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strikeout.md)
-- [`Strong`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strong.md)
-- [`Subscript`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/subscript.md)
-- [`SuggestionInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-inline.md)
-- [`Superscript`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/superscript.md)
-- [`Text`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/text.md)
-- [`Time`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time.md)
-- [`Timestamp`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/timestamp.md)
-- [`Underline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/underline.md)
-- [`VideoObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/video-object.md)
-- [`Null`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/null.md)
-- [`Boolean`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md)
-- [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)
-- [`UnsignedInteger`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/unsigned-integer.md)
-- [`Number`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number.md)
+- [`Annotation`](https://stencila.ghost.io/docs/reference/schema/annotation)
+- [`AudioObject`](https://stencila.ghost.io/docs/reference/schema/audio-object)
+- [`Button`](https://stencila.ghost.io/docs/reference/schema/button)
+- [`Cite`](https://stencila.ghost.io/docs/reference/schema/cite)
+- [`CiteGroup`](https://stencila.ghost.io/docs/reference/schema/cite-group)
+- [`CodeExpression`](https://stencila.ghost.io/docs/reference/schema/code-expression)
+- [`CodeInline`](https://stencila.ghost.io/docs/reference/schema/code-inline)
+- [`Date`](https://stencila.ghost.io/docs/reference/schema/date)
+- [`DateTime`](https://stencila.ghost.io/docs/reference/schema/date-time)
+- [`Duration`](https://stencila.ghost.io/docs/reference/schema/duration)
+- [`Emphasis`](https://stencila.ghost.io/docs/reference/schema/emphasis)
+- [`ImageObject`](https://stencila.ghost.io/docs/reference/schema/image-object)
+- [`InstructionInline`](https://stencila.ghost.io/docs/reference/schema/instruction-inline)
+- [`Link`](https://stencila.ghost.io/docs/reference/schema/link)
+- [`MathInline`](https://stencila.ghost.io/docs/reference/schema/math-inline)
+- [`MediaObject`](https://stencila.ghost.io/docs/reference/schema/media-object)
+- [`Note`](https://stencila.ghost.io/docs/reference/schema/note)
+- [`Parameter`](https://stencila.ghost.io/docs/reference/schema/parameter)
+- [`QuoteInline`](https://stencila.ghost.io/docs/reference/schema/quote-inline)
+- [`StyledInline`](https://stencila.ghost.io/docs/reference/schema/styled-inline)
+- [`Strikeout`](https://stencila.ghost.io/docs/reference/schema/strikeout)
+- [`Strong`](https://stencila.ghost.io/docs/reference/schema/strong)
+- [`Subscript`](https://stencila.ghost.io/docs/reference/schema/subscript)
+- [`SuggestionInline`](https://stencila.ghost.io/docs/reference/schema/suggestion-inline)
+- [`Superscript`](https://stencila.ghost.io/docs/reference/schema/superscript)
+- [`Text`](https://stencila.ghost.io/docs/reference/schema/text)
+- [`Time`](https://stencila.ghost.io/docs/reference/schema/time)
+- [`Timestamp`](https://stencila.ghost.io/docs/reference/schema/timestamp)
+- [`Underline`](https://stencila.ghost.io/docs/reference/schema/underline)
+- [`VideoObject`](https://stencila.ghost.io/docs/reference/schema/video-object)
+- [`Null`](https://stencila.ghost.io/docs/reference/schema/null)
+- [`Boolean`](https://stencila.ghost.io/docs/reference/schema/boolean)
+- [`Integer`](https://stencila.ghost.io/docs/reference/schema/integer)
+- [`UnsignedInteger`](https://stencila.ghost.io/docs/reference/schema/unsigned-integer)
+- [`Number`](https://stencila.ghost.io/docs/reference/schema/number)
 
 ## Bindings
 
-The `Inline` type is represented in these bindings:
+The `Inline` type is represented in:
 
 - [JSON-LD](https://stencila.org/Inline.jsonld)
 - [JSON Schema](https://stencila.org/Inline.schema.json)
@@ -100,6 +109,6 @@ During property-based (a.k.a generative) testing, the variants of the `Inline` t
 
 ## Source
 
-This documentation was generated from [`Inline.yaml`](https://github.com/stencila/stencila/blob/main/schema/Inline.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`Inline.yaml`](https://github.com/stencila/stencila/blob/main/schema/Inline.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 
 [^1]: See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details.

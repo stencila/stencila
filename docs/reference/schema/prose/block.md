@@ -1,48 +1,57 @@
-# Block
-
-**Union type in block content node types.**
-
-**`@id`**: `stencila:Block`
+---
+title: Block
+description: Union type in block content node types.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: block
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Prose
+---
 
 ## Members
 
 The `Block` type has these members:
 
-- [`Admonition`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/admonition.md)
-- [`AudioObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio-object.md)
-- [`CallBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call-block.md)
-- [`Chat`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat.md)
-- [`ChatMessage`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat-message.md)
-- [`ChatMessageGroup`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat-message-group.md)
-- [`Claim`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)
-- [`CodeBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-block.md)
-- [`CodeChunk`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-chunk.md)
-- [`Figure`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/figure.md)
-- [`File`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/file.md)
-- [`ForBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for-block.md)
-- [`Form`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/form.md)
-- [`Heading`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/heading.md)
-- [`IfBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if-block.md)
-- [`ImageObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image-object.md)
-- [`IncludeBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include-block.md)
-- [`InstructionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction-block.md)
-- [`List`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list.md)
-- [`MathBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math-block.md)
-- [`Paragraph`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/paragraph.md)
-- [`PromptBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/prompt-block.md)
-- [`QuoteBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote-block.md)
-- [`RawBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/raw-block.md)
-- [`Section`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/section.md)
-- [`StyledBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled-block.md)
-- [`SuggestionBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion-block.md)
-- [`Table`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table.md)
-- [`ThematicBreak`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/thematic-break.md)
-- [`VideoObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/video-object.md)
-- [`Walkthrough`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/walkthrough.md)
+- [`Admonition`](https://stencila.ghost.io/docs/reference/schema/admonition)
+- [`AudioObject`](https://stencila.ghost.io/docs/reference/schema/audio-object)
+- [`CallBlock`](https://stencila.ghost.io/docs/reference/schema/call-block)
+- [`Chat`](https://stencila.ghost.io/docs/reference/schema/chat)
+- [`ChatMessage`](https://stencila.ghost.io/docs/reference/schema/chat-message)
+- [`ChatMessageGroup`](https://stencila.ghost.io/docs/reference/schema/chat-message-group)
+- [`Claim`](https://stencila.ghost.io/docs/reference/schema/claim)
+- [`CodeBlock`](https://stencila.ghost.io/docs/reference/schema/code-block)
+- [`CodeChunk`](https://stencila.ghost.io/docs/reference/schema/code-chunk)
+- [`Figure`](https://stencila.ghost.io/docs/reference/schema/figure)
+- [`File`](https://stencila.ghost.io/docs/reference/schema/file)
+- [`ForBlock`](https://stencila.ghost.io/docs/reference/schema/for-block)
+- [`Form`](https://stencila.ghost.io/docs/reference/schema/form)
+- [`Heading`](https://stencila.ghost.io/docs/reference/schema/heading)
+- [`IfBlock`](https://stencila.ghost.io/docs/reference/schema/if-block)
+- [`ImageObject`](https://stencila.ghost.io/docs/reference/schema/image-object)
+- [`IncludeBlock`](https://stencila.ghost.io/docs/reference/schema/include-block)
+- [`InstructionBlock`](https://stencila.ghost.io/docs/reference/schema/instruction-block)
+- [`List`](https://stencila.ghost.io/docs/reference/schema/list)
+- [`MathBlock`](https://stencila.ghost.io/docs/reference/schema/math-block)
+- [`Paragraph`](https://stencila.ghost.io/docs/reference/schema/paragraph)
+- [`PromptBlock`](https://stencila.ghost.io/docs/reference/schema/prompt-block)
+- [`QuoteBlock`](https://stencila.ghost.io/docs/reference/schema/quote-block)
+- [`RawBlock`](https://stencila.ghost.io/docs/reference/schema/raw-block)
+- [`Section`](https://stencila.ghost.io/docs/reference/schema/section)
+- [`StyledBlock`](https://stencila.ghost.io/docs/reference/schema/styled-block)
+- [`SuggestionBlock`](https://stencila.ghost.io/docs/reference/schema/suggestion-block)
+- [`Table`](https://stencila.ghost.io/docs/reference/schema/table)
+- [`ThematicBreak`](https://stencila.ghost.io/docs/reference/schema/thematic-break)
+- [`VideoObject`](https://stencila.ghost.io/docs/reference/schema/video-object)
+- [`Walkthrough`](https://stencila.ghost.io/docs/reference/schema/walkthrough)
 
 ## Bindings
 
-The `Block` type is represented in these bindings:
+The `Block` type is represented in:
 
 - [JSON-LD](https://stencila.org/Block.jsonld)
 - [JSON Schema](https://stencila.org/Block.schema.json)
@@ -89,6 +98,6 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 
 ## Source
 
-This documentation was generated from [`Block.yaml`](https://github.com/stencila/stencila/blob/main/schema/Block.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`Block.yaml`](https://github.com/stencila/stencila/blob/main/schema/Block.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 
 [^1]: See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details.

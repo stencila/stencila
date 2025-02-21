@@ -41,8 +41,7 @@ export function registerKernelsView(
         let snippet;
         if (format === "myst") {
           snippet = mystSnippet(item.kernel!);
-        }
-        if (format === "qmd") {
+        } else if (format === "qmd") {
           snippet = qmdSnippet(item.kernel!);
         } else {
           snippet = smdSnippet(item.kernel!);

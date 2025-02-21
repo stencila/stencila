@@ -1,5 +1,15 @@
 # Change Log
 
+## 0.0.27 2025-02-18
+
+- Adds setting for which compilation and execution messages are shown in editor.
+
+- Adds setting for whether Stencila should track or store a document on save.
+
+- Removes some work-in-progress menu items
+
+- Based on Stencila CLI v2.0.0-beta.27 which improves handling of document configuration options from different sources.
+
 ## 0.0.26 2025-02-16
 
 - Improved bundling and packaging of the extension

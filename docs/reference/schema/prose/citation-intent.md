@@ -1,11 +1,20 @@
-# Citation Intent
-
-**The type or nature of a citation, both factually and rhetorically.**
+---
+title: Citation Intent
+description: The type or nature of a citation, both factually and rhetorically.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: citation-intent
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Prose
+---
 
 The members of this enumeration map directly on to the types in the [Citation Typing Ontology (CiTO)](http://www.sparontologies.net/ontologies/cito).
 
-
-**`@id`**: `stencila:CitationIntent`
 
 ## Members
 
@@ -105,7 +114,7 @@ The `CitationIntent` type has these members:
 
 ## Bindings
 
-The `CitationIntent` type is represented in these bindings:
+The `CitationIntent` type is represented in:
 
 - [JSON-LD](https://stencila.org/CitationIntent.jsonld)
 - [JSON Schema](https://stencila.org/CitationIntent.schema.json)
@@ -115,4 +124,4 @@ The `CitationIntent` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`CitationIntent.yaml`](https://github.com/stencila/stencila/blob/main/schema/CitationIntent.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`CitationIntent.yaml`](https://github.com/stencila/stencila/blob/main/schema/CitationIntent.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

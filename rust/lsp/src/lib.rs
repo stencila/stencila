@@ -61,7 +61,10 @@ pub(crate) struct ServerOptions {
     /// Used for attributing authorship.
     user: Option<ServerOptionsUser>,
 
-    /// Options for controlling which diagnostics are shown
+    /// Options for how Stencila manages documents
+    documents: ServerOptionsDocuments,
+
+    /// Options for controlling which diagnostics Stencila shows in the editor
     diagnostics: ServerOptionsDiagnostics,
 }
 
@@ -140,6 +143,23 @@ impl ServerOptionsUser {
             self.object = Some(person);
         }
     }
+}
+
+#[derive(Debug, SmartDefault, Clone, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+pub(crate) struct ServerOptionsDocuments {
+    /// The action to take when the document is saved in the editor
+    #[default(DocumentsOnSave::Store)]
+    on_save: DocumentsOnSave,
+}
+
+#[derive(Debug, SmartDefault, Clone, Copy, Deserialize)]
+#[serde(crate = "common::serde")]
+enum DocumentsOnSave {
+    Track,
+    #[default]
+    Store,
+    Nothing,
 }
 
 #[derive(Debug, SmartDefault, Clone, Deserialize)]

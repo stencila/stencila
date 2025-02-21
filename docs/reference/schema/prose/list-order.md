@@ -1,8 +1,17 @@
-# List Order
-
-**Indicates how a `List` is ordered.**
-
-**`@id`**: [`schema:ItemListOrderType`](https://schema.org/ItemListOrderType)
+---
+title: List Order
+description: Indicates how a `List` is ordered.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: list-order
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Prose
+---
 
 ## Members
 
@@ -14,7 +23,7 @@ The `ListOrder` type has these members:
 
 ## Bindings
 
-The `ListOrder` type is represented in these bindings:
+The `ListOrder` type is represented in:
 
 - [JSON-LD](https://stencila.org/ListOrder.jsonld)
 - [JSON Schema](https://stencila.org/ListOrder.schema.json)
@@ -24,4 +33,4 @@ The `ListOrder` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`ListOrder.yaml`](https://github.com/stencila/stencila/blob/main/schema/ListOrder.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`ListOrder.yaml`](https://github.com/stencila/stencila/blob/main/schema/ListOrder.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

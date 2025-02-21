@@ -1,8 +1,17 @@
-# Message Role
-
-**The role of a message.**
-
-**`@id`**: `stencila:MessageRole`
+---
+title: Message Role
+description: The role of a message.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: message-role
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Other
+---
 
 ## Members
 
@@ -14,7 +23,7 @@ The `MessageRole` type has these members:
 
 ## Bindings
 
-The `MessageRole` type is represented in these bindings:
+The `MessageRole` type is represented in:
 
 - [JSON-LD](https://stencila.org/MessageRole.jsonld)
 - [JSON Schema](https://stencila.org/MessageRole.schema.json)
@@ -24,4 +33,4 @@ The `MessageRole` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`MessageRole.yaml`](https://github.com/stencila/stencila/blob/main/schema/MessageRole.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`MessageRole.yaml`](https://github.com/stencila/stencila/blob/main/schema/MessageRole.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

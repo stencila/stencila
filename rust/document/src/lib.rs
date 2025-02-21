@@ -34,6 +34,7 @@ use schema::{
 pub mod cli;
 
 mod config;
+mod dirs;
 mod sync_directory;
 mod sync_dom;
 mod sync_file;
@@ -348,12 +349,14 @@ impl Document {
         // Start the update task
         {
             let root = root.clone();
+            let path = path.clone();
             let command_sender = command_sender.clone();
             tokio::spawn(async move {
                 Self::update_task(
                     update_receiver,
                     patch_receiver,
                     root,
+                    path,
                     watch_sender,
                     command_sender,
                 )

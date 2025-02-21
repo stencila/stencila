@@ -1,0 +1,6 @@
+# Default configuration for Stencila workspaces
+
+models:
+  executeContent: true
+  executionBounds: Fork
+  maximumRetries: 3.0

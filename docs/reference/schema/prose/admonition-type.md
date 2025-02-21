@@ -1,8 +1,17 @@
-# Admonition Type
-
-**The type of an `Admonition`.**
-
-**`@id`**: `stencila:AdmonitionType`
+---
+title: Admonition Type
+description: The type of an `Admonition`.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: admonition-type
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Prose
+---
 
 ## Members
 
@@ -20,7 +29,7 @@ The `AdmonitionType` type has these members:
 
 ## Bindings
 
-The `AdmonitionType` type is represented in these bindings:
+The `AdmonitionType` type is represented in:
 
 - [JSON-LD](https://stencila.org/AdmonitionType.jsonld)
 - [JSON Schema](https://stencila.org/AdmonitionType.schema.json)
@@ -30,4 +39,4 @@ The `AdmonitionType` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`AdmonitionType.yaml`](https://github.com/stencila/stencila/blob/main/schema/AdmonitionType.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`AdmonitionType.yaml`](https://github.com/stencila/stencila/blob/main/schema/AdmonitionType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

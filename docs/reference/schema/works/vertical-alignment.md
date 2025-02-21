@@ -1,10 +1,19 @@
-# Vertical Alignment
-
-**The vertical alignment of content.**
+---
+title: Vertical Alignment
+description: The vertical alignment of content.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: vertical-alignment
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Works
+---
 
 Based on the JATS [`valign`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/valign.html) attribute.
-
-**`@id`**: `stencila:VerticalAlignment`
 
 ## Members
 
@@ -17,7 +26,7 @@ The `VerticalAlignment` type has these members:
 
 ## Bindings
 
-The `VerticalAlignment` type is represented in these bindings:
+The `VerticalAlignment` type is represented in:
 
 - [JSON-LD](https://stencila.org/VerticalAlignment.jsonld)
 - [JSON Schema](https://stencila.org/VerticalAlignment.schema.json)
@@ -27,4 +36,4 @@ The `VerticalAlignment` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`VerticalAlignment.yaml`](https://github.com/stencila/stencila/blob/main/schema/VerticalAlignment.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`VerticalAlignment.yaml`](https://github.com/stencila/stencila/blob/main/schema/VerticalAlignment.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

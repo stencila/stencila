@@ -1,8 +1,17 @@
-# Provenance Category
-
-**A description of the provenance of content in terms of human/machine involvement.**
-
-**`@id`**: `stencila:ProvenanceCategory`
+---
+title: Provenance Category
+description: A description of the provenance of content in terms of human/machine involvement.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: provenance-category
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Other
+---
 
 ## Members
 
@@ -28,7 +37,7 @@ The `ProvenanceCategory` type has these members:
 
 ## Bindings
 
-The `ProvenanceCategory` type is represented in these bindings:
+The `ProvenanceCategory` type is represented in:
 
 - [JSON-LD](https://stencila.org/ProvenanceCategory.jsonld)
 - [JSON Schema](https://stencila.org/ProvenanceCategory.schema.json)
@@ -38,4 +47,4 @@ The `ProvenanceCategory` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`ProvenanceCategory.yaml`](https://github.com/stencila/stencila/blob/main/schema/ProvenanceCategory.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`ProvenanceCategory.yaml`](https://github.com/stencila/stencila/blob/main/schema/ProvenanceCategory.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

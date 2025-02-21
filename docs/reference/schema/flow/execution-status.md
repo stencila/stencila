@@ -1,8 +1,17 @@
-# Execution Status
-
-**Status of the most recent, including any current, execution of a document node.**
-
-**`@id`**: `stencila:ExecutionStatus`
+---
+title: Execution Status
+description: Status of the most recent, including any current, execution of a document node.
+config:
+  publish:
+    ghost:
+      type: page
+      slug: execution-status
+      state: publish
+      tags:
+      - '#schema'
+      - '#doc'
+      - Flow
+---
 
 ## Members
 
@@ -24,7 +33,7 @@ The `ExecutionStatus` type has these members:
 
 ## Bindings
 
-The `ExecutionStatus` type is represented in these bindings:
+The `ExecutionStatus` type is represented in:
 
 - [JSON-LD](https://stencila.org/ExecutionStatus.jsonld)
 - [JSON Schema](https://stencila.org/ExecutionStatus.schema.json)
@@ -34,4 +43,4 @@ The `ExecutionStatus` type is represented in these bindings:
 
 ## Source
 
-This documentation was generated from [`ExecutionStatus.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionStatus.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`ExecutionStatus.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionStatus.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
