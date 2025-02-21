@@ -98,7 +98,7 @@ html {
     padding: 4rem 0;
 }
 
-.gh-postfeed {
+/* .gh-postfeed {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(350px, 100%), 1fr));
     gap: 4.8vmin 4vmin;
@@ -107,7 +107,7 @@ html {
 
 .gh-postfeed > *:first-child {
     grid-column: 1 / -1;
-}
+} */
 
 .gh-head-actions a:not(.gh-button) {
     display: inline-flex;

@@ -15,45 +15,45 @@
             </button>
             <div id="sidebar" class="fixed bg-gray-100 lg:bg-transparent lg:relative top-16 pl-12 lg:pl-0 left-0 lg:top-0 h-full z-20 text-gray-900 border-tr border-gray-200 lg:border-0">        
                 <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 lg:top-6 lg:hidden hover:text-gray-400">{{> icons/chevron-left }}</button>
-                <aside class="w-[240px] pr-4 py-16 h-full overflow-y-auto">
+                <aside class="w-[240px] pr-4 py-16 h-full overflow-y-auto text-gray-600">
                     {{#page}}
                         <nav>
-                            <div class="mb-4">
+                            <div class="mb-8">
                                 <a href="{{url}}" class="text-lg font-semibold {{#match ../currentSlug "=" slug}}active{{else}} hover:text-brand-blue{{/match}}">{{title}}</a>
                             </div>
+                            <ul>
+                                {{#foreach tags}}
+                                    <li class="mb-8">
+                                        <button class="collapse-toggle hover:text-[var(--ghost-accent-color)]">
+                                            <div class="flex items-center gap-4 mb-2">
+                                                {{!-- <span class="w-4 h-4">{{>icons/square}}</span> --}}
+                                                <h4 class="font-bold text-base">{{name}}</h4>
+                                                <div class="chevron w-4 h-4 transform">{{> icons/chevron-down}}</div>
+                                            </div>
+                                        </button>
+                                        <ul
+                                        {{!-- set menu collapse logic here, if is the front page, expand first section, else expand section of current doc --}}
+                                        {{#is 'page' }}
+                                            class="collapsible-section {{#@first}}expand{{/@first}}"
+                                        {{else}}
+                                            class="collapsible-section {{#foreach ../../post.tags as |postTag|}}{{#match postTag.slug "=" ../slug}}expand{{/match}}{{/foreach}}"
+                                        {{/is}}
+                                        >
+                                            {{#get "posts" filter="tags:{{slug}}+tags:hash-doc" limit="all" order="published_at asc"}}
+                                                {{#foreach posts as |post|}}
+                                                    <li class="mb-2 ml-4 flex items-start hover:text-[var(--ghost-accent-color)]">
+                                                        {{!-- <div class="w-4 h-4 mr-4 mt-1 flex-none">{{>icons/paragraph}}</div> --}}
+                                                        <a href="{{post.url}}" class="{{#match ../../../../currentSlug "=" post.slug}}active font-semibold underline{{else}} hover:text-[var(--ghost-accent-color)]{{/match}}">
+                                                            {{post.title}}
+                                                        </a>
+                                                    </li>
+                                                {{/foreach}}
+                                            {{/get}}
+                                        </ul>
+                                    </li>
+                                {{/foreach}}
+                            </ul>
                         </nav>
-                        <ul>
-                            {{#foreach tags}}
-                                <li>
-                                    <button class="collapse-toggle hover:text-[var(--ghost-accent-color)]">
-                                        <div class="flex items-center gap-4 mb-4">
-                                            {{!-- <span class="w-4 h-4">{{>icons/square}}</span> --}}
-                                            <h4 class="font-bold text-base">{{name}}</h4>
-                                            <div class="chevron w-4 h-4 transform">{{> icons/chevron-down}}</div>
-                                        </div>
-                                    </button>
-                                    <ul
-                                    {{!-- set menu collapse logic here, if is the front page, expand first section, else expand section of current doc --}}
-                                    {{#is 'page' }}
-                                        class="collapsible-section {{#@first}}expand{{/@first}}"
-                                    {{else}}
-                                        class="collapsible-section {{#foreach ../../post.tags as |postTag|}}{{#match postTag.slug "=" ../slug}}expand{{/match}}{{/foreach}}"
-                                    {{/is}}
-                                    >
-                                        {{#get "posts" filter="tags:{{slug}}+tags:hash-doc" limit="all" order="published_at asc"}}
-                                            {{#foreach posts as |post|}}
-                                                <li class="mb-2 ml-4 flex items-start hover:text-[var(--ghost-accent-color)]">
-                                                    {{!-- <div class="w-4 h-4 mr-4 mt-1 flex-none">{{>icons/paragraph}}</div> --}}
-                                                    <a href="{{post.url}}" class="{{#match ../../../../currentSlug "=" post.slug}}active font-semibold underline{{else}} hover:text-[var(--ghost-accent-color)]{{/match}}">
-                                                        {{post.title}}
-                                                    </a>
-                                                </li>
-                                            {{/foreach}}
-                                        {{/get}}
-                                    </ul>
-                                </li>
-                            {{/foreach}}
-                        </ul>
                     {{/page}}
                 </aside>
             </div>
