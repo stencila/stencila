@@ -18,7 +18,7 @@ In the page editing view, open the settings sidebar and add 'home' into the slug
 
 #### Page setup
 
-To create a doc viewer page, create a new page, In the page editing view, open the sidebar and add 'docview' to the slug input.
+To create a doc viewer page, create a new page, In the page editing view, open the sidebar and add 'docview' to the slug input, and add the internal tag #doc-page.
 
 To create the menu sections for your docs (for example: 'Get Started' or 'API Reference'), add these items as tags to the page's tag field.
 
@@ -35,9 +35,28 @@ By default ghost will sort posts in order of publishing date, so the current met
 
 To create posts that are not and a display page, ordered by publication, for example a blog, you can utilise ghost's tag [taxonomy](https://ghost.org/docs/themes/routing/#taxonomies) routing.
 
-For example, If you want to link users to apage that showing all posts tagged with 'article'.
+For example, If you want to link users to a page that showing all posts tagged with 'article'.
 
 Go the to admin panel **Settings** -> **Navigation** and click **'customise'**. In the primary navigation tab add a new entry, and in the route, add "http://{{your site domian}}/tag/{{tag slug}}", save and then refresh your site to see this route in the primary navigation. 
+
+Or if you want to define the routes porperly add collection to the routes.yaml, the example below is from stencila-site-routes.yml, and it clearly defines routes for 'changelog' and 'news' posts:
+
+```yaml
+# routes.yaml
+collections: 
+  /changelog/:
+    permalink: /changelog/{slug}/
+    template: tag
+    data: tag.changelog
+    filter: tag:changelog
+
+  /news/:
+    permalink: /news/{slug}/
+    template: tag ## these are still using the base template for tags, but you can creat and use custom templates
+    data: tag.news
+    filter: tag:news
+
+```
 
 *note, the slug in the page route, must match the tag's 'slug' field you want to use. The slug may be different from the tag name, to find the slug; navigate to the 'Tags' on the main ghost admin screen, and check the 'slug' column.
 

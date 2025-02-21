@@ -1,4 +1,4 @@
-
+## if changes are made to the routes, remember upload this file into the ghost admin via the 'labs -> routes' setting.
 routes:
   /:
     permalink: /
@@ -6,6 +6,8 @@ routes:
     data: page.home
 
 collections:
+
+  # documentation
   /docs/:
     permalink: /docs/{slug}/
     template: index
@@ -13,12 +15,12 @@ collections:
     filter: "tag:hash-doc+tag:-hash-schema"
 
   /schema/:
-    permalink: /schema/{slug}/
+    permalink: /docs/schema/{slug}/
     template: index
     data: page.schema
     filter: "tag:hash-doc+tag:hash-schema"
 
-
+  # other posts
   /changelog/:
     permalink: /changelog/{slug}/
     template: tag
@@ -30,7 +32,9 @@ collections:
     template: tag
     data: tag.news
     filter: tag:news
+  
 
+  # default
   /:
     permalink: /{slug}/
     template: post

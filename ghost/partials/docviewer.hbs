@@ -19,7 +19,7 @@
                     {{#page}}
                         <nav>
                             <div class="mb-8">
-                                <a href="{{url}}" class="text-lg font-semibold {{#match ../currentSlug "=" slug}}active{{else}} hover:text-brand-blue{{/match}}">{{title}}</a>
+                                {{> docPageLinks }}
                             </div>
                             <ul>
                                 {{#foreach tags}}
