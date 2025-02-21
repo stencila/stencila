@@ -1129,6 +1129,13 @@ impl VisitorAsync for Executor {
         Ok(self.visit_executable(block).await)
     }
 
+    async fn visit_if_block_clause(
+        &mut self,
+        block: &mut schema::IfBlockClause,
+    ) -> Result<WalkControl> {
+        Ok(self.visit_executable(block).await)
+    }
+
     async fn visit_block(&mut self, block: &mut Block) -> Result<WalkControl> {
         let current_block = block.node_id();
 

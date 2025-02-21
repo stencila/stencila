@@ -10,6 +10,7 @@ codecs = { path = "../codecs" }
 common = { path = "../common" }
 kernels = { path = "../kernels" }
 models = { path = "../models" }
+node-contains = { path = "../node-contains" }
 node-diagnostics = { path = "../node-diagnostics" }
 parsers = { path = "../parsers" }
 prompts = { path = "../prompts" }
