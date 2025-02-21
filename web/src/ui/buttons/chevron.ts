@@ -63,11 +63,17 @@ export class ChevronButton extends LitElement {
         break
     }
 
-    const styles = apply([rotation, 'transition-transform duration-100'])
+    const buttonStyle = apply([
+      'leading-[0px]',
+      this.disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+    ])
+
+    const iconStyle = apply([rotation, 'transition-transform duration-100'])
 
     return html`
       <button
-        class="${this.customClass} cursor-pointer leading-[0px]"
+        class="${this.customClass} ${buttonStyle}"
+        ?disabled=${this.disabled}
         @click=${(e: Event) => {
           if (this.disableEvents) {
             return
@@ -80,7 +86,7 @@ export class ChevronButton extends LitElement {
         }}
       >
         <stencila-ui-icon
-          class="${styles}"
+          class="${iconStyle}"
           name="chevronDown"
         ></stencila-ui-icon>
       </button>
