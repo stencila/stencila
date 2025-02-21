@@ -1,1 +1,14 @@
-{}
+{
+  "1099846": {
+    "expiry": "2025-03-01",
+    "notes": "low severity, dev dependency related (wrangler)"
+  },
+  "1102259": {
+    "expiry": "2025-03-01",
+    "notes": "moderate severity"
+  },
+  "1102341": {
+    "expiry": "2025-03-01",
+    "notes": "moderate severity, dev dependency related (tsup)"
+  }
+}
