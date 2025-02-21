@@ -33,7 +33,7 @@
 
 
 /* sidebar on smaller devices */
-@media only screen and (max-width: 80rem) {
+@media only screen and (max-width: 64rem) {
   #sidebar {
       opacity: 0;
       pointer-events: none; /* Prevent clicks when hidden */

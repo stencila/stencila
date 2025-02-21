@@ -46,7 +46,7 @@ html {
 }
 
 
-.gh-viewport::before {
+/* .gh-viewport::before {
     content: "";
     position: absolute;
     top: 0;
@@ -59,12 +59,12 @@ html {
         radial-gradient(circle 180px at 0% 55%, color-mix(in srgb, var(--ghost-accent-color) 10%, transparent 10%) 100%, transparent 0%);
 
     background-size: 300px 3000px;
-    background-position: 0px -100px; /* Offset for a natural look */
+    background-position: 0px -100px;
     background-repeat: repeat-y;
     z-index: -1;
-}
+} */
 
-@media (min-width: 768px) {
+/* @media (min-width: 768px) {
     .gh-viewport::after {
         content: "";
         position: absolute;
@@ -78,11 +78,11 @@ html {
             radial-gradient(circle 180px at 110% 80%, color-mix(in srgb, var(--ghost-accent-color) 10%, transparent 10%) 100% 100%, transparent 0%),
             radial-gradient(circle 60px at 110% 90%, color-mix(in srgb, var(--ghost-accent-color) 20%, transparent 10%) 100% 100%, transparent 0%);
         background-size: 300px 3000px;
-        background-position: 0px 20px; /* Offset for a natural look */
+        background-position: 0px 20px;
         background-repeat: repeat-y;
         z-index: -1;
     }
-}
+} */
 
 .gh-main {
     flex: 1 0 auto;
