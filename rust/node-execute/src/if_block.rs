@@ -266,25 +266,32 @@ impl Executable for IfBlockClause {
                 tracing::trace!("Executing if clause content");
                 // Compile, prepare and execute the content. Need to do prepare at least because
                 // this is not done in `IfBlock::prepare` (that method intentionally breaks the walk)
+                // Force re-execution of all nodes in content because they may have become stale since
+                // last time they were executed.
+                executor.force_all = true;
                 if let Err(error) = executor.compile_prepare_execute(&mut self.content).await {
                     messages.push(error_to_execution_message(
                         "While executing if clause content",
                         error,
                     ))
                 };
+                executor.force_all = false;
             }
 
             (truthy, ExecutionStatus::Running)
         } else if is_empty && executor.is_last {
             // If code is empty and this is the last clause then this is an `else` clause so will always
             // be active (if the `IfBlock` got this far in its execution)
+            // As for other clauses force re-execution of nodes.
             tracing::trace!("Executing else clause content");
+            executor.force_all = true;
             if let Err(error) = executor.compile_prepare_execute(&mut self.content).await {
                 messages.push(error_to_execution_message(
                     "While executing else clause content",
                     error,
                 ))
             };
+            executor.force_all = false;
 
             (true, ExecutionStatus::Running)
         } else {
