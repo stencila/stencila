@@ -258,14 +258,16 @@ figcaption strong {
     table-layout: auto;
 }
 
-.gh-content > table tr:first-child td,
 .gh-content > table tr:first-child th,
 .gh-content > table thead td,
 .gh-content > table thead th {
+    text-align: left;
     font-weight: bold !important;
     padding-bottom: 0.75rem;
     border-bottom: 1px solid rgba(0, 0, 0, 0.5);
 }
+
+.gh
 
 /* .gh-content > table tr:nth-child(2) td {
     padding-top: 0.75rem;

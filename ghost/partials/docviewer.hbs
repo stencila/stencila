@@ -16,13 +16,13 @@
             <div id="sidebar" class="fixed bg-gray-100 lg:bg-transparent lg:relative top-16 pl-12 lg:pl-0 left-0 lg:top-0 h-full z-20 text-gray-900 border-tr border-gray-200 lg:border-0">        
                 <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 lg:top-6 lg:hidden hover:text-gray-400">{{> icons/chevron-left }}</button>
                 <aside class="w-[240px] pr-4 py-16 h-full overflow-y-auto">
-                    {{#frontPage}}
+                    {{#page}}
                         <nav>
                             <div class="mb-4">
                                 <a href="{{url}}" class="text-lg font-semibold {{#match ../currentSlug "=" slug}}active{{else}} hover:text-brand-blue{{/match}}">{{title}}</a>
                             </div>
                         </nav>
-                    <ul>
+                        <ul>
                             {{#foreach tags}}
                                 <li>
                                     <button class="collapse-toggle hover:text-[var(--ghost-accent-color)]">
@@ -34,18 +34,18 @@
                                     </button>
                                     <ul
                                     {{!-- set menu collapse logic here, if is the front page, expand first section, else expand section of current doc --}}
-                                    {{#match ../slug "=" ../../currentSlug }}
+                                    {{#is 'page' }}
                                         class="collapsible-section {{#@first}}expand{{/@first}}"
                                     {{else}}
                                         class="collapsible-section {{#foreach ../../post.tags as |postTag|}}{{#match postTag.slug "=" ../slug}}expand{{/match}}{{/foreach}}"
-                                    {{/match}}
+                                    {{/is}}
                                     >
-                                        {{#get "pages" filter="tags:{{slug}}+tags:hash-doc" limit="all" order="published_at asc"}}
-                                            {{#foreach pages as |page|}}
+                                        {{#get "posts" filter="tags:{{slug}}+tags:hash-doc" limit="all" order="published_at asc"}}
+                                            {{#foreach posts as |post|}}
                                                 <li class="mb-2 ml-4 flex items-start hover:text-[var(--ghost-accent-color)]">
                                                     {{!-- <div class="w-4 h-4 mr-4 mt-1 flex-none">{{>icons/paragraph}}</div> --}}
-                                                    <a href="{{page.url}}" class="{{#match ../../../../currentSlug "=" page.slug}}active font-semibold underline{{else}} hover:text-[var(--ghost-accent-color)]{{/match}}">
-                                                        {{page.title}}
+                                                    <a href="{{post.url}}" class="{{#match ../../../../currentSlug "=" post.slug}}active font-semibold underline{{else}} hover:text-[var(--ghost-accent-color)]{{/match}}">
+                                                        {{post.title}}
                                                     </a>
                                                 </li>
                                             {{/foreach}}
@@ -54,7 +54,7 @@
                                 </li>
                             {{/foreach}}
                         </ul>
-                    {{/frontPage}}
+                    {{/page}}
                 </aside>
             </div>
         </div>
@@ -129,14 +129,14 @@
                 </footer>
 
             </article>
-            {{#match ../frontPage.slug "=" ../currentSlug }}
+            {{#is "page" }}
             {{!-- if the doc viewer's 'front page' show the nav links for each section (will route to first post in each section) --}}
                 <div class="gh-canvas mx-auto">
                     <h3 class="mb-8">Explore {{title}}:</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                     {{#foreach tags}}
-                        {{#get 'pages' filter="tags:{{slug}}+tags:hash-doc" limit="1" order="published_at asc"}}
-                            {{#foreach pages}}
+                        {{#get 'posts' filter="tags:{{slug}}+tags:hash-doc" limit="1" order="published_at asc"}}
+                            {{#foreach posts}}
                                 <a class="p-4 border border-gray-100 rounded shadow hover:shadow-xl" href="{{url}}">
                                     <div class="w-full h-full flex flex-col justify-center">
                                         <div class="text-lg font-semibold overflow-hidden whitespace-nowrap text-ellipsis">{{../../name}}</div>
@@ -150,17 +150,17 @@
                     {{/foreach}}
                     </div>
                 </div>
-            {{/match}}
+            {{/is}}
             <aside class="font-sans gh-canvas py-8">
                 <div class="flex justify-between gap-8 text-lg font-semibold w-full">
                     <div>
-                        <a id="prev-link" href="#" class="hidden flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded bg-gray-50/50 hover:text-gray-400 shadow hover:shadow-xl">
+                        <a id="prev-link" href="#" class="hidden flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-400 shadow hover:shadow-xl">
                             <span class="w-4 h-6 flex-none">{{>"icons/arrow-left"}}</span>
                             <h4 class="text-base lg:text-xl">Previous</h4>
                         </a>
                     </div>
                     <div>
-                        <a id="next-link" href="#" class="hidden flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded bg-gray-50/50 hover:text-gray-400 shadow hover:shadow-xl">
+                        <a id="next-link" href="#" class="hidden flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-400 shadow hover:shadow-xl">
                             <h4 class="text-right text-base lg:text-xl">Next</h4>
                             <span class="w-4 h-6 flex-none">{{>"icons/arrow-right"}}</span>
                         </a>
