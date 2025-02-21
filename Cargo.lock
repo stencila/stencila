@@ -3869,6 +3869,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "node-contains"
+version = "0.0.0"
+dependencies = [
+ "schema",
+]
+
+[[package]]
 name = "node-diagnostics"
 version = "0.0.0"
 dependencies = [
@@ -3890,6 +3897,7 @@ dependencies = [
  "common-dev",
  "kernels",
  "models",
+ "node-contains",
  "node-diagnostics",
  "parsers",
  "prompts",

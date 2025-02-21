@@ -1,0 +1,10 @@
+[package]
+name = "node-contains"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+schema = { path = "../schema" }
+
+[lints]
+workspace = true

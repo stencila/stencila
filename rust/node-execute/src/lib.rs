@@ -213,10 +213,21 @@ pub struct Executor {
     /// used for linting
     linting_context: Vec<(Option<NodeId>, String, Option<String>, bool)>,
 
+    /// Whether to force execution of nodes
+    ///
+    /// Used for `IfBlock` (and possibly others in the future) to ensure re-execution
+    /// of the content of clauses that were previously executed but which are now stale.
+    /// This may not be necessary when we have fully functioning dependency analysis
+    /// so that we are able to determine what is stale and needs re-execution.
+    /// See https://github.com/stencila/stencila/issues/2562.
+    ///
+    /// Equivalent to setting `execute_options.force_all`.
+    force_all: bool,
+
     /// Whether the current node is the last in a set
     ///
-    /// Used for `IfBlock` (and possibly others) to control behavior of execution
-    /// of child nodes.
+    /// Used for `IfBlock` (and possibly others in the future) to control behavior of
+    /// execution of child nodes.
     is_last: bool,
 
     /// Configuration options
@@ -398,6 +409,7 @@ impl Executor {
             programming_language: None,
             temporaries: Vec::new(),
             linting_context: Vec::new(),
+            force_all: false,
             is_last: false,
             config: None,
             execute_options: None,
@@ -942,6 +954,12 @@ impl Executor {
         compilation_digest: &Option<CompilationDigest>,
         execution_digest: &Option<CompilationDigest>,
     ) -> Option<ExecutionStatus> {
+        // If the node is locked then do not execute
+        // A locked node should never be executed, not even if force_all is true
+        if matches!(execution_mode, Some(ExecutionMode::Lock)) {
+            return Some(ExecutionStatus::Locked);
+        }
+
         let ExecuteOptions {
             force_all,
             skip_instructions,
@@ -949,13 +967,9 @@ impl Executor {
             ..
         } = self.execute_options.clone().unwrap_or_default();
 
-        if force_all {
+        // If either force all is on then mark as pending
+        if force_all || self.force_all {
             return Some(ExecutionStatus::Pending);
-        }
-
-        // If the node is locked then do not execute
-        if matches!(execution_mode, Some(ExecutionMode::Lock)) {
-            return Some(ExecutionStatus::Locked);
         }
 
         // If the executor has any node ids then the current
@@ -1111,6 +1125,13 @@ impl VisitorAsync for Executor {
     async fn visit_suggestion_block(
         &mut self,
         block: &mut schema::SuggestionBlock,
+    ) -> Result<WalkControl> {
+        Ok(self.visit_executable(block).await)
+    }
+
+    async fn visit_if_block_clause(
+        &mut self,
+        block: &mut schema::IfBlockClause,
     ) -> Result<WalkControl> {
         Ok(self.visit_executable(block).await)
     }
