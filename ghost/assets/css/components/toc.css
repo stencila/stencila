@@ -28,7 +28,7 @@ nav#doc-toc-outer a {
 }
 
 nav#doc-toc-outer a.active {
-  text-decoration: underline;
+  font-weight: 600;
 }
 
 

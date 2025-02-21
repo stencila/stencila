@@ -15,7 +15,7 @@
             </button>
             <div id="sidebar" class="fixed bg-gray-100 lg:bg-transparent lg:relative top-16 pl-12 lg:pl-0 left-0 lg:top-0 h-full z-20 text-gray-900 border-tr border-gray-200 lg:border-0">        
                 <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 lg:top-6 lg:hidden hover:text-gray-400">{{> icons/chevron-left }}</button>
-                <aside class="w-[280px] pr-4 py-16 h-full overflow-y-auto">
+                <aside class="w-[240px] pr-4 py-16 h-full overflow-y-auto">
                     {{#frontPage}}
                         <nav>
                             <div class="mb-4">
@@ -131,7 +131,7 @@
             </article>
             {{#match ../frontPage.slug "=" ../currentSlug }}
             {{!-- if the doc viewer's 'front page' show the nav links for each section (will route to first post in each section) --}}
-                <div class="max-w-[720px] mx-auto">
+                <div class="gh-canvas mx-auto">
                     <h3 class="mb-8">Explore {{title}}:</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                     {{#foreach tags}}
@@ -151,8 +151,8 @@
                     </div>
                 </div>
             {{/match}}
-            <aside class="font-sans w-full py-8">
-                <div class="flex justify-between gap-8 px-8 text-lg font-semibold w-full">
+            <aside class="font-sans gh-canvas py-8">
+                <div class="flex justify-between gap-8 text-lg font-semibold w-full">
                     <div>
                         <a id="prev-link" href="#" class="hidden flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded bg-gray-50/50 hover:text-gray-400 shadow hover:shadow-xl">
                             <span class="w-4 h-6 flex-none">{{>"icons/arrow-left"}}</span>

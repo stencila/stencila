@@ -18,6 +18,19 @@ collections:
     data: page.schema
     filter: "tag:hash-doc+tag:hash-schema"
 
+
+  /changelog/:
+    permalink: /changelog/{slug}/
+    template: tag
+    data: tag.changelog
+    filter: tag:changelog
+
+  /news/:
+    permalink: /news/{slug}/
+    template: tag
+    data: tag.news
+    filter: tag:news
+
   /:
     permalink: /{slug}/
     template: post
