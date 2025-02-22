@@ -27,6 +27,7 @@ import { registerWalkthroughCommands } from "./walkthroughs";
 import { registerStencilaShell } from "./shell";
 import { event, registerEventing } from "./events";
 import { workspaceSetup } from "./workspace";
+import { getPythonEnvVars, registerPythonExtensionListener } from "./python";
 
 let client: LanguageClient | undefined;
 
@@ -59,6 +60,7 @@ export async function activate(context: vscode.ExtensionContext) {
   registerWalkthroughCommands(context);
   registerStatusBar(context);
   registerStencilaShell(context);
+  registerPythonExtensionListener(context);
   registerOtherCommands(context);
 
   // Check status of extension
@@ -78,8 +80,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
 /**
  * Check the installation status of the extension
- *
- * TODO: launch a welcome document on first install.
  */
 function checkExtensionStatus(context: vscode.ExtensionContext) {
   const current = context.extension.packageJSON.version;
@@ -128,11 +128,14 @@ async function startServer(context: vscode.ExtensionContext) {
   // Collect secrets to pass as env vars to LSP server
   const secrets = await collectSecrets(context);
 
+  // Get env vars related to Python environments
+  const python = await getPythonEnvVars();
+
   // Start the language server client passing secrets as env vars
   const serverOptions: ServerOptions = {
     command,
     args,
-    options: { env: { ...process.env, ...secrets } },
+    options: { env: { ...process.env, ...python, ...secrets } },
   };
   const clientOptions: LanguageClientOptions = {
     initializationOptions,
