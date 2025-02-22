@@ -242,6 +242,9 @@ export class InstructionBlock extends Instruction {
   private renderCard() {
     const { borderColour } = nodeUi('InstructionBlock')
 
+    // const hasDocRoot = this.hasDocumentRootNode()
+    // ?no-root=${!hasDocRoot}
+
     return html`<stencila-ui-block-on-demand
       type="InstructionBlock"
       node-id=${this.id}

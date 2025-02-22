@@ -32,12 +32,14 @@ export class QuoteBlock extends Entity {
         </div>
       `
     }
+    const hasDocRoot = this.hasDocumentRootNode()
 
     return html`
       <stencila-ui-block-on-demand
         type="QuoteBlock"
         node-id=${this.id}
         depth=${this.depth}
+        ?no-root=${!hasDocRoot}
       >
         <div slot="body">
           <stencila-ui-node-authors type="QuoteBlock">

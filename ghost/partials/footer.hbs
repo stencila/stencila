@@ -1,0 +1,24 @@
+<footer id="main-footer" class="py-8 md:py-20 border border-0 border-t border-gray-200 bg-gray-100 text-gray-900">
+    <div class="content-container flex flex-col md:flex-row items-center justify-between">
+        <div class="flex flex-col items-center md:items-start">
+            <div class="w-40 text-lg">
+            <a href="{{@site.url}}">
+                {{#if @site.logo}}
+                    <img src="{{@site.logo}}" alt="{{@site.title}}" width="100%" />
+                {{else}}
+                    {{@site.title}}
+                {{/if}}
+            </a>
+            </div>
+            <div class="mt-4 text-sm">
+                Published with <a href="https://ghost.org" class="hover:text-[var(--ghost-accent-color)]" target="_blank" rel="noopener">Ghost</a>
+            </div>
+        </div>
+        <div class="flex gap-4 my-2">
+            {{> social-links }}
+        </div>
+        <div class="text-base md:text-xl">
+            {{navigation type="secondary"}}
+        </div>
+    </div>
+</footer>

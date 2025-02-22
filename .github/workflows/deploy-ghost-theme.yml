@@ -1,0 +1,28 @@
+name: Deploy Stencila Ghost Theme
+on: workflow_dispatch
+  
+jobs:
+
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: make -C web install
+
+      - name: Build web dist for ghost
+        run: make -C ghost compile-stencila
+
+      - uses: actions/checkout@v4
+      - name: Deploy Ghost Theme
+        uses: TryGhost/action-deploy-theme@v1
+        with:
+          api-url: ${{ secrets.GHOST_ADMIN_API_URL }}
+          api-key: ${{ secrets.GHOST_ADMIN_API_KEY }}
+          working-directory: ./ghost

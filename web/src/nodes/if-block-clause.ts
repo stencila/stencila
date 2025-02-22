@@ -128,7 +128,9 @@ export class IfBlockClause extends CodeExecutable {
       iconName = 'elifClause'
     }
 
-    const readOnly = ['Running', 'Pending'].includes(this.executionStatus)
+    const readOnly =
+      ['Running', 'Pending'].includes(this.executionStatus) ||
+      !this.hasDocumentRootNode()
 
     const expanded = this.isActive || this.isExpanded
 

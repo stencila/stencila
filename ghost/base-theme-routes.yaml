@@ -1,0 +1,22 @@
+
+routes:
+  /:
+    permalink: /
+    template: home
+    data: page.home
+
+collections:
+  /docview/:
+    permalink: /docview/{slug}/
+    template: index
+    data: page.docview
+    filter: "tag:hash-doc"
+
+  /:
+    permalink: /{slug}/
+    template: post
+    filter: "tag:-hash-doc"
+
+taxonomies:
+  tag: /tag/{slug}/
+  author: /author/{slug}/

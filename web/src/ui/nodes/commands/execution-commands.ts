@@ -74,7 +74,8 @@ export class UINodeExecutionCommands extends UIBaseClass {
     ])
 
     const showDropdown =
-      this.depth > 0 && closestGlobally(this, 'stencila-chat-message') === null
+      (this.depth > 0 || this.noDocRoot) &&
+      closestGlobally(this, 'stencila-chat-message') === null
 
     const executionInProgress =
       this.status === 'Pending' || this.status === 'Running'

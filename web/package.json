@@ -32,6 +32,13 @@
       ],
       "distDir": "./dist"
     },
+    "ghost": {
+      "source": [
+        "src/themes/nodes.css",
+        "src/views/ghost.ts"
+      ],
+      "distDir": "../ghost/assets/built/stencila-web"
+    },
     "vscode": {
       "source": [
         "src/themes/default.css",
@@ -53,6 +60,7 @@
     "start": "parcel watch",
     "build": "cross-env NODE_ENV=production parcel build --target default --no-scope-hoist",
     "build:vscode": "cross-env NODE_ENV=production parcel build --target vscode --config .parcelrc-vscode --no-source-maps --no-cache",
+    "build:ghost": "cross-env NODE_ENV=production parcel build --target ghost --no-source-maps --no-cache",
     "export:vscode": "tsx scripts/export-to-vscode.ts",
     "unused": "depcheck --quiet --ignores '@parcel/*,parcel-*,postcss-*' --ignore-patterns 'eslint.config.js'"
   },
@@ -87,6 +95,7 @@
     "codemirror-lang-r": "0.1.1",
     "idiomorph": "0.7.2",
     "just-diff-apply": "5.5.0",
+    "katex": "0.16.21",
     "lit": "3.2.1",
     "mermaid": "10.9.3",
     "moment": "2.30.1",
@@ -103,6 +112,7 @@
     "@parcel/transformer-inline-string": "2.13.3",
     "@parcel/transformer-typescript-tsc": "2.13.3",
     "@playwright/test": "1.49.1",
+    "@types/katex": "^0.16.7",
     "@types/plotly.js-dist-min": "2.3.4",
     "glob": "11.0.1",
     "parcel": "2.13.3",

@@ -25,7 +25,7 @@ export class UIBlockOnDemand extends ToggleMarkerMixin(UIBaseCard) {
   protected override toggleMarkerPosition: string = ''
 
   override render() {
-    const hasBorder = this.depth > 0 && this.toggle
+    const hasBorder = (this.depth > 0 || this.noDocRoot) && this.toggle
 
     const cardStyles = apply([
       'group',

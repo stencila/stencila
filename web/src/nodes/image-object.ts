@@ -295,11 +295,13 @@ export class ImageObject extends Entity {
   }
 
   private renderBlockOnDemand() {
+    const hasDocRoot = this.hasDocumentRootNode()
     return html`
       <stencila-ui-block-on-demand
         type="ImageObject"
         node-id=${this.id}
         depth=${this.depth}
+        ?no-root=${!hasDocRoot}
       >
         ${this.renderContent()}
       </stencila-ui-block-on-demand>
