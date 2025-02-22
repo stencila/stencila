@@ -44,7 +44,7 @@ export class CodeChunk extends CodeExecutable {
   isEchoed?: boolean;
 
   /**
-   * Whether the outputs of the code chunk should be hidden from the reader.
+   * Whether the outputs should be hidden from the reader.
    */
   isHidden?: boolean;
 

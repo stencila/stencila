@@ -144,7 +144,7 @@ pub struct CodeChunk {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub is_echoed: Option<Boolean>,
 
-    /// Whether the outputs of the code chunk should be hidden from the reader.
+    /// Whether the outputs should be hidden from the reader.
     #[serde(alias = "is-hidden", alias = "is_hidden")]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]

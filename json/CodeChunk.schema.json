@@ -617,7 +617,7 @@
     },
     "isHidden": {
       "@id": "stencila:isHidden",
-      "description": "Whether the outputs of the code chunk should be hidden from the reader.",
+      "description": "Whether the outputs should be hidden from the reader.",
       "aliases": [
         "is-hidden",
         "is_hidden"

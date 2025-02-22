@@ -533,7 +533,7 @@
       "@id": "stencila:isHidden",
       "@type": "rdfs:Property",
       "rdfs:label": "isHidden",
-      "rdfs:comment": "Whether the outputs of the code chunk should be hidden from the reader.",
+      "rdfs:comment": "Whether the outputs should be hidden from the reader.",
       "schema:domainIncludes": {
         "@id": "stencila:CodeChunk"
       },
