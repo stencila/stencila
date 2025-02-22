@@ -39,9 +39,14 @@ export class CodeChunk extends CodeExecutable {
   outputs?: Node[];
 
   /**
-   * Whether the outputs of the code chunk should be invisible to the reader.
+   * Whether the code should be displayed to the reader.
    */
-  isInvisible?: boolean;
+  isEchoed?: boolean;
+
+  /**
+   * Whether the outputs of the code chunk should be hidden from the reader.
+   */
+  isHidden?: boolean;
 
   /**
    * Whether the code should be treated as side-effect free when executed.

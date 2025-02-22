@@ -67,8 +67,12 @@ impl DomCodec for CodeChunk {
             context.push_attr("label-automatically", &label_automatically.to_string());
         }
 
-        if let Some(is_invisible) = &self.is_invisible {
-            context.push_attr("is-invisible", &is_invisible.to_string());
+        if let Some(is_echoed) = &self.is_echoed {
+            context.push_attr("is-echoed", &is_echoed.to_string());
+        }
+
+        if let Some(is_hidden) = &self.is_hidden {
+            context.push_attr("is-hidden", &is_hidden.to_string());
         }
 
         macro_rules! exec_option {
@@ -228,8 +232,8 @@ impl MarkdownCodec for CodeChunk {
             }
 
             // Encode outputs as separate paragraphs (ensuring blank line after each)
-            // (unless invisible)
-            if !matches!(self.is_invisible, Some(true)) {
+            // (unless hidden)
+            if !matches!(self.is_hidden, Some(true)) {
                 for output in self.outputs.iter().flatten() {
                     output.to_markdown(context);
                     if !context.content.ends_with("\n\n") {
@@ -260,14 +264,6 @@ impl MarkdownCodec for CodeChunk {
                     }
                 },
                 |context| {
-                    if matches!(self.is_invisible, Some(true)) {
-                        context.myst_directive_option(
-                            NodeProperty::IsInvisible,
-                            Some("invisible"),
-                            "true",
-                        );
-                    }
-
                     if let Some(mode) = &self.execution_mode {
                         if !matches!(mode, ExecutionMode::Need) {
                             context.myst_directive_option(
@@ -286,6 +282,14 @@ impl MarkdownCodec for CodeChunk {
                                 &bounds.to_string().to_lowercase(),
                             );
                         }
+                    }
+
+                    if matches!(self.is_echoed, Some(true)) {
+                        context.myst_directive_option(NodeProperty::IsEchoed, Some("echo"), "true");
+                    }
+
+                    if matches!(self.is_hidden, Some(true)) {
+                        context.myst_directive_option(NodeProperty::IsHidden, Some("hide"), "true");
                     }
 
                     if let Some(label_type) = &self.label_type {
@@ -415,12 +419,6 @@ impl MarkdownCodec for CodeChunk {
 
             context.push_str("exec");
 
-            if matches!(self.is_invisible, Some(true)) {
-                context
-                    .push_str(" ")
-                    .push_prop_str(NodeProperty::IsInvisible, "invisible");
-            }
-
             if let Some(mode) = &self.execution_mode {
                 if !matches!(mode, ExecutionMode::Need) {
                     context.push_str(" ").push_prop_str(
@@ -437,6 +435,18 @@ impl MarkdownCodec for CodeChunk {
                         &bounds.to_string().to_lowercase(),
                     );
                 }
+            }
+
+            if matches!(self.is_echoed, Some(true)) {
+                context
+                    .push_str(" ")
+                    .push_prop_str(NodeProperty::IsEchoed, "echo");
+            }
+
+            if matches!(self.is_hidden, Some(true)) {
+                context
+                    .push_str(" ")
+                    .push_prop_str(NodeProperty::IsHidden, "hide");
             }
 
             context

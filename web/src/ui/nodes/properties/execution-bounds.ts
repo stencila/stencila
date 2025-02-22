@@ -47,13 +47,13 @@ export class UINodeExecutionBounds extends UIBaseClass {
     const help = (value: ExecutionBounds): string => {
       switch (value) {
         case 'Main':
-          return 'Execute within main kernel'
+          return 'Run in main kernel'
         case 'Fork':
-          return 'Execute within forked kernel'
+          return 'Run in forked kernel'
         case 'Limit':
-          return 'Execute within forked kernel with limited capabilities'
+          return 'Run in forked kernel with limited capabilities'
         case 'Box':
-          return 'Execute within forked kernel within a sandbox'
+          return 'Run in forked kernel within a sandbox'
       }
     }
 

@@ -21,7 +21,8 @@ core:
   - labelAutomatically
   - caption
   - outputs
-  - isInvisible
+  - isEchoed
+  - isHidden
 properties:
   labelType:
     "@id": stencila:labelType
@@ -103,9 +104,15 @@ properties:
       deserializeWith: none
     dom:
       elem: div
-  isInvisible:
-    "@id": stencila:isInvisible
-    description: Whether the outputs of the code chunk should be invisible to the reader.
+  isEchoed:
+    '@id': stencila:isEchoed
+    description: Whether the code should be displayed to the reader.
+    type: boolean
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+  isHidden:
+    '@id': stencila:isHidden
+    description: Whether the outputs should be hidden from the reader.
     type: boolean
     patch:
       formats: [md, smd, myst, ipynb, qmd]

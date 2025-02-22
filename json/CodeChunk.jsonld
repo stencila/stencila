@@ -518,10 +518,22 @@
       }
     },
     {
-      "@id": "stencila:isInvisible",
+      "@id": "stencila:isEchoed",
       "@type": "rdfs:Property",
-      "rdfs:label": "isInvisible",
-      "rdfs:comment": "Whether the outputs of the code chunk should be invisible to the reader.",
+      "rdfs:label": "isEchoed",
+      "rdfs:comment": "Whether the code should be displayed to the reader.",
+      "schema:domainIncludes": {
+        "@id": "stencila:CodeChunk"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
+      "@id": "stencila:isHidden",
+      "@type": "rdfs:Property",
+      "rdfs:label": "isHidden",
+      "rdfs:comment": "Whether the outputs of the code chunk should be hidden from the reader.",
       "schema:domainIncludes": {
         "@id": "stencila:CodeChunk"
       },

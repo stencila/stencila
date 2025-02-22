@@ -19,6 +19,8 @@ import './execution-duration'
 import './execution-ended'
 import './execution-mode'
 import './execution-state'
+import './is-echoed'
+import './is-hidden'
 
 /**
  * A component for displaying various execution related property of executable nodes
@@ -31,6 +33,12 @@ export class UINodeExecutionDetails extends UIBaseClass {
 
   @property()
   bounds?: ExecutionBounds
+
+  @property({ attribute: 'is-echoed' })
+  isEchoed?: string
+
+  @property({ attribute: 'is-hidden' })
+  isHidden?: string
 
   @property({ type: Array })
   tags?: ExecutionTag[]
@@ -92,6 +100,22 @@ export class UINodeExecutionDetails extends UIBaseClass {
               value=${this.bounds}
             >
             </stencila-ui-node-execution-bounds>`
+          : ''}
+        ${this.isEchoed !== undefined
+          ? html`<stencila-ui-node-is-echoed
+              type=${this.type}
+              node-id=${this.nodeId}
+              ?value=${this.isEchoed == 'true'}
+            >
+            </stencila-ui-node-is-echoed>`
+          : ''}
+        ${this.isHidden !== undefined
+          ? html`<stencila-ui-node-is-hidden
+              type=${this.type}
+              node-id=${this.nodeId}
+              ?value=${this.isHidden == 'true'}
+            >
+            </stencila-ui-node-is-hidden>`
           : ''}
       </div>
 

@@ -354,16 +354,13 @@ async fn kernel_snippets(line_num: u32) -> Result<Option<CompletionResponse>, Re
 fn execution_keywords(line: &str) -> Result<Option<CompletionResponse>, ResponseError> {
     const MODE: [&str; 5] = ["auto", "always", "lock", "need", "demand"];
     const BOUNDS: [&str; 4] = ["fork", "limit", "box", "main"];
-
-    let has_bounds = BOUNDS.iter().any(|word| line.contains(word));
-    if has_bounds {
-        return Ok(None);
-    }
+    const ECHO: &str = "echo";
+    const HIDE: &str = "hide";
 
     let mut items = Vec::new();
 
     // Order as defined above
-    let mut order = "abcdefghijklmnop".chars();
+    let mut order = "abcdefghijklmnopqrstuvwxyz".chars();
 
     let has_mode = MODE.iter().any(|word| line.contains(word));
     if !has_mode {
@@ -373,6 +370,20 @@ fn execution_keywords(line: &str) -> Result<Option<CompletionResponse>, Response
                 .map(|mode| CompletionItem {
                     kind: Some(CompletionItemKind::EVENT),
                     label: mode.into(),
+                    label_details: Some(CompletionItemLabelDetails {
+                        description: Some(
+                            match mode {
+                                "demand" => "Run on demand only",
+                                "need" => "Run when stale, and on demand",
+                                "always" => "Always run, including on demand",
+                                "auto" => "Run automatically when stale, and on demand",
+                                "lock" => "Do not run, even on demand",
+                                _ => "",
+                            }
+                            .into(),
+                        ),
+                        ..Default::default()
+                    }),
                     sort_text: order.next().map(String::from),
                     ..Default::default()
                 })
@@ -380,17 +391,61 @@ fn execution_keywords(line: &str) -> Result<Option<CompletionResponse>, Response
         );
     }
 
-    items.append(
-        &mut BOUNDS
-            .into_iter()
-            .map(|mode| CompletionItem {
-                kind: Some(CompletionItemKind::MODULE),
-                label: mode.into(),
-                sort_text: order.next().map(String::from),
+    let has_bounds = BOUNDS.iter().any(|word| line.contains(word));
+    if !has_bounds {
+        items.append(
+            &mut BOUNDS
+                .into_iter()
+                .map(|bounds| CompletionItem {
+                    kind: Some(CompletionItemKind::FIELD),
+                    label: bounds.into(),
+                    label_details: Some(CompletionItemLabelDetails {
+                        description: Some(
+                            match bounds {
+                                "main" => "Run in main kernel",
+                                "fork" => "Run in forked kernel",
+                                "limit" => "Run in forked kernel with limited capabilities",
+                                "box" => "Run in forked kernel within a sandbox",
+                                _ => "",
+                            }
+                            .into(),
+                        ),
+                        ..Default::default()
+                    }),
+                    sort_text: order.next().map(String::from),
+                    ..Default::default()
+                })
+                .collect(),
+        );
+    }
+
+    let has_echo = line.contains(ECHO);
+    if !has_echo {
+        items.push(CompletionItem {
+            kind: Some(CompletionItemKind::CONSTANT),
+            label: ECHO.into(),
+            label_details: Some(CompletionItemLabelDetails {
+                description: Some("Display code".into()),
                 ..Default::default()
-            })
-            .collect(),
-    );
+            }),
+            sort_text: order.next().map(String::from),
+            ..Default::default()
+        });
+    }
+
+    let has_hide = line.contains(HIDE);
+    if !has_hide {
+        items.push(CompletionItem {
+            kind: Some(CompletionItemKind::SNIPPET),
+            label: HIDE.into(),
+            label_details: Some(CompletionItemLabelDetails {
+                description: Some("Hide any outputs".into()),
+                ..Default::default()
+            }),
+            sort_text: order.next().map(String::from),
+            ..Default::default()
+        });
+    }
 
     Ok(Some(CompletionResponse::Array(items)))
 }
