@@ -1665,11 +1665,11 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
         let is_echoed = keywords.contains(&Keyword::IsEchoed).then_some(true);
         let is_hidden = keywords.contains(&Keyword::IsHidden).then_some(true);
         let execution_mode = keywords.iter().find_map(|kw| match kw {
-            Keyword::ExecutionMode(mode) => Some(mode.clone()),
+            Keyword::ExecutionMode(mode) => Some(*mode),
             _ => None,
         });
         let execution_bounds = keywords.iter().find_map(|kw| match kw {
-            Keyword::ExecutionBounds(bounds) => Some(bounds.clone()),
+            Keyword::ExecutionBounds(bounds) => Some(*bounds),
             _ => None,
         });
 

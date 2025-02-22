@@ -85,8 +85,8 @@ impl Schemas {
         // and do not know the category that it is nested within
         let urls: HashMap<String, String> = self
             .schemas
-            .iter()
-            .map(|(title, _schema)| {
+            .keys()
+            .map(|title| {
                 (
                     title.clone(),
                     format!(
