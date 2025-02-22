@@ -63,7 +63,6 @@ ENV RENV_CONFIG_PAK_ENABLED=TRUE
 RUN exts=(\
     stencila.stencila \
     streetsidesoftware.code-spell-checker \
-    usernamehw.errorlens \
     ) && for ext in "${exts[@]}"; do ${OVS} --install-extension "${ext}"; done
 
 # Make the Stencila CLI installed with the extension more readily available to the user
