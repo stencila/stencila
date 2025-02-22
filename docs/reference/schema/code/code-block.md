@@ -4,16 +4,16 @@ description: A code block.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: code-block
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Code
 ---
 
-## Properties
+# Properties
 
 The `CodeBlock` type has these properties:
 
@@ -25,14 +25,14 @@ The `CodeBlock` type has these properties:
 | `authors`             | The authors of the code.                 | [`Author`](https://stencila.ghost.io/docs/reference/schema/author)*                    | [`CodeStatic`](https://stencila.ghost.io/docs/reference/schema/code-static) | [`schema:author`](https://schema.org/author)                           | `author`                                       |
 | `provenance`          | A summary of the provenance of the code. | [`ProvenanceCount`](https://stencila.ghost.io/docs/reference/schema/provenance-count)* | [`CodeStatic`](https://stencila.ghost.io/docs/reference/schema/code-static) | `stencila:provenance`                                                  | -                                              |
 
-## Related
+# Related
 
 The `CodeBlock` type is related to these types:
 
 - Parents: [`CodeStatic`](https://stencila.ghost.io/docs/reference/schema/code-static)
 - Children: none
 
-## Formats
+# Formats
 
 The `CodeBlock` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -67,7 +67,7 @@ The `CodeBlock` type can be encoded (serialized) to, and/or decoded (deserialize
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                    |
 
-## Bindings
+# Bindings
 
 The `CodeBlock` type is represented in:
 
@@ -77,7 +77,7 @@ The `CodeBlock` type is represented in:
 - Rust struct [`CodeBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_block.rs)
 - TypeScript class [`CodeBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/CodeBlock.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `CodeBlock` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -92,7 +92,7 @@ During property-based (a.k.a generative) testing, the properties of the `CodeBlo
 |                       | High+      | Generate a random string of up to 10 alphanumeric characters.                                                                  | `option::of(r"[a-zA-Z0-9]{1,10}")`            |
 |                       | Max        | Generate an arbitrary string.                                                                                                  | `option::of(String::arbitrary())`             |
 
-## Source
+# Source
 
 This documentation was generated from [`CodeBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/CodeBlock.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

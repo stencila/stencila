@@ -4,12 +4,12 @@ description: A value comprised of a sequence of characters.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: cord
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
@@ -21,7 +21,7 @@ Its use includes the `value` property of the `Text` type and the `code`
 property of `CodeExecutable` nodes.
 
 
-## Formats
+# Formats
 
 The `Cord` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -56,7 +56,7 @@ The `Cord` type can be encoded (serialized) to, and/or decoded (deserialized) fr
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `Cord` type is represented in:
 
@@ -66,6 +66,6 @@ The `Cord` type is represented in:
 - Rust type [`Cord`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/cord.rs)
 - TypeScript type [`Cord`](https://github.com/stencila/stencila/blob/main/ts/src/types/Cord.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Cord.yaml`](https://github.com/stencila/stencila/blob/main/schema/Cord.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -4,12 +4,12 @@ description: A heading.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: heading
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
@@ -19,7 +19,7 @@ Analogues of `Heading` in other schemas include:
   - Pandoc [`Header`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L233)
 
 
-## Properties
+# Properties
 
 The `Heading` type has these properties:
 
@@ -31,14 +31,14 @@ The `Heading` type has these properties:
 | `authors`    | The authors of the heading.                                    | [`Author`](https://stencila.ghost.io/docs/reference/schema/author)*                    | -                                                                  | [`schema:author`](https://schema.org/author) | `author` |
 | `provenance` | A summary of the provenance of the content within the heading. | [`ProvenanceCount`](https://stencila.ghost.io/docs/reference/schema/provenance-count)* | -                                                                  | `stencila:provenance`                        | -        |
 
-## Related
+# Related
 
 The `Heading` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `Heading` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -73,7 +73,7 @@ The `Heading` type can be encoded (serialized) to, and/or decoded (deserialized)
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                                             |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                                             |
 
-## Bindings
+# Bindings
 
 The `Heading` type is represented in:
 
@@ -83,7 +83,7 @@ The `Heading` type is represented in:
 - Rust struct [`Heading`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/heading.rs)
 - TypeScript class [`Heading`](https://github.com/stencila/stencila/blob/main/ts/src/types/Heading.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `Heading` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -98,7 +98,7 @@ During property-based (a.k.a generative) testing, the properties of the `Heading
 |           | High+      | Generate up to four arbitrary inline nodes                                      | `vec_inlines(4)`                              |
 |           | Max        | Generate up to eight arbitrary inline nodes without restrictions on their order | `vec(Inline::arbitrary(), size_range(0..=8))` |
 
-## Source
+# Source
 
 This documentation was generated from [`Heading.yaml`](https://github.com/stencila/stencila/blob/main/schema/Heading.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

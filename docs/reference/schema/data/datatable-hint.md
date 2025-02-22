@@ -4,16 +4,16 @@ description: A hint to the structure of a table of data.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: datatable-hint
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `DatatableHint` type has these properties:
 
@@ -23,14 +23,14 @@ The `DatatableHint` type has these properties:
 | `rows`    | The number of rows of data.     | [`Integer`](https://stencila.ghost.io/docs/reference/schema/integer)                            | -                                                                  | `stencila:rows`                      | -        |
 | `columns` | A hint for each column of data. | [`DatatableColumnHint`](https://stencila.ghost.io/docs/reference/schema/datatable-column-hint)* | -                                                                  | `stencila:columns`                   | `column` |
 
-## Related
+# Related
 
 The `DatatableHint` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `DatatableHint` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -65,7 +65,7 @@ The `DatatableHint` type can be encoded (serialized) to, and/or decoded (deseria
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `DatatableHint` type is represented in:
 
@@ -75,6 +75,6 @@ The `DatatableHint` type is represented in:
 - Rust struct [`DatatableHint`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/datatable_hint.rs)
 - TypeScript class [`DatatableHint`](https://github.com/stencila/stencila/blob/main/ts/src/types/DatatableHint.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`DatatableHint.yaml`](https://github.com/stencila/stencila/blob/main/schema/DatatableHint.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

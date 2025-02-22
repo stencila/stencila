@@ -4,12 +4,12 @@ description: A word, name, acronym, phrase, etc. with a formal definition.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: defined-term
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
@@ -18,7 +18,7 @@ Use the `name` property for the term being defined, use `termCode`. If the term 
 description to provide the definition of the term.
 
 
-## Properties
+# Properties
 
 The `DefinedTerm` type has these properties:
 
@@ -33,14 +33,14 @@ The `DefinedTerm` type has these properties:
 | `url`            | The URL of the item.                                            | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                         | [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)   | [`schema:url`](https://schema.org/url)                     | -                                                                                         |
 | `termCode`       | A code that identifies this DefinedTerm within a DefinedTermSet | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                         | -                                                                  | [`schema:termCode`](https://schema.org/termCode)           | `term-code`, `term_code`                                                                  |
 
-## Related
+# Related
 
 The `DefinedTerm` type is related to these types:
 
 - Parents: [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)
 - Children: none
 
-## Formats
+# Formats
 
 The `DefinedTerm` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -75,7 +75,7 @@ The `DefinedTerm` type can be encoded (serialized) to, and/or decoded (deseriali
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `DefinedTerm` type is represented in:
 
@@ -85,6 +85,6 @@ The `DefinedTerm` type is represented in:
 - Rust struct [`DefinedTerm`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/defined_term.rs)
 - TypeScript class [`DefinedTerm`](https://github.com/stencila/stencila/blob/main/ts/src/types/DefinedTerm.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`DefinedTerm.yaml`](https://github.com/stencila/stencila/blob/main/schema/DefinedTerm.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

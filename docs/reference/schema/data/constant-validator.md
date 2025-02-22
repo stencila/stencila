@@ -4,12 +4,12 @@ description: A validator specifying a constant value that a node must have.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: constant-validator
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
@@ -17,7 +17,7 @@ A node will be valid against this validator if it is equal to the
 `value` property. Analogous to the JSON Schema [`const`](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.3) keyword.
 
 
-## Properties
+# Properties
 
 The `ConstantValidator` type has these properties:
 
@@ -26,14 +26,14 @@ The `ConstantValidator` type has these properties:
 | `id`    | The identifier for this item.      | [`String`](https://stencila.ghost.io/docs/reference/schema/string) | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id)       | -       |
 | `value` | The value that the node must have. | [`Node`](https://stencila.ghost.io/docs/reference/schema/node)     | -                                                                  | [`schema:value`](https://schema.org/value) | -       |
 
-## Related
+# Related
 
 The `ConstantValidator` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `ConstantValidator` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -68,7 +68,7 @@ The `ConstantValidator` type can be encoded (serialized) to, and/or decoded (des
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `ConstantValidator` type is represented in:
 
@@ -78,6 +78,6 @@ The `ConstantValidator` type is represented in:
 - Rust struct [`ConstantValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/constant_validator.rs)
 - TypeScript class [`ConstantValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/ConstantValidator.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ConstantValidator.yaml`](https://github.com/stencila/stencila/blob/main/schema/ConstantValidator.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

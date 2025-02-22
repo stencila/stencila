@@ -4,12 +4,12 @@ description: Abstract base type for a mathematical variable or equation.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: math
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Math
 ---
 
@@ -19,7 +19,7 @@ This type has a similar structure and purpose to `CodeStatic` which is a base ty
 for `CodeFragment`, `CodeBlock` etc.
 
 
-## Properties
+# Properties
 
 The `Math` type has these properties:
 
@@ -34,14 +34,14 @@ The `Math` type has these properties:
 | `compilationMessages` | Messages generated while parsing and compiling the math expression. | [`CompilationMessage`](https://stencila.ghost.io/docs/reference/schema/compilation-message)* | -                                                                  | `stencila:compilationMessages`               | `compilation-messages`, `compilation_messages`, `compilationMessage`, `compilation-message`, `compilation_message` |
 | `mathml`              | The MathML transpiled from the `code`.                              | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | -                                                                  | `stencila:mathml`                            | -                                                                                                                  |
 
-## Related
+# Related
 
 The `Math` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: [`MathBlock`](https://stencila.ghost.io/docs/reference/schema/math-block), [`MathInline`](https://stencila.ghost.io/docs/reference/schema/math-inline)
 
-## Bindings
+# Bindings
 
 The `Math` type is represented in:
 
@@ -51,6 +51,6 @@ The `Math` type is represented in:
 - Rust struct [`Math`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/math.rs)
 - TypeScript class [`Math`](https://github.com/stencila/stencila/blob/main/ts/src/types/Math.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Math.yaml`](https://github.com/stencila/stencila/blob/main/schema/Math.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

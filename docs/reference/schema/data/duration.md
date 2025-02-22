@@ -4,16 +4,16 @@ description: A value that represents the difference between two timestamps.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: duration
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `Duration` type has these properties:
 
@@ -23,14 +23,14 @@ The `Duration` type has these properties:
 | `value`    | The time difference in `timeUnit`s.        | [`Integer`](https://stencila.ghost.io/docs/reference/schema/integer)    | -                                                                  | [`schema:value`](https://schema.org/value) | -                        |
 | `timeUnit` | The time unit that the `value` represents. | [`TimeUnit`](https://stencila.ghost.io/docs/reference/schema/time-unit) | -                                                                  | `stencila:timeUnit`                        | `time-unit`, `time_unit` |
 
-## Related
+# Related
 
 The `Duration` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `Duration` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -65,7 +65,7 @@ The `Duration` type can be encoded (serialized) to, and/or decoded (deserialized
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                                                   |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                                                   |
 
-## Bindings
+# Bindings
 
 The `Duration` type is represented in:
 
@@ -75,6 +75,6 @@ The `Duration` type is represented in:
 - Rust struct [`Duration`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/duration.rs)
 - TypeScript class [`Duration`](https://github.com/stencila/stencila/blob/main/ts/src/types/Duration.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Duration.yaml`](https://github.com/stencila/stencila/blob/main/schema/Duration.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

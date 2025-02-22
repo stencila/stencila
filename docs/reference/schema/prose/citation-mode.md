@@ -4,12 +4,12 @@ description: The mode of a `Cite`.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: citation-mode
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
@@ -31,7 +31,7 @@ LaTeX's `natbib` package has `\citep{}` (for `parenthetical`), `\citet{}` (for `
 See https://www.overleaf.com/learn/latex/Natbib_citation_styles.
 
 
-## Members
+# Members
 
 The `CitationMode` type has these members:
 
@@ -39,7 +39,7 @@ The `CitationMode` type has these members:
 - `Narrative`
 - `NarrativeAuthor`
 
-## Bindings
+# Bindings
 
 The `CitationMode` type is represented in:
 
@@ -49,6 +49,6 @@ The `CitationMode` type is represented in:
 - Rust type [`CitationMode`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/citation_mode.rs)
 - TypeScript type [`CitationMode`](https://github.com/stencila/stencila/blob/main/ts/src/types/CitationMode.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`CitationMode.yaml`](https://github.com/stencila/stencila/blob/main/schema/CitationMode.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

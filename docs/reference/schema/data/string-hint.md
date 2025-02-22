@@ -4,16 +4,16 @@ description: A hint to the structure of an `String`.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: string-hint
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `StringHint` type has these properties:
 
@@ -22,14 +22,14 @@ The `StringHint` type has these properties:
 | `id`    | The identifier for this item.           | [`String`](https://stencila.ghost.io/docs/reference/schema/string)   | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -       |
 | `chars` | The number of characters in the string. | [`Integer`](https://stencila.ghost.io/docs/reference/schema/integer) | -                                                                  | `stencila:chars`                     | -       |
 
-## Related
+# Related
 
 The `StringHint` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `StringHint` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -64,7 +64,7 @@ The `StringHint` type can be encoded (serialized) to, and/or decoded (deserializ
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `StringHint` type is represented in:
 
@@ -74,6 +74,6 @@ The `StringHint` type is represented in:
 - Rust struct [`StringHint`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/string_hint.rs)
 - TypeScript class [`StringHint`](https://github.com/stencila/stencila/blob/main/ts/src/types/StringHint.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`StringHint.yaml`](https://github.com/stencila/stencila/blob/main/schema/StringHint.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

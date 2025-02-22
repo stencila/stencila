@@ -4,16 +4,16 @@ description: Zenodo publishing options.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: config-publish-zenodo
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Config
 ---
 
-## Properties
+# Properties
 
 The `ConfigPublishZenodo` type has these properties:
 
@@ -24,14 +24,14 @@ The `ConfigPublishZenodo` type has these properties:
 | `notes`        | extra notes about deposition.     | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                     | -              | ``            | -              |
 | `method`       | The methodology of the study.     | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                     | -              | ``            | -              |
 
-## Related
+# Related
 
 The `ConfigPublishZenodo` type is related to these types:
 
 - Parents: None
 - Children: none
 
-## Formats
+# Formats
 
 The `ConfigPublishZenodo` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -66,7 +66,7 @@ The `ConfigPublishZenodo` type can be encoded (serialized) to, and/or decoded (d
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |          |          |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              |          |          |         |
 
-## Bindings
+# Bindings
 
 The `ConfigPublishZenodo` type is represented in:
 
@@ -76,6 +76,6 @@ The `ConfigPublishZenodo` type is represented in:
 - Rust struct [`ConfigPublishZenodo`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/config_publish_zenodo.rs)
 - TypeScript class [`ConfigPublishZenodo`](https://github.com/stencila/stencila/blob/main/ts/src/types/ConfigPublishZenodo.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ConfigPublishZenodo.yaml`](https://github.com/stencila/stencila/blob/main/schema/ConfigPublishZenodo.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

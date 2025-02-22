@@ -4,16 +4,16 @@ description: The null value.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: 'null'
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Formats
+# Formats
 
 The `Null` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -48,7 +48,7 @@ The `Null` type can be encoded (serialized) to, and/or decoded (deserialized) fr
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |            |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss |            |         |
 
-## Bindings
+# Bindings
 
 The `Null` type is represented in:
 
@@ -58,6 +58,6 @@ The `Null` type is represented in:
 - Rust type [`Null`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/null.rs)
 - TypeScript type [`Null`](https://github.com/stencila/stencila/blob/main/ts/src/types/Null.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Null.yaml`](https://github.com/stencila/stencila/blob/main/schema/Null.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

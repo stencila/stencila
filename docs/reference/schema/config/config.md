@@ -4,16 +4,16 @@ description: Stencila document configuration options.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: config
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Config
 ---
 
-## Properties
+# Properties
 
 The `Config` type has these properties:
 
@@ -23,14 +23,14 @@ The `Config` type has these properties:
 | `models`  | The parameters used for selecting and running generative AI models | [`ConfigModels`](https://stencila.ghost.io/docs/reference/schema/config-models)   | -              | ``            | -       |
 | `publish` | Publishing configuration options                                   | [`ConfigPublish`](https://stencila.ghost.io/docs/reference/schema/config-publish) | -              | ``            | -       |
 
-## Related
+# Related
 
 The `Config` type is related to these types:
 
 - Parents: None
 - Children: none
 
-## Formats
+# Formats
 
 The `Config` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -65,7 +65,7 @@ The `Config` type can be encoded (serialized) to, and/or decoded (deserialized) 
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `Config` type is represented in:
 
@@ -75,6 +75,6 @@ The `Config` type is represented in:
 - Rust struct [`Config`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/config.rs)
 - TypeScript class [`Config`](https://github.com/stencila/stencila/blob/main/ts/src/types/Config.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Config.yaml`](https://github.com/stencila/stencila/blob/main/schema/Config.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

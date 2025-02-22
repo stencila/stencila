@@ -4,12 +4,12 @@ description: Document content in a specific format
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: raw-block
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
@@ -18,7 +18,7 @@ matches that of the raw block and the `render` option is used.
 Analogous to node types in [Pandoc](https://github.com/jgm/pandoc-types/blob/1cf21a602535b6b263fef9548521353912115d87/src/Text/Pandoc/Definition.hs#L284) and [MultiMarkdown](https://fletcher.github.io/MultiMarkdown-6/syntax/raw.html).
 
 
-## Properties
+# Properties
 
 The `RawBlock` type has these properties:
 
@@ -33,14 +33,14 @@ The `RawBlock` type has these properties:
 | `authors`             | The authors of the content.                                                             | [`Author`](https://stencila.ghost.io/docs/reference/schema/author)*                          | -                                                                  | [`schema:author`](https://schema.org/author) | `author`                                                                                                           |
 | `provenance`          | A summary of the provenance of the content.                                             | [`ProvenanceCount`](https://stencila.ghost.io/docs/reference/schema/provenance-count)*       | -                                                                  | `stencila:provenance`                        | -                                                                                                                  |
 
-## Related
+# Related
 
 The `RawBlock` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `RawBlock` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -75,7 +75,7 @@ The `RawBlock` type can be encoded (serialized) to, and/or decoded (deserialized
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `RawBlock` type is represented in:
 
@@ -85,7 +85,7 @@ The `RawBlock` type is represented in:
 - Rust struct [`RawBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/raw_block.rs)
 - TypeScript class [`RawBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/RawBlock.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `RawBlock` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -99,7 +99,7 @@ During property-based (a.k.a generative) testing, the properties of the `RawBloc
 |           | High+      | Generate a random string of up to 100 characters (excluding control characters).                                                                     | `r"[^\p{C}]{1,100}".prop_map(Cord::from)`   |
 |           | Max        | Generate an arbitrary string.                                                                                                                        | `String::arbitrary().prop_map(Cord::from)`  |
 
-## Source
+# Source
 
 This documentation was generated from [`RawBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/RawBlock.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

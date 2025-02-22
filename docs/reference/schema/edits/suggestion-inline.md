@@ -4,16 +4,16 @@ description: Abstract base type for nodes that indicate a suggested change to in
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: suggestion-inline
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Edits
 ---
 
-## Properties
+# Properties
 
 The `SuggestionInline` type has these properties:
 
@@ -28,14 +28,14 @@ The `SuggestionInline` type has these properties:
 | `feedback`          | Feedback on the suggestion                                                                      | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                      | [`Suggestion`](https://stencila.ghost.io/docs/reference/schema/suggestion) | `stencila:feedback`                          | -                                          |
 | `content`           | The content that is suggested to be inserted, modified, replaced, or deleted.                   | [`Inline`](https://stencila.ghost.io/docs/reference/schema/inline)*                     | -                                                                          | `stencila:content`                           | -                                          |
 
-## Related
+# Related
 
 The `SuggestionInline` type is related to these types:
 
 - Parents: [`Suggestion`](https://stencila.ghost.io/docs/reference/schema/suggestion)
 - Children: none
 
-## Formats
+# Formats
 
 The `SuggestionInline` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -70,7 +70,7 @@ The `SuggestionInline` type can be encoded (serialized) to, and/or decoded (dese
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `SuggestionInline` type is represented in:
 
@@ -80,6 +80,6 @@ The `SuggestionInline` type is represented in:
 - Rust struct [`SuggestionInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/suggestion_inline.rs)
 - TypeScript class [`SuggestionInline`](https://github.com/stencila/stencila/blob/main/ts/src/types/SuggestionInline.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`SuggestionInline.yaml`](https://github.com/stencila/stencila/blob/main/schema/SuggestionInline.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

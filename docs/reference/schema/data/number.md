@@ -4,16 +4,16 @@ description: A value that is a number.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: number
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Formats
+# Formats
 
 The `Number` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -48,7 +48,7 @@ The `Number` type can be encoded (serialized) to, and/or decoded (deserialized) 
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |            |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss |            |         |
 
-## Bindings
+# Bindings
 
 The `Number` type is represented in:
 
@@ -58,6 +58,6 @@ The `Number` type is represented in:
 - Rust type [`Number`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/number.rs)
 - TypeScript type [`Number`](https://github.com/stencila/stencila/blob/main/ts/src/types/Number.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Number.yaml`](https://github.com/stencila/stencila/blob/main/schema/Number.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

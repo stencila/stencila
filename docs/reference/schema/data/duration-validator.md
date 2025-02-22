@@ -4,16 +4,16 @@ description: A validator specifying the constraints on a duration.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: duration-validator
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `DurationValidator` type has these properties:
 
@@ -24,14 +24,14 @@ The `DurationValidator` type has these properties:
 | `minimum`   | The inclusive lower limit for a duration.  | [`Duration`](https://stencila.ghost.io/docs/reference/schema/duration)   | -                                                                  | `stencila:minimum`                   | -                                                                |
 | `maximum`   | The inclusive upper limit for a duration.  | [`Duration`](https://stencila.ghost.io/docs/reference/schema/duration)   | -                                                                  | `stencila:maximum`                   | -                                                                |
 
-## Related
+# Related
 
 The `DurationValidator` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `DurationValidator` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -66,7 +66,7 @@ The `DurationValidator` type can be encoded (serialized) to, and/or decoded (des
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `DurationValidator` type is represented in:
 
@@ -76,6 +76,6 @@ The `DurationValidator` type is represented in:
 - Rust struct [`DurationValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/duration_validator.rs)
 - TypeScript class [`DurationValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/DurationValidator.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`DurationValidator.yaml`](https://github.com/stencila/stencila/blob/main/schema/DurationValidator.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

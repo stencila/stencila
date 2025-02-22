@@ -4,18 +4,18 @@ description: Styled inline content.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: styled-inline
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Style
 ---
 
 This type is marked as unstable and is subject to change.
 
-## Properties
+# Properties
 
 The `StyledInline` type has these properties:
 
@@ -32,14 +32,14 @@ The `StyledInline` type has these properties:
 | `classList`           | A space separated list of class names associated with the node.        | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | [`Styled`](https://stencila.ghost.io/docs/reference/schema/styled) | `stencila:classList`                         | `class-list`, `class_list`                                                                                         |
 | `content`             | The content within the span.                                           | [`Inline`](https://stencila.ghost.io/docs/reference/schema/inline)*                          | -                                                                  | `stencila:content`                           | -                                                                                                                  |
 
-## Related
+# Related
 
 The `StyledInline` type is related to these types:
 
 - Parents: [`Styled`](https://stencila.ghost.io/docs/reference/schema/styled)
 - Children: none
 
-## Formats
+# Formats
 
 The `StyledInline` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -74,7 +74,7 @@ The `StyledInline` type can be encoded (serialized) to, and/or decoded (deserial
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                                        |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                                        |
 
-## Bindings
+# Bindings
 
 The `StyledInline` type is represented in:
 
@@ -84,7 +84,7 @@ The `StyledInline` type is represented in:
 - Rust struct [`StyledInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/styled_inline.rs)
 - TypeScript class [`StyledInline`](https://github.com/stencila/stencila/blob/main/ts/src/types/StyledInline.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `StyledInline` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -101,7 +101,7 @@ During property-based (a.k.a generative) testing, the properties of the `StyledI
 |                 | High+      | Generate up to two arbitrary, non-recursive, inline nodes                                                                         | `vec_inlines_non_recursive(2)`                                                                                                                                              |
 |                 | Max        | Generate up to four arbitrary, non-recursive, inline nodes                                                                        | `vec_inlines_non_recursive(4)`                                                                                                                                              |
 
-## Source
+# Source
 
 This documentation was generated from [`StyledInline.yaml`](https://github.com/stencila/stencila/blob/main/schema/StyledInline.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

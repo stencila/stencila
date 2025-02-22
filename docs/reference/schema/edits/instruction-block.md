@@ -4,16 +4,16 @@ description: An instruction to edit some block content.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: instruction-block
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Edits
 ---
 
-## Properties
+# Properties
 
 The `InstructionBlock` type has these properties:
 
@@ -42,14 +42,14 @@ The `InstructionBlock` type has these properties:
 | `content`               | The content to which the instruction applies.                              | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*                              | -                                                                            | `stencila:content`                   | -                                                                                                                         |
 | `suggestions`           | Suggestions for the instruction                                            | [`SuggestionBlock`](https://stencila.ghost.io/docs/reference/schema/suggestion-block)*         | -                                                                            | `stencila:suggestions`               | `suggestion`                                                                                                              |
 
-## Related
+# Related
 
 The `InstructionBlock` type is related to these types:
 
 - Parents: [`Instruction`](https://stencila.ghost.io/docs/reference/schema/instruction)
 - Children: none
 
-## Formats
+# Formats
 
 The `InstructionBlock` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -84,7 +84,7 @@ The `InstructionBlock` type can be encoded (serialized) to, and/or decoded (dese
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `InstructionBlock` type is represented in:
 
@@ -94,7 +94,7 @@ The `InstructionBlock` type is represented in:
 - Rust struct [`InstructionBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/instruction_block.rs)
 - TypeScript class [`InstructionBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/InstructionBlock.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `InstructionBlock` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -105,7 +105,7 @@ During property-based (a.k.a generative) testing, the properties of the `Instruc
 |           | High+      | Generate up to two arbitrary, non-recursive, block nodes  | `option::of(vec_blocks_non_recursive(2))` |
 |           | Max        | Generate up to four arbitrary, non-recursive, block nodes | `option::of(vec_blocks_non_recursive(4))` |
 
-## Source
+# Source
 
 This documentation was generated from [`InstructionBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/InstructionBlock.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

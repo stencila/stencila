@@ -4,18 +4,18 @@ description: A schema specifying that a node must be one of several values.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: enum-validator
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
 Analogous to the JSON Schema [`enum` keyword](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.2).
 
-## Properties
+# Properties
 
 The `EnumValidator` type has these properties:
 
@@ -24,14 +24,14 @@ The `EnumValidator` type has these properties:
 | `id`     | The identifier for this item.                          | [`String`](https://stencila.ghost.io/docs/reference/schema/string) | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -       |
 | `values` | A node is valid if it is equal to any of these values. | [`Node`](https://stencila.ghost.io/docs/reference/schema/node)*    | -                                                                  | `stencila:values`                    | `value` |
 
-## Related
+# Related
 
 The `EnumValidator` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `EnumValidator` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -66,7 +66,7 @@ The `EnumValidator` type can be encoded (serialized) to, and/or decoded (deseria
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `EnumValidator` type is represented in:
 
@@ -76,6 +76,6 @@ The `EnumValidator` type is represented in:
 - Rust struct [`EnumValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/enum_validator.rs)
 - TypeScript class [`EnumValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/EnumValidator.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`EnumValidator.yaml`](https://github.com/stencila/stencila/blob/main/schema/EnumValidator.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

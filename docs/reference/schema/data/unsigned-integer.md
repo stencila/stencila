@@ -4,16 +4,16 @@ description: An integer value that is greater or equal to zero.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: unsigned-integer
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Formats
+# Formats
 
 The `UnsignedInteger` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -48,7 +48,7 @@ The `UnsignedInteger` type can be encoded (serialized) to, and/or decoded (deser
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |            |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss |            |         |
 
-## Bindings
+# Bindings
 
 The `UnsignedInteger` type is represented in:
 
@@ -58,6 +58,6 @@ The `UnsignedInteger` type is represented in:
 - Rust type [`UnsignedInteger`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/unsigned_integer.rs)
 - TypeScript type [`UnsignedInteger`](https://github.com/stencila/stencila/blob/main/ts/src/types/UnsignedInteger.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`UnsignedInteger.yaml`](https://github.com/stencila/stencila/blob/main/schema/UnsignedInteger.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

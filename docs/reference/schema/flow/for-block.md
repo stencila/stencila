@@ -4,18 +4,18 @@ description: Repeat a block content for each item in an array.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: for-block
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
 This type is marked as unstable and is subject to change.
 
-## Properties
+# Properties
 
 The `ForBlock` type has these properties:
 
@@ -47,14 +47,14 @@ The `ForBlock` type has these properties:
 | `otherwise`             | The content to render if there are no items                                   | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*                              | -                                                                                   | `stencila:otherwise`                                                   | -                                                                                                                         |
 | `iterations`            | The content repeated for each iteration                                       | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*                              | -                                                                                   | `stencila:iterations`                                                  | `iteration`                                                                                                               |
 
-## Related
+# Related
 
 The `ForBlock` type is related to these types:
 
 - Parents: [`CodeExecutable`](https://stencila.ghost.io/docs/reference/schema/code-executable)
 - Children: none
 
-## Formats
+# Formats
 
 The `ForBlock` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -89,7 +89,7 @@ The `ForBlock` type can be encoded (serialized) to, and/or decoded (deserialized
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `ForBlock` type is represented in:
 
@@ -99,7 +99,7 @@ The `ForBlock` type is represented in:
 - Rust struct [`ForBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/for_block.rs)
 - TypeScript class [`ForBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/ForBlock.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `ForBlock` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -124,7 +124,7 @@ During property-based (a.k.a generative) testing, the properties of the `ForBloc
 |                       | Low+       | Generate up to two arbitrary, non-recursive, block nodes.                                                                                 | `option::of(vec_blocks_non_recursive(2))`     |
 |                       | Max        | Generate up to four arbitrary, non-recursive, block nodes.                                                                                | `option::of(vec_blocks_non_recursive(4))`     |
 
-## Source
+# Source
 
 This documentation was generated from [`ForBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/ForBlock.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

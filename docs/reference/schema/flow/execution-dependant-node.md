@@ -4,16 +4,16 @@ description: Node types that can be execution dependencies.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: execution-dependant-node
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
-## Members
+# Members
 
 The `ExecutionDependantNode` type has these members:
 
@@ -28,7 +28,7 @@ The `ExecutionDependantNode` type has these members:
 - [`StyledInline`](https://stencila.ghost.io/docs/reference/schema/styled-inline)
 - [`Variable`](https://stencila.ghost.io/docs/reference/schema/variable)
 
-## Bindings
+# Bindings
 
 The `ExecutionDependantNode` type is represented in:
 
@@ -38,6 +38,6 @@ The `ExecutionDependantNode` type is represented in:
 - Rust type [`ExecutionDependantNode`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_dependant_node.rs)
 - TypeScript type [`ExecutionDependantNode`](https://github.com/stencila/stencila/blob/main/ts/src/types/ExecutionDependantNode.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ExecutionDependantNode.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionDependantNode.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -4,12 +4,12 @@ description: Abstract base type for executable code nodes (e.g. `CodeChunk`).
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: code-executable
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Code
 ---
 
@@ -17,7 +17,7 @@ Adds properties to the base `Executable` node type that are necessary for execut
 The added properties are the same as for static code nodes. Both `code` and `programmingLanguage` are required.
 
 
-## Properties
+# Properties
 
 The `CodeExecutable` type has these properties:
 
@@ -45,14 +45,14 @@ The `CodeExecutable` type has these properties:
 | `authors`               | The authors of the executable code.                              | [`Author`](https://stencila.ghost.io/docs/reference/schema/author)*                            | -                                                                          | [`schema:author`](https://schema.org/author)                           | `author`                                                                                                                  |
 | `provenance`            | A summary of the provenance of the code.                         | [`ProvenanceCount`](https://stencila.ghost.io/docs/reference/schema/provenance-count)*         | -                                                                          | `stencila:provenance`                                                  | -                                                                                                                         |
 
-## Related
+# Related
 
 The `CodeExecutable` type is related to these types:
 
 - Parents: [`Executable`](https://stencila.ghost.io/docs/reference/schema/executable)
 - Children: [`Button`](https://stencila.ghost.io/docs/reference/schema/button), [`CodeChunk`](https://stencila.ghost.io/docs/reference/schema/code-chunk), [`CodeExpression`](https://stencila.ghost.io/docs/reference/schema/code-expression), [`ForBlock`](https://stencila.ghost.io/docs/reference/schema/for-block), [`IfBlockClause`](https://stencila.ghost.io/docs/reference/schema/if-block-clause)
 
-## Bindings
+# Bindings
 
 The `CodeExecutable` type is represented in:
 
@@ -62,6 +62,6 @@ The `CodeExecutable` type is represented in:
 - Rust struct [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_executable.rs)
 - TypeScript class [`CodeExecutable`](https://github.com/stencila/stencila/blob/main/ts/src/types/CodeExecutable.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`CodeExecutable.yaml`](https://github.com/stencila/stencila/blob/main/schema/CodeExecutable.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

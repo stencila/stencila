@@ -4,16 +4,16 @@ description: Publishing options.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: config-publish
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Config
 ---
 
-## Properties
+# Properties
 
 The `ConfigPublish` type has these properties:
 
@@ -22,14 +22,14 @@ The `ConfigPublish` type has these properties:
 | `ghost`  | Ghost publishing options.  | [`ConfigPublishGhost`](https://stencila.ghost.io/docs/reference/schema/config-publish-ghost)   | -              | ``            | -       |
 | `zenodo` | Zenodo publishing options. | [`ConfigPublishZenodo`](https://stencila.ghost.io/docs/reference/schema/config-publish-zenodo) | -              | ``            | -       |
 
-## Related
+# Related
 
 The `ConfigPublish` type is related to these types:
 
 - Parents: None
 - Children: none
 
-## Formats
+# Formats
 
 The `ConfigPublish` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -64,7 +64,7 @@ The `ConfigPublish` type can be encoded (serialized) to, and/or decoded (deseria
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |          |          |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              |          |          |         |
 
-## Bindings
+# Bindings
 
 The `ConfigPublish` type is represented in:
 
@@ -74,6 +74,6 @@ The `ConfigPublish` type is represented in:
 - Rust struct [`ConfigPublish`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/config_publish.rs)
 - TypeScript class [`ConfigPublish`](https://github.com/stencila/stencila/blob/main/ts/src/types/ConfigPublish.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ConfigPublish.yaml`](https://github.com/stencila/stencila/blob/main/schema/ConfigPublish.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -4,16 +4,16 @@ description: A downstream execution dependant of a node.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: execution-dependant
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
-## Properties
+# Properties
 
 The `ExecutionDependant` type has these properties:
 
@@ -24,14 +24,14 @@ The `ExecutionDependant` type has these properties:
 | `dependantNode`     | The node that is the dependant.             | [`ExecutionDependantNode`](https://stencila.ghost.io/docs/reference/schema/execution-dependant-node)         | -                                                                  | `stencila:dependantNode`             | `dependant-node`, `dependant_node`         |
 | `codeLocation`      | The location that the dependant is defined. | [`CodeLocation`](https://stencila.ghost.io/docs/reference/schema/code-location)                              | -                                                                  | `stencila:codeLocation`              | `code-location`, `code_location`           |
 
-## Related
+# Related
 
 The `ExecutionDependant` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `ExecutionDependant` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -66,7 +66,7 @@ The `ExecutionDependant` type can be encoded (serialized) to, and/or decoded (de
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `ExecutionDependant` type is represented in:
 
@@ -76,6 +76,6 @@ The `ExecutionDependant` type is represented in:
 - Rust struct [`ExecutionDependant`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_dependant.rs)
 - TypeScript class [`ExecutionDependant`](https://github.com/stencila/stencila/blob/main/ts/src/types/ExecutionDependant.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ExecutionDependant.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionDependant.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -4,16 +4,16 @@ description: Model selection and execution options.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: config-models
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Config
 ---
 
-## Properties
+# Properties
 
 The `ConfigModels` type has these properties:
 
@@ -23,14 +23,14 @@ The `ConfigModels` type has these properties:
 | `executionBounds` | The execution boundaries on model generated code.                      | [`ExecutionBounds`](https://stencila.ghost.io/docs/reference/schema/execution-bounds) | -              | ``            | `execution-bounds`, `execution_bounds`                                              |
 | `maximumRetries`  | When executing model generated content, the maximum number of retries. | [`Number`](https://stencila.ghost.io/docs/reference/schema/number)                    | -              | ``            | `max-retries`, `maximum-retries`, `execution-retries`, `retries`, `maximum_retries` |
 
-## Related
+# Related
 
 The `ConfigModels` type is related to these types:
 
 - Parents: None
 - Children: none
 
-## Formats
+# Formats
 
 The `ConfigModels` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -65,7 +65,7 @@ The `ConfigModels` type can be encoded (serialized) to, and/or decoded (deserial
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |          |          |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              |          |          |         |
 
-## Bindings
+# Bindings
 
 The `ConfigModels` type is represented in:
 
@@ -75,6 +75,6 @@ The `ConfigModels` type is represented in:
 - Rust struct [`ConfigModels`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/config_models.rs)
 - TypeScript class [`ConfigModels`](https://github.com/stencila/stencila/blob/main/ts/src/types/ConfigModels.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ConfigModels.yaml`](https://github.com/stencila/stencila/blob/main/schema/ConfigModels.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

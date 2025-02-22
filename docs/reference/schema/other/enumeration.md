@@ -4,16 +4,16 @@ description: Lists or enumerations, for example, a list of cuisines or music gen
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: enumeration
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
-## Properties
+# Properties
 
 The `Enumeration` type has these properties:
 
@@ -27,14 +27,14 @@ The `Enumeration` type has these properties:
 | `name`           | The name of the item.                         | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                         | [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)   | [`schema:name`](https://schema.org/name)                   | -                                                                                         |
 | `url`            | The URL of the item.                          | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                         | [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)   | [`schema:url`](https://schema.org/url)                     | -                                                                                         |
 
-## Related
+# Related
 
 The `Enumeration` type is related to these types:
 
 - Parents: [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)
 - Children: [`AdmonitionType`](https://stencila.ghost.io/docs/reference/schema/admonition-type), [`AuthorRoleName`](https://stencila.ghost.io/docs/reference/schema/author-role-name), [`CitationIntent`](https://stencila.ghost.io/docs/reference/schema/citation-intent), [`CitationMode`](https://stencila.ghost.io/docs/reference/schema/citation-mode), [`ClaimType`](https://stencila.ghost.io/docs/reference/schema/claim-type), [`ConfigPublishGhostState`](https://stencila.ghost.io/docs/reference/schema/config-publish-ghost-state), [`ConfigPublishGhostType`](https://stencila.ghost.io/docs/reference/schema/config-publish-ghost-type), [`ConfigPublishZenodoAccessRight`](https://stencila.ghost.io/docs/reference/schema/config-publish-zenodo-access-right), [`ExecutionBounds`](https://stencila.ghost.io/docs/reference/schema/execution-bounds), [`ExecutionDependantRelation`](https://stencila.ghost.io/docs/reference/schema/execution-dependant-relation), [`ExecutionDependencyRelation`](https://stencila.ghost.io/docs/reference/schema/execution-dependency-relation), [`ExecutionMode`](https://stencila.ghost.io/docs/reference/schema/execution-mode), [`ExecutionRequired`](https://stencila.ghost.io/docs/reference/schema/execution-required), [`ExecutionStatus`](https://stencila.ghost.io/docs/reference/schema/execution-status), [`FormDeriveAction`](https://stencila.ghost.io/docs/reference/schema/form-derive-action), [`HorizontalAlignment`](https://stencila.ghost.io/docs/reference/schema/horizontal-alignment), [`InstructionType`](https://stencila.ghost.io/docs/reference/schema/instruction-type), [`LabelType`](https://stencila.ghost.io/docs/reference/schema/label-type), [`ListOrder`](https://stencila.ghost.io/docs/reference/schema/list-order), [`MessageLevel`](https://stencila.ghost.io/docs/reference/schema/message-level), [`MessageRole`](https://stencila.ghost.io/docs/reference/schema/message-role), [`NoteType`](https://stencila.ghost.io/docs/reference/schema/note-type), [`ProvenanceCategory`](https://stencila.ghost.io/docs/reference/schema/provenance-category), [`RelativePosition`](https://stencila.ghost.io/docs/reference/schema/relative-position), [`SectionType`](https://stencila.ghost.io/docs/reference/schema/section-type), [`SuggestionStatus`](https://stencila.ghost.io/docs/reference/schema/suggestion-status), [`TableCellType`](https://stencila.ghost.io/docs/reference/schema/table-cell-type), [`TableRowType`](https://stencila.ghost.io/docs/reference/schema/table-row-type), [`TimeUnit`](https://stencila.ghost.io/docs/reference/schema/time-unit), [`VerticalAlignment`](https://stencila.ghost.io/docs/reference/schema/vertical-alignment)
 
-## Formats
+# Formats
 
 The `Enumeration` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -69,7 +69,7 @@ The `Enumeration` type can be encoded (serialized) to, and/or decoded (deseriali
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `Enumeration` type is represented in:
 
@@ -79,6 +79,6 @@ The `Enumeration` type is represented in:
 - Rust struct [`Enumeration`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/enumeration.rs)
 - TypeScript class [`Enumeration`](https://github.com/stencila/stencila/blob/main/ts/src/types/Enumeration.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Enumeration.yaml`](https://github.com/stencila/stencila/blob/main/schema/Enumeration.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

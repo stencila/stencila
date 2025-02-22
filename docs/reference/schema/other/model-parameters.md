@@ -4,16 +4,16 @@ description: Model selection and inference parameters for generative AI models.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: model-parameters
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
-## Properties
+# Properties
 
 The `ModelParameters` type has these properties:
 
@@ -32,14 +32,14 @@ The `ModelParameters` type has these properties:
 | `executionBounds` | The environment in which code should be executed.       | [`ExecutionBounds`](https://stencila.ghost.io/docs/reference/schema/execution-bounds) | -                                                                  | `stencila:executionBounds`           | `execution-bounds`, `execution_bounds`                                         |
 | `maximumRetries`  | When executing content, the maximum number of retries.  | [`UnsignedInteger`](https://stencila.ghost.io/docs/reference/schema/unsigned-integer) | -                                                                  | `stencila:maximumRetries`            | `retries`, `maximum-retries`, `maximum_retries`                                |
 
-## Related
+# Related
 
 The `ModelParameters` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `ModelParameters` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -74,7 +74,7 @@ The `ModelParameters` type can be encoded (serialized) to, and/or decoded (deser
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `ModelParameters` type is represented in:
 
@@ -84,6 +84,6 @@ The `ModelParameters` type is represented in:
 - Rust struct [`ModelParameters`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/model_parameters.rs)
 - TypeScript class [`ModelParameters`](https://github.com/stencila/stencila/blob/main/ts/src/types/ModelParameters.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ModelParameters.yaml`](https://github.com/stencila/stencila/blob/main/schema/ModelParameters.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

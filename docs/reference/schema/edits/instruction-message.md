@@ -4,16 +4,16 @@ description: A message within an `Instruction`.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: instruction-message
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Edits
 ---
 
-## Properties
+# Properties
 
 The `InstructionMessage` type has these properties:
 
@@ -25,14 +25,14 @@ The `InstructionMessage` type has these properties:
 | `authors`    | The authors of the message.                                                     | [`Author`](https://stencila.ghost.io/docs/reference/schema/author)*                    | -                                                                  | [`schema:author`](https://schema.org/author)     | `author` |
 | `provenance` | A summary of the provenance of the messages and content within the instruction. | [`ProvenanceCount`](https://stencila.ghost.io/docs/reference/schema/provenance-count)* | -                                                                  | `stencila:provenance`                            | -        |
 
-## Related
+# Related
 
 The `InstructionMessage` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `InstructionMessage` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -67,7 +67,7 @@ The `InstructionMessage` type can be encoded (serialized) to, and/or decoded (de
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `InstructionMessage` type is represented in:
 
@@ -77,6 +77,6 @@ The `InstructionMessage` type is represented in:
 - Rust struct [`InstructionMessage`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/instruction_message.rs)
 - TypeScript class [`InstructionMessage`](https://github.com/stencila/stencila/blob/main/ts/src/types/InstructionMessage.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`InstructionMessage.yaml`](https://github.com/stencila/stencila/blob/main/schema/InstructionMessage.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

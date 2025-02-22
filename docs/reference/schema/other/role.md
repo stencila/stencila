@@ -4,12 +4,12 @@ description: Represents additional information about a relationship or property.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: role
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
@@ -21,7 +21,7 @@ which is then associated with the main entities using ordinary properties like '
 See http://blog.schema.org/2014/06/introducing-role.html.
 
 
-## Properties
+# Properties
 
 The `Role` type has these properties:
 
@@ -29,14 +29,14 @@ The `Role` type has these properties:
 | ---- | ----------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------ | ------- |
 | `id` | The identifier for this item. | [`String`](https://stencila.ghost.io/docs/reference/schema/string) | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -       |
 
-## Related
+# Related
 
 The `Role` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: [`AuthorRole`](https://stencila.ghost.io/docs/reference/schema/author-role)
 
-## Bindings
+# Bindings
 
 The `Role` type is represented in:
 
@@ -46,6 +46,6 @@ The `Role` type is represented in:
 - Rust struct [`Role`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/role.rs)
 - TypeScript class [`Role`](https://github.com/stencila/stencila/blob/main/ts/src/types/Role.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Role.yaml`](https://github.com/stencila/stencila/blob/main/schema/Role.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

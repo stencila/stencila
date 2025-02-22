@@ -4,12 +4,12 @@ description: A schema specifying that a node must be a boolean value.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: boolean-validator
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
@@ -17,7 +17,7 @@ A node will be valid against this schema if it is either true or false.
 Analogous to the JSON Schema `boolean` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).
 
 
-## Properties
+# Properties
 
 The `BooleanValidator` type has these properties:
 
@@ -25,14 +25,14 @@ The `BooleanValidator` type has these properties:
 | ---- | ----------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------ | ------- |
 | `id` | The identifier for this item. | [`String`](https://stencila.ghost.io/docs/reference/schema/string) | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -       |
 
-## Related
+# Related
 
 The `BooleanValidator` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `BooleanValidator` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -67,7 +67,7 @@ The `BooleanValidator` type can be encoded (serialized) to, and/or decoded (dese
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `BooleanValidator` type is represented in:
 
@@ -77,6 +77,6 @@ The `BooleanValidator` type is represented in:
 - Rust struct [`BooleanValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/boolean_validator.rs)
 - TypeScript class [`BooleanValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/BooleanValidator.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`BooleanValidator.yaml`](https://github.com/stencila/stencila/blob/main/schema/BooleanValidator.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

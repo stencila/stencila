@@ -4,16 +4,16 @@ description: A value that is either true or false.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: boolean
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Formats
+# Formats
 
 The `Boolean` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -48,7 +48,7 @@ The `Boolean` type can be encoded (serialized) to, and/or decoded (deserialized)
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |            |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss |            |         |
 
-## Bindings
+# Bindings
 
 The `Boolean` type is represented in:
 
@@ -58,6 +58,6 @@ The `Boolean` type is represented in:
 - Rust type [`Boolean`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/boolean.rs)
 - TypeScript type [`Boolean`](https://github.com/stencila/stencila/blob/main/ts/src/types/Boolean.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Boolean.yaml`](https://github.com/stencila/stencila/blob/main/schema/Boolean.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

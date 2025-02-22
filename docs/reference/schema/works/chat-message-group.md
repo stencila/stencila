@@ -4,18 +4,18 @@ description: A group of messages, usually alternative model messages, within a `
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: chat-message-group
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
 This type is marked as unstable and is subject to change.
 
-## Properties
+# Properties
 
 The `ChatMessageGroup` type has these properties:
 
@@ -24,14 +24,14 @@ The `ChatMessageGroup` type has these properties:
 | `id`       | The identifier for this item.  | [`String`](https://stencila.ghost.io/docs/reference/schema/string)             | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -         |
 | `messages` | The messages within the group. | [`ChatMessage`](https://stencila.ghost.io/docs/reference/schema/chat-message)* | -                                                                  | `stencila:messages`                  | `message` |
 
-## Related
+# Related
 
 The `ChatMessageGroup` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `ChatMessageGroup` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -66,7 +66,7 @@ The `ChatMessageGroup` type can be encoded (serialized) to, and/or decoded (dese
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `ChatMessageGroup` type is represented in:
 
@@ -76,6 +76,6 @@ The `ChatMessageGroup` type is represented in:
 - Rust struct [`ChatMessageGroup`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/chat_message_group.rs)
 - TypeScript class [`ChatMessageGroup`](https://github.com/stencila/stencila/blob/main/ts/src/types/ChatMessageGroup.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ChatMessageGroup.yaml`](https://github.com/stencila/stencila/blob/main/schema/ChatMessageGroup.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -4,16 +4,16 @@ description: Ghost publishing options.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: config-publish-ghost
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Config
 ---
 
-## Properties
+# Properties
 
 The `ConfigPublishGhost` type has these properties:
 
@@ -25,14 +25,14 @@ The `ConfigPublishGhost` type has these properties:
 | `state`    | the state of the page or post eg draft or published. | [`ConfigPublishGhostState`](https://stencila.ghost.io/docs/reference/schema/config-publish-ghost-state) | -              | ``            | -       |
 | `tags`     | ghost tags.                                          | [`String`](https://stencila.ghost.io/docs/reference/schema/string)*                                     | -              | ``            | `tag`   |
 
-## Related
+# Related
 
 The `ConfigPublishGhost` type is related to these types:
 
 - Parents: None
 - Children: none
 
-## Formats
+# Formats
 
 The `ConfigPublishGhost` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -67,7 +67,7 @@ The `ConfigPublishGhost` type can be encoded (serialized) to, and/or decoded (de
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |          |          |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              |          |          |         |
 
-## Bindings
+# Bindings
 
 The `ConfigPublishGhost` type is represented in:
 
@@ -77,6 +77,6 @@ The `ConfigPublishGhost` type is represented in:
 - Rust struct [`ConfigPublishGhost`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/config_publish_ghost.rs)
 - TypeScript class [`ConfigPublishGhost`](https://github.com/stencila/stencila/blob/main/ts/src/types/ConfigPublishGhost.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ConfigPublishGhost.yaml`](https://github.com/stencila/stencila/blob/main/schema/ConfigPublishGhost.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

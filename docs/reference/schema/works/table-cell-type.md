@@ -4,12 +4,12 @@ description: Indicates whether the cell is a header or data.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: table-cell-type
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
@@ -17,14 +17,14 @@ When `HeaderCell`, the cell is similar to the HTML [`<th>` element](https://deve
 When `DataCell`, the cell is similar to the HTML [`<td>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td)).
 
 
-## Members
+# Members
 
 The `TableCellType` type has these members:
 
 - `DataCell`
 - `HeaderCell`
 
-## Bindings
+# Bindings
 
 The `TableCellType` type is represented in:
 
@@ -34,6 +34,6 @@ The `TableCellType` type is represented in:
 - Rust type [`TableCellType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/table_cell_type.rs)
 - TypeScript type [`TableCellType`](https://github.com/stencila/stencila/blob/main/ts/src/types/TableCellType.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`TableCellType.yaml`](https://github.com/stencila/stencila/blob/main/schema/TableCellType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

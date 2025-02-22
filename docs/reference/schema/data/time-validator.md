@@ -4,16 +4,16 @@ description: A validator specifying the constraints on a time.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: time-validator
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `TimeValidator` type has these properties:
 
@@ -23,14 +23,14 @@ The `TimeValidator` type has these properties:
 | `minimum` | The inclusive lower limit for a time. | [`Time`](https://stencila.ghost.io/docs/reference/schema/time)     | -                                                                  | `stencila:minimum`                   | -       |
 | `maximum` | The inclusive upper limit for a time. | [`Time`](https://stencila.ghost.io/docs/reference/schema/time)     | -                                                                  | `stencila:maximum`                   | -       |
 
-## Related
+# Related
 
 The `TimeValidator` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `TimeValidator` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -65,7 +65,7 @@ The `TimeValidator` type can be encoded (serialized) to, and/or decoded (deseria
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `TimeValidator` type is represented in:
 
@@ -75,6 +75,6 @@ The `TimeValidator` type is represented in:
 - Rust struct [`TimeValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/time_validator.rs)
 - TypeScript class [`TimeValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/TimeValidator.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`TimeValidator.yaml`](https://github.com/stencila/stencila/blob/main/schema/TimeValidator.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

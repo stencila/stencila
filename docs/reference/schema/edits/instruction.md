@@ -4,16 +4,16 @@ description: Abstract base type for a document editing instruction.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: instruction
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Edits
 ---
 
-## Properties
+# Properties
 
 The `Instruction` type has these properties:
 
@@ -40,14 +40,14 @@ The `Instruction` type has these properties:
 | `modelParameters`       | Model selection and inference parameters.                                  | [`ModelParameters`](https://stencila.ghost.io/docs/reference/schema/model-parameters)          | -                                                                          | `stencila:modelParameters`           | `model-parameters`, `model_parameters`, `model-params`, `model_params`, `model-pars`, `model_pars`, `model`               |
 | `activeSuggestion`      | The index of the suggestion that is currently active                       | [`UnsignedInteger`](https://stencila.ghost.io/docs/reference/schema/unsigned-integer)          | -                                                                          | `stencila:activeSuggestion`          | `active-suggestion`, `active_suggestion`                                                                                  |
 
-## Related
+# Related
 
 The `Instruction` type is related to these types:
 
 - Parents: [`Executable`](https://stencila.ghost.io/docs/reference/schema/executable)
 - Children: [`InstructionBlock`](https://stencila.ghost.io/docs/reference/schema/instruction-block), [`InstructionInline`](https://stencila.ghost.io/docs/reference/schema/instruction-inline)
 
-## Bindings
+# Bindings
 
 The `Instruction` type is represented in:
 
@@ -57,6 +57,6 @@ The `Instruction` type is represented in:
 - Rust struct [`Instruction`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/instruction.rs)
 - TypeScript class [`Instruction`](https://github.com/stencila/stencila/blob/main/ts/src/types/Instruction.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Instruction.yaml`](https://github.com/stencila/stencila/blob/main/schema/Instruction.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

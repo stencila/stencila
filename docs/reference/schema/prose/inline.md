@@ -4,16 +4,16 @@ description: Union type for valid inline content.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: inline
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
-## Members
+# Members
 
 The `Inline` type has these members:
 
@@ -53,7 +53,7 @@ The `Inline` type has these members:
 - [`UnsignedInteger`](https://stencila.ghost.io/docs/reference/schema/unsigned-integer)
 - [`Number`](https://stencila.ghost.io/docs/reference/schema/number)
 
-## Bindings
+# Bindings
 
 The `Inline` type is represented in:
 
@@ -63,7 +63,7 @@ The `Inline` type is represented in:
 - Rust type [`Inline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/inline.rs)
 - TypeScript type [`Inline`](https://github.com/stencila/stencila/blob/main/ts/src/types/Inline.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the variants of the `Inline` type are generated using the following strategies[^1] for each complexity level. Any variant not shown is generated using the default strategy for the corresponding type and complexity level.
 
@@ -107,7 +107,7 @@ During property-based (a.k.a generative) testing, the variants of the `Inline` t
 | `Number`            | Min+       | Do not generate `Number` nodes in inline content.                                                                                                                                                 | -                                                |
 |                     | Max        | Generate a fixed number. Used at all levels because even with JSON (and other data serialization formats)<br><br>round trip conversions can fail in the last significant digit of random numbers. | `Inline::Number(1.23)`                           |
 
-## Source
+# Source
 
 This documentation was generated from [`Inline.yaml`](https://github.com/stencila/stencila/blob/main/schema/Inline.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

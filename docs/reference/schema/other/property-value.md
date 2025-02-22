@@ -4,12 +4,12 @@ description: A property-value pair.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: property-value
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
@@ -24,7 +24,7 @@ so this schema make that property required.
 This type is mainly provided for use in `Thing.identifiers` (see the notes there).
 
 
-## Properties
+# Properties
 
 The `PropertyValue` type has these properties:
 
@@ -40,14 +40,14 @@ The `PropertyValue` type has these properties:
 | `propertyID`     | A commonly used identifier for the characteristic represented by the property. | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                         | -                                                                  | [`schema:propertyID`](https://schema.org/propertyID)       | `property-id`, `property_id`                                                              |
 | `value`          | The value of the property.                                                     | [`Primitive`](https://stencila.ghost.io/docs/reference/schema/primitive)                                                                                   | -                                                                  | [`schema:value`](https://schema.org/value)                 | -                                                                                         |
 
-## Related
+# Related
 
 The `PropertyValue` type is related to these types:
 
 - Parents: [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)
 - Children: none
 
-## Formats
+# Formats
 
 The `PropertyValue` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -82,7 +82,7 @@ The `PropertyValue` type can be encoded (serialized) to, and/or decoded (deseria
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `PropertyValue` type is represented in:
 
@@ -92,6 +92,6 @@ The `PropertyValue` type is represented in:
 - Rust struct [`PropertyValue`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/property_value.rs)
 - TypeScript class [`PropertyValue`](https://github.com/stencila/stencila/blob/main/ts/src/types/PropertyValue.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`PropertyValue.yaml`](https://github.com/stencila/stencila/blob/main/schema/PropertyValue.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

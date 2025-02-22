@@ -4,18 +4,18 @@ description: A variable representing a name / value pair.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: variable
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
 This type is marked as unstable and is subject to change.
 
-## Properties
+# Properties
 
 The `Variable` type has these properties:
 
@@ -30,14 +30,14 @@ The `Variable` type has these properties:
 | `hint`                | A hint to the value and/or structure of the variable.                                 | [`Hint`](https://stencila.ghost.io/docs/reference/schema/hint)     | -                                                                  | `stencila:hint`                                                        | -                                              |
 | `nativeHint`          | A textual hint to the value and/or structure of the variable.                         | [`String`](https://stencila.ghost.io/docs/reference/schema/string) | -                                                                  | `stencila:nativeHint`                                                  | `native-hint`, `native_hint`                   |
 
-## Related
+# Related
 
 The `Variable` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `Variable` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -72,7 +72,7 @@ The `Variable` type can be encoded (serialized) to, and/or decoded (deserialized
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `Variable` type is represented in:
 
@@ -82,6 +82,6 @@ The `Variable` type is represented in:
 - Rust struct [`Variable`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/variable.rs)
 - TypeScript class [`Variable`](https://github.com/stencila/stencila/blob/main/ts/src/types/Variable.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Variable.yaml`](https://github.com/stencila/stencila/blob/main/schema/Variable.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

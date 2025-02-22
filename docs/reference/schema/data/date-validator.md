@@ -4,16 +4,16 @@ description: A validator specifying the constraints on a date.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: date-validator
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `DateValidator` type has these properties:
 
@@ -23,14 +23,14 @@ The `DateValidator` type has these properties:
 | `minimum` | The inclusive lower limit for a date. | [`Date`](https://stencila.ghost.io/docs/reference/schema/date)     | -                                                                  | `stencila:minimum`                   | -       |
 | `maximum` | The inclusive upper limit for a date. | [`Date`](https://stencila.ghost.io/docs/reference/schema/date)     | -                                                                  | `stencila:maximum`                   | -       |
 
-## Related
+# Related
 
 The `DateValidator` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `DateValidator` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -65,7 +65,7 @@ The `DateValidator` type can be encoded (serialized) to, and/or decoded (deseria
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `DateValidator` type is represented in:
 
@@ -75,6 +75,6 @@ The `DateValidator` type is represented in:
 - Rust struct [`DateValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/date_validator.rs)
 - TypeScript class [`DateValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/DateValidator.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`DateValidator.yaml`](https://github.com/stencila/stencila/blob/main/schema/DateValidator.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

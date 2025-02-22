@@ -4,16 +4,16 @@ description: Indicates how a `List` is ordered.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: list-order
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
-## Members
+# Members
 
 The `ListOrder` type has these members:
 
@@ -21,7 +21,7 @@ The `ListOrder` type has these members:
 - `Descending`
 - `Unordered`
 
-## Bindings
+# Bindings
 
 The `ListOrder` type is represented in:
 
@@ -31,6 +31,6 @@ The `ListOrder` type is represented in:
 - Rust type [`ListOrder`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/list_order.rs)
 - TypeScript type [`ListOrder`](https://github.com/stencila/stencila/blob/main/ts/src/types/ListOrder.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ListOrder.yaml`](https://github.com/stencila/stencila/blob/main/schema/ListOrder.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

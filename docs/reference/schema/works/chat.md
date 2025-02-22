@@ -4,18 +4,18 @@ description: A chat conversation, usually with a generative AI model.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: chat
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
 This type is marked as unstable and is subject to change.
 
-## Properties
+# Properties
 
 The `Chat` type has these properties:
 
@@ -75,14 +75,14 @@ The `Chat` type has these properties:
 | `previousBlock`         | The id of the block immediately before the chat (only applies to temporary chats).                                      | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                            | -                                                                               | `stencila:previousBlock`                                   | `previous-block`, `previous_block`                                                                                        |
 | `nextBlock`             | The id of the block immediately after the chat (only applies to temporary chats).                                       | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                            | -                                                                               | `stencila:nextBlock`                                       | `next-block`, `next_block`                                                                                                |
 
-## Related
+# Related
 
 The `Chat` type is related to these types:
 
 - Parents: [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work)[`Executable`](https://stencila.ghost.io/docs/reference/schema/executable)
 - Children: none
 
-## Formats
+# Formats
 
 The `Chat` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -117,7 +117,7 @@ The `Chat` type can be encoded (serialized) to, and/or decoded (deserialized) fr
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `Chat` type is represented in:
 
@@ -127,6 +127,6 @@ The `Chat` type is represented in:
 - Rust struct [`Chat`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/chat.rs)
 - TypeScript class [`Chat`](https://github.com/stencila/stencila/blob/main/ts/src/types/Chat.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Chat.yaml`](https://github.com/stencila/stencila/blob/main/schema/Chat.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

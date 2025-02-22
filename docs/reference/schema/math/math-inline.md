@@ -4,16 +4,16 @@ description: A fragment of math, e.g a variable name, to be treated as inline co
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: math-inline
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Math
 ---
 
-## Properties
+# Properties
 
 The `MathInline` type has these properties:
 
@@ -28,14 +28,14 @@ The `MathInline` type has these properties:
 | `compilationMessages` | Messages generated while parsing and compiling the math expression. | [`CompilationMessage`](https://stencila.ghost.io/docs/reference/schema/compilation-message)* | [`Math`](https://stencila.ghost.io/docs/reference/schema/math)     | `stencila:compilationMessages`               | `compilation-messages`, `compilation_messages`, `compilationMessage`, `compilation-message`, `compilation_message` |
 | `mathml`              | The MathML transpiled from the `code`.                              | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | [`Math`](https://stencila.ghost.io/docs/reference/schema/math)     | `stencila:mathml`                            | -                                                                                                                  |
 
-## Related
+# Related
 
 The `MathInline` type is related to these types:
 
 - Parents: [`Math`](https://stencila.ghost.io/docs/reference/schema/math)
 - Children: none
 
-## Formats
+# Formats
 
 The `MathInline` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -70,7 +70,7 @@ The `MathInline` type can be encoded (serialized) to, and/or decoded (deserializ
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                                                               |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                                                               |
 
-## Bindings
+# Bindings
 
 The `MathInline` type is represented in:
 
@@ -80,7 +80,7 @@ The `MathInline` type is represented in:
 - Rust struct [`MathInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/math_inline.rs)
 - TypeScript class [`MathInline`](https://github.com/stencila/stencila/blob/main/ts/src/types/MathInline.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `MathInline` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -94,7 +94,7 @@ During property-based (a.k.a generative) testing, the properties of the `MathInl
 |                | High+      | Generate a random string of up to 10 alphanumeric characters.                                                                                        | `option::of(r"[a-zA-Z0-9]{1,10}")`          |
 |                | Max        | Generate an arbitrary string.                                                                                                                        | `option::of(String::arbitrary())`           |
 
-## Source
+# Source
 
 This documentation was generated from [`MathInline.yaml`](https://github.com/stencila/stencila/blob/main/schema/MathInline.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

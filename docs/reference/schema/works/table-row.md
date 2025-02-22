@@ -4,16 +4,16 @@ description: A row within a Table.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: table-row
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
-## Properties
+# Properties
 
 The `TableRow` type has these properties:
 
@@ -23,14 +23,14 @@ The `TableRow` type has these properties:
 | `cells`   | An array of cells in the row. | [`TableCell`](https://stencila.ghost.io/docs/reference/schema/table-cell)*       | -                                                                  | `stencila:cells`                     | `cell`                 |
 | `rowType` | The type of row.              | [`TableRowType`](https://stencila.ghost.io/docs/reference/schema/table-row-type) | -                                                                  | `stencila:rowType`                   | `row-type`, `row_type` |
 
-## Related
+# Related
 
 The `TableRow` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `TableRow` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -65,7 +65,7 @@ The `TableRow` type can be encoded (serialized) to, and/or decoded (deserialized
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                   |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                   |
 
-## Bindings
+# Bindings
 
 The `TableRow` type is represented in:
 
@@ -75,7 +75,7 @@ The `TableRow` type is represented in:
 - Rust struct [`TableRow`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/table_row.rs)
 - TypeScript class [`TableRow`](https://github.com/stencila/stencila/blob/main/ts/src/types/TableRow.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `TableRow` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -86,7 +86,7 @@ During property-based (a.k.a generative) testing, the properties of the `TableRo
 |          | High+      | Generate four, arbitrary, table cells.        | `vec(TableCell::arbitrary(), size_range(4..=4))` |
 |          | Max        | Generate up to eight, arbitrary, table cells. | `vec(TableCell::arbitrary(), size_range(1..=8))` |
 
-## Source
+# Source
 
 This documentation was generated from [`TableRow.yaml`](https://github.com/stencila/stencila/blob/main/schema/TableRow.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

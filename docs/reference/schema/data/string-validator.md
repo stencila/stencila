@@ -4,12 +4,12 @@ description: A schema specifying constraints on a string node.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: string-validator
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
@@ -18,7 +18,7 @@ meets the schemas `minLength`, `maxLength` and `pattern` properties.
 Analogous to the JSON Schema `string` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).
 
 
-## Properties
+# Properties
 
 The `StringValidator` type has these properties:
 
@@ -29,14 +29,14 @@ The `StringValidator` type has these properties:
 | `maxLength` | The maximum length for a string node.               | [`Integer`](https://stencila.ghost.io/docs/reference/schema/integer) | -                                                                  | `stencila:maxLength`                 | `max-length`, `max_length` |
 | `pattern`   | A regular expression that a string node must match. | [`String`](https://stencila.ghost.io/docs/reference/schema/string)   | -                                                                  | `stencila:pattern`                   | -                          |
 
-## Related
+# Related
 
 The `StringValidator` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `StringValidator` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -71,7 +71,7 @@ The `StringValidator` type can be encoded (serialized) to, and/or decoded (deser
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `StringValidator` type is represented in:
 
@@ -81,6 +81,6 @@ The `StringValidator` type is represented in:
 - Rust struct [`StringValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/string_validator.rs)
 - TypeScript class [`StringValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/StringValidator.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`StringValidator.yaml`](https://github.com/stencila/stencila/blob/main/schema/StringValidator.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

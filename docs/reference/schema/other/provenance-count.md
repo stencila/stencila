@@ -4,16 +4,16 @@ description: The count of the number of characters in a `ProvenanceCategory` wit
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: provenance-count
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
-## Properties
+# Properties
 
 The `ProvenanceCount` type has these properties:
 
@@ -24,14 +24,14 @@ The `ProvenanceCount` type has these properties:
 | `characterCount`     | The number of characters in the provenance category.         | [`UnsignedInteger`](https://stencila.ghost.io/docs/reference/schema/unsigned-integer)       | -                                                                  | `stencila:characterCount`            | `character-count`, `character_count`         |
 | `characterPercent`   | The percentage of characters in the provenance category.     | [`UnsignedInteger`](https://stencila.ghost.io/docs/reference/schema/unsigned-integer)       | -                                                                  | `stencila:characterPercent`          | `character-percent`, `character_percent`     |
 
-## Related
+# Related
 
 The `ProvenanceCount` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `ProvenanceCount` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -66,7 +66,7 @@ The `ProvenanceCount` type can be encoded (serialized) to, and/or decoded (deser
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `ProvenanceCount` type is represented in:
 
@@ -76,6 +76,6 @@ The `ProvenanceCount` type is represented in:
 - Rust struct [`ProvenanceCount`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/provenance_count.rs)
 - TypeScript class [`ProvenanceCount`](https://github.com/stencila/stencila/blob/main/ts/src/types/ProvenanceCount.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ProvenanceCount.yaml`](https://github.com/stencila/stencila/blob/main/schema/ProvenanceCount.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

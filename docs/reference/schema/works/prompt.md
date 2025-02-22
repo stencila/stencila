@@ -4,16 +4,16 @@ description: A prompt for creating or editing document content.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: prompt
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
-## Properties
+# Properties
 
 The `Prompt` type has these properties:
 
@@ -72,14 +72,14 @@ The `Prompt` type has these properties:
 | `queryPatterns`         | Regular expressions used to match the prompt with a user query                                                          | [`String`](https://stencila.ghost.io/docs/reference/schema/string)*                                                                                           | -                                                                               | `stencila:queryPatterns`                                   | `query-patterns`, `query_patterns`, `queryPattern`, `query-pattern`, `query_pattern`                                      |
 | `content`               | The content of the prompt.                                                                                              | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*                                                                                             | -                                                                               | `stencila:content`                                         | -                                                                                                                         |
 
-## Related
+# Related
 
 The `Prompt` type is related to these types:
 
 - Parents: [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work)[`Executable`](https://stencila.ghost.io/docs/reference/schema/executable)
 - Children: none
 
-## Formats
+# Formats
 
 The `Prompt` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -114,7 +114,7 @@ The `Prompt` type can be encoded (serialized) to, and/or decoded (deserialized) 
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `Prompt` type is represented in:
 
@@ -124,6 +124,6 @@ The `Prompt` type is represented in:
 - Rust struct [`Prompt`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/prompt.rs)
 - TypeScript class [`Prompt`](https://github.com/stencila/stencila/blob/main/ts/src/types/Prompt.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Prompt.yaml`](https://github.com/stencila/stencila/blob/main/schema/Prompt.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

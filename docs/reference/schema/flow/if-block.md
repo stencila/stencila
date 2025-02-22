@@ -4,18 +4,18 @@ description: Show and execute alternative content conditional upon an executed e
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: if-block
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
 This type is marked as unstable and is subject to change.
 
-## Properties
+# Properties
 
 The `IfBlock` type has these properties:
 
@@ -38,14 +38,14 @@ The `IfBlock` type has these properties:
 | `executionMessages`     | Messages emitted while executing the node.                       | [`ExecutionMessage`](https://stencila.ghost.io/docs/reference/schema/execution-message)*       | [`Executable`](https://stencila.ghost.io/docs/reference/schema/executable) | `stencila:executionMessages`         | `execution-messages`, `execution_messages`, `executionMessage`, `execution-message`, `execution_message`                  |
 | `clauses`               | The clauses making up the `IfBlock` node                         | [`IfBlockClause`](https://stencila.ghost.io/docs/reference/schema/if-block-clause)*            | -                                                                          | `stencila:clauses`                   | `clause`                                                                                                                  |
 
-## Related
+# Related
 
 The `IfBlock` type is related to these types:
 
 - Parents: [`Executable`](https://stencila.ghost.io/docs/reference/schema/executable)
 - Children: none
 
-## Formats
+# Formats
 
 The `IfBlock` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -80,7 +80,7 @@ The `IfBlock` type can be encoded (serialized) to, and/or decoded (deserialized)
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `IfBlock` type is represented in:
 
@@ -90,7 +90,7 @@ The `IfBlock` type is represented in:
 - Rust struct [`IfBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/if_block.rs)
 - TypeScript class [`IfBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/IfBlock.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `IfBlock` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -100,7 +100,7 @@ During property-based (a.k.a generative) testing, the properties of the `IfBlock
 |           | Low+       | Generate up to 3 arbitrary if clauses          | `vec(IfBlockClause::arbitrary(), size_range(1..=3))`       |
 |           | High+      | Generate up to 5 arbitrary if clauses          | `vec(IfBlockClause::arbitrary(), size_range(1..=10))`      |
 
-## Source
+# Source
 
 This documentation was generated from [`IfBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/IfBlock.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

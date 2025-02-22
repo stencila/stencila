@@ -4,16 +4,16 @@ description: Union type for all types that are descended from `CreativeWork`
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: creative-work-type
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
-## Members
+# Members
 
 The `CreativeWorkType` type has these members:
 
@@ -37,7 +37,7 @@ The `CreativeWorkType` type has these members:
 - [`Table`](https://stencila.ghost.io/docs/reference/schema/table)
 - [`VideoObject`](https://stencila.ghost.io/docs/reference/schema/video-object)
 
-## Bindings
+# Bindings
 
 The `CreativeWorkType` type is represented in:
 
@@ -47,6 +47,6 @@ The `CreativeWorkType` type is represented in:
 - Rust type [`CreativeWorkType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/creative_work_type.rs)
 - TypeScript type [`CreativeWorkType`](https://github.com/stencila/stencila/blob/main/ts/src/types/CreativeWorkType.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`CreativeWorkType.yaml`](https://github.com/stencila/stencila/blob/main/schema/CreativeWorkType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

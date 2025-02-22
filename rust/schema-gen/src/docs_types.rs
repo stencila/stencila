@@ -162,11 +162,11 @@ async fn docs_file(dest: &Path, schema: &Schema, context: &Context) -> Result<St
     let config = Some(Config {
         publish: Some(ConfigPublish {
             ghost: Some(ConfigPublishGhost {
-                r#type: Some(ConfigPublishGhostType::Page),
+                r#type: Some(ConfigPublishGhostType::Post),
                 slug: Some(title.to_kebab_case()),
                 tags: Some(vec![
-                    "#schema".to_string(),
                     "#doc".to_string(),
+                    "#schema".to_string(),
                     schema.category.to_string().to_title_case(),
                 ]),
                 state: Some(ConfigPublishGhostState::Publish),
@@ -365,7 +365,7 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     }
 
     vec![
-        h2([t("Properties")]),
+        h1([t("Properties")]),
         p([t("The "), ci(title), t(" type has these properties:")]),
         tbl(rows),
     ]
@@ -386,7 +386,7 @@ fn members(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     }
 
     vec![
-        h2([t("Members")]),
+        h1([t("Members")]),
         p([t("The "), ci(title), t(" type has these members:")]),
         ul(items),
     ]
@@ -453,7 +453,7 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
     }
 
     vec![
-        h2([t("Formats")]),
+        h1([t("Formats")]),
         p([
             t("The "),
             ci(title),
@@ -531,7 +531,7 @@ fn proptests_anyof(title: &str, schema: &Schema) -> Vec<Block> {
     }
 
     vec![
-        h2([t("Testing")]),
+        h1([t("Testing")]),
         p([
             t("During property-based (a.k.a generative) testing, the variants of the "),
             ci(title),
@@ -620,7 +620,7 @@ fn proptests_object(title: &str, schema: &Schema) -> Vec<Block> {
     }
 
     vec![
-        h2([t("Testing")]),
+        h1([t("Testing")]),
         p([
             t("During property-based (a.k.a generative) testing, the properties of the "),
             ci(title),
@@ -675,7 +675,7 @@ fn related(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     }
 
     vec![
-        h2([t("Related")]),
+        h1([t("Related")]),
         p([t("The "), ci(title), t(" type is related to these types:")]),
         ul([li(parents), li(children)]),
     ]
@@ -684,7 +684,7 @@ fn related(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
 /// Generate a "Bindings" section for a schema
 fn bindings(title: &str, schema: &Schema) -> Vec<Block> {
     vec![
-        h2([t("Bindings")]),
+        h1([t("Bindings")]),
         p([
             t("The "),
             ci(title),
@@ -718,7 +718,7 @@ fn bindings(title: &str, schema: &Schema) -> Vec<Block> {
 /// Generate a "Source" section for a schema
 fn source(title: &str) -> Vec<Block> {
     vec![
-        h2([t("Source")]),
+        h1([t("Source")]),
         p([
             t("This documentation was generated from "),
             lnk(

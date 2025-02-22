@@ -4,12 +4,12 @@ description: A periodical publication.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: periodical
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
@@ -18,7 +18,7 @@ such as a magazine, scholarly journal, or newspaper to continue indefinitely. Of
 in a [`PublicationVolume`](./PublicationVolume).
 
 
-## Properties
+# Properties
 
 The `Periodical` type has these properties:
 
@@ -60,14 +60,14 @@ The `Periodical` type has these properties:
 | `dateEnd`        | The date this Periodical ceased publication.                                                                            | [`Date`](https://stencila.ghost.io/docs/reference/schema/date)                                                                                                | -                                                                               | [`schema:endDate`](https://schema.org/endDate)             | `date-end`, `date_end`                                                                    |
 | `issns`          | The International Standard Serial Number(s) (ISSN) that identifies this serial publication.                             | [`String`](https://stencila.ghost.io/docs/reference/schema/string)*                                                                                           | -                                                                               | [`schema:issn`](https://schema.org/issn)                   | `issn`                                                                                    |
 
-## Related
+# Related
 
 The `Periodical` type is related to these types:
 
 - Parents: [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work)
 - Children: none
 
-## Formats
+# Formats
 
 The `Periodical` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -102,7 +102,7 @@ The `Periodical` type can be encoded (serialized) to, and/or decoded (deserializ
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `Periodical` type is represented in:
 
@@ -112,6 +112,6 @@ The `Periodical` type is represented in:
 - Rust struct [`Periodical`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/periodical.rs)
 - TypeScript class [`Periodical`](https://github.com/stencila/stencila/blob/main/ts/src/types/Periodical.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Periodical.yaml`](https://github.com/stencila/stencila/blob/main/schema/Periodical.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

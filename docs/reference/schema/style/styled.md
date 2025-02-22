@@ -4,12 +4,12 @@ description: An abstract base class for a document node that has styling applied
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: styled
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Style
 ---
 
@@ -21,7 +21,7 @@ Note also that `styleLanguage` is optional.
 
 This type is marked as unstable and is subject to change.
 
-## Properties
+# Properties
 
 The `Styled` type has these properties:
 
@@ -37,14 +37,14 @@ The `Styled` type has these properties:
 | `css`                 | A Cascading Style Sheet (CSS) transpiled from the `code` property.     | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | -                                                                  | `stencila:css`                               | -                                                                                                                  |
 | `classList`           | A space separated list of class names associated with the node.        | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | -                                                                  | `stencila:classList`                         | `class-list`, `class_list`                                                                                         |
 
-## Related
+# Related
 
 The `Styled` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: [`StyledBlock`](https://stencila.ghost.io/docs/reference/schema/styled-block), [`StyledInline`](https://stencila.ghost.io/docs/reference/schema/styled-inline)
 
-## Bindings
+# Bindings
 
 The `Styled` type is represented in:
 
@@ -54,6 +54,6 @@ The `Styled` type is represented in:
 - Rust struct [`Styled`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/styled.rs)
 - TypeScript class [`Styled`](https://github.com/stencila/stencila/blob/main/ts/src/types/Styled.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Styled.yaml`](https://github.com/stencila/stencila/blob/main/schema/Styled.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

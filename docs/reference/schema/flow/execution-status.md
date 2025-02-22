@@ -4,16 +4,16 @@ description: Status of the most recent, including any current, execution of a do
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: execution-status
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
-## Members
+# Members
 
 The `ExecutionStatus` type has these members:
 
@@ -31,7 +31,7 @@ The `ExecutionStatus` type has these members:
 - `Cancelled`
 - `Interrupted`
 
-## Bindings
+# Bindings
 
 The `ExecutionStatus` type is represented in:
 
@@ -41,6 +41,6 @@ The `ExecutionStatus` type is represented in:
 - Rust type [`ExecutionStatus`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_status.rs)
 - TypeScript type [`ExecutionStatus`](https://github.com/stencila/stencila/blob/main/ts/src/types/ExecutionStatus.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ExecutionStatus.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionStatus.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -4,12 +4,12 @@ description: The value of a `Parameter` to call a document with.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: call-argument
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
@@ -19,7 +19,7 @@ an expression to be used to set the value of the parameter.
 
 This type is marked as experimental and is likely to change.
 
-## Properties
+# Properties
 
 The `CallArgument` type has these properties:
 
@@ -49,14 +49,14 @@ The `CallArgument` type has these properties:
 | `code`                  | The code to be evaluated for the parameter.                                                            | [`Cord`](https://stencila.ghost.io/docs/reference/schema/cord)                                 | -                                                                          | `stencila:code`                                                        | -                                                                                                                         |
 | `programmingLanguage`   | The programming language of the code.                                                                  | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                             | -                                                                          | [`schema:programmingLanguage`](https://schema.org/programmingLanguage) | `programming-language`, `programming_language`                                                                            |
 
-## Related
+# Related
 
 The `CallArgument` type is related to these types:
 
 - Parents: [`Parameter`](https://stencila.ghost.io/docs/reference/schema/parameter)
 - Children: none
 
-## Formats
+# Formats
 
 The `CallArgument` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -91,7 +91,7 @@ The `CallArgument` type can be encoded (serialized) to, and/or decoded (deserial
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `CallArgument` type is represented in:
 
@@ -101,7 +101,7 @@ The `CallArgument` type is represented in:
 - Rust struct [`CallArgument`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/call_argument.rs)
 - TypeScript class [`CallArgument`](https://github.com/stencila/stencila/blob/main/ts/src/types/CallArgument.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `CallArgument` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -116,7 +116,7 @@ During property-based (a.k.a generative) testing, the properties of the `CallArg
 |          | High+      | Generate a random string of up to 100 characters (excluding control characters).                                                          | `r"[^\p{C}]{1,100}".prop_map(Cord::from)`   |
 |          | Max        | Generate an arbitrary string.                                                                                                             | `String::arbitrary().prop_map(Cord::from)`  |
 
-## Source
+# Source
 
 This documentation was generated from [`CallArgument.yaml`](https://github.com/stencila/stencila/blob/main/schema/CallArgument.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

@@ -4,16 +4,16 @@ description: Abstract base class for nodes that mark some other inline content i
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: mark
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
-## Properties
+# Properties
 
 The `Mark` type has these properties:
 
@@ -22,14 +22,14 @@ The `Mark` type has these properties:
 | `id`      | The identifier for this item. | [`String`](https://stencila.ghost.io/docs/reference/schema/string)  | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -       |
 | `content` | The content that is marked.   | [`Inline`](https://stencila.ghost.io/docs/reference/schema/inline)* | -                                                                  | `stencila:content`                   | -       |
 
-## Related
+# Related
 
 The `Mark` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: [`Annotation`](https://stencila.ghost.io/docs/reference/schema/annotation), [`Emphasis`](https://stencila.ghost.io/docs/reference/schema/emphasis), [`QuoteInline`](https://stencila.ghost.io/docs/reference/schema/quote-inline), [`Strikeout`](https://stencila.ghost.io/docs/reference/schema/strikeout), [`Strong`](https://stencila.ghost.io/docs/reference/schema/strong), [`Subscript`](https://stencila.ghost.io/docs/reference/schema/subscript), [`Superscript`](https://stencila.ghost.io/docs/reference/schema/superscript), [`Underline`](https://stencila.ghost.io/docs/reference/schema/underline)
 
-## Bindings
+# Bindings
 
 The `Mark` type is represented in:
 
@@ -39,6 +39,6 @@ The `Mark` type is represented in:
 - Rust struct [`Mark`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/mark.rs)
 - TypeScript class [`Mark`](https://github.com/stencila/stencila/blob/main/ts/src/types/Mark.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Mark.yaml`](https://github.com/stencila/stencila/blob/main/schema/Mark.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

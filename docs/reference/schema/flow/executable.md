@@ -4,16 +4,16 @@ description: Abstract base type for executable nodes (e.g. `CodeChunk`, `CodeExp
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: executable
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
-## Properties
+# Properties
 
 The `Executable` type has these properties:
 
@@ -35,14 +35,14 @@ The `Executable` type has these properties:
 | `executionDuration`     | Duration of the last execution.                                  | [`Duration`](https://stencila.ghost.io/docs/reference/schema/duration)                         | -                                                                  | `stencila:executionDuration`         | `execution-duration`, `execution_duration`                                                                                |
 | `executionMessages`     | Messages emitted while executing the node.                       | [`ExecutionMessage`](https://stencila.ghost.io/docs/reference/schema/execution-message)*       | -                                                                  | `stencila:executionMessages`         | `execution-messages`, `execution_messages`, `executionMessage`, `execution-message`, `execution_message`                  |
 
-## Related
+# Related
 
 The `Executable` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: [`Article`](https://stencila.ghost.io/docs/reference/schema/article), [`Chat`](https://stencila.ghost.io/docs/reference/schema/chat), [`ChatMessage`](https://stencila.ghost.io/docs/reference/schema/chat-message), [`CodeExecutable`](https://stencila.ghost.io/docs/reference/schema/code-executable), [`Form`](https://stencila.ghost.io/docs/reference/schema/form), [`IfBlock`](https://stencila.ghost.io/docs/reference/schema/if-block), [`IncludeBlock`](https://stencila.ghost.io/docs/reference/schema/include-block), [`Instruction`](https://stencila.ghost.io/docs/reference/schema/instruction), [`Parameter`](https://stencila.ghost.io/docs/reference/schema/parameter), [`Prompt`](https://stencila.ghost.io/docs/reference/schema/prompt), [`PromptBlock`](https://stencila.ghost.io/docs/reference/schema/prompt-block)
 
-## Bindings
+# Bindings
 
 The `Executable` type is represented in:
 
@@ -52,6 +52,6 @@ The `Executable` type is represented in:
 - Rust struct [`Executable`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/executable.rs)
 - TypeScript class [`Executable`](https://github.com/stencila/stencila/blob/main/ts/src/types/Executable.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Executable.yaml`](https://github.com/stencila/stencila/blob/main/schema/Executable.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

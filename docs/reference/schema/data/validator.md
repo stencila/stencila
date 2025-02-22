@@ -4,16 +4,16 @@ description: Union type for validators.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: validator
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Members
+# Members
 
 The `Validator` type has these members:
 
@@ -31,7 +31,7 @@ The `Validator` type has these members:
 - [`TimestampValidator`](https://stencila.ghost.io/docs/reference/schema/timestamp-validator)
 - [`TupleValidator`](https://stencila.ghost.io/docs/reference/schema/tuple-validator)
 
-## Bindings
+# Bindings
 
 The `Validator` type is represented in:
 
@@ -41,6 +41,6 @@ The `Validator` type is represented in:
 - Rust type [`Validator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/validator.rs)
 - TypeScript type [`Validator`](https://github.com/stencila/stencila/blob/main/ts/src/types/Validator.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Validator.yaml`](https://github.com/stencila/stencila/blob/main/schema/Validator.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

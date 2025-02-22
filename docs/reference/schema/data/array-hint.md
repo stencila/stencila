@@ -4,16 +4,16 @@ description: A hint to the content of an `Array`.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: array-hint
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `ArrayHint` type has these properties:
 
@@ -26,14 +26,14 @@ The `ArrayHint` type has these properties:
 | `maximum`   | The maximum value in the array.            | [`Primitive`](https://stencila.ghost.io/docs/reference/schema/primitive) | -                                                                  | `stencila:maximum`                   | -                                                                |
 | `nulls`     | The number of `Null` values in the array.  | [`Integer`](https://stencila.ghost.io/docs/reference/schema/integer)     | -                                                                  | `stencila:nulls`                     | -                                                                |
 
-## Related
+# Related
 
 The `ArrayHint` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `ArrayHint` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -68,7 +68,7 @@ The `ArrayHint` type can be encoded (serialized) to, and/or decoded (deserialize
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `ArrayHint` type is represented in:
 
@@ -78,6 +78,6 @@ The `ArrayHint` type is represented in:
 - Rust struct [`ArrayHint`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/array_hint.rs)
 - TypeScript class [`ArrayHint`](https://github.com/stencila/stencila/blob/main/ts/src/types/ArrayHint.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ArrayHint.yaml`](https://github.com/stencila/stencila/blob/main/schema/ArrayHint.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

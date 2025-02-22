@@ -4,12 +4,12 @@ description: A validator specifying the constraints on an integer node.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: integer-validator
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
@@ -18,7 +18,7 @@ such as `multipleOf`, specified in the validator.
 Analogous to the JSON Schema `integer` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).
 
 
-## Properties
+# Properties
 
 The `IntegerValidator` type has these properties:
 
@@ -31,14 +31,14 @@ The `IntegerValidator` type has these properties:
 | `exclusiveMaximum` | The exclusive upper limit for a numeric node.       | [`Number`](https://stencila.ghost.io/docs/reference/schema/number) | [`NumberValidator`](https://stencila.ghost.io/docs/reference/schema/number-validator) | `stencila:exclusiveMaximum`          | `exclusive-maximum`, `exclusive_maximum` |
 | `multipleOf`       | A number that a numeric node must be a multiple of. | [`Number`](https://stencila.ghost.io/docs/reference/schema/number) | [`NumberValidator`](https://stencila.ghost.io/docs/reference/schema/number-validator) | `stencila:multipleOf`                | `multiple-of`, `multiple_of`             |
 
-## Related
+# Related
 
 The `IntegerValidator` type is related to these types:
 
 - Parents: [`NumberValidator`](https://stencila.ghost.io/docs/reference/schema/number-validator)
 - Children: none
 
-## Formats
+# Formats
 
 The `IntegerValidator` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -73,7 +73,7 @@ The `IntegerValidator` type can be encoded (serialized) to, and/or decoded (dese
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `IntegerValidator` type is represented in:
 
@@ -83,6 +83,6 @@ The `IntegerValidator` type is represented in:
 - Rust struct [`IntegerValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/integer_validator.rs)
 - TypeScript class [`IntegerValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/IntegerValidator.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`IntegerValidator.yaml`](https://github.com/stencila/stencila/blob/main/schema/IntegerValidator.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

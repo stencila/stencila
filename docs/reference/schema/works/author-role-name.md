@@ -4,16 +4,16 @@ description: A `roleName` for an `AuthorRole`.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: author-role-name
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
-## Members
+# Members
 
 The `AuthorRoleName` type has these members:
 
@@ -29,7 +29,7 @@ The `AuthorRoleName` type has these members:
 - `Formatter`
 - `Linter`
 
-## Bindings
+# Bindings
 
 The `AuthorRoleName` type is represented in:
 
@@ -39,6 +39,6 @@ The `AuthorRoleName` type is represented in:
 - Rust type [`AuthorRoleName`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/author_role_name.rs)
 - TypeScript type [`AuthorRoleName`](https://github.com/stencila/stencila/blob/main/ts/src/types/AuthorRoleName.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`AuthorRoleName.yaml`](https://github.com/stencila/stencila/blob/main/schema/AuthorRoleName.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

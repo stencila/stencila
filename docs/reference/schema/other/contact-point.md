@@ -4,19 +4,19 @@ description: A contact point, usually within an organization.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: contact-point
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
 This is an implementation of schema.org [`ContactPoint`](https://schema.org/ContactPoint). It extends schema.org `ContactPoint` by, adding a `content` property which must be an array of [`Block`](./Block), as well as the properties added by [`CreativeWork`](./CreativeWork) which it extends.
 `ContactPoint` is analogous, and structurally similar to, the JATS XML [`<corresp>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/corresp.html) element and the HTML5 [`<address>`](https://dev.w3.org/html5/html-author/#the-address-element) element.
 
-## Properties
+# Properties
 
 The `ContactPoint` type has these properties:
 
@@ -33,14 +33,14 @@ The `ContactPoint` type has these properties:
 | `telephoneNumbers`   | Telephone numbers for the contact point.                                                                       | [`String`](https://stencila.ghost.io/docs/reference/schema/string)*                                                                                        | -                                                                  | [`schema:telephone`](https://schema.org/telephone)                 | `telephone`, `telephone-numbers`, `telephone_numbers`, `telephoneNumber`, `telephone-number`, `telephone_number` |
 | `availableLanguages` | Languages (human not programming) in which it is possible to communicate with the organization/department etc. | [`String`](https://stencila.ghost.io/docs/reference/schema/string)*                                                                                        | -                                                                  | [`schema:availableLanguage`](https://schema.org/availableLanguage) | `available-languages`, `available_languages`, `availableLanguage`, `available-language`, `available_language`    |
 
-## Related
+# Related
 
 The `ContactPoint` type is related to these types:
 
 - Parents: [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)
 - Children: [`PostalAddress`](https://stencila.ghost.io/docs/reference/schema/postal-address)
 
-## Formats
+# Formats
 
 The `ContactPoint` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -75,7 +75,7 @@ The `ContactPoint` type can be encoded (serialized) to, and/or decoded (deserial
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `ContactPoint` type is represented in:
 
@@ -85,6 +85,6 @@ The `ContactPoint` type is represented in:
 - Rust struct [`ContactPoint`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/contact_point.rs)
 - TypeScript class [`ContactPoint`](https://github.com/stencila/stencila/blob/main/ts/src/types/ContactPoint.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ContactPoint.yaml`](https://github.com/stencila/stencila/blob/main/schema/ContactPoint.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

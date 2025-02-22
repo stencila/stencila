@@ -4,12 +4,12 @@ description: Abstract base type for non-executable code nodes (e.g. `CodeBlock`)
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: code-static
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Code
 ---
 
@@ -18,7 +18,7 @@ There are no restrictions on the length or content of `code` and it is possible 
 invalid for the specified `programmingLanguage`.
 
 
-## Properties
+# Properties
 
 The `CodeStatic` type has these properties:
 
@@ -30,14 +30,14 @@ The `CodeStatic` type has these properties:
 | `authors`             | The authors of the code.                 | [`Author`](https://stencila.ghost.io/docs/reference/schema/author)*                    | -                                                                  | [`schema:author`](https://schema.org/author)                           | `author`                                       |
 | `provenance`          | A summary of the provenance of the code. | [`ProvenanceCount`](https://stencila.ghost.io/docs/reference/schema/provenance-count)* | -                                                                  | `stencila:provenance`                                                  | -                                              |
 
-## Related
+# Related
 
 The `CodeStatic` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: [`CodeBlock`](https://stencila.ghost.io/docs/reference/schema/code-block), [`CodeInline`](https://stencila.ghost.io/docs/reference/schema/code-inline)
 
-## Bindings
+# Bindings
 
 The `CodeStatic` type is represented in:
 
@@ -47,6 +47,6 @@ The `CodeStatic` type is represented in:
 - Rust struct [`CodeStatic`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_static.rs)
 - TypeScript class [`CodeStatic`](https://github.com/stencila/stencila/blob/main/ts/src/types/CodeStatic.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`CodeStatic.yaml`](https://github.com/stencila/stencila/blob/main/schema/CodeStatic.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

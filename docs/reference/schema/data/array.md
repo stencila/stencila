@@ -4,12 +4,12 @@ description: A value comprised of other primitive nodes.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: array
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
@@ -17,7 +17,7 @@ Note that the items in the array are restricted to primitive node
 types including `Array` (ie. an `Array` as an item of another `Array`) and `Object`.
 
 
-## Formats
+# Formats
 
 The `Array` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -52,7 +52,7 @@ The `Array` type can be encoded (serialized) to, and/or decoded (deserialized) f
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `Array` type is represented in:
 
@@ -62,6 +62,6 @@ The `Array` type is represented in:
 - Rust type [`Array`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/array.rs)
 - TypeScript type [`Array`](https://github.com/stencila/stencila/blob/main/ts/src/types/Array.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Array.yaml`](https://github.com/stencila/stencila/blob/main/schema/Array.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

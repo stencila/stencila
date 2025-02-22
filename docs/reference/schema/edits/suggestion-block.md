@@ -4,16 +4,16 @@ description: Abstract base type for nodes that indicate a suggested change to bl
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: suggestion-block
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Edits
 ---
 
-## Properties
+# Properties
 
 The `SuggestionBlock` type has these properties:
 
@@ -28,14 +28,14 @@ The `SuggestionBlock` type has these properties:
 | `feedback`          | Feedback on the suggestion                                                                      | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                      | [`Suggestion`](https://stencila.ghost.io/docs/reference/schema/suggestion) | `stencila:feedback`                          | -                                          |
 | `content`           | The content that is suggested to be inserted, modified, replaced, or deleted.                   | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*                       | -                                                                          | `stencila:content`                           | -                                          |
 
-## Related
+# Related
 
 The `SuggestionBlock` type is related to these types:
 
 - Parents: [`Suggestion`](https://stencila.ghost.io/docs/reference/schema/suggestion)
 - Children: none
 
-## Formats
+# Formats
 
 The `SuggestionBlock` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -70,7 +70,7 @@ The `SuggestionBlock` type can be encoded (serialized) to, and/or decoded (deser
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `SuggestionBlock` type is represented in:
 
@@ -80,6 +80,6 @@ The `SuggestionBlock` type is represented in:
 - Rust struct [`SuggestionBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/suggestion_block.rs)
 - TypeScript class [`SuggestionBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/SuggestionBlock.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`SuggestionBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/SuggestionBlock.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

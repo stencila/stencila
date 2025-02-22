@@ -4,12 +4,12 @@ description: Content that is marked as struck out.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: strikeout
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
@@ -21,7 +21,7 @@ Analogues of `Strikeout` in other schema include:
 Supersedes the `Delete` inline content type (the name "Strikeout" is less ambiguous than "Delete").
 
 
-## Properties
+# Properties
 
 The `Strikeout` type has these properties:
 
@@ -30,14 +30,14 @@ The `Strikeout` type has these properties:
 | `id`      | The identifier for this item. | [`String`](https://stencila.ghost.io/docs/reference/schema/string)  | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -       |
 | `content` | The content that is marked.   | [`Inline`](https://stencila.ghost.io/docs/reference/schema/inline)* | [`Mark`](https://stencila.ghost.io/docs/reference/schema/mark)     | `stencila:content`                   | -       |
 
-## Related
+# Related
 
 The `Strikeout` type is related to these types:
 
 - Parents: [`Mark`](https://stencila.ghost.io/docs/reference/schema/mark)
 - Children: none
 
-## Formats
+# Formats
 
 The `Strikeout` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -72,7 +72,7 @@ The `Strikeout` type can be encoded (serialized) to, and/or decoded (deserialize
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                        |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                        |
 
-## Bindings
+# Bindings
 
 The `Strikeout` type is represented in:
 
@@ -82,7 +82,7 @@ The `Strikeout` type is represented in:
 - Rust struct [`Strikeout`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/strikeout.rs)
 - TypeScript class [`Strikeout`](https://github.com/stencila/stencila/blob/main/ts/src/types/Strikeout.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `Strikeout` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -93,7 +93,7 @@ During property-based (a.k.a generative) testing, the properties of the `Strikeo
 |           | High+      | Generate up to two arbitrary, non-recursive, inline nodes  | `vec_inlines_non_recursive(2)` |
 |           | Max        | Generate up to four arbitrary, non-recursive, inline nodes | `vec_inlines_non_recursive(4)` |
 
-## Source
+# Source
 
 This documentation was generated from [`Strikeout.yaml`](https://github.com/stencila/stencila/blob/main/schema/Strikeout.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

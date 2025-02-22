@@ -4,16 +4,16 @@ description: A validator specifying constraints on an array of heterogeneous ite
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: tuple-validator
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `TupleValidator` type has these properties:
 
@@ -22,14 +22,14 @@ The `TupleValidator` type has these properties:
 | `id`    | The identifier for this item.                                                           | [`String`](https://stencila.ghost.io/docs/reference/schema/string)        | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id)                           | -       |
 | `items` | An array of validators specifying the constraints on each successive item in the array. | [`Validator`](https://stencila.ghost.io/docs/reference/schema/validator)* | -                                                                  | [`schema:itemListElement`](https://schema.org/itemListElement) | `item`  |
 
-## Related
+# Related
 
 The `TupleValidator` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `TupleValidator` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -64,7 +64,7 @@ The `TupleValidator` type can be encoded (serialized) to, and/or decoded (deseri
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `TupleValidator` type is represented in:
 
@@ -74,6 +74,6 @@ The `TupleValidator` type is represented in:
 - Rust struct [`TupleValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/tuple_validator.rs)
 - TypeScript class [`TupleValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/TupleValidator.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`TupleValidator.yaml`](https://github.com/stencila/stencila/blob/main/schema/TupleValidator.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

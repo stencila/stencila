@@ -4,12 +4,12 @@ description: A collection of CreativeWorks or other artifacts.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: collection
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
@@ -21,7 +21,7 @@ The schema.org `Collection` has a `collectionSize` property but has not been add
 because it is somewhat redundant e.g. a developer could use `collection.parts.length` instead.
 
 
-## Properties
+# Properties
 
 The `Collection` type has these properties:
 
@@ -60,14 +60,14 @@ The `Collection` type has these properties:
 | `title`          | The title of the creative work.                                                                                         | [`Inline`](https://stencila.ghost.io/docs/reference/schema/inline)*                                                                                           | [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work) | [`schema:headline`](https://schema.org/headline)           | `headline`                                                                                |
 | `version`        | The version of the creative work.                                                                                       | [`String`](https://stencila.ghost.io/docs/reference/schema/string) \| [`Number`](https://stencila.ghost.io/docs/reference/schema/number)                      | [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work) | [`schema:version`](https://schema.org/version)             | -                                                                                         |
 
-## Related
+# Related
 
 The `Collection` type is related to these types:
 
 - Parents: [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work)
 - Children: none
 
-## Formats
+# Formats
 
 The `Collection` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -102,7 +102,7 @@ The `Collection` type can be encoded (serialized) to, and/or decoded (deserializ
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `Collection` type is represented in:
 
@@ -112,6 +112,6 @@ The `Collection` type is represented in:
 - Rust struct [`Collection`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/collection.rs)
 - TypeScript class [`Collection`](https://github.com/stencila/stencila/blob/main/ts/src/types/Collection.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Collection.yaml`](https://github.com/stencila/stencila/blob/main/schema/Collection.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

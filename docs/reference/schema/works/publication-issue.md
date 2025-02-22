@@ -4,16 +4,16 @@ description: A part of a successively published publication such as a periodical
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: publication-issue
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
-## Properties
+# Properties
 
 The `PublicationIssue` type has these properties:
 
@@ -56,14 +56,14 @@ The `PublicationIssue` type has these properties:
 | `pageEnd`        | The page on which the issue ends; for example "138" or "xvi".                                                           | [`Integer`](https://stencila.ghost.io/docs/reference/schema/integer) \| [`String`](https://stencila.ghost.io/docs/reference/schema/string)                    | -                                                                               | [`schema:pageEnd`](https://schema.org/pageEnd)             | `page-end`, `page_end`                                                                    |
 | `pagination`     | Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".                   | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                            | -                                                                               | [`schema:pagination`](https://schema.org/pagination)       | -                                                                                         |
 
-## Related
+# Related
 
 The `PublicationIssue` type is related to these types:
 
 - Parents: [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work)
 - Children: none
 
-## Formats
+# Formats
 
 The `PublicationIssue` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -98,7 +98,7 @@ The `PublicationIssue` type can be encoded (serialized) to, and/or decoded (dese
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `PublicationIssue` type is represented in:
 
@@ -108,6 +108,6 @@ The `PublicationIssue` type is represented in:
 - Rust struct [`PublicationIssue`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/publication_issue.rs)
 - TypeScript class [`PublicationIssue`](https://github.com/stencila/stencila/blob/main/ts/src/types/PublicationIssue.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`PublicationIssue.yaml`](https://github.com/stencila/stencila/blob/main/schema/PublicationIssue.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

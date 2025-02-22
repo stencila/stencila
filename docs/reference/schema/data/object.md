@@ -4,12 +4,12 @@ description: A value comprised of keyed primitive nodes.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: object
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
@@ -17,7 +17,7 @@ Note that keys are strings and values are restricted to primitive node
 types including `Object` (ie. an `Object` as a value of another `Object`) and `Array`.
 
 
-## Formats
+# Formats
 
 The `Object` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -52,7 +52,7 @@ The `Object` type can be encoded (serialized) to, and/or decoded (deserialized) 
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `Object` type is represented in:
 
@@ -62,6 +62,6 @@ The `Object` type is represented in:
 - Rust type [`Object`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/object.rs)
 - TypeScript type [`Object`](https://github.com/stencila/stencila/blob/main/ts/src/types/Object.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Object.yaml`](https://github.com/stencila/stencila/blob/main/schema/Object.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

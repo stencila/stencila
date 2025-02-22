@@ -4,16 +4,16 @@ description: Union type for hints of the value and/or structure of data.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: hint
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Members
+# Members
 
 The `Hint` type has these members:
 
@@ -27,7 +27,7 @@ The `Hint` type has these members:
 - [`Integer`](https://stencila.ghost.io/docs/reference/schema/integer)
 - [`Number`](https://stencila.ghost.io/docs/reference/schema/number)
 
-## Bindings
+# Bindings
 
 The `Hint` type is represented in:
 
@@ -37,6 +37,6 @@ The `Hint` type is represented in:
 - Rust type [`Hint`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/hint.rs)
 - TypeScript type [`Hint`](https://github.com/stencila/stencila/blob/main/ts/src/types/Hint.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Hint.yaml`](https://github.com/stencila/stencila/blob/main/schema/Hint.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

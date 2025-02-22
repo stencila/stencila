@@ -4,12 +4,12 @@ description: A directory on the file system.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: directory
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
@@ -18,7 +18,7 @@ However, to avoid consuming more memory that necessary when creating directory l
 with many directories, it now extends `Entity`.
 
 
-## Properties
+# Properties
 
 The `Directory` type has these properties:
 
@@ -29,14 +29,14 @@ The `Directory` type has these properties:
 | `path`  | The path (absolute or relative) of the file on the file system. | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                            | -                                                                  | `stencila:path`                                  | -                  |
 | `parts` | The files and other directories within this directory.          | ([`File`](https://stencila.ghost.io/docs/reference/schema/file) \| [`Directory`](https://stencila.ghost.io/docs/reference/schema/directory))* | -                                                                  | [`schema:hasParts`](https://schema.org/hasParts) | `hasParts`, `part` |
 
-## Related
+# Related
 
 The `Directory` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `Directory` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -71,7 +71,7 @@ The `Directory` type can be encoded (serialized) to, and/or decoded (deserialize
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `Directory` type is represented in:
 
@@ -81,6 +81,6 @@ The `Directory` type is represented in:
 - Rust struct [`Directory`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/directory.rs)
 - TypeScript class [`Directory`](https://github.com/stencila/stencila/blob/main/ts/src/types/Directory.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Directory.yaml`](https://github.com/stencila/stencila/blob/main/schema/Directory.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

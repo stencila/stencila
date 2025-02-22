@@ -4,16 +4,16 @@ description: A table.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: table
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
-## Properties
+# Properties
 
 The `Table` type has these properties:
 
@@ -57,14 +57,14 @@ The `Table` type has these properties:
 | `rows`               | Rows of cells in the table.                                                                                             | [`TableRow`](https://stencila.ghost.io/docs/reference/schema/table-row)*                                                                                      | -                                                                               | `stencila:rows`                                            | `row`                                                                                     |
 | `notes`              | Notes for the table.                                                                                                    | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*                                                                                             | -                                                                               | [`schema:notes`](https://schema.org/notes)                 | `note`                                                                                    |
 
-## Related
+# Related
 
 The `Table` type is related to these types:
 
 - Parents: [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work)
 - Children: none
 
-## Formats
+# Formats
 
 The `Table` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -99,7 +99,7 @@ The `Table` type can be encoded (serialized) to, and/or decoded (deserialized) f
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `Table` type is represented in:
 
@@ -109,7 +109,7 @@ The `Table` type is represented in:
 - Rust struct [`Table`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/table.rs)
 - TypeScript class [`Table`](https://github.com/stencila/stencila/blob/main/ts/src/types/Table.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `Table` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -126,7 +126,7 @@ During property-based (a.k.a generative) testing, the properties of the `Table` 
 |           | Low+       | Generate an arbitrary paragraph.                            | `option::of(vec_paragraphs(1))`                 |
 |           | Max        | Generate up to two arbitrary, non-recursive, block nodes.   | `option::of(vec_blocks_non_recursive(2))`       |
 
-## Source
+# Source
 
 This documentation was generated from [`Table.yaml`](https://github.com/stencila/stencila/blob/main/schema/Table.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

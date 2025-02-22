@@ -4,12 +4,12 @@ description: Union type for things that can be an author in `AuthorRole`.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: author-role-author
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
@@ -19,7 +19,7 @@ The `Thing` variant is intended only for anonymous authors which is not known to
 be one the other variants and which should be given the name "anon".
 
 
-## Members
+# Members
 
 The `AuthorRoleAuthor` type has these members:
 
@@ -28,7 +28,7 @@ The `AuthorRoleAuthor` type has these members:
 - [`SoftwareApplication`](https://stencila.ghost.io/docs/reference/schema/software-application)
 - [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)
 
-## Bindings
+# Bindings
 
 The `AuthorRoleAuthor` type is represented in:
 
@@ -38,6 +38,6 @@ The `AuthorRoleAuthor` type is represented in:
 - Rust type [`AuthorRoleAuthor`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/author_role_author.rs)
 - TypeScript type [`AuthorRoleAuthor`](https://github.com/stencila/stencila/blob/main/ts/src/types/AuthorRoleAuthor.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`AuthorRoleAuthor.yaml`](https://github.com/stencila/stencila/blob/main/schema/AuthorRoleAuthor.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -4,16 +4,16 @@ description: A physical mailing address.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: postal-address
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
-## Properties
+# Properties
 
 The `PostalAddress` type has these properties:
 
@@ -36,14 +36,14 @@ The `PostalAddress` type has these properties:
 | `postalCode`          | The postal code.                                                                                               | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                         | -                                                                               | [`schema:postalCode`](https://schema.org/postalCode)                   | `postal-code`, `postal_code`                                                                                     |
 | `addressCountry`      | The country.                                                                                                   | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                         | -                                                                               | [`schema:addressCountry`](https://schema.org/addressCountry)           | `address-country`, `address_country`                                                                             |
 
-## Related
+# Related
 
 The `PostalAddress` type is related to these types:
 
 - Parents: [`ContactPoint`](https://stencila.ghost.io/docs/reference/schema/contact-point)
 - Children: none
 
-## Formats
+# Formats
 
 The `PostalAddress` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -78,7 +78,7 @@ The `PostalAddress` type can be encoded (serialized) to, and/or decoded (deseria
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                          |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                          |
 
-## Bindings
+# Bindings
 
 The `PostalAddress` type is represented in:
 
@@ -88,6 +88,6 @@ The `PostalAddress` type is represented in:
 - Rust struct [`PostalAddress`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/postal_address.rs)
 - TypeScript class [`PostalAddress`](https://github.com/stencila/stencila/blob/main/ts/src/types/PostalAddress.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`PostalAddress.yaml`](https://github.com/stencila/stencila/blob/main/schema/PostalAddress.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -4,16 +4,16 @@ description: The role of a message.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: message-role
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
-## Members
+# Members
 
 The `MessageRole` type has these members:
 
@@ -21,7 +21,7 @@ The `MessageRole` type has these members:
 - `User`
 - `Model`
 
-## Bindings
+# Bindings
 
 The `MessageRole` type is represented in:
 
@@ -31,6 +31,6 @@ The `MessageRole` type is represented in:
 - Rust type [`MessageRole`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/message_role.rs)
 - TypeScript type [`MessageRole`](https://github.com/stencila/stencila/blob/main/ts/src/types/MessageRole.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`MessageRole.yaml`](https://github.com/stencila/stencila/blob/main/schema/MessageRole.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

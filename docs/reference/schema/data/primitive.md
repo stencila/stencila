@@ -4,12 +4,12 @@ description: Union type for all primitives values.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: primitive
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
@@ -20,7 +20,7 @@ but includes `Array` and `Object` and excludes `Date`, `Time` and `DateTime` (wh
 treated in this schema as `Entity`s having a `type` property to disambiguate them from strings).
 
 
-## Members
+# Members
 
 The `Primitive` type has these members:
 
@@ -33,7 +33,7 @@ The `Primitive` type has these members:
 - [`Array`](https://stencila.ghost.io/docs/reference/schema/array)
 - [`Object`](https://stencila.ghost.io/docs/reference/schema/object)
 
-## Bindings
+# Bindings
 
 The `Primitive` type is represented in:
 
@@ -43,6 +43,6 @@ The `Primitive` type is represented in:
 - Rust type [`Primitive`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/primitive.rs)
 - TypeScript type [`Primitive`](https://github.com/stencila/stencila/blob/main/ts/src/types/Primitive.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Primitive.yaml`](https://github.com/stencila/stencila/blob/main/schema/Primitive.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

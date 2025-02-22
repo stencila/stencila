@@ -4,16 +4,16 @@ description: A hint to the structure of an `Object`.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: object-hint
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `ObjectHint` type has these properties:
 
@@ -24,14 +24,14 @@ The `ObjectHint` type has these properties:
 | `keys`   | The keys of the object's entries.            | [`String`](https://stencila.ghost.io/docs/reference/schema/string)*  | -                                                                  | `stencila:keys`                      | `key`   |
 | `values` | Hints to the values of the object's entries. | [`Hint`](https://stencila.ghost.io/docs/reference/schema/hint)*      | -                                                                  | `stencila:values`                    | `value` |
 
-## Related
+# Related
 
 The `ObjectHint` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `ObjectHint` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -66,7 +66,7 @@ The `ObjectHint` type can be encoded (serialized) to, and/or decoded (deserializ
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `ObjectHint` type is represented in:
 
@@ -76,6 +76,6 @@ The `ObjectHint` type is represented in:
 - Rust struct [`ObjectHint`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/object_hint.rs)
 - TypeScript class [`ObjectHint`](https://github.com/stencila/stencila/blob/main/ts/src/types/ObjectHint.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ObjectHint.yaml`](https://github.com/stencila/stencila/blob/main/schema/ObjectHint.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

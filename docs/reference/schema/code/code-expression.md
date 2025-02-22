@@ -4,18 +4,18 @@ description: An executable code expression.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: code-expression
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Code
 ---
 
 Note that `CodeExpression` nodes lack the `executionPure` property that `CodeChunk` nodes have because they should be side-effect free.
 
-## Properties
+# Properties
 
 The `CodeExpression` type has these properties:
 
@@ -44,14 +44,14 @@ The `CodeExpression` type has these properties:
 | `provenance`            | A summary of the provenance of the code.                         | [`ProvenanceCount`](https://stencila.ghost.io/docs/reference/schema/provenance-count)*         | [`CodeExecutable`](https://stencila.ghost.io/docs/reference/schema/code-executable) | `stencila:provenance`                                                  | -                                                                                                                         |
 | `output`                | The value of the expression when it was last evaluated.          | [`Node`](https://stencila.ghost.io/docs/reference/schema/node)                                 | -                                                                                   | `stencila:output`                                                      | -                                                                                                                         |
 
-## Related
+# Related
 
 The `CodeExpression` type is related to these types:
 
 - Parents: [`CodeExecutable`](https://stencila.ghost.io/docs/reference/schema/code-executable)
 - Children: none
 
-## Formats
+# Formats
 
 The `CodeExpression` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -86,7 +86,7 @@ The `CodeExpression` type can be encoded (serialized) to, and/or decoded (deseri
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                    |
 
-## Bindings
+# Bindings
 
 The `CodeExpression` type is represented in:
 
@@ -96,7 +96,7 @@ The `CodeExpression` type is represented in:
 - Rust struct [`CodeExpression`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_expression.rs)
 - TypeScript class [`CodeExpression`](https://github.com/stencila/stencila/blob/main/ts/src/types/CodeExpression.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `CodeExpression` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -107,7 +107,7 @@ During property-based (a.k.a generative) testing, the properties of the `CodeExp
 |          | High+      | Generate a random string of up to 100 characters (excluding control characters).                                                | `r"[^\p{C}]{1,100}".prop_map(Cord::from)`   |
 |          | Max        | Generate an arbitrary string.                                                                                                   | `String::arbitrary().prop_map(Cord::from)`  |
 
-## Source
+# Source
 
 This documentation was generated from [`CodeExpression.yaml`](https://github.com/stencila/stencila/blob/main/schema/CodeExpression.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

@@ -4,16 +4,16 @@ description: Abstract base type for nodes that indicate a suggested change to co
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: suggestion
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Edits
 ---
 
-## Properties
+# Properties
 
 The `Suggestion` type has these properties:
 
@@ -27,14 +27,14 @@ The `Suggestion` type has these properties:
 | `executionEnded`    | The timestamp when the generation ended.                                                        | [`Timestamp`](https://stencila.ghost.io/docs/reference/schema/timestamp)                | -                                                                  | `stencila:executionEnded`                    | `execution-ended`, `execution_ended`       |
 | `feedback`          | Feedback on the suggestion                                                                      | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                      | -                                                                  | `stencila:feedback`                          | -                                          |
 
-## Related
+# Related
 
 The `Suggestion` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: [`SuggestionBlock`](https://stencila.ghost.io/docs/reference/schema/suggestion-block), [`SuggestionInline`](https://stencila.ghost.io/docs/reference/schema/suggestion-inline)
 
-## Bindings
+# Bindings
 
 The `Suggestion` type is represented in:
 
@@ -44,6 +44,6 @@ The `Suggestion` type is represented in:
 - Rust struct [`Suggestion`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/suggestion.rs)
 - TypeScript class [`Suggestion`](https://github.com/stencila/stencila/blob/main/ts/src/types/Suggestion.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Suggestion.yaml`](https://github.com/stencila/stencila/blob/main/schema/Suggestion.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

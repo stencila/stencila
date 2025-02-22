@@ -4,16 +4,16 @@ description: The relation between a node and its execution dependant.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: execution-dependant-relation
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
-## Members
+# Members
 
 The `ExecutionDependantRelation` type has these members:
 
@@ -22,7 +22,7 @@ The `ExecutionDependantRelation` type has these members:
 - `Declares`
 - `Writes`
 
-## Bindings
+# Bindings
 
 The `ExecutionDependantRelation` type is represented in:
 
@@ -32,6 +32,6 @@ The `ExecutionDependantRelation` type is represented in:
 - Rust type [`ExecutionDependantRelation`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_dependant_relation.rs)
 - TypeScript type [`ExecutionDependantRelation`](https://github.com/stencila/stencila/blob/main/ts/src/types/ExecutionDependantRelation.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ExecutionDependantRelation.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionDependantRelation.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

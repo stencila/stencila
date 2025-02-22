@@ -4,16 +4,16 @@ description: A monetary grant.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: monetary-grant
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
-## Properties
+# Properties
 
 The `MonetaryGrant` type has these properties:
 
@@ -31,14 +31,14 @@ The `MonetaryGrant` type has these properties:
 | `amounts`        | The amount of money.                                                                                     | [`Number`](https://stencila.ghost.io/docs/reference/schema/number)                                                                                         | -                                                                  | [`schema:amount`](https://schema.org/amount)               | -                                                                                         |
 | `funders`        | A person or organization that supports (sponsors) something through some kind of financial contribution. | ([`Person`](https://stencila.ghost.io/docs/reference/schema/person) \| [`Organization`](https://stencila.ghost.io/docs/reference/schema/organization))*    | -                                                                  | [`schema:funder`](https://schema.org/funder)               | `funder`                                                                                  |
 
-## Related
+# Related
 
 The `MonetaryGrant` type is related to these types:
 
 - Parents: [`Grant`](https://stencila.ghost.io/docs/reference/schema/grant)
 - Children: none
 
-## Formats
+# Formats
 
 The `MonetaryGrant` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -73,7 +73,7 @@ The `MonetaryGrant` type can be encoded (serialized) to, and/or decoded (deseria
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `MonetaryGrant` type is represented in:
 
@@ -83,6 +83,6 @@ The `MonetaryGrant` type is represented in:
 - Rust struct [`MonetaryGrant`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/monetary_grant.rs)
 - TypeScript class [`MonetaryGrant`](https://github.com/stencila/stencila/blob/main/ts/src/types/MonetaryGrant.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`MonetaryGrant.yaml`](https://github.com/stencila/stencila/blob/main/schema/MonetaryGrant.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

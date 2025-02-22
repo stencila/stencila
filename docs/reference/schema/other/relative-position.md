@@ -4,23 +4,23 @@ description: The relative position of a node to another.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: relative-position
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
-## Members
+# Members
 
 The `RelativePosition` type has these members:
 
 - `Previous`
 - `Next`
 
-## Bindings
+# Bindings
 
 The `RelativePosition` type is represented in:
 
@@ -30,6 +30,6 @@ The `RelativePosition` type is represented in:
 - Rust type [`RelativePosition`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/relative_position.rs)
 - TypeScript type [`RelativePosition`](https://github.com/stencila/stencila/blob/main/ts/src/types/RelativePosition.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`RelativePosition.yaml`](https://github.com/stencila/stencila/blob/main/schema/RelativePosition.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

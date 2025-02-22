@@ -4,16 +4,16 @@ description: A hyperlink to other pages, sections within the same document, reso
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: link
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
-## Properties
+# Properties
 
 The `Link` type has these properties:
 
@@ -25,14 +25,14 @@ The `Link` type has these properties:
 | `title`   | A title for the link.                                  | [`String`](https://stencila.ghost.io/docs/reference/schema/string)  | -                                                                  | [`schema:headline`](https://schema.org/headline)                 | -       |
 | `rel`     | The relation between the target and the current thing. | [`String`](https://stencila.ghost.io/docs/reference/schema/string)  | -                                                                  | [`schema:linkRelationship`](https://schema.org/linkRelationship) | -       |
 
-## Related
+# Related
 
 The `Link` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `Link` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -67,7 +67,7 @@ The `Link` type can be encoded (serialized) to, and/or decoded (deserialized) fr
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                            |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                            |
 
-## Bindings
+# Bindings
 
 The `Link` type is represented in:
 
@@ -77,7 +77,7 @@ The `Link` type is represented in:
 - Rust struct [`Link`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/link.rs)
 - TypeScript class [`Link`](https://github.com/stencila/stencila/blob/main/ts/src/types/Link.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `Link` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -88,7 +88,7 @@ During property-based (a.k.a generative) testing, the properties of the `Link` t
 |           | High+      | Generate up to two arbitrary, non-recursive, inline nodes  | `vec_inlines_non_recursive(2)` |
 |           | Max        | Generate up to four arbitrary, non-recursive, inline nodes | `vec_inlines_non_recursive(4)` |
 
-## Source
+# Source
 
 This documentation was generated from [`Link.yaml`](https://github.com/stencila/stencila/blob/main/schema/Link.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

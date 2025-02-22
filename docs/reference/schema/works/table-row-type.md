@@ -4,16 +4,16 @@ description: Indicates whether the row is in the header, body or footer of the t
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: table-row-type
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
-## Members
+# Members
 
 The `TableRowType` type has these members:
 
@@ -21,7 +21,7 @@ The `TableRowType` type has these members:
 - `BodyRow`
 - `FooterRow`
 
-## Bindings
+# Bindings
 
 The `TableRowType` type is represented in:
 
@@ -31,6 +31,6 @@ The `TableRowType` type is represented in:
 - Rust type [`TableRowType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/table_row_type.rs)
 - TypeScript type [`TableRowType`](https://github.com/stencila/stencila/blob/main/ts/src/types/TableRowType.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`TableRowType.yaml`](https://github.com/stencila/stencila/blob/main/schema/TableRowType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

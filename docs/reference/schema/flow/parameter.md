@@ -4,18 +4,18 @@ description: A parameter of a document.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: parameter
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
 This type is marked as unstable and is subject to change.
 
-## Properties
+# Properties
 
 The `Parameter` type has these properties:
 
@@ -43,14 +43,14 @@ The `Parameter` type has these properties:
 | `validator`             | The validator that the value is validated against.                                                     | [`Validator`](https://stencila.ghost.io/docs/reference/schema/validator)                       | -                                                                          | `stencila:validator`                                     | -                                                                                                                         |
 | `derivedFrom`           | The dotted path to the object (e.g. a database table column) that the parameter should be derived from | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                             | -                                                                          | `stencila:derivedFrom`                                   | `derived-from`, `derived_from`                                                                                            |
 
-## Related
+# Related
 
 The `Parameter` type is related to these types:
 
 - Parents: [`Executable`](https://stencila.ghost.io/docs/reference/schema/executable)
 - Children: [`CallArgument`](https://stencila.ghost.io/docs/reference/schema/call-argument)
 
-## Formats
+# Formats
 
 The `Parameter` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -85,7 +85,7 @@ The `Parameter` type can be encoded (serialized) to, and/or decoded (deserialize
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                              |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                              |
 
-## Bindings
+# Bindings
 
 The `Parameter` type is represented in:
 
@@ -95,7 +95,7 @@ The `Parameter` type is represented in:
 - Rust struct [`Parameter`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/parameter.rs)
 - TypeScript class [`Parameter`](https://github.com/stencila/stencila/blob/main/ts/src/types/Parameter.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `Parameter` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -106,7 +106,7 @@ During property-based (a.k.a generative) testing, the properties of the `Paramet
 |          | High+      | Generate a random string of up to 100 characters (excluding control characters).                                                          | Regex `[^\p{C}]{1,100}`           |
 |          | Max        | Generate an arbitrary string.                                                                                                             | `String::arbitrary()`             |
 
-## Source
+# Source
 
 This documentation was generated from [`Parameter.yaml`](https://github.com/stencila/stencila/blob/main/schema/Parameter.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

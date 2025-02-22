@@ -4,12 +4,12 @@ description: A reference to a `CreativeWork` that is cited in another `CreativeW
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: cite
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
@@ -18,7 +18,7 @@ A `Cite` node is used within a [`CreativeWork`](./CreativeWork), usually an
 Often a `Cite` will be associated with other citations, in a [`CiteGroup`](./CiteGroup).
 
 
-## Properties
+# Properties
 
 The `Cite` type has these properties:
 
@@ -35,14 +35,14 @@ The `Cite` type has these properties:
 | `citationPrefix` | Text to show before the citation.                                                                     | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                         | -                                                                  | `stencila:citationPrefix`                            | `citation-prefix`, `citation_prefix` |
 | `citationSuffix` | Text to show after the citation.                                                                      | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                         | -                                                                  | `stencila:citationSuffix`                            | `citation-suffix`, `citation_suffix` |
 
-## Related
+# Related
 
 The `Cite` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `Cite` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -77,7 +77,7 @@ The `Cite` type can be encoded (serialized) to, and/or decoded (deserialized) fr
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `Cite` type is represented in:
 
@@ -87,6 +87,6 @@ The `Cite` type is represented in:
 - Rust struct [`Cite`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/cite.rs)
 - TypeScript class [`Cite`](https://github.com/stencila/stencila/blob/main/ts/src/types/Cite.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Cite.yaml`](https://github.com/stencila/stencila/blob/main/schema/Cite.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

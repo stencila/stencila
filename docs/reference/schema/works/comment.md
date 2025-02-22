@@ -4,12 +4,12 @@ description: A comment on an item, e.g on a `Article` or `SoftwareSourceCode`.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: comment
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
@@ -21,7 +21,7 @@ be plain text). Replies to a comment can be added to its `comments` property
 or have their `parentItem` set to the parent comment.
 
 
-## Properties
+# Properties
 
 The `Comment` type has these properties:
 
@@ -63,14 +63,14 @@ The `Comment` type has these properties:
 | `parentItem`     | The parent comment of this comment.                                                                                     | [`Comment`](https://stencila.ghost.io/docs/reference/schema/comment)                                                                                          | -                                                                               | [`schema:parentItem`](https://schema.org/parentItem)       | `parent-item`, `parent_item`                                                              |
 | `commentAspect`  | The part or facet of the item that is being commented on.                                                               | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                            | -                                                                               | `stencila:commentAspect`                                   | `comment-aspect`, `comment_aspect`                                                        |
 
-## Related
+# Related
 
 The `Comment` type is related to these types:
 
 - Parents: [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work)
 - Children: none
 
-## Formats
+# Formats
 
 The `Comment` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -105,7 +105,7 @@ The `Comment` type can be encoded (serialized) to, and/or decoded (deserialized)
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `Comment` type is represented in:
 
@@ -115,6 +115,6 @@ The `Comment` type is represented in:
 - Rust struct [`Comment`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/comment.rs)
 - TypeScript class [`Comment`](https://github.com/stencila/stencila/blob/main/ts/src/types/Comment.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Comment.yaml`](https://github.com/stencila/stencila/blob/main/schema/Comment.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -4,16 +4,16 @@ description: An audio file.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: audio-object
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
-## Properties
+# Properties
 
 The `AudioObject` type has these properties:
 
@@ -59,14 +59,14 @@ The `AudioObject` type has these properties:
 | `caption`        | The caption for this audio recording.                                                                                   | [`Inline`](https://stencila.ghost.io/docs/reference/schema/inline)*                                                                                           | -                                                                               | [`schema:caption`](https://schema.org/caption)               | -                                                                                         |
 | `transcript`     | The transcript of this audio recording.                                                                                 | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                            | -                                                                               | [`schema:transcript`](https://schema.org/transcript)         | -                                                                                         |
 
-## Related
+# Related
 
 The `AudioObject` type is related to these types:
 
 - Parents: [`MediaObject`](https://stencila.ghost.io/docs/reference/schema/media-object)
 - Children: none
 
-## Formats
+# Formats
 
 The `AudioObject` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -101,7 +101,7 @@ The `AudioObject` type can be encoded (serialized) to, and/or decoded (deseriali
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                                                           |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                                                           |
 
-## Bindings
+# Bindings
 
 The `AudioObject` type is represented in:
 
@@ -111,7 +111,7 @@ The `AudioObject` type is represented in:
 - Rust struct [`AudioObject`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/audio_object.rs)
 - TypeScript class [`AudioObject`](https://github.com/stencila/stencila/blob/main/ts/src/types/AudioObject.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `AudioObject` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -122,7 +122,7 @@ During property-based (a.k.a generative) testing, the properties of the `AudioOb
 |              | High+      | Generate a random string of up to 100 alphanumeric characters. | Regex `[a-zA-Z0-9]{1,100}`                      |
 |              | Max        | Generate an arbitrary string.                                  | `String::arbitrary()`                           |
 
-## Source
+# Source
 
 This documentation was generated from [`AudioObject.yaml`](https://github.com/stencila/stencila/blob/main/schema/AudioObject.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

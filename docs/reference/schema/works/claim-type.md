@@ -4,16 +4,16 @@ description: The type of a `Claim`.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: claim-type
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
-## Members
+# Members
 
 The `ClaimType` type has these members:
 
@@ -26,7 +26,7 @@ The `ClaimType` type has these members:
 - `Proposition`
 - `Corollary`
 
-## Bindings
+# Bindings
 
 The `ClaimType` type is represented in:
 
@@ -36,6 +36,6 @@ The `ClaimType` type is represented in:
 - Rust type [`ClaimType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/claim_type.rs)
 - TypeScript type [`ClaimType`](https://github.com/stencila/stencila/blob/main/ts/src/types/ClaimType.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ClaimType.yaml`](https://github.com/stencila/stencila/blob/main/schema/ClaimType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

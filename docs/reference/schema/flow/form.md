@@ -4,18 +4,18 @@ description: A form to batch updates in document parameters.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: form
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
 This type is marked as experimental and is likely to change.
 
-## Properties
+# Properties
 
 The `Form` type has these properties:
 
@@ -41,14 +41,14 @@ The `Form` type has these properties:
 | `deriveAction`          | The action (create, update or delete) to derive for the form                              | [`FormDeriveAction`](https://stencila.ghost.io/docs/reference/schema/form-derive-action)                                                   | -                                                                          | `stencila:deriveAction`              | `derive-action`, `derive_action`                                                                                          |
 | `deriveItem`            | An identifier for the item to be the target of Update or Delete actions                   | [`Integer`](https://stencila.ghost.io/docs/reference/schema/integer) \| [`String`](https://stencila.ghost.io/docs/reference/schema/string) | -                                                                          | `stencila:deriveItem`                | `derive-item`, `derive_item`                                                                                              |
 
-## Related
+# Related
 
 The `Form` type is related to these types:
 
 - Parents: [`Executable`](https://stencila.ghost.io/docs/reference/schema/executable)
 - Children: none
 
-## Formats
+# Formats
 
 The `Form` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -83,7 +83,7 @@ The `Form` type can be encoded (serialized) to, and/or decoded (deserialized) fr
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `Form` type is represented in:
 
@@ -93,6 +93,6 @@ The `Form` type is represented in:
 - Rust struct [`Form`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/form.rs)
 - TypeScript class [`Form`](https://github.com/stencila/stencila/blob/main/ts/src/types/Form.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Form.yaml`](https://github.com/stencila/stencila/blob/main/schema/Form.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

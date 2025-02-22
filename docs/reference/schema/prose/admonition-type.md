@@ -4,16 +4,16 @@ description: The type of an `Admonition`.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: admonition-type
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
-## Members
+# Members
 
 The `AdmonitionType` type has these members:
 
@@ -27,7 +27,7 @@ The `AdmonitionType` type has these members:
 - `Danger`
 - `Error`
 
-## Bindings
+# Bindings
 
 The `AdmonitionType` type is represented in:
 
@@ -37,6 +37,6 @@ The `AdmonitionType` type is represented in:
 - Rust type [`AdmonitionType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/admonition_type.rs)
 - TypeScript type [`AdmonitionType`](https://github.com/stencila/stencila/blob/main/ts/src/types/AdmonitionType.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`AdmonitionType.yaml`](https://github.com/stencila/stencila/blob/main/schema/AdmonitionType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

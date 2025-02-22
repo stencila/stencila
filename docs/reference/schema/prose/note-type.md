@@ -4,16 +4,16 @@ description: The type of a `Note` which determines where the note content is dis
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: note-type
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
-## Members
+# Members
 
 The `NoteType` type has these members:
 
@@ -21,7 +21,7 @@ The `NoteType` type has these members:
 - `Endnote`
 - `Sidenote`
 
-## Bindings
+# Bindings
 
 The `NoteType` type is represented in:
 
@@ -31,6 +31,6 @@ The `NoteType` type is represented in:
 - Rust type [`NoteType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/note_type.rs)
 - TypeScript type [`NoteType`](https://github.com/stencila/stencila/blob/main/ts/src/types/NoteType.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`NoteType.yaml`](https://github.com/stencila/stencila/blob/main/schema/NoteType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

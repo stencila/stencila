@@ -4,16 +4,16 @@ description: A value that is a integer.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: integer
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Formats
+# Formats
 
 The `Integer` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -48,7 +48,7 @@ The `Integer` type can be encoded (serialized) to, and/or decoded (deserialized)
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |            |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss |            |         |
 
-## Bindings
+# Bindings
 
 The `Integer` type is represented in:
 
@@ -58,6 +58,6 @@ The `Integer` type is represented in:
 - Rust type [`Integer`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/integer.rs)
 - TypeScript type [`Integer`](https://github.com/stencila/stencila/blob/main/ts/src/types/Integer.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Integer.yaml`](https://github.com/stencila/stencila/blob/main/schema/Integer.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

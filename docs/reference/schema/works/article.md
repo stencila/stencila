@@ -4,12 +4,12 @@ description: An article, including news and scholarly articles.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: article
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
@@ -19,7 +19,7 @@ an array of [`Block`](./Block), as well as the properties added by
 [`CreativeWork`](./CreativeWork) which it extends.
 
 
-## Properties
+# Properties
 
 The `Article` type has these properties:
 
@@ -82,14 +82,14 @@ The `Article` type has these properties:
 | `temporary`             | Temporary nodes on document                                                                                             | [`Node`](https://stencila.ghost.io/docs/reference/schema/node)*                                                                                               | -                                                                               | `stencila:temporary`                                       | -                                                                                                                         |
 | `extra`                 | Additional metadata for the article.                                                                                    | [`Object`](https://stencila.ghost.io/docs/reference/schema/object)                                                                                            | -                                                                               | `stencila:extra`                                           | -                                                                                                                         |
 
-## Related
+# Related
 
 The `Article` type is related to these types:
 
 - Parents: [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work)[`Executable`](https://stencila.ghost.io/docs/reference/schema/executable)
 - Children: none
 
-## Formats
+# Formats
 
 The `Article` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -124,7 +124,7 @@ The `Article` type can be encoded (serialized) to, and/or decoded (deserialized)
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                                                 |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                                                 |
 
-## Bindings
+# Bindings
 
 The `Article` type is represented in:
 
@@ -134,7 +134,7 @@ The `Article` type is represented in:
 - Rust struct [`Article`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/article.rs)
 - TypeScript class [`Article`](https://github.com/stencila/stencila/blob/main/ts/src/types/Article.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `Article` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -145,7 +145,7 @@ During property-based (a.k.a generative) testing, the properties of the `Article
 |           | High+      | Generate up to four arbitrary block nodes  | `vec_blocks(4)` |
 |           | Max        | Generate up to eight arbitrary block nodes | `vec_blocks(8)` |
 
-## Source
+# Source
 
 This documentation was generated from [`Article.yaml`](https://github.com/stencila/stencila/blob/main/schema/Article.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

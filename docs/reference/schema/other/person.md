@@ -4,16 +4,16 @@ description: A person (alive, dead, undead, or fictional).
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: person
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
-## Properties
+# Properties
 
 The `Person` type has these properties:
 
@@ -38,14 +38,14 @@ The `Person` type has these properties:
 | `memberOf`         | An organization (or program membership) to which this person belongs.                                    | [`Organization`](https://stencila.ghost.io/docs/reference/schema/organization)*                                                                            | -                                                                  | [`schema:memberOf`](https://schema.org/memberOf)               | `member-of`, `member_of`                                                                                                   |
 | `telephoneNumbers` | Telephone numbers for the person.                                                                        | [`String`](https://stencila.ghost.io/docs/reference/schema/string)*                                                                                        | -                                                                  | [`schema:telephone`](https://schema.org/telephone)             | `telephone`, `telephone-numbers`, `telephone_numbers`, `telephoneNumber`, `telephone-number`, `telephone_number`           |
 
-## Related
+# Related
 
 The `Person` type is related to these types:
 
 - Parents: [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)
 - Children: none
 
-## Formats
+# Formats
 
 The `Person` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -80,7 +80,7 @@ The `Person` type can be encoded (serialized) to, and/or decoded (deserialized) 
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `Person` type is represented in:
 
@@ -90,6 +90,6 @@ The `Person` type is represented in:
 - Rust struct [`Person`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/person.rs)
 - TypeScript class [`Person`](https://github.com/stencila/stencila/blob/main/ts/src/types/Person.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Person.yaml`](https://github.com/stencila/stencila/blob/main/schema/Person.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

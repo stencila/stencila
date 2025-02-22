@@ -4,12 +4,12 @@ description: A preview of how a prompt will be rendered at a location in the doc
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: prompt-block
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Edits
 ---
 
@@ -20,7 +20,7 @@ position in a document.
 
 This type is marked as unstable and is subject to change.
 
-## Properties
+# Properties
 
 The `PromptBlock` type has these properties:
 
@@ -49,14 +49,14 @@ The `PromptBlock` type has these properties:
 | `directory`             | The home directory of the prompt                                 | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                             | -                                                                          | `stencila:directory`                         | -                                                                                                                         |
 | `content`               | The executed content of the prompt                               | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*                              | -                                                                          | `stencila:content`                           | -                                                                                                                         |
 
-## Related
+# Related
 
 The `PromptBlock` type is related to these types:
 
 - Parents: [`Executable`](https://stencila.ghost.io/docs/reference/schema/executable)
 - Children: none
 
-## Formats
+# Formats
 
 The `PromptBlock` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -91,7 +91,7 @@ The `PromptBlock` type can be encoded (serialized) to, and/or decoded (deseriali
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `PromptBlock` type is represented in:
 
@@ -101,6 +101,6 @@ The `PromptBlock` type is represented in:
 - Rust struct [`PromptBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/prompt_block.rs)
 - TypeScript class [`PromptBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/PromptBlock.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`PromptBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/PromptBlock.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

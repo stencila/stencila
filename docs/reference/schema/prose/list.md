@@ -4,12 +4,12 @@ description: A list of items.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: list
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
@@ -20,7 +20,7 @@ Note that, as with every other such renaming in Stencila Schema, a mapping betwe
 defined and it is trivial to save Stencila Schema documents using the schema.org vocabulary if so desired.
 
 
-## Properties
+# Properties
 
 The `List` type has these properties:
 
@@ -32,14 +32,14 @@ The `List` type has these properties:
 | `authors`    | The authors of the list.                                    | [`Author`](https://stencila.ghost.io/docs/reference/schema/author)*                    | -                                                                  | [`schema:author`](https://schema.org/author)                   | `author` |
 | `provenance` | A summary of the provenance of the content within the list. | [`ProvenanceCount`](https://stencila.ghost.io/docs/reference/schema/provenance-count)* | -                                                                  | `stencila:provenance`                                          | -        |
 
-## Related
+# Related
 
 The `List` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `List` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -74,7 +74,7 @@ The `List` type can be encoded (serialized) to, and/or decoded (deserialized) fr
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                    |
 
-## Bindings
+# Bindings
 
 The `List` type is represented in:
 
@@ -84,7 +84,7 @@ The `List` type is represented in:
 - Rust struct [`List`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/list.rs)
 - TypeScript class [`List`](https://github.com/stencila/stencila/blob/main/ts/src/types/List.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `List` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -98,7 +98,7 @@ During property-based (a.k.a generative) testing, the properties of the `List` t
 |          | Low+       | Randomly generate either an unordered, or ascending, list. | `prop_oneof![Just(ListOrder::Unordered),Just(ListOrder::Ascending)]` |
 |          | High+      | Generate an arbitrary list ordering.                       | `ListOrder::arbitrary()`                                             |
 
-## Source
+# Source
 
 This documentation was generated from [`List.yaml`](https://github.com/stencila/stencila/blob/main/schema/List.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

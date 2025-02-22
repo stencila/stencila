@@ -4,18 +4,18 @@ description: The vertical alignment of content.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: vertical-alignment
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
 Based on the JATS [`valign`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/valign.html) attribute.
 
-## Members
+# Members
 
 The `VerticalAlignment` type has these members:
 
@@ -24,7 +24,7 @@ The `VerticalAlignment` type has these members:
 - `AlignTop`
 - `AlignMiddle`
 
-## Bindings
+# Bindings
 
 The `VerticalAlignment` type is represented in:
 
@@ -34,6 +34,6 @@ The `VerticalAlignment` type is represented in:
 - Rust type [`VerticalAlignment`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/vertical_alignment.rs)
 - TypeScript type [`VerticalAlignment`](https://github.com/stencila/stencila/blob/main/ts/src/types/VerticalAlignment.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`VerticalAlignment.yaml`](https://github.com/stencila/stencila/blob/main/schema/VerticalAlignment.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

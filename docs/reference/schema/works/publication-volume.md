@@ -4,19 +4,19 @@ description: A part of a successively published publication such as a periodical
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: publication-volume
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
 Often embedded as the `isPartOf` property in a [`PublicationIssue`](./PublicationIssue).
 
 
-## Properties
+# Properties
 
 The `PublicationVolume` type has these properties:
 
@@ -59,14 +59,14 @@ The `PublicationVolume` type has these properties:
 | `pagination`     | Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".                   | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                            | -                                                                               | [`schema:pagination`](https://schema.org/pagination)       | -                                                                                         |
 | `volumeNumber`   | Identifies the volume of publication or multi-part work; for example, "iii" or "2".                                     | [`Integer`](https://stencila.ghost.io/docs/reference/schema/integer) \| [`String`](https://stencila.ghost.io/docs/reference/schema/string)                    | -                                                                               | [`schema:volumeNumber`](https://schema.org/volumeNumber)   | `volume-number`, `volume_number`                                                          |
 
-## Related
+# Related
 
 The `PublicationVolume` type is related to these types:
 
 - Parents: [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work)
 - Children: none
 
-## Formats
+# Formats
 
 The `PublicationVolume` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -101,7 +101,7 @@ The `PublicationVolume` type can be encoded (serialized) to, and/or decoded (des
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `PublicationVolume` type is represented in:
 
@@ -111,6 +111,6 @@ The `PublicationVolume` type is represented in:
 - Rust struct [`PublicationVolume`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/publication_volume.rs)
 - TypeScript class [`PublicationVolume`](https://github.com/stencila/stencila/blob/main/ts/src/types/PublicationVolume.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`PublicationVolume.yaml`](https://github.com/stencila/stencila/blob/main/schema/PublicationVolume.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

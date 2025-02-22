@@ -4,18 +4,18 @@ description: A button.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: button
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
 This type is marked as experimental and is likely to change.
 
-## Properties
+# Properties
 
 The `Button` type has these properties:
 
@@ -46,14 +46,14 @@ The `Button` type has these properties:
 | `label`                 | A label for the button                                           | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                             | -                                                                                   | `stencila:label`                                                       | -                                                                                                                         |
 | `isDisabled`            | Whether the button is currently disabled                         | [`Boolean`](https://stencila.ghost.io/docs/reference/schema/boolean)                           | -                                                                                   | `stencila:isDisabled`                                                  | `is-disabled`, `is_disabled`                                                                                              |
 
-## Related
+# Related
 
 The `Button` type is related to these types:
 
 - Parents: [`CodeExecutable`](https://stencila.ghost.io/docs/reference/schema/code-executable)
 - Children: none
 
-## Formats
+# Formats
 
 The `Button` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -88,7 +88,7 @@ The `Button` type can be encoded (serialized) to, and/or decoded (deserialized) 
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                           |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                           |
 
-## Bindings
+# Bindings
 
 The `Button` type is represented in:
 
@@ -98,6 +98,6 @@ The `Button` type is represented in:
 - Rust struct [`Button`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/button.rs)
 - TypeScript class [`Button`](https://github.com/stencila/stencila/blob/main/ts/src/types/Button.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Button.yaml`](https://github.com/stencila/stencila/blob/main/schema/Button.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

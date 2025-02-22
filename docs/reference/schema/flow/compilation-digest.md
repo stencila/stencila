@@ -4,16 +4,16 @@ description: A digest of the content, semantics and dependencies of an executabl
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: compilation-digest
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
-## Properties
+# Properties
 
 The `CompilationDigest` type has these properties:
 
@@ -26,14 +26,14 @@ The `CompilationDigest` type has these properties:
 | `dependenciesStale`  | A count of the number of dependencies that are stale.                       | [`UnsignedInteger`](https://stencila.ghost.io/docs/reference/schema/unsigned-integer) | -                                                                  | `stencila:dependenciesStale`         | `dependencies-stale`, `dependencies_stale`   |
 | `dependenciesFailed` | A count of the number of dependencies that failed.                          | [`UnsignedInteger`](https://stencila.ghost.io/docs/reference/schema/unsigned-integer) | -                                                                  | `stencila:dependenciesFailed`        | `dependencies-failed`, `dependencies_failed` |
 
-## Related
+# Related
 
 The `CompilationDigest` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `CompilationDigest` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -68,7 +68,7 @@ The `CompilationDigest` type can be encoded (serialized) to, and/or decoded (des
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `CompilationDigest` type is represented in:
 
@@ -78,6 +78,6 @@ The `CompilationDigest` type is represented in:
 - Rust struct [`CompilationDigest`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/compilation_digest.rs)
 - TypeScript class [`CompilationDigest`](https://github.com/stencila/stencila/blob/main/ts/src/types/CompilationDigest.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`CompilationDigest.yaml`](https://github.com/stencila/stencila/blob/main/schema/CompilationDigest.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

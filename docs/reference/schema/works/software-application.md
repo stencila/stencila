@@ -4,12 +4,12 @@ description: A software application.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: software-application
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
@@ -20,7 +20,7 @@ of required packages, normally it is adequate to only list the immediate depende
 the system/language package manager to resolve the rest.
 
 
-## Properties
+# Properties
 
 The `SoftwareApplication` type has these properties:
 
@@ -62,14 +62,14 @@ The `SoftwareApplication` type has these properties:
 | `softwareVersion`      | Version of the software.                                                                                                | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                            | -                                                                               | [`schema:softwareVersion`](https://schema.org/softwareVersion)           | `software-version`, `software_version`                                                                                  |
 | `operatingSystem`      | Operating systems supported (e.g. Windows 7, OS X 10.6).                                                                | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                            | -                                                                               | [`schema:operatingSystem`](https://schema.org/operatingSystem)           | `operating-system`, `operating_system`                                                                                  |
 
-## Related
+# Related
 
 The `SoftwareApplication` type is related to these types:
 
 - Parents: [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work)
 - Children: none
 
-## Formats
+# Formats
 
 The `SoftwareApplication` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -104,7 +104,7 @@ The `SoftwareApplication` type can be encoded (serialized) to, and/or decoded (d
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `SoftwareApplication` type is represented in:
 
@@ -114,6 +114,6 @@ The `SoftwareApplication` type is represented in:
 - Rust struct [`SoftwareApplication`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/software_application.rs)
 - TypeScript class [`SoftwareApplication`](https://github.com/stencila/stencila/blob/main/ts/src/types/SoftwareApplication.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`SoftwareApplication.yaml`](https://github.com/stencila/stencila/blob/main/schema/SoftwareApplication.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

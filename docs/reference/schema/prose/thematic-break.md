@@ -4,16 +4,16 @@ description: A thematic break, such as a scene change in a story, a transition t
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: thematic-break
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
-## Properties
+# Properties
 
 The `ThematicBreak` type has these properties:
 
@@ -21,14 +21,14 @@ The `ThematicBreak` type has these properties:
 | ---- | ----------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------ | ------- |
 | `id` | The identifier for this item. | [`String`](https://stencila.ghost.io/docs/reference/schema/string) | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -       |
 
-## Related
+# Related
 
 The `ThematicBreak` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `ThematicBreak` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -63,7 +63,7 @@ The `ThematicBreak` type can be encoded (serialized) to, and/or decoded (deseria
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                |
 
-## Bindings
+# Bindings
 
 The `ThematicBreak` type is represented in:
 
@@ -73,6 +73,6 @@ The `ThematicBreak` type is represented in:
 - Rust struct [`ThematicBreak`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/thematic_break.rs)
 - TypeScript class [`ThematicBreak`](https://github.com/stencila/stencila/blob/main/ts/src/types/ThematicBreak.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ThematicBreak.yaml`](https://github.com/stencila/stencila/blob/main/schema/ThematicBreak.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

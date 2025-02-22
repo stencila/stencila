@@ -4,16 +4,16 @@ description: The location within some source code.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: code-location
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
-## Properties
+# Properties
 
 The `CodeLocation` type has these properties:
 
@@ -26,14 +26,14 @@ The `CodeLocation` type has these properties:
 | `endLine`     | The 0-based index if the last line on which the error occurred.    | [`UnsignedInteger`](https://stencila.ghost.io/docs/reference/schema/unsigned-integer) | -                                                                  | `stencila:endLine`                   | `end-line`, `end_line`         |
 | `endColumn`   | The 0-based index if the last column on which the error occurred.  | [`UnsignedInteger`](https://stencila.ghost.io/docs/reference/schema/unsigned-integer) | -                                                                  | `stencila:endColumn`                 | `end-column`, `end_column`     |
 
-## Related
+# Related
 
 The `CodeLocation` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `CodeLocation` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -68,7 +68,7 @@ The `CodeLocation` type can be encoded (serialized) to, and/or decoded (deserial
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `CodeLocation` type is represented in:
 
@@ -78,6 +78,6 @@ The `CodeLocation` type is represented in:
 - Rust struct [`CodeLocation`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_location.rs)
 - TypeScript class [`CodeLocation`](https://github.com/stencila/stencila/blob/main/ts/src/types/CodeLocation.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`CodeLocation.yaml`](https://github.com/stencila/stencila/blob/main/schema/CodeLocation.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

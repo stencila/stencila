@@ -4,16 +4,16 @@ description: 'Computer programming source code. Example: Full (compile ready) so
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: software-source-code
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
-## Properties
+# Properties
 
 The `SoftwareSourceCode` type has these properties:
 
@@ -58,14 +58,14 @@ The `SoftwareSourceCode` type has these properties:
 | `softwareRequirements` | Dependency requirements for the software.                                                                               | ([`SoftwareSourceCode`](https://stencila.ghost.io/docs/reference/schema/software-source-code) \| [`SoftwareApplication`](https://stencila.ghost.io/docs/reference/schema/software-application) \| [`String`](https://stencila.ghost.io/docs/reference/schema/string))* | -                                                                               | [`schema:softwareRequirements`](https://schema.org/softwareRequirements) | `software-requirements`, `software_requirements`, `softwareRequirement`, `software-requirement`, `software_requirement` |
 | `targetProducts`       | Target operating system or product to which the code applies.                                                           | [`SoftwareApplication`](https://stencila.ghost.io/docs/reference/schema/software-application)*                                                                                                                                                                         | -                                                                               | [`schema:targetProduct`](https://schema.org/targetProduct)               | `target-products`, `target_products`, `targetProduct`, `target-product`, `target_product`                               |
 
-## Related
+# Related
 
 The `SoftwareSourceCode` type is related to these types:
 
 - Parents: [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work)
 - Children: none
 
-## Formats
+# Formats
 
 The `SoftwareSourceCode` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -100,7 +100,7 @@ The `SoftwareSourceCode` type can be encoded (serialized) to, and/or decoded (de
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `SoftwareSourceCode` type is represented in:
 
@@ -110,6 +110,6 @@ The `SoftwareSourceCode` type is represented in:
 - Rust struct [`SoftwareSourceCode`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/software_source_code.rs)
 - TypeScript class [`SoftwareSourceCode`](https://github.com/stencila/stencila/blob/main/ts/src/types/SoftwareSourceCode.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`SoftwareSourceCode.yaml`](https://github.com/stencila/stencila/blob/main/schema/SoftwareSourceCode.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

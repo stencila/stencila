@@ -4,16 +4,16 @@ description: Union type for all types in this schema, including primitives and e
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: node
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
-## Members
+# Members
 
 The `Node` type has these members:
 
@@ -149,7 +149,7 @@ The `Node` type has these members:
 - [`WalkthroughStep`](https://stencila.ghost.io/docs/reference/schema/walkthrough-step)
 - [`Object`](https://stencila.ghost.io/docs/reference/schema/object)
 
-## Bindings
+# Bindings
 
 The `Node` type is represented in:
 
@@ -159,6 +159,6 @@ The `Node` type is represented in:
 - Rust type [`Node`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/node.rs)
 - TypeScript type [`Node`](https://github.com/stencila/stencila/blob/main/ts/src/types/Node.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Node.yaml`](https://github.com/stencila/stencila/blob/main/schema/Node.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

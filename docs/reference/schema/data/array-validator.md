@@ -4,16 +4,16 @@ description: A validator specifying constraints on an array node.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: array-validator
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `ArrayValidator` type has these properties:
 
@@ -27,14 +27,14 @@ The `ArrayValidator` type has these properties:
 | `maxItems`       | An array node is valid if its size is less than, or equal to, this value.                   | [`Integer`](https://stencila.ghost.io/docs/reference/schema/integer)     | -                                                                  | `stencila:maxItems`                  | `max-items`, `max_items`             |
 | `uniqueItems`    | A flag to indicate that each value in the array should be unique.                           | [`Boolean`](https://stencila.ghost.io/docs/reference/schema/boolean)     | -                                                                  | `stencila:uniqueItems`               | `unique-items`, `unique_items`       |
 
-## Related
+# Related
 
 The `ArrayValidator` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `ArrayValidator` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -69,7 +69,7 @@ The `ArrayValidator` type can be encoded (serialized) to, and/or decoded (deseri
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `ArrayValidator` type is represented in:
 
@@ -79,6 +79,6 @@ The `ArrayValidator` type is represented in:
 - Rust struct [`ArrayValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/array_validator.rs)
 - TypeScript class [`ArrayValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/ArrayValidator.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ArrayValidator.yaml`](https://github.com/stencila/stencila/blob/main/schema/ArrayValidator.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

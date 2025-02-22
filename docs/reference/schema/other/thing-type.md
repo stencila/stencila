@@ -4,16 +4,16 @@ description: Union type for all types that are descended from `Thing`
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: thing-type
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
-## Members
+# Members
 
 The `ThingType` type has these members:
 
@@ -50,7 +50,7 @@ The `ThingType` type has these members:
 - [`Table`](https://stencila.ghost.io/docs/reference/schema/table)
 - [`VideoObject`](https://stencila.ghost.io/docs/reference/schema/video-object)
 
-## Bindings
+# Bindings
 
 The `ThingType` type is represented in:
 
@@ -60,6 +60,6 @@ The `ThingType` type is represented in:
 - Rust type [`ThingType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/thing_type.rs)
 - TypeScript type [`ThingType`](https://github.com/stencila/stencila/blob/main/ts/src/types/ThingType.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ThingType.yaml`](https://github.com/stencila/stencila/blob/main/schema/ThingType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

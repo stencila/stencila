@@ -4,16 +4,16 @@ description: A calendar date encoded as a ISO 8601 string.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: date
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `Date` type has these properties:
 
@@ -22,14 +22,14 @@ The `Date` type has these properties:
 | `id`    | The identifier for this item.   | [`String`](https://stencila.ghost.io/docs/reference/schema/string) | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id)       | -       |
 | `value` | The date as an ISO 8601 string. | [`String`](https://stencila.ghost.io/docs/reference/schema/string) | -                                                                  | [`schema:value`](https://schema.org/value) | -       |
 
-## Related
+# Related
 
 The `Date` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `Date` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -64,7 +64,7 @@ The `Date` type can be encoded (serialized) to, and/or decoded (deserialized) fr
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                                           |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                                           |
 
-## Bindings
+# Bindings
 
 The `Date` type is represented in:
 
@@ -74,7 +74,7 @@ The `Date` type is represented in:
 - Rust struct [`Date`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/date.rs)
 - TypeScript class [`Date`](https://github.com/stencila/stencila/blob/main/ts/src/types/Date.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `Date` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -85,7 +85,7 @@ During property-based (a.k.a generative) testing, the properties of the `Date` t
 |          | High+      | Generate a random string of up to 10 alphanumeric characters & hyphens. | Regex `[a-zA-Z0-9\-]{1,10}`           |
 |          | Max        | Generate an arbitrary string.                                           | `String::arbitrary()`                 |
 
-## Source
+# Source
 
 This documentation was generated from [`Date.yaml`](https://github.com/stencila/stencila/blob/main/schema/Date.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

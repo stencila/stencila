@@ -4,12 +4,12 @@ description: A group of `Cite` nodes.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: cite-group
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
@@ -25,7 +25,7 @@ narrative (although they may be connected together within `content` using words
 such as "and").
 
 
-## Properties
+# Properties
 
 The `CiteGroup` type has these properties:
 
@@ -34,14 +34,14 @@ The `CiteGroup` type has these properties:
 | `id`    | The identifier for this item.                                      | [`String`](https://stencila.ghost.io/docs/reference/schema/string) | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id)                           | -       |
 | `items` | One or more `Cite`s to be referenced in the same surrounding text. | [`Cite`](https://stencila.ghost.io/docs/reference/schema/cite)*    | -                                                                  | [`schema:itemListElement`](https://schema.org/itemListElement) | `item`  |
 
-## Related
+# Related
 
 The `CiteGroup` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `CiteGroup` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -76,7 +76,7 @@ The `CiteGroup` type can be encoded (serialized) to, and/or decoded (deserialize
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `CiteGroup` type is represented in:
 
@@ -86,6 +86,6 @@ The `CiteGroup` type is represented in:
 - Rust struct [`CiteGroup`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/cite_group.rs)
 - TypeScript class [`CiteGroup`](https://github.com/stencila/stencila/blob/main/ts/src/types/CiteGroup.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`CiteGroup.yaml`](https://github.com/stencila/stencila/blob/main/schema/CiteGroup.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

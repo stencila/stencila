@@ -4,16 +4,16 @@ description: A unit in which time can be measured.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: time-unit
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Members
+# Members
 
 The `TimeUnit` type has these members:
 
@@ -31,7 +31,7 @@ The `TimeUnit` type has these members:
 - `Femtosecond`
 - `Attosecond`
 
-## Bindings
+# Bindings
 
 The `TimeUnit` type is represented in:
 
@@ -41,6 +41,6 @@ The `TimeUnit` type is represented in:
 - Rust type [`TimeUnit`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/time_unit.rs)
 - TypeScript type [`TimeUnit`](https://github.com/stencila/stencila/blob/main/ts/src/types/TimeUnit.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`TimeUnit.yaml`](https://github.com/stencila/stencila/blob/main/schema/TimeUnit.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

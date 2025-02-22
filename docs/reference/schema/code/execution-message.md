@@ -4,16 +4,16 @@ description: An error, warning or log message generated during execution.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: execution-message
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Code
 ---
 
-## Properties
+# Properties
 
 The `ExecutionMessage` type has these properties:
 
@@ -26,14 +26,14 @@ The `ExecutionMessage` type has these properties:
 | `codeLocation` | The location that the error occurred or other message emanated from. | [`CodeLocation`](https://stencila.ghost.io/docs/reference/schema/code-location) | -                                                                  | `stencila:codeLocation`              | `code-location`, `code_location`      |
 | `stackTrace`   | Stack trace leading up to the error.                                 | [`String`](https://stencila.ghost.io/docs/reference/schema/string)              | -                                                                  | `stencila:stackTrace`                | `trace`, `stack-trace`, `stack_trace` |
 
-## Related
+# Related
 
 The `ExecutionMessage` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `ExecutionMessage` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -68,7 +68,7 @@ The `ExecutionMessage` type can be encoded (serialized) to, and/or decoded (dese
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `ExecutionMessage` type is represented in:
 
@@ -78,6 +78,6 @@ The `ExecutionMessage` type is represented in:
 - Rust struct [`ExecutionMessage`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_message.rs)
 - TypeScript class [`ExecutionMessage`](https://github.com/stencila/stencila/blob/main/ts/src/types/ExecutionMessage.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ExecutionMessage.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionMessage.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

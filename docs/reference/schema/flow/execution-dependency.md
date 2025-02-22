@@ -4,16 +4,16 @@ description: An upstream execution dependency of a node.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: execution-dependency
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
-## Properties
+# Properties
 
 The `ExecutionDependency` type has these properties:
 
@@ -24,14 +24,14 @@ The `ExecutionDependency` type has these properties:
 | `dependencyNode`     | The node that is the dependency.             | [`ExecutionDependencyNode`](https://stencila.ghost.io/docs/reference/schema/execution-dependency-node)         | -                                                                  | `stencila:dependencyNode`            | `dependency-node`, `dependency_node`         |
 | `codeLocation`       | The location that the dependency is defined. | [`CodeLocation`](https://stencila.ghost.io/docs/reference/schema/code-location)                                | -                                                                  | `stencila:codeLocation`              | `code-location`, `code_location`             |
 
-## Related
+# Related
 
 The `ExecutionDependency` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `ExecutionDependency` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -66,7 +66,7 @@ The `ExecutionDependency` type can be encoded (serialized) to, and/or decoded (d
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `ExecutionDependency` type is represented in:
 
@@ -76,6 +76,6 @@ The `ExecutionDependency` type is represented in:
 - Rust struct [`ExecutionDependency`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_dependency.rs)
 - TypeScript class [`ExecutionDependency`](https://github.com/stencila/stencila/blob/main/ts/src/types/ExecutionDependency.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ExecutionDependency.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionDependency.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

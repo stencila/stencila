@@ -4,18 +4,18 @@ description: Call another document, optionally with arguments, and include its e
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: call-block
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
 This type is marked as experimental and is likely to change.
 
-## Properties
+# Properties
 
 The `CallBlock` type has these properties:
 
@@ -42,14 +42,14 @@ The `CallBlock` type has these properties:
 | `content`               | The structured content decoded from the source.                  | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*                              | [`IncludeBlock`](https://stencila.ghost.io/docs/reference/schema/include-block) | `stencila:content`                                           | -                                                                                                                         |
 | `arguments`             | The value of the source document's parameters to call it with    | [`CallArgument`](https://stencila.ghost.io/docs/reference/schema/call-argument)*               | -                                                                               | `stencila:arguments`                                         | `argument`                                                                                                                |
 
-## Related
+# Related
 
 The `CallBlock` type is related to these types:
 
 - Parents: [`IncludeBlock`](https://stencila.ghost.io/docs/reference/schema/include-block)
 - Children: none
 
-## Formats
+# Formats
 
 The `CallBlock` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -84,7 +84,7 @@ The `CallBlock` type can be encoded (serialized) to, and/or decoded (deserialize
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `CallBlock` type is represented in:
 
@@ -94,7 +94,7 @@ The `CallBlock` type is represented in:
 - Rust struct [`CallBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/call_block.rs)
 - TypeScript class [`CallBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/CallBlock.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `CallBlock` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -108,7 +108,7 @@ During property-based (a.k.a generative) testing, the properties of the `CallBlo
 |             | Low+       | Generate up to 3 arbitrary arguments                                                                                                                                                                               | `vec(CallArgument::arbitrary(), size_range(0..=3))`  |
 |             | High+      | Generate up to 10 arbitrary arguments                                                                                                                                                                              | `vec(CallArgument::arbitrary(), size_range(0..=10))` |
 
-## Source
+# Source
 
 This documentation was generated from [`CallBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/CallBlock.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

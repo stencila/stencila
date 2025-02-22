@@ -4,12 +4,12 @@ description: Emphasized content.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: emphasis
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
@@ -20,7 +20,7 @@ Analogues of `Delete` in other schema include:
   - Pandoc [`Emph`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L256)
 
 
-## Properties
+# Properties
 
 The `Emphasis` type has these properties:
 
@@ -29,14 +29,14 @@ The `Emphasis` type has these properties:
 | `id`      | The identifier for this item. | [`String`](https://stencila.ghost.io/docs/reference/schema/string)  | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -       |
 | `content` | The content that is marked.   | [`Inline`](https://stencila.ghost.io/docs/reference/schema/inline)* | [`Mark`](https://stencila.ghost.io/docs/reference/schema/mark)     | `stencila:content`                   | -       |
 
-## Related
+# Related
 
 The `Emphasis` type is related to these types:
 
 - Parents: [`Mark`](https://stencila.ghost.io/docs/reference/schema/mark)
 - Children: none
 
-## Formats
+# Formats
 
 The `Emphasis` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -71,7 +71,7 @@ The `Emphasis` type can be encoded (serialized) to, and/or decoded (deserialized
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                        |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                        |
 
-## Bindings
+# Bindings
 
 The `Emphasis` type is represented in:
 
@@ -81,7 +81,7 @@ The `Emphasis` type is represented in:
 - Rust struct [`Emphasis`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/emphasis.rs)
 - TypeScript class [`Emphasis`](https://github.com/stencila/stencila/blob/main/ts/src/types/Emphasis.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `Emphasis` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -92,7 +92,7 @@ During property-based (a.k.a generative) testing, the properties of the `Emphasi
 |           | High+      | Generate up to two arbitrary, non-recursive, inline nodes  | `vec_inlines_non_recursive(2)` |
 |           | Max        | Generate up to four arbitrary, non-recursive, inline nodes | `vec_inlines_non_recursive(4)` |
 
-## Source
+# Source
 
 This documentation was generated from [`Emphasis.yaml`](https://github.com/stencila/stencila/blob/main/schema/Emphasis.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

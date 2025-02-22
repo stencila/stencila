@@ -4,16 +4,16 @@ description: A validator specifying the constraints on a timestamp.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: timestamp-validator
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `TimestampValidator` type has these properties:
 
@@ -24,14 +24,14 @@ The `TimestampValidator` type has these properties:
 | `minimum`   | The inclusive lower limit for a timestamp.  | [`Timestamp`](https://stencila.ghost.io/docs/reference/schema/timestamp) | -                                                                  | `stencila:minimum`                   | -                                                                |
 | `maximum`   | The inclusive upper limit for a timestamp.  | [`Timestamp`](https://stencila.ghost.io/docs/reference/schema/timestamp) | -                                                                  | `stencila:maximum`                   | -                                                                |
 
-## Related
+# Related
 
 The `TimestampValidator` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `TimestampValidator` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -66,7 +66,7 @@ The `TimestampValidator` type can be encoded (serialized) to, and/or decoded (de
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `TimestampValidator` type is represented in:
 
@@ -76,6 +76,6 @@ The `TimestampValidator` type is represented in:
 - Rust struct [`TimestampValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/timestamp_validator.rs)
 - TypeScript class [`TimestampValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/TimestampValidator.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`TimestampValidator.yaml`](https://github.com/stencila/stencila/blob/main/schema/TimestampValidator.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -4,18 +4,18 @@ description: A step in a walkthrough.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: walkthrough-step
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
 This type is marked as unstable and is subject to change.
 
-## Properties
+# Properties
 
 The `WalkthroughStep` type has these properties:
 
@@ -25,14 +25,14 @@ The `WalkthroughStep` type has these properties:
 | `isCollapsed` | Whether this step is active (i.e. is encoded in source format and can be edited) | [`Boolean`](https://stencila.ghost.io/docs/reference/schema/boolean) | -                                                                  | `stencila:isCollapsed`               | `is-collapsed`, `is_collapsed` |
 | `content`     | The content of the step.                                                         | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*    | -                                                                  | `stencila:content`                   | -                              |
 
-## Related
+# Related
 
 The `WalkthroughStep` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `WalkthroughStep` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -67,7 +67,7 @@ The `WalkthroughStep` type can be encoded (serialized) to, and/or decoded (deser
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `WalkthroughStep` type is represented in:
 
@@ -77,6 +77,6 @@ The `WalkthroughStep` type is represented in:
 - Rust struct [`WalkthroughStep`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/walkthrough_step.rs)
 - TypeScript class [`WalkthroughStep`](https://github.com/stencila/stencila/blob/main/ts/src/types/WalkthroughStep.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`WalkthroughStep.yaml`](https://github.com/stencila/stencila/blob/main/schema/WalkthroughStep.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

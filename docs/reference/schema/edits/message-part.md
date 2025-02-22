@@ -4,12 +4,12 @@ description: A union type for a part of a message.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: message-part
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Edits
 ---
 
@@ -17,7 +17,7 @@ This union type uses `Text`, instead of `string`, so that each type of part
 is an entity with a type and node id.
 
 
-## Members
+# Members
 
 The `MessagePart` type has these members:
 
@@ -26,7 +26,7 @@ The `MessagePart` type has these members:
 - [`AudioObject`](https://stencila.ghost.io/docs/reference/schema/audio-object)
 - [`VideoObject`](https://stencila.ghost.io/docs/reference/schema/video-object)
 
-## Bindings
+# Bindings
 
 The `MessagePart` type is represented in:
 
@@ -36,6 +36,6 @@ The `MessagePart` type is represented in:
 - Rust type [`MessagePart`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/message_part.rs)
 - TypeScript type [`MessagePart`](https://github.com/stencila/stencila/blob/main/ts/src/types/MessagePart.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`MessagePart.yaml`](https://github.com/stencila/stencila/blob/main/schema/MessagePart.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

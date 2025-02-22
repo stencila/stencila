@@ -4,16 +4,16 @@ description: Encapsulates one or more images, videos, tables, etc, and provides 
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: figure
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
-## Properties
+# Properties
 
 The `Figure` type has these properties:
 
@@ -56,14 +56,14 @@ The `Figure` type has these properties:
 | `caption`            | A caption for the figure.                                                                                               | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*                                                                                             | -                                                                               | [`schema:caption`](https://schema.org/caption)             | -                                                                                         |
 | `content`            | The content of the figure.                                                                                              | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*                                                                                             | -                                                                               | `stencila:content`                                         | -                                                                                         |
 
-## Related
+# Related
 
 The `Figure` type is related to these types:
 
 - Parents: [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work)
 - Children: none
 
-## Formats
+# Formats
 
 The `Figure` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -98,7 +98,7 @@ The `Figure` type can be encoded (serialized) to, and/or decoded (deserialized) 
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                  |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                  |
 
-## Bindings
+# Bindings
 
 The `Figure` type is represented in:
 
@@ -108,7 +108,7 @@ The `Figure` type is represented in:
 - Rust struct [`Figure`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/figure.rs)
 - TypeScript class [`Figure`](https://github.com/stencila/stencila/blob/main/ts/src/types/Figure.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `Figure` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -124,7 +124,7 @@ During property-based (a.k.a generative) testing, the properties of the `Figure`
 |           | Low+       | Generate up to two arbitrary, non-recursive, block nodes (excluding code chunks). | `vec_blocks_figure_content(2)`            |
 |           | Max        | Generate up to four arbitrary, non-recursive, block nodes.                        | `vec_blocks_non_recursive(4)`             |
 
-## Source
+# Source
 
 This documentation was generated from [`Figure.yaml`](https://github.com/stencila/stencila/blob/main/schema/Figure.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

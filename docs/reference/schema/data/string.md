@@ -4,16 +4,16 @@ description: A value comprised of a string of characters.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: string
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Formats
+# Formats
 
 The `String` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -48,7 +48,7 @@ The `String` type can be encoded (serialized) to, and/or decoded (deserialized) 
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |            |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss |            |         |
 
-## Bindings
+# Bindings
 
 The `String` type is represented in:
 
@@ -58,6 +58,6 @@ The `String` type is represented in:
 - Rust type [`String`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/string.rs)
 - TypeScript type [`String`](https://github.com/stencila/stencila/blob/main/ts/src/types/String.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`String.yaml`](https://github.com/stencila/stencila/blob/main/schema/String.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

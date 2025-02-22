@@ -4,18 +4,18 @@ description: A clause within an `IfBlock` node.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: if-block-clause
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
 This type is marked as unstable and is subject to change.
 
-## Properties
+# Properties
 
 The `IfBlockClause` type has these properties:
 
@@ -45,14 +45,14 @@ The `IfBlockClause` type has these properties:
 | `isActive`              | Whether this clause is the active clause in the parent `IfBlock` node | [`Boolean`](https://stencila.ghost.io/docs/reference/schema/boolean)                           | -                                                                                   | `stencila:isActive`                                                    | `is-active`, `is_active`                                                                                                  |
 | `content`               | The content to render if the result is truthy                         | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*                              | -                                                                                   | `stencila:content`                                                     | -                                                                                                                         |
 
-## Related
+# Related
 
 The `IfBlockClause` type is related to these types:
 
 - Parents: [`CodeExecutable`](https://stencila.ghost.io/docs/reference/schema/code-executable)
 - Children: none
 
-## Formats
+# Formats
 
 The `IfBlockClause` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -87,7 +87,7 @@ The `IfBlockClause` type can be encoded (serialized) to, and/or decoded (deseria
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `IfBlockClause` type is represented in:
 
@@ -97,7 +97,7 @@ The `IfBlockClause` type is represented in:
 - Rust struct [`IfBlockClause`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/if_block_clause.rs)
 - TypeScript class [`IfBlockClause`](https://github.com/stencila/stencila/blob/main/ts/src/types/IfBlockClause.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `IfBlockClause` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -115,7 +115,7 @@ During property-based (a.k.a generative) testing, the properties of the `IfBlock
 |                       | Low+       | Generate up to two arbitrary, non-recursive, block nodes.                                                                       | `vec_blocks_non_recursive(2)`                 |
 |                       | Max        | Generate up to four arbitrary, non-recursive, block nodes.                                                                      | `vec_blocks_non_recursive(4)`                 |
 
-## Source
+# Source
 
 This documentation was generated from [`IfBlockClause.yaml`](https://github.com/stencila/stencila/blob/main/schema/IfBlockClause.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

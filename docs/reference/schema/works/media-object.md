@@ -4,12 +4,12 @@ description: A media object, such as an image, video, or audio object embedded i
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: media-object
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
@@ -18,7 +18,7 @@ However, prefer to use `AudioObject`, `ImageObject`, or `VideoObject` when the
 type of media is known.
 
 
-## Properties
+# Properties
 
 The `MediaObject` type has these properties:
 
@@ -62,14 +62,14 @@ The `MediaObject` type has these properties:
 | `embedUrl`       | URL that can be used to embed the media on a web page via a specific media player.                                      | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                            | -                                                                               | [`schema:embedUrl`](https://schema.org/embedUrl)             | `embed-url`, `embed_url`                                                                  |
 | `mediaType`      | IANA media type (MIME type).                                                                                            | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                            | -                                                                               | [`schema:encodingFormat`](https://schema.org/encodingFormat) | `encodingFormat`, `media-type`, `media_type`                                              |
 
-## Related
+# Related
 
 The `MediaObject` type is related to these types:
 
 - Parents: [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work)
 - Children: [`AudioObject`](https://stencila.ghost.io/docs/reference/schema/audio-object), [`ImageObject`](https://stencila.ghost.io/docs/reference/schema/image-object), [`VideoObject`](https://stencila.ghost.io/docs/reference/schema/video-object)
 
-## Formats
+# Formats
 
 The `MediaObject` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -104,7 +104,7 @@ The `MediaObject` type can be encoded (serialized) to, and/or decoded (deseriali
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                                                           |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                                                           |
 
-## Bindings
+# Bindings
 
 The `MediaObject` type is represented in:
 
@@ -114,6 +114,6 @@ The `MediaObject` type is represented in:
 - Rust struct [`MediaObject`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/media_object.rs)
 - TypeScript class [`MediaObject`](https://github.com/stencila/stencila/blob/main/ts/src/types/MediaObject.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`MediaObject.yaml`](https://github.com/stencila/stencila/blob/main/schema/MediaObject.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

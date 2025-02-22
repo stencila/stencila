@@ -4,16 +4,16 @@ description: A grant, typically financial or otherwise quantifiable, of resource
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: grant
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
-## Properties
+# Properties
 
 The `Grant` type has these properties:
 
@@ -29,14 +29,14 @@ The `Grant` type has these properties:
 | `fundedItems`    | Indicates an item funded or sponsored through a Grant.                                               | [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)*                                                                                          | -                                                                  | [`schema:fundedItem`](https://schema.org/fundedItem)       | `funded-items`, `funded_items`, `fundedItem`, `funded-item`, `funded_item`                |
 | `sponsors`       | A person or organization that supports a thing through a pledge, promise, or financial contribution. | ([`Person`](https://stencila.ghost.io/docs/reference/schema/person) \| [`Organization`](https://stencila.ghost.io/docs/reference/schema/organization))*    | -                                                                  | [`schema:sponsor`](https://schema.org/sponsor)             | `sponsor`                                                                                 |
 
-## Related
+# Related
 
 The `Grant` type is related to these types:
 
 - Parents: [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)
 - Children: [`MonetaryGrant`](https://stencila.ghost.io/docs/reference/schema/monetary-grant)
 
-## Formats
+# Formats
 
 The `Grant` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -71,7 +71,7 @@ The `Grant` type can be encoded (serialized) to, and/or decoded (deserialized) f
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `Grant` type is represented in:
 
@@ -81,6 +81,6 @@ The `Grant` type is represented in:
 - Rust struct [`Grant`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/grant.rs)
 - TypeScript class [`Grant`](https://github.com/stencila/stencila/blob/main/ts/src/types/Grant.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Grant.yaml`](https://github.com/stencila/stencila/blob/main/schema/Grant.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

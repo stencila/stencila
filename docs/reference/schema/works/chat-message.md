@@ -4,18 +4,18 @@ description: A message within a `Chat`.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: chat-message
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
 This type is marked as unstable and is subject to change.
 
-## Properties
+# Properties
 
 The `ChatMessage` type has these properties:
 
@@ -42,14 +42,14 @@ The `ChatMessage` type has these properties:
 | `files`                 | The content of the message.                                                   | [`File`](https://stencila.ghost.io/docs/reference/schema/file)*                                | -                                                                          | `stencila:files`                             | `file`                                                                                                                    |
 | `isSelected`            | Whether this message is the selected message in the parent `ChatMessageGroup` | [`Boolean`](https://stencila.ghost.io/docs/reference/schema/boolean)                           | -                                                                          | `stencila:isSelected`                        | `is-selected`, `is_selected`                                                                                              |
 
-## Related
+# Related
 
 The `ChatMessage` type is related to these types:
 
 - Parents: [`Executable`](https://stencila.ghost.io/docs/reference/schema/executable)
 - Children: none
 
-## Formats
+# Formats
 
 The `ChatMessage` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -84,7 +84,7 @@ The `ChatMessage` type can be encoded (serialized) to, and/or decoded (deseriali
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `ChatMessage` type is represented in:
 
@@ -94,6 +94,6 @@ The `ChatMessage` type is represented in:
 - Rust struct [`ChatMessage`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/chat_message.rs)
 - TypeScript class [`ChatMessage`](https://github.com/stencila/stencila/blob/main/ts/src/types/ChatMessage.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ChatMessage.yaml`](https://github.com/stencila/stencila/blob/main/schema/ChatMessage.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

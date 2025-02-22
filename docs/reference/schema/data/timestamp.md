@@ -4,16 +4,16 @@ description: A value that represents a point in time.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: timestamp
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `Timestamp` type has these properties:
 
@@ -23,14 +23,14 @@ The `Timestamp` type has these properties:
 | `value`    | The time, in `timeUnit`s, before or after the Unix Epoch (1970-01-01T00:00:00Z). | [`Integer`](https://stencila.ghost.io/docs/reference/schema/integer)    | -                                                                  | [`schema:value`](https://schema.org/value) | -                        |
 | `timeUnit` | The time unit that the `value` represents.                                       | [`TimeUnit`](https://stencila.ghost.io/docs/reference/schema/time-unit) | -                                                                  | `stencila:timeUnit`                        | `time-unit`, `time_unit` |
 
-## Related
+# Related
 
 The `Timestamp` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `Timestamp` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -65,7 +65,7 @@ The `Timestamp` type can be encoded (serialized) to, and/or decoded (deserialize
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                                                     |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                                                     |
 
-## Bindings
+# Bindings
 
 The `Timestamp` type is represented in:
 
@@ -75,6 +75,6 @@ The `Timestamp` type is represented in:
 - Rust struct [`Timestamp`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/timestamp.rs)
 - TypeScript class [`Timestamp`](https://github.com/stencila/stencila/blob/main/ts/src/types/Timestamp.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Timestamp.yaml`](https://github.com/stencila/stencila/blob/main/schema/Timestamp.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

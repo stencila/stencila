@@ -4,16 +4,16 @@ description: The severity level of a message.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: message-level
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
-## Members
+# Members
 
 The `MessageLevel` type has these members:
 
@@ -24,7 +24,7 @@ The `MessageLevel` type has these members:
 - `Error`
 - `Exception`
 
-## Bindings
+# Bindings
 
 The `MessageLevel` type is represented in:
 
@@ -34,6 +34,6 @@ The `MessageLevel` type is represented in:
 - Rust type [`MessageLevel`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/message_level.rs)
 - TypeScript type [`MessageLevel`](https://github.com/stencila/stencila/blob/main/ts/src/types/MessageLevel.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`MessageLevel.yaml`](https://github.com/stencila/stencila/blob/main/schema/MessageLevel.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -4,18 +4,18 @@ description: An interactive walkthrough made up of several, successively reveale
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: walkthrough
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
 This type is marked as unstable and is subject to change.
 
-## Properties
+# Properties
 
 The `Walkthrough` type has these properties:
 
@@ -25,14 +25,14 @@ The `Walkthrough` type has these properties:
 | `isCollapsed` | Whether the walkthrough is collapsed | [`Boolean`](https://stencila.ghost.io/docs/reference/schema/boolean)                   | -                                                                  | `stencila:isCollapsed`               | `is-collapsed`, `is_collapsed` |
 | `steps`       | The steps making up the walkthrough. | [`WalkthroughStep`](https://stencila.ghost.io/docs/reference/schema/walkthrough-step)* | -                                                                  | `stencila:steps`                     | `step`                         |
 
-## Related
+# Related
 
 The `Walkthrough` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `Walkthrough` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -67,7 +67,7 @@ The `Walkthrough` type can be encoded (serialized) to, and/or decoded (deseriali
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `Walkthrough` type is represented in:
 
@@ -77,6 +77,6 @@ The `Walkthrough` type is represented in:
 - Rust struct [`Walkthrough`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/walkthrough.rs)
 - TypeScript class [`Walkthrough`](https://github.com/stencila/stencila/blob/main/ts/src/types/Walkthrough.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Walkthrough.yaml`](https://github.com/stencila/stencila/blob/main/schema/Walkthrough.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -4,19 +4,19 @@ description: An organization such as a school, NGO, corporation, club, etc.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: organization
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
 This is an implementation of schema.org [`Organization`](https://schema.org/Organization).
 
 
-## Properties
+# Properties
 
 The `Organization` type has these properties:
 
@@ -39,14 +39,14 @@ The `Organization` type has these properties:
 | `members`            | Person(s) or organization(s) who are members of this organization.                                            | ([`Person`](https://stencila.ghost.io/docs/reference/schema/person) \| [`Organization`](https://stencila.ghost.io/docs/reference/schema/organization))*    | -                                                                  | [`schema:member`](https://schema.org/member)                         | `member`                                                                                  |
 | `parentOrganization` | Entity that the Organization is a part of. For example, parentOrganization to a department is a university.   | [`Organization`](https://stencila.ghost.io/docs/reference/schema/organization)                                                                             | -                                                                  | [`schema:parentOrganization`](https://schema.org/parentOrganization) | `parent-organization`, `parent_organization`                                              |
 
-## Related
+# Related
 
 The `Organization` type is related to these types:
 
 - Parents: [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)
 - Children: none
 
-## Formats
+# Formats
 
 The `Organization` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -81,7 +81,7 @@ The `Organization` type can be encoded (serialized) to, and/or decoded (deserial
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                                  |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                                  |
 
-## Bindings
+# Bindings
 
 The `Organization` type is represented in:
 
@@ -91,6 +91,6 @@ The `Organization` type is represented in:
 - Rust struct [`Organization`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/organization.rs)
 - TypeScript class [`Organization`](https://github.com/stencila/stencila/blob/main/ts/src/types/Organization.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Organization.yaml`](https://github.com/stencila/stencila/blob/main/schema/Organization.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

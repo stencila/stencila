@@ -4,16 +4,16 @@ description: A executable chunk of code.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: code-chunk
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Code
 ---
 
-## Properties
+# Properties
 
 The `CodeChunk` type has these properties:
 
@@ -49,14 +49,14 @@ The `CodeChunk` type has these properties:
 | `isHidden`              | Whether the outputs should be hidden from the reader.                 | [`Boolean`](https://stencila.ghost.io/docs/reference/schema/boolean)                           | -                                                                                   | `stencila:isHidden`                                                    | `is-hidden`, `is_hidden`                                                                                                  |
 | `executionPure`         | Whether the code should be treated as side-effect free when executed. | [`Boolean`](https://stencila.ghost.io/docs/reference/schema/boolean)                           | -                                                                                   | `stencila:executionPure`                                               | `execution-pure`, `execution_pure`                                                                                        |
 
-## Related
+# Related
 
 The `CodeChunk` type is related to these types:
 
 - Parents: [`CodeExecutable`](https://stencila.ghost.io/docs/reference/schema/code-executable)
 - Children: none
 
-## Formats
+# Formats
 
 The `CodeChunk` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -91,7 +91,7 @@ The `CodeChunk` type can be encoded (serialized) to, and/or decoded (deserialize
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                    |
 
-## Bindings
+# Bindings
 
 The `CodeChunk` type is represented in:
 
@@ -101,7 +101,7 @@ The `CodeChunk` type is represented in:
 - Rust struct [`CodeChunk`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_chunk.rs)
 - TypeScript class [`CodeChunk`](https://github.com/stencila/stencila/blob/main/ts/src/types/CodeChunk.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `CodeChunk` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -123,7 +123,7 @@ During property-based (a.k.a generative) testing, the properties of the `CodeChu
 | `caption`             | Min+       | No caption                                                                                                                      | `None`                                        |
 |                       | Low+       | Generate up to two arbitrary paragraphs.                                                                                        | `option::of(vec_paragraphs(2))`               |
 
-## Source
+# Source
 
 This documentation was generated from [`CodeChunk.yaml`](https://github.com/stencila/stencila/blob/main/schema/CodeChunk.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

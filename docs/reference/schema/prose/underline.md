@@ -4,12 +4,12 @@ description: Inline text that is underlined.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: underline
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
@@ -17,7 +17,7 @@ Analogues of `Underline` in other schema include:
 - Pandoc [`Underline`](https://github.com/jgm/pandoc-types/blob/master/src/Text/Pandoc/Definition.hs)
 
 
-## Properties
+# Properties
 
 The `Underline` type has these properties:
 
@@ -26,14 +26,14 @@ The `Underline` type has these properties:
 | `id`      | The identifier for this item. | [`String`](https://stencila.ghost.io/docs/reference/schema/string)  | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -       |
 | `content` | The content that is marked.   | [`Inline`](https://stencila.ghost.io/docs/reference/schema/inline)* | [`Mark`](https://stencila.ghost.io/docs/reference/schema/mark)     | `stencila:content`                   | -       |
 
-## Related
+# Related
 
 The `Underline` type is related to these types:
 
 - Parents: [`Mark`](https://stencila.ghost.io/docs/reference/schema/mark)
 - Children: none
 
-## Formats
+# Formats
 
 The `Underline` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -68,7 +68,7 @@ The `Underline` type can be encoded (serialized) to, and/or decoded (deserialize
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                              |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                              |
 
-## Bindings
+# Bindings
 
 The `Underline` type is represented in:
 
@@ -78,7 +78,7 @@ The `Underline` type is represented in:
 - Rust struct [`Underline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/underline.rs)
 - TypeScript class [`Underline`](https://github.com/stencila/stencila/blob/main/ts/src/types/Underline.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `Underline` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -89,7 +89,7 @@ During property-based (a.k.a generative) testing, the properties of the `Underli
 |           | High+      | Generate up to two arbitrary, non-recursive, inline nodes  | `vec_inlines_non_recursive(2)` |
 |           | Max        | Generate up to four arbitrary, non-recursive, inline nodes | `vec_inlines_non_recursive(4)` |
 
-## Source
+# Source
 
 This documentation was generated from [`Underline.yaml`](https://github.com/stencila/stencila/blob/main/schema/Underline.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

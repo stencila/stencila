@@ -4,12 +4,12 @@ description: A single item in a list.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: list-item
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
@@ -23,7 +23,7 @@ Analogues of `ListItem` in other schema include:
   - OpenDocument [`<text:list-item>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415154_253892949)
 
 
-## Properties
+# Properties
 
 The `ListItem` type has these properties:
 
@@ -41,14 +41,14 @@ The `ListItem` type has these properties:
 | `isChecked`      | A flag to indicate if this list item is checked.           | [`Boolean`](https://stencila.ghost.io/docs/reference/schema/boolean)                                                                                       | -                                                                  | `stencila:isChecked`                                       | `is-checked`, `is_checked`                                                                |
 | `position`       | The position of the item in a series or sequence of items. | [`Integer`](https://stencila.ghost.io/docs/reference/schema/integer)                                                                                       | -                                                                  | [`schema:position`](https://schema.org/position)           | -                                                                                         |
 
-## Related
+# Related
 
 The `ListItem` type is related to these types:
 
 - Parents: [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)
 - Children: none
 
-## Formats
+# Formats
 
 The `ListItem` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -83,7 +83,7 @@ The `ListItem` type can be encoded (serialized) to, and/or decoded (deserialized
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                              |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                              |
 
-## Bindings
+# Bindings
 
 The `ListItem` type is represented in:
 
@@ -93,7 +93,7 @@ The `ListItem` type is represented in:
 - Rust struct [`ListItem`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/list_item.rs)
 - TypeScript class [`ListItem`](https://github.com/stencila/stencila/blob/main/ts/src/types/ListItem.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `ListItem` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -104,7 +104,7 @@ During property-based (a.k.a generative) testing, the properties of the `ListIte
 |           | High+      | Generate up to two, arbitrary, non-list blocks  | `vec_blocks_list_item(2)` |
 |           | Max        | Generate up to four, arbitrary, non-list blocks | `vec_blocks_list_item(4)` |
 
-## Source
+# Source
 
 This documentation was generated from [`ListItem.yaml`](https://github.com/stencila/stencila/blob/main/schema/ListItem.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

@@ -4,16 +4,16 @@ description: The most generic type of item.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: thing
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
-## Properties
+# Properties
 
 The `Thing` type has these properties:
 
@@ -27,14 +27,14 @@ The `Thing` type has these properties:
 | `name`           | The name of the item.                         | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                         | -                                                                  | [`schema:name`](https://schema.org/name)                   | -                                                                                         |
 | `url`            | The URL of the item.                          | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                         | -                                                                  | [`schema:url`](https://schema.org/url)                     | -                                                                                         |
 
-## Related
+# Related
 
 The `Thing` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: [`Brand`](https://stencila.ghost.io/docs/reference/schema/brand), [`ContactPoint`](https://stencila.ghost.io/docs/reference/schema/contact-point), [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work), [`DefinedTerm`](https://stencila.ghost.io/docs/reference/schema/defined-term), [`Enumeration`](https://stencila.ghost.io/docs/reference/schema/enumeration), [`Grant`](https://stencila.ghost.io/docs/reference/schema/grant), [`ListItem`](https://stencila.ghost.io/docs/reference/schema/list-item), [`Organization`](https://stencila.ghost.io/docs/reference/schema/organization), [`Person`](https://stencila.ghost.io/docs/reference/schema/person), [`Product`](https://stencila.ghost.io/docs/reference/schema/product), [`PropertyValue`](https://stencila.ghost.io/docs/reference/schema/property-value)
 
-## Formats
+# Formats
 
 The `Thing` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -69,7 +69,7 @@ The `Thing` type can be encoded (serialized) to, and/or decoded (deserialized) f
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `Thing` type is represented in:
 
@@ -79,6 +79,6 @@ The `Thing` type is represented in:
 - Rust struct [`Thing`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/thing.rs)
 - TypeScript class [`Thing`](https://github.com/stencila/stencila/blob/main/ts/src/types/Thing.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Thing.yaml`](https://github.com/stencila/stencila/blob/main/schema/Thing.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

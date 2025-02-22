@@ -4,12 +4,12 @@ description: Union type for things that can be an author of a `CreativeWork` or 
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: author
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
@@ -17,7 +17,7 @@ This type merely exists to avoid the excessively long type name
 (`PersonOrOrganizationOrSoftwareApplicationOrAuthorRole`) that is otherwise generated.
 
 
-## Members
+# Members
 
 The `Author` type has these members:
 
@@ -26,7 +26,7 @@ The `Author` type has these members:
 - [`SoftwareApplication`](https://stencila.ghost.io/docs/reference/schema/software-application)
 - [`AuthorRole`](https://stencila.ghost.io/docs/reference/schema/author-role)
 
-## Bindings
+# Bindings
 
 The `Author` type is represented in:
 
@@ -36,6 +36,6 @@ The `Author` type is represented in:
 - Rust type [`Author`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/author.rs)
 - TypeScript type [`Author`](https://github.com/stencila/stencila/blob/main/ts/src/types/Author.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Author.yaml`](https://github.com/stencila/stencila/blob/main/schema/Author.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

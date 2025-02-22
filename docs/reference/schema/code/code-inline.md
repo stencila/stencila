@@ -4,16 +4,16 @@ description: Inline code.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: code-inline
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Code
 ---
 
-## Properties
+# Properties
 
 The `CodeInline` type has these properties:
 
@@ -25,14 +25,14 @@ The `CodeInline` type has these properties:
 | `authors`             | The authors of the code.                 | [`Author`](https://stencila.ghost.io/docs/reference/schema/author)*                    | [`CodeStatic`](https://stencila.ghost.io/docs/reference/schema/code-static) | [`schema:author`](https://schema.org/author)                           | `author`                                       |
 | `provenance`          | A summary of the provenance of the code. | [`ProvenanceCount`](https://stencila.ghost.io/docs/reference/schema/provenance-count)* | [`CodeStatic`](https://stencila.ghost.io/docs/reference/schema/code-static) | `stencila:provenance`                                                  | -                                              |
 
-## Related
+# Related
 
 The `CodeInline` type is related to these types:
 
 - Parents: [`CodeStatic`](https://stencila.ghost.io/docs/reference/schema/code-static)
 - Children: none
 
-## Formats
+# Formats
 
 The `CodeInline` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -67,7 +67,7 @@ The `CodeInline` type can be encoded (serialized) to, and/or decoded (deserializ
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                    |
 
-## Bindings
+# Bindings
 
 The `CodeInline` type is represented in:
 
@@ -77,7 +77,7 @@ The `CodeInline` type is represented in:
 - Rust struct [`CodeInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_inline.rs)
 - TypeScript class [`CodeInline`](https://github.com/stencila/stencila/blob/main/ts/src/types/CodeInline.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `CodeInline` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -92,7 +92,7 @@ During property-based (a.k.a generative) testing, the properties of the `CodeInl
 |                       | High+      | Generate a random string of up to 10 alphanumeric characters.                                                                  | `option::of(r"[a-zA-Z0-9]{1,10}")`            |
 |                       | Max        | Generate an arbitrary string.                                                                                                  | `option::of(String::arbitrary())`             |
 
-## Source
+# Source
 
 This documentation was generated from [`CodeInline.yaml`](https://github.com/stencila/stencila/blob/main/schema/CodeInline.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

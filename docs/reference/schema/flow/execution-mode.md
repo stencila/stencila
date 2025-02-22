@@ -4,16 +4,16 @@ description: Under which circumstances a node should be executed.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: execution-mode
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
-## Members
+# Members
 
 The `ExecutionMode` type has these members:
 
@@ -23,7 +23,7 @@ The `ExecutionMode` type has these members:
 - `Auto`
 - `Lock`
 
-## Bindings
+# Bindings
 
 The `ExecutionMode` type is represented in:
 
@@ -33,6 +33,6 @@ The `ExecutionMode` type is represented in:
 - Rust type [`ExecutionMode`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_mode.rs)
 - TypeScript type [`ExecutionMode`](https://github.com/stencila/stencila/blob/main/ts/src/types/ExecutionMode.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ExecutionMode.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionMode.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

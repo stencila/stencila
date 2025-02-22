@@ -4,16 +4,16 @@ description: An error, warning or log message generated during compilation.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: compilation-message
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Code
 ---
 
-## Properties
+# Properties
 
 The `CompilationMessage` type has these properties:
 
@@ -25,14 +25,14 @@ The `CompilationMessage` type has these properties:
 | `errorType`    | The type of error e.g. "SyntaxError", "ZeroDivisionError". | [`String`](https://stencila.ghost.io/docs/reference/schema/string)              | -                                                                  | `stencila:errorType`                 | `error-type`, `error_type`       |
 | `codeLocation` | The location that the error occurred.                      | [`CodeLocation`](https://stencila.ghost.io/docs/reference/schema/code-location) | -                                                                  | `stencila:codeLocation`              | `code-location`, `code_location` |
 
-## Related
+# Related
 
 The `CompilationMessage` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `CompilationMessage` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -67,7 +67,7 @@ The `CompilationMessage` type can be encoded (serialized) to, and/or decoded (de
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `CompilationMessage` type is represented in:
 
@@ -77,6 +77,6 @@ The `CompilationMessage` type is represented in:
 - Rust struct [`CompilationMessage`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/compilation_message.rs)
 - TypeScript class [`CompilationMessage`](https://github.com/stencila/stencila/blob/main/ts/src/types/CompilationMessage.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`CompilationMessage.yaml`](https://github.com/stencila/stencila/blob/main/schema/CompilationMessage.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

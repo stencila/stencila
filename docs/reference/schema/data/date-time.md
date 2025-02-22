@@ -4,16 +4,16 @@ description: A combination of date and time of day in the form `[-]CCYY-MM-DDThh
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: date-time
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `DateTime` type has these properties:
 
@@ -22,14 +22,14 @@ The `DateTime` type has these properties:
 | `id`    | The identifier for this item.   | [`String`](https://stencila.ghost.io/docs/reference/schema/string) | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id)       | -       |
 | `value` | The date as an ISO 8601 string. | [`String`](https://stencila.ghost.io/docs/reference/schema/string) | -                                                                  | [`schema:value`](https://schema.org/value) | -       |
 
-## Related
+# Related
 
 The `DateTime` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `DateTime` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -64,7 +64,7 @@ The `DateTime` type can be encoded (serialized) to, and/or decoded (deserialized
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                                                     |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                                                     |
 
-## Bindings
+# Bindings
 
 The `DateTime` type is represented in:
 
@@ -74,7 +74,7 @@ The `DateTime` type is represented in:
 - Rust struct [`DateTime`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/date_time.rs)
 - TypeScript class [`DateTime`](https://github.com/stencila/stencila/blob/main/ts/src/types/DateTime.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `DateTime` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -85,7 +85,7 @@ During property-based (a.k.a generative) testing, the properties of the `DateTim
 |          | High+      | Generate a random string of up to 20 alphanumeric characters, colons & hyphens. | Regex `[a-zA-Z0-9\-:]{1,20}`                                                                                 |
 |          | Max        | Generate an arbitrary string.                                                   | `String::arbitrary()`                                                                                        |
 
-## Source
+# Source
 
 This documentation was generated from [`DateTime.yaml`](https://github.com/stencila/stencila/blob/main/schema/DateTime.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

@@ -4,16 +4,16 @@ description: A table of data.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: datatable
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `Datatable` type has these properties:
 
@@ -53,14 +53,14 @@ The `Datatable` type has these properties:
 | `version`        | The version of the creative work.                                                                                       | [`String`](https://stencila.ghost.io/docs/reference/schema/string) \| [`Number`](https://stencila.ghost.io/docs/reference/schema/number)                      | [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work) | [`schema:version`](https://schema.org/version)             | -                                                                                         |
 | `columns`        | The columns of data.                                                                                                    | [`DatatableColumn`](https://stencila.ghost.io/docs/reference/schema/datatable-column)*                                                                        | -                                                                               | `stencila:columns`                                         | `column`                                                                                  |
 
-## Related
+# Related
 
 The `Datatable` type is related to these types:
 
 - Parents: [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work)
 - Children: none
 
-## Formats
+# Formats
 
 The `Datatable` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -95,7 +95,7 @@ The `Datatable` type can be encoded (serialized) to, and/or decoded (deserialize
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `Datatable` type is represented in:
 
@@ -105,6 +105,6 @@ The `Datatable` type is represented in:
 - Rust struct [`Datatable`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/datatable.rs)
 - TypeScript class [`Datatable`](https://github.com/stencila/stencila/blob/main/ts/src/types/Datatable.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Datatable.yaml`](https://github.com/stencila/stencila/blob/main/schema/Datatable.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

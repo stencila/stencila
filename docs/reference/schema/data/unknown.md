@@ -4,16 +4,16 @@ description: A type to indicate a value or or other type in unknown.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: unknown
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `Unknown` type has these properties:
 
@@ -21,14 +21,14 @@ The `Unknown` type has these properties:
 | ---- | ----------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------ | ------- |
 | `id` | The identifier for this item. | [`String`](https://stencila.ghost.io/docs/reference/schema/string) | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -       |
 
-## Related
+# Related
 
 The `Unknown` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `Unknown` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -63,7 +63,7 @@ The `Unknown` type can be encoded (serialized) to, and/or decoded (deserialized)
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `Unknown` type is represented in:
 
@@ -73,6 +73,6 @@ The `Unknown` type is represented in:
 - Rust struct [`Unknown`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/unknown.rs)
 - TypeScript class [`Unknown`](https://github.com/stencila/stencila/blob/main/ts/src/types/Unknown.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Unknown.yaml`](https://github.com/stencila/stencila/blob/main/schema/Unknown.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

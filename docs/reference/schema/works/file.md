@@ -4,12 +4,12 @@ description: A file on the file system.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: file
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
@@ -18,7 +18,7 @@ However, to avoid consuming more memory than necessary when creating directory l
 with many files, it now extends `Entity`.
 
 
-## Properties
+# Properties
 
 The `File` type has these properties:
 
@@ -32,14 +32,14 @@ The `File` type has these properties:
 | `size`             | The size of the content in bytes                               | [`UnsignedInteger`](https://stencila.ghost.io/docs/reference/schema/unsigned-integer) | -                                                                  | [`schema:size`](https://schema.org/size)                     | -                                            |
 | `content`          | The content of the file.                                       | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                    | -                                                                  | [`schema:content`](https://schema.org/content)               | -                                            |
 
-## Related
+# Related
 
 The `File` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `File` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -74,7 +74,7 @@ The `File` type can be encoded (serialized) to, and/or decoded (deserialized) fr
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `File` type is represented in:
 
@@ -84,6 +84,6 @@ The `File` type is represented in:
 - Rust struct [`File`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/file.rs)
 - TypeScript class [`File`](https://github.com/stencila/stencila/blob/main/ts/src/types/File.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`File.yaml`](https://github.com/stencila/stencila/blob/main/schema/File.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

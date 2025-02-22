@@ -4,12 +4,12 @@ description: A creative work, including books, movies, photographs, software pro
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: creative-work
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
@@ -18,7 +18,7 @@ It extends schema.org `CreativeWork` by, adding several properties including `da
 and `fundedBy`.
 
 
-## Properties
+# Properties
 
 The `CreativeWork` type has these properties:
 
@@ -57,14 +57,14 @@ The `CreativeWork` type has these properties:
 | `title`          | The title of the creative work.                                                                                         | [`Inline`](https://stencila.ghost.io/docs/reference/schema/inline)*                                                                                           | -                                                                  | [`schema:headline`](https://schema.org/headline)           | `headline`                                                                                |
 | `version`        | The version of the creative work.                                                                                       | [`String`](https://stencila.ghost.io/docs/reference/schema/string) \| [`Number`](https://stencila.ghost.io/docs/reference/schema/number)                      | -                                                                  | [`schema:version`](https://schema.org/version)             | -                                                                                         |
 
-## Related
+# Related
 
 The `CreativeWork` type is related to these types:
 
 - Parents: [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)
 - Children: [`Article`](https://stencila.ghost.io/docs/reference/schema/article), [`Chat`](https://stencila.ghost.io/docs/reference/schema/chat), [`Claim`](https://stencila.ghost.io/docs/reference/schema/claim), [`Collection`](https://stencila.ghost.io/docs/reference/schema/collection), [`Comment`](https://stencila.ghost.io/docs/reference/schema/comment), [`Datatable`](https://stencila.ghost.io/docs/reference/schema/datatable), [`Figure`](https://stencila.ghost.io/docs/reference/schema/figure), [`MediaObject`](https://stencila.ghost.io/docs/reference/schema/media-object), [`Periodical`](https://stencila.ghost.io/docs/reference/schema/periodical), [`Prompt`](https://stencila.ghost.io/docs/reference/schema/prompt), [`PublicationIssue`](https://stencila.ghost.io/docs/reference/schema/publication-issue), [`PublicationVolume`](https://stencila.ghost.io/docs/reference/schema/publication-volume), [`Review`](https://stencila.ghost.io/docs/reference/schema/review), [`SoftwareApplication`](https://stencila.ghost.io/docs/reference/schema/software-application), [`SoftwareSourceCode`](https://stencila.ghost.io/docs/reference/schema/software-source-code), [`Table`](https://stencila.ghost.io/docs/reference/schema/table)
 
-## Formats
+# Formats
 
 The `CreativeWork` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -99,7 +99,7 @@ The `CreativeWork` type can be encoded (serialized) to, and/or decoded (deserial
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `CreativeWork` type is represented in:
 
@@ -109,6 +109,6 @@ The `CreativeWork` type is represented in:
 - Rust struct [`CreativeWork`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/creative_work.rs)
 - TypeScript class [`CreativeWork`](https://github.com/stencila/stencila/blob/main/ts/src/types/CreativeWork.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`CreativeWork.yaml`](https://github.com/stencila/stencila/blob/main/schema/CreativeWork.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

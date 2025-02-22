@@ -4,12 +4,12 @@ description: The type of a `Section`.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: section-type
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
@@ -18,7 +18,7 @@ Includes the section types recommended by the JATS XML standard
 values for other section types commonly found in documents.
 
 
-## Members
+# Members
 
 The `SectionType` type has these members:
 
@@ -37,7 +37,7 @@ The `SectionType` type has these members:
 - `Footer`
 - `Iteration`
 
-## Bindings
+# Bindings
 
 The `SectionType` type is represented in:
 
@@ -47,6 +47,6 @@ The `SectionType` type is represented in:
 - Rust type [`SectionType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/section_type.rs)
 - TypeScript type [`SectionType`](https://github.com/stencila/stencila/blob/main/ts/src/types/SectionType.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`SectionType.yaml`](https://github.com/stencila/stencila/blob/main/schema/SectionType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

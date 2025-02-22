@@ -4,16 +4,16 @@ description: An author and their role.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: author-role
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
-## Properties
+# Properties
 
 The `AuthorRole` type has these properties:
 
@@ -25,14 +25,14 @@ The `AuthorRole` type has these properties:
 | `format`       | The format that the author used to perform the role. e.g. Markdown, Python | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                       | -                                                                  | `stencila:format`                                | -                                |
 | `lastModified` | Timestamp of most recent modification, by the author, in the role.         | [`Timestamp`](https://stencila.ghost.io/docs/reference/schema/timestamp)                 | -                                                                  | `stencila:lastModified`                          | `last-modified`, `last_modified` |
 
-## Related
+# Related
 
 The `AuthorRole` type is related to these types:
 
 - Parents: [`Role`](https://stencila.ghost.io/docs/reference/schema/role)
 - Children: none
 
-## Formats
+# Formats
 
 The `AuthorRole` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -67,7 +67,7 @@ The `AuthorRole` type can be encoded (serialized) to, and/or decoded (deserializ
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `AuthorRole` type is represented in:
 
@@ -77,6 +77,6 @@ The `AuthorRole` type is represented in:
 - Rust struct [`AuthorRole`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/author_role.rs)
 - TypeScript class [`AuthorRole`](https://github.com/stencila/stencila/blob/main/ts/src/types/AuthorRole.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`AuthorRole.yaml`](https://github.com/stencila/stencila/blob/main/schema/AuthorRole.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

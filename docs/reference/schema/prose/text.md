@@ -4,12 +4,12 @@ description: Textual content.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: text
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
@@ -22,7 +22,7 @@ for better diffing.
 Also, in Rust, the `value` property is implemented as a CRDT.
 
 
-## Properties
+# Properties
 
 The `Text` type has these properties:
 
@@ -31,14 +31,14 @@ The `Text` type has these properties:
 | `id`    | The identifier for this item. | [`String`](https://stencila.ghost.io/docs/reference/schema/string) | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id)       | -       |
 | `value` | The value of the text content | [`Cord`](https://stencila.ghost.io/docs/reference/schema/cord)     | -                                                                  | [`schema:value`](https://schema.org/value) | -       |
 
-## Related
+# Related
 
 The `Text` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `Text` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -73,7 +73,7 @@ The `Text` type can be encoded (serialized) to, and/or decoded (deserialized) fr
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |            |            |                                                                                       |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss |            |                                                                                       |
 
-## Bindings
+# Bindings
 
 The `Text` type is represented in:
 
@@ -83,7 +83,7 @@ The `Text` type is represented in:
 - Rust struct [`Text`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/text.rs)
 - TypeScript class [`Text`](https://github.com/stencila/stencila/blob/main/ts/src/types/Text.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `Text` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -94,7 +94,7 @@ During property-based (a.k.a generative) testing, the properties of the `Text` t
 |          | High+      | Generate a random string of up to 100 alphanumeric characters, some special characters commonly used in prose, and whitespace. | `r"[a-zA-Z0-9 \t\-_.!?*+-/()'<>=]{1,100}".prop_map(Cord::from)` |
 |          | Max        | Generate an arbitrary string.                                                                                                  | `String::arbitrary().prop_map(Cord::from)`                      |
 
-## Source
+# Source
 
 This documentation was generated from [`Text.yaml`](https://github.com/stencila/stencila/blob/main/schema/Text.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

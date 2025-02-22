@@ -4,16 +4,16 @@ description: A brand used by an organization or person for labeling a product, p
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: brand
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
-## Properties
+# Properties
 
 The `Brand` type has these properties:
 
@@ -29,14 +29,14 @@ The `Brand` type has these properties:
 | `logo`           | A logo associated with the brand.             | [`ImageObject`](https://stencila.ghost.io/docs/reference/schema/image-object)                                                                              | -                                                                  | [`schema:logo`](https://schema.org/logo)                   | -                                                                                         |
 | `reviews`        | Reviews of the brand.                         | [`String`](https://stencila.ghost.io/docs/reference/schema/string)*                                                                                        | -                                                                  | [`schema:review`](https://schema.org/review)               | `review`                                                                                  |
 
-## Related
+# Related
 
 The `Brand` type is related to these types:
 
 - Parents: [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)
 - Children: none
 
-## Formats
+# Formats
 
 The `Brand` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -71,7 +71,7 @@ The `Brand` type can be encoded (serialized) to, and/or decoded (deserialized) f
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `Brand` type is represented in:
 
@@ -81,6 +81,6 @@ The `Brand` type is represented in:
 - Rust struct [`Brand`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/brand.rs)
 - TypeScript class [`Brand`](https://github.com/stencila/stencila/blob/main/ts/src/types/Brand.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Brand.yaml`](https://github.com/stencila/stencila/blob/main/schema/Brand.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

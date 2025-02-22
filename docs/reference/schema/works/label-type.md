@@ -4,23 +4,23 @@ description: Indicates how a block (usually a `CodeChunk`) should be automatical
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: label-type
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
-## Members
+# Members
 
 The `LabelType` type has these members:
 
 - `FigureLabel`
 - `TableLabel`
 
-## Bindings
+# Bindings
 
 The `LabelType` type is represented in:
 
@@ -30,6 +30,6 @@ The `LabelType` type is represented in:
 - Rust type [`LabelType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/label_type.rs)
 - TypeScript type [`LabelType`](https://github.com/stencila/stencila/blob/main/ts/src/types/LabelType.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`LabelType.yaml`](https://github.com/stencila/stencila/blob/main/schema/LabelType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

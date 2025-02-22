@@ -4,18 +4,18 @@ description: A function with a name, which might take Parameters and return a va
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: function
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
 This type is marked as experimental and is likely to change.
 
-## Properties
+# Properties
 
 The `Function` type has these properties:
 
@@ -26,14 +26,14 @@ The `Function` type has these properties:
 | `parameters` | The parameters of the function.  | [`Parameter`](https://stencila.ghost.io/docs/reference/schema/parameter)* | -                                                                  | `stencila:parameters`                    | `parameter` |
 | `returns`    | The return type of the function. | [`Validator`](https://stencila.ghost.io/docs/reference/schema/validator)  | -                                                                  | `stencila:returns`                       | -           |
 
-## Related
+# Related
 
 The `Function` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `Function` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -68,7 +68,7 @@ The `Function` type can be encoded (serialized) to, and/or decoded (deserialized
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `Function` type is represented in:
 
@@ -78,6 +78,6 @@ The `Function` type is represented in:
 - Rust struct [`Function`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/function.rs)
 - TypeScript class [`Function`](https://github.com/stencila/stencila/blob/main/ts/src/types/Function.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Function.yaml`](https://github.com/stencila/stencila/blob/main/schema/Function.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

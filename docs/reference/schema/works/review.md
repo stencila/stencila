@@ -4,12 +4,12 @@ description: A review of an item, e.g of an `Article` or `SoftwareApplication`.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: review
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Works
 ---
 
@@ -18,7 +18,7 @@ preference to the schema.org `text` or `reviewBody` properties (which
 have plain text as the expected type).
 
 
-## Properties
+# Properties
 
 The `Review` type has these properties:
 
@@ -59,14 +59,14 @@ The `Review` type has these properties:
 | `itemReviewed`   | The item that is being reviewed.                                                                                        | [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)                                                                                              | -                                                                               | [`schema:itemReviewed`](https://schema.org/itemReviewed)   | `item-reviewed`, `item_reviewed`                                                          |
 | `reviewAspect`   | The part or facet of the item that is being reviewed.                                                                   | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                            | -                                                                               | [`schema:reviewAspect`](https://schema.org/reviewAspect)   | `review-aspect`, `review_aspect`                                                          |
 
-## Related
+# Related
 
 The `Review` type is related to these types:
 
 - Parents: [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work)
 - Children: none
 
-## Formats
+# Formats
 
 The `Review` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -101,7 +101,7 @@ The `Review` type can be encoded (serialized) to, and/or decoded (deserialized) 
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `Review` type is represented in:
 
@@ -111,6 +111,6 @@ The `Review` type is represented in:
 - Rust struct [`Review`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/review.rs)
 - TypeScript class [`Review`](https://github.com/stencila/stencila/blob/main/ts/src/types/Review.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Review.yaml`](https://github.com/stencila/stencila/blob/main/schema/Review.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

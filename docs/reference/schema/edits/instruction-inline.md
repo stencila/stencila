@@ -4,16 +4,16 @@ description: An instruction to edit some inline content.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: instruction-inline
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Edits
 ---
 
-## Properties
+# Properties
 
 The `InstructionInline` type has these properties:
 
@@ -42,14 +42,14 @@ The `InstructionInline` type has these properties:
 | `content`               | The content to which the instruction applies.                              | [`Inline`](https://stencila.ghost.io/docs/reference/schema/inline)*                            | -                                                                            | `stencila:content`                   | -                                                                                                                         |
 | `suggestions`           | Suggestions for the instruction                                            | [`SuggestionInline`](https://stencila.ghost.io/docs/reference/schema/suggestion-inline)*       | -                                                                            | `stencila:suggestions`               | `suggestion`                                                                                                              |
 
-## Related
+# Related
 
 The `InstructionInline` type is related to these types:
 
 - Parents: [`Instruction`](https://stencila.ghost.io/docs/reference/schema/instruction)
 - Children: none
 
-## Formats
+# Formats
 
 The `InstructionInline` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -84,7 +84,7 @@ The `InstructionInline` type can be encoded (serialized) to, and/or decoded (des
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `InstructionInline` type is represented in:
 
@@ -94,7 +94,7 @@ The `InstructionInline` type is represented in:
 - Rust struct [`InstructionInline`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/instruction_inline.rs)
 - TypeScript class [`InstructionInline`](https://github.com/stencila/stencila/blob/main/ts/src/types/InstructionInline.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `InstructionInline` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -105,7 +105,7 @@ During property-based (a.k.a generative) testing, the properties of the `Instruc
 |           | High+      | Generate up to two arbitrary, non-recursive, inline nodes  | `option::of(vec_inlines_non_recursive(2))` |
 |           | Max        | Generate up to four arbitrary, non-recursive, inline nodes | `option::of(vec_inlines_non_recursive(4))` |
 
-## Source
+# Source
 
 This documentation was generated from [`InstructionInline.yaml`](https://github.com/stencila/stencila/blob/main/schema/InstructionInline.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

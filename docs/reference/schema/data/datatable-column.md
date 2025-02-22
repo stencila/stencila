@@ -4,16 +4,16 @@ description: A column of data within a `Datatable`.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: datatable-column
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `DatatableColumn` type has these properties:
 
@@ -24,14 +24,14 @@ The `DatatableColumn` type has these properties:
 | `values`    | The data values of the column.                       | [`Primitive`](https://stencila.ghost.io/docs/reference/schema/primitive)*           | -                                                                  | `stencila:values`                    | `value` |
 | `validator` | The validator to use to validate data in the column. | [`ArrayValidator`](https://stencila.ghost.io/docs/reference/schema/array-validator) | -                                                                  | `stencila:validator`                 | -       |
 
-## Related
+# Related
 
 The `DatatableColumn` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `DatatableColumn` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -66,7 +66,7 @@ The `DatatableColumn` type can be encoded (serialized) to, and/or decoded (deser
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `DatatableColumn` type is represented in:
 
@@ -76,6 +76,6 @@ The `DatatableColumn` type is represented in:
 - Rust struct [`DatatableColumn`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/datatable_column.rs)
 - TypeScript class [`DatatableColumn`](https://github.com/stencila/stencila/blob/main/ts/src/types/DatatableColumn.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`DatatableColumn.yaml`](https://github.com/stencila/stencila/blob/main/schema/DatatableColumn.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

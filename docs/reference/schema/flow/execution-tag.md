@@ -4,16 +4,16 @@ description: A tag on code that affects its execution.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: execution-tag
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
-## Properties
+# Properties
 
 The `ExecutionTag` type has these properties:
 
@@ -24,14 +24,14 @@ The `ExecutionTag` type has these properties:
 | `value`    | The value of the tag                      | [`String`](https://stencila.ghost.io/docs/reference/schema/string)   | -                                                                  | [`schema:value`](https://schema.org/value) | -                        |
 | `isGlobal` | Whether the tag is global to the document | [`Boolean`](https://stencila.ghost.io/docs/reference/schema/boolean) | -                                                                  | `stencila:isGlobal`                        | `is-global`, `is_global` |
 
-## Related
+# Related
 
 The `ExecutionTag` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `ExecutionTag` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -66,7 +66,7 @@ The `ExecutionTag` type can be encoded (serialized) to, and/or decoded (deserial
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |         |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |         |
 
-## Bindings
+# Bindings
 
 The `ExecutionTag` type is represented in:
 
@@ -76,6 +76,6 @@ The `ExecutionTag` type is represented in:
 - Rust struct [`ExecutionTag`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_tag.rs)
 - TypeScript class [`ExecutionTag`](https://github.com/stencila/stencila/blob/main/ts/src/types/ExecutionTag.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`ExecutionTag.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionTag.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

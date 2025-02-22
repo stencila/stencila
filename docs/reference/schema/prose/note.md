@@ -4,12 +4,12 @@ description: Additional content which is not part of the main content of a docum
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: note
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
@@ -21,7 +21,7 @@ For analogues, see
 - [HTML `<aside>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside)
 
 
-## Properties
+# Properties
 
 The `Note` type has these properties:
 
@@ -31,14 +31,14 @@ The `Note` type has these properties:
 | `noteType` | Determines where the note content is displayed within the document. | [`NoteType`](https://stencila.ghost.io/docs/reference/schema/note-type) | -                                                                  | `stencila:noteType`                  | `note-type`, `note_type` |
 | `content`  | Content of the note, usually a paragraph.                           | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*       | -                                                                  | `stencila:content`                   | -                        |
 
-## Related
+# Related
 
 The `Note` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `Note` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -73,7 +73,7 @@ The `Note` type can be encoded (serialized) to, and/or decoded (deserialized) fr
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                |
 
-## Bindings
+# Bindings
 
 The `Note` type is represented in:
 
@@ -83,7 +83,7 @@ The `Note` type is represented in:
 - Rust struct [`Note`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/note.rs)
 - TypeScript class [`Note`](https://github.com/stencila/stencila/blob/main/ts/src/types/Note.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `Note` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -93,7 +93,7 @@ During property-based (a.k.a generative) testing, the properties of the `Note` t
 |            | High+      | Generate an arbitrary note type.                                 | `NoteType::arbitrary()`          |
 | `content`  | Min+       | Generate a single paragraph (with no `Note` to avoid recursion). | `vec![p([t("Note paragraph")])]` |
 
-## Source
+# Source
 
 This documentation was generated from [`Note.yaml`](https://github.com/stencila/stencila/blob/main/schema/Note.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

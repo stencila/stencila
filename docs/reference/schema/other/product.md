@@ -4,12 +4,12 @@ description: Any offered product or service. For example, a pair of shoes; a hai
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: product
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Other
 ---
 
@@ -25,7 +25,7 @@ To meet Google's guidelines for [`Product`](https://developers.google.com/search
 instances are required to have `image` and `name` properties.
 
 
-## Properties
+# Properties
 
 The `Product` type has these properties:
 
@@ -42,14 +42,14 @@ The `Product` type has these properties:
 | `logo`           | The logo of the product.                      | [`ImageObject`](https://stencila.ghost.io/docs/reference/schema/image-object)                                                                              | -                                                                  | [`schema:logo`](https://schema.org/logo)                   | -                                                                                         |
 | `productID`      | Product identification code.                  | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                                         | -                                                                  | [`schema:productID`](https://schema.org/productID)         | `product-id`, `product_id`                                                                |
 
-## Related
+# Related
 
 The `Product` type is related to these types:
 
 - Parents: [`Thing`](https://stencila.ghost.io/docs/reference/schema/thing)
 - Children: none
 
-## Formats
+# Formats
 
 The `Product` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -84,7 +84,7 @@ The `Product` type can be encoded (serialized) to, and/or decoded (deserialized)
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                          |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                          |
 
-## Bindings
+# Bindings
 
 The `Product` type is represented in:
 
@@ -94,6 +94,6 @@ The `Product` type is represented in:
 - Rust struct [`Product`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/product.rs)
 - TypeScript class [`Product`](https://github.com/stencila/stencila/blob/main/ts/src/types/Product.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Product.yaml`](https://github.com/stencila/stencila/blob/main/schema/Product.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -4,16 +4,16 @@ description: A block of math, e.g an equation, to be treated as block content.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: math-block
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Math
 ---
 
-## Properties
+# Properties
 
 The `MathBlock` type has these properties:
 
@@ -30,14 +30,14 @@ The `MathBlock` type has these properties:
 | `label`               | A short label for the math block.                                   | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | -                                                                  | `stencila:label`                             | -                                                                                                                  |
 | `labelAutomatically`  | Whether the label should be automatically updated.                  | [`Boolean`](https://stencila.ghost.io/docs/reference/schema/boolean)                         | -                                                                  | `stencila:labelAutomatically`                | `label-automatically`, `label_automatically`                                                                       |
 
-## Related
+# Related
 
 The `MathBlock` type is related to these types:
 
 - Parents: [`Math`](https://stencila.ghost.io/docs/reference/schema/math)
 - Children: none
 
-## Formats
+# Formats
 
 The `MathBlock` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -72,7 +72,7 @@ The `MathBlock` type can be encoded (serialized) to, and/or decoded (deserialize
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                                                           |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                                                           |
 
-## Bindings
+# Bindings
 
 The `MathBlock` type is represented in:
 
@@ -82,7 +82,7 @@ The `MathBlock` type is represented in:
 - Rust struct [`MathBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/math_block.rs)
 - TypeScript class [`MathBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/MathBlock.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `MathBlock` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -96,7 +96,7 @@ During property-based (a.k.a generative) testing, the properties of the `MathBlo
 |                | High+      | Generate a random string of up to 10 alphanumeric characters.                                                                                        | `option::of(r"[a-zA-Z0-9]{1,10}")`          |
 |                | Max        | Generate an arbitrary string.                                                                                                                        | `option::of(String::arbitrary())`           |
 
-## Source
+# Source
 
 This documentation was generated from [`MathBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/MathBlock.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

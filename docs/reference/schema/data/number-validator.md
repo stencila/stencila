@@ -4,12 +4,12 @@ description: A validator specifying the constraints on a numeric node.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: number-validator
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
@@ -19,7 +19,7 @@ Note that the `IntegerValidator` type extends this validator with the additional
 constraint that the number have no fractional part.
 
 
-## Properties
+# Properties
 
 The `NumberValidator` type has these properties:
 
@@ -32,14 +32,14 @@ The `NumberValidator` type has these properties:
 | `exclusiveMaximum` | The exclusive upper limit for a numeric node.       | [`Number`](https://stencila.ghost.io/docs/reference/schema/number) | -                                                                  | `stencila:exclusiveMaximum`          | `exclusive-maximum`, `exclusive_maximum` |
 | `multipleOf`       | A number that a numeric node must be a multiple of. | [`Number`](https://stencila.ghost.io/docs/reference/schema/number) | -                                                                  | `stencila:multipleOf`                | `multiple-of`, `multiple_of`             |
 
-## Related
+# Related
 
 The `NumberValidator` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: [`IntegerValidator`](https://stencila.ghost.io/docs/reference/schema/integer-validator)
 
-## Formats
+# Formats
 
 The `NumberValidator` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -74,7 +74,7 @@ The `NumberValidator` type can be encoded (serialized) to, and/or decoded (deser
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `NumberValidator` type is represented in:
 
@@ -84,6 +84,6 @@ The `NumberValidator` type is represented in:
 - Rust struct [`NumberValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/number_validator.rs)
 - TypeScript class [`NumberValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/NumberValidator.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`NumberValidator.yaml`](https://github.com/stencila/stencila/blob/main/schema/NumberValidator.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

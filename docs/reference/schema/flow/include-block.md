@@ -4,18 +4,18 @@ description: Include block content from an external source (e.g. file, URL).
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: include-block
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Flow
 ---
 
 This type is marked as unstable and is subject to change.
 
-## Properties
+# Properties
 
 The `IncludeBlock` type has these properties:
 
@@ -41,14 +41,14 @@ The `IncludeBlock` type has these properties:
 | `select`                | A query to select a subset of content from the source            | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                             | -                                                                          | `stencila:select`                                            | -                                                                                                                         |
 | `content`               | The structured content decoded from the source.                  | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*                              | -                                                                          | `stencila:content`                                           | -                                                                                                                         |
 
-## Related
+# Related
 
 The `IncludeBlock` type is related to these types:
 
 - Parents: [`Executable`](https://stencila.ghost.io/docs/reference/schema/executable)
 - Children: [`CallBlock`](https://stencila.ghost.io/docs/reference/schema/call-block)
 
-## Formats
+# Formats
 
 The `IncludeBlock` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -83,7 +83,7 @@ The `IncludeBlock` type can be encoded (serialized) to, and/or decoded (deserial
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `IncludeBlock` type is represented in:
 
@@ -93,7 +93,7 @@ The `IncludeBlock` type is represented in:
 - Rust struct [`IncludeBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/include_block.rs)
 - TypeScript class [`IncludeBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/IncludeBlock.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `IncludeBlock` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -104,7 +104,7 @@ During property-based (a.k.a generative) testing, the properties of the `Include
 |          | High+      | Generate a random string of up to 100 characters (excluding control characters).                                                                                                                                   | Regex `[^\p{C}]{1,100}`               |
 |          | Max        | Generate an arbitrary string.                                                                                                                                                                                      | `String::arbitrary()`                 |
 
-## Source
+# Source
 
 This documentation was generated from [`IncludeBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/IncludeBlock.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

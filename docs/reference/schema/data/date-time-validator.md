@@ -4,16 +4,16 @@ description: A validator specifying the constraints on a date-time.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: date-time-validator
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `DateTimeValidator` type has these properties:
 
@@ -23,14 +23,14 @@ The `DateTimeValidator` type has these properties:
 | `minimum` | The inclusive lower limit for a date-time. | [`DateTime`](https://stencila.ghost.io/docs/reference/schema/date-time) | -                                                                  | `stencila:minimum`                   | -       |
 | `maximum` | The inclusive upper limit for a date-time. | [`DateTime`](https://stencila.ghost.io/docs/reference/schema/date-time) | -                                                                  | `stencila:maximum`                   | -       |
 
-## Related
+# Related
 
 The `DateTimeValidator` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `DateTimeValidator` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -65,7 +65,7 @@ The `DateTimeValidator` type can be encoded (serialized) to, and/or decoded (des
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                    |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                    |
 
-## Bindings
+# Bindings
 
 The `DateTimeValidator` type is represented in:
 
@@ -75,6 +75,6 @@ The `DateTimeValidator` type is represented in:
 - Rust struct [`DateTimeValidator`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/date_time_validator.rs)
 - TypeScript class [`DateTimeValidator`](https://github.com/stencila/stencila/blob/main/ts/src/types/DateTimeValidator.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`DateTimeValidator.yaml`](https://github.com/stencila/stencila/blob/main/schema/DateTimeValidator.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

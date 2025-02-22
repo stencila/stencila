@@ -4,16 +4,16 @@ description: A admonition within a document.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: admonition
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
-## Properties
+# Properties
 
 The `Admonition` type has these properties:
 
@@ -27,14 +27,14 @@ The `Admonition` type has these properties:
 | `authors`        | The authors of the admonition.                                    | [`Author`](https://stencila.ghost.io/docs/reference/schema/author)*                    | -                                                                  | [`schema:author`](https://schema.org/author)     | `author`                             |
 | `provenance`     | A summary of the provenance of the content within the admonition. | [`ProvenanceCount`](https://stencila.ghost.io/docs/reference/schema/provenance-count)* | -                                                                  | `stencila:provenance`                            | -                                    |
 
-## Related
+# Related
 
 The `Admonition` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `Admonition` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -69,7 +69,7 @@ The `Admonition` type can be encoded (serialized) to, and/or decoded (deserializ
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                                |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                                |
 
-## Bindings
+# Bindings
 
 The `Admonition` type is represented in:
 
@@ -79,7 +79,7 @@ The `Admonition` type is represented in:
 - Rust struct [`Admonition`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/admonition.rs)
 - TypeScript class [`Admonition`](https://github.com/stencila/stencila/blob/main/ts/src/types/Admonition.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `Admonition` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -96,7 +96,7 @@ During property-based (a.k.a generative) testing, the properties of the `Admonit
 |                  | Low+       | Generate up to two arbitrary paragraphs.                    | `vec_paragraphs(2)`                        |
 |                  | High+      | Generate up to four arbitrary, non-recursive, block nodes.  | `vec_blocks_non_recursive(4)`              |
 
-## Source
+# Source
 
 This documentation was generated from [`Admonition.yaml`](https://github.com/stencila/stencila/blob/main/schema/Admonition.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

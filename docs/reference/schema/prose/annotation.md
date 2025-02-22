@@ -4,16 +4,16 @@ description: Annotated content.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: annotation
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
-## Properties
+# Properties
 
 The `Annotation` type has these properties:
 
@@ -23,14 +23,14 @@ The `Annotation` type has these properties:
 | `content`    | The content that is marked.          | [`Inline`](https://stencila.ghost.io/docs/reference/schema/inline)* | [`Mark`](https://stencila.ghost.io/docs/reference/schema/mark)     | `stencila:content`                   | -       |
 | `annotation` | The annotation, usually a paragraph. | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*   | -                                                                  | `stencila:annotation`                | -       |
 
-## Related
+# Related
 
 The `Annotation` type is related to these types:
 
 - Parents: [`Mark`](https://stencila.ghost.io/docs/reference/schema/mark)
 - Children: none
 
-## Formats
+# Formats
 
 The `Annotation` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -65,7 +65,7 @@ The `Annotation` type can be encoded (serialized) to, and/or decoded (deserializ
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                                |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                                |
 
-## Bindings
+# Bindings
 
 The `Annotation` type is represented in:
 
@@ -75,6 +75,6 @@ The `Annotation` type is represented in:
 - Rust struct [`Annotation`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/annotation.rs)
 - TypeScript class [`Annotation`](https://github.com/stencila/stencila/blob/main/ts/src/types/Annotation.ts)
 
-## Source
+# Source
 
 This documentation was generated from [`Annotation.yaml`](https://github.com/stencila/stencila/blob/main/schema/Annotation.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

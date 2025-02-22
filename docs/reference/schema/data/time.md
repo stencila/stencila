@@ -4,16 +4,16 @@ description: A point in time recurring on multiple days.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: time
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Data
 ---
 
-## Properties
+# Properties
 
 The `Time` type has these properties:
 
@@ -22,14 +22,14 @@ The `Time` type has these properties:
 | `id`    | The identifier for this item.                                     | [`String`](https://stencila.ghost.io/docs/reference/schema/string) | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id)       | -       |
 | `value` | The time of day as a string in format `hh:mm:ss[Z\|(+\|-)hh:mm]`. | [`String`](https://stencila.ghost.io/docs/reference/schema/string) | -                                                                  | [`schema:value`](https://schema.org/value) | -       |
 
-## Related
+# Related
 
 The `Time` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
-## Formats
+# Formats
 
 The `Time` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
@@ -64,7 +64,7 @@ The `Time` type can be encoded (serialized) to, and/or decoded (deserialized) fr
 | [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                                           |
 | [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                                           |
 
-## Bindings
+# Bindings
 
 The `Time` type is represented in:
 
@@ -74,7 +74,7 @@ The `Time` type is represented in:
 - Rust struct [`Time`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/time.rs)
 - TypeScript class [`Time`](https://github.com/stencila/stencila/blob/main/ts/src/types/Time.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `Time` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -85,7 +85,7 @@ During property-based (a.k.a generative) testing, the properties of the `Time` t
 |          | High+      | Generate a random string of up to 20 alphanumeric characters, colons & hyphens. | Regex `[a-zA-Z0-9\-:]{1,20}`                                                   |
 |          | Max        | Generate an arbitrary string.                                                   | `String::arbitrary()`                                                          |
 
-## Source
+# Source
 
 This documentation was generated from [`Time.yaml`](https://github.com/stencila/stencila/blob/main/schema/Time.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 

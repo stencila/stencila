@@ -4,16 +4,16 @@ description: Union type in block content node types.
 config:
   publish:
     ghost:
-      type: page
+      type: post
       slug: block
       state: publish
       tags:
-      - '#schema'
       - '#doc'
+      - '#schema'
       - Prose
 ---
 
-## Members
+# Members
 
 The `Block` type has these members:
 
@@ -49,7 +49,7 @@ The `Block` type has these members:
 - [`VideoObject`](https://stencila.ghost.io/docs/reference/schema/video-object)
 - [`Walkthrough`](https://stencila.ghost.io/docs/reference/schema/walkthrough)
 
-## Bindings
+# Bindings
 
 The `Block` type is represented in:
 
@@ -59,7 +59,7 @@ The `Block` type is represented in:
 - Rust type [`Block`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/block.rs)
 - TypeScript type [`Block`](https://github.com/stencila/stencila/blob/main/ts/src/types/Block.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the variants of the `Block` type are generated using the following strategies[^1] for each complexity level. Any variant not shown is generated using the default strategy for the corresponding type and complexity level.
 
@@ -96,7 +96,7 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 | `VideoObject`      | Min+       | Do not generate `VideoObject` nodes in block content.      | -                 |
 | `Walkthrough`      | Min+       | Do not generate `Walkthrough` nodes in block content.      | -                 |
 
-## Source
+# Source
 
 This documentation was generated from [`Block.yaml`](https://github.com/stencila/stencila/blob/main/schema/Block.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 
