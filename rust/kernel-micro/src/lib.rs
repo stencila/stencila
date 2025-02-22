@@ -370,51 +370,70 @@ impl KernelInstance for MicrokernelInstance {
             );
         }
 
-        let mut exec_name = self.executable_name.clone();
+        let exec_name = self.executable_name.clone();
         let mut exec_args = self.executable_args.clone();
         let mut exec_path = None;
+        let mut using_uv = false;
 
-        // Search for an environment in the current, or ancestor, directories
-        let mut current_dir = directory.to_path_buf();
-        let mut in_pyproject = false;
-        loop {
-            // Check for devbox.json
-            let devbox_path = current_dir.join("devbox.json");
-            if devbox_path.is_file() {
-                // Run `devbox run -- ...`
-                exec_args.splice(0..0, ["run".to_string(), "--".to_string(), exec_name]);
-                exec_name = "devbox".to_string();
-                break;
-            }
-
-            // Check for pyproject.toml
-            let pyproject_toml = current_dir.join("pyproject.toml");
-            if pyproject_toml.is_file() {
-                in_pyproject = true;
-            }
-
-            // Check for .venv directory with the desired exec in it
-            let venv_path = current_dir
-                .join(".venv")
-                .join("bin")
-                .join(exec_name.clone());
-            if venv_path.exists() {
-                // Set the executable path to the one in the venv
-                exec_path = Some(venv_path);
-                break;
-            }
-
-            // Move up to the parent directory
-            if !current_dir.pop() {
-                // We've reached the root of the file system so stop
-                break;
+        if exec_name.starts_with("python") {
+            if let Ok(python_path) = env::var("PYTHON_PATH") {
+                // The PYTHON_PATH env var exists (usually set by LSP client) so use it
+                exec_path = Some(PathBuf::from(python_path));
+            } else if let Ok(uv_path) = which("uv") {
+                // UV is installed so use it so tht it can resolve the pyproject.toml
+                // for us (and install dependencies if necessary)
+                using_uv = true;
+                exec_path = Some(uv_path);
+                exec_args.insert(0, "run".into());
             }
         }
 
-        // If the executable is `uv` and we are not in a pyproject add argument
-        // to use the system Python. Otherwise, no packages will be available, just plain Python.
-        if exec_name == "uv" && !in_pyproject {
-            exec_args.insert(0, "--python-preference=system".into())
+        // Search for an environment in the current, or ancestor, directories
+        if exec_path.is_none() {
+            let mut current_dir = directory.to_path_buf();
+            let mut in_pyproject = false;
+            loop {
+                // Check for devbox.json
+                let devbox_file: PathBuf = current_dir.join("devbox.json");
+                if let (true, Ok(devbox_path)) = (devbox_file.is_file(), which("devbox")) {
+                    // Run `devbox run -- ...`
+                    exec_path = Some(devbox_path);
+                    exec_args.splice(
+                        0..0,
+                        ["run".to_string(), "--".to_string(), exec_name.clone()],
+                    );
+                    break;
+                }
+
+                // Check for pyproject.toml
+                let pyproject_toml = current_dir.join("pyproject.toml");
+                if pyproject_toml.is_file() {
+                    in_pyproject = true;
+                }
+
+                // Check for .venv directory with the desired exec in it
+                let venv_path = current_dir
+                    .join(".venv")
+                    .join("bin")
+                    .join(exec_name.clone());
+                if venv_path.exists() {
+                    // Set the executable path to the one in the venv
+                    exec_path = Some(venv_path);
+                    break;
+                }
+
+                // Move up to the parent directory
+                if !current_dir.pop() {
+                    // We've reached the root of the file system so stop
+                    break;
+                }
+            }
+
+            // If the executable is `uv` and we are not in a pyproject add argument
+            // to use the system Python. Otherwise, no packages will be available, just plain Python.
+            if using_uv && !in_pyproject {
+                exec_args.insert(0, "--python-preference=system".into())
+            }
         }
 
         // Get the path to the executable, failing early if it can not be found
@@ -424,6 +443,13 @@ impl KernelInstance for MicrokernelInstance {
                 std::env::var("PATH").unwrap_or_default()
             )
         })?);
+
+        tracing::debug!(
+            "Running `{} {}` in `{}`",
+            exec_path.display(),
+            exec_args.join(" "),
+            directory.display()
+        );
 
         // Create the command
         let mut command = Command::new(&exec_path);
@@ -445,13 +471,6 @@ impl KernelInstance for MicrokernelInstance {
         }
 
         self.executable_path = Some(exec_path);
-
-        tracing::debug!(
-            "Running `{} {}` in `{}`",
-            exec_name,
-            exec_args.join(" "),
-            directory.display()
-        );
 
         // Spawn the binary in the directory with stdin, stdout and stderr piped to/from it
         let mut child = command.current_dir(directory).spawn().wrap_err_with(|| {

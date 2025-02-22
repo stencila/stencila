@@ -20,6 +20,7 @@
     "vscode": "^1.84.0"
   },
   "extensionDependencies": [
+    "ms-python.python",
     "usernamehw.errorlens"
   ],
   "categories": [
@@ -1229,6 +1230,7 @@
     "package": "npx vsce package"
   },
   "dependencies": {
+    "@vscode/python-extension": "1.0.5",
     "posthog-js": "1.207.6",
     "vscode-languageclient": "9.0.1"
   },
