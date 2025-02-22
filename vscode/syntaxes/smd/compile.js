@@ -16,14 +16,14 @@ const langs = [
   { name: "css", aliases: "css", include: "source.css", chunks: false },
   {
     name: "javascript",
-    aliases: "(?:js)|(?:javascript)",
+    aliases: "js|javascript",
     include: "source.js",
     chunks: true,
   },
   { name: "html", aliases: "html", include: "text.html.basic", chunks: false },
   {
     name: "python",
-    aliases: "(?:py)|(?:python)",
+    aliases: "py(?:thon)?",
     include: "source.python",
     chunks: true,
   },
@@ -43,7 +43,7 @@ const langs = [
   },
   {
     name: "xml",
-    aliases: "(?:xml)|(?:svg)",
+    aliases: "xml|svg",
     include: "text.xml",
     chunks: false,
   },

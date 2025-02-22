@@ -1411,8 +1411,11 @@ class CodeChunk(CodeExecutable):
     outputs: list[Node] | None = None
     """Outputs from executing the chunk."""
 
-    is_invisible: bool | None = None
-    """Whether the outputs of the code chunk should be invisible to the reader."""
+    is_echoed: bool | None = None
+    """Whether the code should be displayed to the reader."""
+
+    is_hidden: bool | None = None
+    """Whether the outputs of the code chunk should be hidden from the reader."""
 
     execution_pure: bool | None = None
     """Whether the code should be treated as side-effect free when executed."""
