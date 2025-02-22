@@ -9,7 +9,7 @@
   ],
   "category": "flow",
   "description": "An interactive walkthrough made up of several, successively revealed steps.",
-  "status": "under-development",
+  "status": "beta",
   "patch": {
     "applyWith": "Walkthrough::apply_with"
   },

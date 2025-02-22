@@ -17,7 +17,7 @@ A `CallArgument` extends `Parameter` by also has some of the same properties as 
 an expression to be used to set the value of the parameter.
 
 
-This type is marked as unstable and is subject to change.
+This type is marked as experimental and is likely to change.
 
 ## Properties
 

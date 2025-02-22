@@ -3,7 +3,6 @@ title: ExecutionMessage
 nick: eme
 extends: Entity
 category: code
-status: alpha
 description: An error, warning or log message generated during execution.
 required:
   - level

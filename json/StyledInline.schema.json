@@ -9,7 +9,7 @@
   ],
   "category": "style",
   "description": "Styled inline content.",
-  "status": "under-development",
+  "status": "beta",
   "dom": {
     "derive": false
   },

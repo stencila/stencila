@@ -8,7 +8,7 @@
   ],
   "category": "flow",
   "description": "A button.",
-  "status": "under-development",
+  "status": "experimental",
   "html": {
     "elem": "button"
   },

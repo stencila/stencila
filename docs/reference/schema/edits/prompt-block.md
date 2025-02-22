@@ -18,7 +18,7 @@ Can also be used standalone to preview how a prompt is rendered at a particular
 position in a document.
 
 
-This type is marked as experimental and is likely to change.
+This type is marked as unstable and is subject to change.
 
 ## Properties
 

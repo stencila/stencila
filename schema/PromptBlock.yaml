@@ -8,7 +8,7 @@ $comment: |
   Used on an `Instruction` to render a prompt and display the rendering to the user.
   Can also be used standalone to preview how a prompt is rendered at a particular
   position in a document.
-status: experimental
+status: beta
 patch:
   applyWith: PromptBlock::apply_patch_op
 markdown:

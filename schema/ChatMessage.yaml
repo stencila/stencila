@@ -3,7 +3,7 @@ title: ChatMessage
 nick: chm
 extends: Executable
 category: works
-status: under-development
+status: beta
 description: A message within a `Chat`.
 markdown:
   derive: false

@@ -9,7 +9,7 @@
   ],
   "category": "flow",
   "description": "Call another document, optionally with arguments, and include its executed content.",
-  "status": "under-development",
+  "status": "experimental",
   "latex": {
     "derive": false
   },

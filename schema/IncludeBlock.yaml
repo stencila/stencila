@@ -3,7 +3,7 @@ title: IncludeBlock
 extends: Executable
 category: flow
 description: Include block content from an external source (e.g. file, URL).
-status: under-development
+status: beta
 latex:
   derive: false
 markdown:

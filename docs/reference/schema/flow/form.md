@@ -13,7 +13,7 @@ config:
       - Flow
 ---
 
-This type is marked as unstable and is subject to change.
+This type is marked as experimental and is likely to change.
 
 ## Properties
 

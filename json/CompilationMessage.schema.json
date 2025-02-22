@@ -9,7 +9,6 @@
   ],
   "category": "code",
   "description": "An error, warning or log message generated during compilation.",
-  "status": "alpha",
   "required": [
     "type",
     "level",

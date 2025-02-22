@@ -2,7 +2,7 @@ title: Variable
 '@id': stencila:Variable
 extends: Entity
 category: flow
-status: under-development
+status: alpha
 description: A variable representing a name / value pair.
 required:
   - name

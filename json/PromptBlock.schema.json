@@ -10,7 +10,7 @@
   "category": "edits",
   "description": "A preview of how a prompt will be rendered at a location in the document",
   "$comment": "Used on an `Instruction` to render a prompt and display the rendering to the user.\nCan also be used standalone to preview how a prompt is rendered at a particular\nposition in a document.\n",
-  "status": "experimental",
+  "status": "beta",
   "patch": {
     "applyWith": "PromptBlock::apply_patch_op"
   },

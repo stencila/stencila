@@ -4,7 +4,7 @@ nick: wks
 extends: Entity
 category: flow
 description: A step in a walkthrough.
-status: under-development
+status: beta
 markdown:
   derive: false
 required:

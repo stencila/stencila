@@ -13,8 +13,6 @@ config:
       - Code
 ---
 
-This type is marked as unstable and is subject to change.
-
 ## Properties
 
 The `CompilationMessage` type has these properties:

@@ -1,7 +1,7 @@
 title: CallArgument
 '@id': stencila:CallArgument
 nick: cla
-status: under-development
+status: experimental
 extends: Parameter
 category: flow
 description: The value of a `Parameter` to call a document with.

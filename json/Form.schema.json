@@ -9,7 +9,7 @@
   ],
   "category": "flow",
   "description": "A form to batch updates in document parameters.",
-  "status": "under-development",
+  "status": "experimental",
   "required": [
     "type",
     "content"
