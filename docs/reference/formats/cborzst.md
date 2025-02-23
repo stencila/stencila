@@ -12,162 +12,177 @@ config:
       - '#formats'
 ---
 
+# Introduction
+
+This format combines [Concise Binary Object Representation (CBOR)](cbor) and [ZStandard](http://facebook.github.io/zstd/), a fast lossless compression algorithm. Stencila provides support for CBOR + ZStandard as a more compact alternative to [JSON](json) or [CBOR](cbor) for encoding documents. It may be preferred over those formats for storing very large documents.
+
+# Specification
+
+See the [CBOR](https://cbor.io/spec.html) and [ZStandard](https://github.com/facebook/zstd#readme) specifications.
+
+# Implementation
+
+Stencila support lossless, bi-directional conversion between Stencila documents and CBOR powered by [`ciborium`](https://crates.io/crates/ciborium).
+
+
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
 
-# Codec
+# Support
 
-The codec (en**co**der/**dec**oder) for CBOR+Zstandard supports:
+Stencila supports these operations for CBOR+Zstandard:
 
 - decoding from a file
 - encoding to a file
 
-Support and degree of loss for node types:
+Support and degree of loss by node type:
 
-| Node type                                                                                                                 | Encoding  | Decoding  | Notes |
-| ------------------------------------------------------------------------------------------------------------------------- | --------- | --------- | ----- |
-| **Works**                                                                                                                 |
-| [Article](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)                          | 🟢 No loss | 🟢 No loss |       |
-| [AudioObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio_object.md)                 | 🟢 No loss | 🟢 No loss |       |
-| [AuthorRole](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/author_role.md)                   | 🟢 No loss | 🟢 No loss |       |
-| [Chat](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat.md)                                | 🟢 No loss | 🟢 No loss |       |
-| [ChatMessage](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat_message.md)                 | 🟢 No loss | 🟢 No loss |       |
-| [ChatMessageGroup](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat_message_group.md)      | 🟢 No loss | 🟢 No loss |       |
-| [Claim](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)                              | 🟢 No loss | 🟢 No loss |       |
-| [Collection](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/collection.md)                    | 🟢 No loss | 🟢 No loss |       |
-| [Comment](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/comment.md)                          | 🟢 No loss | 🟢 No loss |       |
-| [CreativeWork](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/creative_work.md)               | 🟢 No loss | 🟢 No loss |       |
-| [Directory](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/directory.md)                      | 🟢 No loss | 🟢 No loss |       |
-| [Figure](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/figure.md)                            | 🟢 No loss | 🟢 No loss |       |
-| [File](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/file.md)                                | 🟢 No loss | 🟢 No loss |       |
-| [ImageObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image_object.md)                 | 🟢 No loss | 🟢 No loss |       |
-| [MediaObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/media_object.md)                 | 🟢 No loss | 🟢 No loss |       |
-| [Periodical](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/periodical.md)                    | 🟢 No loss | 🟢 No loss |       |
-| [Prompt](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/prompt.md)                            | 🟢 No loss | 🟢 No loss |       |
-| [PublicationIssue](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication_issue.md)       | 🟢 No loss | 🟢 No loss |       |
-| [PublicationVolume](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication_volume.md)     | 🟢 No loss | 🟢 No loss |       |
-| [Review](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/review.md)                            | 🟢 No loss | 🟢 No loss |       |
-| [SoftwareApplication](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software_application.md) | 🟢 No loss | 🟢 No loss |       |
-| [SoftwareSourceCode](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software_source_code.md)  | 🟢 No loss | 🟢 No loss |       |
-| [Table](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table.md)                              | 🟢 No loss | 🟢 No loss |       |
-| [TableCell](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table_cell.md)                     | 🟢 No loss | 🟢 No loss |       |
-| [TableRow](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table_row.md)                       | 🟢 No loss | 🟢 No loss |       |
-| [VideoObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/video_object.md)                 | 🟢 No loss | 🟢 No loss |       |
-| **Prose**                                                                                                                 |
-| [Admonition](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/admonition.md)                    | 🟢 No loss | 🟢 No loss |       |
-| [Annotation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/annotation.md)                    | 🟢 No loss | 🟢 No loss |       |
-| [Cite](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)                                | 🟢 No loss | 🟢 No loss |       |
-| [CiteGroup](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite_group.md)                     | 🟢 No loss | 🟢 No loss |       |
-| [DefinedTerm](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/defined_term.md)                 | 🟢 No loss | 🟢 No loss |       |
-| [Emphasis](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/emphasis.md)                        | 🟢 No loss | 🟢 No loss |       |
-| [Heading](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/heading.md)                          | 🟢 No loss | 🟢 No loss |       |
-| [Link](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/link.md)                                | 🟢 No loss | 🟢 No loss |       |
-| [List](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list.md)                                | 🟢 No loss | 🟢 No loss |       |
-| [ListItem](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list_item.md)                       | 🟢 No loss | 🟢 No loss |       |
-| [Note](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/note.md)                                | 🟢 No loss | 🟢 No loss |       |
-| [Paragraph](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/paragraph.md)                      | 🟢 No loss | 🟢 No loss |       |
-| [QuoteBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote_block.md)                   | 🟢 No loss | 🟢 No loss |       |
-| [QuoteInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote_inline.md)                 | 🟢 No loss | 🟢 No loss |       |
-| [Section](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/section.md)                          | 🟢 No loss | 🟢 No loss |       |
-| [Strikeout](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strikeout.md)                      | 🟢 No loss | 🟢 No loss |       |
-| [Strong](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strong.md)                            | 🟢 No loss | 🟢 No loss |       |
-| [Subscript](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/subscript.md)                      | 🟢 No loss | 🟢 No loss |       |
-| [Superscript](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/superscript.md)                  | 🟢 No loss | 🟢 No loss |       |
-| [Text](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/text.md)                                | 🟢 No loss | 🟢 No loss |       |
-| [ThematicBreak](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/thematic_break.md)             | 🟢 No loss | 🟢 No loss |       |
-| [Underline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/underline.md)                      | 🟢 No loss | 🟢 No loss |       |
-| **Math**                                                                                                                  |
-| [MathBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math_block.md)                      | 🟢 No loss | 🟢 No loss |       |
-| [MathInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math_inline.md)                    | 🟢 No loss | 🟢 No loss |       |
-| **Code**                                                                                                                  |
-| [CodeBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_block.md)                      | 🟢 No loss | 🟢 No loss |       |
-| [CodeChunk](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_chunk.md)                      | 🟢 No loss | 🟢 No loss |       |
-| [CodeExpression](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_expression.md)            | 🟢 No loss | 🟢 No loss |       |
-| [CodeInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_inline.md)                    | 🟢 No loss | 🟢 No loss |       |
-| [CompilationMessage](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/compilation_message.md)    | 🟢 No loss | 🟢 No loss |       |
-| [ExecutionMessage](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/execution_message.md)        | 🟢 No loss | 🟢 No loss |       |
-| **Data**                                                                                                                  |
-| [Array](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array.md)                               | 🟢 No loss | 🟢 No loss |       |
-| [ArrayHint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array_hint.md)                      | 🟢 No loss | 🟢 No loss |       |
-| [ArrayValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array_validator.md)            | 🟢 No loss | 🟢 No loss |       |
-| [Boolean](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md)                           | 🟢 No loss | 🟢 No loss |       |
-| [BooleanValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean_validator.md)        | 🟢 No loss | 🟢 No loss |       |
-| [ConstantValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/constant_validator.md)      | 🟢 No loss | 🟢 No loss |       |
-| [Cord](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)                                 | 🟢 No loss | 🟢 No loss |       |
-| [Datatable](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable.md)                       | 🟢 No loss | 🟢 No loss |       |
-| [DatatableColumn](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable_column.md)          | 🟢 No loss | 🟢 No loss |       |
-| [DatatableColumnHint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable_column_hint.md) | 🟢 No loss | 🟢 No loss |       |
-| [DatatableHint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable_hint.md)              | 🟢 No loss | 🟢 No loss |       |
-| [Date](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date.md)                                 | 🟢 No loss | 🟢 No loss |       |
-| [DateTime](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date_time.md)                        | 🟢 No loss | 🟢 No loss |       |
-| [DateTimeValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date_time_validator.md)     | 🟢 No loss | 🟢 No loss |       |
-| [DateValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date_validator.md)              | 🟢 No loss | 🟢 No loss |       |
-| [Duration](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration.md)                         | 🟢 No loss | 🟢 No loss |       |
-| [DurationValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration_validator.md)      | 🟢 No loss | 🟢 No loss |       |
-| [EnumValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/enum_validator.md)              | 🟢 No loss | 🟢 No loss |       |
-| [Integer](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)                           | 🟢 No loss | 🟢 No loss |       |
-| [IntegerValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer_validator.md)        | 🟢 No loss | 🟢 No loss |       |
-| [Null](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/null.md)                                 | 🟢 No loss | 🟢 No loss |       |
-| [Number](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number.md)                             | 🟢 No loss | 🟢 No loss |       |
-| [NumberValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number_validator.md)          | 🟢 No loss | 🟢 No loss |       |
-| [Object](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/object.md)                             | 🟢 No loss | 🟢 No loss |       |
-| [ObjectHint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/object_hint.md)                    | 🟢 No loss | 🟢 No loss |       |
-| [String](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                             | 🟢 No loss | 🟢 No loss |       |
-| [StringHint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string_hint.md)                    | 🟢 No loss | 🟢 No loss |       |
-| [StringValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string_validator.md)          | 🟢 No loss | 🟢 No loss |       |
-| [Time](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time.md)                                 | 🟢 No loss | 🟢 No loss |       |
-| [TimeValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time_validator.md)              | 🟢 No loss | 🟢 No loss |       |
-| [Timestamp](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/timestamp.md)                       | 🟢 No loss | 🟢 No loss |       |
-| [TimestampValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/timestamp_validator.md)    | 🟢 No loss | 🟢 No loss |       |
-| [TupleValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/tuple_validator.md)            | 🟢 No loss | 🟢 No loss |       |
-| [Unknown](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/unknown.md)                           | 🟢 No loss | 🟢 No loss |       |
-| [UnsignedInteger](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/unsigned_integer.md)          | 🟢 No loss | 🟢 No loss |       |
-| **Flow**                                                                                                                  |
-| [Button](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/button.md)                             | 🟢 No loss | 🟢 No loss |       |
-| [CallArgument](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call_argument.md)                | 🟢 No loss | 🟢 No loss |       |
-| [CallBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call_block.md)                      | 🟢 No loss | 🟢 No loss |       |
-| [CodeLocation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/code_location.md)                | 🟢 No loss | 🟢 No loss |       |
-| [CompilationDigest](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/compilation_digest.md)      | 🟢 No loss | 🟢 No loss |       |
-| [ExecutionDependant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_dependant.md)    | 🟢 No loss | 🟢 No loss |       |
-| [ExecutionDependency](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_dependency.md)  | 🟢 No loss | 🟢 No loss |       |
-| [ExecutionTag](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_tag.md)                | 🟢 No loss | 🟢 No loss |       |
-| [ForBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for_block.md)                        | 🟢 No loss | 🟢 No loss |       |
-| [Form](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/form.md)                                 | 🟢 No loss | 🟢 No loss |       |
-| [Function](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/function.md)                         | 🟢 No loss | 🟢 No loss |       |
-| [IfBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if_block.md)                          | 🟢 No loss | 🟢 No loss |       |
-| [IfBlockClause](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if_block_clause.md)             | 🟢 No loss | 🟢 No loss |       |
-| [IncludeBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include_block.md)                | 🟢 No loss | 🟢 No loss |       |
-| [Parameter](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)                       | 🟢 No loss | 🟢 No loss |       |
-| [Variable](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/variable.md)                         | 🟢 No loss | 🟢 No loss |       |
-| [Walkthrough](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/walkthrough.md)                   | 🟢 No loss | 🟢 No loss |       |
-| [WalkthroughStep](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/walkthrough_step.md)          | 🟢 No loss | 🟢 No loss |       |
-| **Style**                                                                                                                 |
-| [StyledBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled_block.md)                 | 🟢 No loss | 🟢 No loss |       |
-| [StyledInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled_inline.md)               | 🟢 No loss | 🟢 No loss |       |
-| **Edits**                                                                                                                 |
-| [InstructionBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_block.md)       | 🟢 No loss | 🟢 No loss |       |
-| [InstructionInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_inline.md)     | 🟢 No loss | 🟢 No loss |       |
-| [InstructionMessage](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_message.md)   | 🟢 No loss | 🟢 No loss |       |
-| [PromptBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/prompt_block.md)                 | 🟢 No loss | 🟢 No loss |       |
-| [SuggestionBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion_block.md)         | 🟢 No loss | 🟢 No loss |       |
-| [SuggestionInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion_inline.md)       | 🟢 No loss | 🟢 No loss |       |
-| **Config**                                                                                                                |
-| [Config](https://github.com/stencila/stencila/blob/main/docs/reference/schema/config/config.md)                           | 🟢 No loss | 🟢 No loss |       |
-| **Other**                                                                                                                 |
-| [Brand](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md)                              | 🟢 No loss | 🟢 No loss |       |
-| [ContactPoint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/contact_point.md)               | 🟢 No loss | 🟢 No loss |       |
-| [Enumeration](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/enumeration.md)                  | 🟢 No loss | 🟢 No loss |       |
-| [Grant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/grant.md)                              | 🟢 No loss | 🟢 No loss |       |
-| [ModelParameters](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/model_parameters.md)         | 🟢 No loss | 🟢 No loss |       |
-| [MonetaryGrant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/monetary_grant.md)             | 🟢 No loss | 🟢 No loss |       |
-| [Organization](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/organization.md)                | 🟢 No loss | 🟢 No loss |       |
-| [Person](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/person.md)                            | 🟢 No loss | 🟢 No loss |       |
-| [PostalAddress](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/postal_address.md)             | 🟢 No loss | 🟢 No loss |       |
-| [Product](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/product.md)                          | 🟢 No loss | 🟢 No loss |       |
-| [PropertyValue](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/property_value.md)             | 🟢 No loss | 🟢 No loss |       |
-| [ProvenanceCount](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/provenance_count.md)         | 🟢 No loss | 🟢 No loss |       |
-| [RawBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/raw_block.md)                       | 🟢 No loss | 🟢 No loss |       |
-| [Thing](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)                              | 🟢 No loss | 🟢 No loss |       |
+| Node type                                                                                    | Encoding  | Decoding  | Notes |
+| -------------------------------------------------------------------------------------------- | --------- | --------- | ----- |
+| **Works**                                                                                    |
+| [Article](https://stencila.ghost.io/docs/reference/schema/article)                           | 🟢 No loss | 🟢 No loss |       |
+| [AudioObject](https://stencila.ghost.io/docs/reference/schema/audio_object)                  | 🟢 No loss | 🟢 No loss |       |
+| [AuthorRole](https://stencila.ghost.io/docs/reference/schema/author_role)                    | 🟢 No loss | 🟢 No loss |       |
+| [Chat](https://stencila.ghost.io/docs/reference/schema/chat)                                 | 🟢 No loss | 🟢 No loss |       |
+| [ChatMessage](https://stencila.ghost.io/docs/reference/schema/chat_message)                  | 🟢 No loss | 🟢 No loss |       |
+| [ChatMessageGroup](https://stencila.ghost.io/docs/reference/schema/chat_message_group)       | 🟢 No loss | 🟢 No loss |       |
+| [Claim](https://stencila.ghost.io/docs/reference/schema/claim)                               | 🟢 No loss | 🟢 No loss |       |
+| [Collection](https://stencila.ghost.io/docs/reference/schema/collection)                     | 🟢 No loss | 🟢 No loss |       |
+| [Comment](https://stencila.ghost.io/docs/reference/schema/comment)                           | 🟢 No loss | 🟢 No loss |       |
+| [CreativeWork](https://stencila.ghost.io/docs/reference/schema/creative_work)                | 🟢 No loss | 🟢 No loss |       |
+| [Directory](https://stencila.ghost.io/docs/reference/schema/directory)                       | 🟢 No loss | 🟢 No loss |       |
+| [Figure](https://stencila.ghost.io/docs/reference/schema/figure)                             | 🟢 No loss | 🟢 No loss |       |
+| [File](https://stencila.ghost.io/docs/reference/schema/file)                                 | 🟢 No loss | 🟢 No loss |       |
+| [ImageObject](https://stencila.ghost.io/docs/reference/schema/image_object)                  | 🟢 No loss | 🟢 No loss |       |
+| [MediaObject](https://stencila.ghost.io/docs/reference/schema/media_object)                  | 🟢 No loss | 🟢 No loss |       |
+| [Periodical](https://stencila.ghost.io/docs/reference/schema/periodical)                     | 🟢 No loss | 🟢 No loss |       |
+| [Prompt](https://stencila.ghost.io/docs/reference/schema/prompt)                             | 🟢 No loss | 🟢 No loss |       |
+| [PublicationIssue](https://stencila.ghost.io/docs/reference/schema/publication_issue)        | 🟢 No loss | 🟢 No loss |       |
+| [PublicationVolume](https://stencila.ghost.io/docs/reference/schema/publication_volume)      | 🟢 No loss | 🟢 No loss |       |
+| [Review](https://stencila.ghost.io/docs/reference/schema/review)                             | 🟢 No loss | 🟢 No loss |       |
+| [SoftwareApplication](https://stencila.ghost.io/docs/reference/schema/software_application)  | 🟢 No loss | 🟢 No loss |       |
+| [SoftwareSourceCode](https://stencila.ghost.io/docs/reference/schema/software_source_code)   | 🟢 No loss | 🟢 No loss |       |
+| [Table](https://stencila.ghost.io/docs/reference/schema/table)                               | 🟢 No loss | 🟢 No loss |       |
+| [TableCell](https://stencila.ghost.io/docs/reference/schema/table_cell)                      | 🟢 No loss | 🟢 No loss |       |
+| [TableRow](https://stencila.ghost.io/docs/reference/schema/table_row)                        | 🟢 No loss | 🟢 No loss |       |
+| [VideoObject](https://stencila.ghost.io/docs/reference/schema/video_object)                  | 🟢 No loss | 🟢 No loss |       |
+| **Prose**                                                                                    |
+| [Admonition](https://stencila.ghost.io/docs/reference/schema/admonition)                     | 🟢 No loss | 🟢 No loss |       |
+| [Annotation](https://stencila.ghost.io/docs/reference/schema/annotation)                     | 🟢 No loss | 🟢 No loss |       |
+| [Cite](https://stencila.ghost.io/docs/reference/schema/cite)                                 | 🟢 No loss | 🟢 No loss |       |
+| [CiteGroup](https://stencila.ghost.io/docs/reference/schema/cite_group)                      | 🟢 No loss | 🟢 No loss |       |
+| [DefinedTerm](https://stencila.ghost.io/docs/reference/schema/defined_term)                  | 🟢 No loss | 🟢 No loss |       |
+| [Emphasis](https://stencila.ghost.io/docs/reference/schema/emphasis)                         | 🟢 No loss | 🟢 No loss |       |
+| [Heading](https://stencila.ghost.io/docs/reference/schema/heading)                           | 🟢 No loss | 🟢 No loss |       |
+| [Link](https://stencila.ghost.io/docs/reference/schema/link)                                 | 🟢 No loss | 🟢 No loss |       |
+| [List](https://stencila.ghost.io/docs/reference/schema/list)                                 | 🟢 No loss | 🟢 No loss |       |
+| [ListItem](https://stencila.ghost.io/docs/reference/schema/list_item)                        | 🟢 No loss | 🟢 No loss |       |
+| [Note](https://stencila.ghost.io/docs/reference/schema/note)                                 | 🟢 No loss | 🟢 No loss |       |
+| [Paragraph](https://stencila.ghost.io/docs/reference/schema/paragraph)                       | 🟢 No loss | 🟢 No loss |       |
+| [QuoteBlock](https://stencila.ghost.io/docs/reference/schema/quote_block)                    | 🟢 No loss | 🟢 No loss |       |
+| [QuoteInline](https://stencila.ghost.io/docs/reference/schema/quote_inline)                  | 🟢 No loss | 🟢 No loss |       |
+| [Section](https://stencila.ghost.io/docs/reference/schema/section)                           | 🟢 No loss | 🟢 No loss |       |
+| [Strikeout](https://stencila.ghost.io/docs/reference/schema/strikeout)                       | 🟢 No loss | 🟢 No loss |       |
+| [Strong](https://stencila.ghost.io/docs/reference/schema/strong)                             | 🟢 No loss | 🟢 No loss |       |
+| [Subscript](https://stencila.ghost.io/docs/reference/schema/subscript)                       | 🟢 No loss | 🟢 No loss |       |
+| [Superscript](https://stencila.ghost.io/docs/reference/schema/superscript)                   | 🟢 No loss | 🟢 No loss |       |
+| [Text](https://stencila.ghost.io/docs/reference/schema/text)                                 | 🟢 No loss | 🟢 No loss |       |
+| [ThematicBreak](https://stencila.ghost.io/docs/reference/schema/thematic_break)              | 🟢 No loss | 🟢 No loss |       |
+| [Underline](https://stencila.ghost.io/docs/reference/schema/underline)                       | 🟢 No loss | 🟢 No loss |       |
+| **Math**                                                                                     |
+| [MathBlock](https://stencila.ghost.io/docs/reference/schema/math_block)                      | 🟢 No loss | 🟢 No loss |       |
+| [MathInline](https://stencila.ghost.io/docs/reference/schema/math_inline)                    | 🟢 No loss | 🟢 No loss |       |
+| **Code**                                                                                     |
+| [CodeBlock](https://stencila.ghost.io/docs/reference/schema/code_block)                      | 🟢 No loss | 🟢 No loss |       |
+| [CodeChunk](https://stencila.ghost.io/docs/reference/schema/code_chunk)                      | 🟢 No loss | 🟢 No loss |       |
+| [CodeExpression](https://stencila.ghost.io/docs/reference/schema/code_expression)            | 🟢 No loss | 🟢 No loss |       |
+| [CodeInline](https://stencila.ghost.io/docs/reference/schema/code_inline)                    | 🟢 No loss | 🟢 No loss |       |
+| [CompilationMessage](https://stencila.ghost.io/docs/reference/schema/compilation_message)    | 🟢 No loss | 🟢 No loss |       |
+| [ExecutionMessage](https://stencila.ghost.io/docs/reference/schema/execution_message)        | 🟢 No loss | 🟢 No loss |       |
+| **Data**                                                                                     |
+| [Array](https://stencila.ghost.io/docs/reference/schema/array)                               | 🟢 No loss | 🟢 No loss |       |
+| [ArrayHint](https://stencila.ghost.io/docs/reference/schema/array_hint)                      | 🟢 No loss | 🟢 No loss |       |
+| [ArrayValidator](https://stencila.ghost.io/docs/reference/schema/array_validator)            | 🟢 No loss | 🟢 No loss |       |
+| [Boolean](https://stencila.ghost.io/docs/reference/schema/boolean)                           | 🟢 No loss | 🟢 No loss |       |
+| [BooleanValidator](https://stencila.ghost.io/docs/reference/schema/boolean_validator)        | 🟢 No loss | 🟢 No loss |       |
+| [ConstantValidator](https://stencila.ghost.io/docs/reference/schema/constant_validator)      | 🟢 No loss | 🟢 No loss |       |
+| [Cord](https://stencila.ghost.io/docs/reference/schema/cord)                                 | 🟢 No loss | 🟢 No loss |       |
+| [Datatable](https://stencila.ghost.io/docs/reference/schema/datatable)                       | 🟢 No loss | 🟢 No loss |       |
+| [DatatableColumn](https://stencila.ghost.io/docs/reference/schema/datatable_column)          | 🟢 No loss | 🟢 No loss |       |
+| [DatatableColumnHint](https://stencila.ghost.io/docs/reference/schema/datatable_column_hint) | 🟢 No loss | 🟢 No loss |       |
+| [DatatableHint](https://stencila.ghost.io/docs/reference/schema/datatable_hint)              | 🟢 No loss | 🟢 No loss |       |
+| [Date](https://stencila.ghost.io/docs/reference/schema/date)                                 | 🟢 No loss | 🟢 No loss |       |
+| [DateTime](https://stencila.ghost.io/docs/reference/schema/date_time)                        | 🟢 No loss | 🟢 No loss |       |
+| [DateTimeValidator](https://stencila.ghost.io/docs/reference/schema/date_time_validator)     | 🟢 No loss | 🟢 No loss |       |
+| [DateValidator](https://stencila.ghost.io/docs/reference/schema/date_validator)              | 🟢 No loss | 🟢 No loss |       |
+| [Duration](https://stencila.ghost.io/docs/reference/schema/duration)                         | 🟢 No loss | 🟢 No loss |       |
+| [DurationValidator](https://stencila.ghost.io/docs/reference/schema/duration_validator)      | 🟢 No loss | 🟢 No loss |       |
+| [EnumValidator](https://stencila.ghost.io/docs/reference/schema/enum_validator)              | 🟢 No loss | 🟢 No loss |       |
+| [Integer](https://stencila.ghost.io/docs/reference/schema/integer)                           | 🟢 No loss | 🟢 No loss |       |
+| [IntegerValidator](https://stencila.ghost.io/docs/reference/schema/integer_validator)        | 🟢 No loss | 🟢 No loss |       |
+| [Null](https://stencila.ghost.io/docs/reference/schema/null)                                 | 🟢 No loss | 🟢 No loss |       |
+| [Number](https://stencila.ghost.io/docs/reference/schema/number)                             | 🟢 No loss | 🟢 No loss |       |
+| [NumberValidator](https://stencila.ghost.io/docs/reference/schema/number_validator)          | 🟢 No loss | 🟢 No loss |       |
+| [Object](https://stencila.ghost.io/docs/reference/schema/object)                             | 🟢 No loss | 🟢 No loss |       |
+| [ObjectHint](https://stencila.ghost.io/docs/reference/schema/object_hint)                    | 🟢 No loss | 🟢 No loss |       |
+| [String](https://stencila.ghost.io/docs/reference/schema/string)                             | 🟢 No loss | 🟢 No loss |       |
+| [StringHint](https://stencila.ghost.io/docs/reference/schema/string_hint)                    | 🟢 No loss | 🟢 No loss |       |
+| [StringValidator](https://stencila.ghost.io/docs/reference/schema/string_validator)          | 🟢 No loss | 🟢 No loss |       |
+| [Time](https://stencila.ghost.io/docs/reference/schema/time)                                 | 🟢 No loss | 🟢 No loss |       |
+| [TimeValidator](https://stencila.ghost.io/docs/reference/schema/time_validator)              | 🟢 No loss | 🟢 No loss |       |
+| [Timestamp](https://stencila.ghost.io/docs/reference/schema/timestamp)                       | 🟢 No loss | 🟢 No loss |       |
+| [TimestampValidator](https://stencila.ghost.io/docs/reference/schema/timestamp_validator)    | 🟢 No loss | 🟢 No loss |       |
+| [TupleValidator](https://stencila.ghost.io/docs/reference/schema/tuple_validator)            | 🟢 No loss | 🟢 No loss |       |
+| [Unknown](https://stencila.ghost.io/docs/reference/schema/unknown)                           | 🟢 No loss | 🟢 No loss |       |
+| [UnsignedInteger](https://stencila.ghost.io/docs/reference/schema/unsigned_integer)          | 🟢 No loss | 🟢 No loss |       |
+| **Flow**                                                                                     |
+| [Button](https://stencila.ghost.io/docs/reference/schema/button)                             | 🟢 No loss | 🟢 No loss |       |
+| [CallArgument](https://stencila.ghost.io/docs/reference/schema/call_argument)                | 🟢 No loss | 🟢 No loss |       |
+| [CallBlock](https://stencila.ghost.io/docs/reference/schema/call_block)                      | 🟢 No loss | 🟢 No loss |       |
+| [CodeLocation](https://stencila.ghost.io/docs/reference/schema/code_location)                | 🟢 No loss | 🟢 No loss |       |
+| [CompilationDigest](https://stencila.ghost.io/docs/reference/schema/compilation_digest)      | 🟢 No loss | 🟢 No loss |       |
+| [ExecutionDependant](https://stencila.ghost.io/docs/reference/schema/execution_dependant)    | 🟢 No loss | 🟢 No loss |       |
+| [ExecutionDependency](https://stencila.ghost.io/docs/reference/schema/execution_dependency)  | 🟢 No loss | 🟢 No loss |       |
+| [ExecutionTag](https://stencila.ghost.io/docs/reference/schema/execution_tag)                | 🟢 No loss | 🟢 No loss |       |
+| [ForBlock](https://stencila.ghost.io/docs/reference/schema/for_block)                        | 🟢 No loss | 🟢 No loss |       |
+| [Form](https://stencila.ghost.io/docs/reference/schema/form)                                 | 🟢 No loss | 🟢 No loss |       |
+| [Function](https://stencila.ghost.io/docs/reference/schema/function)                         | 🟢 No loss | 🟢 No loss |       |
+| [IfBlock](https://stencila.ghost.io/docs/reference/schema/if_block)                          | 🟢 No loss | 🟢 No loss |       |
+| [IfBlockClause](https://stencila.ghost.io/docs/reference/schema/if_block_clause)             | 🟢 No loss | 🟢 No loss |       |
+| [IncludeBlock](https://stencila.ghost.io/docs/reference/schema/include_block)                | 🟢 No loss | 🟢 No loss |       |
+| [Parameter](https://stencila.ghost.io/docs/reference/schema/parameter)                       | 🟢 No loss | 🟢 No loss |       |
+| [Variable](https://stencila.ghost.io/docs/reference/schema/variable)                         | 🟢 No loss | 🟢 No loss |       |
+| [Walkthrough](https://stencila.ghost.io/docs/reference/schema/walkthrough)                   | 🟢 No loss | 🟢 No loss |       |
+| [WalkthroughStep](https://stencila.ghost.io/docs/reference/schema/walkthrough_step)          | 🟢 No loss | 🟢 No loss |       |
+| **Style**                                                                                    |
+| [StyledBlock](https://stencila.ghost.io/docs/reference/schema/styled_block)                  | 🟢 No loss | 🟢 No loss |       |
+| [StyledInline](https://stencila.ghost.io/docs/reference/schema/styled_inline)                | 🟢 No loss | 🟢 No loss |       |
+| **Edits**                                                                                    |
+| [InstructionBlock](https://stencila.ghost.io/docs/reference/schema/instruction_block)        | 🟢 No loss | 🟢 No loss |       |
+| [InstructionInline](https://stencila.ghost.io/docs/reference/schema/instruction_inline)      | 🟢 No loss | 🟢 No loss |       |
+| [InstructionMessage](https://stencila.ghost.io/docs/reference/schema/instruction_message)    | 🟢 No loss | 🟢 No loss |       |
+| [PromptBlock](https://stencila.ghost.io/docs/reference/schema/prompt_block)                  | 🟢 No loss | 🟢 No loss |       |
+| [SuggestionBlock](https://stencila.ghost.io/docs/reference/schema/suggestion_block)          | 🟢 No loss | 🟢 No loss |       |
+| [SuggestionInline](https://stencila.ghost.io/docs/reference/schema/suggestion_inline)        | 🟢 No loss | 🟢 No loss |       |
+| **Config**                                                                                   |
+| [Config](https://stencila.ghost.io/docs/reference/schema/config)                             | 🟢 No loss | 🟢 No loss |       |
+| **Other**                                                                                    |
+| [Brand](https://stencila.ghost.io/docs/reference/schema/brand)                               | 🟢 No loss | 🟢 No loss |       |
+| [ContactPoint](https://stencila.ghost.io/docs/reference/schema/contact_point)                | 🟢 No loss | 🟢 No loss |       |
+| [Enumeration](https://stencila.ghost.io/docs/reference/schema/enumeration)                   | 🟢 No loss | 🟢 No loss |       |
+| [Grant](https://stencila.ghost.io/docs/reference/schema/grant)                               | 🟢 No loss | 🟢 No loss |       |
+| [ModelParameters](https://stencila.ghost.io/docs/reference/schema/model_parameters)          | 🟢 No loss | 🟢 No loss |       |
+| [MonetaryGrant](https://stencila.ghost.io/docs/reference/schema/monetary_grant)              | 🟢 No loss | 🟢 No loss |       |
+| [Organization](https://stencila.ghost.io/docs/reference/schema/organization)                 | 🟢 No loss | 🟢 No loss |       |
+| [Person](https://stencila.ghost.io/docs/reference/schema/person)                             | 🟢 No loss | 🟢 No loss |       |
+| [PostalAddress](https://stencila.ghost.io/docs/reference/schema/postal_address)              | 🟢 No loss | 🟢 No loss |       |
+| [Product](https://stencila.ghost.io/docs/reference/schema/product)                           | 🟢 No loss | 🟢 No loss |       |
+| [PropertyValue](https://stencila.ghost.io/docs/reference/schema/property_value)              | 🟢 No loss | 🟢 No loss |       |
+| [ProvenanceCount](https://stencila.ghost.io/docs/reference/schema/provenance_count)          | 🟢 No loss | 🟢 No loss |       |
+| [RawBlock](https://stencila.ghost.io/docs/reference/schema/raw_block)                        | 🟢 No loss | 🟢 No loss |       |
+| [Thing](https://stencila.ghost.io/docs/reference/schema/thing)                               | 🟢 No loss | 🟢 No loss |       |
+
+See the Rust crate [`codec-cbor`](https://github.com/stencila/stencila/tree/main/rust/codec-cbor) for more details.
 
 
 <!-- CODEC-DOCS:STOP -->
