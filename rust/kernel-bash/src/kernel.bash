@@ -11,7 +11,6 @@ if [ "$DEV" == "true" ]; then
   LINE="|"
   EXEC="EXEC"
   EVAL="EVAL"
-  FORK="FORK"
   INFO="INFO"
   PKGS="PKGS"
   LIST="LIST"
@@ -24,7 +23,6 @@ else
   LINE=$(printf "\U10ABBA")
   EXEC=$(printf "\U10B522")
   EVAL=$(printf "\U1010CC")
-  FORK=$(printf "\U10DE70")
   INFO=$(printf "\U0010EE15")
   PKGS=$(printf "\U0010BEC4")
   LIST=$(printf "\U10C155")
@@ -139,18 +137,12 @@ do
       unset stencila_name BASH_REMATCH
       ;;
     "$SET")
-      # Set a variable. Uses -x option (for export) so that variables
-      # are available to forks
-      declare -x "${stencila_lines[1]}=${stencila_lines[2]}"
+      # Set a variable.
+      declare "${stencila_lines[1]}=${stencila_lines[2]}"
       ;;
     "$REMOVE")
       # Remove a variable
       unset "${stencila_lines[1]}"
-      ;;
-    "$FORK")
-      # Fork the kernel instance and echo back the new pid
-      bash "$0" 0<"${stencila_lines[1]}" 1>"${stencila_lines[2]}" 2>"${stencila_lines[3]}" &
-      echo $!
       ;;
     *)
       echo "Unrecognised flag" >&2
