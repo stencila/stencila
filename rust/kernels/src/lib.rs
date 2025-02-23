@@ -87,6 +87,23 @@ pub async fn get(name: &str) -> Option<Box<dyn Kernel>> {
     None
 }
 
+/// Get a kernel by name or language
+async fn get_for(lang: &str) -> Result<Box<dyn Kernel>> {
+    let format = Format::from_name(lang);
+
+    for kernel in list().await {
+        if kernel.name() == lang {
+            return Ok(kernel);
+        }
+
+        if kernel.supports_language(&format) && kernel.is_available() {
+            return Ok(kernel);
+        }
+    }
+
+    bail!("No kernel available with name, or that supports language, `{lang}`")
+}
+
 /// Lint some code
 ///
 /// # Arguments
@@ -277,21 +294,7 @@ impl Kernels {
         );
 
         let kernel = match language {
-            Some(language) => 'block: {
-                let format = Format::from_name(language);
-
-                for kernel in list().await {
-                    if kernel.name() == language {
-                        break 'block kernel;
-                    }
-
-                    if kernel.supports_language(&format) && kernel.is_available() {
-                        break 'block kernel;
-                    }
-                }
-
-                bail!("No kernel available with name, or that supports language, `{language}`")
-            }
+            Some(language) => get_for(language).await?,
             None => default(),
         };
 
@@ -497,13 +500,22 @@ impl Kernels {
     ///
     /// Creates a new [`Kernels`] set with a fork of each current instance.
     /// Errors if any of the forks fails (i.e. a complete fork is not possible).
-    pub async fn fork(&self) -> Result<Self> {
+    pub async fn fork(&self, lang: Option<&str>) -> Result<Self> {
+        if let Some(lang) = lang {
+            // Check that forking is possible for provided language
+            let kernel = get_for(lang).await?;
+            if !matches!(kernel.supports_forks(), KernelForks::Yes) {
+                bail!("Kernel `{}` does not support forks", kernel.name())
+            }
+        }
+
         let mut kernels = Self::new(&self.home);
         for entry in self.instances.read().await.iter() {
             let kernel = entry.kernel.clone();
             let instance = entry.instance.lock().await.fork().await?;
             kernels.add_instance(kernel, instance).await?;
         }
+
         Ok(kernels)
     }
 }
@@ -555,7 +567,7 @@ mod tests {
         kernels.execute("var a = 1", Some("js")).await?;
         kernels.execute("var b = 2", Some("js")).await?;
 
-        let mut fork = kernels.fork().await?;
+        let mut fork = kernels.fork(None).await?;
         fork.execute("a = 11", Some("js")).await?;
         fork.execute("b = 22", Some("js")).await?;
         fork.execute("var c = 33", Some("js")).await?;

@@ -466,7 +466,7 @@ impl Executor {
     async fn fork_for_execute(&self) -> Result<Self> {
         Ok(Self {
             phase: Phase::Execute,
-            kernels: self.fork_kernels().await?,
+            kernels: self.fork_kernels(None).await?,
             ..self.clone()
         })
     }
@@ -484,8 +484,8 @@ impl Executor {
     }
 
     /// Create a fork of the executor's kernels
-    async fn fork_kernels(&self) -> Result<Arc<RwLock<Kernels>>> {
-        let kernels = self.kernels().await.fork().await?;
+    async fn fork_kernels(&self, lang: Option<&str>) -> Result<Arc<RwLock<Kernels>>> {
+        let kernels = self.kernels().await.fork(lang).await?;
         Ok(Arc::new(RwLock::new(kernels)))
     }
 
