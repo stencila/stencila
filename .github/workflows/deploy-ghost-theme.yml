@@ -1,8 +1,10 @@
 name: Deploy Stencila Ghost Theme
 on: workflow_dispatch
+
+env:
+  NODE_VERSION: "20"
   
 jobs:
-
   deploy:
     runs-on: ubuntu-latest
     steps:
@@ -12,14 +14,13 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-
-      - name: Install dependencies
-        run: make -C web install
+          
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Build web dist for ghost
-        run: make -C ghost compile-stencila
+        run: make -C ghost compile
 
-      - uses: actions/checkout@v4
       - name: Deploy Ghost Theme
         uses: TryGhost/action-deploy-theme@v1
         with:
