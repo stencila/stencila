@@ -29,7 +29,7 @@ cargo generate-lockfile
 
 # Commit the changed files
 git add .
-git commit -m "chore(*): Version $VERSION"
+git commit -m "release(cli): v$VERSION"
 
 # Create the tag
 git tag "v$VERSION"
