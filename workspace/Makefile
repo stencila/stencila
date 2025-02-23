@@ -16,4 +16,7 @@ debug: build
 
 # Publish the image
 publish: build
-	docker push stencila/workspace
+	@TIMESTAMP=$$(date -u +"%Y-%m-%dT%H-%M-%SZ") ; \
+	docker tag stencila/workspace:latest stencila/workspace:$$TIMESTAMP ; \
+	docker push stencila/workspace:latest ; \
+	docker push stencila/workspace:$$TIMESTAMP
