@@ -1,5 +1,5 @@
 ---
-title: CBOR + Zstandard
+title: CBOR+Zstandard
 description: Compact Binary Object Representation with ZStandard compression
 config:
   publish:
@@ -14,7 +14,9 @@ config:
 
 # Introduction
 
-This format combines [Concise Binary Object Representation (CBOR)](cbor) and [ZStandard](http://facebook.github.io/zstd/), a fast lossless compression algorithm. Stencila provides support for CBOR + ZStandard as a more compact alternative to [JSON](json) or [CBOR](cbor) for encoding documents. It may be preferred over those formats for storing very large documents.
+This format combines [Concise Binary Object Representation (CBOR)](cbor) and [ZStandard](http://facebook.github.io/zstd/), a fast lossless compression algorithm.
+
+Stencila provides support for CBOR+ZStandard as a more compact alternative to [JSON](json) or [CBOR](cbor) for storing documents. It may be preferred over those formats for storing very large documents.
 
 # Specification
 
@@ -22,7 +24,7 @@ See the [CBOR](https://cbor.io/spec.html) and [ZStandard](https://github.com/fac
 
 # Implementation
 
-Stencila support lossless, bi-directional conversion between Stencila documents and CBOR powered by [`ciborium`](https://crates.io/crates/ciborium).
+Stencila support lossless, bi-directional conversion between Stencila documents and CBOR+ZStandard powered by [`ciborium`](https://crates.io/crates/ciborium) and [`zstd`](https://crates.io/crates/zstd).
 
 
 <!-- prettier-ignore-start -->

@@ -14,7 +14,9 @@ config:
 
 # Introduction
 
-[JSON-LD](https://json-ld.org/), or JSON for Linked Data, is a lightweight data interchange format designed to express linked data in a format that is both human-readable and machine-friendly. It extends JSON by providing a standard way to embed linked data within JSON documents, allowing for a network of standards-based, machine-readable, structured data on the web.
+[JSON for Linked Data (JSON-LD)](https://json-ld.org/) is a lightweight data interchange format designed to express linked data in a format that is both human-readable and machine-friendly. It extends JSON by providing a standard way to embed linked data within JSON documents, allowing for a network of standards-based, machine-readable, structured data on the web.
+
+Stencila provides support for JSON-LD for storing and transferring documents in a format with high interoperability.
 
 # Implementation
 

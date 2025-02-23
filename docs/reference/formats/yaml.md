@@ -14,9 +14,9 @@ config:
 
 # Introduction
 
-[YAML (YAML Ain't Markup Language)](https://yaml.org/) is a human-readable data serialization format commonly used for configuration files and data representation. It is known for its simplicity and readability, making it a preferred choice for settings and data structures. YAML's structure is based on indentation, allowing users to represent data hierarchies in an easily understandable manner. 
+[YAML (YAML Ain't Markup Language)](https://yaml.org/) is a human-readable data serialization format commonly used for configuration files and data representation. YAML's structure is based on indentation, allowing users to represent data hierarchies in an easily understandable manner. 
 
-Stencila provides support for YAML as a more human readable, while still lossless, alternative to [JSON](json) for storing documents.
+Stencila provides support for YAML as a more human-readable, while still lossless, alternative to [JSON](json) for storing documents.
 
 # Implementation
 
