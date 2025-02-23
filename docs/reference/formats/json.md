@@ -1,12 +1,24 @@
-# JSON
+---
+title: JSON
+description: JavaScript Object Notation
+config:
+  publish:
+    ghost:
+      type: post
+      slug: json
+      state: publish
+      tags:
+      - '#doc'
+      - '#formats'
+---
 
-## Introduction
+# Introduction
 
 [JSON (JavaScript Object Notation)](https://www.json.org/) is a lightweight data interchange format widely used for structured data storage and transmission. It is easy for both humans and machines to read and write. JSON's simplicity, flexibility, and compatibility with various programming languages make it a popular choice for APIs, configuration files, and data exchange between applications. 
 
 Its benefits include simplicity, and support for nested data structures, making it a good choice for lossless serialization of Stencila documents for inter-application communication.
 
-## Implementation
+# Implementation
 
 Stencila support lossless, bi-directional conversion between Stencila documents and JSON. The `codec-json` Rust crate implements `from_json` and `to_json` methods (and variants of those) for all node types in Stencila Schema, powered by [`serde_json`](https://crates.io/crates/serde_json). 
 
@@ -30,7 +42,7 @@ For example,
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
 
-## Codec
+# Codec
 
 The codec (en**co**der/**dec**oder) for JSON supports:
 

@@ -1,9 +1,21 @@
-# CBOR + Zstandard
+---
+title: CBOR + Zstandard
+description: Compact Binary Object Representation with ZStandard compression
+config:
+  publish:
+    ghost:
+      type: post
+      slug: cborzst
+      state: publish
+      tags:
+      - '#doc'
+      - '#formats'
+---
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
 
-## Codec
+# Codec
 
 The codec (en**co**der/**dec**oder) for CBOR+Zstandard supports:
 

@@ -1,9 +1,21 @@
-# HTML
+---
+title: HTML
+description: Hypertext Markup Language
+config:
+  publish:
+    ghost:
+      type: post
+      slug: html
+      state: publish
+      tags:
+      - '#doc'
+      - '#formats'
+---
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
 
-## Codec
+# Codec
 
 The codec (en**co**der/**dec**oder) for HTML supports:
 

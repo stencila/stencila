@@ -125,7 +125,7 @@ impl Schemas {
 
             let article = Article {
                 content: vec![
-                    h2([t("Codec")]),
+                    h1([t("Codec")]),
                     p([
                         t("The codec (en"),
                         stg([t("co")]),

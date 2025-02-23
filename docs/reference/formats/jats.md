@@ -1,9 +1,21 @@
-# JATS
+---
+title: JATS
+description: Journal Article Tag Suite
+config:
+  publish:
+    ghost:
+      type: post
+      slug: jats
+      state: publish
+      tags:
+      - '#doc'
+      - '#formats'
+---
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
 
-## Codec
+# Codec
 
 The codec (en**co**der/**dec**oder) for JATS supports:
 

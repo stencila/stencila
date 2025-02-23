@@ -1,9 +1,21 @@
-# CBOR
+---
+title: CBOR
+description: Compact Binary Object Representation
+config:
+  publish:
+    ghost:
+      type: post
+      slug: cbor
+      state: publish
+      tags:
+      - '#doc'
+      - '#formats'
+---
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
 
-## Codec
+# Codec
 
 The codec (en**co**der/**dec**oder) for CBOR supports:
 
