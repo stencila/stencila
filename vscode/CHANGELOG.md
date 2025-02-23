@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.1.0 2025-02-23
+
+- Based on Stencila CLI v2.0.0 🎉.
+
 ## 0.0.27 2025-02-18
 
 - Adds setting for which compilation and execution messages are shown in editor.
