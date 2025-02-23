@@ -42,7 +42,6 @@
                                             {{#get "posts" filter="tags:{{slug}}+tags:hash-doc" limit="all" order="published_at asc"}}
                                                 {{#foreach posts as |post|}}
                                                     <li class="mb-2 ml-4 flex items-start hover:text-[var(--ghost-accent-color)]">
-                                                        {{!-- <div class="w-4 h-4 mr-4 mt-1 flex-none">{{>icons/paragraph}}</div> --}}
                                                         <a href="{{post.url}}" class="{{#match ../../../../currentSlug "=" post.slug}}active font-semibold underline{{else}} hover:text-[var(--ghost-accent-color)]{{/match}}">
                                                             {{post.title}}
                                                         </a>

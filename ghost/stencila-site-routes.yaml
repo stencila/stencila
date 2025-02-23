@@ -14,7 +14,7 @@ collections:
     data: page.docs
     filter: "tag:hash-doc+tag:-hash-schema"
 
-  /schema/:
+  /docs/schema/:
     permalink: /docs/schema/{slug}/
     template: index
     data: page.schema

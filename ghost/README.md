@@ -130,7 +130,7 @@ ln -s /path/to/stencila/repo/ghost /ghost/content/themes/stencila
 Then compile the stencila web components into the theme by running the following `make` command from the stencila repo root:
 
 ```bash
-make -C ghost compile-stencila
+make -C ghost compile
 ```
 
 In the browser navigate to your local ghost admin site (usually http://localhost:2368/ghost/).
