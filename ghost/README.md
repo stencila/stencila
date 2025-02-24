@@ -141,3 +141,4 @@ After initialising the theme, upload the relevant `routes.yml` file in **Labs** 
 To enable development with hot-loading, In the stencila theme directory and `npm run dev` to start the dev server.
 
 ghost themes use handlebars templating language, for more information refer to ghost's [developer documentaion](https://ghost.org/docs/themes/).
+

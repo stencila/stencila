@@ -2,6 +2,8 @@
 import renderMathInElement from 'katex/dist/contrib/auto-render.mjs'
 import 'katex/dist/katex.min.css'
 
+import '../themes/nodes.css'
+
 import '../nodes'
 import '../shoelace'
 import '../ui/document/menu'
