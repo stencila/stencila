@@ -1,35 +1,39 @@
 ---
-title: CBOR
-description: Concise Binary Object Representation
 config:
   publish:
     ghost:
-      type: post
-      slug: cbor
+      slug: cbor-format
       state: publish
       tags:
-        - "#doc"
-        - "#formats"
+      - '#doc'
+      - Formats
+      type: post
+description: Concise Binary Object Representation
+title: CBOR
 ---
 
-# Introduction
+## Introduction
 
-The [Concise Binary Object Representation (CBOR)](https://cbor.io/) is "a data format whose design goals include the possibility of extremely small code size, fairly small message size, and extensibility without the need for version negotiation".
+**File Extension:** `.cbor` - Used when converting or exporting Stencila documents to CBORZST format.
+
+The [CBOR (Concise Binary Object Representation)](https://cbor.io/) format is a serialization format is a convenient binary serialization format that can be used when machine readability and efficiency are more important than human readability. It follows closely the data model of JSON with key value pairs and true, false, null values similar to JavaScript and JSON. It can save on file bloat and enable faster processing of files. Like JSON it enables data interchange without needing a formally specified schema.
+
+CBOR is "a data format whose design goals include the possibility of extremely small code size, fairly small message size, and extensibility without the need for version negotiation".
 
 Stencila provides support for CBOR as a faster, more compact, alternative to [JSON](json) for storing documents.
 
-# Specification
+## Specification
 
 See [RFC 8949](https://www.rfc-editor.org/rfc/rfc8949.html) and other [CBOR specs](https://cbor.io/spec.html).
 
-# Implementation
+## Implementation
 
 Stencila support lossless, bi-directional conversion between Stencila documents and CBOR powered by [`ciborium`](https://crates.io/crates/ciborium).
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
 
-# Support
+## Support
 
 Stencila supports these operations for CBOR:
 

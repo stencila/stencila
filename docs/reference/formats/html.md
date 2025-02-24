@@ -1,16 +1,26 @@
 ---
-title: HTML
-description: Hypertext Markup Language
 config:
   publish:
     ghost:
-      type: post
-      slug: html
+      slug: html-format
       state: publish
       tags:
       - '#doc'
-      - '#formats'
+      - Formats
+      type: post
+description: HyperText Markup Language
+title: HTML
 ---
+
+## Introduction
+
+**File Extension:** `.html` - Used when converting or exporting Stencila documents to HTML format.
+
+The HTML format is a serialization format is a format that can be used to represent documents as HTML with custom HTML blocks for Stencila Sections, metadata and other document enhancements.
+
+## Implementation
+
+Parsing of HTML is largely done using the [quick-xml](https://crates.io/crates/quick-xml) crate and is low loss for most document attributes.
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->

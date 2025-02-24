@@ -1,26 +1,28 @@
 ---
-title: JSON
-description: JavaScript Object Notation
 config:
   publish:
     ghost:
-      type: post
-      slug: json
+      slug: json-format
       state: publish
       tags:
-        - "#doc"
-        - "#formats"
+      - '#doc'
+      - Formats
+      type: post
+description: JavaScript Object Notation
+title: JSON
 ---
 
 # Introduction
 
+**File Extension:** `.json - Used when converting or exporting Stencila documents to JSON format.
+
 [JavaScript Object Notation (JSON)](https://www.json.org/) is a lightweight data interchange format widely used for structured data storage and transmission. JSON's simplicity, flexibility, and compatibility with various programming languages make it a popular choice for APIs, configuration files, and data exchange between applications. Stencila uses JSON as the default storage format for documents.
 
-# Specification
+## Specification
 
 See the [ECMA-404 The JSON Data Interchange Standard](https://ecma-international.org/publications-and-standards/standards/ecma-404/).
 
-# Implementation
+## Implementation
 
 Stencila support lossless, bi-directional conversion between Stencila documents and JSON powered by [`serde_json`](https://crates.io/crates/serde_json).
 

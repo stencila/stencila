@@ -1,24 +1,26 @@
 ---
-title: YAML
-description: YAML Ain't Markup Language
 config:
   publish:
     ghost:
-      type: post
-      slug: yaml
+      slug: yaml-format
       state: publish
       tags:
       - '#doc'
-      - '#formats'
+      - Formats
+      type: post
+description: YAML A'int Markup Language
+title: YAML
 ---
 
-# Introduction
+## Introduction
 
-[YAML (YAML Ain't Markup Language)](https://yaml.org/) is a human-readable data serialization format commonly used for configuration files and data representation. YAML's structure is based on indentation, allowing users to represent data hierarchies in an easily understandable manner. 
+**File Extension:** `.yaml` - Used when converting or exporting Stencila documents to YAML format.
+
+[YAML (YAML Ain't Markup Language)](https://yaml.org/) is a human-readable data serialization format commonly used for configuration files and data representation. It is known for its simplicity and readability, making it a preferred choice for settings and data structures. YAML's structure is based on indentation, allowing users to represent data hierarchies in an easily understandable manner.
 
 Stencila provides support for YAML as a more human-readable, while still lossless, alternative to [JSON](json) for storing documents.
 
-# Implementation
+## Implementation
 
 Stencila support lossless, bi-directional conversion between Stencila documents and YAML.  The `codec-yaml` Rust crate implements `from_yaml` and `to_yaml` methods for all node types in Stencila Schema, powered by [`serde_yaml`](https://crates.io/crates/serde_yaml).
 
