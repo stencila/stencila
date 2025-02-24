@@ -14,7 +14,7 @@ config:
 
 # Introduction
 
-The [Concise Binary Object Representation (CBOR)](https://cbor.io/) is "a data format whose design goals include the possibility of extremely small code size, fairly small message size, and extensibility without the need for version negotiation. Stencila uses JSON as the default storage format for documents".
+The [Concise Binary Object Representation (CBOR)](https://cbor.io/) is "a data format whose design goals include the possibility of extremely small code size, fairly small message size, and extensibility without the need for version negotiation".
 
 Stencila provides support for CBOR as a faster, more compact, alternative to [JSON](json) for storing documents.
 
