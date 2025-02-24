@@ -79,6 +79,10 @@
     list-style: disc;
 }
 
+.gh-content > ol {
+    list-style: decimal;
+}
+
 .gh-content > ul,
 .gh-content > ol,
 .gh-content > dl {

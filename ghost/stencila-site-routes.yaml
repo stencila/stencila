@@ -23,7 +23,7 @@ collections:
   # other posts
   /changelog/:
     permalink: /changelog/{slug}/
-    template: tag
+    template: changelog
     data: tag.changelog
     filter: tag:changelog
 
