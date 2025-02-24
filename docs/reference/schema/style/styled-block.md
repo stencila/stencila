@@ -1,73 +1,82 @@
-# Styled Block
-
-**Styled block content.**
-
-**`@id`**: `stencila:StyledBlock`
+---
+title: Styled Block
+description: Styled block content.
+config:
+  publish:
+    ghost:
+      type: post
+      slug: styled-block
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Style
+---
 
 This type is marked as unstable and is subject to change.
 
-## Properties
+# Properties
 
 The `StyledBlock` type has these properties:
 
-| Name                  | Aliases                                                                                                            | `@id`                                        | Type                                                                                                                      | Description                                                            | Inherited from                                                                                   |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `id`                  | -                                                                                                                  | [`schema:id`](https://schema.org/id)         | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                           | The identifier for this item.                                          | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| `code`                | -                                                                                                                  | `stencila:code`                              | [`Cord`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)                               | The code of the equation in the `styleLanguage`.                       | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) |
-| `styleLanguage`       | `style-language`, `style_language`                                                                                 | `stencila:styleLanguage`                     | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                           | The language used for the style specification e.g. css, tw             | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) |
-| `authors`             | `author`                                                                                                           | [`schema:author`](https://schema.org/author) | [`Author`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/author.md)*                         | The authors of the code and content in the styled node.                | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) |
-| `provenance`          | -                                                                                                                  | `stencila:provenance`                        | [`ProvenanceCount`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/provenance-count.md)*      | A summary of the provenance of the code and content in the styed node. | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) |
-| `compilationDigest`   | `compilation-digest`, `compilation_digest`                                                                         | `stencila:compilationDigest`                 | [`CompilationDigest`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/compilation-digest.md)    | A digest of the `code` and `styleLanguage`.                            | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) |
-| `compilationMessages` | `compilation-messages`, `compilation_messages`, `compilationMessage`, `compilation-message`, `compilation_message` | `stencila:compilationMessages`               | [`CompilationMessage`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/compilation-message.md)* | Messages generated while parsing and transpiling the style.            | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) |
-| `css`                 | -                                                                                                                  | `stencila:css`                               | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                           | A Cascading Style Sheet (CSS) transpiled from the `code` property.     | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) |
-| `classList`           | `class-list`, `class_list`                                                                                         | `stencila:classList`                         | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                           | A space separated list of class names associated with the node.        | [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md) |
-| `content`             | -                                                                                                                  | `stencila:content`                           | [`Block`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/block.md)*                           | The content within the styled block                                    | -                                                                                                |
+| Name                  | Description                                                            | Type                                                                                         | Inherited from                                                     | `JSON-LD @id`                                | Aliases                                                                                                            |
+| --------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `id`                  | The identifier for this item.                                          | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id)         | -                                                                                                                  |
+| `code`                | The code of the equation in the `styleLanguage`.                       | [`Cord`](https://stencila.ghost.io/docs/reference/schema/cord)                               | [`Styled`](https://stencila.ghost.io/docs/reference/schema/styled) | `stencila:code`                              | -                                                                                                                  |
+| `styleLanguage`       | The language used for the style specification e.g. css, tw             | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | [`Styled`](https://stencila.ghost.io/docs/reference/schema/styled) | `stencila:styleLanguage`                     | `style-language`, `style_language`                                                                                 |
+| `authors`             | The authors of the code and content in the styled node.                | [`Author`](https://stencila.ghost.io/docs/reference/schema/author)*                          | [`Styled`](https://stencila.ghost.io/docs/reference/schema/styled) | [`schema:author`](https://schema.org/author) | `author`                                                                                                           |
+| `provenance`          | A summary of the provenance of the code and content in the styed node. | [`ProvenanceCount`](https://stencila.ghost.io/docs/reference/schema/provenance-count)*       | [`Styled`](https://stencila.ghost.io/docs/reference/schema/styled) | `stencila:provenance`                        | -                                                                                                                  |
+| `compilationDigest`   | A digest of the `code` and `styleLanguage`.                            | [`CompilationDigest`](https://stencila.ghost.io/docs/reference/schema/compilation-digest)    | [`Styled`](https://stencila.ghost.io/docs/reference/schema/styled) | `stencila:compilationDigest`                 | `compilation-digest`, `compilation_digest`                                                                         |
+| `compilationMessages` | Messages generated while parsing and transpiling the style.            | [`CompilationMessage`](https://stencila.ghost.io/docs/reference/schema/compilation-message)* | [`Styled`](https://stencila.ghost.io/docs/reference/schema/styled) | `stencila:compilationMessages`               | `compilation-messages`, `compilation_messages`, `compilationMessage`, `compilation-message`, `compilation_message` |
+| `css`                 | A Cascading Style Sheet (CSS) transpiled from the `code` property.     | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | [`Styled`](https://stencila.ghost.io/docs/reference/schema/styled) | `stencila:css`                               | -                                                                                                                  |
+| `classList`           | A space separated list of class names associated with the node.        | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | [`Styled`](https://stencila.ghost.io/docs/reference/schema/styled) | `stencila:classList`                         | `class-list`, `class_list`                                                                                         |
+| `content`             | The content within the styled block                                    | [`Block`](https://stencila.ghost.io/docs/reference/schema/block)*                            | -                                                                  | `stencila:content`                           | -                                                                                                                  |
 
-## Related
+# Related
 
 The `StyledBlock` type is related to these types:
 
-- Parents: [`Styled`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled.md)
+- Parents: [`Styled`](https://stencila.ghost.io/docs/reference/schema/styled)
 - Children: none
 
-## Formats
+# Formats
 
 The `StyledBlock` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                                                               | Encoding     | Decoding   | Status              | Notes                                                                               |
-| ---------------------------------------------------------------------------------------------------- | ------------ | ---------- | ------------------- | ----------------------------------------------------------------------------------- |
-| [DOM HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/dom.html.md)        | 🟢 No loss    |            | 🔶 Beta              |                                                                                     |
-| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/html.md)                | 🔷 Low loss   |            | 🚧 Under development | Encoded as [`<div>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div) |
-| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md)                |              |            | 🚧 Under development |                                                                                     |
-| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/md.md)              | 🟢 No loss    | 🟢 No loss  | 🔶 Beta              | Encoded using implemented function                                                  |
-| [Stencila Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/smd.md)    | 🟢 No loss    | 🟢 No loss  | 🔶 Beta              |                                                                                     |
-| [Quarto Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/qmd.md)      | 🟢 No loss    | 🟢 No loss  | 🔶 Beta              |                                                                                     |
-| [MyST Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/myst.md)       | 🟢 No loss    | 🟢 No loss  | 🔶 Beta              |                                                                                     |
-| [LLM Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/llmd.md)        | 🟢 No loss    | 🟢 No loss  | 🔶 Beta              |                                                                                     |
-| [LaTeX](https://github.com/stencila/stencila/blob/main/docs/reference/formats/latex.md)              | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development |                                                                                     |
-| [PDF](https://github.com/stencila/stencila/blob/main/docs/reference/formats/pdf.md)                  | 🔷 Low loss   |            | 🚧 Under development |                                                                                     |
-| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)          | ⚠️ High loss |            | 🔶 Beta              |                                                                                     |
-| [IPYNB](https://github.com/stencila/stencila/blob/main/docs/reference/formats/ipynb.md)              | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development |                                                                                     |
-| [Microsoft Word DOCX](https://github.com/stencila/stencila/blob/main/docs/reference/formats/docx.md) | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development |                                                                                     |
-| [OpenDocument ODT](https://github.com/stencila/stencila/blob/main/docs/reference/formats/odt.md)     | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development |                                                                                     |
-| [TeX](https://github.com/stencila/stencila/blob/main/docs/reference/formats/tex.md)                  | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development |                                                                                     |
-| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md)                | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                                                                     |
-| [JSON+Zip](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.zip.md)        | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                                                                     |
-| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json5.md)              | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                                                                     |
-| [JSON-LD](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jsonld.md)           | 🟢 No loss    | 🟢 No loss  | 🔶 Beta              |                                                                                     |
-| [CBOR](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.md)                | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                                                                     |
-| [CBOR+Zstandard](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.zstd.md) | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                                                                     |
-| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)                | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                                                                     |
-| [Lexical JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/lexical.md)     | 🔷 Low loss   | 🔷 Low loss | ⚠️ Alpha            |                                                                                     |
-| [Koenig JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/koenig.md)       | 🔷 Low loss   | 🔷 Low loss | ⚠️ Alpha            |                                                                                     |
-| [Pandoc AST](https://github.com/stencila/stencila/blob/main/docs/reference/formats/pandoc.md)        | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development |                                                                                     |
-| [Directory](https://github.com/stencila/stencila/blob/main/docs/reference/formats/directory.md)      |              |            | 🚧 Under development |                                                                                     |
-| [Stencila Web Bundle](https://github.com/stencila/stencila/blob/main/docs/reference/formats/swb.md)  |              |            | ⚠️ Alpha            |                                                                                     |
-| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/debug.md)              | 🔷 Low loss   |            | 🟢 Stable            |                                                                                     |
+| Format                                                                       | Encoding     | Decoding   | Support                                                                             | Notes |
+| ---------------------------------------------------------------------------- | ------------ | ---------- | ----------------------------------------------------------------------------------- | ----- |
+| [DOM HTML](https://stencila.ghost.io/docs/reference/formats/dom.html)        | 🟢 No loss    |            |                                                                                     |
+| [HTML](https://stencila.ghost.io/docs/reference/formats/html)                | 🔷 Low loss   |            | Encoded as [`<div>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/div) |
+| [JATS](https://stencila.ghost.io/docs/reference/formats/jats)                |              |            |                                                                                     |
+| [Markdown](https://stencila.ghost.io/docs/reference/formats/md)              | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function                                                  |
+| [Stencila Markdown](https://stencila.ghost.io/docs/reference/formats/smd)    | 🟢 No loss    | 🟢 No loss  |                                                                                     |
+| [Quarto Markdown](https://stencila.ghost.io/docs/reference/formats/qmd)      | 🟢 No loss    | 🟢 No loss  |                                                                                     |
+| [MyST Markdown](https://stencila.ghost.io/docs/reference/formats/myst)       | 🟢 No loss    | 🟢 No loss  |                                                                                     |
+| [LLM Markdown](https://stencila.ghost.io/docs/reference/formats/llmd)        | 🟢 No loss    | 🟢 No loss  |                                                                                     |
+| [LaTeX](https://stencila.ghost.io/docs/reference/formats/latex)              | 🔷 Low loss   | 🔷 Low loss |                                                                                     |
+| [PDF](https://stencila.ghost.io/docs/reference/formats/pdf)                  | 🔷 Low loss   |            |                                                                                     |
+| [Plain text](https://stencila.ghost.io/docs/reference/formats/text)          | ⚠️ High loss |            |                                                                                     |
+| [IPYNB](https://stencila.ghost.io/docs/reference/formats/ipynb)              | 🔷 Low loss   | 🔷 Low loss |                                                                                     |
+| [Microsoft Word DOCX](https://stencila.ghost.io/docs/reference/formats/docx) | 🔷 Low loss   | 🔷 Low loss |                                                                                     |
+| [OpenDocument ODT](https://stencila.ghost.io/docs/reference/formats/odt)     | 🔷 Low loss   | 🔷 Low loss |                                                                                     |
+| [TeX](https://stencila.ghost.io/docs/reference/formats/tex)                  | 🔷 Low loss   | 🔷 Low loss |                                                                                     |
+| [JSON](https://stencila.ghost.io/docs/reference/formats/json)                | 🟢 No loss    | 🟢 No loss  |                                                                                     |
+| [JSON+Zip](https://stencila.ghost.io/docs/reference/formats/json.zip)        | 🟢 No loss    | 🟢 No loss  |                                                                                     |
+| [JSON5](https://stencila.ghost.io/docs/reference/formats/json5)              | 🟢 No loss    | 🟢 No loss  |                                                                                     |
+| [JSON-LD](https://stencila.ghost.io/docs/reference/formats/jsonld)           | 🟢 No loss    | 🟢 No loss  |                                                                                     |
+| [CBOR](https://stencila.ghost.io/docs/reference/formats/cbor)                | 🟢 No loss    | 🟢 No loss  |                                                                                     |
+| [CBOR+Zstandard](https://stencila.ghost.io/docs/reference/formats/cbor.zstd) | 🟢 No loss    | 🟢 No loss  |                                                                                     |
+| [YAML](https://stencila.ghost.io/docs/reference/formats/yaml)                | 🟢 No loss    | 🟢 No loss  |                                                                                     |
+| [Lexical JSON](https://stencila.ghost.io/docs/reference/formats/lexical)     | 🔷 Low loss   | 🔷 Low loss |                                                                                     |
+| [Koenig JSON](https://stencila.ghost.io/docs/reference/formats/koenig)       | 🔷 Low loss   | 🔷 Low loss |                                                                                     |
+| [Pandoc AST](https://stencila.ghost.io/docs/reference/formats/pandoc)        | 🔷 Low loss   | 🔷 Low loss |                                                                                     |
+| [Directory](https://stencila.ghost.io/docs/reference/formats/directory)      |              |            |                                                                                     |
+| [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                     |
+| [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                     |
 
-## Bindings
+# Bindings
 
-The `StyledBlock` type is represented in these bindings:
+The `StyledBlock` type is represented in:
 
 - [JSON-LD](https://stencila.org/StyledBlock.jsonld)
 - [JSON Schema](https://stencila.org/StyledBlock.schema.json)
@@ -75,7 +84,7 @@ The `StyledBlock` type is represented in these bindings:
 - Rust struct [`StyledBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/styled_block.rs)
 - TypeScript class [`StyledBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/StyledBlock.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `StyledBlock` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -89,8 +98,8 @@ During property-based (a.k.a generative) testing, the properties of the `StyledB
 |                 | High+      | Generate a random string of up to 10 alphanumeric characters.                                                                     | `option::of(r"[a-zA-Z0-9]{1,10}")`                                                                                                                                          |
 |                 | Max        | Generate an arbitrary string.                                                                                                     | `option::of(String::arbitrary())`                                                                                                                                           |
 
-## Source
+# Source
 
-This documentation was generated from [`StyledBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/StyledBlock.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`StyledBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/StyledBlock.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 
 [^1]: See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details.

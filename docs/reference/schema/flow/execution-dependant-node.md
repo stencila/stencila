@@ -1,27 +1,36 @@
-# Execution Dependant Node
+---
+title: Execution Dependant Node
+description: Node types that can be execution dependencies.
+config:
+  publish:
+    ghost:
+      type: post
+      slug: execution-dependant-node
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Flow
+---
 
-**Node types that can be execution dependencies.**
-
-**`@id`**: `stencila:ExecutionDependantNode`
-
-## Members
+# Members
 
 The `ExecutionDependantNode` type has these members:
 
-- [`Button`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/button.md)
-- [`CallBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call-block.md)
-- [`CodeChunk`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-chunk.md)
-- [`CodeExpression`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-expression.md)
-- [`File`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/file.md)
-- [`Function`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/function.md)
-- [`Parameter`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)
-- [`StyledBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled-block.md)
-- [`StyledInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled-inline.md)
-- [`Variable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/variable.md)
+- [`Button`](https://stencila.ghost.io/docs/reference/schema/button)
+- [`CallBlock`](https://stencila.ghost.io/docs/reference/schema/call-block)
+- [`CodeChunk`](https://stencila.ghost.io/docs/reference/schema/code-chunk)
+- [`CodeExpression`](https://stencila.ghost.io/docs/reference/schema/code-expression)
+- [`File`](https://stencila.ghost.io/docs/reference/schema/file)
+- [`Function`](https://stencila.ghost.io/docs/reference/schema/function)
+- [`Parameter`](https://stencila.ghost.io/docs/reference/schema/parameter)
+- [`StyledBlock`](https://stencila.ghost.io/docs/reference/schema/styled-block)
+- [`StyledInline`](https://stencila.ghost.io/docs/reference/schema/styled-inline)
+- [`Variable`](https://stencila.ghost.io/docs/reference/schema/variable)
 
-## Bindings
+# Bindings
 
-The `ExecutionDependantNode` type is represented in these bindings:
+The `ExecutionDependantNode` type is represented in:
 
 - [JSON-LD](https://stencila.org/ExecutionDependantNode.jsonld)
 - [JSON Schema](https://stencila.org/ExecutionDependantNode.schema.json)
@@ -29,6 +38,6 @@ The `ExecutionDependantNode` type is represented in these bindings:
 - Rust type [`ExecutionDependantNode`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/execution_dependant_node.rs)
 - TypeScript type [`ExecutionDependantNode`](https://github.com/stencila/stencila/blob/main/ts/src/types/ExecutionDependantNode.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`ExecutionDependantNode.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionDependantNode.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`ExecutionDependantNode.yaml`](https://github.com/stencila/stencila/blob/main/schema/ExecutionDependantNode.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

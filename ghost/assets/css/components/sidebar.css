@@ -1,0 +1,50 @@
+
+.collapsible-section {
+  overflow: hidden;
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  max-height: 0;
+  opacity: 0;
+}
+
+.collapsible-section.expand {
+  max-height: 15000px; /* Adjust as needed */
+  opacity: 1;
+}
+
+#sidebar > aside::-webkit-scrollbar {
+  width: 6px;  /* Set a small width */
+}
+
+/* Scrollbar thumb (the draggable part) */
+#sidebar > aside::-webkit-scrollbar-thumb {
+  background: rgba(100, 100, 100, 0.5); /* Subtle color */
+  border-radius: 3px;  /* Rounded edges */
+}
+
+/* Scrollbar thumb on hover */
+#sidebar > aside::-webkit-scrollbar-thumb:hover {
+  background: rgba(100, 100, 100, 0.8); /* Slightly darker on hover */
+}
+
+/* Scrollbar track (optional, for styling the track area) */
+#sidebar > aside::-webkit-scrollbar-track {
+  background: transparent; /* Makes it blend in */
+}
+
+
+/* sidebar on smaller devices */
+@media only screen and (max-width: 64rem) {
+  #sidebar {
+      opacity: 0;
+      pointer-events: none; /* Prevent clicks when hidden */
+      transition: transform 400ms ease-in-out, opacity 400ms ease-in-out;
+      transform: translateX(-100%);
+  }
+
+  #sidebar.open {
+      opacity: 1;
+      pointer-events: auto; /* Enable interactions when visible */
+      transform: translateX(0);
+  }
+}
+

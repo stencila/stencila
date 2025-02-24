@@ -3,7 +3,7 @@ title: IfBlock
 extends: Executable
 category: flow
 description: Show and execute alternative content conditional upon an executed expression.
-status: under-development
+status: beta
 latex:
   derive: false
 markdown:

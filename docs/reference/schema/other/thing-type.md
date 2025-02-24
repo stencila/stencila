@@ -1,47 +1,58 @@
-# Thing Type
+---
+title: Thing Type
+description: Union type for all types that are descended from `Thing`
+config:
+  publish:
+    ghost:
+      type: post
+      slug: thing-type
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Other
+---
 
-**Union type for all types that are descended from `Thing`**
-
-## Members
+# Members
 
 The `ThingType` type has these members:
 
-- [`Article`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)
-- [`AudioObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio-object.md)
-- [`Brand`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md)
-- [`Chat`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat.md)
-- [`Claim`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)
-- [`Collection`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/collection.md)
-- [`Comment`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/comment.md)
-- [`ContactPoint`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/contact-point.md)
-- [`CreativeWork`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/creative-work.md)
-- [`Datatable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable.md)
-- [`DefinedTerm`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/defined-term.md)
-- [`Enumeration`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/enumeration.md)
-- [`Figure`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/figure.md)
-- [`Grant`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/grant.md)
-- [`ImageObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image-object.md)
-- [`ListItem`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list-item.md)
-- [`MediaObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/media-object.md)
-- [`MonetaryGrant`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/monetary-grant.md)
-- [`Organization`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/organization.md)
-- [`Periodical`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/periodical.md)
-- [`Person`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/person.md)
-- [`PostalAddress`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/postal-address.md)
-- [`Product`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/product.md)
-- [`Prompt`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/prompt.md)
-- [`PropertyValue`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/property-value.md)
-- [`PublicationIssue`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication-issue.md)
-- [`PublicationVolume`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication-volume.md)
-- [`Review`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/review.md)
-- [`SoftwareApplication`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software-application.md)
-- [`SoftwareSourceCode`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software-source-code.md)
-- [`Table`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table.md)
-- [`VideoObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/video-object.md)
+- [`Article`](https://stencila.ghost.io/docs/reference/schema/article)
+- [`AudioObject`](https://stencila.ghost.io/docs/reference/schema/audio-object)
+- [`Brand`](https://stencila.ghost.io/docs/reference/schema/brand)
+- [`Chat`](https://stencila.ghost.io/docs/reference/schema/chat)
+- [`Claim`](https://stencila.ghost.io/docs/reference/schema/claim)
+- [`Collection`](https://stencila.ghost.io/docs/reference/schema/collection)
+- [`Comment`](https://stencila.ghost.io/docs/reference/schema/comment)
+- [`ContactPoint`](https://stencila.ghost.io/docs/reference/schema/contact-point)
+- [`CreativeWork`](https://stencila.ghost.io/docs/reference/schema/creative-work)
+- [`Datatable`](https://stencila.ghost.io/docs/reference/schema/datatable)
+- [`DefinedTerm`](https://stencila.ghost.io/docs/reference/schema/defined-term)
+- [`Enumeration`](https://stencila.ghost.io/docs/reference/schema/enumeration)
+- [`Figure`](https://stencila.ghost.io/docs/reference/schema/figure)
+- [`Grant`](https://stencila.ghost.io/docs/reference/schema/grant)
+- [`ImageObject`](https://stencila.ghost.io/docs/reference/schema/image-object)
+- [`ListItem`](https://stencila.ghost.io/docs/reference/schema/list-item)
+- [`MediaObject`](https://stencila.ghost.io/docs/reference/schema/media-object)
+- [`MonetaryGrant`](https://stencila.ghost.io/docs/reference/schema/monetary-grant)
+- [`Organization`](https://stencila.ghost.io/docs/reference/schema/organization)
+- [`Periodical`](https://stencila.ghost.io/docs/reference/schema/periodical)
+- [`Person`](https://stencila.ghost.io/docs/reference/schema/person)
+- [`PostalAddress`](https://stencila.ghost.io/docs/reference/schema/postal-address)
+- [`Product`](https://stencila.ghost.io/docs/reference/schema/product)
+- [`Prompt`](https://stencila.ghost.io/docs/reference/schema/prompt)
+- [`PropertyValue`](https://stencila.ghost.io/docs/reference/schema/property-value)
+- [`PublicationIssue`](https://stencila.ghost.io/docs/reference/schema/publication-issue)
+- [`PublicationVolume`](https://stencila.ghost.io/docs/reference/schema/publication-volume)
+- [`Review`](https://stencila.ghost.io/docs/reference/schema/review)
+- [`SoftwareApplication`](https://stencila.ghost.io/docs/reference/schema/software-application)
+- [`SoftwareSourceCode`](https://stencila.ghost.io/docs/reference/schema/software-source-code)
+- [`Table`](https://stencila.ghost.io/docs/reference/schema/table)
+- [`VideoObject`](https://stencila.ghost.io/docs/reference/schema/video-object)
 
-## Bindings
+# Bindings
 
-The `ThingType` type is represented in these bindings:
+The `ThingType` type is represented in:
 
 - [JSON-LD](https://stencila.org/ThingType.jsonld)
 - [JSON Schema](https://stencila.org/ThingType.schema.json)
@@ -49,6 +60,6 @@ The `ThingType` type is represented in these bindings:
 - Rust type [`ThingType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/thing_type.rs)
 - TypeScript type [`ThingType`](https://github.com/stencila/stencila/blob/main/ts/src/types/ThingType.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`ThingType.yaml`](https://github.com/stencila/stencila/blob/main/schema/ThingType.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`ThingType.yaml`](https://github.com/stencila/stencila/blob/main/schema/ThingType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

@@ -63,8 +63,11 @@ ENV RENV_CONFIG_PAK_ENABLED=TRUE
 RUN exts=(\
     stencila.stencila \
     streetsidesoftware.code-spell-checker \
-    usernamehw.errorlens \
     ) && for ext in "${exts[@]}"; do ${OVS} --install-extension "${ext}"; done
+
+# Make the Stencila CLI installed with the extension more readily available to the user
+RUN STENCILA_DIR=$(find /home/workspace/.openvscode-server/extensions -maxdepth 1 -type d -name 'stencila.stencila-*' | head -n 1) && \
+    ln -s "$STENCILA_DIR/cli/stencila" /home/workspace/.local/bin/stencila
 
 # Copy over Stencila workspace files
 # The directory `/home/workspace/stencila/defaults`, rather than using `.stencila` to
@@ -76,6 +79,10 @@ COPY --chown=openvscode-server:openvscode-server defaults/* /home/workspace/sten
 RUN cd /home/workspace/stencila/defaults && \
     uv sync && \
     Rscript -e "renv::install()"
+
+# Add Stencila user level config
+RUN mkdir -p /home/workspace/.config/stencila/
+COPY --chown=openvscode-server:openvscode-server config.yaml /home/workspace/.config/stencila/
 
 # Add OpenVSCode Server settings
 # Best to do this after time consuming installs above because nothing else in

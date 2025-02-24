@@ -36,8 +36,8 @@ use model::{
     schema::{
         authorship, shortcuts::p, Article, AudioObject, Author, AuthorRole, Block,
         CompilationMessage, ExecutionMessage, ImageObject, Inline, InstructionBlock,
-        InstructionMessage, InstructionType, Link, MessageLevel, MessagePart, Node, Prompt,
-        SuggestionBlock, SuggestionStatus, Timestamp, UnsignedIntegerOrString, VideoObject,
+        InstructionMessage, InstructionType, Link, MessageLevel, MessagePart, Node, NodeType,
+        Prompt, SuggestionBlock, SuggestionStatus, Timestamp, UnsignedIntegerOrString, VideoObject,
     },
     ModelOutput, ModelOutputKind, ModelTask,
 };
@@ -247,10 +247,23 @@ pub async fn infer(
     });
 
     // Filter the prompts by node types: all node types must be in the prompts node types
+    // Note: given that both sets of node types are strings and we allow for aliases (e.g. "code" instead of "CodeChunk")
+    // we need to normalize both set to `NodeType`s before comparing
     let prompts = prompts.filter(|prompt| match (node_types, &prompt.node_types) {
-        (Some(node_types), Some(prompt_node_types)) => node_types
-            .iter()
-            .all(|node_type| prompt_node_types.contains(node_type)),
+        (Some(node_types), Some(prompt_node_types)) => {
+            let node_types = node_types
+                .iter()
+                .filter_map(|name| NodeType::from_name(name).ok())
+                .collect_vec();
+            let prompt_node_types = prompt_node_types
+                .iter()
+                .filter_map(|name| NodeType::from_name(name).ok())
+                .collect_vec();
+
+            node_types
+                .iter()
+                .all(|node_type| prompt_node_types.contains(node_type))
+        }
         _ => true,
     });
 

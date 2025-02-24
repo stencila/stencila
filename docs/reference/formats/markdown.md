@@ -59,161 +59,163 @@ markdown:
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
 
-## Codec
+# Support
 
-The codec (en**co**der/**dec**oder) for Markdown supports:
+Stencila supports these operations for Markdown:
 
 - decoding from a file
 - decoding from a string
 - encoding to a file
 - encoding to a string
 
-Support and degree of loss for node types:
+Support and degree of loss by node type:
 
-| Node type                                                                                                                 | Encoding     | Decoding   | Notes                              |
-| ------------------------------------------------------------------------------------------------------------------------- | ------------ | ---------- | ---------------------------------- |
-| **Works**                                                                                                                 |
-| [Article](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)                          | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
-| [AudioObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio_object.md)                 | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
-| [AuthorRole](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/author_role.md)                   | ⚠️ High loss |            |                                    |
-| [Chat](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat.md)                                | ⚠️ High loss |            | Encoded using implemented function |
-| [ChatMessage](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat_message.md)                 | ⚠️ High loss |            | Encoded using implemented function |
-| [ChatMessageGroup](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat_message_group.md)      | ⚠️ High loss |            | Encoded using implemented function |
-| [Claim](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)                              | ⚠️ High loss |            | Encoded using implemented function |
-| [Collection](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/collection.md)                    | ⚠️ High loss |            |                                    |
-| [Comment](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/comment.md)                          | ⚠️ High loss |            |                                    |
-| [CreativeWork](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/creative_work.md)               | ⚠️ High loss |            |                                    |
-| [Directory](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/directory.md)                      | ⚠️ High loss |            |                                    |
-| [Figure](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/figure.md)                            | ⚠️ High loss |            | Encoded using implemented function |
-| [File](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/file.md)                                | ⚠️ High loss |            |                                    |
-| [ImageObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image_object.md)                 | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
-| [MediaObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/media_object.md)                 | 🔷 Low loss   | 🔷 Low loss |                                    |
-| [Periodical](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/periodical.md)                    | ⚠️ High loss |            |                                    |
-| [Prompt](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/prompt.md)                            | ⚠️ High loss |            | Encoded using implemented function |
-| [PublicationIssue](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication_issue.md)       | ⚠️ High loss |            |                                    |
-| [PublicationVolume](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication_volume.md)     | ⚠️ High loss |            |                                    |
-| [Review](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/review.md)                            | ⚠️ High loss |            |                                    |
-| [SoftwareApplication](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software_application.md) | ⚠️ High loss |            |                                    |
-| [SoftwareSourceCode](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software_source_code.md)  | ⚠️ High loss |            |                                    |
-| [Table](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table.md)                              | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
-| [TableCell](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table_cell.md)                     | 🔷 Low loss   | 🔷 Low loss |                                    |
-| [TableRow](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table_row.md)                       | 🔷 Low loss   | 🔷 Low loss |                                    |
-| [VideoObject](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/video_object.md)                 | ⚠️ High loss |            | Encoded using implemented function |
-| **Prose**                                                                                                                 |
-| [Admonition](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/admonition.md)                    | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
-| [Annotation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/annotation.md)                    | ⚠️ High loss |            | Encoded as `=={{content}}==`       |
-| [Cite](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md)                                | ⚠️ High loss |            | Encoded using implemented function |
-| [CiteGroup](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite_group.md)                     | ⚠️ High loss |            |                                    |
-| [DefinedTerm](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/defined_term.md)                 | ⚠️ High loss |            |                                    |
-| [Emphasis](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/emphasis.md)                        | 🟢 No loss    | 🟢 No loss  | Encoded as `_{{content}}_`         |
-| [Heading](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/heading.md)                          | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
-| [Link](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/link.md)                                | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
-| [List](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list.md)                                | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
-| [ListItem](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/list_item.md)                       | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
-| [Note](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/note.md)                                | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
-| [Paragraph](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/paragraph.md)                      | 🟢 No loss    | 🟢 No loss  | Encoded as `{{content}}\n\n`       |
-| [QuoteBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote_block.md)                   | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
-| [QuoteInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/quote_inline.md)                 | ⚠️ High loss |            | Encoded as `<q>{{content}}</q>`    |
-| [Section](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/section.md)                          | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
-| [Strikeout](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strikeout.md)                      | ⚠️ High loss |            | Encoded as `~~{{content}}~~`       |
-| [Strong](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/strong.md)                            | 🟢 No loss    | 🟢 No loss  | Encoded as `**{{content}}**`       |
-| [Subscript](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/subscript.md)                      | 🟢 No loss    | 🟢 No loss  | Encoded as `~{{content}}~`         |
-| [Superscript](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/superscript.md)                  | 🟢 No loss    | 🟢 No loss  | Encoded as `^{{content}}^`         |
-| [Text](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/text.md)                                | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
-| [ThematicBreak](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/thematic_break.md)             | 🟢 No loss    | 🟢 No loss  | Encoded as `***\n\n`               |
-| [Underline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/underline.md)                      | 🟢 No loss    | 🟢 No loss  | Encoded as `<u>{{content}}</u>`    |
-| **Math**                                                                                                                  |
-| [MathBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math_block.md)                      | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
-| [MathInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math_inline.md)                    | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
-| **Code**                                                                                                                  |
-| [CodeBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_block.md)                      | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
-| [CodeChunk](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_chunk.md)                      | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
-| [CodeExpression](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_expression.md)            | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
-| [CodeInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code_inline.md)                    | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
-| [CompilationMessage](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/compilation_message.md)    | ⚠️ High loss |            |                                    |
-| [ExecutionMessage](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/execution_message.md)        | ⚠️ High loss |            |                                    |
-| **Data**                                                                                                                  |
-| [Array](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array.md)                               | ⚠️ High loss |            |                                    |
-| [ArrayHint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array_hint.md)                      | ⚠️ High loss |            |                                    |
-| [ArrayValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array_validator.md)            | ⚠️ High loss |            | Encoded using implemented function |
-| [Boolean](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md)                           | 🔷 Low loss   | 🔷 Low loss |                                    |
-| [BooleanValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean_validator.md)        | ⚠️ High loss |            | Encoded using implemented function |
-| [ConstantValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/constant_validator.md)      | ⚠️ High loss |            | Encoded using implemented function |
-| [Cord](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)                                 | 🟢 No loss    | 🟢 No loss  |                                    |
-| [Datatable](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable.md)                       | ⚠️ High loss |            | Encoded using implemented function |
-| [DatatableColumn](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable_column.md)          | ⚠️ High loss |            |                                    |
-| [DatatableColumnHint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable_column_hint.md) | ⚠️ High loss |            |                                    |
-| [DatatableHint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable_hint.md)              | ⚠️ High loss |            |                                    |
-| [Date](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date.md)                                 | ⚠️ High loss |            |                                    |
-| [DateTime](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date_time.md)                        | ⚠️ High loss |            |                                    |
-| [DateTimeValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date_time_validator.md)     | ⚠️ High loss |            | Encoded using implemented function |
-| [DateValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/date_validator.md)              | ⚠️ High loss |            | Encoded using implemented function |
-| [Duration](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration.md)                         | ⚠️ High loss |            |                                    |
-| [DurationValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/duration_validator.md)      | ⚠️ High loss |            | Encoded using implemented function |
-| [EnumValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/enum_validator.md)              | ⚠️ High loss |            | Encoded using implemented function |
-| [Integer](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)                           | 🔷 Low loss   | 🔷 Low loss |                                    |
-| [IntegerValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer_validator.md)        | ⚠️ High loss |            | Encoded using implemented function |
-| [Null](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/null.md)                                 | 🔷 Low loss   | 🔷 Low loss |                                    |
-| [Number](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number.md)                             | 🔷 Low loss   | 🔷 Low loss |                                    |
-| [NumberValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number_validator.md)          | ⚠️ High loss |            | Encoded using implemented function |
-| [Object](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/object.md)                             | ⚠️ High loss |            |                                    |
-| [ObjectHint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/object_hint.md)                    | ⚠️ High loss |            |                                    |
-| [String](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                             | 🟢 No loss    | 🟢 No loss  |                                    |
-| [StringHint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string_hint.md)                    | ⚠️ High loss |            |                                    |
-| [StringValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string_validator.md)          | ⚠️ High loss |            | Encoded using implemented function |
-| [Time](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time.md)                                 | ⚠️ High loss |            |                                    |
-| [TimeValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/time_validator.md)              | ⚠️ High loss |            | Encoded using implemented function |
-| [Timestamp](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/timestamp.md)                       | ⚠️ High loss |            |                                    |
-| [TimestampValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/timestamp_validator.md)    | ⚠️ High loss |            | Encoded using implemented function |
-| [TupleValidator](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/tuple_validator.md)            | ⚠️ High loss |            | Encoded using implemented function |
-| [Unknown](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/unknown.md)                           | ⚠️ High loss |            |                                    |
-| [UnsignedInteger](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/unsigned_integer.md)          | 🔷 Low loss   | 🔷 Low loss |                                    |
-| **Flow**                                                                                                                  |
-| [Button](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/button.md)                             | ⚠️ High loss |            |                                    |
-| [CallArgument](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call_argument.md)                | ⚠️ High loss |            | Encoded using implemented function |
-| [CallBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/call_block.md)                      | ⚠️ High loss |            | Encoded using implemented function |
-| [CodeLocation](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/code_location.md)                | ⚠️ High loss |            |                                    |
-| [CompilationDigest](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/compilation_digest.md)      | ⚠️ High loss |            |                                    |
-| [ExecutionDependant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_dependant.md)    | ⚠️ High loss |            |                                    |
-| [ExecutionDependency](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_dependency.md)  | ⚠️ High loss |            |                                    |
-| [ExecutionTag](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution_tag.md)                | ⚠️ High loss |            |                                    |
-| [ForBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/for_block.md)                        | ⚠️ High loss |            | Encoded using implemented function |
-| [Form](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/form.md)                                 | ⚠️ High loss |            |                                    |
-| [Function](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/function.md)                         | ⚠️ High loss |            |                                    |
-| [IfBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if_block.md)                          | ⚠️ High loss |            | Encoded using implemented function |
-| [IfBlockClause](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/if_block_clause.md)             | ⚠️ High loss |            | Encoded using implemented function |
-| [IncludeBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/include_block.md)                | ⚠️ High loss |            | Encoded using implemented function |
-| [Parameter](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/parameter.md)                       | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
-| [Variable](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/variable.md)                         | ⚠️ High loss |            |                                    |
-| [Walkthrough](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/walkthrough.md)                   | ⚠️ High loss |            | Encoded using implemented function |
-| [WalkthroughStep](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/walkthrough_step.md)          | ⚠️ High loss |            | Encoded using implemented function |
-| **Style**                                                                                                                 |
-| [StyledBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled_block.md)                 | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
-| [StyledInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled_inline.md)               | ⚠️ High loss |            | Encoded using implemented function |
-| **Edits**                                                                                                                 |
-| [InstructionBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_block.md)       | ⚠️ High loss |            | Encoded using implemented function |
-| [InstructionInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_inline.md)     | ⚠️ High loss |            | Encoded using implemented function |
-| [InstructionMessage](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/instruction_message.md)   | ⚠️ High loss |            | Encoded using implemented function |
-| [PromptBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/prompt_block.md)                 | ⚠️ High loss |            | Encoded using implemented function |
-| [SuggestionBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion_block.md)         | ⚠️ High loss |            | Encoded using implemented function |
-| [SuggestionInline](https://github.com/stencila/stencila/blob/main/docs/reference/schema/edits/suggestion_inline.md)       | ⚠️ High loss |            | Encoded using implemented function |
-| **Config**                                                                                                                |
-| [Config](https://github.com/stencila/stencila/blob/main/docs/reference/schema/config/config.md)                           | ⚠️ High loss |            |                                    |
-| **Other**                                                                                                                 |
-| [Brand](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/brand.md)                              | ⚠️ High loss |            |                                    |
-| [ContactPoint](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/contact_point.md)               | ⚠️ High loss |            |                                    |
-| [Enumeration](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/enumeration.md)                  | ⚠️ High loss |            |                                    |
-| [Grant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/grant.md)                              | ⚠️ High loss |            |                                    |
-| [ModelParameters](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/model_parameters.md)         | ⚠️ High loss |            | Encoded using implemented function |
-| [MonetaryGrant](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/monetary_grant.md)             | ⚠️ High loss |            |                                    |
-| [Organization](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/organization.md)                | ⚠️ High loss |            |                                    |
-| [Person](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/person.md)                            | ⚠️ High loss |            |                                    |
-| [PostalAddress](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/postal_address.md)             | ⚠️ High loss |            |                                    |
-| [Product](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/product.md)                          | ⚠️ High loss |            |                                    |
-| [PropertyValue](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/property_value.md)             | ⚠️ High loss |            |                                    |
-| [ProvenanceCount](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/provenance_count.md)         | ⚠️ High loss |            |                                    |
-| [RawBlock](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/raw_block.md)                       | ⚠️ High loss |            | Encoded using implemented function |
-| [Thing](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/thing.md)                              | ⚠️ High loss |            |                                    |
+| Node type                                                                                    | Encoding     | Decoding   | Notes                              |
+| -------------------------------------------------------------------------------------------- | ------------ | ---------- | ---------------------------------- |
+| **Works**                                                                                    |
+| [Article](https://stencila.ghost.io/docs/reference/schema/article)                           | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
+| [AudioObject](https://stencila.ghost.io/docs/reference/schema/audio_object)                  | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
+| [AuthorRole](https://stencila.ghost.io/docs/reference/schema/author_role)                    | ⚠️ High loss |            |                                    |
+| [Chat](https://stencila.ghost.io/docs/reference/schema/chat)                                 | ⚠️ High loss |            | Encoded using implemented function |
+| [ChatMessage](https://stencila.ghost.io/docs/reference/schema/chat_message)                  | ⚠️ High loss |            | Encoded using implemented function |
+| [ChatMessageGroup](https://stencila.ghost.io/docs/reference/schema/chat_message_group)       | ⚠️ High loss |            | Encoded using implemented function |
+| [Claim](https://stencila.ghost.io/docs/reference/schema/claim)                               | ⚠️ High loss |            | Encoded using implemented function |
+| [Collection](https://stencila.ghost.io/docs/reference/schema/collection)                     | ⚠️ High loss |            |                                    |
+| [Comment](https://stencila.ghost.io/docs/reference/schema/comment)                           | ⚠️ High loss |            |                                    |
+| [CreativeWork](https://stencila.ghost.io/docs/reference/schema/creative_work)                | ⚠️ High loss |            |                                    |
+| [Directory](https://stencila.ghost.io/docs/reference/schema/directory)                       | ⚠️ High loss |            |                                    |
+| [Figure](https://stencila.ghost.io/docs/reference/schema/figure)                             | ⚠️ High loss |            | Encoded using implemented function |
+| [File](https://stencila.ghost.io/docs/reference/schema/file)                                 | ⚠️ High loss |            |                                    |
+| [ImageObject](https://stencila.ghost.io/docs/reference/schema/image_object)                  | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
+| [MediaObject](https://stencila.ghost.io/docs/reference/schema/media_object)                  | 🔷 Low loss   | 🔷 Low loss |                                    |
+| [Periodical](https://stencila.ghost.io/docs/reference/schema/periodical)                     | ⚠️ High loss |            |                                    |
+| [Prompt](https://stencila.ghost.io/docs/reference/schema/prompt)                             | ⚠️ High loss |            | Encoded using implemented function |
+| [PublicationIssue](https://stencila.ghost.io/docs/reference/schema/publication_issue)        | ⚠️ High loss |            |                                    |
+| [PublicationVolume](https://stencila.ghost.io/docs/reference/schema/publication_volume)      | ⚠️ High loss |            |                                    |
+| [Review](https://stencila.ghost.io/docs/reference/schema/review)                             | ⚠️ High loss |            |                                    |
+| [SoftwareApplication](https://stencila.ghost.io/docs/reference/schema/software_application)  | ⚠️ High loss |            |                                    |
+| [SoftwareSourceCode](https://stencila.ghost.io/docs/reference/schema/software_source_code)   | ⚠️ High loss |            |                                    |
+| [Table](https://stencila.ghost.io/docs/reference/schema/table)                               | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
+| [TableCell](https://stencila.ghost.io/docs/reference/schema/table_cell)                      | 🔷 Low loss   | 🔷 Low loss |                                    |
+| [TableRow](https://stencila.ghost.io/docs/reference/schema/table_row)                        | 🔷 Low loss   | 🔷 Low loss |                                    |
+| [VideoObject](https://stencila.ghost.io/docs/reference/schema/video_object)                  | ⚠️ High loss |            | Encoded using implemented function |
+| **Prose**                                                                                    |
+| [Admonition](https://stencila.ghost.io/docs/reference/schema/admonition)                     | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
+| [Annotation](https://stencila.ghost.io/docs/reference/schema/annotation)                     | ⚠️ High loss |            | Encoded as `=={{content}}==`       |
+| [Cite](https://stencila.ghost.io/docs/reference/schema/cite)                                 | ⚠️ High loss |            | Encoded using implemented function |
+| [CiteGroup](https://stencila.ghost.io/docs/reference/schema/cite_group)                      | ⚠️ High loss |            |                                    |
+| [DefinedTerm](https://stencila.ghost.io/docs/reference/schema/defined_term)                  | ⚠️ High loss |            |                                    |
+| [Emphasis](https://stencila.ghost.io/docs/reference/schema/emphasis)                         | 🟢 No loss    | 🟢 No loss  | Encoded as `_{{content}}_`         |
+| [Heading](https://stencila.ghost.io/docs/reference/schema/heading)                           | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
+| [Link](https://stencila.ghost.io/docs/reference/schema/link)                                 | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
+| [List](https://stencila.ghost.io/docs/reference/schema/list)                                 | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
+| [ListItem](https://stencila.ghost.io/docs/reference/schema/list_item)                        | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
+| [Note](https://stencila.ghost.io/docs/reference/schema/note)                                 | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
+| [Paragraph](https://stencila.ghost.io/docs/reference/schema/paragraph)                       | 🟢 No loss    | 🟢 No loss  | Encoded as `{{content}}\n\n`       |
+| [QuoteBlock](https://stencila.ghost.io/docs/reference/schema/quote_block)                    | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
+| [QuoteInline](https://stencila.ghost.io/docs/reference/schema/quote_inline)                  | ⚠️ High loss |            | Encoded as `<q>{{content}}</q>`    |
+| [Section](https://stencila.ghost.io/docs/reference/schema/section)                           | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
+| [Strikeout](https://stencila.ghost.io/docs/reference/schema/strikeout)                       | ⚠️ High loss |            | Encoded as `~~{{content}}~~`       |
+| [Strong](https://stencila.ghost.io/docs/reference/schema/strong)                             | 🟢 No loss    | 🟢 No loss  | Encoded as `**{{content}}**`       |
+| [Subscript](https://stencila.ghost.io/docs/reference/schema/subscript)                       | 🟢 No loss    | 🟢 No loss  | Encoded as `~{{content}}~`         |
+| [Superscript](https://stencila.ghost.io/docs/reference/schema/superscript)                   | 🟢 No loss    | 🟢 No loss  | Encoded as `^{{content}}^`         |
+| [Text](https://stencila.ghost.io/docs/reference/schema/text)                                 | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
+| [ThematicBreak](https://stencila.ghost.io/docs/reference/schema/thematic_break)              | 🟢 No loss    | 🟢 No loss  | Encoded as `***\n\n`               |
+| [Underline](https://stencila.ghost.io/docs/reference/schema/underline)                       | 🟢 No loss    | 🟢 No loss  | Encoded as `<u>{{content}}</u>`    |
+| **Math**                                                                                     |
+| [MathBlock](https://stencila.ghost.io/docs/reference/schema/math_block)                      | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
+| [MathInline](https://stencila.ghost.io/docs/reference/schema/math_inline)                    | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
+| **Code**                                                                                     |
+| [CodeBlock](https://stencila.ghost.io/docs/reference/schema/code_block)                      | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
+| [CodeChunk](https://stencila.ghost.io/docs/reference/schema/code_chunk)                      | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
+| [CodeExpression](https://stencila.ghost.io/docs/reference/schema/code_expression)            | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
+| [CodeInline](https://stencila.ghost.io/docs/reference/schema/code_inline)                    | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
+| [CompilationMessage](https://stencila.ghost.io/docs/reference/schema/compilation_message)    | ⚠️ High loss |            |                                    |
+| [ExecutionMessage](https://stencila.ghost.io/docs/reference/schema/execution_message)        | ⚠️ High loss |            |                                    |
+| **Data**                                                                                     |
+| [Array](https://stencila.ghost.io/docs/reference/schema/array)                               | ⚠️ High loss |            |                                    |
+| [ArrayHint](https://stencila.ghost.io/docs/reference/schema/array_hint)                      | ⚠️ High loss |            |                                    |
+| [ArrayValidator](https://stencila.ghost.io/docs/reference/schema/array_validator)            | ⚠️ High loss |            | Encoded using implemented function |
+| [Boolean](https://stencila.ghost.io/docs/reference/schema/boolean)                           | 🔷 Low loss   | 🔷 Low loss |                                    |
+| [BooleanValidator](https://stencila.ghost.io/docs/reference/schema/boolean_validator)        | ⚠️ High loss |            | Encoded using implemented function |
+| [ConstantValidator](https://stencila.ghost.io/docs/reference/schema/constant_validator)      | ⚠️ High loss |            | Encoded using implemented function |
+| [Cord](https://stencila.ghost.io/docs/reference/schema/cord)                                 | 🟢 No loss    | 🟢 No loss  |                                    |
+| [Datatable](https://stencila.ghost.io/docs/reference/schema/datatable)                       | ⚠️ High loss |            | Encoded using implemented function |
+| [DatatableColumn](https://stencila.ghost.io/docs/reference/schema/datatable_column)          | ⚠️ High loss |            |                                    |
+| [DatatableColumnHint](https://stencila.ghost.io/docs/reference/schema/datatable_column_hint) | ⚠️ High loss |            |                                    |
+| [DatatableHint](https://stencila.ghost.io/docs/reference/schema/datatable_hint)              | ⚠️ High loss |            |                                    |
+| [Date](https://stencila.ghost.io/docs/reference/schema/date)                                 | ⚠️ High loss |            |                                    |
+| [DateTime](https://stencila.ghost.io/docs/reference/schema/date_time)                        | ⚠️ High loss |            |                                    |
+| [DateTimeValidator](https://stencila.ghost.io/docs/reference/schema/date_time_validator)     | ⚠️ High loss |            | Encoded using implemented function |
+| [DateValidator](https://stencila.ghost.io/docs/reference/schema/date_validator)              | ⚠️ High loss |            | Encoded using implemented function |
+| [Duration](https://stencila.ghost.io/docs/reference/schema/duration)                         | ⚠️ High loss |            |                                    |
+| [DurationValidator](https://stencila.ghost.io/docs/reference/schema/duration_validator)      | ⚠️ High loss |            | Encoded using implemented function |
+| [EnumValidator](https://stencila.ghost.io/docs/reference/schema/enum_validator)              | ⚠️ High loss |            | Encoded using implemented function |
+| [Integer](https://stencila.ghost.io/docs/reference/schema/integer)                           | 🔷 Low loss   | 🔷 Low loss |                                    |
+| [IntegerValidator](https://stencila.ghost.io/docs/reference/schema/integer_validator)        | ⚠️ High loss |            | Encoded using implemented function |
+| [Null](https://stencila.ghost.io/docs/reference/schema/null)                                 | 🔷 Low loss   | 🔷 Low loss |                                    |
+| [Number](https://stencila.ghost.io/docs/reference/schema/number)                             | 🔷 Low loss   | 🔷 Low loss |                                    |
+| [NumberValidator](https://stencila.ghost.io/docs/reference/schema/number_validator)          | ⚠️ High loss |            | Encoded using implemented function |
+| [Object](https://stencila.ghost.io/docs/reference/schema/object)                             | ⚠️ High loss |            |                                    |
+| [ObjectHint](https://stencila.ghost.io/docs/reference/schema/object_hint)                    | ⚠️ High loss |            |                                    |
+| [String](https://stencila.ghost.io/docs/reference/schema/string)                             | 🟢 No loss    | 🟢 No loss  |                                    |
+| [StringHint](https://stencila.ghost.io/docs/reference/schema/string_hint)                    | ⚠️ High loss |            |                                    |
+| [StringValidator](https://stencila.ghost.io/docs/reference/schema/string_validator)          | ⚠️ High loss |            | Encoded using implemented function |
+| [Time](https://stencila.ghost.io/docs/reference/schema/time)                                 | ⚠️ High loss |            |                                    |
+| [TimeValidator](https://stencila.ghost.io/docs/reference/schema/time_validator)              | ⚠️ High loss |            | Encoded using implemented function |
+| [Timestamp](https://stencila.ghost.io/docs/reference/schema/timestamp)                       | ⚠️ High loss |            |                                    |
+| [TimestampValidator](https://stencila.ghost.io/docs/reference/schema/timestamp_validator)    | ⚠️ High loss |            | Encoded using implemented function |
+| [TupleValidator](https://stencila.ghost.io/docs/reference/schema/tuple_validator)            | ⚠️ High loss |            | Encoded using implemented function |
+| [Unknown](https://stencila.ghost.io/docs/reference/schema/unknown)                           | ⚠️ High loss |            |                                    |
+| [UnsignedInteger](https://stencila.ghost.io/docs/reference/schema/unsigned_integer)          | 🔷 Low loss   | 🔷 Low loss |                                    |
+| **Flow**                                                                                     |
+| [Button](https://stencila.ghost.io/docs/reference/schema/button)                             | ⚠️ High loss |            |                                    |
+| [CallArgument](https://stencila.ghost.io/docs/reference/schema/call_argument)                | ⚠️ High loss |            | Encoded using implemented function |
+| [CallBlock](https://stencila.ghost.io/docs/reference/schema/call_block)                      | ⚠️ High loss |            | Encoded using implemented function |
+| [CodeLocation](https://stencila.ghost.io/docs/reference/schema/code_location)                | ⚠️ High loss |            |                                    |
+| [CompilationDigest](https://stencila.ghost.io/docs/reference/schema/compilation_digest)      | ⚠️ High loss |            |                                    |
+| [ExecutionDependant](https://stencila.ghost.io/docs/reference/schema/execution_dependant)    | ⚠️ High loss |            |                                    |
+| [ExecutionDependency](https://stencila.ghost.io/docs/reference/schema/execution_dependency)  | ⚠️ High loss |            |                                    |
+| [ExecutionTag](https://stencila.ghost.io/docs/reference/schema/execution_tag)                | ⚠️ High loss |            |                                    |
+| [ForBlock](https://stencila.ghost.io/docs/reference/schema/for_block)                        | ⚠️ High loss |            | Encoded using implemented function |
+| [Form](https://stencila.ghost.io/docs/reference/schema/form)                                 | ⚠️ High loss |            |                                    |
+| [Function](https://stencila.ghost.io/docs/reference/schema/function)                         | ⚠️ High loss |            |                                    |
+| [IfBlock](https://stencila.ghost.io/docs/reference/schema/if_block)                          | ⚠️ High loss |            | Encoded using implemented function |
+| [IfBlockClause](https://stencila.ghost.io/docs/reference/schema/if_block_clause)             | ⚠️ High loss |            | Encoded using implemented function |
+| [IncludeBlock](https://stencila.ghost.io/docs/reference/schema/include_block)                | ⚠️ High loss |            | Encoded using implemented function |
+| [Parameter](https://stencila.ghost.io/docs/reference/schema/parameter)                       | 🔷 Low loss   | 🔷 Low loss | Encoded using implemented function |
+| [Variable](https://stencila.ghost.io/docs/reference/schema/variable)                         | ⚠️ High loss |            |                                    |
+| [Walkthrough](https://stencila.ghost.io/docs/reference/schema/walkthrough)                   | ⚠️ High loss |            | Encoded using implemented function |
+| [WalkthroughStep](https://stencila.ghost.io/docs/reference/schema/walkthrough_step)          | ⚠️ High loss |            | Encoded using implemented function |
+| **Style**                                                                                    |
+| [StyledBlock](https://stencila.ghost.io/docs/reference/schema/styled_block)                  | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
+| [StyledInline](https://stencila.ghost.io/docs/reference/schema/styled_inline)                | ⚠️ High loss |            | Encoded using implemented function |
+| **Edits**                                                                                    |
+| [InstructionBlock](https://stencila.ghost.io/docs/reference/schema/instruction_block)        | ⚠️ High loss |            | Encoded using implemented function |
+| [InstructionInline](https://stencila.ghost.io/docs/reference/schema/instruction_inline)      | ⚠️ High loss |            | Encoded using implemented function |
+| [InstructionMessage](https://stencila.ghost.io/docs/reference/schema/instruction_message)    | ⚠️ High loss |            | Encoded using implemented function |
+| [PromptBlock](https://stencila.ghost.io/docs/reference/schema/prompt_block)                  | ⚠️ High loss |            | Encoded using implemented function |
+| [SuggestionBlock](https://stencila.ghost.io/docs/reference/schema/suggestion_block)          | ⚠️ High loss |            | Encoded using implemented function |
+| [SuggestionInline](https://stencila.ghost.io/docs/reference/schema/suggestion_inline)        | ⚠️ High loss |            | Encoded using implemented function |
+| **Config**                                                                                   |
+| [Config](https://stencila.ghost.io/docs/reference/schema/config)                             | ⚠️ High loss |            |                                    |
+| **Other**                                                                                    |
+| [Brand](https://stencila.ghost.io/docs/reference/schema/brand)                               | ⚠️ High loss |            |                                    |
+| [ContactPoint](https://stencila.ghost.io/docs/reference/schema/contact_point)                | ⚠️ High loss |            |                                    |
+| [Enumeration](https://stencila.ghost.io/docs/reference/schema/enumeration)                   | ⚠️ High loss |            |                                    |
+| [Grant](https://stencila.ghost.io/docs/reference/schema/grant)                               | ⚠️ High loss |            |                                    |
+| [ModelParameters](https://stencila.ghost.io/docs/reference/schema/model_parameters)          | ⚠️ High loss |            | Encoded using implemented function |
+| [MonetaryGrant](https://stencila.ghost.io/docs/reference/schema/monetary_grant)              | ⚠️ High loss |            |                                    |
+| [Organization](https://stencila.ghost.io/docs/reference/schema/organization)                 | ⚠️ High loss |            |                                    |
+| [Person](https://stencila.ghost.io/docs/reference/schema/person)                             | ⚠️ High loss |            |                                    |
+| [PostalAddress](https://stencila.ghost.io/docs/reference/schema/postal_address)              | ⚠️ High loss |            |                                    |
+| [Product](https://stencila.ghost.io/docs/reference/schema/product)                           | ⚠️ High loss |            |                                    |
+| [PropertyValue](https://stencila.ghost.io/docs/reference/schema/property_value)              | ⚠️ High loss |            |                                    |
+| [ProvenanceCount](https://stencila.ghost.io/docs/reference/schema/provenance_count)          | ⚠️ High loss |            |                                    |
+| [RawBlock](https://stencila.ghost.io/docs/reference/schema/raw_block)                        | ⚠️ High loss |            | Encoded using implemented function |
+| [Thing](https://stencila.ghost.io/docs/reference/schema/thing)                               | ⚠️ High loss |            |                                    |
+
+See the Rust crate [`codec-markdown`](https://github.com/stencila/stencila/tree/main/rust/codec-markdown) for more details.
 
 
 <!-- CODEC-DOCS:STOP -->

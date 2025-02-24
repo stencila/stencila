@@ -1,6 +1,17 @@
-# Role
-
-**Represents additional information about a relationship or property.**
+---
+title: Role
+description: Represents additional information about a relationship or property.
+config:
+  publish:
+    ghost:
+      type: post
+      slug: role
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Other
+---
 
 For example a `Role` can be used to say that a 'member' role linking some `SportsTeam` 
 to a player occurred during a particular time period. Or that a `Person`'s 'actor' role in a `Movie`
@@ -10,26 +21,24 @@ which is then associated with the main entities using ordinary properties like '
 See http://blog.schema.org/2014/06/introducing-role.html.
 
 
-**`@id`**: [`schema:Role`](https://schema.org/Role)
-
-## Properties
+# Properties
 
 The `Role` type has these properties:
 
-| Name | Aliases | `@id`                                | Type                                                                                            | Description                   | Inherited from                                                                                   |
-| ---- | ------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------ |
-| `id` | -       | [`schema:id`](https://schema.org/id) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md) | The identifier for this item. | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
+| Name | Description                   | Type                                                               | Inherited from                                                     | `JSON-LD @id`                        | Aliases |
+| ---- | ----------------------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ | ------------------------------------ | ------- |
+| `id` | The identifier for this item. | [`String`](https://stencila.ghost.io/docs/reference/schema/string) | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -       |
 
-## Related
+# Related
 
 The `Role` type is related to these types:
 
-- Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
-- Children: [`AuthorRole`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/author-role.md)
+- Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
+- Children: [`AuthorRole`](https://stencila.ghost.io/docs/reference/schema/author-role)
 
-## Bindings
+# Bindings
 
-The `Role` type is represented in these bindings:
+The `Role` type is represented in:
 
 - [JSON-LD](https://stencila.org/Role.jsonld)
 - [JSON Schema](https://stencila.org/Role.schema.json)
@@ -37,6 +46,6 @@ The `Role` type is represented in these bindings:
 - Rust struct [`Role`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/role.rs)
 - TypeScript class [`Role`](https://github.com/stencila/stencila/blob/main/ts/src/types/Role.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`Role.yaml`](https://github.com/stencila/stencila/blob/main/schema/Role.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`Role.yaml`](https://github.com/stencila/stencila/blob/main/schema/Role.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

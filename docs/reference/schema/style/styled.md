@@ -1,6 +1,17 @@
-# Styled
-
-**An abstract base class for a document node that has styling applied to it and/or its content.**
+---
+title: Styled
+description: An abstract base class for a document node that has styling applied to it and/or its content.
+config:
+  publish:
+    ghost:
+      type: post
+      slug: styled
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Style
+---
 
 This class is very similar to the `Math` abstract base class but has `styleLanguage` instead
 of `mathLanguage` and compiled `css` instead of `mathml`.
@@ -8,36 +19,34 @@ of `mathLanguage` and compiled `css` instead of `mathml`.
 Note also that `styleLanguage` is optional.
 
 
-**`@id`**: `stencila:Styled`
-
 This type is marked as unstable and is subject to change.
 
-## Properties
+# Properties
 
 The `Styled` type has these properties:
 
-| Name                  | Aliases                                                                                                            | `@id`                                        | Type                                                                                                                      | Description                                                            | Inherited from                                                                                   |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `id`                  | -                                                                                                                  | [`schema:id`](https://schema.org/id)         | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                           | The identifier for this item.                                          | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| `code`                | -                                                                                                                  | `stencila:code`                              | [`Cord`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)                               | The code of the equation in the `styleLanguage`.                       | -                                                                                                |
-| `styleLanguage`       | `style-language`, `style_language`                                                                                 | `stencila:styleLanguage`                     | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                           | The language used for the style specification e.g. css, tw             | -                                                                                                |
-| `authors`             | `author`                                                                                                           | [`schema:author`](https://schema.org/author) | [`Author`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/author.md)*                         | The authors of the code and content in the styled node.                | -                                                                                                |
-| `provenance`          | -                                                                                                                  | `stencila:provenance`                        | [`ProvenanceCount`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/provenance-count.md)*      | A summary of the provenance of the code and content in the styed node. | -                                                                                                |
-| `compilationDigest`   | `compilation-digest`, `compilation_digest`                                                                         | `stencila:compilationDigest`                 | [`CompilationDigest`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/compilation-digest.md)    | A digest of the `code` and `styleLanguage`.                            | -                                                                                                |
-| `compilationMessages` | `compilation-messages`, `compilation_messages`, `compilationMessage`, `compilation-message`, `compilation_message` | `stencila:compilationMessages`               | [`CompilationMessage`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/compilation-message.md)* | Messages generated while parsing and transpiling the style.            | -                                                                                                |
-| `css`                 | -                                                                                                                  | `stencila:css`                               | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                           | A Cascading Style Sheet (CSS) transpiled from the `code` property.     | -                                                                                                |
-| `classList`           | `class-list`, `class_list`                                                                                         | `stencila:classList`                         | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                           | A space separated list of class names associated with the node.        | -                                                                                                |
+| Name                  | Description                                                            | Type                                                                                         | Inherited from                                                     | `JSON-LD @id`                                | Aliases                                                                                                            |
+| --------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `id`                  | The identifier for this item.                                          | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id)         | -                                                                                                                  |
+| `code`                | The code of the equation in the `styleLanguage`.                       | [`Cord`](https://stencila.ghost.io/docs/reference/schema/cord)                               | -                                                                  | `stencila:code`                              | -                                                                                                                  |
+| `styleLanguage`       | The language used for the style specification e.g. css, tw             | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | -                                                                  | `stencila:styleLanguage`                     | `style-language`, `style_language`                                                                                 |
+| `authors`             | The authors of the code and content in the styled node.                | [`Author`](https://stencila.ghost.io/docs/reference/schema/author)*                          | -                                                                  | [`schema:author`](https://schema.org/author) | `author`                                                                                                           |
+| `provenance`          | A summary of the provenance of the code and content in the styed node. | [`ProvenanceCount`](https://stencila.ghost.io/docs/reference/schema/provenance-count)*       | -                                                                  | `stencila:provenance`                        | -                                                                                                                  |
+| `compilationDigest`   | A digest of the `code` and `styleLanguage`.                            | [`CompilationDigest`](https://stencila.ghost.io/docs/reference/schema/compilation-digest)    | -                                                                  | `stencila:compilationDigest`                 | `compilation-digest`, `compilation_digest`                                                                         |
+| `compilationMessages` | Messages generated while parsing and transpiling the style.            | [`CompilationMessage`](https://stencila.ghost.io/docs/reference/schema/compilation-message)* | -                                                                  | `stencila:compilationMessages`               | `compilation-messages`, `compilation_messages`, `compilationMessage`, `compilation-message`, `compilation_message` |
+| `css`                 | A Cascading Style Sheet (CSS) transpiled from the `code` property.     | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | -                                                                  | `stencila:css`                               | -                                                                                                                  |
+| `classList`           | A space separated list of class names associated with the node.        | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | -                                                                  | `stencila:classList`                         | `class-list`, `class_list`                                                                                         |
 
-## Related
+# Related
 
 The `Styled` type is related to these types:
 
-- Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
-- Children: [`StyledBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled-block.md), [`StyledInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/style/styled-inline.md)
+- Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
+- Children: [`StyledBlock`](https://stencila.ghost.io/docs/reference/schema/styled-block), [`StyledInline`](https://stencila.ghost.io/docs/reference/schema/styled-inline)
 
-## Bindings
+# Bindings
 
-The `Styled` type is represented in these bindings:
+The `Styled` type is represented in:
 
 - [JSON-LD](https://stencila.org/Styled.jsonld)
 - [JSON Schema](https://stencila.org/Styled.schema.json)
@@ -45,6 +54,6 @@ The `Styled` type is represented in these bindings:
 - Rust struct [`Styled`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/styled.rs)
 - TypeScript class [`Styled`](https://github.com/stencila/stencila/blob/main/ts/src/types/Styled.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`Styled.yaml`](https://github.com/stencila/stencila/blob/main/schema/Styled.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`Styled.yaml`](https://github.com/stencila/stencila/blob/main/schema/Styled.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

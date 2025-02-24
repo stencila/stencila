@@ -1,25 +1,34 @@
-# Author
-
-**Union type for things that can be an author of a `CreativeWork` or other type.**
+---
+title: Author
+description: Union type for things that can be an author of a `CreativeWork` or other type.
+config:
+  publish:
+    ghost:
+      type: post
+      slug: author
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Works
+---
 
 This type merely exists to avoid the excessively long type name
 (`PersonOrOrganizationOrSoftwareApplicationOrAuthorRole`) that is otherwise generated.
 
 
-**`@id`**: `stencila:Author`
-
-## Members
+# Members
 
 The `Author` type has these members:
 
-- [`Person`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/person.md)
-- [`Organization`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/organization.md)
-- [`SoftwareApplication`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software-application.md)
-- [`AuthorRole`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/author-role.md)
+- [`Person`](https://stencila.ghost.io/docs/reference/schema/person)
+- [`Organization`](https://stencila.ghost.io/docs/reference/schema/organization)
+- [`SoftwareApplication`](https://stencila.ghost.io/docs/reference/schema/software-application)
+- [`AuthorRole`](https://stencila.ghost.io/docs/reference/schema/author-role)
 
-## Bindings
+# Bindings
 
-The `Author` type is represented in these bindings:
+The `Author` type is represented in:
 
 - [JSON-LD](https://stencila.org/Author.jsonld)
 - [JSON Schema](https://stencila.org/Author.schema.json)
@@ -27,6 +36,6 @@ The `Author` type is represented in these bindings:
 - Rust type [`Author`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/author.rs)
 - TypeScript type [`Author`](https://github.com/stencila/stencila/blob/main/ts/src/types/Author.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`Author.yaml`](https://github.com/stencila/stencila/blob/main/schema/Author.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`Author.yaml`](https://github.com/stencila/stencila/blob/main/schema/Author.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

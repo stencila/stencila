@@ -1,6 +1,17 @@
-# Primitive
-
-**Union type for all primitives values.**
+---
+title: Primitive
+description: Union type for all primitives values.
+config:
+  publish:
+    ghost:
+      type: post
+      slug: primitive
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Data
+---
 
 Analogous to JSON values but adds `Integer` and `UnsignedInteger`.
 
@@ -9,24 +20,22 @@ but includes `Array` and `Object` and excludes `Date`, `Time` and `DateTime` (wh
 treated in this schema as `Entity`s having a `type` property to disambiguate them from strings).
 
 
-**`@id`**: `stencila:Primitive`
-
-## Members
+# Members
 
 The `Primitive` type has these members:
 
-- [`Null`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/null.md)
-- [`Boolean`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md)
-- [`Integer`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/integer.md)
-- [`UnsignedInteger`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/unsigned-integer.md)
-- [`Number`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number.md)
-- [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)
-- [`Array`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/array.md)
-- [`Object`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/object.md)
+- [`Null`](https://stencila.ghost.io/docs/reference/schema/null)
+- [`Boolean`](https://stencila.ghost.io/docs/reference/schema/boolean)
+- [`Integer`](https://stencila.ghost.io/docs/reference/schema/integer)
+- [`UnsignedInteger`](https://stencila.ghost.io/docs/reference/schema/unsigned-integer)
+- [`Number`](https://stencila.ghost.io/docs/reference/schema/number)
+- [`String`](https://stencila.ghost.io/docs/reference/schema/string)
+- [`Array`](https://stencila.ghost.io/docs/reference/schema/array)
+- [`Object`](https://stencila.ghost.io/docs/reference/schema/object)
 
-## Bindings
+# Bindings
 
-The `Primitive` type is represented in these bindings:
+The `Primitive` type is represented in:
 
 - [JSON-LD](https://stencila.org/Primitive.jsonld)
 - [JSON Schema](https://stencila.org/Primitive.schema.json)
@@ -34,6 +43,6 @@ The `Primitive` type is represented in these bindings:
 - Rust type [`Primitive`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/primitive.rs)
 - TypeScript type [`Primitive`](https://github.com/stencila/stencila/blob/main/ts/src/types/Primitive.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`Primitive.yaml`](https://github.com/stencila/stencila/blob/main/schema/Primitive.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`Primitive.yaml`](https://github.com/stencila/stencila/blob/main/schema/Primitive.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

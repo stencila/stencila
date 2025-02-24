@@ -1,12 +1,21 @@
-# Horizontal Alignment
-
-**The horizontal alignment of content.**
+---
+title: Horizontal Alignment
+description: The horizontal alignment of content.
+config:
+  publish:
+    ghost:
+      type: post
+      slug: horizontal-alignment
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Works
+---
 
 Based on the JATS [`align`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/align.html) attribute.
 
-**`@id`**: `stencila:HorizontalAlignment`
-
-## Members
+# Members
 
 The `HorizontalAlignment` type has these members:
 
@@ -16,9 +25,9 @@ The `HorizontalAlignment` type has these members:
 - `AlignCenter`
 - `AlignCharacter`
 
-## Bindings
+# Bindings
 
-The `HorizontalAlignment` type is represented in these bindings:
+The `HorizontalAlignment` type is represented in:
 
 - [JSON-LD](https://stencila.org/HorizontalAlignment.jsonld)
 - [JSON Schema](https://stencila.org/HorizontalAlignment.schema.json)
@@ -26,6 +35,6 @@ The `HorizontalAlignment` type is represented in these bindings:
 - Rust type [`HorizontalAlignment`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/horizontal_alignment.rs)
 - TypeScript type [`HorizontalAlignment`](https://github.com/stencila/stencila/blob/main/ts/src/types/HorizontalAlignment.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`HorizontalAlignment.yaml`](https://github.com/stencila/stencila/blob/main/schema/HorizontalAlignment.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`HorizontalAlignment.yaml`](https://github.com/stencila/stencila/blob/main/schema/HorizontalAlignment.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

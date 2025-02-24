@@ -1,0 +1,10 @@
+/* tailwindcss files */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .content-container {
+    @apply max-w-content w-full mx-auto px-4;
+  }
+}

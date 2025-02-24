@@ -105,15 +105,6 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           ),
         },
         {
-          label: "New Quarto Markdown",
-          description: "Create a new Quarto Markdown file",
-          command: "stencila.new-qmd",
-          iconPath: vscode.Uri.joinPath(
-            context.extensionUri,
-            "icons/quarto-128.png"
-          ),
-        },
-        {
           label: "New MyST Markdown",
           description: "Create a new MyST Markdown file",
           command: "stencila.new-myst",
@@ -142,7 +133,7 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
             label: "$(comment-discussion) Chat",
             description: "Chat about the current document",
             command: "stencila.chat-doc",
-          },
+          }
         );
       }
 
@@ -247,10 +238,10 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
           kind: vscode.QuickPickItemKind.Separator,
         },
         {
-          label: "$(hubot) AI Command Syntax",
-          description: "How to write AI commands",
-          command: "stencila.walkthroughs.open",
-          args: ["command-syntax", "smd"],
+          label: "$(star-full) Get Started",
+          description: "Get started with Stencila for VSCode",
+          command: "workbench.action.openWalkthrough",
+          args: ["stencila.stencila#get-started"],
         },
         {
           label: "$(symbol-operator) Math Equations and Symbols",
@@ -264,6 +255,12 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
             "Creating flowcharts, timelines and other diagrams using Mermaid and LLMs",
           command: "stencila.walkthroughs.open",
           args: ["mermaid", "smd", "myst", "qmd"],
+        },
+        {
+          label: "$(hubot) AI Command Syntax",
+          description: "How to write AI commands",
+          command: "stencila.walkthroughs.open",
+          args: ["command-syntax", "smd"],
         }
       );
 

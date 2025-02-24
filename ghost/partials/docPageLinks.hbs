@@ -1,0 +1,11 @@
+<div class="mb-8">
+  <ul>
+    {{#get 'pages' filter="tag:hash-doc-page" limit='all' order="published_at desc" }}
+    {{#foreach pages}}
+      <li>
+        <a href="{{url}}" class="text-xl font-semibold hover:text-[var(--ghost-accent-color)]">{{title}}</a>
+      </li>
+    {{/foreach}}
+    {{/get}}
+  </ul>
+</div>

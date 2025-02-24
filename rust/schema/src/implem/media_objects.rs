@@ -152,10 +152,14 @@ impl DomCodec for ImageObject {
         if let Some(media_type) = &self.media_type {
             context.push_attr("media-type", media_type);
 
-            if !media_type.starts_with("image/") {
+            if media_type.starts_with("image/") {
+                context.push_attr("content-url", &self.content_url);
+            } else {
                 context.push_attr("content", &self.content_url);
                 img = false;
             }
+        } else {
+            context.push_attr("content-url", &self.content_url);
         }
 
         if img {

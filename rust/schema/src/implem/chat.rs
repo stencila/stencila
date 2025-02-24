@@ -104,7 +104,7 @@ impl MarkdownCodec for Chat {
             if let Some(value) = self.prompt.node_types.iter().flatten().next() {
                 context
                     .space()
-                    .push_prop_str(NodeProperty::NodeTypes, &value.to_string().to_lowercase());
+                    .push_prop_str(NodeProperty::NodeTypes, &value.clone());
             }
 
             if let Some(target) = &self.prompt.target {

@@ -32,6 +32,13 @@
       ],
       "distDir": "./dist"
     },
+    "ghost": {
+      "source": [
+        "src/themes/nodes.css",
+        "src/views/ghost.ts"
+      ],
+      "distDir": "../ghost/assets/built/stencila-web"
+    },
     "vscode": {
       "source": [
         "src/themes/default.css",
@@ -53,6 +60,7 @@
     "start": "parcel watch",
     "build": "cross-env NODE_ENV=production parcel build --target default --no-scope-hoist",
     "build:vscode": "cross-env NODE_ENV=production parcel build --target vscode --config .parcelrc-vscode --no-source-maps --no-cache",
+    "build:ghost": "cross-env NODE_ENV=production parcel build --target ghost --no-source-maps --no-cache",
     "export:vscode": "tsx scripts/export-to-vscode.ts",
     "unused": "depcheck --quiet --ignores '@parcel/*,parcel-*,postcss-*' --ignore-patterns 'eslint.config.js'"
   },
@@ -60,19 +68,19 @@
     "@codemirror/commands": "6.8.0",
     "@codemirror/lang-css": "6.3.1",
     "@codemirror/lang-html": "6.4.9",
-    "@codemirror/lang-javascript": "6.2.2",
+    "@codemirror/lang-javascript": "6.2.3",
     "@codemirror/lang-json": "6.0.1",
     "@codemirror/lang-python": "6.1.7",
     "@codemirror/lang-sql": "6.8.0",
     "@codemirror/lang-xml": "6.1.0",
     "@codemirror/language": "6.10.8",
-    "@codemirror/legacy-modes": "6.4.2",
+    "@codemirror/legacy-modes": "6.4.3",
     "@codemirror/lint": "6.8.4",
-    "@codemirror/state": "6.5.1",
-    "@codemirror/view": "6.36.2",
-    "@lit-labs/observers": "2.0.4",
-    "@lit/context": "1.1.3",
-    "@shoelace-style/shoelace": "2.19.1",
+    "@codemirror/state": "6.5.2",
+    "@codemirror/view": "6.36.3",
+    "@lit-labs/observers": "2.0.5",
+    "@lit/context": "1.1.4",
+    "@shoelace-style/shoelace": "2.20.0",
     "@stencila/types": "2.0.0-alpha.26",
     "@tailwindcss/container-queries": "0.1.1",
     "@tailwindcss/typography": "0.5.16",
@@ -85,8 +93,9 @@
     "@viz-js/lang-dot": "1.0.4",
     "codemirror-lang-mermaid": "0.5.0",
     "codemirror-lang-r": "0.1.1",
-    "idiomorph": "0.4.0",
+    "idiomorph": "0.7.2",
     "just-diff-apply": "5.5.0",
+    "katex": "0.16.21",
     "lit": "3.2.1",
     "mermaid": "10.9.3",
     "moment": "2.30.1",
@@ -103,10 +112,11 @@
     "@parcel/transformer-inline-string": "2.13.3",
     "@parcel/transformer-typescript-tsc": "2.13.3",
     "@playwright/test": "1.49.1",
+    "@types/katex": "^0.16.7",
     "@types/plotly.js-dist-min": "2.3.4",
     "glob": "11.0.1",
     "parcel": "2.13.3",
     "postcss-import": "16.1.0",
-    "tsx": "4.19.2"
+    "tsx": "4.19.3"
   }
 }

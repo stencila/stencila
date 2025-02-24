@@ -4,7 +4,7 @@ use std::{collections::HashMap, env};
 
 use async_lsp::{lsp_types::Url, ClientSocket};
 
-use common::{eyre::Result, serde::Deserialize, serde_json, tracing};
+use common::{eyre::Result, serde::Deserialize, serde_json, smart_default::SmartDefault, tracing};
 
 mod code_lens;
 mod commands;
@@ -28,7 +28,7 @@ mod text_document;
 mod utils;
 
 pub use run::run;
-use schema::{Organization, Person};
+use schema::{MessageLevel, Organization, Person};
 use text_document::TextDocument;
 
 /// The state of the language server
@@ -53,13 +53,19 @@ pub(crate) enum ServerStatus {
     Shutdown,
 }
 
-#[derive(Debug, Default, Deserialize)]
-#[serde(crate = "common::serde")]
+#[derive(Debug, Default, Clone, Deserialize)]
+#[serde(default, crate = "common::serde")]
 pub(crate) struct ServerOptions {
     /// The current user
     ///
     /// Used for attributing authorship.
     user: Option<ServerOptionsUser>,
+
+    /// Options for how Stencila manages documents
+    documents: ServerOptionsDocuments,
+
+    /// Options for controlling which diagnostics Stencila shows in the editor
+    diagnostics: ServerOptionsDiagnostics,
 }
 
 impl ServerOptions {
@@ -85,7 +91,7 @@ impl ServerOptions {
     }
 }
 
-#[derive(Debug, Default, Deserialize)]
+#[derive(Debug, Default, Clone, Deserialize)]
 #[serde(crate = "common::serde")]
 pub(crate) struct ServerOptionsUser {
     /// The current user as a [`Person`] object
@@ -137,4 +143,33 @@ impl ServerOptionsUser {
             self.object = Some(person);
         }
     }
+}
+
+#[derive(Debug, SmartDefault, Clone, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+pub(crate) struct ServerOptionsDocuments {
+    /// The action to take when the document is saved in the editor
+    #[default(DocumentsOnSave::Store)]
+    on_save: DocumentsOnSave,
+}
+
+#[derive(Debug, SmartDefault, Clone, Copy, Deserialize)]
+#[serde(crate = "common::serde")]
+enum DocumentsOnSave {
+    Track,
+    #[default]
+    Store,
+    Nothing,
+}
+
+#[derive(Debug, SmartDefault, Clone, Deserialize)]
+#[serde(rename_all = "camelCase", crate = "common::serde")]
+pub(crate) struct ServerOptionsDiagnostics {
+    /// The minimum message level for compilation related diagnostics
+    #[default(MessageLevel::Error)]
+    compilation_messages: MessageLevel,
+
+    /// The minimum message level for execution related diagnostics
+    #[default(MessageLevel::Warning)]
+    execution_messages: MessageLevel,
 }

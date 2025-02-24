@@ -19,11 +19,11 @@ use codec::{
     schema::{
         shortcuts, Admonition, AdmonitionType, Author, Block, CallArgument, CallBlock, Chat,
         ChatMessage, ChatMessageGroup, ChatMessageOptions, Claim, CodeBlock, CodeChunk,
-        ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause, IncludeBlock, Inline,
-        InstructionBlock, InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock,
-        Node, Paragraph, PromptBlock, QuoteBlock, RawBlock, Section, SoftwareApplication,
-        StyledBlock, SuggestionBlock, SuggestionStatus, Table, TableCell, TableRow, TableRowType,
-        Text, ThematicBreak, Walkthrough, WalkthroughStep,
+        ExecutionBounds, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
+        IncludeBlock, Inline, InstructionBlock, InstructionMessage, LabelType, List, ListItem,
+        ListOrder, MathBlock, Node, Paragraph, PromptBlock, QuoteBlock, RawBlock, Section,
+        SoftwareApplication, StyledBlock, SuggestionBlock, SuggestionStatus, Table, TableCell,
+        TableRow, TableRowType, Text, ThematicBreak, Walkthrough, WalkthroughStep,
     },
 };
 
@@ -31,8 +31,8 @@ use super::{
     decode_blocks, decode_inlines,
     inlines::{inlines, mds_to_inlines, mds_to_string},
     shared::{
-        attrs, attrs_list, execution_bounds, execution_mode, instruction_type, model_parameters,
-        name, node_to_string, node_type, primitive_node, prompt, relative_position,
+        attrs, attrs_list, block_node_type, execution_bounds, execution_mode, instruction_type,
+        model_parameters, name, node_to_string, primitive_node, prompt, relative_position,
         string_to_instruction_message,
     },
     Context,
@@ -637,14 +637,14 @@ fn prompt_block(input: &mut Located<&str>) -> ModalResult<Block> {
         (
             opt(preceded(multispace1, instruction_type)),
             opt(preceded(multispace1, relative_position)),
-            opt(preceded(multispace1, node_type)),
+            opt(preceded(multispace1, block_node_type)),
             opt(preceded(multispace1, prompt)),
             opt(take_while(1.., |_| true)),
         ),
     )
     .map(
         |(instruction_type, relative_position, node_type, target, query)| {
-            let node_types = node_type.map(|node_type| vec![node_type.to_string()]);
+            let node_types = node_type.map(|node_type| vec![node_type]);
 
             let query = query.and_then(|query| {
                 let query = query.trim();
@@ -733,7 +733,7 @@ fn chat(input: &mut Located<&str>) -> ModalResult<Block> {
         (
             opt(preceded(multispace0, instruction_type)),
             opt(preceded(multispace1, relative_position)),
-            opt(preceded(multispace1, node_type)),
+            opt(preceded(multispace1, block_node_type)),
             opt(preceded(multispace1, prompt)),
             opt(preceded(multispace1, model_parameters)),
             opt(take_while(1.., |_| true)),
@@ -741,7 +741,7 @@ fn chat(input: &mut Located<&str>) -> ModalResult<Block> {
     )
     .map(
         |(instruction_type, relative_position, node_type, target, model_parameters, query)| {
-            let node_types = node_type.map(|node_type| vec![node_type.to_string()]);
+            let node_types = node_type.map(|node_type| vec![node_type]);
 
             let query = query.and_then(|query| {
                 let query = query.trim();
@@ -923,7 +923,7 @@ fn instruction_block(input: &mut Located<&str>) -> ModalResult<Block> {
         instruction_type,
         opt(preceded(multispace1, execution_mode)),
         opt(preceded(multispace1, relative_position)),
-        opt(preceded(multispace1, node_type)),
+        opt(preceded(multispace1, block_node_type)),
         opt(preceded(multispace1, prompt)),
         opt(preceded(multispace1, model_parameters)),
         opt(take_while(1.., |_| true)),
@@ -1494,8 +1494,11 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
             Block::CodeChunk(CodeChunk {
                 code: value.into(),
                 programming_language,
-                is_invisible: options
-                    .get("invisible")
+                is_echoed: options
+                    .get("echo")
+                    .and_then(|mode| mode.parse::<bool>().ok()),
+                is_hidden: options
+                    .get("hide")
                     .and_then(|mode| mode.parse::<bool>().ok()),
                 execution_mode: options.get("mode").and_then(|mode| mode.parse().ok()),
                 label_type: options.get("type").and_then(|&type_| match type_ {
@@ -1635,14 +1638,40 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
             (!lang.is_empty()).then_some(lang)
         });
 
-        let meta = meta.strip_prefix("exec").unwrap_or_default().trim_end();
+        let meta = meta.strip_prefix("exec").unwrap_or_default().trim();
 
-        let (execution_mode, execution_bounds) = (
-            opt(preceded(multispace1, execution_mode)),
-            opt(preceded(multispace1, execution_bounds)),
+        #[derive(Clone, PartialEq)]
+        enum Keyword {
+            IsEchoed,
+            IsHidden,
+            ExecutionMode(ExecutionMode),
+            ExecutionBounds(ExecutionBounds),
+            Ignore,
+        }
+        let keywords: Vec<Keyword> = separated(
+            0..,
+            alt((
+                "echo".value(Keyword::IsEchoed),
+                "hide".value(Keyword::IsHidden),
+                execution_mode.map(Keyword::ExecutionMode),
+                execution_bounds.map(Keyword::ExecutionBounds),
+                take_while(1.., |c| !AsChar::is_space(c)).value(Keyword::Ignore),
+            )),
+            multispace1,
         )
-            .parse_next(&mut Located::new(meta))
-            .unwrap_or_default();
+        .parse_next(&mut Located::new(meta))
+        .unwrap_or_default();
+
+        let is_echoed = keywords.contains(&Keyword::IsEchoed).then_some(true);
+        let is_hidden = keywords.contains(&Keyword::IsHidden).then_some(true);
+        let execution_mode = keywords.iter().find_map(|kw| match kw {
+            Keyword::ExecutionMode(mode) => Some(*mode),
+            _ => None,
+        });
+        let execution_bounds = keywords.iter().find_map(|kw| match kw {
+            Keyword::ExecutionBounds(bounds) => Some(*bounds),
+            _ => None,
+        });
 
         let mut label_automatically = None;
         let mut label_type = None;
@@ -1685,6 +1714,8 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
             },
             execution_mode,
             execution_bounds,
+            is_echoed,
+            is_hidden,
             label_automatically,
             label_type,
             label,

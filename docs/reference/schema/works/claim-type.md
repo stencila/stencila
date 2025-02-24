@@ -1,10 +1,19 @@
-# Claim Type
+---
+title: Claim Type
+description: The type of a `Claim`.
+config:
+  publish:
+    ghost:
+      type: post
+      slug: claim-type
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Works
+---
 
-**The type of a `Claim`.**
-
-**`@id`**: `stencila:ClaimType`
-
-## Members
+# Members
 
 The `ClaimType` type has these members:
 
@@ -17,9 +26,9 @@ The `ClaimType` type has these members:
 - `Proposition`
 - `Corollary`
 
-## Bindings
+# Bindings
 
-The `ClaimType` type is represented in these bindings:
+The `ClaimType` type is represented in:
 
 - [JSON-LD](https://stencila.org/ClaimType.jsonld)
 - [JSON Schema](https://stencila.org/ClaimType.schema.json)
@@ -27,6 +36,6 @@ The `ClaimType` type is represented in these bindings:
 - Rust type [`ClaimType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/claim_type.rs)
 - TypeScript type [`ClaimType`](https://github.com/stencila/stencila/blob/main/ts/src/types/ClaimType.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`ClaimType.yaml`](https://github.com/stencila/stencila/blob/main/schema/ClaimType.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`ClaimType.yaml`](https://github.com/stencila/stencila/blob/main/schema/ClaimType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

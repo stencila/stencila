@@ -1,10 +1,19 @@
-# Provenance Category
+---
+title: Provenance Category
+description: A description of the provenance of content in terms of human/machine involvement.
+config:
+  publish:
+    ghost:
+      type: post
+      slug: provenance-category
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Other
+---
 
-**A description of the provenance of content in terms of human/machine involvement.**
-
-**`@id`**: `stencila:ProvenanceCategory`
-
-## Members
+# Members
 
 The `ProvenanceCategory` type has these members:
 
@@ -26,9 +35,9 @@ The `ProvenanceCategory` type has these members:
 - `MwMe`
 - `MwMeMv`
 
-## Bindings
+# Bindings
 
-The `ProvenanceCategory` type is represented in these bindings:
+The `ProvenanceCategory` type is represented in:
 
 - [JSON-LD](https://stencila.org/ProvenanceCategory.jsonld)
 - [JSON Schema](https://stencila.org/ProvenanceCategory.schema.json)
@@ -36,6 +45,6 @@ The `ProvenanceCategory` type is represented in these bindings:
 - Rust type [`ProvenanceCategory`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/provenance_category.rs)
 - TypeScript type [`ProvenanceCategory`](https://github.com/stencila/stencila/blob/main/ts/src/types/ProvenanceCategory.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`ProvenanceCategory.yaml`](https://github.com/stencila/stencila/blob/main/schema/ProvenanceCategory.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`ProvenanceCategory.yaml`](https://github.com/stencila/stencila/blob/main/schema/ProvenanceCategory.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

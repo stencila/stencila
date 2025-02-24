@@ -7,6 +7,7 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila`↴](#stencila)
 * [`stencila new`↴](#stencila-new)
 * [`stencila init`↴](#stencila-init)
+* [`stencila config`↴](#stencila-config)
 * [`stencila status`↴](#stencila-status)
 * [`stencila track`↴](#stencila-track)
 * [`stencila untrack`↴](#stencila-untrack)
@@ -58,7 +59,6 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila secrets delete`↴](#stencila-secrets-delete)
 * [`stencila upgrade`↴](#stencila-upgrade)
 * [`stencila uninstall`↴](#stencila-uninstall)
-* [`stencila config`↴](#stencila-config)
 
 ## `stencila`
 
@@ -69,7 +69,8 @@ CLI subcommands and global options
 ###### **Subcommands:**
 
 * `new` — Create a new, tracked, document
-* `init` — Initialize document tracking in a folder
+* `init` — Initialize document config and tracking
+* `config` — Display the configuration for a document
 * `status` — Get the tracking status of documents
 * `track` — Start tracking a document
 * `untrack` — Stop tracking a document
@@ -93,7 +94,6 @@ CLI subcommands and global options
 * `secrets` — Manage secrets
 * `upgrade` — Upgrade to the latest version
 * `uninstall` — Uninstall this command line tool
-* `config` — 
 
 ###### **Options:**
 
@@ -125,7 +125,7 @@ Create a new, tracked, document
 
 ## `stencila init`
 
-Initialize document tracking in a folder
+Initialize document config and tracking
 
 **Usage:** `stencila init [OPTIONS] [DIR]`
 
@@ -139,7 +139,19 @@ Initialize document tracking in a folder
 
 ###### **Options:**
 
-* `--no-gitignore` — Do not create a `.gitignore` file
+* `--gitignore` — Create a `.gitignore` file
+
+
+
+## `stencila config`
+
+Display the configuration for a document
+
+**Usage:** `stencila config <FILE>`
+
+###### **Arguments:**
+
+* `<FILE>` — The path to the document to resolve
 
 
 
@@ -438,6 +450,10 @@ Lint one or more documents
 
 * `--format` — Format the file if necessary
 * `--fix` — Fix any linting issues
+* `-a`, `--as <AS>` — Output any linting diagnostics as JSON or YAML
+
+  Possible values: `json`, `yaml`
+
 
 
 
@@ -1416,22 +1432,6 @@ Upgrade to the latest version
 Uninstall this command line tool
 
 **Usage:** `stencila uninstall`
-
-
-
-## `stencila config`
-
-**Usage:** `stencila config [OPTIONS]`
-
-###### **Options:**
-
-* `--dir <DIR>`
-
-  Default value: `config`
-
-  Possible values: `config`, `cache`, `prompts`, `plugins`, `kernels`
-
-* `--ensure`
 
 
 

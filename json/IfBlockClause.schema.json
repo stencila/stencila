@@ -9,7 +9,7 @@
   ],
   "category": "flow",
   "description": "A clause within an `IfBlock` node.",
-  "status": "under-development",
+  "status": "beta",
   "markdown": {
     "derive": false
   },

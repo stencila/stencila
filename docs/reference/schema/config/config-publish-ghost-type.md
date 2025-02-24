@@ -1,17 +1,28 @@
-# Config Publish Ghost Type
+---
+title: Config Publish Ghost Type
+description: The type of Ghost resource
+config:
+  publish:
+    ghost:
+      type: post
+      slug: config-publish-ghost-type
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Config
+---
 
-**The type of Ghost resource**
-
-## Members
+# Members
 
 The `ConfigPublishGhostType` type has these members:
 
 - `Page`
 - `Post`
 
-## Bindings
+# Bindings
 
-The `ConfigPublishGhostType` type is represented in these bindings:
+The `ConfigPublishGhostType` type is represented in:
 
 - [JSON-LD](https://stencila.org/ConfigPublishGhostType.jsonld)
 - [JSON Schema](https://stencila.org/ConfigPublishGhostType.schema.json)
@@ -19,6 +30,6 @@ The `ConfigPublishGhostType` type is represented in these bindings:
 - Rust type [`ConfigPublishGhostType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/config_publish_ghost_type.rs)
 - TypeScript type [`ConfigPublishGhostType`](https://github.com/stencila/stencila/blob/main/ts/src/types/ConfigPublishGhostType.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`ConfigPublishGhostType.yaml`](https://github.com/stencila/stencila/blob/main/schema/ConfigPublishGhostType.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`ConfigPublishGhostType.yaml`](https://github.com/stencila/stencila/blob/main/schema/ConfigPublishGhostType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

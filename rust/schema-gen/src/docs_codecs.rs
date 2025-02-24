@@ -94,8 +94,8 @@ impl Schemas {
                     let title = td([lnk(
                         [t(title)],
                         format!(
-                            "https://github.com/stencila/stencila/blob/main/docs/reference/schema/{category}/{title}.md",
-                            title = title.to_snake_case()
+                            "https://stencila.ghost.io/docs/reference/schema/{}",
+                            title.to_snake_case()
                         ),
                     )]);
 
@@ -125,19 +125,25 @@ impl Schemas {
 
             let article = Article {
                 content: vec![
-                    h2([t("Codec")]),
-                    p([
-                        t("The codec (en"),
-                        stg([t("co")]),
-                        t("der/"),
-                        stg([t("dec")]),
-                        t("oder) for "),
-                        t(format.name()),
-                        t(" supports:"),
-                    ]),
+                    h1([t("Support")]),
+                    p([t(format!(
+                        "Stencila supports these operations for {}:",
+                        format.name()
+                    ))]),
                     ul(items),
-                    p([t("Support and degree of loss for node types:")]),
+                    p([t("Support and degree of loss by node type:")]),
                     tbl(rows),
+                    p([
+                        t("See the Rust crate "),
+                        lnk(
+                            [ci(format!("codec-{}", codec.name()))],
+                            format!(
+                                "https://github.com/stencila/stencila/tree/main/rust/codec-{}",
+                                codec.name()
+                            ),
+                        ),
+                        t(" for more details."),
+                    ]),
                 ],
                 ..Default::default()
             };

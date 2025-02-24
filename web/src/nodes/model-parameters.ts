@@ -297,7 +297,6 @@ export class ModelParameters extends Entity {
       | 'maximumRetries'
   ) {
     if (property == 'executeContent') {
-      console.log((event.target as HTMLInputElement).checked)
       this.executeContent = (event.target as HTMLInputElement).checked
     } else {
       this[property] = parseInt((event.target as HTMLInputElement).value)

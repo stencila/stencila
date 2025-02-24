@@ -102,7 +102,7 @@ export class UIBaseCard extends UIBaseClass {
     ])
 
     const canClose =
-      (this.depth > 0 &&
+      ((this.depth > 0 || this.noDocRoot) &&
         !(
           ChatMessage.shouldExpand(this, this.type) ||
           SuggestionBlock.shouldExpand(this, this.type)
@@ -111,36 +111,38 @@ export class UIBaseCard extends UIBaseClass {
 
     const icon = this.headerIcon ?? this.ui.icon
 
-    return html`<div class=${headerStyles}>
-      <div
-        class="flex items-center gap-x-2 grow"
-        @click=${() => {
-          if (!this.canCollapse) {
-            return
-          }
-          this.toggleCardBodyCollapse()
-        }}
-      >
-        <span class="items-center flex grow-0 shrink-0">
-          <stencila-ui-icon name=${icon} class="text-xl"></stencila-ui-icon>
-        </span>
-        <div class="flex justify-between items-center gap-x-2 grow">
-          <div
-            class=${`flex grow pr-4 ${this.restrictTitleWidth ? 'max-w-[22rem]' : ''}`}
-          >
-            <span
-              class="font-semibold text-sm inline-block overflow-hidden text-ellipsis whitespace-nowrap"
-              >${headerTitle}</span
+    return html`
+      <div class=${headerStyles}>
+        <div
+          class="flex items-center gap-x-2 grow"
+          @click=${() => {
+            if (!this.canCollapse) {
+              return
+            }
+            this.toggleCardBodyCollapse()
+          }}
+        >
+          <span class="items-center flex grow-0 shrink-0">
+            <stencila-ui-icon name=${icon} class="text-xl"></stencila-ui-icon>
+          </span>
+          <div class="flex justify-between items-center gap-x-2 grow">
+            <div
+              class=${`flex grow pr-4 ${this.restrictTitleWidth ? 'max-w-[22rem]' : ''}`}
             >
+              <span
+                class="font-semibold text-sm inline-block overflow-hidden text-ellipsis whitespace-nowrap"
+                >${headerTitle}</span
+              >
+            </div>
+            <div class="relative z-[3]">
+              <slot name="header-right"></slot>
+            </div>
+            ${this.canCollapse ? this.renderCollapse() : null}
+            ${canClose ? this.renderClose() : ''}
           </div>
-          <div class="relative z-[3]">
-            <slot name="header-right"></slot>
-          </div>
-          ${this.canCollapse ? this.renderCollapse() : null}
-          ${canClose ? this.renderClose() : ''}
         </div>
       </div>
-    </div>`
+    `
   }
 
   /**

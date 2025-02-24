@@ -35,12 +35,15 @@ export class Claim extends Entity {
       `
     }
 
+    const hasDocRoot = this.hasDocumentRootNode()
+
     return html`
       <stencila-ui-block-on-demand
         type="Claim"
         node-id=${this.id}
         depth=${this.depth}
         header-title=${this.claimType}
+        ?no-root=${!hasDocRoot}
       >
         <div slot="body">
           <stencila-ui-node-authors type="Claim">

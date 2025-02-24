@@ -28,7 +28,7 @@ export class IfBlockClause extends CodeExecutable {
    * Whether the clause is the active branch of the parent `IfBlock`
    */
   @property({ attribute: 'is-active', converter: booleanConverter })
-  isActive?: boolean
+  isActive?: boolean = false
 
   /**
    * Consumer for the parent `IfBlock` node's entity context
@@ -42,10 +42,10 @@ export class IfBlockClause extends CodeExecutable {
   private ifBlockConsumer: ContextConsumer<{ __context__: EntityContext }, this>
 
   /**
-   * Whether the clause is folded (i.e. its content is hidden)
+   * Whether the clause is expanded (i.e. its content is shown even if it is inactive)
    */
   @state()
-  private isFolded: boolean = true
+  private isExpanded: boolean = false
 
   /**
    * Whether the clause has any content
@@ -85,29 +85,10 @@ export class IfBlockClause extends CodeExecutable {
     })
   }
 
-  protected override update(changedProperties: PropertyValues): void {
-    super.update(changedProperties)
+  protected override updated(changedProperties: PropertyValues): void {
+    super.updated(changedProperties)
 
-    // if card is closed only active path stays open
-    if (!this.ifBlockConsumer?.value?.cardOpen) {
-      // TODO: consider alternative to disabling this lint error
-      // eslint-disable-next-line lit/no-property-change-update
-      this.isFolded = this.isActive === false
-    }
-    // }
-    if (
-      changedProperties.has('isActive') &&
-      !this.ifBlockConsumer?.value?.cardOpen
-    ) {
-      // eslint-disable-next-line lit/no-property-change-update
-      this.isFolded = this.isActive === false
-    }
-  }
-
-  protected override updated(_changedProperties: PropertyValues): void {
-    super.updated(_changedProperties)
-
-    // Initailise the `ifBlockConsumer` object
+    // Initialize the `ifBlockConsumer` object
     if (!this.ifBlockConsumer) {
       this.ifBlockConsumer = new ContextConsumer(this, {
         context: entityContext,
@@ -119,8 +100,9 @@ export class IfBlockClause extends CodeExecutable {
   override render() {
     return html`
       ${this.ifBlockConsumer?.value?.cardOpen ? this.renderHeader() : ''}
+
       <stencila-ui-collapsible-animation
-        class=${!this.isFolded ? 'opened' : ''}
+        class=${this.isActive || this.isExpanded ? 'opened' : ''}
       >
         ${this.renderContent()}
       </stencila-ui-collapsible-animation>
@@ -146,13 +128,17 @@ export class IfBlockClause extends CodeExecutable {
       iconName = 'elifClause'
     }
 
-    const readOnly = ['Running', 'Pending'].includes(this.executionStatus)
+    const readOnly =
+      ['Running', 'Pending'].includes(this.executionStatus) ||
+      !this.hasDocumentRootNode()
+
+    const expanded = this.isActive || this.isExpanded
 
     const headerStyle = apply([
       'px-3 py-1.5 flex items-center',
       `text-[${textColour}] bg-[${colour}] border-[${borderColour}]`,
       index == 0 ? '' : 'border-t',
-      this.isFolded ? '' : 'border-b',
+      !expanded ? '' : 'border-b',
     ])
 
     const iconStyles = apply([
@@ -195,10 +181,11 @@ export class IfBlockClause extends CodeExecutable {
 
         <stencila-ui-chevron-button
           class="ml-auto"
-          default-pos=${this.isFolded ? 'left' : 'down'}
+          default-pos=${expanded ? 'down' : 'left'}
           slot="right-side"
           custom-class="flex items-center ml-3"
-          .clickEvent=${() => (this.isFolded = !this.isFolded)}
+          ?disabled=${this.isActive === true}
+          .clickEvent=${() => (this.isExpanded = !this.isExpanded)}
         ></stencila-ui-chevron-button>
       </div>
     `

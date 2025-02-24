@@ -1,0 +1,113 @@
+{
+    "name": "stencila-ghost-theme",
+    "description": "A custom theme for  stencila ghost publications",
+    "version": "0.0.0",
+    "engines": {
+        "ghost": ">=5.0.0"
+    },
+    "license": "MIT",
+    "screenshots": {
+        "desktop": "assets/screenshot-desktop.jpg"
+    },
+    "scripts": {
+        "dev": "concurrently \"rollup -c --environment BUILD:development -w\" \"npx tailwindcss -i ./assets/css/tailwind.css -o ./assets/built/tailwind.css --watch\"",
+        "build": "rollup -c --environment BUILD:production && npx tailwindcss -i ./assets/css/tailwind.css -o ./assets/built/tailwind.css --minify",
+        "zip": "npm run build && bestzip $npm_package_name.zip assets/* partials/* members/* *.hbs package.json",
+        "test": "npx gscan .",
+        "pretest": "npm run build",
+        "compile-stencila": "cd ../web && npm run build:ghost"
+    },
+    "author": {
+        "name": "Ghost Foundation",
+        "email": "hello@ghost.org",
+        "url": "https://ghost.org"
+    },
+    "gpm": {
+        "type": "theme",
+        "categories": [
+            "Minimal",
+            "Magazine"
+        ]
+    },
+    "keywords": [
+        "ghost",
+        "theme",
+        "ghost-theme"
+    ],
+    "bugs": "https://github.com/TryGhost/Starter/issues",
+    "contributors": [
+        "https://github.com/TryGhost/Starter/graphs/contributors"
+    ],
+    "devDependencies": {
+        "@babel/core": "^7.21.0",
+        "@babel/preset-env": "^7.20.2",
+        "@rollup/plugin-babel": "^6.0.3",
+        "@rollup/plugin-commonjs": "^25.0.0",
+        "@rollup/plugin-node-resolve": "^15.0.1",
+        "@rollup/plugin-terser": "^0.4.0",
+        "@tailwindcss/typography": "0.5.16",
+        "autoprefixer": "^10.4.20",
+        "bestzip": "^2.2.1",
+        "concurrently": "^9.1.2",
+        "postcss": "^8.5.1",
+        "postcss-import": "^15.1.0",
+        "postcss-preset-env": "^8.0.1",
+        "rollup": "^3.18.0",
+        "rollup-plugin-livereload": "^2.0.5",
+        "rollup-plugin-postcss": "^4.0.2",
+        "tailwindcss": "^4.0.0"
+    },
+    "browserslist": [
+        "defaults"
+    ],
+    "config": {
+        "card_assets": true,
+        "posts_per_page": 15,
+        "image_sizes": {
+            "xxs": {
+                "width": 30
+            },
+            "xs": {
+                "width": 100
+            },
+            "s": {
+                "width": 300
+            },
+            "m": {
+                "width": 600
+            },
+            "l": {
+                "width": 1200
+            },
+            "xl": {
+                "width": 2000
+            }
+        },
+        "custom": {
+            "instagram": {
+                "type": "text",
+                "default": ""
+            },
+            "discord": {
+                "type": "text",
+                "default": ""
+            },
+            "github": {
+                "type": "text",
+                "default": ""
+            },
+            "whatsapp": {
+                "type": "text",
+                "default": ""
+            },
+            "youtube": {
+                "type": "text",
+                "default": ""
+            }
+        }
+    },
+    "type": "module",
+    "dependencies": {
+        "twind": "^0.16.19"
+    }
+}

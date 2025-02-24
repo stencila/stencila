@@ -32,10 +32,16 @@ export class CodeChunk extends CodeExecutable {
   label?: string
 
   @property({
-    attribute: 'is-invisible',
+    attribute: 'is-echoed',
     converter: booleanConverter,
   })
-  isInvisible?: boolean
+  isEchoed?: boolean
+
+  @property({
+    attribute: 'is-hidden',
+    converter: booleanConverter,
+  })
+  isHidden?: boolean
 
   @state()
   hasOutputs: boolean = false
@@ -47,7 +53,7 @@ export class CodeChunk extends CodeExecutable {
 
   override render() {
     if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
-      return this.renderContent()
+      return this.renderOutputs()
     }
 
     // render with the `insert` chip in model chat response
@@ -68,7 +74,10 @@ export class CodeChunk extends CodeExecutable {
       icon: 'code',
     }
 
-    const readOnly = ['Running', 'Pending'].includes(this.executionStatus)
+    const hasDocRoot = this.hasDocumentRootNode()
+
+    const readOnly =
+      ['Running', 'Pending'].includes(this.executionStatus) || !hasDocRoot
 
     return html`
       <stencila-ui-block-on-demand
@@ -78,6 +87,7 @@ export class CodeChunk extends CodeExecutable {
         header-icon=${icon}
         header-title=${title}
         ?noVisibleContent=${!this.hasOutputs}
+        ?no-root=${!hasDocRoot}
       >
         <span slot="header-right" class="flex flex-row items-center gap-3">
           <stencila-ui-node-execution-commands
@@ -96,6 +106,12 @@ export class CodeChunk extends CodeExecutable {
             node-id=${this.id}
             mode=${this.executionMode}
             bounds=${this.executionBounds}
+            is-echoed=${this.isEchoed !== undefined
+              ? this.isEchoed.toString()
+              : undefined}
+            is-hidden=${this.isHidden !== undefined
+              ? this.isHidden.toString()
+              : undefined}
             .tags=${this.executionTags}
             status=${this.executionStatus}
             required=${this.executionRequired}
@@ -130,42 +146,49 @@ export class CodeChunk extends CodeExecutable {
             </div>
           </stencila-ui-node-code>
         </div>
-        <div slot="content">${this.renderContent()}</div>
+
+        <div slot="content">
+          ${this.isEchoed && !this.context.cardOpen ? this.renderCode() : ''}
+          ${this.isHidden ? '' : this.renderOutputs()}
+        </div>
       </stencila-ui-block-on-demand>
     `
   }
 
-  /*
-  private renderShowHideOutput() {
-    return html`<sl-tooltip
-      content=${this.isInvisible ? 'Show output' : 'Hide output'}
-    >
-      <stencila-ui-icon-button
-        class="text-xl"
-        name=${this.isInvisible ? 'eye' : 'eyeSlash'}
-        @click=${(e: Event) => {
-          // Stop the click behavior of the card header parent element
-          e.stopImmediatePropagation()
-          this.isInvisible = !this.isInvisible
-        }}
-      ></stencila-ui-icon-button>
-    </sl-tooltip>`
+  private renderCode() {
+    return html`<div class="my-2">
+      <stencila-ui-node-code
+        type="CodeChunk"
+        node-id=${this.id}
+        code=${this.code}
+        code-authorship=${this.codeAuthorship}
+        language=${this.programmingLanguage}
+        execution-required=${this.executionRequired}
+        read-only
+        no-gutters
+        container-classes=${`rounded-sm border border-gray-200`}
+      >
+        <div slot="messages">
+          <slot name="compilation-messages"></slot>
+          <slot name="execution-messages"></slot>
+        </div>
+      </stencila-ui-node-code>
+    </div>`
   }
-  */
 
-  private renderContent() {
-    return this.isInvisible
-      ? html``
-      : html`
-          ${this.labelType === 'TableLabel'
-            ? html`<caption class="block">
-                <slot name="caption"></slot>
-              </caption>`
-            : ''}
-          <slot name="outputs" @slotchange=${this.handleOutputsChange}></slot>
-          ${this.labelType === 'FigureLabel'
-            ? html`<figcaption><slot name="caption"></slot></figcaption>`
-            : ''}
-        `
+  private renderOutputs() {
+    return html`
+      ${this.labelType === 'TableLabel'
+        ? html`<caption class="block">
+            <slot name="caption"></slot>
+          </caption>`
+        : ''}
+
+      <slot name="outputs" @slotchange=${this.handleOutputsChange}></slot>
+
+      ${this.labelType === 'FigureLabel'
+        ? html`<figcaption><slot name="caption"></slot></figcaption>`
+        : ''}
+    `
   }
 }

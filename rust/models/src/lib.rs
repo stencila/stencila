@@ -33,7 +33,14 @@ pub async fn list() -> Vec<Arc<dyn Model>> {
         match result {
             Ok(list) => list,
             Err(error) => {
-                tracing::error!("While listing {provider} models: {error}");
+                if provider == "Stencila" {
+                    // This happens when no network connection is available
+                    // (given that API is public) so emit a debug message, not an error
+                    tracing::debug!("While listing Stencila models: {error}");
+                } else {
+                    tracing::warn!("While listing {provider} models: {error}");
+                }
+
                 vec![]
             }
         }

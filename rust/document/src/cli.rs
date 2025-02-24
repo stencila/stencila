@@ -18,12 +18,17 @@ use common::{
     reqwest::Url,
     tokio::fs::write,
 };
+use format::Format;
 
-use crate::track::{closest_workspace_dir, tracking_file, DocumentRemote};
+use crate::{
+    config::config_file,
+    dirs::{closest_workspace_dir, STENCILA_DIR},
+    track::{tracking_file, DocumentRemote},
+};
 
 use super::{track::DocumentTrackingStatus, Document};
 
-/// Initialize document tracking in a folder
+/// Initialize document config and tracking
 #[derive(Debug, Parser)]
 pub struct Init {
     /// The directory to start document tracking in
@@ -32,9 +37,9 @@ pub struct Init {
     #[arg(default_value = ".")]
     dir: PathBuf,
 
-    /// Do not create a `.gitignore` file
+    /// Create a `.gitignore` file
     #[arg(long)]
-    no_gitignore: bool,
+    gitignore: bool,
 }
 
 impl Init {
@@ -46,16 +51,40 @@ impl Init {
             );
         }
 
+        config_file(&self.dir, true).await?;
         tracking_file(&self.dir, true).await?;
 
-        if !self.no_gitignore {
-            write(self.dir.join(".stencila").join(".gitignore"), "*\n").await?;
+        if self.gitignore {
+            write(self.dir.join(STENCILA_DIR).join(".gitignore"), "*\n").await?;
         }
 
         eprintln!(
-            "🟢 Initialized document tracking in `{}`",
+            "🟢 Initialized document config and tracking in `{}`",
             self.dir.display()
         );
+
+        Ok(())
+    }
+}
+
+/// Display the configuration for a document
+#[derive(Debug, Parser)]
+pub struct Config {
+    /// The path to the document to resolve
+    file: PathBuf,
+}
+
+impl Config {
+    pub async fn run(self) -> Result<()> {
+        let doc = Document::open(&self.file).await?;
+
+        let (config, sources) = doc.config_with_sources().await?;
+
+        Code::new(Format::Markdown, "# Config sources").to_stdout();
+        Code::new_from(Format::Yaml, &sources)?.to_stdout();
+
+        Code::new(Format::Markdown, "# Merged config").to_stdout();
+        Code::new_from(Format::Yaml, &config)?.to_stdout();
 
         Ok(())
     }

@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, fs::read_to_string, io::Write, path::Path, process::Command};
+use std::{cmp::Ordering, env, fs::read_to_string, io::Write, path::Path, process::Command};
 
 use which::which;
 
@@ -71,7 +71,7 @@ impl KernelLint for PythonKernel {
     async fn lint(
         &self,
         code: &str,
-        _dir: &Path,
+        dir: &Path,
         options: KernelLintingOptions,
     ) -> Result<KernelLintingOutput> {
         tracing::trace!("Linting Python code");
@@ -176,11 +176,27 @@ impl KernelLint for PythonKernel {
         };
 
         // Run Pyright with JSON output to parse into messages
-        if let Ok(output) = Command::new("pyright")
-            .arg("--outputjson")
-            .arg(temp_path)
-            .output()
-        {
+        // See https://github.com/Microsoft/pyright/blob/main/docs/command-line.md
+        let mut pyright = Command::new("pyright");
+        pyright.arg("--outputjson");
+        if let Ok(python_path) = env::var("PYTHON_PATH") {
+            // Use the PYTHON_PATH provided
+            pyright.arg(format!("--pythonpath={python_path}"));
+        } else {
+            // Search up the tree from the document for a virtual env
+            let mut dir = dir.to_path_buf();
+            loop {
+                let python_path = dir.join(".venv").join("bin").join("python");
+                if python_path.exists() {
+                    pyright.arg(format!("--pythonpath={}", python_path.display()));
+                    break;
+                }
+                if !dir.pop() {
+                    break;
+                }
+            }
+        }
+        if let Ok(output) = pyright.arg(temp_path).output() {
             let stdout = String::from_utf8_lossy(&output.stdout).to_string();
 
             // Successfully ran Pyright so add as an author (regardless of whether it made any fixes)
@@ -236,10 +252,15 @@ impl KernelLint for PythonKernel {
                     ..Default::default()
                 });
 
-                // Only add message if code location not already recorded
+                let level = match diag.severity.as_str() {
+                    "warning" => MessageLevel::Warning,
+                    _ => MessageLevel::Error,
+                };
+
+                // Only add message for a line if higher severity level
                 if messages
                     .iter()
-                    .any(|msg| msg.code_location == code_location)
+                    .any(|msg| msg.code_location == code_location && msg.level >= level)
                 {
                     continue;
                 }
@@ -256,10 +277,7 @@ impl KernelLint for PythonKernel {
 
                 let message = CompilationMessage {
                     error_type: Some("Linting".into()),
-                    level: match diag.severity.as_str() {
-                        "warning" => MessageLevel::Warning,
-                        _ => MessageLevel::Error,
-                    },
+                    level,
                     message,
                     code_location,
                     ..Default::default()
@@ -301,19 +319,11 @@ impl KernelLint for PythonKernel {
 
 impl Microkernel for PythonKernel {
     fn executable_name(&self) -> String {
-        if which("uv").is_ok() {
-            "uv".into()
-        } else {
-            "python3".into()
-        }
+        "python3".into()
     }
 
-    fn executable_arguments(&self, executable_name: &str) -> Vec<String> {
-        if executable_name == "uv" {
-            vec!["run".into(), "{{script}}".into()]
-        } else {
-            vec!["{{script}}".into()]
-        }
+    fn executable_arguments(&self, _executable_name: &str) -> Vec<String> {
+        vec!["{{script}}".into()]
     }
 
     fn microkernel_script(&self) -> (String, String) {

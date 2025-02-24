@@ -1,34 +1,45 @@
-# Creative Work Type
+---
+title: Creative Work Type
+description: Union type for all types that are descended from `CreativeWork`
+config:
+  publish:
+    ghost:
+      type: post
+      slug: creative-work-type
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Works
+---
 
-**Union type for all types that are descended from `CreativeWork`**
-
-## Members
+# Members
 
 The `CreativeWorkType` type has these members:
 
-- [`Article`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/article.md)
-- [`AudioObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio-object.md)
-- [`Chat`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/chat.md)
-- [`Claim`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/claim.md)
-- [`Collection`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/collection.md)
-- [`Comment`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/comment.md)
-- [`Datatable`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/datatable.md)
-- [`Figure`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/figure.md)
-- [`ImageObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image-object.md)
-- [`MediaObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/media-object.md)
-- [`Periodical`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/periodical.md)
-- [`Prompt`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/prompt.md)
-- [`PublicationIssue`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication-issue.md)
-- [`PublicationVolume`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/publication-volume.md)
-- [`Review`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/review.md)
-- [`SoftwareApplication`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software-application.md)
-- [`SoftwareSourceCode`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/software-source-code.md)
-- [`Table`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/table.md)
-- [`VideoObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/video-object.md)
+- [`Article`](https://stencila.ghost.io/docs/reference/schema/article)
+- [`AudioObject`](https://stencila.ghost.io/docs/reference/schema/audio-object)
+- [`Chat`](https://stencila.ghost.io/docs/reference/schema/chat)
+- [`Claim`](https://stencila.ghost.io/docs/reference/schema/claim)
+- [`Collection`](https://stencila.ghost.io/docs/reference/schema/collection)
+- [`Comment`](https://stencila.ghost.io/docs/reference/schema/comment)
+- [`Datatable`](https://stencila.ghost.io/docs/reference/schema/datatable)
+- [`Figure`](https://stencila.ghost.io/docs/reference/schema/figure)
+- [`ImageObject`](https://stencila.ghost.io/docs/reference/schema/image-object)
+- [`MediaObject`](https://stencila.ghost.io/docs/reference/schema/media-object)
+- [`Periodical`](https://stencila.ghost.io/docs/reference/schema/periodical)
+- [`Prompt`](https://stencila.ghost.io/docs/reference/schema/prompt)
+- [`PublicationIssue`](https://stencila.ghost.io/docs/reference/schema/publication-issue)
+- [`PublicationVolume`](https://stencila.ghost.io/docs/reference/schema/publication-volume)
+- [`Review`](https://stencila.ghost.io/docs/reference/schema/review)
+- [`SoftwareApplication`](https://stencila.ghost.io/docs/reference/schema/software-application)
+- [`SoftwareSourceCode`](https://stencila.ghost.io/docs/reference/schema/software-source-code)
+- [`Table`](https://stencila.ghost.io/docs/reference/schema/table)
+- [`VideoObject`](https://stencila.ghost.io/docs/reference/schema/video-object)
 
-## Bindings
+# Bindings
 
-The `CreativeWorkType` type is represented in these bindings:
+The `CreativeWorkType` type is represented in:
 
 - [JSON-LD](https://stencila.org/CreativeWorkType.jsonld)
 - [JSON Schema](https://stencila.org/CreativeWorkType.schema.json)
@@ -36,6 +47,6 @@ The `CreativeWorkType` type is represented in these bindings:
 - Rust type [`CreativeWorkType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/creative_work_type.rs)
 - TypeScript type [`CreativeWorkType`](https://github.com/stencila/stencila/blob/main/ts/src/types/CreativeWorkType.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`CreativeWorkType.yaml`](https://github.com/stencila/stencila/blob/main/schema/CreativeWorkType.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`CreativeWorkType.yaml`](https://github.com/stencila/stencila/blob/main/schema/CreativeWorkType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

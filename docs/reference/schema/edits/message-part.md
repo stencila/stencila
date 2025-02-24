@@ -1,25 +1,34 @@
-# Message Part
-
-**A union type for a part of a message.**
+---
+title: Message Part
+description: A union type for a part of a message.
+config:
+  publish:
+    ghost:
+      type: post
+      slug: message-part
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Edits
+---
 
 This union type uses `Text`, instead of `string`, so that each type of part
 is an entity with a type and node id.
 
 
-**`@id`**: `stencila:MessagePart`
-
-## Members
+# Members
 
 The `MessagePart` type has these members:
 
-- [`Text`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/text.md)
-- [`ImageObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/image-object.md)
-- [`AudioObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/audio-object.md)
-- [`VideoObject`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/video-object.md)
+- [`Text`](https://stencila.ghost.io/docs/reference/schema/text)
+- [`ImageObject`](https://stencila.ghost.io/docs/reference/schema/image-object)
+- [`AudioObject`](https://stencila.ghost.io/docs/reference/schema/audio-object)
+- [`VideoObject`](https://stencila.ghost.io/docs/reference/schema/video-object)
 
-## Bindings
+# Bindings
 
-The `MessagePart` type is represented in these bindings:
+The `MessagePart` type is represented in:
 
 - [JSON-LD](https://stencila.org/MessagePart.jsonld)
 - [JSON Schema](https://stencila.org/MessagePart.schema.json)
@@ -27,6 +36,6 @@ The `MessagePart` type is represented in these bindings:
 - Rust type [`MessagePart`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/message_part.rs)
 - TypeScript type [`MessagePart`](https://github.com/stencila/stencila/blob/main/ts/src/types/MessagePart.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`MessagePart.yaml`](https://github.com/stencila/stencila/blob/main/schema/MessagePart.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`MessagePart.yaml`](https://github.com/stencila/stencila/blob/main/schema/MessagePart.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

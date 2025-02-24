@@ -1,10 +1,19 @@
-# Table Row Type
+---
+title: Table Row Type
+description: Indicates whether the row is in the header, body or footer of the table.
+config:
+  publish:
+    ghost:
+      type: post
+      slug: table-row-type
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Works
+---
 
-**Indicates whether the row is in the header, body or footer of the table.**
-
-**`@id`**: `stencila:TableRowType`
-
-## Members
+# Members
 
 The `TableRowType` type has these members:
 
@@ -12,9 +21,9 @@ The `TableRowType` type has these members:
 - `BodyRow`
 - `FooterRow`
 
-## Bindings
+# Bindings
 
-The `TableRowType` type is represented in these bindings:
+The `TableRowType` type is represented in:
 
 - [JSON-LD](https://stencila.org/TableRowType.jsonld)
 - [JSON Schema](https://stencila.org/TableRowType.schema.json)
@@ -22,6 +31,6 @@ The `TableRowType` type is represented in these bindings:
 - Rust type [`TableRowType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/table_row_type.rs)
 - TypeScript type [`TableRowType`](https://github.com/stencila/stencila/blob/main/ts/src/types/TableRowType.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`TableRowType.yaml`](https://github.com/stencila/stencila/blob/main/schema/TableRowType.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`TableRowType.yaml`](https://github.com/stencila/stencila/blob/main/schema/TableRowType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

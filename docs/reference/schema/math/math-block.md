@@ -1,71 +1,80 @@
-# Math Block
+---
+title: Math Block
+description: A block of math, e.g an equation, to be treated as block content.
+config:
+  publish:
+    ghost:
+      type: post
+      slug: math-block
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Math
+---
 
-**A block of math, e.g an equation, to be treated as block content.**
-
-**`@id`**: `stencila:MathBlock`
-
-## Properties
+# Properties
 
 The `MathBlock` type has these properties:
 
-| Name                  | Aliases                                                                                                            | `@id`                                        | Type                                                                                                                      | Description                                                         | Inherited from                                                                                   |
-| --------------------- | ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `id`                  | -                                                                                                                  | [`schema:id`](https://schema.org/id)         | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                           | The identifier for this item.                                       | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| `code`                | -                                                                                                                  | `stencila:code`                              | [`Cord`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)                               | The code of the equation in the `mathLanguage`.                     | [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)      |
-| `mathLanguage`        | `math-language`, `math_language`                                                                                   | `stencila:mathLanguage`                      | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                           | The language used for the equation e.g tex, mathml, asciimath.      | [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)      |
-| `authors`             | `author`                                                                                                           | [`schema:author`](https://schema.org/author) | [`Author`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/author.md)*                         | The authors of the math.                                            | [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)      |
-| `provenance`          | -                                                                                                                  | `stencila:provenance`                        | [`ProvenanceCount`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/provenance-count.md)*      | A summary of the provenance of the math.                            | [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)      |
-| `compilationDigest`   | `compilation-digest`, `compilation_digest`                                                                         | `stencila:compilationDigest`                 | [`CompilationDigest`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/compilation-digest.md)    | A digest of the `code` and `mathLanguage`.                          | [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)      |
-| `compilationMessages` | `compilation-messages`, `compilation_messages`, `compilationMessage`, `compilation-message`, `compilation_message` | `stencila:compilationMessages`               | [`CompilationMessage`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/compilation-message.md)* | Messages generated while parsing and compiling the math expression. | [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)      |
-| `mathml`              | -                                                                                                                  | `stencila:mathml`                            | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                           | The MathML transpiled from the `code`.                              | [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)      |
-| `label`               | -                                                                                                                  | `stencila:label`                             | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                           | A short label for the math block.                                   | -                                                                                                |
-| `labelAutomatically`  | `label-automatically`, `label_automatically`                                                                       | `stencila:labelAutomatically`                | [`Boolean`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md)                         | Whether the label should be automatically updated.                  | -                                                                                                |
+| Name                  | Description                                                         | Type                                                                                         | Inherited from                                                     | `JSON-LD @id`                                | Aliases                                                                                                            |
+| --------------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `id`                  | The identifier for this item.                                       | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id)         | -                                                                                                                  |
+| `code`                | The code of the equation in the `mathLanguage`.                     | [`Cord`](https://stencila.ghost.io/docs/reference/schema/cord)                               | [`Math`](https://stencila.ghost.io/docs/reference/schema/math)     | `stencila:code`                              | -                                                                                                                  |
+| `mathLanguage`        | The language used for the equation e.g tex, mathml, asciimath.      | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | [`Math`](https://stencila.ghost.io/docs/reference/schema/math)     | `stencila:mathLanguage`                      | `math-language`, `math_language`                                                                                   |
+| `authors`             | The authors of the math.                                            | [`Author`](https://stencila.ghost.io/docs/reference/schema/author)*                          | [`Math`](https://stencila.ghost.io/docs/reference/schema/math)     | [`schema:author`](https://schema.org/author) | `author`                                                                                                           |
+| `provenance`          | A summary of the provenance of the math.                            | [`ProvenanceCount`](https://stencila.ghost.io/docs/reference/schema/provenance-count)*       | [`Math`](https://stencila.ghost.io/docs/reference/schema/math)     | `stencila:provenance`                        | -                                                                                                                  |
+| `compilationDigest`   | A digest of the `code` and `mathLanguage`.                          | [`CompilationDigest`](https://stencila.ghost.io/docs/reference/schema/compilation-digest)    | [`Math`](https://stencila.ghost.io/docs/reference/schema/math)     | `stencila:compilationDigest`                 | `compilation-digest`, `compilation_digest`                                                                         |
+| `compilationMessages` | Messages generated while parsing and compiling the math expression. | [`CompilationMessage`](https://stencila.ghost.io/docs/reference/schema/compilation-message)* | [`Math`](https://stencila.ghost.io/docs/reference/schema/math)     | `stencila:compilationMessages`               | `compilation-messages`, `compilation_messages`, `compilationMessage`, `compilation-message`, `compilation_message` |
+| `mathml`              | The MathML transpiled from the `code`.                              | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | [`Math`](https://stencila.ghost.io/docs/reference/schema/math)     | `stencila:mathml`                            | -                                                                                                                  |
+| `label`               | A short label for the math block.                                   | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                           | -                                                                  | `stencila:label`                             | -                                                                                                                  |
+| `labelAutomatically`  | Whether the label should be automatically updated.                  | [`Boolean`](https://stencila.ghost.io/docs/reference/schema/boolean)                         | -                                                                  | `stencila:labelAutomatically`                | `label-automatically`, `label_automatically`                                                                       |
 
-## Related
+# Related
 
 The `MathBlock` type is related to these types:
 
-- Parents: [`Math`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/math/math.md)
+- Parents: [`Math`](https://stencila.ghost.io/docs/reference/schema/math)
 - Children: none
 
-## Formats
+# Formats
 
 The `MathBlock` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                                                               | Encoding     | Decoding   | Status              | Notes                                                                                                                                     |
-| ---------------------------------------------------------------------------------------------------- | ------------ | ---------- | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| [DOM HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/dom.html.md)        | 🟢 No loss    |            | 🔶 Beta              |                                                                                                                                           |
-| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/html.md)                | 🔷 Low loss   |            | 🚧 Under development | Encoded as [`<math>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/math)                                                     |
-| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md)                | 🟢 No loss    | 🔷 Low loss | 🚧 Under development | Encoded as [`<disp-formula>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/disp-formula.html) using special function |
-| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/md.md)              | 🟢 No loss    | 🟢 No loss  | 🔶 Beta              | Encoded using implemented function                                                                                                        |
-| [Stencila Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/smd.md)    | 🟢 No loss    | 🟢 No loss  | 🔶 Beta              |                                                                                                                                           |
-| [Quarto Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/qmd.md)      | 🟢 No loss    | 🟢 No loss  | 🔶 Beta              |                                                                                                                                           |
-| [MyST Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/myst.md)       | 🟢 No loss    | 🟢 No loss  | 🔶 Beta              |                                                                                                                                           |
-| [LLM Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/llmd.md)        | 🟢 No loss    | 🟢 No loss  | 🔶 Beta              |                                                                                                                                           |
-| [LaTeX](https://github.com/stencila/stencila/blob/main/docs/reference/formats/latex.md)              | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development |                                                                                                                                           |
-| [PDF](https://github.com/stencila/stencila/blob/main/docs/reference/formats/pdf.md)                  | 🔷 Low loss   |            | 🚧 Under development |                                                                                                                                           |
-| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)          | ⚠️ High loss |            | 🔶 Beta              |                                                                                                                                           |
-| [IPYNB](https://github.com/stencila/stencila/blob/main/docs/reference/formats/ipynb.md)              | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development |                                                                                                                                           |
-| [Microsoft Word DOCX](https://github.com/stencila/stencila/blob/main/docs/reference/formats/docx.md) | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development |                                                                                                                                           |
-| [OpenDocument ODT](https://github.com/stencila/stencila/blob/main/docs/reference/formats/odt.md)     | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development |                                                                                                                                           |
-| [TeX](https://github.com/stencila/stencila/blob/main/docs/reference/formats/tex.md)                  | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development |                                                                                                                                           |
-| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md)                | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                                                                                                                           |
-| [JSON+Zip](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.zip.md)        | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                                                                                                                           |
-| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json5.md)              | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                                                                                                                           |
-| [JSON-LD](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jsonld.md)           | 🟢 No loss    | 🟢 No loss  | 🔶 Beta              |                                                                                                                                           |
-| [CBOR](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.md)                | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                                                                                                                           |
-| [CBOR+Zstandard](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.zstd.md) | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                                                                                                                           |
-| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)                | 🟢 No loss    | 🟢 No loss  | 🟢 Stable            |                                                                                                                                           |
-| [Lexical JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/lexical.md)     | 🔷 Low loss   | 🔷 Low loss | ⚠️ Alpha            |                                                                                                                                           |
-| [Koenig JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/koenig.md)       | 🔷 Low loss   | 🔷 Low loss | ⚠️ Alpha            |                                                                                                                                           |
-| [Pandoc AST](https://github.com/stencila/stencila/blob/main/docs/reference/formats/pandoc.md)        | 🔷 Low loss   | 🔷 Low loss | 🚧 Under development |                                                                                                                                           |
-| [Directory](https://github.com/stencila/stencila/blob/main/docs/reference/formats/directory.md)      |              |            | 🚧 Under development |                                                                                                                                           |
-| [Stencila Web Bundle](https://github.com/stencila/stencila/blob/main/docs/reference/formats/swb.md)  |              |            | ⚠️ Alpha            |                                                                                                                                           |
-| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/debug.md)              | 🔷 Low loss   |            | 🟢 Stable            |                                                                                                                                           |
+| Format                                                                       | Encoding     | Decoding   | Support                                                                                                                                   | Notes |
+| ---------------------------------------------------------------------------- | ------------ | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| [DOM HTML](https://stencila.ghost.io/docs/reference/formats/dom.html)        | 🟢 No loss    |            |                                                                                                                                           |
+| [HTML](https://stencila.ghost.io/docs/reference/formats/html)                | 🔷 Low loss   |            | Encoded as [`<math>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/math)                                                     |
+| [JATS](https://stencila.ghost.io/docs/reference/formats/jats)                | 🟢 No loss    | 🔷 Low loss | Encoded as [`<disp-formula>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/element/disp-formula.html) using special function |
+| [Markdown](https://stencila.ghost.io/docs/reference/formats/md)              | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function                                                                                                        |
+| [Stencila Markdown](https://stencila.ghost.io/docs/reference/formats/smd)    | 🟢 No loss    | 🟢 No loss  |                                                                                                                                           |
+| [Quarto Markdown](https://stencila.ghost.io/docs/reference/formats/qmd)      | 🟢 No loss    | 🟢 No loss  |                                                                                                                                           |
+| [MyST Markdown](https://stencila.ghost.io/docs/reference/formats/myst)       | 🟢 No loss    | 🟢 No loss  |                                                                                                                                           |
+| [LLM Markdown](https://stencila.ghost.io/docs/reference/formats/llmd)        | 🟢 No loss    | 🟢 No loss  |                                                                                                                                           |
+| [LaTeX](https://stencila.ghost.io/docs/reference/formats/latex)              | 🔷 Low loss   | 🔷 Low loss |                                                                                                                                           |
+| [PDF](https://stencila.ghost.io/docs/reference/formats/pdf)                  | 🔷 Low loss   |            |                                                                                                                                           |
+| [Plain text](https://stencila.ghost.io/docs/reference/formats/text)          | ⚠️ High loss |            |                                                                                                                                           |
+| [IPYNB](https://stencila.ghost.io/docs/reference/formats/ipynb)              | 🔷 Low loss   | 🔷 Low loss |                                                                                                                                           |
+| [Microsoft Word DOCX](https://stencila.ghost.io/docs/reference/formats/docx) | 🔷 Low loss   | 🔷 Low loss |                                                                                                                                           |
+| [OpenDocument ODT](https://stencila.ghost.io/docs/reference/formats/odt)     | 🔷 Low loss   | 🔷 Low loss |                                                                                                                                           |
+| [TeX](https://stencila.ghost.io/docs/reference/formats/tex)                  | 🔷 Low loss   | 🔷 Low loss |                                                                                                                                           |
+| [JSON](https://stencila.ghost.io/docs/reference/formats/json)                | 🟢 No loss    | 🟢 No loss  |                                                                                                                                           |
+| [JSON+Zip](https://stencila.ghost.io/docs/reference/formats/json.zip)        | 🟢 No loss    | 🟢 No loss  |                                                                                                                                           |
+| [JSON5](https://stencila.ghost.io/docs/reference/formats/json5)              | 🟢 No loss    | 🟢 No loss  |                                                                                                                                           |
+| [JSON-LD](https://stencila.ghost.io/docs/reference/formats/jsonld)           | 🟢 No loss    | 🟢 No loss  |                                                                                                                                           |
+| [CBOR](https://stencila.ghost.io/docs/reference/formats/cbor)                | 🟢 No loss    | 🟢 No loss  |                                                                                                                                           |
+| [CBOR+Zstandard](https://stencila.ghost.io/docs/reference/formats/cbor.zstd) | 🟢 No loss    | 🟢 No loss  |                                                                                                                                           |
+| [YAML](https://stencila.ghost.io/docs/reference/formats/yaml)                | 🟢 No loss    | 🟢 No loss  |                                                                                                                                           |
+| [Lexical JSON](https://stencila.ghost.io/docs/reference/formats/lexical)     | 🔷 Low loss   | 🔷 Low loss |                                                                                                                                           |
+| [Koenig JSON](https://stencila.ghost.io/docs/reference/formats/koenig)       | 🔷 Low loss   | 🔷 Low loss |                                                                                                                                           |
+| [Pandoc AST](https://stencila.ghost.io/docs/reference/formats/pandoc)        | 🔷 Low loss   | 🔷 Low loss |                                                                                                                                           |
+| [Directory](https://stencila.ghost.io/docs/reference/formats/directory)      |              |            |                                                                                                                                           |
+| [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |              |            |                                                                                                                                           |
+| [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              | 🔷 Low loss   |            |                                                                                                                                           |
 
-## Bindings
+# Bindings
 
-The `MathBlock` type is represented in these bindings:
+The `MathBlock` type is represented in:
 
 - [JSON-LD](https://stencila.org/MathBlock.jsonld)
 - [JSON Schema](https://stencila.org/MathBlock.schema.json)
@@ -73,7 +82,7 @@ The `MathBlock` type is represented in these bindings:
 - Rust struct [`MathBlock`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/math_block.rs)
 - TypeScript class [`MathBlock`](https://github.com/stencila/stencila/blob/main/ts/src/types/MathBlock.ts)
 
-## Testing
+# Testing
 
 During property-based (a.k.a generative) testing, the properties of the `MathBlock` type are generated using the following strategies[^1] for each complexity level. Any optional properties that are not in this table are set to `None`.
 
@@ -87,8 +96,8 @@ During property-based (a.k.a generative) testing, the properties of the `MathBlo
 |                | High+      | Generate a random string of up to 10 alphanumeric characters.                                                                                        | `option::of(r"[a-zA-Z0-9]{1,10}")`          |
 |                | Max        | Generate an arbitrary string.                                                                                                                        | `option::of(String::arbitrary())`           |
 
-## Source
+# Source
 
-This documentation was generated from [`MathBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/MathBlock.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`MathBlock.yaml`](https://github.com/stencila/stencila/blob/main/schema/MathBlock.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
 
 [^1]: See the `proptest` [book](https://proptest-rs.github.io/proptest/) and the [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details.

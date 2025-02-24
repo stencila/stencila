@@ -12,12 +12,9 @@ use winnow::{
     LocatingSlice as Located, ModalResult, Parser,
 };
 
-use codec::{
-    schema::{
-        Date, DateTime, Duration, ExecutionBounds, ExecutionMode, ImageObject, InstructionMessage,
-        InstructionType, MessagePart, ModelParameters, Node, RelativePosition, Time, Timestamp,
-    },
-    NodeType,
+use codec::schema::{
+    Date, DateTime, Duration, ExecutionBounds, ExecutionMode, ImageObject, InstructionMessage,
+    InstructionType, MessagePart, ModelParameters, Node, RelativePosition, Time, Timestamp,
 };
 use codec_json5_trait::Json5Codec;
 use codec_text_trait::TextCodec;
@@ -86,18 +83,22 @@ pub(super) fn relative_position(input: &mut Located<&str>) -> ModalResult<Relati
 }
 
 /// Parse a node type
-pub(super) fn node_type(input: &mut Located<&str>) -> ModalResult<NodeType> {
+///
+/// This list of aliases for various block node types should be kept consistent
+/// with the `NodeType::from_str` function and `vscode/syntaxes/smd/tmGrammar.yaml`
+pub(super) fn block_node_type(input: &mut Located<&str>) -> ModalResult<String> {
     alt((
-        "heading".value(NodeType::Heading),
-        alt(("paragraph", "para")).value(NodeType::Paragraph),
-        "table".value(NodeType::Table),
-        alt(("figure", "fig")).value(NodeType::Figure),
-        alt(("code", "cell")).value(NodeType::CodeChunk),
-        "list".value(NodeType::List),
-        alt(("math", "equation", "eqn")).value(NodeType::MathBlock),
-        "quote".value(NodeType::QuoteBlock),
-        "section".value(NodeType::Section),
+        alt(("code", "chunk", "cell")),
+        alt(("figure", "fig")),
+        "heading",
+        "list",
+        alt(("math", "equation", "eqn")),
+        alt(("paragraph", "para")),
+        "quote",
+        "section",
+        "table",
     ))
+    .map(String::from)
     .parse_next(input)
 }
 

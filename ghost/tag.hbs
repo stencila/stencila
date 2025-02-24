@@ -1,0 +1,31 @@
+{{!< default}}
+
+<div class="gh-page">
+    <div class="content-container">
+
+        {{#tag}}
+        <header class="gh-page-head">
+
+            <h1>{{name}}</h1>
+
+            <p>
+                {{#if description}}
+                    {{description}}
+                {{else}}
+                    {{plural ../pagination.total empty='posts' singular='% post' plural='% posts'}}
+                {{/if}}
+            </p>
+
+            {{#if feature_image}}
+                <img class="gh-page-image" src="{{feature_image}}" alt="{{name}}" />
+            {{/if}}
+
+        </header>
+        {{/tag}}
+        <div class="gh-postfeed mx-auto my-16 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 max-w-[980px]">
+            {{#foreach posts}}
+                {{> "card" }}
+            {{/foreach}}
+        </div>
+    </div>
+</div>

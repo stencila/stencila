@@ -4,7 +4,7 @@ nick: frb
 extends: CodeExecutable
 category: flow
 description: Repeat a block content for each item in an array.
-status: under-development
+status: beta
 latex:
   derive: false
 markdown:

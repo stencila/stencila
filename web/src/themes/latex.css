@@ -74,7 +74,8 @@
     box-sizing: border-box;
   }
 
-  font-family: 'Latin Modern', Georgia, Cambria, 'Times New Roman', Times, serif;
+  font-family:
+    'Latin Modern', Georgia, Cambria, 'Times New Roman', Times, serif;
   line-height: 1.8;
 
   max-width: 80ch;
@@ -160,8 +161,8 @@
   code,
   pre,
   kbd {
-    font-family: Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New',
-      monospace;
+    font-family:
+      Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
     font-size: 85%;
   }
   pre {

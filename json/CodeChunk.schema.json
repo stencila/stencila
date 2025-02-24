@@ -41,7 +41,8 @@
     "labelAutomatically",
     "caption",
     "outputs",
-    "isInvisible"
+    "isEchoed",
+    "isHidden"
   ],
   "properties": {
     "type": {
@@ -596,12 +597,30 @@
         "$ref": "Node.schema.json"
       }
     },
-    "isInvisible": {
-      "@id": "stencila:isInvisible",
-      "description": "Whether the outputs of the code chunk should be invisible to the reader.",
+    "isEchoed": {
+      "@id": "stencila:isEchoed",
+      "description": "Whether the code should be displayed to the reader.",
       "aliases": [
-        "is-invisible",
-        "is_invisible"
+        "is-echoed",
+        "is_echoed"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "type": "boolean"
+    },
+    "isHidden": {
+      "@id": "stencila:isHidden",
+      "description": "Whether the outputs should be hidden from the reader.",
+      "aliases": [
+        "is-hidden",
+        "is_hidden"
       ],
       "patch": {
         "formats": [

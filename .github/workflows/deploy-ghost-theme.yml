@@ -1,0 +1,28 @@
+name: Deploy Ghost Theme
+on: workflow_dispatch
+
+env:
+  NODE_VERSION: "20"
+  
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Build web dist for ghost
+        run: make -C ghost compile
+
+      - name: Deploy Ghost Theme
+        uses: TryGhost/action-deploy-theme@v1
+        with:
+          api-url: ${{ secrets.GHOST_ADMIN_API_URL }}
+          api-key: ${{ secrets.GHOST_ADMIN_API_KEY }}
+          working-directory: ./ghost

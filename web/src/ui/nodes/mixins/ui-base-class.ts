@@ -36,6 +36,12 @@ export class UIBaseClass extends LitElement {
   depth: number
 
   /**
+   * Whether the node has a doc root
+   */
+  @property({ type: Boolean, attribute: 'no-root' })
+  noDocRoot: boolean = false
+
+  /**
    * Internal copy of the UI attributes for the node type.
    */
   protected ui: NodeTypeUI | undefined = undefined

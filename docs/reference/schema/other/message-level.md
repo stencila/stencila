@@ -1,10 +1,19 @@
-# Message Level
+---
+title: Message Level
+description: The severity level of a message.
+config:
+  publish:
+    ghost:
+      type: post
+      slug: message-level
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Other
+---
 
-**The severity level of a message.**
-
-**`@id`**: `stencila:MessageLevel`
-
-## Members
+# Members
 
 The `MessageLevel` type has these members:
 
@@ -15,9 +24,9 @@ The `MessageLevel` type has these members:
 - `Error`
 - `Exception`
 
-## Bindings
+# Bindings
 
-The `MessageLevel` type is represented in these bindings:
+The `MessageLevel` type is represented in:
 
 - [JSON-LD](https://stencila.org/MessageLevel.jsonld)
 - [JSON Schema](https://stencila.org/MessageLevel.schema.json)
@@ -25,6 +34,6 @@ The `MessageLevel` type is represented in these bindings:
 - Rust type [`MessageLevel`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/message_level.rs)
 - TypeScript type [`MessageLevel`](https://github.com/stencila/stencila/blob/main/ts/src/types/MessageLevel.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`MessageLevel.yaml`](https://github.com/stencila/stencila/blob/main/schema/MessageLevel.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`MessageLevel.yaml`](https://github.com/stencila/stencila/blob/main/schema/MessageLevel.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

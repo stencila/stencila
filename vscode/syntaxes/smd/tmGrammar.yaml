@@ -180,22 +180,24 @@ repository:
         (LANG_ALIASES)
         \s+
         (exec)
-        (?:
-          \s+
-          (always|auto|demand|need|lock)\b
-        )*
-        (?:
-          \s+
-          (fork|limit|box|main)\b
-        )?
+        (
+          (?:
+            \s+
+            (?:
+              always|auto|demand|need|lock|
+              fork|limit|box|main|
+              echo|
+              hide
+            )
+          )*
+        )
         (?:.*)
       $
     beginCaptures:
       "1": { name: markup.heading.stencila } # backticks
       "2": { name: variable.other } # language
       "3": { name: keyword.control.stencila } # exec
-      "4": { name: keyword.control.stencila } # mode
-      "5": { name: keyword.control.stencila } # bounds
+      "4": { name: keyword.control.stencila } # keywords
     end: ^(`{3,})\s*$
     endCaptures:
       "1": { name: markup.heading } # backticks
@@ -212,22 +214,24 @@ repository:
         (\w+)
         \s+
         (exec)
-        (?:
-          \s+
-          (always|auto|demand|need|lock)\b
-        )?
-        (?:
-          \s+
-          (fork|limit|box|main)\b
-        )?
+        (
+          (?:
+            \s+
+            (?:
+              always|auto|demand|need|lock|
+              fork|limit|box|main|
+              echo|
+              hide
+            )
+          )*
+        )
         (?:.*)
       $
     beginCaptures:
       "1": { name: markup.heading.stencila } # backticks
       "2": { name: variable.other } # language
       "3": { name: keyword.control.stencila } # exec
-      "4": { name: keyword.control.stencila } # mode
-      "5": { name: keyword.control.stencila } # bounds
+      "4": { name: keyword.control.stencila } # keywords
     end: ^(`{3,})\s*$
     endCaptures:
       "1": { name: markup.heading } # backticks
@@ -240,21 +244,23 @@ repository:
         (`{3,})
         \s*
         (exec)
-        (?:
-          \s+
-          (always|auto|demand|need|lock)
-        )?
-        (?:
-          \s+
-          (fork|limit|box|main)\b
-        )?
+        (
+          (?:
+            \s+
+            (?:
+              always|auto|demand|need|lock|
+              fork|limit|box|main|
+              echo|
+              hide
+            )
+          )*
+        )
         (?:.*)
       $
     beginCaptures:
       "1": { name: markup.heading.stencila } # backticks
       "2": { name: keyword.control.stencila } # exec
-      "3": { name: keyword.control.stencila } # mode
-      "4": { name: keyword.control.stencila } # bounds
+      "3": { name: keyword.control.stencila } # keywords
     end: ^(`{3,})\s*$
     endCaptures:
       "1": { name: markup.heading.stencila } # backticks
@@ -280,7 +286,7 @@ repository:
         )?
         (?:
           \s+
-          (heading|(?:para(?:graph)?)|table|(?:fig(?:ure)?)|code|cell|list|(?:math|eqn|equation)|quote|section)\b
+          (heading|(?:para(?:graph)?)|table|(?:fig(?:ure)?)|code|chunk|cell|list|(?:math|eqn|equation)|quote|section)\b
         )?
         (?:
           \s+
@@ -355,7 +361,7 @@ repository:
         )?
         (?:
           \s+
-          (heading|(?:para(?:graph)?)|table|(?:fig(?:ure)?)|code|cell|list|(?:math|eqn|equation)|quote|section)\b
+          (heading|(?:para(?:graph)?)|table|(?:fig(?:ure)?)|code|chunk|cell|list|(?:math|eqn|equation)|quote|section)\b
         )?
         (?:
           \s+

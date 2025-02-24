@@ -1,10 +1,19 @@
-# Form Derive Action
+---
+title: Form Derive Action
+description: Indicates the action (create, update or delete) to derive for a `Form`.
+config:
+  publish:
+    ghost:
+      type: post
+      slug: form-derive-action
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Flow
+---
 
-**Indicates the action (create, update or delete) to derive for a `Form`.**
-
-**`@id`**: `stencila:FormDeriveAction`
-
-## Members
+# Members
 
 The `FormDeriveAction` type has these members:
 
@@ -13,9 +22,9 @@ The `FormDeriveAction` type has these members:
 - `Delete`
 - `UpdateOrDelete`
 
-## Bindings
+# Bindings
 
-The `FormDeriveAction` type is represented in these bindings:
+The `FormDeriveAction` type is represented in:
 
 - [JSON-LD](https://stencila.org/FormDeriveAction.jsonld)
 - [JSON Schema](https://stencila.org/FormDeriveAction.schema.json)
@@ -23,6 +32,6 @@ The `FormDeriveAction` type is represented in these bindings:
 - Rust type [`FormDeriveAction`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/form_derive_action.rs)
 - TypeScript type [`FormDeriveAction`](https://github.com/stencila/stencila/blob/main/ts/src/types/FormDeriveAction.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`FormDeriveAction.yaml`](https://github.com/stencila/stencila/blob/main/schema/FormDeriveAction.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`FormDeriveAction.yaml`](https://github.com/stencila/stencila/blob/main/schema/FormDeriveAction.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

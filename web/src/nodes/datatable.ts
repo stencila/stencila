@@ -35,11 +35,13 @@ export class Datatable extends Entity {
   }
 
   private renderCard() {
+    const hasDocRoot = this.hasDocumentRootNode()
     return html`
       <stencila-ui-block-on-demand
         type="Datatable"
         node-id=${this.id}
         depth=${this.depth}
+        ?no-root=${!hasDocRoot}
       >
         <div class="content" slot="content">${this.renderContent()}</div>
       </stencila-ui-block-on-demand>

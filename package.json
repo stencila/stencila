@@ -3,7 +3,8 @@
     "node/stencila-node",
     "node/stencila-plugin",
     "ts",
-    "web"
+    "web",
+    "ghost"
   ],
   "scripts": {
     "audit": "better-npm-audit audit"
@@ -12,34 +13,34 @@
     "node": ">=18"
   },
   "devDependencies": {
-    "@arethetypeswrong/cli": "0.17.3",
-    "@cloudflare/workers-types": "4.20250121.0",
-    "@eslint/js": "9.18.0",
+    "@arethetypeswrong/cli": "0.17.4",
+    "@cloudflare/workers-types": "4.20250214.0",
+    "@eslint/js": "9.21.0",
     "@prettier/plugin-xml": "3.4.1",
     "@types/benchmark": "2.1.5",
     "@types/jest": "29.5.14",
-    "@types/node": "22.10.7",
+    "@types/node": "22.13.5",
     "@types/tmp": "0.2.6",
-    "@typescript-eslint/parser": "8.21.0",
+    "@typescript-eslint/parser": "8.24.1",
     "benchmark": "2.1.4",
     "better-npm-audit": "3.11.0",
     "buffer": "6.0.3",
     "cross-env": "7.0.3",
     "depcheck": "1.4.7",
-    "eslint": "9.18.0",
+    "eslint": "9.21.0",
     "eslint-plugin-import": "2.31.0",
     "eslint-plugin-lit": "1.15.0",
-    "eslint-plugin-wc": "2.2.0",
+    "eslint-plugin-wc": "2.2.1",
     "jest": "29.7.0",
-    "prettier": "3.4.2",
+    "prettier": "3.5.1",
     "process": "0.11.10",
-    "publint": "0.3.2",
+    "publint": "0.3.6",
     "svgo": "3.3.2",
     "tmp": "0.2.3",
     "ts-jest": "29.2.5",
-    "tsup": "8.3.5",
+    "tsup": "8.3.6",
     "typescript": "5.7.3",
-    "typescript-eslint": "8.21.0",
-    "wrangler": "3.103.2"
+    "typescript-eslint": "8.24.1",
+    "wrangler": "3.109.2"
   }
 }

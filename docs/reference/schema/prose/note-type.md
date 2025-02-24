@@ -1,10 +1,19 @@
-# Note Type
+---
+title: Note Type
+description: The type of a `Note` which determines where the note content is displayed within the document.
+config:
+  publish:
+    ghost:
+      type: post
+      slug: note-type
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Prose
+---
 
-**The type of a `Note` which determines where the note content is displayed within the document.**
-
-**`@id`**: `stencila:NoteType`
-
-## Members
+# Members
 
 The `NoteType` type has these members:
 
@@ -12,9 +21,9 @@ The `NoteType` type has these members:
 - `Endnote`
 - `Sidenote`
 
-## Bindings
+# Bindings
 
-The `NoteType` type is represented in these bindings:
+The `NoteType` type is represented in:
 
 - [JSON-LD](https://stencila.org/NoteType.jsonld)
 - [JSON Schema](https://stencila.org/NoteType.schema.json)
@@ -22,6 +31,6 @@ The `NoteType` type is represented in these bindings:
 - Rust type [`NoteType`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/note_type.rs)
 - TypeScript type [`NoteType`](https://github.com/stencila/stencila/blob/main/ts/src/types/NoteType.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`NoteType.yaml`](https://github.com/stencila/stencila/blob/main/schema/NoteType.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`NoteType.yaml`](https://github.com/stencila/stencila/blob/main/schema/NoteType.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

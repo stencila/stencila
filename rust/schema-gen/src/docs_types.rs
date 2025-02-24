@@ -12,10 +12,14 @@ use common::{
     futures::future::try_join_all,
     inflector::Inflector,
     itertools::Itertools,
+    serde_json, serde_yaml,
     strum::IntoEnumIterator,
     tokio::fs::{create_dir_all, remove_dir_all, remove_file},
 };
-use schema::{shortcuts::*, Article, Block, Inline, Node, NodeType, NoteType, TableCell};
+use schema::{
+    shortcuts::*, Article, Block, Config, ConfigPublish, ConfigPublishGhost,
+    ConfigPublishGhostState, ConfigPublishGhostType, Inline, Node, NodeType, NoteType, TableCell,
+};
 use status::Status;
 
 use crate::{
@@ -81,14 +85,13 @@ impl Schemas {
         // and do not know the category that it is nested within
         let urls: HashMap<String, String> = self
             .schemas
-            .iter()
-            .map(|(title, schema)| {
+            .keys()
+            .map(|title| {
                 (
                     title.clone(),
                     format!(
-                        "https://github.com/stencila/stencila/blob/main/docs/reference/schema/{category}/{slug}.md",
-                        category = schema.category,
-                        slug = title.to_kebab_case()
+                        "https://stencila.ghost.io/docs/reference/schema/{}",
+                        title.to_kebab_case()
                     ),
                 )
             })
@@ -143,7 +146,7 @@ async fn docs_file(dest: &Path, schema: &Schema, context: &Context) -> Result<St
         return Ok(title.to_string());
     }
 
-    let article = if schema.is_object() {
+    let content = if schema.is_object() {
         docs_object(title, schema, context)
     } else if schema.is_union() {
         docs_any_of(title, schema, context)
@@ -151,13 +154,53 @@ async fn docs_file(dest: &Path, schema: &Schema, context: &Context) -> Result<St
         docs_primitive(title, schema)
     };
 
+    let title = title.to_title_case();
+    let title_inlines = Some(vec![t(title.clone())]);
+
+    let description = schema.description.clone();
+
+    let config = Some(Config {
+        publish: Some(ConfigPublish {
+            ghost: Some(ConfigPublishGhost {
+                r#type: Some(ConfigPublishGhostType::Post),
+                slug: Some(title.to_kebab_case()),
+                tags: Some(vec![
+                    "#doc".to_string(),
+                    "#schema".to_string(),
+                    schema.category.to_string().to_title_case(),
+                ]),
+                state: Some(ConfigPublishGhostState::Publish),
+                ..Default::default()
+            }),
+            ..Default::default()
+        }),
+        ..Default::default()
+    });
+
+    let frontmatter = serde_yaml::to_string(&serde_json::json!({
+        "title": title,
+        "description": description,
+        "config": config
+    }))
+    .map(|yaml| yaml.trim_end().to_string())
+    .ok();
+
+    let article = Article {
+        title: title_inlines,
+        description,
+        config,
+        frontmatter,
+        content,
+        ..Default::default()
+    };
+
     codecs::to_path(&Node::Article(article), &path, None).await?;
 
-    Ok(title.to_string())
+    Ok(title)
 }
 
 /// Generate documentation for an object schema with `properties`
-fn docs_object(title: &str, schema: &Schema, context: &Context) -> Article {
+fn docs_object(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     let mut content = intro(title, schema);
     content.append(&mut properties(title, schema, context));
     content.append(&mut related(title, schema, context));
@@ -170,14 +213,11 @@ fn docs_object(title: &str, schema: &Schema, context: &Context) -> Article {
     }
     content.append(&mut source(title));
 
-    Article {
-        content,
-        ..Default::default()
-    }
+    content
 }
 
 /// Generate documentation file for an `anyOf` root schema
-fn docs_any_of(title: &str, schema: &Schema, context: &Context) -> Article {
+fn docs_any_of(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     let mut content = intro(title, schema);
     content.append(&mut members(title, schema, context));
     content.append(&mut bindings(title, schema));
@@ -186,44 +226,25 @@ fn docs_any_of(title: &str, schema: &Schema, context: &Context) -> Article {
     }
     content.append(&mut source(title));
 
-    Article {
-        content,
-        ..Default::default()
-    }
+    content
 }
 
 /// Generate documentation for a primitive schema
-fn docs_primitive(title: &str, schema: &Schema) -> Article {
+fn docs_primitive(title: &str, schema: &Schema) -> Vec<Block> {
     let mut content = intro(title, schema);
     content.append(&mut formats(title, schema));
     content.append(&mut bindings(title, schema));
     content.append(&mut source(title));
 
-    Article {
-        content,
-        ..Default::default()
-    }
+    content
 }
 
 /// Generate introductory headers and paragraphs for a schema
-fn intro(title: &str, schema: &Schema) -> Vec<Block> {
-    let mut blocks = vec![h1([t(title.to_title_case())])];
-
-    if let Some(description) = &schema.description {
-        blocks.push(p([stg([t(description.trim())])]));
-    }
+fn intro(_title: &str, schema: &Schema) -> Vec<Block> {
+    let mut blocks = Vec::new();
 
     if let Some(comment) = &schema.comment {
         blocks.push(p([t(comment)]));
-    }
-
-    if let Some(id) = schema.jid.clone() {
-        let id = if let Some(name) = id.clone().strip_prefix("schema:") {
-            lnk([ci(id)], format!("https://schema.org/{name}"))
-        } else {
-            ci(id)
-        };
-        blocks.push(p([stg([ci("@id")]), t(": "), id]));
     }
 
     if !matches!(schema.status, Status::Stable) {
@@ -241,11 +262,11 @@ fn intro(title: &str, schema: &Schema) -> Vec<Block> {
 fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     let mut rows = vec![tr([
         th([t("Name")]),
-        th([t("Aliases")]),
-        th([ci("@id")]),
-        th([t("Type")]),
         th([t("Description")]),
+        th([t("Type")]),
         th([t("Inherited from")]),
+        th([ci("JSON-LD @id")]),
+        th([t("Aliases")]),
     ])];
 
     for (name, property) in &schema.properties {
@@ -335,16 +356,16 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
 
         rows.push(tr([
             td([ci(name)]),
-            td(aliases),
-            td([id]),
-            td(r#type),
             td([t(description)]),
+            td(r#type),
             td([from]),
+            td([id]),
+            td(aliases),
         ]));
     }
 
     vec![
-        h2([t("Properties")]),
+        h1([t("Properties")]),
         p([t("The "), ci(title), t(" type has these properties:")]),
         tbl(rows),
     ]
@@ -365,7 +386,7 @@ fn members(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     }
 
     vec![
-        h2([t("Members")]),
+        h1([t("Members")]),
         p([t("The "), ci(title), t(" type has these members:")]),
         ul(items),
     ]
@@ -377,7 +398,7 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
         th([t("Format")]),
         th([t("Encoding")]),
         th([t("Decoding")]),
-        th([t("Status")]),
+        th([t("Support")]),
         th([t("Notes")]),
     ])];
 
@@ -391,7 +412,8 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
         let name = td([lnk(
             [t(name)],
             format!(
-                "https://github.com/stencila/stencila/blob/main/docs/reference/formats/{format}.md"
+                "https://stencila.ghost.io/docs/reference/formats/{}",
+                format
             ),
         )]);
 
@@ -425,19 +447,13 @@ fn formats(title: &str, schema: &Schema) -> Vec<Block> {
                 .unwrap_or_default(),
         );
 
-        let status = td([t(format!(
-            "{icon} {desc}",
-            icon = codec.status().emoji(),
-            desc = codec.status().to_string().to_sentence_case()
-        ))]);
-
         let notes = td(Schemas::docs_format_notes(schema, format));
 
-        rows.push(tr([name, encoding, decoding, status, notes]));
+        rows.push(tr([name, encoding, decoding, notes]));
     }
 
     vec![
-        h2([t("Formats")]),
+        h1([t("Formats")]),
         p([
             t("The "),
             ci(title),
@@ -515,7 +531,7 @@ fn proptests_anyof(title: &str, schema: &Schema) -> Vec<Block> {
     }
 
     vec![
-        h2([t("Testing")]),
+        h1([t("Testing")]),
         p([
             t("During property-based (a.k.a generative) testing, the variants of the "),
             ci(title),
@@ -604,7 +620,7 @@ fn proptests_object(title: &str, schema: &Schema) -> Vec<Block> {
     }
 
     vec![
-        h2([t("Testing")]),
+        h1([t("Testing")]),
         p([
             t("During property-based (a.k.a generative) testing, the properties of the "),
             ci(title),
@@ -633,7 +649,7 @@ fn proptests_object(title: &str, schema: &Schema) -> Vec<Block> {
 fn related(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     let mut parents = vec![t("Parents: ")];
     if schema.extends.is_empty() {
-        parents.push(t("none"));
+        parents.push(t("None"));
     } else {
         for parent in &schema.extends {
             parents.push(lnk(
@@ -659,7 +675,7 @@ fn related(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     }
 
     vec![
-        h2([t("Related")]),
+        h1([t("Related")]),
         p([t("The "), ci(title), t(" type is related to these types:")]),
         ul([li(parents), li(children)]),
     ]
@@ -668,11 +684,11 @@ fn related(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
 /// Generate a "Bindings" section for a schema
 fn bindings(title: &str, schema: &Schema) -> Vec<Block> {
     vec![
-        h2([t("Bindings")]),
+        h1([t("Bindings")]),
         p([
             t("The "),
             ci(title),
-            t(" type is represented in these bindings:"),
+            t(" type is represented in:"),
         ]),
         ul([
             li([lnk(
@@ -702,7 +718,7 @@ fn bindings(title: &str, schema: &Schema) -> Vec<Block> {
 /// Generate a "Source" section for a schema
 fn source(title: &str) -> Vec<Block> {
     vec![
-        h2([t("Source")]),
+        h1([t("Source")]),
         p([
             t("This documentation was generated from "),
             lnk(
@@ -711,8 +727,8 @@ fn source(title: &str) -> Vec<Block> {
             ),
             t(" by "),
             lnk(
-                [ci("docs_type.rs")],
-                "https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs",
+                [ci("docs_types.rs")],
+                "https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs",
             ),
             t("."),
         ]),

@@ -556,7 +556,7 @@ impl Cli {
                                             );
                                         }
                                     } else {
-                                        status = match publisher.state.clone() {
+                                        status = match publisher.state {
                                             Some(ConfigPublishGhostState::Publish) => {
                                                 Some(Status::Published)
                                             }

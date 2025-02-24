@@ -9,7 +9,7 @@
   ],
   "category": "works",
   "description": "A message within a `Chat`.",
-  "status": "under-development",
+  "status": "beta",
   "markdown": {
     "derive": false
   },

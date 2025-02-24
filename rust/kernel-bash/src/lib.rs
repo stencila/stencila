@@ -39,9 +39,7 @@ impl Kernel for BashKernel {
     }
 
     fn supports_forks(&self) -> KernelForks {
-        // Supported on all platforms where `bash` is present because uses background
-        // process rather than Unix `fork`.
-        KernelForks::Yes
+        KernelForks::No
     }
 
     fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
@@ -324,21 +322,6 @@ declare -A obj=(["key1"]="value1" ["key2"]="value2")
         };
 
         kernel_micro::tests::var_management(instance).await
-    }
-
-    /// Standard kernel test for forking
-    #[test_log::test(tokio::test)]
-    async fn forking() -> Result<()> {
-        if std::env::var("CI").is_ok() {
-            eprintln!("Skipping flakey test on CI");
-            return Ok(());
-        }
-
-        let Some(instance) = create_instance::<BashKernel>().await? else {
-            return Ok(());
-        };
-
-        kernel_micro::tests::forking(instance).await
     }
 
     /// Standard kernel test for signals

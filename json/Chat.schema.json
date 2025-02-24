@@ -10,7 +10,7 @@
   ],
   "category": "works",
   "description": "A chat conversation, usually with a generative AI model.",
-  "status": "under-development",
+  "status": "beta",
   "patch": {
     "applyWith": "Chat::apply_with"
   },

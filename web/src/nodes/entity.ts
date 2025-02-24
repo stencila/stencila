@@ -11,6 +11,8 @@ import { getModeParam } from '../utilities/getModeParam'
 
 import '../ui/nodes/node-insert'
 
+import '../shoelace'
+
 /**
  * Abstract base class for web components representing Stencila Schema `Entity` node types
  *
@@ -87,7 +89,9 @@ export abstract class Entity extends LitElement {
   override connectedCallback(): void {
     super.connectedCallback()
 
-    this.parentNodeType = this.ancestors.split('.').pop() as NodeType
+    this.parentNodeType = this.ancestors
+      ? (this.ancestors.split('.').pop() as NodeType)
+      : null
 
     this.context.nodeId = this.id
 
@@ -124,7 +128,7 @@ export abstract class Entity extends LitElement {
   protected isWithin(nodeType: NodeType): boolean {
     return (
       this.parentNodeType === nodeType ||
-      this.ancestors.includes(`${nodeType}.`)
+      (this.ancestors && this.ancestors.includes(`${nodeType}.`))
     )
   }
 
@@ -140,13 +144,24 @@ export abstract class Entity extends LitElement {
   }
 
   /**
-   *  Whether the node is within a model chat message
+   * Whether the node is within a model chat message
    */
   protected isWithinModelChatMessage() {
     return (
       this.isWithin('ChatMessage') &&
       this.closestGlobally('stencila-chat-message[message-role="Model"]') !==
         null
+    )
+  }
+
+  /**
+   * Whether the entity has a parent [root] node, or is the current [root]
+   */
+  protected hasDocumentRootNode() {
+    return (
+      this.closestGlobally('stencila-article[root]') !== null ||
+      this.closestGlobally('stencila-prompt[root]') !== null ||
+      this.hasAttribute('root')
     )
   }
 

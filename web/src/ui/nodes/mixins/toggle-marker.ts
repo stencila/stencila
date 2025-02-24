@@ -97,7 +97,7 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
      */
     protected isInitiallyExpanded() {
       // Expand if the root node
-      if (this.depth === 0) {
+      if (this.depth === 0 && !this.noDocRoot) {
         return true
       }
 
@@ -139,10 +139,12 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
 
       const { borderColour, icon } = nodeUi(this.type)
 
+      const defaultState = this.docViewContext?.nodeMarkerState ?? 'hover-only'
+
       const markerStateClasses =
-        this.toggle || this.docViewContext.nodeMarkerState === 'hidden'
+        this.toggle || defaultState === 'hidden'
           ? 'opacity-0 pointer-events-none'
-          : this.docViewContext.nodeMarkerState === 'hover-only'
+          : defaultState === 'hover-only'
             ? 'opacity-0 group-hover:opacity-100'
             : 'opacity-100'
 

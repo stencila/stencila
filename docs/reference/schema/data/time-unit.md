@@ -1,10 +1,19 @@
-# Time Unit
+---
+title: Time Unit
+description: A unit in which time can be measured.
+config:
+  publish:
+    ghost:
+      type: post
+      slug: time-unit
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Data
+---
 
-**A unit in which time can be measured.**
-
-**`@id`**: `stencila:TimeUnit`
-
-## Members
+# Members
 
 The `TimeUnit` type has these members:
 
@@ -22,9 +31,9 @@ The `TimeUnit` type has these members:
 - `Femtosecond`
 - `Attosecond`
 
-## Bindings
+# Bindings
 
-The `TimeUnit` type is represented in these bindings:
+The `TimeUnit` type is represented in:
 
 - [JSON-LD](https://stencila.org/TimeUnit.jsonld)
 - [JSON Schema](https://stencila.org/TimeUnit.schema.json)
@@ -32,6 +41,6 @@ The `TimeUnit` type is represented in these bindings:
 - Rust type [`TimeUnit`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/time_unit.rs)
 - TypeScript type [`TimeUnit`](https://github.com/stencila/stencila/blob/main/ts/src/types/TimeUnit.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`TimeUnit.yaml`](https://github.com/stencila/stencila/blob/main/schema/TimeUnit.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`TimeUnit.yaml`](https://github.com/stencila/stencila/blob/main/schema/TimeUnit.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

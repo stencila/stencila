@@ -1,36 +1,45 @@
-# Code Static
-
-**Abstract base type for non-executable code nodes (e.g. `CodeBlock`).**
+---
+title: Code Static
+description: Abstract base type for non-executable code nodes (e.g. `CodeBlock`).
+config:
+  publish:
+    ghost:
+      type: post
+      slug: code-static
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Code
+---
 
 The most important, and only required, property of a `CodeStatic` node is `code`, a `string` of the source code.
 There are no restrictions on the length or content of `code` and it is possible for it to be syntactically
 invalid for the specified `programmingLanguage`.
 
 
-**`@id`**: `stencila:CodeStatic`
-
-## Properties
+# Properties
 
 The `CodeStatic` type has these properties:
 
-| Name                  | Aliases                                        | `@id`                                                                  | Type                                                                                                                 | Description                              | Inherited from                                                                                   |
-| --------------------- | ---------------------------------------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `id`                  | -                                              | [`schema:id`](https://schema.org/id)                                   | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                      | The identifier for this item.            | [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md) |
-| `code`                | -                                              | `stencila:code`                                                        | [`Cord`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/cord.md)                          | The code.                                | -                                                                                                |
-| `programmingLanguage` | `programming-language`, `programming_language` | [`schema:programmingLanguage`](https://schema.org/programmingLanguage) | [`String`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/string.md)                      | The programming language of the code.    | -                                                                                                |
-| `authors`             | `author`                                       | [`schema:author`](https://schema.org/author)                           | [`Author`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/works/author.md)*                    | The authors of the code.                 | -                                                                                                |
-| `provenance`          | -                                              | `stencila:provenance`                                                  | [`ProvenanceCount`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/provenance-count.md)* | A summary of the provenance of the code. | -                                                                                                |
+| Name                  | Description                              | Type                                                                                   | Inherited from                                                     | `JSON-LD @id`                                                          | Aliases                                        |
+| --------------------- | ---------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ---------------------------------------------------------------------- | ---------------------------------------------- |
+| `id`                  | The identifier for this item.            | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                     | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id)                                   | -                                              |
+| `code`                | The code.                                | [`Cord`](https://stencila.ghost.io/docs/reference/schema/cord)                         | -                                                                  | `stencila:code`                                                        | -                                              |
+| `programmingLanguage` | The programming language of the code.    | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                     | -                                                                  | [`schema:programmingLanguage`](https://schema.org/programmingLanguage) | `programming-language`, `programming_language` |
+| `authors`             | The authors of the code.                 | [`Author`](https://stencila.ghost.io/docs/reference/schema/author)*                    | -                                                                  | [`schema:author`](https://schema.org/author)                           | `author`                                       |
+| `provenance`          | A summary of the provenance of the code. | [`ProvenanceCount`](https://stencila.ghost.io/docs/reference/schema/provenance-count)* | -                                                                  | `stencila:provenance`                                                  | -                                              |
 
-## Related
+# Related
 
 The `CodeStatic` type is related to these types:
 
-- Parents: [`Entity`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/other/entity.md)
-- Children: [`CodeBlock`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-block.md), [`CodeInline`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/code/code-inline.md)
+- Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
+- Children: [`CodeBlock`](https://stencila.ghost.io/docs/reference/schema/code-block), [`CodeInline`](https://stencila.ghost.io/docs/reference/schema/code-inline)
 
-## Bindings
+# Bindings
 
-The `CodeStatic` type is represented in these bindings:
+The `CodeStatic` type is represented in:
 
 - [JSON-LD](https://stencila.org/CodeStatic.jsonld)
 - [JSON Schema](https://stencila.org/CodeStatic.schema.json)
@@ -38,6 +47,6 @@ The `CodeStatic` type is represented in these bindings:
 - Rust struct [`CodeStatic`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/code_static.rs)
 - TypeScript class [`CodeStatic`](https://github.com/stencila/stencila/blob/main/ts/src/types/CodeStatic.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`CodeStatic.yaml`](https://github.com/stencila/stencila/blob/main/schema/CodeStatic.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`CodeStatic.yaml`](https://github.com/stencila/stencila/blob/main/schema/CodeStatic.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

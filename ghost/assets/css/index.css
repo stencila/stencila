@@ -1,0 +1,249 @@
+/*
+
+This is a development CSS file that is compiled to a minified
+production stylesheet in assets/built/screen.css using: npm run dev
+
+*/
+
+/* Lib - Local component imports
+/* ---------------------------------------------------------- */
+
+/* Base components */
+@import "vars.css";
+@import "components/global.css";
+@import "components/forms.css";
+@import "components/sidebar.css";
+@import "components/header.css";
+@import "components/footer.css";
+@import "components/toc.css";
+
+/* Ghost components */
+@import "ghost/content.css";
+@import "ghost/members.css";
+@import "ghost/errors.css";
+@import "ghost/badge.css";
+@import "ghost/pagination.css";
+@import "ghost/comments.css";
+
+
+/* Main - Your styles here! Edit below
+/* ---------------------------------------------------------- */
+
+html {
+    background: #ffffff;
+    font-size: 16px;
+    min-height: 100vh;
+}
+
+.gh-viewport {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background: rgba(256,256,256,0.1);
+    font-size: 16px;
+    z-index: 1;
+}
+
+
+/* .gh-viewport::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 300px;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle 50px at 40% 18%, color-mix(in srgb, var(--ghost-accent-color) 20%, transparent 10%) 100%, transparent 0%),
+        radial-gradient(circle 200px at 0% 10%, color-mix(in srgb, var(--ghost-accent-color) 10%, transparent 10%) 100%, transparent 0%),
+        radial-gradient(circle 60px at -10% 40%, color-mix(in srgb, var(--ghost-accent-color) 20%, transparent 10%) 100%, transparent 0%),
+        radial-gradient(circle 180px at 0% 55%, color-mix(in srgb, var(--ghost-accent-color) 10%, transparent 10%) 100%, transparent 0%);
+
+    background-size: 300px 3000px;
+    background-position: 0px -100px;
+    background-repeat: repeat-y;
+    z-index: -1;
+} */
+
+/* @media (min-width: 768px) {
+    .gh-viewport::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 100%;
+        background-image: 
+            radial-gradient(circle 50px at 18% 40%, color-mix(in srgb, var(--ghost-accent-color) 20%, transparent 10%) 100% 100%, transparent 0%),
+            radial-gradient(circle 200px at 110% 40%, color-mix(in srgb, var(--ghost-accent-color) 10%, transparent 10%) 100% 100%, transparent 0%),
+            radial-gradient(circle 180px at 110% 80%, color-mix(in srgb, var(--ghost-accent-color) 10%, transparent 10%) 100% 100%, transparent 0%),
+            radial-gradient(circle 60px at 110% 90%, color-mix(in srgb, var(--ghost-accent-color) 20%, transparent 10%) 100% 100%, transparent 0%);
+        background-size: 300px 3000px;
+        background-position: 0px 20px;
+        background-repeat: repeat-y;
+        z-index: -1;
+    }
+} */
+
+.gh-main {
+    flex: 1 0 auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.gh-page {
+    padding: 0 4vmin;
+}
+
+.gh-article {
+    padding: 4rem 0;
+}
+
+/* .gh-postfeed {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(350px, 100%), 1fr));
+    gap: 4.8vmin 4vmin;
+    padding: 8vmin 0;
+}
+
+.gh-postfeed > *:first-child {
+    grid-column: 1 / -1;
+} */
+
+.gh-head-actions a:not(.gh-button) {
+    display: inline-flex;
+    align-items: center;
+    margin: 0;
+    padding: 10px;
+}
+
+.gh-head-actions a svg {
+    height: 1.8rem;
+    fill: currentcolor;
+}
+
+.gh-head-actions a:first-child svg {
+    margin-left: 20px;
+}
+
+.gh-head-actions a:last-child svg {
+    height: 2rem;
+}
+
+
+/* Page
+/* ---------------------------------------------------------- */
+
+.gh-page-head {
+    margin: 0 auto;
+    padding: 8vmin 0 4vmin;
+    text-align: center;
+}
+
+.gh-page-image {
+    margin: 4vmin 0 0 0;
+}
+
+.gh-page-head > p {
+    max-width: 720px;
+    margin: 0.3em auto 0;
+    padding: 0 6vmin;
+    font-size: 1.3em;
+    line-height: 1.4em;
+    opacity: 0.5;
+}
+
+@media (max-width: 700px) {
+    .gh-page-head > p {
+        font-size: 1.6rem;
+    }
+}
+
+
+/* Post
+/* ---------------------------------------------------------- */
+
+.gh-header {
+    padding: 0 0 8vmin 0;
+    text-align: center;
+}
+
+/* .gh-post-meta {
+    display: block;
+    margin: 0 0 1rem;
+    font-size: 1.4rem;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    opacity: 0.8;
+} */
+
+.gh-excerpt {
+    margin: 1rem 0 0 0;
+}
+
+.gh-feature-image {
+    grid-column: wide-start / wide-end;
+    width: 100%;
+    margin: 8vmin 0 0;
+}
+
+.gh-feature-image img {
+    margin-inline: auto;
+    width: 100%;
+}
+
+.gh-post-footer {
+    margin: 2rem 0;
+}
+
+
+/* Author Archive
+/* ---------------------------------------------------------- */
+
+.gh-author-image {
+    height: 12vmin;
+    width: 12vmin;
+    margin: 0 auto 1.5em;
+    border-radius: 100%;
+    overflow: hidden;
+    object-fit: cover;
+}
+
+.gh-author-meta {
+    margin: 2vmin 0 0 0;
+    font-size: 1.2em;
+}
+
+.gh-author-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gh-author-links a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    margin: 0 0.75vmin;
+}
+
+.gh-author-links a + a:before {
+    display: block;
+    content: "";
+    margin: 0 1.25vmin 0 0;
+    height: 1em;
+    width: 1px;
+    background: rgba(0,0,0,0.3);
+    transform: rotate(20deg);
+}
+
+@media (max-width: 700px) {
+    .gh-author-meta {
+        font-size: 1.6rem;
+    }
+}
+
+/* search icon */
+
+.search-link:hover {
+    color: var(--ghost-accent-color)
+}

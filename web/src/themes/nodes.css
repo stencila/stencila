@@ -5,7 +5,7 @@
 */
 
 /* apply tailwind typography to relevant elements */
-stencila-heading h1,
+/* stencila-heading h1,
 stencila-heading h2,
 stencila-heading h3,
 stencila-heading h4,
@@ -31,7 +31,7 @@ stencila-code-inline code {
   font-family: var(--font-family-serif);
   color: var(--default-text-colour);
   @apply prose lg:prose-lg;
-}
+} */
 
 /* headings */
 
@@ -284,10 +284,24 @@ stencila-image-object {
 
 /* lists */
 
+stencila-list {
+  ul,
+  ol {
+    padding-left: 2rem;
+  }
+
+  ul {
+    list-style: disc;
+  }
+
+  ol {
+    list-style-type: decimal;
+  }
+}
+
 stencila-list-item {
   stencila-paragraph {
     margin: 0;
-
     p {
       margin: 0;
     }

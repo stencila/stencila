@@ -3,7 +3,7 @@ title: Chat
 nick: cht
 extends: [CreativeWork, Executable]
 category: works
-status: under-development
+status: beta
 description: A chat conversation, usually with a generative AI model.
 patch:
   applyWith: Chat::apply_with

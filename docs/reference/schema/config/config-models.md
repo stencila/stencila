@@ -1,62 +1,73 @@
-# Config Models
+---
+title: Config Models
+description: Model selection and execution options.
+config:
+  publish:
+    ghost:
+      type: post
+      slug: config-models
+      state: publish
+      tags:
+      - '#doc'
+      - '#schema'
+      - Config
+---
 
-**Model selection and execution options.**
-
-## Properties
+# Properties
 
 The `ConfigModels` type has these properties:
 
-| Name              | Aliases                                                                             | `@id` | Type                                                                                                               | Description                                                            | Inherited from |
-| ----------------- | ----------------------------------------------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- | -------------- |
-| `executeContent`  | `execute-content`, `execute_content`                                                | ``    | [`Boolean`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/boolean.md)                  | Automatically execute generated content.                               | -              |
-| `executionBounds` | `execution-bounds`, `execution_bounds`                                              | ``    | [`ExecutionBounds`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/flow/execution-bounds.md) | The execution boundaries on model generated code.                      | -              |
-| `maximumRetries`  | `max-retries`, `maximum-retries`, `execution-retries`, `retries`, `maximum_retries` | ``    | [`Number`](https://github.com/stencila/stencila/blob/main/docs/reference/schema/data/number.md)                    | When executing model generated content, the maximum number of retries. | -              |
+| Name              | Description                                                            | Type                                                                                  | Inherited from | `JSON-LD @id` | Aliases                                                                             |
+| ----------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | -------------- | ------------- | ----------------------------------------------------------------------------------- |
+| `executeContent`  | Automatically execute generated content.                               | [`Boolean`](https://stencila.ghost.io/docs/reference/schema/boolean)                  | -              | ``            | `execute-content`, `execute_content`                                                |
+| `executionBounds` | The execution boundaries on model generated code.                      | [`ExecutionBounds`](https://stencila.ghost.io/docs/reference/schema/execution-bounds) | -              | ``            | `execution-bounds`, `execution_bounds`                                              |
+| `maximumRetries`  | When executing model generated content, the maximum number of retries. | [`Number`](https://stencila.ghost.io/docs/reference/schema/number)                    | -              | ``            | `max-retries`, `maximum-retries`, `execution-retries`, `retries`, `maximum_retries` |
 
-## Related
+# Related
 
 The `ConfigModels` type is related to these types:
 
-- Parents: none
+- Parents: None
 - Children: none
 
-## Formats
+# Formats
 
 The `ConfigModels` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
-| Format                                                                                               | Encoding | Decoding | Status              | Notes |
-| ---------------------------------------------------------------------------------------------------- | -------- | -------- | ------------------- | ----- |
-| [DOM HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/dom.html.md)        |          |          | 🔶 Beta              |       |
-| [HTML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/html.md)                |          |          | 🚧 Under development |       |
-| [JATS](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jats.md)                |          |          | 🚧 Under development |       |
-| [Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/md.md)              |          |          | 🔶 Beta              |       |
-| [Stencila Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/smd.md)    |          |          | 🔶 Beta              |       |
-| [Quarto Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/qmd.md)      |          |          | 🔶 Beta              |       |
-| [MyST Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/myst.md)       |          |          | 🔶 Beta              |       |
-| [LLM Markdown](https://github.com/stencila/stencila/blob/main/docs/reference/formats/llmd.md)        |          |          | 🔶 Beta              |       |
-| [LaTeX](https://github.com/stencila/stencila/blob/main/docs/reference/formats/latex.md)              |          |          | 🚧 Under development |       |
-| [PDF](https://github.com/stencila/stencila/blob/main/docs/reference/formats/pdf.md)                  |          |          | 🚧 Under development |       |
-| [Plain text](https://github.com/stencila/stencila/blob/main/docs/reference/formats/text.md)          |          |          | 🔶 Beta              |       |
-| [IPYNB](https://github.com/stencila/stencila/blob/main/docs/reference/formats/ipynb.md)              |          |          | 🚧 Under development |       |
-| [Microsoft Word DOCX](https://github.com/stencila/stencila/blob/main/docs/reference/formats/docx.md) |          |          | 🚧 Under development |       |
-| [OpenDocument ODT](https://github.com/stencila/stencila/blob/main/docs/reference/formats/odt.md)     |          |          | 🚧 Under development |       |
-| [TeX](https://github.com/stencila/stencila/blob/main/docs/reference/formats/tex.md)                  |          |          | 🚧 Under development |       |
-| [JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.md)                |          |          | 🟢 Stable            |       |
-| [JSON+Zip](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json.zip.md)        |          |          | 🟢 Stable            |       |
-| [JSON5](https://github.com/stencila/stencila/blob/main/docs/reference/formats/json5.md)              |          |          | 🟢 Stable            |       |
-| [JSON-LD](https://github.com/stencila/stencila/blob/main/docs/reference/formats/jsonld.md)           |          |          | 🔶 Beta              |       |
-| [CBOR](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.md)                |          |          | 🟢 Stable            |       |
-| [CBOR+Zstandard](https://github.com/stencila/stencila/blob/main/docs/reference/formats/cbor.zstd.md) |          |          | 🟢 Stable            |       |
-| [YAML](https://github.com/stencila/stencila/blob/main/docs/reference/formats/yaml.md)                |          |          | 🟢 Stable            |       |
-| [Lexical JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/lexical.md)     |          |          | ⚠️ Alpha            |       |
-| [Koenig JSON](https://github.com/stencila/stencila/blob/main/docs/reference/formats/koenig.md)       |          |          | ⚠️ Alpha            |       |
-| [Pandoc AST](https://github.com/stencila/stencila/blob/main/docs/reference/formats/pandoc.md)        |          |          | 🚧 Under development |       |
-| [Directory](https://github.com/stencila/stencila/blob/main/docs/reference/formats/directory.md)      |          |          | 🚧 Under development |       |
-| [Stencila Web Bundle](https://github.com/stencila/stencila/blob/main/docs/reference/formats/swb.md)  |          |          | ⚠️ Alpha            |       |
-| [Debug](https://github.com/stencila/stencila/blob/main/docs/reference/formats/debug.md)              |          |          | 🟢 Stable            |       |
+| Format                                                                       | Encoding | Decoding | Support | Notes |
+| ---------------------------------------------------------------------------- | -------- | -------- | ------- | ----- |
+| [DOM HTML](https://stencila.ghost.io/docs/reference/formats/dom.html)        |          |          |         |
+| [HTML](https://stencila.ghost.io/docs/reference/formats/html)                |          |          |         |
+| [JATS](https://stencila.ghost.io/docs/reference/formats/jats)                |          |          |         |
+| [Markdown](https://stencila.ghost.io/docs/reference/formats/md)              |          |          |         |
+| [Stencila Markdown](https://stencila.ghost.io/docs/reference/formats/smd)    |          |          |         |
+| [Quarto Markdown](https://stencila.ghost.io/docs/reference/formats/qmd)      |          |          |         |
+| [MyST Markdown](https://stencila.ghost.io/docs/reference/formats/myst)       |          |          |         |
+| [LLM Markdown](https://stencila.ghost.io/docs/reference/formats/llmd)        |          |          |         |
+| [LaTeX](https://stencila.ghost.io/docs/reference/formats/latex)              |          |          |         |
+| [PDF](https://stencila.ghost.io/docs/reference/formats/pdf)                  |          |          |         |
+| [Plain text](https://stencila.ghost.io/docs/reference/formats/text)          |          |          |         |
+| [IPYNB](https://stencila.ghost.io/docs/reference/formats/ipynb)              |          |          |         |
+| [Microsoft Word DOCX](https://stencila.ghost.io/docs/reference/formats/docx) |          |          |         |
+| [OpenDocument ODT](https://stencila.ghost.io/docs/reference/formats/odt)     |          |          |         |
+| [TeX](https://stencila.ghost.io/docs/reference/formats/tex)                  |          |          |         |
+| [JSON](https://stencila.ghost.io/docs/reference/formats/json)                |          |          |         |
+| [JSON+Zip](https://stencila.ghost.io/docs/reference/formats/json.zip)        |          |          |         |
+| [JSON5](https://stencila.ghost.io/docs/reference/formats/json5)              |          |          |         |
+| [JSON-LD](https://stencila.ghost.io/docs/reference/formats/jsonld)           |          |          |         |
+| [CBOR](https://stencila.ghost.io/docs/reference/formats/cbor)                |          |          |         |
+| [CBOR+Zstandard](https://stencila.ghost.io/docs/reference/formats/cbor.zstd) |          |          |         |
+| [YAML](https://stencila.ghost.io/docs/reference/formats/yaml)                |          |          |         |
+| [Lexical JSON](https://stencila.ghost.io/docs/reference/formats/lexical)     |          |          |         |
+| [Koenig JSON](https://stencila.ghost.io/docs/reference/formats/koenig)       |          |          |         |
+| [Pandoc AST](https://stencila.ghost.io/docs/reference/formats/pandoc)        |          |          |         |
+| [Directory](https://stencila.ghost.io/docs/reference/formats/directory)      |          |          |         |
+| [Stencila Web Bundle](https://stencila.ghost.io/docs/reference/formats/swb)  |          |          |         |
+| [Debug](https://stencila.ghost.io/docs/reference/formats/debug)              |          |          |         |
 
-## Bindings
+# Bindings
 
-The `ConfigModels` type is represented in these bindings:
+The `ConfigModels` type is represented in:
 
 - [JSON-LD](https://stencila.org/ConfigModels.jsonld)
 - [JSON Schema](https://stencila.org/ConfigModels.schema.json)
@@ -64,6 +75,6 @@ The `ConfigModels` type is represented in these bindings:
 - Rust struct [`ConfigModels`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/config_models.rs)
 - TypeScript class [`ConfigModels`](https://github.com/stencila/stencila/blob/main/ts/src/types/ConfigModels.ts)
 
-## Source
+# Source
 
-This documentation was generated from [`ConfigModels.yaml`](https://github.com/stencila/stencila/blob/main/schema/ConfigModels.yaml) by [`docs_type.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_type.rs).
+This documentation was generated from [`ConfigModels.yaml`](https://github.com/stencila/stencila/blob/main/schema/ConfigModels.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

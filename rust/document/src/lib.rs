@@ -22,7 +22,7 @@ use common::{
     tracing,
 };
 use kernels::Kernels;
-use node_diagnostics::diagnostics;
+use node_diagnostics::{diagnostics, Diagnostic};
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
@@ -34,6 +34,7 @@ use schema::{
 pub mod cli;
 
 mod config;
+mod dirs;
 mod sync_directory;
 mod sync_dom;
 mod sync_file;
@@ -348,12 +349,14 @@ impl Document {
         // Start the update task
         {
             let root = root.clone();
+            let path = path.clone();
             let command_sender = command_sender.clone();
             tokio::spawn(async move {
                 Self::update_task(
                     update_receiver,
                     patch_receiver,
                     root,
+                    path,
                     watch_sender,
                     command_sender,
                 )
@@ -815,9 +818,14 @@ impl Document {
         self.command(Command::ExecuteDocument(options), wait).await
     }
 
+    /// Get diagnostics for the document
+    pub async fn diagnostics(&self) -> Vec<Diagnostic> {
+        diagnostics(&*self.root.read().await)
+    }
+
     /// Print diagnostics for the document
-    pub async fn diagnostics(&self) -> Result<usize> {
-        let diagnostics = diagnostics(&*self.root.read().await);
+    pub async fn diagnostics_print(&self) -> Result<usize> {
+        let diagnostics = self.diagnostics().await;
 
         // No diagnostics so return early
         if diagnostics.is_empty() {
