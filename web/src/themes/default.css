@@ -12,6 +12,7 @@
   --default-text-colour: #171817;
   --font-family-serif:
     'Source Serif 4', Georgia, 'Times New Roman', Times, serif;
+  --font-size: 16px;
 
   /* code */
   --code-font-family: 'IBM Plex Mono', monospace;
@@ -56,6 +57,7 @@ stencila-dynamic-view,
 stencila-vscode-view {
   > [root] {
     font-family: var(--font-family-serif, inherit);
+    font-size: var(--font-size, inherit);
     color: var(--default-text-colour, inherit);
 
     > section {
