@@ -25,7 +25,7 @@ impl NodeType {
             "quote" => NodeType::QuoteBlock,
             "section" => NodeType::Section,
             "table" => NodeType::Table,
-            _ => return Ok(NodeType::from_str(&name)?),
+            _ => return Ok(NodeType::from_str(name)?),
         })
     }
 

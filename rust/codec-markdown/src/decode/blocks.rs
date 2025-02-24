@@ -31,8 +31,8 @@ use super::{
     decode_blocks, decode_inlines,
     inlines::{inlines, mds_to_inlines, mds_to_string},
     shared::{
-        attrs, attrs_list, execution_bounds, execution_mode, instruction_type, model_parameters,
-        name, node_to_string, block_node_type, primitive_node, prompt, relative_position,
+        attrs, attrs_list, block_node_type, execution_bounds, execution_mode, instruction_type,
+        model_parameters, name, node_to_string, primitive_node, prompt, relative_position,
         string_to_instruction_message,
     },
     Context,

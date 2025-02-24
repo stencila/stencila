@@ -262,7 +262,7 @@ pub async fn infer(
 
             node_types
                 .iter()
-                .all(|node_type| prompt_node_types.contains(&node_type))
+                .all(|node_type| prompt_node_types.contains(node_type))
         }
         _ => true,
     });
