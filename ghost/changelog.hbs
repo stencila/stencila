@@ -58,10 +58,10 @@
                   {{/if}}
                       <div class="p-4 text-left flex-grow">
                         <div class="flex justify-between">
-                          <h2 class="text-3xl {{^if @first}}text-xl mr-4{{/if}}">{{title}}</h2>
+                          <h2 class="text-3xl">{{title}}</h2>
                           <span><time datetime="{{date format="YYYY-MM-DD"}}">{{date format="D MMM YYYY"}}</time></span>
                         </div>
-                        <p class="my-4 {{#if @first}}text-base md:text-lg{{else}}text-xs md:text-sm{{/if}} leading-snug">{{excerpt}}</p>
+                        <p class="my-4 text-base md:text-lg leading-snug">{{excerpt}}</p>
                       </div>
                   </a>
                 </article>

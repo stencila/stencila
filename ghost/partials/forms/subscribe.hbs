@@ -11,7 +11,10 @@
         class="w-full py-0 px-4 rounded-r-none rounded-l-md border-l border-t border-b border-r-0 border-gray-200 placeholder:text-gray-400 focus:shadow-inner focus:border-gray-400 outline-none" 
     />
     <button type="submit" class="flex shrink-0 flex-nowrap justify-center items-center px-4 py-2 border border-transparent rounded-r-md shadow-sm text-sm font-semibold bg-brand-blue text-white bg-base text-center cursor-pointer hover:bg-white hover:text-brand-blue hover:border-brand-blue">
-        Subscribe
+        <span class="idle">Subscribe</span>
+        <span class="loader"><div class="w-4 h-4 border border-l-0 border-white rounded-full"></div></span>
+        <span class="success">email sent</span>
+        <span class="error">try again</span>
     </button>
     <p data-members-error></p>
 </form>

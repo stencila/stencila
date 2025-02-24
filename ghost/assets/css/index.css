@@ -16,6 +16,7 @@ production stylesheet in assets/built/screen.css using: npm run dev
 @import "components/header.css";
 @import "components/footer.css";
 @import "components/toc.css";
+@import "components/subscribe.css";
 
 /* Ghost components */
 @import "ghost/content.css";

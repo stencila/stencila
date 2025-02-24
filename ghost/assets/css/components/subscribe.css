@@ -1,0 +1,21 @@
+
+
+form[data-members-form="subscribe"] button[type="submit"] span[class]:not(.idle) {
+  display: none;
+}
+
+/* form[data-members-form="subscribe"] button[type="submit"] .idle {
+  display: block;
+} */
+
+form[data-members-form="subscribe"].loading button[type="submit"] .loader,
+form[data-members-form="subscribe"].error button[type="submit"] .error,
+form[data-members-form="subscribe"].success button[type="submit"] .success {
+  display: block;
+}
+
+form[data-members-form="subscribe"].loading button[type="submit"] .idle,
+form[data-members-form="subscribe"].error button[type="submit"] .idle,
+form[data-members-form="subscribe"].success button[type="submit"] .idle {
+  display: none;
+} 
