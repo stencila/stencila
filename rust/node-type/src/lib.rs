@@ -3,10 +3,32 @@ mod node_property;
 #[rustfmt::skip]
 mod node_type;
 
+use std::str::FromStr;
+
+use common::eyre::Result;
+
 pub use crate::node_type::NodeType;
 pub use node_property::NodeProperty;
 
 impl NodeType {
+    /// Parse a node type from a string
+    ///
+    /// Allows for aliases not handled by `from_str`.
+    pub fn from_name(name: &str) -> Result<Self> {
+        Ok(match name {
+            "code" | "chunk" | "cell" => NodeType::CodeChunk,
+            "figure" | "fig" => NodeType::Figure,
+            "heading" => NodeType::Heading,
+            "list" => NodeType::List,
+            "math" | "equation" | "eqn" => NodeType::MathBlock,
+            "paragraph" | "para" => NodeType::Paragraph,
+            "quote" => NodeType::QuoteBlock,
+            "section" => NodeType::Section,
+            "table" => NodeType::Table,
+            _ => return Ok(NodeType::from_str(&name)?),
+        })
+    }
+
     /// Is the node type a block?
     pub fn is_block(&self) -> bool {
         use NodeType::*;

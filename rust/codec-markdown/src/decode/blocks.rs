@@ -32,7 +32,7 @@ use super::{
     inlines::{inlines, mds_to_inlines, mds_to_string},
     shared::{
         attrs, attrs_list, execution_bounds, execution_mode, instruction_type, model_parameters,
-        name, node_to_string, node_type, primitive_node, prompt, relative_position,
+        name, node_to_string, block_node_type, primitive_node, prompt, relative_position,
         string_to_instruction_message,
     },
     Context,
@@ -637,14 +637,14 @@ fn prompt_block(input: &mut Located<&str>) -> ModalResult<Block> {
         (
             opt(preceded(multispace1, instruction_type)),
             opt(preceded(multispace1, relative_position)),
-            opt(preceded(multispace1, node_type)),
+            opt(preceded(multispace1, block_node_type)),
             opt(preceded(multispace1, prompt)),
             opt(take_while(1.., |_| true)),
         ),
     )
     .map(
         |(instruction_type, relative_position, node_type, target, query)| {
-            let node_types = node_type.map(|node_type| vec![node_type.to_string()]);
+            let node_types = node_type.map(|node_type| vec![node_type]);
 
             let query = query.and_then(|query| {
                 let query = query.trim();
@@ -733,7 +733,7 @@ fn chat(input: &mut Located<&str>) -> ModalResult<Block> {
         (
             opt(preceded(multispace0, instruction_type)),
             opt(preceded(multispace1, relative_position)),
-            opt(preceded(multispace1, node_type)),
+            opt(preceded(multispace1, block_node_type)),
             opt(preceded(multispace1, prompt)),
             opt(preceded(multispace1, model_parameters)),
             opt(take_while(1.., |_| true)),
@@ -741,7 +741,7 @@ fn chat(input: &mut Located<&str>) -> ModalResult<Block> {
     )
     .map(
         |(instruction_type, relative_position, node_type, target, model_parameters, query)| {
-            let node_types = node_type.map(|node_type| vec![node_type.to_string()]);
+            let node_types = node_type.map(|node_type| vec![node_type]);
 
             let query = query.and_then(|query| {
                 let query = query.trim();
@@ -923,7 +923,7 @@ fn instruction_block(input: &mut Located<&str>) -> ModalResult<Block> {
         instruction_type,
         opt(preceded(multispace1, execution_mode)),
         opt(preceded(multispace1, relative_position)),
-        opt(preceded(multispace1, node_type)),
+        opt(preceded(multispace1, block_node_type)),
         opt(preceded(multispace1, prompt)),
         opt(preceded(multispace1, model_parameters)),
         opt(take_while(1.., |_| true)),
