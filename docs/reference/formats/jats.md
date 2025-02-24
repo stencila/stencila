@@ -1,5 +1,4 @@
 ---
-<<<<<<< HEAD
 config:
   publish:
     ghost:
@@ -19,25 +18,11 @@ title: JATS
 
 The [JATS (Journal Article Tag Suite)](https://jats.nlm.nih.gov/) is an XML format that can be used to tag and deescribe scientific articles. It was developed by the NIH and has been adopted by several journals as a de facto standard for describing journal articles.
 
-It can be used to represent documents, figures, citations, code blocks and more. 
+It can be used to represent documents, figures, citations, code blocks and more.
 
 ## Implementation
 
 Parsing of JATS is largely done using the [quick-xml](https://crates.io/crates/quick-xml) crate and is low loss for most document attributes (see below).
-=======
-title: JATS
-description: Journal Article Tag Suite
-config:
-  publish:
-    ghost:
-      type: post
-      slug: jats
-      state: publish
-      tags:
-      - '#doc'
-      - '#formats'
----
->>>>>>> 7e711ea2cdd727e923f3e49fe13039468c55b86e
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
