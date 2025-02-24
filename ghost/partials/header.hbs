@@ -10,7 +10,7 @@
               {{/if}}
           </a>
       </div>
-      <div id="site-nav-menu" class="flex items-center hidden font-semibold lg:block">
+      <div id="site-nav-menu" class="hidden lg:flex items-center font-semibold">
           {{navigation}}
       </div>
       
@@ -40,8 +40,8 @@
                   {{> icons/chevron-down}}
               </div>
           </a>
-          <div id="mobile-menu-container" class="absolute right-0 top-full bg-gray-50 mt-2 w-48 shadow-lg rounded-lg origin-top transition-all duration-300 ease-in-out z-20">
-              <div class="p-4 text-xl">
+          <div id="mobile-menu-container" class="absolute right-0 top-full bg-gray-50 mt-2 w-96 shadow-lg rounded-lg origin-top transition-all duration-300 ease-in-out z-20">
+              <div class="p-4 text-2xl">
                   {{navigation}}
                   <hr/>
                   {{#if @site.members_enabled}}
