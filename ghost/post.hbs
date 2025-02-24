@@ -88,7 +88,7 @@
             </footer>
         </article>        
         <aside class="gh-canvas yfont-sans w-full py-8">
-            <div class="flex justify-between gap-8 px-8 text-lg font-semibold w-full">
+            <div class="flex justify-between gap-8 text-lg font-semibold w-full">
                 <div>
                     {{#next_post in="primary_tag"}}<a href="{{url}}" class="flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-400 hover:border-gray-400 shadow hover:shadow-xl">
                         <span class="w-4 h-6 flex-none">{{>"icons/arrow-left"}}</span>
@@ -104,5 +104,9 @@
             </div>
         </aside>
     </div>
+
+    {{/has}}
+    {{#has tag="#stencila"}}
+        <script src="{{asset "built/stencila-web/ghost.js"}}"></script>
     {{/has}}
 {{/post}}
