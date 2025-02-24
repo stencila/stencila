@@ -1,4 +1,4 @@
-import { css } from '@twind/core'
+import { apply, css } from '@twind/core'
 import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { unsafeSVG } from 'lit/directives/unsafe-svg'
@@ -35,15 +35,31 @@ export class ImageObject extends Entity {
   mediaType?: string
 
   /**
+   * The URL of the source of the image
+   *
+   * Equivalent to the `src` attribute in HTML. See `renderImg` for how this is used
+   * to rewrite the URL if necessary, depending upon the context.
+   */
+  @property({ attribute: 'content-url' })
+  contentUrl?: string
+
+  /**
    * The code content of the image
    *
-   * For binary images (e.g. PNG, JPG) this should be empty and instead
-   * there will be an <img> element in the <slot>. For code-based, rendered
-   * images (e.g. Mermaid, Vega) this will be the code that needs to be
+   * For code-based, rendered images (e.g. Mermaid, Vega) this will be the code that needs to be
    * rendered into an image (see methods below).
+   *
+   * For binary images (e.g. PNG, JPG) this should be empty and instead
+   * there will be `contentUrl` property and an <img> element in the <slot>.
    */
   @property()
   content?: string
+
+  /**
+   * The resolved URL of the <imd> `src` attribute, if applicable
+   */
+  @state()
+  imgSrc?: string
 
   /**
    * The rendered SVG of the content, if applicable
@@ -81,8 +97,28 @@ export class ImageObject extends Entity {
     }
   }
 
-  override async update(properties: PropertyValues) {
-    super.update(properties)
+  override async updated(properties: PropertyValues) {
+    super.updated(properties)
+
+    if (properties.has('contentUrl')) {
+      if (this.contentUrl) {
+        const workspace = this.closestGlobally(
+          'stencila-vscode-view'
+        )?.getAttribute('workspace')
+
+        this.imgSrc = workspace
+          ? `${workspace}/${this.contentUrl}`
+          : this.contentUrl
+
+        // Prefetch
+        const response = await fetch(this.imgSrc, { method: 'HEAD' })
+        if (response.ok) {
+          this.error = undefined
+        } else {
+          this.error = `Error fetching image: ${await response.text()}`
+        }
+      }
+    }
 
     if (properties.has('content') || properties.has('mediaType')) {
       if (this.content) {
@@ -280,7 +316,6 @@ export class ImageObject extends Entity {
       return this.renderContent()
     }
 
-    // render with the `insert` chip in model chat response
     if (this.isWithinModelChatMessage()) {
       return html`
         <div class="group relative">
@@ -323,15 +358,13 @@ export class ImageObject extends Entity {
 
   private renderContent() {
     if (this.error) {
-      return this.renderErrors()
+      return this.renderError()
     }
 
-    // render plotly figure
     if (this.mediaType === ImageObject.MEDIA_TYPES.plotly) {
       return this.renderPlotly()
     }
 
-    // render vega-lite figure
     if (this.mediaType === ImageObject.MEDIA_TYPES.vegaLite) {
       return this.renderVega()
     }
@@ -339,10 +372,15 @@ export class ImageObject extends Entity {
     return this.svg ? this.renderSvg() : this.renderImg()
   }
 
-  private renderErrors() {
+  private renderError() {
+    const classes = apply(
+      'overflow-x-auto px-2 py-1',
+      'rounded border border-red-200 bg-red-100',
+      'text-red-900 text-sm whitespace-pre'
+    )
+
     return html`<div slot="content">
-      <pre class="whitespace-pre overflow-x-auto"><code>${this
-        .error}</code></pre>
+      <pre class=${classes}><code>${this.error}</code></pre>
     </div>`
   }
 
@@ -376,7 +414,7 @@ export class ImageObject extends Entity {
     `
     return html`
       <div slot="content" class=${imgStyles}>
-        <slot></slot>
+        ${this.imgSrc ? html`<img src=${this.imgSrc} />` : html`<slot></slot>`}
       </div>
     `
   }

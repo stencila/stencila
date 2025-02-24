@@ -133,6 +133,8 @@ export async function createDocumentViewPanel(
 
   const title = `${titlePrefix} ${path.basename(documentUri.fsPath)}`;
 
+  const workspaceFolder = getWorkspaceFolder(documentUri);
+
   // Create the panel
   const panel = vscode.window.createWebviewPanel(
     "document-view",
@@ -143,11 +145,12 @@ export async function createDocumentViewPanel(
       retainContextWhenHidden: true,
       localResourceRoots: [
         vscode.Uri.joinPath(context.extensionUri, "out", "web"),
+        workspaceFolder,
       ],
     }
   );
 
-  initializeWebViewPanel(context, documentUri, panel, editor);
+  initializeWebViewPanel(context, documentUri, panel, workspaceFolder, editor);
 
   // If `nodeId` param is defined, scroll webview panel to target node.
   if (nodeId) {
@@ -188,6 +191,8 @@ export async function createNodeViewPanel(
     ? `${nodeType} at ${path.basename(uri.fsPath)}:${position.line + 1}`
     : `${nodeType} in ${path.basename(uri.fsPath)}`;
 
+  const workspaceFolder = getWorkspaceFolder(documentUri);
+
   const panel = vscode.window.createWebviewPanel(
     "node-view",
     title,
@@ -197,11 +202,12 @@ export async function createNodeViewPanel(
       retainContextWhenHidden: true,
       localResourceRoots: [
         vscode.Uri.joinPath(context.extensionUri, "out", "web"),
+        workspaceFolder
       ],
     }
   );
 
-  initializeWebViewPanel(context, uri, panel);
+  initializeWebViewPanel(context, uri, panel, workspaceFolder);
 
   if (expandAuthors) {
     panel.webview.postMessage({
@@ -215,12 +221,31 @@ export async function createNodeViewPanel(
 }
 
 /**
+ * Get the workspace folder for a document, falling back to the first workspace
+ */
+function getWorkspaceFolder(documentUri: vscode.Uri): vscode.Uri {
+  let workspaceFolder;
+  const folder = vscode.workspace.getWorkspaceFolder(documentUri);
+  if (folder) {
+    workspaceFolder = folder.uri.fsPath;
+  } else {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (workspaceFolders && workspaceFolders.length > 0) {
+      workspaceFolder = workspaceFolders[0].uri.fsPath;
+    }
+  }
+
+  return vscode.Uri.file(workspaceFolder ?? ".");
+}
+
+/**
  * Initialize a WebView panel that displays a document
  */
 export async function initializeWebViewPanel(
   context: vscode.ExtensionContext,
   uri: vscode.Uri,
   panel: vscode.WebviewPanel,
+  workspaceFolder: vscode.Uri,
   editor?: vscode.TextEditor
 ) {
   const uriString = uri.toString();
@@ -271,6 +296,9 @@ export async function initializeWebViewPanel(
     vscode.Uri.joinPath(webDist, "views", "vscode.js")
   );
 
+  // Convert workspace folder filesystem path to a URI
+  const workspaceUri = panel.webview.asWebviewUri(workspaceFolder);
+
   // The order of the <script>s is important:
   //
   // 1. Load the Stencila Web bundle first because it starts listeners
@@ -295,7 +323,7 @@ export async function initializeWebViewPanel(
           </script>
         </head>
         <body style="background: white;">
-          <stencila-vscode-view theme="${themeName}">
+          <stencila-vscode-view theme="${themeName}" workspace="${workspaceUri}">
             ${viewHtml}
           </stencila-vscode-view>
         </body>
