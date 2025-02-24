@@ -1,6 +1,20 @@
-# JSON-LD
+---
+config:
+  publish:
+    ghost:
+      slug: jsonld-format
+      state: publish
+      tags:
+      - '#doc'
+      - Formats
+      type: post
+description: JavaScript Object Notation for Linked Data
+title: JSON-LD
+---
 
 ## Introduction
+
+**File Extension:** `.jsonld` - Used when converting or exporting Stencila documents to JSON-LD format.
 
 [JSON-LD](https://json-ld.org/), or JSON for Linked Data, is a lightweight data interchange format designed to express linked data in a format that is both human-readable and machine-friendly. It extends JSON by providing a standard way to embed linked data within JSON documents, allowing for a network of standards-based, machine-readable, structured data on the web.
 

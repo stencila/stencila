@@ -1,8 +1,22 @@
-# YAML
+---
+config:
+  publish:
+    ghost:
+      slug: yaml-format
+      state: publish
+      tags:
+      - '#doc'
+      - Formats
+      type: post
+description: YAML A'int Markup Language
+title: YAML
+---
 
 ## Introduction
 
-[YAML (YAML Ain't Markup Language)](https://yaml.org/) is a human-readable data serialization format commonly used for configuration files and data representation. It is known for its simplicity and readability, making it a preferred choice for settings and data structures. YAML's structure is based on indentation, allowing users to represent data hierarchies in an easily understandable manner. 
+**File Extension:** `.yaml` - Used when converting or exporting Stencila documents to YAML format.
+
+[YAML (YAML Ain't Markup Language)](https://yaml.org/) is a human-readable data serialization format commonly used for configuration files and data representation. It is known for its simplicity and readability, making it a preferred choice for settings and data structures. YAML's structure is based on indentation, allowing users to represent data hierarchies in an easily understandable manner.
 
 Its benefits include human-friendly syntax and support for complex data structures. It is a good choice for lossless serialization of Stencila documents when human-readability is important.
 

@@ -1,4 +1,28 @@
-# CBOR
+---
+config:
+  publish:
+    ghost:
+      slug: cbor-format
+      state: publish
+      tags:
+      - '#doc'
+      - Formats
+      type: post
+description: Concise Binary Object Representation
+title: CBOR
+---
+
+## Introduction
+
+**File Extension:** `.cbor` - Used when converting or exporting Stencila documents to CBORZST format.
+
+The [CBOR (Concise Binary Object Representation)](https://cbor.io/) format is a serialization format is a convenient binary serialization format that can be used when machine readability and efficiency are more important than human readability. It follows closely the data model of JSON with key value pairs and true, false, null values similar to JavaScript and JSON. It can save on file bloat and enable faster processing of files. Like JSON it enables data interchange without needing a formally specified schema.
+
+## Implementation
+
+Stencila support lossless, bi-directional conversion between Stencila documents and CBOR. The `codec-cbor` Rust crate implements `from_bytes` and `to_bytes` methods (and variants of those) for all node types in Stencila Schema, powered by [`ciborium`](https://crates.io/crates/ciborium).
+
+By default data is uncompressed, but see the CBORZST format for how to compress your CBOR output with Zstandard for even more compact on-disk representations of documents.
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->

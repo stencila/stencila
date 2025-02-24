@@ -1,6 +1,20 @@
-# JSON5
+---
+config:
+  publish:
+    ghost:
+      slug: json5-format
+      state: publish
+      tags:
+      - '#doc'
+      - Formats
+      type: post
+description: JavaScript Object Notation 5 for Humans
+title: JSON5
+---
 
 ## Introduction
+
+**File Extension:** `.json5` - Used when converting or exporting Stencila documents to JSON5 format.
 
 [JSON5](https://json5.org/) is an extension of the JSON (JavaScript Object Notation) format that incorporates additional features for enhanced readability and flexibility. It maintains compatibility with standard JSON while introducing human-friendly syntax elements such as comments, trailing commas, and relaxed quoting rules.
 

@@ -1,6 +1,21 @@
-# Markdown
-
+---
+config:
+  publish:
+    ghost:
+      slug: markdown-format
+      state: publish
+      tags:
+      - '#doc'
+      - Formats
+      type: post
+description: Markdown lightweight markup
+title: Markdown
+---
 ## Introduction
+
+**File Extension:** `.smd`, `.md`, `.myst`, `.qmd` - Used when converting or exporting Stencila documents to various flavours of Markdown.
+
+In Stencila we support various 'flavors' of Markdown with varying extensions added to Markdown for other tools to support. To get the most out of Stencila we recommend using `.smd` or Stencila Markdown, but we also have support for vanilla Markdown (`.md`), MyST Markdown (`.myst`) and Quarto Markdown ('.qmd`).
 
 Markdown is a lightweight markup language widely used for formatting plain text documents. It provides a simple and human-readable way to structure text and add basic styling, such as headers, lists, links, and emphasis. Markdown's benefits include ease of use, and compatibility with various web and documentation platforms.
 

@@ -1,8 +1,22 @@
-# JSON
+---
+config:
+  publish:
+    ghost:
+      slug: json-format
+      state: publish
+      tags:
+      - '#doc'
+      - Formats
+      type: post
+description: JavaScript Object Notation
+title: JSON
+---
 
 ## Introduction
 
-[JSON (JavaScript Object Notation)](https://www.json.org/) is a lightweight data interchange format widely used for structured data storage and transmission. It is easy for both humans and machines to read and write. JSON's simplicity, flexibility, and compatibility with various programming languages make it a popular choice for APIs, configuration files, and data exchange between applications. 
+**File Extension:** `.json - Used when converting or exporting Stencila documents to JSON format.
+
+[JSON (JavaScript Object Notation)](https://www.json.org/) is a lightweight data interchange format widely used for structured data storage and transmission. It is easy for both humans and machines to read and write. JSON's simplicity, flexibility, and compatibility with various programming languages make it a popular choice for APIs, configuration files, and data exchange between applications.
 
 Its benefits include simplicity, and support for nested data structures, making it a good choice for lossless serialization of Stencila documents for inter-application communication.
 
