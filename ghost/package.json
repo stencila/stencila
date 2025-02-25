@@ -86,22 +86,32 @@
         "custom": {
             "instagram": {
                 "type": "text",
+                "description": "url for instagram account",
                 "default": ""
             },
             "discord": {
                 "type": "text",
+                "description": "url for discord server",
                 "default": ""
             },
             "github": {
                 "type": "text",
+                "description": "url for github repository",
                 "default": ""
             },
             "whatsapp": {
                 "type": "text",
+                "description": "url for whatsapp",
                 "default": ""
             },
             "youtube": {
                 "type": "text",
+                "description": "url for youtube channel",
+                "default": ""
+            },
+            "copyright": {
+                "type": "text",
+                "description": "Enter company name and year, will appear in the footer",
                 "default": ""
             }
         }
