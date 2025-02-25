@@ -19,7 +19,7 @@
               <div class="search-link">{{search}}</div>
               {{#if @site.members_enabled}}
                   <a 
-                    class="text-white block p-2 border border-brand-blue bg-brand-blue rounded font-semibold hover:bg-transparent hover:text-brand-blue"
+                    class="text-white block p-2 border border-brand-blue bg-brand-blue rounded font-semibold hover:bg-transparent hover:text-brand-blue transition"
                     href="{{^if @member}}{{@site.signup_url}}{{else}}#/portal/account{{/if}}"
                   >
                     {{^if @member}}Subscribe{{else}}Account{{/if}}

@@ -87,7 +87,11 @@ To implement this or a similar structure, upload the routes.yml file via the adm
 
 All posts are still tagged with the #doc tag, and the schema docs are also tagged with the '#schema' tag.
 
-__If there is a crossover of sections on either of the pages (eg. both pages have the 'API Reference' tag). You will need to create seperate tags for each page, or the #doc will show up under both sections on both pages. To achieve this you can name the seperate tags 'API Reference - docs' & 'API Reference - schema' then you can edit the tags 'Meta title' field so they both display as 'API Reference'.__
+__If there is a crossover of sections on either/any of the pages (eg. both pages have the 'API Reference' tag). You will need to create seperate tags for each page, or the #doc will show up under both sections on both pages. To achieve this you can name the seperate tags 'API Reference - docs' & 'API Reference - schema' then you can edit the tags 'Meta title' field so they both display as 'API Reference'.__
+
+
+## Stencila posts/pages
+
 
 
 
