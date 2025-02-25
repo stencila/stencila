@@ -358,27 +358,35 @@ impl Executable for Chat {
                                     tracing::error!("While linting content: {error}");
                                 };
 
-                                // Collect linting diagnostics
-                                let diags = diagnostics_gte(&content, DiagnosticLevel::Warning);
+                                // Collect linting errors
+                                let linting_errors = diagnostics_gte(&content, DiagnosticLevel::Error);
 
-                                // Execute only if no linting warnings or errors
-                                let diags = if diags.is_empty() {
+                                // Execute only if no linting errors
+                                let diags = if linting_errors.is_empty() {
                                     if let Err(error) = fork.prepare_execute(&mut content).await {
                                         tracing::error!("While executing content: {error}");
                                     }
                                     diagnostics_gte(&content, DiagnosticLevel::Warning)
                                 } else {
-                                    diags
+                                    linting_errors
                                 };
 
-                                // Stop retrying if no retries or diagnostics
-                                if maximum_retries == 0 || diags.is_empty() {
+                                // Stop retrying if no retries or no errors
+                                if maximum_retries == 0
+                                    || diags
+                                        .iter()
+                                        .filter(|diag| diag.level() >= DiagnosticLevel::Error)
+                                        .count()
+                                        == 0
+                                {
                                     break;
                                 }
 
-                                // Extract the level and message of the first diagnostic
+                                // Extract the message of the first error
                                 let (level, message) = diags
-                                    .first()
+                                    .iter()
+                                    .sorted_by(|a, b| a.level().cmp(&b.level()).reverse())
+                                    .next()
                                     .map(|diag| {
                                         (
                                             diag.level().to_string().to_lowercase(),
@@ -427,7 +435,7 @@ impl Executable for Chat {
                                     ],
                                 );
 
-                                // Add a new message to the task with the diagnostic/s
+                                // Add a new message to the task with all the diagnostic/s (including warnings)
                                 let diags = diags
                                     .into_iter()
                                     .filter_map(|diag| diag.to_string_pretty("", "", &None).ok())
