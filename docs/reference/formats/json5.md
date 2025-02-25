@@ -1,5 +1,4 @@
 ---
-<<<<<<< HEAD
 config:
   publish:
     ghost:
@@ -9,21 +8,8 @@ config:
       - '#doc'
       - Formats
       type: post
-description: JavaScript Object Notation 5 for Humans
-title: JSON5
-=======
-title: JSON5
 description: A more human readable flavor of JSON
-config:
-  publish:
-    ghost:
-      type: post
-      slug: json5
-      state: publish
-      tags:
-      - '#doc'
-      - '#formats'
->>>>>>> 7e711ea2cdd727e923f3e49fe13039468c55b86e
+title: JSON5
 ---
 
 # Introduction
