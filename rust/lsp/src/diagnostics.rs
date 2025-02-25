@@ -165,8 +165,45 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
             ExecutionStatus::Warnings | ExecutionStatus::Errors | ExecutionStatus::Exceptions,
         ) = &execution.status
         {
-            // Do not generate a status for these since we generate an LSP diagnostic (below) for them
-            return None;
+            // Failed nodes
+            // Previously we did not generate a status for these since we generate an LSP diagnostic (below).
+            // However, this made is unclear if a node with linting errors hade been executed,
+            // e.g. https://github.com/stencila/stencila/issues/2560#issuecomment-2680424810
+
+            let mut message = "Failed".to_string();
+
+            let errors = execution
+                .execution_messages
+                .iter()
+                .flatten()
+                .filter(|message| message.level >= MessageLevel::Error)
+                .count();
+            if errors > 0 {
+                message.push_str(" with ");
+                if errors == 1 {
+                    message.push_str("1 execution error");
+                } else {
+                    message.push_str(&errors.to_string());
+                    message.push_str(" errors");
+                }
+            }
+
+            if let Some(duration) = &execution.duration {
+                message.push_str(", in ");
+                message.push_str(&duration.humanize(true));
+            }
+
+            if let Some(ended) = &execution.ended {
+                let ended = ended.humanize(false);
+                if ended == "now ago" {
+                    message.push_str(", just now");
+                } else {
+                    message.push_str(", ");
+                    message.push_str(&ended);
+                }
+            }
+
+            ("Failed".to_string(), message)
         } else if let Some(
             status @ (ExecutionStatus::Skipped
             | ExecutionStatus::Locked
