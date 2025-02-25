@@ -1,8 +1,16 @@
 # Change Log
 
+## 0.2.0 2025-02-25
+
+- Add status decorations for executable nodes that failed [`a0db6eb`](https://github.com/stencila/stencila/commit/caf9f5b4f70a8266abbef6ab13113f84fa81dbd3)
+
+- Fix to allow images in workspace to be loaded in preview window [`#2564`](https://github.com/stencila/stencila/issues/2564) [`caf9f5b`](https://github.com/stencila/stencila/commit/caf9f5b4f70a8266abbef6ab13113f84fa81dbd3)
+
+- Based on Stencila CLI [v2.0.1](https://github.com/stencila/stencila/releases/tag/v2.0.1)
+
 ## 0.1.0 2025-02-23
 
-- Based on Stencila CLI v2.0.0 🎉.
+- Based on Stencila CLI [v2.0.0](https://github.com/stencila/stencila/releases/tag/v2.0.0) 🎉.
 
 ## 0.0.27 2025-02-18
 
