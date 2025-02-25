@@ -359,7 +359,8 @@ impl Executable for Chat {
                                 };
 
                                 // Collect linting errors
-                                let linting_errors = diagnostics_gte(&content, DiagnosticLevel::Error);
+                                let linting_errors =
+                                    diagnostics_gte(&content, DiagnosticLevel::Error);
 
                                 // Execute only if no linting errors
                                 let diags = if linting_errors.is_empty() {
