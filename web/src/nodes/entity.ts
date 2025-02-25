@@ -155,14 +155,13 @@ export abstract class Entity extends LitElement {
   }
 
   /**
-   * Whether the entity has a parent [root] node, or is the current [root]
+   * Whether the entity is the current [root], or has a parent [root] node
+   * 
+   * Used to alter the rendering behavior of node cards for "freestanding"
+   * nodes (e.g. those embedded in a Ghost page).
    */
   protected hasDocumentRootNode() {
-    return (
-      this.closestGlobally('stencila-article[root]') !== null ||
-      this.closestGlobally('stencila-prompt[root]') !== null ||
-      this.hasAttribute('root')
-    )
+    return this.hasAttribute('root') || this.closestGlobally('[root]') !== null
   }
 
   /**
