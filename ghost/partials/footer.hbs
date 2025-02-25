@@ -13,11 +13,6 @@
             <div class="my-4 text-sm">
                 Published with <a href="https://ghost.org" class="hover:text-[var(--ghost-accent-color)]" target="_blank" rel="noopener">Ghost</a>
             </div>
-            {{#if @custom.copyright}}
-            <div class="text-sm">
-                &copy; {{@custom.copyright}} All rights reserved.
-            </div>
-            {{/if}}
         </div>
         <div class="flex flex-col items-center my-4 md:my-0">
             <span>Community</span>
@@ -31,5 +26,12 @@
                 {{navigation type="secondary"}}
             </div>
         </div>
+    </div>
+    <div class="content-container mt-4 flex justify-center md:justify-start">
+        {{#if @custom.copyright}}
+            <div class="text-sm">
+                &copy; {{@custom.copyright}} All rights reserved.
+            </div>
+        {{/if}}
     </div>
 </footer>
