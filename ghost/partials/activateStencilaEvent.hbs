@@ -1,0 +1,16 @@
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        window.dispatchEvent(
+            new CustomEvent(
+                'stencila-state-dispatch', 
+                {   
+                    bubbles: true,
+                    composed: true,
+                    detail: {
+                        nodeMarkerState: 'hover-only'
+                    }
+                })
+        )
+
+    })
+</script>

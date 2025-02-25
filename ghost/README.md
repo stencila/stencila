@@ -142,3 +142,13 @@ To enable development with hot-loading, In the stencila theme directory and `npm
 
 ghost themes use handlebars templating language, for more information refer to ghost's [developer documentaion](https://ghost.org/docs/themes/).
 
+
+## stylesheets
+
+general style rules are applied with [tailwind css](https://tailwindcss.com/), 
+
+Also we are still utilising some of the default ghost stylesheets (`assets/css/ghost`), as well as component related stylesheets (`assets/css/ghost`).
+
+The required stencila styles are all compiled with the web components, and are inserted into the head `<link rel="stylesheet" href="{{asset "built/stencila-web/ghost.css"}}">`.
+
+The only exception being the stencila raw and styled blocks, where the styles needto be compiled at runtime. this is done using [twind](https://twind.dev/).

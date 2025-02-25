@@ -14,7 +14,9 @@ setup({
 /**
  * Process the tw css utility classes at runtime for the raw blocks and styled blocks.
  * 
- * This is to be used in servless mode only, for static web publications such as ghost
+ * To isolate the runtime rules they will only apply to the elements themselves,
+ * This will prepend all twind selectors with the necessary elements so they do not override any of the page tailwind.
+ * 
  */
 export default function processTailwindAtRuntime() {
   sheet.reset()
@@ -28,21 +30,22 @@ export default function processTailwindAtRuntime() {
       };
       requestAnimationFrame(() => {
         const assignedNode = slot.assignedNodes()[0]
-
-        assignedNode.querySelectorAll('[class]').forEach(el => {
-            el.className = tw(el.className);
-        });
-
-        const tag = document.createElement('style')
-
-        tag.textContent = sheet.target.map((rule) => {
-          return `stencila-raw-block [slot="content"] ${rule}`
-        }).join('\n')
-
-        document.head.appendChild(tag)
+        if(assignedNode) {
+          assignedNode.querySelectorAll('[class]').forEach(el => {
+              el.className = tw(el.className);
+          });
+  
+          const tag = document.createElement('style')
+  
+          tag.textContent = sheet.target.map((rule) => {
+            return `stencila-raw-block [slot="content"] ${rule}`
+          }).join('\n')
+  
+          document.head.appendChild(tag)
+        }
       });
     });
-  };
+  }
 
   const styleBlocks = document.querySelectorAll('stencila-styled-block');
   if (styleBlocks.length) {
@@ -65,7 +68,7 @@ export default function processTailwindAtRuntime() {
         }
       }
     });
-  };
+  }
 
 
 };
