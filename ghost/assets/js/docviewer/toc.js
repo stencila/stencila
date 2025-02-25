@@ -154,5 +154,9 @@ export default function generateTableOfContents() {
   highlightActiveHeading(headings, tocLinks, tocOuter)
   window.addEventListener('resize', () => adjustTocPosition(tocOuter, pageContainer))
   window.addEventListener('scroll', () => highlightActiveHeading(headings, tocLinks, tocContainer))
-  tocOuter.classList.remove('invisible')
+
+  // do not render the toc visible until all procedure is finished and there is actually a list of headings
+  if(headings.length > 0) {
+    tocOuter.classList.remove('invisible')
+  }
 }
