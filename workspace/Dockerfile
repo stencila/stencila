@@ -87,7 +87,7 @@ COPY --chown=openvscode-server:openvscode-server config.yaml /home/workspace/.co
 # Add OpenVSCode Server settings
 # Best to do this after time consuming installs above because nothing else in
 # the build depends on it and doing so makes it easier to iterate
-COPY settings.jsonc .openvscode-server/data/Machine/settings.json
+COPY --chown=openvscode-server:openvscode-server settings.jsonc .openvscode-server/data/Machine/settings.json
 
 # Copy over and specify the entrypoint script
 COPY entrypoint.sh .
