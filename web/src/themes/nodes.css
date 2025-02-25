@@ -288,10 +288,6 @@ stencila-list {
   ul,
   ol {
     padding-left: 2rem;
-
-    li {
-      margin-top: 0.5rem;
-    }
   }
 
   ul {

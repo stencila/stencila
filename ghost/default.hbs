@@ -21,20 +21,20 @@
 
 </head>
 <body class="{{body_class}}">
-<div class="gh-viewport">
-
-    {{> header }}
-
     <stencila-ghost-controller>
-        <main class="gh-main">
-            {{{body}}}
-            {{!-- All content gets inserted here, index.hbs, post.hbs, etc --}}
-        </main>
+        <div class="gh-viewport">
+
+            {{> header }}
+
+                <main class="gh-main">
+                    {{{body}}}
+                    {{!-- All content gets inserted here, index.hbs, post.hbs, etc --}}
+                </main>
+
+            {{> footer }}
+
+        </div>
     </stencila-ghost-controller>
-
-    {{> footer }}
-
-</div>
 
 {{!-- <foot> --}}
 {{ghost_foot}}
