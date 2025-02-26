@@ -90,15 +90,15 @@
         <aside class="gh-canvas yfont-sans w-full py-8">
             <div class="flex justify-between gap-8 text-lg font-semibold w-full">
                 <div>
-                    {{#next_post in="primary_tag"}}<a href="{{url}}" class="flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-400 hover:border-gray-400 shadow hover:shadow-xl">
-                        <span class="w-4 h-6 flex-none">{{>"icons/arrow-left"}}</span>
+                    {{#next_post in="primary_tag"}}<a href="{{url}}" class="flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-400 hover:text-gray-600 shadow hover:shadow-lg">
+                        <span class="w-2 h-3 flex-none flex items-center">{{>"icons/arrow-left"}}</span>
                         <h4 class="text-base lg:text-xl">{{title}}</h4>
                     </a>{{/next_post}}
                 </div>
                 <div >
-                    {{#prev_post in="primary_tag"}}<a href="{{url}}" class="flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-400 hover:border-gray-400 shadow hover:shadow-xl">
+                    {{#prev_post in="primary_tag"}}<a href="{{url}}" class="flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-400 hover:text-gray-600 shadow hover:shadow-lg">
                         <h4 class="text-right text-base lg:text-xl">{{title}}</h4>
-                        <span class="w-4 h-6 flex-none">{{>"icons/arrow-right"}}</span>
+                        <span class="w-2 h-3 flex-none flex items-center">{{>"icons/arrow-right"}}</span>
                     </a>{{/prev_post}}
                 </div>
             </div>

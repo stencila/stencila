@@ -1,10 +1,10 @@
 
 <div class="page-container content-container">
     <div class="relative flex">
-        <div class="relative xl:sticky xl:top-20 flex-none h-[calc(100vh-5rem)]">
-            <div class="hidden lg:block absolute h-full top-0 left-0 -translate-x-full h-full w-screen">
+        <div class="relative lg:sticky lg:top-20 flex-none h-[calc(100vh-5rem)]">
+            {{!-- <div class="hidden lg:block absolute h-full top-0 left-0 -translate-x-full h-full w-screen">
                 <div class="bg-gray-100 lg:bg-transparent w-full h-full"></div>
-            </div>
+            </div> --}}
             <!-- Mobile Menu Toggle -->
             <button class="fixed z-20 top-20 lg:top-36 xl:40 left-4 sm:left-8 flex items-center justify-center leading-none bg-brand-blue/70 text-white hover:text-brand-blue hover:bg-white hover:border border-brand-blue w-12 h-12 rounded-full shadow-lg lg:hidden block" id="sidebar-toggle">
                 <div>
@@ -14,7 +14,7 @@
                 </div>
             </button>
             <div id="sidebar" class="fixed bg-gray-100 lg:bg-transparent lg:relative top-16 pl-12 lg:pl-0 left-0 lg:top-0 h-full z-20 text-gray-900 border-tr border-gray-200 lg:border-0">        
-                <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 lg:top-6 lg:hidden hover:text-gray-400">{{> icons/chevron-left }}</button>
+                <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 lg:top-6 lg:hidden hover:text-gray-400">{{> icons/x }}</button>
                 <aside class="w-[240px] pr-4 py-16 h-full overflow-y-auto text-gray-600">
                     {{#page}}
                         <nav>
@@ -133,7 +133,7 @@
                     {{#foreach tags}}
                         {{#get 'posts' filter="tags:{{slug}}+tags:hash-doc" limit="1" order="published_at asc"}}
                             {{#foreach posts}}
-                                <a class="p-4 border border-gray-100 rounded shadow hover:shadow-xl" href="{{url}}">
+                                <a class="p-4 border border-gray-100 rounded shadow hover:shadow-lg" href="{{url}}">
                                     <div class="w-full h-full flex flex-col justify-center">
                                         <div class="text-lg font-semibold overflow-hidden whitespace-nowrap text-ellipsis">{{../../name}}</div>
                                         {{#if ../../description}}
@@ -150,15 +150,15 @@
             <aside class="font-sans gh-canvas py-8">
                 <div class="flex justify-between gap-8 text-lg font-semibold w-full">
                     <div>
-                        <a id="prev-link" href="#" class="hidden flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-400 shadow hover:shadow-xl">
-                            <span class="w-4 h-6 flex-none">{{>"icons/arrow-left"}}</span>
-                            <h4 class="text-base lg:text-xl">Previous</h4>
+                        <a id="prev-link" href="#" class="hidden flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-600 shadow hover:shadow-lg">
+                            <span class="w-2 h-3 flex-none flex items-center">{{>"icons/arrow-left"}}</span>
+                            <h4 class="text-base">Previous</h4>
                         </a>
                     </div>
                     <div>
-                        <a id="next-link" href="#" class="hidden flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-400 shadow hover:shadow-xl">
-                            <h4 class="text-right text-base lg:text-xl">Next</h4>
-                            <span class="w-4 h-6 flex-none">{{>"icons/arrow-right"}}</span>
+                        <a id="next-link" href="#" class="hidden flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-600 shadow hover:shadow-lg">
+                            <h4 class="text-right text-base">Next</h4>
+                            <span class="w-2 h-3 flex-none flex items-center">{{>"icons/arrow-right"}}</span>
                         </a>
                     </div>
                 </div>
