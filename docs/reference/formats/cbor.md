@@ -12,7 +12,7 @@ description: Concise Binary Object Representation
 title: CBOR
 ---
 
-## Introduction
+# Introduction
 
 **File Extension:** `.cbor` - Used when converting or exporting Stencila documents to CBORZST format.
 
@@ -22,18 +22,18 @@ CBOR is "a data format whose design goals include the possibility of extremely s
 
 Stencila provides support for CBOR as a faster, more compact, alternative to [JSON](json) for storing documents.
 
-## Specification
+# Specification
 
 See [RFC 8949](https://www.rfc-editor.org/rfc/rfc8949.html) and other [CBOR specs](https://cbor.io/spec.html).
 
-## Implementation
+# Implementation
 
 Stencila support lossless, bi-directional conversion between Stencila documents and CBOR powered by [`ciborium`](https://crates.io/crates/ciborium).
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
 
-## Support
+# Support
 
 Stencila supports these operations for CBOR:
 

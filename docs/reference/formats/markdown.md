@@ -11,7 +11,7 @@ config:
 description: Markdown lightweight markup
 title: Markdown
 ---
-## Introduction
+# Introduction
 
 **File Extension:** `.smd`, `.md`, `.myst`, `.qmd` - Used when converting or exporting Stencila documents to various flavours of Markdown.
 
@@ -19,7 +19,7 @@ In Stencila we support various 'flavors' of Markdown with varying extensions add
 
 Markdown is a lightweight markup language widely used for formatting plain text documents. It provides a simple and human-readable way to structure text and add basic styling, such as headers, lists, links, and emphasis. Markdown's benefits include ease of use, and compatibility with various web and documentation platforms.
 
-## Implementation
+# Implementation
 
 Stencila support bi-directional conversion between Stencila documents and Markdown.
 

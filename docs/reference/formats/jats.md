@@ -12,7 +12,7 @@ description: Journal Article Tag Suite
 title: JATS
 ---
 
-## Introduction
+# Introduction
 
 **File Extension:** `.jats` - Used when converting or exporting Stencila documents to HTML format.
 
@@ -20,7 +20,7 @@ The [JATS (Journal Article Tag Suite)](https://jats.nlm.nih.gov/) is an XML form
 
 It can be used to represent documents, figures, citations, code blocks and more.
 
-## Implementation
+# Implementation
 
 Parsing of JATS is largely done using the [quick-xml](https://crates.io/crates/quick-xml) crate and is low loss for most document attributes (see below).
 
