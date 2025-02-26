@@ -37,23 +37,14 @@ export class ImageObject extends Entity {
   /**
    * The URL of the source of the image
    *
-   * Equivalent to the `src` attribute in HTML. See `renderImg` for how this is used
+   * For HTTP and file URLs, equivalent to the `src` attribute in HTML. See `renderImg` for how this is used
    * to rewrite the URL if necessary, depending upon the context.
-   */
-  @property({ attribute: 'content-url' })
-  contentUrl?: string
-
-  /**
-   * The code content of the image
    *
    * For code-based, rendered images (e.g. Mermaid, Vega) this will be the code that needs to be
    * rendered into an image (see methods below).
-   *
-   * For binary images (e.g. PNG, JPG) this should be empty and instead
-   * there will be `contentUrl` property and an <img> element in the <slot>.
    */
-  @property()
-  content?: string
+  @property({ attribute: 'content-url' })
+  contentUrl?: string
 
   /**
    * The resolved URL of the <imd> `src` attribute, if applicable
@@ -100,34 +91,43 @@ export class ImageObject extends Entity {
   override async updated(properties: PropertyValues) {
     super.updated(properties)
 
-    if (properties.has('contentUrl')) {
-      if (this.contentUrl) {
-        const workspace = this.closestGlobally(
-          'stencila-vscode-view'
-        )?.getAttribute('workspace')
+    if (properties.has('contentUrl') || properties.has('mediaType')) {
+      if (!this.contentUrl) {
+        return
+      }
 
-        this.imgSrc = workspace
-          ? `${workspace}/${this.contentUrl}`
-          : this.contentUrl
+      if (this.mediaType == ImageObject.MEDIA_TYPES.mermaid) {
+        await this.compileMermaid()
+      } else if (this.mediaType == ImageObject.MEDIA_TYPES.plotly) {
+        await this.compilePlotly()
+      } else if (this.mediaType == ImageObject.MEDIA_TYPES.vegaLite) {
+        await this.compileVegaLite()
+      } else if (this.contentUrl.startsWith('data:')) {
+        // This should not occur, but if it does, do nothing
+      } else {
+        if (
+          this.contentUrl.startsWith('https://') ||
+          this.contentUrl.startsWith('https://')
+        ) {
+          // Use HTTP URLs directly
+          this.imgSrc = this.contentUrl
+        } else {
+          // If file path, and in VSCode webview, then prefix a file path with workspace URI
+          const workspace = this.closestGlobally(
+            'stencila-vscode-view'
+          )?.getAttribute('workspace')
 
-        // Prefetch
+          this.imgSrc = workspace
+            ? `${workspace}/${this.contentUrl}`
+            : this.contentUrl
+        }
+
+        // Prefetch to check that URL is valid
         const response = await fetch(this.imgSrc, { method: 'HEAD' })
         if (response.ok) {
           this.error = undefined
         } else {
           this.error = `Error fetching image: ${await response.text()}`
-        }
-      }
-    }
-
-    if (properties.has('content') || properties.has('mediaType')) {
-      if (this.content) {
-        if (this.mediaType == ImageObject.MEDIA_TYPES.mermaid) {
-          await this.compileMermaid()
-        } else if (this.mediaType == ImageObject.MEDIA_TYPES.plotly) {
-          await this.compilePlotly()
-        } else if (this.mediaType == ImageObject.MEDIA_TYPES.vegaLite) {
-          await this.compileVegaLite()
         }
       }
     }
@@ -149,7 +149,7 @@ export class ImageObject extends Entity {
 
     try {
       const id = 'stencila-' + Math.random().toString(36).substring(2)
-      this.svg = (await mermaid.render(id, this.content, container)).svg
+      this.svg = (await mermaid.render(id, this.contentUrl, container)).svg
     } catch (error) {
       // Hide the container so that the Mermaid bomb message does not appear
       container.style.display = 'none'
@@ -202,7 +202,7 @@ export class ImageObject extends Entity {
    */
   private async compilePlotly() {
     const Plotly = await import('plotly.js-dist-min')
-    const spec = JSON.parse(this.content)
+    const spec = JSON.parse(this.contentUrl)
 
     // create hidden container for initial plotly render
     const container = this.shadowRoot.getElementById(
@@ -267,7 +267,7 @@ export class ImageObject extends Entity {
 
   private async compileVegaLite() {
     const { default: vegaEmbed } = await import('vega-embed')
-    const spec = JSON.parse(this.content)
+    const spec = JSON.parse(this.contentUrl)
 
     // clear `CodeChunk` messages
     let codeChunk: HTMLElement

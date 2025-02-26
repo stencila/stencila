@@ -145,7 +145,7 @@ impl KernelLint for PythonKernel {
                     !matches!(message.code.as_str(), "E402")
                 })
                 .map(|message| CompilationMessage {
-                    error_type: Some("Linting".into()),
+                    error_type: Some("Linting warning".into()),
                     level: MessageLevel::Warning,
                     message: format!("{} (Ruff {})", message.message, message.code),
                     code_location: Some(CodeLocation {
@@ -276,7 +276,7 @@ impl KernelLint for PythonKernel {
                 .to_string();
 
                 let message = CompilationMessage {
-                    error_type: Some("Linting".into()),
+                    error_type: Some(format!("Linting {}", level.to_string().to_lowercase())),
                     level,
                     message,
                     code_location,

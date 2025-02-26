@@ -94,24 +94,22 @@ const skippedMid = `hsl(${skipped} 100% 30%)`;
 const skippedLight = `hsl(${skipped} 100% 95%)`;
 const skippedDark = `hsl(${skipped} 100% 5%)`;
 
-export const skippedDecoration = vscode.window.createTextEditorDecorationType(
-  {
-    overviewRulerColor: skippedMid,
-    overviewRulerLane: vscode.OverviewRulerLane.Right,
-    light: {
-      after: {
-        color: skippedMid,
-        backgroundColor: skippedLight,
-      },
+export const skippedDecoration = vscode.window.createTextEditorDecorationType({
+  overviewRulerColor: skippedMid,
+  overviewRulerLane: vscode.OverviewRulerLane.Right,
+  light: {
+    after: {
+      color: skippedMid,
+      backgroundColor: skippedLight,
     },
-    dark: {
-      after: {
-        color: skippedMid,
-        backgroundColor: skippedDark,
-      },
+  },
+  dark: {
+    after: {
+      color: skippedMid,
+      backgroundColor: skippedDark,
     },
-  }
-);
+  },
+});
 
 const succeeded = "120deg";
 const succeededMid = `hsl(${succeeded} 100% 30%)`;
@@ -142,8 +140,8 @@ const succeededForkMid = `hsl(${succeededFork} 90% 30%)`;
 const succeededForkLight = `hsl(${succeededFork} 90% 95%)`;
 const succeededForkDark = `hsl(${succeededFork} 90% 5%)`;
 
-export const succeededForkDecoration = vscode.window.createTextEditorDecorationType(
-  {
+export const succeededForkDecoration =
+  vscode.window.createTextEditorDecorationType({
     overviewRulerColor: succeededForkMid,
     overviewRulerLane: vscode.OverviewRulerLane.Right,
     light: {
@@ -158,8 +156,27 @@ export const succeededForkDecoration = vscode.window.createTextEditorDecorationT
         backgroundColor: succeededForkDark,
       },
     },
-  }
-);
+  });
+
+const failed = "0deg";
+const failedMid = `hsl(${failed} 100% 80%)`;
+
+export const failedDecoration = vscode.window.createTextEditorDecorationType({
+  overviewRulerColor: failedMid,
+  overviewRulerLane: vscode.OverviewRulerLane.Right,
+  light: {
+    after: {
+      color: failedMid,
+      backgroundColor: `hsl(${failed} 100% 50% / 5%)`,
+    },
+  },
+  dark: {
+    after: {
+      color: failedMid,
+      backgroundColor: `hsl(${failed} 100% 50% / 30%)`,
+    },
+  },
+});
 
 const active = "260deg";
 const activeMid = `hsl(${active} 100% 80%)`;

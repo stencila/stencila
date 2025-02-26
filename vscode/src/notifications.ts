@@ -9,6 +9,7 @@ import {
   staleDecoration,
   succeededDecoration,
   succeededForkDecoration,
+  failedDecoration,
   unexecutedDecoration,
 } from "./decorations";
 import { gutterDecorationType } from "./gutters";
@@ -25,6 +26,7 @@ interface Status {
     | "Running"
     | "Succeeded"
     | "SucceededFork"
+    | "Failed"
     | "Active";
   message: string;
 }
@@ -86,6 +88,7 @@ export function registerStatusNotifications(
       decorationsFor("Running", runningDecoration);
       decorationsFor("Succeeded", succeededDecoration);
       decorationsFor("SucceededFork", succeededForkDecoration);
+      decorationsFor("Failed", failedDecoration);
       decorationsFor("Active", activeDecoration);
     }
   );

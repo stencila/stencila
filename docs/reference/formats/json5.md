@@ -8,7 +8,7 @@ config:
       - '#doc'
       - Formats
       type: post
-description: JavaScript Object Notation 5 for Humans
+description: A more human readable flavor of JSON
 title: JSON5
 ---
 

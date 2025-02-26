@@ -149,16 +149,22 @@ impl DomCodec for ImageObject {
         context.enter_node(self.node_type(), self.node_id());
 
         let mut img = true;
+
         if let Some(media_type) = &self.media_type {
             context.push_attr("media-type", media_type);
 
-            if media_type.starts_with("image/") {
-                context.push_attr("content-url", &self.content_url);
-            } else {
-                context.push_attr("content", &self.content_url);
-                img = false;
+            // Do not encode an <img> if media type is defined and not an image subtype
+            // (e.g. a Plotly spec)
+            if !media_type.starts_with("image/") {
+                img = false
             }
-        } else {
+        }
+
+        // Encode the `content-url` attribute if not a DataURI
+        // See <stencila-image-object> custom element for how this is used.
+        // Do no put DataURIs into the `content-url` attribute since the custom element
+        // can not use it and that would unnecessarily bloat HTML since it will be in <img>
+        if !self.content_url.starts_with("data:") {
             context.push_attr("content-url", &self.content_url);
         }
 

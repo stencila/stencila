@@ -144,20 +144,33 @@ impl KernelLint for RKernel {
             } else {
                 let messages = lintr_messages
                     .into_iter()
-                    .map(|msg| CompilationMessage {
-                        error_type: Some("Linting".into()),
-                        level: match msg.r#type.as_str() {
+                    .map(|msg| {
+                        let error_type = {
+                            Some(format!(
+                                "Linting {}",
+                                match msg.r#type.as_str() {
+                                    "style" => "advice",
+                                    typ => typ,
+                                }
+                            ))
+                        };
+                        let level = match msg.r#type.as_str() {
                             "style" => MessageLevel::Debug,
                             "warning" => MessageLevel::Warning,
                             _ => MessageLevel::Error,
-                        },
-                        message: msg.message,
-                        code_location: Some(CodeLocation {
-                            start_line: Some(msg.line_number.saturating_sub(1)),
-                            start_column: Some(msg.column_number.saturating_sub(1)),
+                        };
+
+                        CompilationMessage {
+                            error_type,
+                            level,
+                            message: msg.message,
+                            code_location: Some(CodeLocation {
+                                start_line: Some(msg.line_number.saturating_sub(1)),
+                                start_column: Some(msg.column_number.saturating_sub(1)),
+                                ..Default::default()
+                            }),
                             ..Default::default()
-                        }),
-                        ..Default::default()
+                        }
                     })
                     .collect();
 
