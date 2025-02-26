@@ -12,7 +12,7 @@ description: YAML A'int Markup Language
 title: YAML
 ---
 
-## Introduction
+# Introduction
 
 **File Extension:** `.yaml` - Used when converting or exporting Stencila documents to YAML format.
 
@@ -20,7 +20,7 @@ title: YAML
 
 Stencila provides support for YAML as a more human-readable, while still lossless, alternative to [JSON](json) for storing documents.
 
-## Implementation
+# Implementation
 
 Stencila support lossless, bi-directional conversion between Stencila documents and YAML.  The `codec-yaml` Rust crate implements `from_yaml` and `to_yaml` methods for all node types in Stencila Schema, powered by [`serde_yaml`](https://crates.io/crates/serde_yaml).
 

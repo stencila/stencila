@@ -12,7 +12,7 @@ description: JavaScript Object Notation for Linked Data
 title: JSON-LD
 ---
 
-## Introduction
+# Introduction
 
 **File Extension:** `.jsonld` - Used when converting or exporting Stencila documents to JSON-LD format.
 
@@ -20,7 +20,7 @@ title: JSON-LD
 
 Stencila provides support for JSON-LD for storing and transferring documents in a format with high interoperability.
 
-## Implementation
+# Implementation
 
 Stencila Schema is based on [schema.org](https://schema.org) and has a JSON-LD `@context` published at https://stencila.org/context.jsonld. When Stencila documents are exported as JSON, this context is applied. As such, the JSON documents that Stencila produces are inherently JSON-LD documents.
 

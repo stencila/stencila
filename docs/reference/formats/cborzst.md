@@ -12,7 +12,7 @@ description: Concise Binary Object Representation with ZStandard Compression
 title: CBOR + ZStandard
 ---
 
-## Introduction
+# Introduction
 
 **Extension:** `.cborzst` - Used when converting or exporting Stencila documents to CBORZST format.
 
@@ -20,7 +20,7 @@ This format combines [Concise Binary Object Representation (CBOR)](cbor) and [ZS
 
 Stencila provides support for CBOR+ZStandard as a more compact alternative to [JSON](json) or [CBOR](cbor) for storing documents. It may be preferred over those formats for storing very large documents.
 
-## Implementation
+# Implementation
 
 Stencila support lossless, bi-directional conversion between Stencila documents and CBOR+ZStandard powered by [`ciborium`](https://crates.io/crates/ciborium).
 

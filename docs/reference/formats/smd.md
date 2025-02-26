@@ -12,15 +12,15 @@ description: Stencila Markdown
 title: smd
 ---
 
-## Introduction
+# Introduction
 
 **File Extension:** `.smd` - Used when converting or exporting Stencila documents to smd format.
 
 The [Stencila Markdown](docs/smd) format is a serialization format which strives to support as many features of the [Stencila Schema](docs/schema) as possible with special Markdown sytnax.
 
-## Implementation
+# Implementation
 
-Stencila support bi-directional conversion between Stencila documents and Stencila Markdown powered by the CommonMark [`markdown`](https://crates.io/crates/ciborium) crate.
+Stencila support bi-directional conversion between Stencila documents and Stencila Markdown powered by the CommonMark [`markdown`](https://crates.io/crates/markdown) crate.
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->

@@ -12,15 +12,15 @@ description: Portable Document Format
 title: PDF
 ---
 
-## Introduction
+# Introduction
 
-**File Extension:** `.pdf` - Used one-way when converting or exporting Stencila documents to CBORZST format.
+**File Extension:** `.pdf` - Used one-way when converting or exporting Stencila documents to PDF.
 
 The [PDF](https://pdfa.org/resource/pdf-specification-archive/) format is an output format that can be used to render documents suitable for publication or sharing.
 
-## Implementation
+# Implementation
 
-PDF uses latex and a default LaTeX template, and thus requires LaTeX to be installed on systems exporting to PDF with Stencila.
+PDF uses LaTeX and depends on Pandoc's default LaTeX template , and thus requires LaTeX to be installed on systems exporting to PDF with Stencila.
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->

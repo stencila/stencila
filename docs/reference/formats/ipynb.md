@@ -12,13 +12,13 @@ description: Jupyter Notebook Format
 title: ipynb
 ---
 
-## Introduction
+# Introduction
 
 **File Extension:** `.ipynb` - Used when converting or exporting Stencila documents to ipynb format.
 
 The [ipynb or Jupyter Notebook Format](https://nbformat.readthedocs.io/en/latest/) format is a literate programming format where code cells and Markdown blocks can be composed together to build runable documents.
 
-## Implementation
+# Implementation
 
 Stencila support bi-directional conversion between Stencila documents and ipynb.
 

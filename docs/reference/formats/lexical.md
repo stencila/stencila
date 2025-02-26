@@ -16,9 +16,9 @@ title: lexical
 
 **File Extension:** `.lexical` - Used when converting or exporting Stencila documents to Lexical json.
 
-The [Lexical JSON](https://lexical.dev/docs/concepts/serialization) format is a serialization format is a convenient for tools based on lexical like Ghost CMS. 
+The [Lexical JSON](https://lexical.dev/docs/concepts/serialization) format is a serialization format is a convenient for tools based on Lexical like [Ghost](https://ghost.org). 
 
-## Implementation
+# Implementation
 
 Stencila support, bi-directional conversion between Stencila documents and Lexical.
 
