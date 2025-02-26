@@ -37,7 +37,7 @@
   #sidebar {
       opacity: 0;
       pointer-events: none; /* Prevent clicks when hidden */
-      transition: transform 400ms ease-in-out, opacity 400ms ease-in-out;
+      transition: transform 200ms ease-in-out, opacity 200ms ease-in-out;
       transform: translateX(-100%);
   }
 

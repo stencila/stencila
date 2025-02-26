@@ -13,7 +13,8 @@
                     <span class="block w-6 h-0.5 bg-[currentColor]"></span>
                 </div>
             </button>
-            <div id="sidebar" class="fixed bg-gray-100 lg:bg-transparent lg:relative top-16 pl-12 lg:pl-0 left-0 lg:top-0 h-full z-20 text-gray-900 border-tr border-gray-200 lg:border-0">        
+            <div id="sidebar" class="fixed bg-white lg:bg-transparent lg:relative top-16 pl-12 lg:pl-0 left-0 lg:top-0 h-full z-20 text-gray-900 border-tr border-gray-200 lg:border-0">        
+                <div class="absolute h-full left-full w-screen bg-black/50 backdrop-blur-sm lg:hidden"></div>
                 <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 lg:top-6 lg:hidden hover:text-gray-400">{{> icons/x }}</button>
                 <aside class="w-[240px] pr-4 py-16 h-full overflow-y-auto text-gray-600">
                     {{#page}}
@@ -23,9 +24,8 @@
                                     <li class="mb-8">
                                         <button class="collapse-toggle hover:text-[var(--ghost-accent-color)]">
                                             <div class="flex items-center gap-4 mb-2">
-                                                {{!-- <span class="w-4 h-4">{{>icons/square}}</span> --}}
                                                 <h4 class="font-bold text-base">{{name}}</h4>
-                                                <div class="chevron w-4 h-4 transform">{{> icons/chevron-down}}</div>
+                                                <div class="chevron w-2 h-2 transform">{{> icons/chevron-down}}</div>
                                             </div>
                                         </button>
                                         <ul
