@@ -159,11 +159,11 @@ impl DomCodec for ImageObject {
                 img = false
             }
         }
-        
+
         // Encode the `content-url` attribute if not a DataURI
         // See <stencila-image-object> custom element for how this is used.
         // Do no put DataURIs into the `content-url` attribute since the custom element
-        // can not use it and that would unnecessarily bloat HTML since it will be in <img> 
+        // can not use it and that would unnecessarily bloat HTML since it will be in <img>
         if !self.content_url.starts_with("data:") {
             context.push_attr("content-url", &self.content_url);
         }
