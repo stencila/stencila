@@ -1,5 +1,4 @@
 ---
-<<<<<<< HEAD
 config:
   publish:
     ghost:
@@ -11,22 +10,9 @@ config:
       type: post
 description: JavaScript Object Notation 5 for Humans
 title: JSON5
-=======
-title: JSON5
-description: A more human readable flavor of JSON
-config:
-  publish:
-    ghost:
-      type: post
-      slug: json5
-      state: publish
-      tags:
-      - '#doc'
-      - '#formats'
->>>>>>> 7e711ea2cdd727e923f3e49fe13039468c55b86e
 ---
 
-# Introduction
+## Introduction
 
 **File Extension:** `.json5` - Used when converting or exporting Stencila documents to JSON5 format.
 
@@ -34,11 +20,11 @@ config:
 
 Stencila provides support for JSON5 as a more human-readable, while still lossless, alternative to [JSON](json) for storing documents. JSON5 is also used internally within Stencila as a more human-friendly, JavaScript-like way to represent nodes within documents in formats such as Markdown.
 
-# Implementation
+## Implementation
 
 Stencila support lossless, bi-directional conversion between Stencila documents and JSON5. The `codec-json5-trait` Rust crate implements `from_json5` and `to_json5` methods (and variants of those) for all node types in Stencila Schema, powered by [`json5`](https://crates.io/crates/json5) and [`json5format`](https://crates.io/crates/json5format).
 
-# Encodings
+## Encodings
 
 By default, the encoded JSON5 is indented but the `--compact` option is supported which produces un-indented, single line JSON5.
 

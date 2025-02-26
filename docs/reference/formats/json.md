@@ -12,7 +12,7 @@ description: JavaScript Object Notation
 title: JSON
 ---
 
-# Introduction
+## Introduction
 
 **File Extension:** `.json - Used when converting or exporting Stencila documents to JSON format.
 
