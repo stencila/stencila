@@ -1,61 +1,66 @@
 <header id="main-header" class="sticky top-0 w-full flex items-center h-16 lg:h-20 z-20 border-b border-gray-100 bg-gray-50 z-40 lg:py-4">
-  {{!-- <div id="header-bg" class="absolute inset-0 w-full h-full  -z-10"></div> --}}
-  <nav class="content-container flex flex-row justify-between items-center h-full">
-      <div class="text-2xl lg:text-3xl max-w-[150px] lg:max-w-[250px] mr-4 h-full">
-          <a href="{{@site.url}}" class="flex items-center h-full">    
-              {{#if @site.logo}}
-                  <img src="{{@site.logo}}" alt="{{@site.title}}" class="w-auto h-full object-contain" />
-              {{else}}
-                  {{@site.title}}
-              {{/if}}
-          </a>
-      </div>
-      <div id="site-nav-menu" class="hidden lg:flex items-center font-semibold">
-          {{navigation}}
-      </div>
-      
-      <div class="hidden lg:block">
-          <div class="flex items-center gap-4 font-semibold">
-              <div class="search-link">{{search}}</div>
-              {{#if @site.members_enabled}}
-                  <a 
-                    class="text-white block p-2 border border-brand-blue bg-brand-blue rounded font-semibold hover:bg-transparent hover:text-brand-blue transition"
-                    href="{{^if @member}}{{@site.signup_url}}{{else}}#/portal/account{{/if}}"
-                  >
-                    {{^if @member}}Subscribe{{else}}Account{{/if}}
-                  </a>
-              {{/if}}
-              <div id="secondary-nav">{{navigation type="secondary"}}</div>
-          </div>
-      </div>
-      {{!-- mobile collapsible menu --}}
-      <div class="relative block lg:hidden">
-          <a id="mobile-menu-trigger" class="relative w-10 h-10 flex items-center justify-center hover:text-[var(--ghost-accent-color)]" role="button" aria-label="menu">
-              <div id="burger-icon" class="transition-all duration-300 ease-in-out">
-                  <span class="block w-6 h-0.5 bg-[currentColor] mb-1"></span>
-                  <span class="block w-6 h-0.5 bg-[currentColor] mb-1"></span>
-                  <span class="block w-6 h-0.5 bg-[currentColor]"></span>
-              </div>
-              <div id="chevron-icon" class="w-6 h-6 hidden transition-transform transform rotate-0 duration-300 ease-in-out">
-                  {{> icons/chevron-down}}
-              </div>
-          </a>
-          <div id="mobile-menu-container" class="absolute right-0 top-full bg-gray-50 mt-2 w-96 shadow-lg rounded-lg origin-top transition-all duration-300 ease-in-out z-20">
-              <div class="p-4 text-2xl">
-                  {{navigation}}
-                  <hr/>
-                  {{#if @site.members_enabled}}
-                      {{^if @member}}
-                      <a class="block py-4 hover:text-[var(--ghost-accent-color)]" href="{{@site.signup_url}}">Subscribe</a>
-                      {{else}}
-                      <a class="block py-4 hover:text-[var(--ghost-accent-color)]" href="#/portal/account">Account</a>
-                      {{/if}}
-                  {{/if}}
-                  <div>
-                      <a class="flex items-center gap-4 cursor-pointer hover:text-[var(--ghost-accent-color)]" type="button" aria-label="search" data-ghost-search>{{> icons/search }} Search</a>
-                  </div>
-              </div>
-          </div>
-      </div>
-  </nav>
+    {{!-- <div id="header-bg" class="absolute inset-0 w-full h-full  -z-10"></div> --}}
+    <nav class="content-container flex flex-row justify-between items-center h-full">
+
+        <div class="text-2xl lg:text-3xl max-w-[150px] lg:max-w-[250px] mr-4 h-full">
+            <a href="{{@site.url}}" class="flex items-center h-full">    
+                {{#if @site.logo}}
+                    <img src="{{@site.logo}}" alt="{{@site.title}}" class="w-auto h-full object-contain" />
+                {{else}}
+                    {{@site.title}}
+                {{/if}}
+            </a>
+        </div>
+
+        <div id="site-nav-menu" class="hidden lg:flex items-center font-semibold">
+            {{navigation}}
+        </div>
+        
+        <div class="hidden lg:block">
+            <div class="flex items-center gap-4 font-semibold">
+                <div class="search-link">{{search}}</div>
+                {{#if @site.members_enabled}}
+                    <a 
+                        class="text-white block p-2 border border-brand-blue bg-brand-blue rounded font-semibold hover:bg-transparent hover:text-brand-blue transition"
+                        href="{{^if @member}}{{@site.signup_url}}{{else}}#/portal/account{{/if}}"
+                    >
+                        {{^if @member}}Subscribe{{else}}Account{{/if}}
+                    </a>
+                {{/if}}
+                <div id="secondary-nav">{{navigation type="secondary"}}</div>
+            </div>
+        </div>
+
+
+        {{!-- mobile collapsible menu --}}
+
+        <div class="relative block lg:hidden">
+            <a id="mobile-menu-trigger" class="relative w-10 h-10 flex items-center justify-center hover:text-[var(--ghost-accent-color)]" role="button" aria-label="menu">
+                <div id="burger-icon" class="transition-all duration-300 ease-in-out">
+                    <span class="block w-6 h-0.5 bg-[currentColor] mb-1"></span>
+                    <span class="block w-6 h-0.5 bg-[currentColor] mb-1"></span>
+                    <span class="block w-6 h-0.5 bg-[currentColor]"></span>
+                </div>
+                <div id="chevron-icon" class="w-6 h-6 hidden transition-transform transform rotate-0 duration-300 ease-in-out">
+                    {{> icons/chevron-down}}
+                </div>
+            </a>
+            <div id="mobile-menu-container" class="absolute right-0 top-full bg-gray-50 mt-2 w-96 shadow-lg rounded-lg origin-top transition-all duration-300 ease-in-out z-20">
+                <div class="p-4 text-2xl">
+                    {{navigation}}
+                    <hr/>
+                    {{#if @site.members_enabled}}
+                        {{^if @member}}
+                        <a class="block py-4 hover:text-[var(--ghost-accent-color)]" href="{{@site.signup_url}}">Subscribe</a>
+                        {{else}}
+                        <a class="block py-4 hover:text-[var(--ghost-accent-color)]" href="#/portal/account">Account</a>
+                        {{/if}}
+                    {{/if}}
+                    <div>
+                        <a class="flex items-center gap-4 cursor-pointer hover:text-[var(--ghost-accent-color)]" type="button" aria-label="search" data-ghost-search>{{> icons/search }} Search</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
 </header>

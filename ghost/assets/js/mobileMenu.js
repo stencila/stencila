@@ -23,11 +23,11 @@ export default function mobileMenu() {
         if (menuContainer.classList.contains('open')) {
             if (!menuTrigger.contains(event.target) && !menuContainer.contains(event.target)) {
                 isOpen = false;
-                menuContainer.classList.remove('open')
+                menuContainer.classList.remove('open');
 
                 burgerIcon.classList.remove("hidden");
                 chevronIcon.classList.add("hidden");
             }
         }
     });
-}
+};

@@ -92,7 +92,11 @@ __If there is a crossover of sections on either/any of the pages (eg. both pages
 
 ## Stencila posts/pages
 
+Stencila docs can be published as pages/posts and will stencila web components.
 
+The content of the published stencila documents should show up as expected with any required styling being imported via the ghost.css.
+
+If the post is tagged with the '#stencila' internal tag then the stencila ui for the nodes will be avaiable.
 
 
 ## Misc.

@@ -8,14 +8,14 @@ routes:
 collections:
 
   # documentation
-  /docs/:
-    permalink: /docs/{slug}/
+  /resources/docs/:
+    permalink: /resources/docs/{slug}/
     template: index
     data: page.docs
     filter: "tag:hash-doc+tag:-hash-schema"
 
-  /docs/schema/:
-    permalink: /docs/schema/{slug}/
+  /resources/schema/:
+    permalink: /resources/schema/{slug}/
     template: index
     data: page.schema
     filter: "tag:hash-doc+tag:hash-schema"
