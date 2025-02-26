@@ -1,5 +1,9 @@
 # Change Log
 
+## 0.2.1 2025-02-25
+
+- Based on Stencila CLI [v2.0.2](https://github.com/stencila/stencila/releases/tag/v2.0.2)
+
 ## 0.2.0 2025-02-25
 
 - Add status decorations for executable nodes that failed [`a0db6eb`](https://github.com/stencila/stencila/commit/caf9f5b4f70a8266abbef6ab13113f84fa81dbd3)
