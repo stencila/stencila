@@ -1,4 +1,16 @@
-# Command-Line Help for `stencila`
+---
+title: CLI Help
+description: Help for the `stencila` CLI 
+config:
+  publish:
+    ghost:
+      slug: cli-help
+      type: post
+      state: publish
+      tags:
+        - '#doc'
+        - CLI
+---
 
 This document contains the help content for the `stencila` command-line program.
 
@@ -60,13 +72,13 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila upgrade`↴](#stencila-upgrade)
 * [`stencila uninstall`↴](#stencila-uninstall)
 
-## `stencila`
+# `stencila`
 
 CLI subcommands and global options
 
 **Usage:** `stencila [OPTIONS] <COMMAND>`
 
-###### **Subcommands:**
+**Subcommands:**
 
 * `new` — Create a new, tracked, document
 * `init` — Initialize document config and tracking
@@ -95,23 +107,23 @@ CLI subcommands and global options
 * `upgrade` — Upgrade to the latest version
 * `uninstall` — Uninstall this command line tool
 
-###### **Options:**
+**Options:**
 
 * `--debug` — Display debug level logging and detailed error reports
 
 
 
-## `stencila new`
+# `stencila new`
 
 Create a new, tracked, document
 
 **Usage:** `stencila new [OPTIONS] <PATH>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<PATH>` — The path of the document to create
 
-###### **Options:**
+**Options:**
 
 * `-f`, `--force` — Overwrite the document, if it already exists
 * `-t`, `--type <TYPE>` — The type of document to create
@@ -123,13 +135,13 @@ Create a new, tracked, document
 
 
 
-## `stencila init`
+# `stencila init`
 
 Initialize document config and tracking
 
 **Usage:** `stencila init [OPTIONS] [DIR]`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<DIR>` — The directory to start document tracking in
 
@@ -137,35 +149,35 @@ Initialize document config and tracking
 
   Default value: `.`
 
-###### **Options:**
+**Options:**
 
 * `--gitignore` — Create a `.gitignore` file
 
 
 
-## `stencila config`
+# `stencila config`
 
 Display the configuration for a document
 
 **Usage:** `stencila config <FILE>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<FILE>` — The path to the document to resolve
 
 
 
-## `stencila status`
+# `stencila status`
 
 Get the tracking status of documents
 
 **Usage:** `stencila status [OPTIONS] [FILES]...`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<FILES>` — The paths of the files to get status for
 
-###### **Options:**
+**Options:**
 
 * `-a`, `--as <AS>` — Output the status as JSON or YAML
 
@@ -174,33 +186,33 @@ Get the tracking status of documents
 
 
 
-## `stencila track`
+# `stencila track`
 
 Start tracking a document
 
 **Usage:** `stencila track <FILE> [URL]`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<FILE>` — The path to the local file to track
 * `<URL>` — The URL of the remote to track
 
 
 
-## `stencila untrack`
+# `stencila untrack`
 
 Stop tracking a document
 
 **Usage:** `stencila untrack <FILE> [URL]`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<FILE>` — The path of the file to stop tracking
 * `<URL>` — The URL of the remote to stop tracking
 
 
 
-## `stencila move`
+# `stencila move`
 
 Move a tracked document
 
@@ -208,18 +220,18 @@ Moves the document file to the new path (if it still exists at the old path) and
 
 **Usage:** `stencila move [OPTIONS] <FROM> <TO>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<FROM>` — The old path of the file
 * `<TO>` — The new path of the file
 
-###### **Options:**
+**Options:**
 
 * `-f`, `--force` — Overwrite the destination path if it already exists
 
 
 
-## `stencila remove`
+# `stencila remove`
 
 Remove a tracked document
 
@@ -227,23 +239,23 @@ Deletes the document file (if it still exists) and removes any tracking data fro
 
 **Usage:** `stencila remove [OPTIONS] <FILE>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<FILE>` — The path of the file to remove
 
-###### **Options:**
+**Options:**
 
 * `-f`, `--force` — Do not ask for confirmation of removal
 
 
 
-## `stencila convert`
+# `stencila convert`
 
 Convert a document to another format
 
 **Usage:** `stencila convert [OPTIONS] [INPUT] [OUTPUT] [PASSTHROUGH_ARGS]...`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<INPUT>` — The path of the input file
 
@@ -253,7 +265,7 @@ Convert a document to another format
    If not supplied the output content is written to `stdout`.
 * `<PASSTHROUGH_ARGS>` — Arguments to pass through to any CLI tool delegated to for conversion (e.g. Pandoc)
 
-###### **Options:**
+**Options:**
 
 * `-f`, `--from <FROM>` — The format to encode from (or codec to use)
 
@@ -311,7 +323,7 @@ Convert a document to another format
 
 
 
-## `stencila sync`
+# `stencila sync`
 
 Synchronize a document between formats
 
@@ -321,12 +333,12 @@ The direction of synchronization can be specified by appending the to the file p
 
 **Usage:** `stencila sync [OPTIONS] <DOC> [FILES]...`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<DOC>` — The path of the document to synchronize
 * `<FILES>` — The files to synchronize with
 
-###### **Options:**
+**Options:**
 
 * `-f`, `--format <FORMATS>` — The formats of the files (or the name of codecs to use)
 
@@ -374,13 +386,13 @@ The direction of synchronization can be specified by appending the to the file p
 
 
 
-## `stencila compile`
+# `stencila compile`
 
 Compile a document
 
 **Usage:** `stencila compile [OPTIONS] <INPUT> [OUTPUT] [PASSTHROUGH_ARGS]...`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<INPUT>` — The path of the file to execute
 
@@ -390,7 +402,7 @@ Compile a document
    If not supplied the output content is written to `stdout`.
 * `<PASSTHROUGH_ARGS>` — Arguments to pass through to any CLI tool delegated to for encoding to the output format (e.g. Pandoc)
 
-###### **Options:**
+**Options:**
 
 * `-t`, `--to <TO>` — The format to encode to (or codec to use)
 
@@ -436,17 +448,17 @@ Compile a document
 
 
 
-## `stencila lint`
+# `stencila lint`
 
 Lint one or more documents
 
 **Usage:** `stencila lint [OPTIONS] [FILES]...`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<FILES>` — The files to lint
 
-###### **Options:**
+**Options:**
 
 * `--format` — Format the file if necessary
 * `--fix` — Fix any linting issues
@@ -457,13 +469,13 @@ Lint one or more documents
 
 
 
-## `stencila execute`
+# `stencila execute`
 
 Execute a document
 
 **Usage:** `stencila execute [OPTIONS] <INPUT> [OUTPUT] [PASSTHROUGH_ARGS]...`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<INPUT>` — The path of the file to execute
 
@@ -473,7 +485,7 @@ Execute a document
    If not supplied the output content is written to `stdout`.
 * `<PASSTHROUGH_ARGS>` — Arguments to pass through to any CLI tool delegated to for encoding to the output format (e.g. Pandoc)
 
-###### **Options:**
+**Options:**
 
 * `-t`, `--to <TO>` — The format to encode to (or codec to use)
 
@@ -541,7 +553,7 @@ Execute a document
 
 
 
-## `stencila render`
+# `stencila render`
 
 Render a document
 
@@ -549,7 +561,7 @@ Equivalent to the `execute` command with the `--render` flag.
 
 **Usage:** `stencila render [OPTIONS] <INPUT> [OUTPUT] [PASSTHROUGH_ARGS]...`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<INPUT>` — The path of the file to render
 
@@ -559,7 +571,7 @@ Equivalent to the `execute` command with the `--render` flag.
    If not supplied the output content is written to `stdout`.
 * `<PASSTHROUGH_ARGS>` — Arguments to pass through to any CLI tool delegated to for encoding to the output format (e.g. Pandoc)
 
-###### **Options:**
+**Options:**
 
 * `-t`, `--to <TO>` — The format to encode to (or codec to use)
 
@@ -627,7 +639,7 @@ Equivalent to the `execute` command with the `--render` flag.
 
 
 
-## `stencila preview`
+# `stencila preview`
 
 Preview a document or site
 
@@ -635,7 +647,7 @@ Opens a preview of a document or site in the browser. When `--sync=in` (the defa
 
 **Usage:** `stencila preview [OPTIONS] [PATH]`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<PATH>` — The path to the document file or site directory to preview
 
@@ -643,7 +655,7 @@ Opens a preview of a document or site in the browser. When `--sync=in` (the defa
 
   Default value: `.`
 
-###### **Options:**
+**Options:**
 
 * `--sync <SYNC>` — Which direction(s) to sync the document
 
@@ -654,13 +666,13 @@ Opens a preview of a document or site in the browser. When `--sync=in` (the defa
 
 
 
-## `stencila publish`
+# `stencila publish`
 
 Publish one or more documents
 
 **Usage:** `stencila publish <COMMAND>`
 
-###### **Subcommands:**
+**Subcommands:**
 
 * `zenodo` — Publish to Zenodo
 * `ghost` — Publish to Ghost
@@ -668,68 +680,18 @@ Publish one or more documents
 
 
 
-## `stencila publish zenodo`
+# `stencila publish zenodo`
 
 Publish to Zenodo
 
 **Usage:** `stencila publish zenodo [OPTIONS] [PATH]`
-
-
-Further information
-
-Authentication
-
-To deposit a document at Zenodo, you must first have an authentication token that has the deposit:actions scope enabled.
-
-To create an authentication token, log into Zenodo, visit your account's dashboard, then click Applications, followed by + New Token within the Personal access tokens  section. Give the token a name and enable the deposit:actions the scope. Enable the deposit:write scope to enable the --force flag.
-
-To inform Stencila about the new token, add it as the STENCILA_ZENODO_TOKEN environment variable or include it as the --token <TOKEN> option.
-
-Recommended workflow
-
-We recommend starting with the Zenodo Sandbox at <https://sandbox.zenodo.org/>.
-
-    $ export STENCILA_ZENODO_TOKEN="<TOKEN>" # from https://sandbox.zenodo.org/
-    $ stencila publish zenodo <DOCUMENT_PATH>
-    🎉 Draft deposition submitted
-    🌐 URL: https://sandbox.zenodo.org/deposit/<deposit-id> (visit to check details and publish)
-    📑 DOI: 10.5282/zenodo.<deposit-id>
-    Note: This deposit has been submitted to the Zenodo Sandbox.
-    Note: Use the --zenodo flag to resubmit to the production Zenodo server.
-
-You should now review the deposit, make any corrections and then click publish from Zenodo's web interface when you're happy. If you wish to skip the review process and publish immediately, then use the --force flag.
-
-Now that you have an understanding of the process, you should move to the Zenodo production server at <https://zenodo.org/>. This involves creating an authentication token there, informing Stencila about it and then adding the --zenodo flag as a command-line argument.
-
-    $ export STENCILA_ZENODO_TOKEN="<TOKEN>" # from https://zenodo.org/
-    $ stencila publish zenodo --zenodo <DOCUMENT_PATH>
-    🎉 Draft deposition submitted
-    🌐 URL: https://zenodo.org/deposit/<deposit-id> (visit to check details and publish)
-    📑 DOI: 10.5281/zenodo.<deposit-id>
-
-Metadata
-
-Metadata for the deposition is provided by command-line arguments, falling back to metadata found within the document, then Stencila's defaults.
-
-Zenodo requires that deposits have metadata such as title and description. It also requires that you describe which resource type and/or publication type the deposit is.
-
-By default, Stencila describes your document as a publication, with the preprint sub-type. You can use the --lesson flag to describe your document as a lesson. To use another publication sub-type, review the list in the documentation above and provide it as the --publication=[<PUBLICATION_TYPE>] option.
-
-Every source format has its own mechanism for providing metadata. For example, within Stencila Markdown (.smd files), you add YAML front matter:
-
-  ---
-  title: Example Stencila Markdown
-  description: An example of a Stencila Markdown document with embedded metadata
-  ---
-
-
-###### **Arguments:**
+**Arguments:**
 
 * `<PATH>` — Path to location of what to publish
 
   Default value: `.`
 
-###### **Options:**
+**Options:**
 
 * `--token <TOKEN>` — Zenodo authentication token
 
@@ -822,17 +784,17 @@ Every source format has its own mechanism for providing metadata. For example, w
 
 
 
-## `stencila publish ghost`
+# `stencila publish ghost`
 
 Publish to Ghost
 
 **Usage:** `stencila publish ghost [OPTIONS] <PATHS>...`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<PATHS>` — Paths to the files to publish
 
-###### **Options:**
+**Options:**
 
 * `--ghost <GHOST>` — The Ghost domain
 
@@ -879,13 +841,13 @@ Publish to Ghost
 
 
 
-## `stencila publish stencila`
+# `stencila publish stencila`
 
 Publish to Stencila Cloud
 
 **Usage:** `stencila publish stencila [OPTIONS] [PATH]`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<PATH>` — Path to the file or directory to publish
 
@@ -893,7 +855,7 @@ Publish to Stencila Cloud
 
   Default value: `.`
 
-###### **Options:**
+**Options:**
 
 * `-k`, `--key <KEY>` — The key for the site
 * `--dry-run` — Perform a dry run only
@@ -905,13 +867,13 @@ Publish to Stencila Cloud
 
 
 
-## `stencila serve`
+# `stencila serve`
 
 Run the HTTP/Websocket server
 
 **Usage:** `stencila serve [OPTIONS] [DIR]`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<DIR>` — The directory to serve
 
@@ -919,7 +881,7 @@ Run the HTTP/Websocket server
 
   Default value: `.`
 
-###### **Options:**
+**Options:**
 
 * `-a`, `--address <ADDRESS>` — The address to serve on
 
@@ -947,7 +909,7 @@ Run the HTTP/Websocket server
 
 
 
-## `stencila lsp`
+# `stencila lsp`
 
 Run the Language Server Protocol server
 
@@ -955,13 +917,13 @@ Run the Language Server Protocol server
 
 
 
-## `stencila prompts`
+# `stencila prompts`
 
 Manage prompts
 
 **Usage:** `stencila prompts [COMMAND]`
 
-###### **Subcommands:**
+**Subcommands:**
 
 * `list` — List the prompts available
 * `show` — Show a prompt
@@ -971,13 +933,13 @@ Manage prompts
 
 
 
-## `stencila prompts list`
+# `stencila prompts list`
 
 List the prompts available
 
 **Usage:** `stencila prompts list [OPTIONS]`
 
-###### **Options:**
+**Options:**
 
 * `-a`, `--as <AS>` — Output the list as JSON or YAML
 
@@ -986,17 +948,17 @@ List the prompts available
 
 
 
-## `stencila prompts show`
+# `stencila prompts show`
 
 Show a prompt
 
 **Usage:** `stencila prompts show [OPTIONS] <NAME>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<NAME>` — The name of the prompt to show
 
-###### **Options:**
+**Options:**
 
 * `-t`, `--to <TO>` — The format to show the prompt in
 
@@ -1004,7 +966,7 @@ Show a prompt
 
 
 
-## `stencila prompts infer`
+# `stencila prompts infer`
 
 Infer a prompt from a query
 
@@ -1012,18 +974,18 @@ Useful for checking which prompt will be matched to a given instruction type, no
 
 **Usage:** `stencila prompts infer [OPTIONS] [QUERY]`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<QUERY>` — The query
 
-###### **Options:**
+**Options:**
 
 * `-i`, `--instruction-type <INSTRUCTION_TYPE>` — The instruction type
 * `-n`, `--node-types <NODE_TYPES>` — The node types
 
 
 
-## `stencila prompts update`
+# `stencila prompts update`
 
 Update builtin prompts
 
@@ -1031,7 +993,7 @@ Update builtin prompts
 
 
 
-## `stencila prompts reset`
+# `stencila prompts reset`
 
 Reset builtin prompts
 
@@ -1041,26 +1003,26 @@ Re-initializes the builtin prompts directory to those prompts embedded in this v
 
 
 
-## `stencila models`
+# `stencila models`
 
 Manage generative models
 
 **Usage:** `stencila models [COMMAND]`
 
-###### **Subcommands:**
+**Subcommands:**
 
 * `list` — List the models available
 * `run` — Run a model task
 
 
 
-## `stencila models list`
+# `stencila models list`
 
 List the models available
 
 **Usage:** `stencila models list [OPTIONS]`
 
-###### **Options:**
+**Options:**
 
 * `-a`, `--as <AS>` — Output the list as JSON or YAML
 
@@ -1069,7 +1031,7 @@ List the models available
 
 
 
-## `stencila models run`
+# `stencila models run`
 
 Run a model task
 
@@ -1077,24 +1039,24 @@ Mainly intended for testing of model selection and routing. Displays the task se
 
 **Usage:** `stencila models run [OPTIONS] <PROMPT>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<PROMPT>`
 
-###### **Options:**
+**Options:**
 
 * `-m`, `--model <MODEL>` — The id pattern to specify the model to use
 * `--dry-run` — Perform a dry run
 
 
 
-## `stencila kernels`
+# `stencila kernels`
 
 Manage execution kernels
 
 **Usage:** `stencila kernels [COMMAND]`
 
-###### **Subcommands:**
+**Subcommands:**
 
 * `list` — List the kernels available
 * `info` — Get information about a kernel
@@ -1105,13 +1067,13 @@ Manage execution kernels
 
 
 
-## `stencila kernels list`
+# `stencila kernels list`
 
 List the kernels available
 
 **Usage:** `stencila kernels list [OPTIONS]`
 
-###### **Options:**
+**Options:**
 
 * `-t`, `--type <TYPE>` — Only list kernels of a particular type
 
@@ -1124,7 +1086,7 @@ List the kernels available
 
 
 
-## `stencila kernels info`
+# `stencila kernels info`
 
 Get information about a kernel
 
@@ -1132,13 +1094,13 @@ Mainly used to check the version of the kernel runtime and operating system for 
 
 **Usage:** `stencila kernels info <NAME>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<NAME>` — The name of the kernel to get information for
 
 
 
-## `stencila kernels packages`
+# `stencila kernels packages`
 
 List packages available to a kernel
 
@@ -1146,7 +1108,7 @@ Mainly used to check libraries available to a kernel for debugging purpose.
 
 **Usage:** `stencila kernels packages <NAME> [FILTER]`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<NAME>` — The name of the kernel to list packages for
 * `<FILTER>` — A filter on the name of the kernel
@@ -1155,7 +1117,7 @@ Mainly used to check libraries available to a kernel for debugging purpose.
 
 
 
-## `stencila kernels execute`
+# `stencila kernels execute`
 
 Execute code in a kernel
 
@@ -1165,7 +1127,7 @@ Mainly intended for quick testing of kernels during development.
 
 **Usage:** `stencila kernels execute <NAME> <CODE>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<NAME>` — The name of the kernel to execute code in
 * `<CODE>` — The code to execute
@@ -1174,7 +1136,7 @@ Mainly intended for quick testing of kernels during development.
 
 
 
-## `stencila kernels evaluate`
+# `stencila kernels evaluate`
 
 Evaluate a code expression in a kernel
 
@@ -1184,14 +1146,14 @@ Mainly intended for quick testing of kernels during development.
 
 **Usage:** `stencila kernels evaluate <NAME> <CODE>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<NAME>` — The name of the kernel to evaluate code in
 * `<CODE>` — The code expression to evaluate
 
 
 
-## `stencila kernels lint`
+# `stencila kernels lint`
 
 Lint code using the linting tool/s associated with a kernel
 
@@ -1201,36 +1163,36 @@ Mainly intended for testing of linting by kernels during development of Stencila
 
 **Usage:** `stencila kernels lint [OPTIONS] <FILE>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<FILE>` — The file to lint
 
-###### **Options:**
+**Options:**
 
 * `--format` — Format the code
 * `--fix` — Fix warnings and errors where possible
 
 
 
-## `stencila codecs`
+# `stencila codecs`
 
 Manage format conversion codecs
 
 **Usage:** `stencila codecs [COMMAND]`
 
-###### **Subcommands:**
+**Subcommands:**
 
 * `list` — List the codecs available
 
 
 
-## `stencila codecs list`
+# `stencila codecs list`
 
 List the codecs available
 
 **Usage:** `stencila codecs list [OPTIONS]`
 
-###### **Options:**
+**Options:**
 
 * `-a`, `--as <AS>` — Output the list as JSON or YAML
 
@@ -1239,13 +1201,13 @@ List the codecs available
 
 
 
-## `stencila plugins`
+# `stencila plugins`
 
 Manage plugins
 
 **Usage:** `stencila plugins [COMMAND]`
 
-###### **Subcommands:**
+**Subcommands:**
 
 * `list` — List plugins
 * `install` — Install a plugin
@@ -1258,13 +1220,13 @@ Manage plugins
 
 
 
-## `stencila plugins list`
+# `stencila plugins list`
 
 List plugins
 
 **Usage:** `stencila plugins list [OPTIONS]`
 
-###### **Options:**
+**Options:**
 
 * `-r`, `--refresh` — Force refresh of plugin manifests
 * `--installed` — Only list installed plugins
@@ -1274,13 +1236,13 @@ List plugins
 
 
 
-## `stencila plugins install`
+# `stencila plugins install`
 
 Install a plugin
 
 **Usage:** `stencila plugins install <NAME>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<NAME>` — The name or URL of the plugin to install
 
@@ -1288,77 +1250,77 @@ Install a plugin
 
 
 
-## `stencila plugins uninstall`
+# `stencila plugins uninstall`
 
 Uninstall a plugin
 
 **Usage:** `stencila plugins uninstall <NAME>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<NAME>` — The name of the plugin to uninstall
 
 
 
-## `stencila plugins link`
+# `stencila plugins link`
 
 Link to a local plugin
 
 **Usage:** `stencila plugins link <DIRECTORY>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<DIRECTORY>` — The directory to link to
 
 
 
-## `stencila plugins enable`
+# `stencila plugins enable`
 
 Enable a plugin
 
 **Usage:** `stencila plugins enable <NAME>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<NAME>` — The name of the plugin to enable
 
 
 
-## `stencila plugins disable`
+# `stencila plugins disable`
 
 Disable a plugin
 
 **Usage:** `stencila plugins disable <NAME>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<NAME>` — The name of the plugin to disable
 
 
 
-## `stencila plugins show`
+# `stencila plugins show`
 
 Show details of a plugin
 
 **Usage:** `stencila plugins show <NAME>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<NAME>` — The name of the plugin to install
 
 
 
-## `stencila plugins check`
+# `stencila plugins check`
 
 Check a plugin
 
 **Usage:** `stencila plugins check [OPTIONS] <NAME>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<NAME>` — The name of the plugin to install
 
-###### **Options:**
+**Options:**
 
 * `--skip-codecs` — Skip checking codecs
 * `--skip-kernels` — Skip checking kernels
@@ -1366,13 +1328,13 @@ Check a plugin
 
 
 
-## `stencila secrets`
+# `stencila secrets`
 
 Manage secrets
 
 **Usage:** `stencila secrets [COMMAND]`
 
-###### **Subcommands:**
+**Subcommands:**
 
 * `list` — List the secrets used by Stencila
 * `set` — Set a secret used by Stencila
@@ -1380,7 +1342,7 @@ Manage secrets
 
 
 
-## `stencila secrets list`
+# `stencila secrets list`
 
 List the secrets used by Stencila
 
@@ -1388,7 +1350,7 @@ List the secrets used by Stencila
 
 
 
-## `stencila secrets set`
+# `stencila secrets set`
 
 Set a secret used by Stencila
 
@@ -1396,38 +1358,38 @@ You will be prompted for the secret. Alternatively, you can echo the password in
 
 **Usage:** `stencila secrets set <NAME>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<NAME>` — The name of the secret
 
 
 
-## `stencila secrets delete`
+# `stencila secrets delete`
 
 Delete a secret previously set using Stencila
 
 **Usage:** `stencila secrets delete <NAME>`
 
-###### **Arguments:**
+**Arguments:**
 
 * `<NAME>` — The name of the secret
 
 
 
-## `stencila upgrade`
+# `stencila upgrade`
 
 Upgrade to the latest version
 
 **Usage:** `stencila upgrade [OPTIONS]`
 
-###### **Options:**
+**Options:**
 
 * `-f`, `--force` — Perform upgrade even if the current version is the latest
 * `-c`, `--check` — Check for an available upgrade but do not install it
 
 
 
-## `stencila uninstall`
+# `stencila uninstall`
 
 Uninstall this command line tool
 
@@ -1441,4 +1403,5 @@ Uninstall this command line tool
     This document was generated automatically by
     <a href="https://crates.io/crates/clap-markdown"><code>clap-markdown</code></a>.
 </i></small>
+
 
