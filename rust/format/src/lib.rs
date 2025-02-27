@@ -195,7 +195,7 @@ impl Format {
     /// Is this a lossless format for Stencila nodes?
     pub fn is_lossless(&self) -> bool {
         use Format::*;
-        matches!(self, Cbor | CborZst | Json | Json5 | JsonLd | Yaml)
+        matches!(self, Cbor | CborZst | Json | Json5 | JsonLd | JsonZip | Yaml)
     }
 
     /// Is this a lossy format for Stencila nodes?
@@ -405,7 +405,11 @@ impl Format {
 
     /// Get the default file name extension for a format
     pub fn extension(&self) -> String {
-        self.to_string()
+        use Format::*;
+        match self {
+            Jats => "jats.xml".to_string(),
+            _ => self.to_string()
+        }
     }
 }
 
