@@ -156,6 +156,7 @@
         "webbrowser",
         "xlink",
         "yamls",
+        "Zenodo",
         "Zstandard"
     ]
 }

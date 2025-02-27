@@ -121,7 +121,7 @@ install:
 # Build generated files
 generated:
 	cargo run -p schema-gen
-	cargo run -p cli-gen > ../docs/reference/cli.md
+	cargo run -p cli-gen > ../docs/cli/help.md
 
 # Clean the ../target dir
 clean:
