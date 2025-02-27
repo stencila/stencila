@@ -25,6 +25,8 @@ Parsing of HTML is largely done using the [quick-xml](https://crates.io/crates/q
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
 
+# Support
+
 Stencila supports these operations for HTML:
 
 - decoding from a file
