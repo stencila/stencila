@@ -49,7 +49,6 @@
     "frontmatter",
     "config",
     "headings",
-    "temporary",
     "archive"
   ],
   "properties": {
@@ -1012,22 +1011,6 @@
         "content",
         "archive"
       ],
-      "dom": {
-        "skip": true
-      },
-      "type": "array",
-      "items": {
-        "$ref": "Node.schema.json"
-      }
-    },
-    "temporary": {
-      "@id": "stencila:temporary",
-      "description": "Temporary nodes on document",
-      "strip": [
-        "content",
-        "temporary"
-      ],
-      "walk": true,
       "dom": {
         "skip": true
       },

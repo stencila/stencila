@@ -762,7 +762,7 @@ fn chat(input: &mut Located<&str>) -> ModalResult<Block> {
             Block::Chat(Chat {
                 prompt,
                 model_parameters,
-                is_temporary: Some(false),
+                is_embedded: Some(true),
                 ..Default::default()
             })
         },

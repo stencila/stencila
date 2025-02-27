@@ -612,12 +612,6 @@
         "when": "editorTextFocus && editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
       },
       {
-        "command": "stencila.extract-chat",
-        "key": "ctrl+/",
-        "mac": "cmd+/",
-        "when": "editorTextFocus && editorLangId =~ /^(md|smd|qmd|myst|latex)$/"
-      },
-      {
         "command": "stencila.invoke.export-doc",
         "key": "ctrl+shift+e",
         "mac": "cmd+shift+e",

@@ -1,7 +1,7 @@
 use codec_dom_trait::DomCodec;
 use common::serde_yaml;
 
-use crate::{prelude::*, Chat, Node, SuggestionBlock};
+use crate::{prelude::*, Chat, SuggestionBlock};
 
 impl Chat {
     /// Custom implementation of [`PatchNode::apply`]
@@ -11,30 +11,6 @@ impl Chat {
         op: &PatchOp,
         context: &mut PatchContext,
     ) -> Result<bool> {
-        if path.is_empty() && matches!(op, PatchOp::Archive | PatchOp::Temporize) {
-            // Add this instruction to the root's archive or temporary set
-            let (property, is_temporary) = match op {
-                PatchOp::Archive => (NodeProperty::Archive, false),
-                _ => (NodeProperty::Temporary, true),
-            };
-            let chat = Chat {
-                is_temporary: Some(is_temporary),
-                ..self.clone()
-            };
-            context.op_additional(
-                PatchPath::from(property),
-                PatchOp::Push(PatchValue::Node(Node::Chat(chat))),
-            );
-
-            // Remove this from the containing vector, if any
-            let mut path = context.path();
-            if let Some(PatchSlot::Index(index)) = path.pop_back() {
-                context.op_additional(path, PatchOp::Remove(vec![index]));
-            }
-
-            return Ok(true);
-        }
-
         if matches!(
             path.front(),
             Some(PatchSlot::Property(NodeProperty::Content))
@@ -43,7 +19,7 @@ impl Chat {
             // only apply patches to the content of the chat if the patch is
             // associated with no, or a lossless, format, or if it is a root
             // node (not nested)
-            if context.format_is_lossless() || self.is_temporary.is_none() {
+            if context.format_is_lossless() || !self.is_embedded.unwrap_or(false) {
                 // Apply the patch
                 path.pop_front();
                 context.within_property(NodeProperty::Content, |context| {

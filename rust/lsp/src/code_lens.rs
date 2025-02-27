@@ -106,6 +106,9 @@ pub(crate) async fn request(
                         // not fully implemented
                         vec![lens(RUN_NODE), lens(VIEW_NODE)]
                     }
+                    NodeType::Chat => {
+                        vec![lens(VIEW_NODE)]
+                    }
                     NodeType::InstructionBlock => {
                         let mut lenses = vec![lens(RUN_NODE), lens(VIEW_NODE)];
                         if let Some((index, of)) = index_of {

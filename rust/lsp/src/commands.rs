@@ -26,7 +26,7 @@ use common::{
     eyre::{OptionExt, Result},
     itertools::Itertools,
     once_cell::sync::Lazy,
-    serde_json::{self, Value},
+    serde_json::{self, json, Value},
     tokio::{
         self,
         sync::{mpsc, RwLock},
@@ -37,10 +37,10 @@ use document::{Command, CommandNodes, CommandScope, CommandStatus, ContentType, 
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
-    replicate, Article, AuthorRole, AuthorRoleName, Block, Chat, ChatOptions, ExecutionMode,
-    InstructionBlock, InstructionMessage, InstructionType, ModelParameters, Node, NodeId,
-    NodeProperty, NodeType, Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock,
-    SuggestionBlock, SuggestionStatus, Timestamp,
+    replicate, AuthorRole, AuthorRoleName, Block, Chat, ExecutionMode, InstructionBlock,
+    InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodeProperty, NodeType,
+    Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock, SuggestionBlock,
+    SuggestionStatus, Timestamp,
 };
 
 use crate::{formatting::format_doc, text_document::TextNode, ServerState};
@@ -78,7 +78,6 @@ pub(super) const INSERT_CLONES: &str = "stencila.insert-clones";
 pub(super) const INSERT_INSTRUCTION: &str = "stencila.insert-instruction";
 
 pub(super) const CREATE_CHAT: &str = "stencila.create-chat";
-pub(super) const DELETE_CHAT: &str = "stencila.delete-chat";
 
 pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
 
@@ -112,7 +111,6 @@ pub(super) fn commands() -> Vec<String> {
         INSERT_CLONES,
         INSERT_INSTRUCTION,
         CREATE_CHAT,
-        DELETE_CHAT,
         EXPORT_DOC,
     ]
     .into_iter()
@@ -336,14 +334,18 @@ pub(super) async fn execute_command(
             if let Some(node_id) = root.read().await.node_id_closest(position) {
                 let node_type = NodeType::try_from(&node_id).map_err(internal_error)?;
 
-                // Only update if running an instruction or chat message (since these update
-                // the content of the document)
+                // Only update if running an instruction or chat message (in a standalone chat) since
+                // these update the content of the document
                 let update = matches!(
                     node_type,
                     NodeType::InstructionBlock
                         | NodeType::InstructionInline
                         | NodeType::ChatMessage
                 );
+
+                // Return the node type and id so that the client can do something with it if
+                // necessary (e.g. opening a view)
+                return_value = Some(json!([node_type.to_string(), node_id.to_string()]));
 
                 (
                     "Running current node".to_string(),
@@ -571,7 +573,7 @@ pub(super) async fn execute_command(
             // Create the new node
             let block = match node_type {
                 NodeType::Chat => Block::Chat(Chat {
-                    is_temporary: Some(true),
+                    is_embedded: Some(true),
                     content: Vec::new(),
                     ..Default::default()
                 }),
@@ -764,167 +766,124 @@ pub(super) async fn execute_command(
                     (Vec::new(), Vec::new())
                 };
 
-            // If there is a single chat on the range then "temporize" it (move it to temporary)
-            let (chat_id, patch, update_after) = if let (1, Some(NodeType::Chat), Some(chat_id)) =
-                (node_types.len(), node_types.first(), node_ids.first())
+            // Infer the instruction type based on the number of blocks selected
+            // and whether they have any errors
+            let instruction_type = if instruction_type.is_some() {
+                instruction_type
+            } else if node_types.is_empty() {
+                None
+            } else if let (1, Some(NodeType::CodeChunk | NodeType::MathBlock)) =
+                (node_types.len(), node_types.first())
             {
-                let patch = Patch {
-                    node_id: Some(chat_id.clone()),
-                    ops: vec![(PatchPath::new(), PatchOp::Temporize)],
-                    ..Default::default()
-                };
-
-                (chat_id.clone(), patch, true)
-            } else {
-                // Infer the instruction type based on the number of blocks selected
-                // and whether they have any errors
-                let instruction_type = if instruction_type.is_some() {
-                    instruction_type
-                } else if node_types.is_empty() {
-                    None
-                } else if let (1, Some(NodeType::CodeChunk | NodeType::MathBlock)) =
-                    (node_types.len(), node_types.first())
-                {
-                    // Check if the node has warnings or errors and
-                    if let Some(node_id) = node_ids.first() {
-                        if match doc.read().await.find(node_id.clone()).await {
-                            Some(Node::CodeChunk(node)) => node.has_warnings_errors_or_exceptions(),
-                            Some(Node::MathBlock(node)) => node.has_warnings_errors_or_exceptions(),
-                            _ => false,
-                        } {
-                            Some(InstructionType::Fix)
-                        } else {
-                            Some(InstructionType::Edit)
-                        }
+                // Check if the node has warnings or errors and
+                if let Some(node_id) = node_ids.first() {
+                    if match doc.read().await.find(node_id.clone()).await {
+                        Some(Node::CodeChunk(node)) => node.has_warnings_errors_or_exceptions(),
+                        Some(Node::MathBlock(node)) => node.has_warnings_errors_or_exceptions(),
+                        _ => false,
+                    } {
+                        Some(InstructionType::Fix)
                     } else {
                         Some(InstructionType::Edit)
                     }
                 } else {
                     Some(InstructionType::Edit)
-                };
-
-                let node_types = (!node_types.is_empty()).then_some(
-                    node_types
-                        .iter()
-                        .map(|node_type| node_type.to_string())
-                        .collect_vec(),
-                );
-
-                // If any, add them to the suggestions as the original
-                let suggestions = if !node_ids.is_empty() {
-                    // Get clones of the blocks
-                    let content = {
-                        let doc = doc.read().await;
-                        let mut content = Vec::new();
-                        for node_id in node_ids {
-                            if let Some(block) = doc
-                                .find(node_id)
-                                .await
-                                .and_then(|node| Block::try_from(node).ok())
-                            {
-                                content.push(block);
-                            }
-                        }
-                        content
-                    };
-
-                    // Replicate to avoid duplicate ids
-                    let content = replicate(&content).map_err(internal_error)?;
-
-                    Some(vec![SuggestionBlock {
-                        suggestion_status: Some(SuggestionStatus::Original),
-                        content,
-                        ..Default::default()
-                    }])
-                } else {
-                    None
-                };
-
-                // Get the ids of any previous or next blocks so that the chat, despite being temporary,
-                // can be executed with the correct document context.
-                let (previous_block, next_block) = match range {
-                    Some(range) => root.block_ids_previous_next(range),
-                    None => (None, None),
-                };
-
-                // If no prompt provided then infer one from the instruction type, node type etc
-                let target = match prompt {
-                    Some(prompt) => Some(prompt),
-                    None => prompts::infer(&instruction_type, &node_types, &None)
-                        .await
-                        .map(|prompt| prompt.name.clone()),
-                };
-
-                let chat = Chat {
-                    prompt: PromptBlock {
-                        instruction_type,
-                        node_types,
-                        target,
-                        ..Default::default()
-                    },
-                    is_temporary: Some(true),
-                    suggestions,
-                    options: Box::new(ChatOptions {
-                        previous_block: previous_block.map(|id| id.to_string()),
-                        next_block: next_block.map(|id| id.to_string()),
-                        ..Default::default()
-                    }),
-                    ..Default::default()
-                };
-                let chat_id = chat.node_id().clone();
-
-                let patch = Patch {
-                    ops: vec![(
-                        PatchPath::from(NodeProperty::Temporary),
-                        PatchOp::Push(PatchValue::Node(Node::Chat(chat))),
-                    )],
-                    ..Default::default()
-                };
-
-                (chat_id, patch, false)
+                }
+            } else {
+                Some(InstructionType::Edit)
             };
+
+            let node_types = (!node_types.is_empty()).then_some(
+                node_types
+                    .iter()
+                    .map(|node_type| node_type.to_string())
+                    .collect_vec(),
+            );
+
+            // If any, add them to the suggestions as the original
+            let suggestions = if !node_ids.is_empty() {
+                // Get clones of the blocks
+                let content = {
+                    let doc = doc.read().await;
+                    let mut content = Vec::new();
+                    for node_id in node_ids {
+                        if let Some(block) = doc
+                            .find(node_id)
+                            .await
+                            .and_then(|node| Block::try_from(node).ok())
+                        {
+                            content.push(block);
+                        }
+                    }
+                    content
+                };
+
+                // Replicate to avoid duplicate ids
+                let content = replicate(&content).map_err(internal_error)?;
+
+                Some(vec![SuggestionBlock {
+                    suggestion_status: Some(SuggestionStatus::Original),
+                    content,
+                    ..Default::default()
+                }])
+            } else {
+                None
+            };
+
+            // If no prompt provided then infer one from the instruction type, node type etc
+            let target = match prompt {
+                Some(prompt) => Some(prompt),
+                None => prompts::infer(&instruction_type, &node_types, &None)
+                    .await
+                    .map(|prompt| prompt.name.clone()),
+            };
+
+            let chat = Chat {
+                prompt: PromptBlock {
+                    instruction_type,
+                    node_types,
+                    target,
+                    ..Default::default()
+                },
+                is_embedded: Some(true),
+                suggestions,
+                ..Default::default()
+            };
+
+            let chat_id = chat.node_id().clone();
 
             return_value = Some(serde_json::Value::String(chat_id.to_string()));
 
+            // Find where to insert the chat based on the position in the text document
+            // falling back to appending to the end of the document's root node's content.
+
+            let chat = Block::Chat(chat).to_value().map_err(internal_error)?;
+            let (node_id, op) = match range
+                .map(|range| range.start)
+                .and_then(|position| root.block_content_index(position))
+            {
+                Some((node_id, index)) => (Some(node_id), PatchOp::Insert(vec![(index, chat)])),
+                None => (None, PatchOp::Push(chat)),
+            };
+
+            // Patch the content of the destination document
             let patch = Patch {
+                node_id,
+                ops: vec![(PatchPath::from(NodeProperty::Content), op)],
                 // Run compile so that that chat's prompt block is compiled
                 // to infer the target prompt
                 compile: true,
                 // Execute if specified
                 execute: execute_chat.then_some(vec![chat_id]),
-                ..patch
+                ..Default::default()
             };
 
             (
-                "Creating temporary chat".to_string(),
+                "Creating chat".to_string(),
                 Command::PatchNode(patch),
                 false,
-                update_after,
+                true, // Update after so that the new embedded chat is visible
             )
-        }
-        DELETE_CHAT => {
-            let node_id = node_id_arg(args.next())?;
-
-            // Remove temporary chat based on its id. There is no command
-            // for doing this yet but in the future this may be better
-            // factored out into a command or patch op.
-
-            let doc = doc.write().await;
-            doc.mutate(move |root| {
-                if let Node::Article(Article {
-                    temporary: Some(temporary),
-                    ..
-                }) = root
-                {
-                    tracing::debug!("Deleting temporary chat {node_id}");
-
-                    let node_id = Some(node_id.clone());
-                    temporary.retain(|node| node.node_id() != node_id);
-                }
-            })
-            .await;
-
-            return Ok(None);
         }
         EXPORT_DOC => {
             let path = path_buf_arg(args.next())?;

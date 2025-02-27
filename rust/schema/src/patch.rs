@@ -670,9 +670,6 @@ pub enum PatchOp {
     /// Archive a node (move it to the root node's archive)
     Archive,
 
-    /// Temporize a node (move it to the root node's `temporary` set)
-    Temporize,
-
     /// Do no operation
     /// Used to be able to apply patches which only update
     /// the `authors` list of a node (e.g. when a node is accepted)
