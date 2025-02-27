@@ -11,7 +11,7 @@ import {
 } from '../ui/document/context'
 
 import 'katex/dist/katex.min.css'
-import '../themes/nodes.css'
+// import '../themes/nodes.css'
 import '../nodes'
 import '../shoelace'
 import '../ui/document/menu'
@@ -19,11 +19,12 @@ import '../ui/document/menu'
 const STENCILA_STATE_DISPATCH = 'stencila-state-dispatch'
 
 type StencilaDispatchDetails = {
-  nodeMarkerState: NodeMarkerState
+  expandCards?: boolean
+  nodeMarkerState?: NodeMarkerState
 }
 
 /**
- * A wrapper element to provide a context to the stencila nodes within
+ * A Wrapper element to provide a context to any stencila Entity components
  */
 @customElement('stencila-ghost-controller')
 export abstract class DocumentView extends LitElement {
@@ -38,7 +39,7 @@ export abstract class DocumentView extends LitElement {
   private stateDispatchHandler(e: Event & { detail: StencilaDispatchDetails }) {
     this.context = {
       ...this.context,
-      nodeMarkerState: e.detail.nodeMarkerState,
+      nodeMarkerState: e.detail?.nodeMarkerState ?? 'hidden',
     }
   }
 
@@ -47,6 +48,8 @@ export abstract class DocumentView extends LitElement {
       STENCILA_STATE_DISPATCH,
       this.stateDispatchHandler.bind(this)
     )
+
+    // window.addEventListener()
 
     return this
   }

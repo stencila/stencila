@@ -223,7 +223,7 @@ figcaption strong {
     padding-top: 0.75rem;
 }
 
-.gh-content > table tr:not(:first-child) {
+.gh-content > table tbody tr {
     border-bottom: 1px solid rgba(0, 0, 0, 0.3);
 }
 

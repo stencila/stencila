@@ -50,7 +50,7 @@
                                             {{#get "posts" filter="tags:{{slug}}+tags:hash-doc" limit="all" order="published_at asc"}}
                                                 {{#foreach posts as |post|}}
                                                     <li class="mb-2 ml-4 flex items-start hover:text-[var(--ghost-accent-color)]">
-                                                        <a href="{{post.url}}" class="{{#match ../../../../currentSlug "=" post.slug}}active font-semibold underline{{else}} hover:text-[var(--ghost-accent-color)]{{/match}}">
+                                                        <a href="{{post.url}}" class="{{#match ../../../../currentSlug "=" post.slug}}active font-semibold{{else}} hover:text-[var(--ghost-accent-color)]{{/match}}">
                                                             {{post.title}}
                                                         </a>
                                                     </li>
@@ -69,7 +69,9 @@
             {{#post}}
             <article class="gh-article relative leading-snug text-lg {{post_class}}">
                 <header id="doc-header" class="gh-header gh-canvas text-left mt-12 md:mt-0">
-
+                    {{#is "post"}}
+                    <div class="text-left text-base font-semibold text-gray-400 mb-4">{{../currentTag}}</div>
+                    {{/is}}
                     <h1 id="main-heading" class="text-4xl text-left">{{title}}</h1>
 
                     {{#if custom_excerpt}}

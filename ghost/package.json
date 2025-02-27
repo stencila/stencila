@@ -51,6 +51,7 @@
         "concurrently": "^9.1.2",
         "postcss": "^8.5.1",
         "postcss-import": "^15.1.0",
+        "postcss-nested": "^7.0.2",
         "postcss-preset-env": "^8.0.1",
         "rollup": "^3.18.0",
         "rollup-plugin-livereload": "^2.0.5",

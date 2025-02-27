@@ -109,6 +109,10 @@
 
     {{/has}}
     {{#has tag="#stencila"}}
-        {{> 'activateStencilaEvent'}}
+        {{#has tag="#stencila-expand"}}
+
+        {{else}}
+            {{> 'activateStencilaEvent'}}
+        {{/has}}
     {{/has}}
 {{/post}}

@@ -1,0 +1,337 @@
+/*
+
+ Applies styles to all stencila Node custom web elements adjusted for the ghost theme.
+
+*/
+
+
+/* headings */
+
+stencila-heading {
+  display: block;
+  border: 1px solid transparent;
+}
+
+
+/* ------------ */
+
+/* paragraph */
+
+stencila-paragraph {
+  display: block;
+  border: 1px solid transparent;
+
+  p {
+    margin-top: 2rem;
+    margin-bottom: 0;
+    vertical-align: baseline;
+    line-height: 1.375;
+  }
+
+  &:has(+ stencila-heading) {
+    p {
+      margin-bottom: 0;
+    }
+  }
+}
+
+/* ------------ */
+
+/* tables, datatable and figures */
+
+stencila-figure {
+  figure {
+    margin: 1rem 0;
+  }
+}
+
+stencila-table,
+stencila-datatable {
+  table {
+    @apply my-4 border-collapse border-spacing-0 table-auto;
+
+    tr:first-child,
+    thead {
+      stencila-text {
+        font-weight: bold !important;
+      }
+
+      td,
+      th {
+        @apply pb-3;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+      }
+    }
+
+    tr:nth-child(2) {
+      td {
+        @apply pt-3;
+      }
+    }
+
+    td,
+    th {
+      @apply p-0 w-fit pr-3 text-nowrap;
+    }
+
+    td[data-type='number'],
+    td[data-type='integer'] {
+      text-align: right;
+    }
+
+    p {
+      @apply m-0;
+    }
+
+    stencila-paragraph {
+      display: contents;
+    }
+
+    stencila-paragraph *,
+    stencila-ui-block-on-demand,
+    stencila-ui-block-on-demand * {
+      max-width: fit-content;
+    }
+
+    div:not(.chip) {
+      display: contents;
+    }
+  }
+}
+
+stencila-datatable {
+  table {
+    @apply mx-0;
+  }
+
+  tr:first-child {
+    td {
+      @apply pt-3 pb-0;
+      border: unset;
+    }
+  }
+
+  tr:nth-child(2) {
+    td {
+      @apply pt-0;
+    }
+  }
+}
+
+stencila-table,
+stencila-figure,
+stencila-code-chunk {
+  caption {
+    @apply text-left;
+  }
+
+  [slot='caption'] {
+    @apply block;
+
+    stencila-paragraph {
+      p {
+        @apply mt-4;
+        @apply text-sm text-black text-left;
+      }
+
+      .table-label,
+      .figure-label {
+        @apply font-bold after:content-[":"];
+      }
+    }
+  }
+
+  &[label-type='FigureLabel'] {
+    [slot='caption'] {
+      @apply mb-4;
+
+      stencila-paragraph:first-child {
+        p {
+          @apply mt-0;
+        }
+      }
+    }
+  }
+
+  [slot='caption'] + [slot='outputs'] {
+    @apply mt-0;
+  }
+}
+
+/* ------------ */
+
+/* admonitions  */
+
+stencila-admonition {
+  p[slot='title'] {
+    margin-top: 0px;
+    margin-bottom: 0px; 
+  }
+
+  [slot='content'] {
+    stencila-paragraph:first-child {
+      p {
+        margin-top: 0px;
+      }
+    }
+  }
+}
+
+/* ------------ */
+
+/* quote blocks */
+
+stencila-quote-block {
+  blockquote {
+    @apply border-solid border-y-0 border-l-2 border-r-0 border-black/20 bg-black/5 py-4 pl-3 m-6;
+
+    p {
+      @apply m-0 pb-0;
+    }
+
+    blockquote {
+      @apply m-0 mt-2 ml-3 border-black/20;
+    }
+  }
+}
+
+/* ------------ */
+
+/* images */
+
+stencila-figure,
+stencila-image-object {
+  img {
+    @apply object-cover max-w-full aspect-auto m-auto block;
+  }
+}
+
+/* ------------ */
+
+/* lists */
+
+stencila-list {
+  ul,
+  ol {
+    padding-left: 2rem;
+  }
+
+  ul {
+    list-style: disc;
+  }
+
+  ol {
+    list-style-type: decimal;
+  }
+}
+
+stencila-list-item {
+  stencila-paragraph {
+    margin: 0;
+    p {
+      margin: 0;
+    }
+  }
+}
+
+/* ------------ */
+
+/* code elements */
+
+stencila-ui-node-code {
+  max-width: 100%;
+}
+
+stencila-code-chunk {
+  [slot='outputs'] {
+    stencila-boolean,
+    stencila-integer,
+    stencila-number,
+    stencila-string,
+    stencila-array,
+    stencila-object {
+      display: block;
+
+      @apply block font-mono prose;
+    }
+  }
+
+  + stencila-paragraph {
+    p {
+      margin-top: 0px;
+    }
+  }
+}
+
+stencila-code-expression,
+stencila-code-inline {
+  code {
+    font-family: var(--code-font-family);
+    font-size: var(--code-font-size);
+    background-color: var(--code-bg-colour);
+    padding-left: 0.125rem;
+    padding-right: 0.125rem;
+    font-weight: 400;
+
+    @apply rounded-sm;
+
+    /* remove backticks inserted by the tw typography .prose */
+    &::before,
+    &::after {
+      content: '';
+    }
+  }
+}
+
+/* ------------ */
+
+/* math elements */
+
+stencila-math-block,
+stencila-math-inline {
+  [slot='mathml'] {
+    math {
+      font-family: var(--mathml-font-family);
+    }
+  }
+}
+
+/* ------------ */
+
+/* Ai model instruction related elements */
+
+stencila-instruction-block {
+  &:has(+ stencila-heading) {
+    ol {
+      margin-bottom: 0px;
+    }
+  }
+
+  &:has(+ stencila-paragraph) {
+    table {
+      margin-bottom: 0px;
+    }
+  }
+
+  [slot='messages'] {
+    display: none;
+  }
+}
+
+stencila-chat-message[message-role='User'] {
+  [slot='content'] {
+    stencila-paragraph:first-child {
+      p {
+        margin-top: 0px;
+      }
+    }
+  }
+}
+
+stencila-suggestion-block {
+  [slot='content'] {
+    color: var(--default-text-colour);
+  }
+}
+
+/* ------------ */

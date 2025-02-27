@@ -8,6 +8,8 @@ production stylesheet in assets/built/screen.css using: npm run dev
 /* Lib - Local component imports
 /* ---------------------------------------------------------- */
 
+@import "stencila.css";
+
 /* Base components */
 @import "vars.css";
 @import "components/global.css";
