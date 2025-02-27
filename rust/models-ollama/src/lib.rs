@@ -195,7 +195,9 @@ impl Model for OllamaModel {
         map_option!(mirostat);
         map_option!(mirostat_eta);
         map_option!(mirostat_tau);
-        map_option!(num_ctx);
+        if let Some(value) = task.num_ctx {
+            options = options.num_ctx(value as u64);
+        }
         map_option!(num_gqa);
         map_option!(num_gpu);
         map_option!(num_thread);

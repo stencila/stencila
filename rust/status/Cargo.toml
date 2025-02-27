@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 common = { path = "../common" }
-schemars = { version = "0.8.17", features = ["indexmap2"] }
+schemars = { version = "0.8.22", features = ["indexmap2"] }
 
 [lints]
 workspace = true
