@@ -77,6 +77,8 @@ pub(super) const INSERT_NODE: &str = "stencila.insert-node";
 pub(super) const INSERT_CLONES: &str = "stencila.insert-clones";
 pub(super) const INSERT_INSTRUCTION: &str = "stencila.insert-instruction";
 
+pub(super) const DELETE_NODE: &str = "stencila.remove-node";
+
 pub(super) const CREATE_CHAT: &str = "stencila.create-chat";
 
 pub(super) const EXPORT_DOC: &str = "stencila.export-doc";
@@ -110,6 +112,7 @@ pub(super) fn commands() -> Vec<String> {
         INSERT_NODE,
         INSERT_CLONES,
         INSERT_INSTRUCTION,
+        DELETE_NODE,
         CREATE_CHAT,
         EXPORT_DOC,
     ]
@@ -717,6 +720,21 @@ pub(super) async fn execute_command(
             (
                 "Cloning nodes".to_string(),
                 Command::PatchNode(patch),
+                false,
+                true,
+            )
+        }
+        DELETE_NODE => {
+            args.next(); // Node type arg not currently used
+            let node_id = node_id_arg(args.next())?;
+
+            (
+                "Deleting node".to_string(),
+                Command::PatchNode(Patch {
+                    node_id: Some(node_id.clone()),
+                    ops: vec![(PatchPath::new(), PatchOp::Delete)],
+                    ..Default::default()
+                }),
                 false,
                 true,
             )

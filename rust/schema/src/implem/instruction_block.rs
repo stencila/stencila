@@ -203,7 +203,7 @@ impl PatchNode for InstructionBlock {
                 PatchOp::Push(self.to_value()?),
             );
 
-            // Get the path and index for applying the additional op
+            // Get the path and index for applying the additional op to remove or replace this node
             let mut path = context.path();
             let index = match path.pop_back() {
                 Some(PatchSlot::Index(index)) => index,

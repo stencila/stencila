@@ -11,7 +11,26 @@ impl Chat {
         op: &PatchOp,
         context: &mut PatchContext,
     ) -> Result<bool> {
-        if matches!(
+        // Handle a patch to archive or delete this chat
+        if path.is_empty() && matches!(op, PatchOp::Archive | PatchOp::Delete) {
+            if matches!(op, PatchOp::Archive) {
+                // Add this chat to the root's archive
+                context.op_additional(
+                    PatchPath::from(NodeProperty::Archive),
+                    PatchOp::Push(self.to_value()?),
+                );
+            }
+
+            // Get the path and index for applying the additional op to remove this node
+            let mut path = context.path();
+            let index = match path.pop_back() {
+                Some(PatchSlot::Index(index)) => index,
+                slot => bail!("Expected index slot, got: {slot:?}"),
+            };
+            context.op_additional(path, PatchOp::Remove(vec![index]));
+
+            Ok(true)
+        } else if matches!(
             path.front(),
             Some(PatchSlot::Property(NodeProperty::Content))
         ) {
@@ -28,10 +47,10 @@ impl Chat {
             }
 
             // Return true, even if not applied, so as to ignore op
-            return Ok(true);
+            Ok(true)
+        } else {
+            Ok(false)
         }
-
-        Ok(false)
     }
 
     /// Custom implementation of `to_dom` for the `suggestions` property to use
