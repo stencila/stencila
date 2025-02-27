@@ -54,7 +54,6 @@ export default function processTailwindAtRuntime() {
         const content = block.querySelector('[slot="content"]');
         if (content) {
           requestAnimationFrame(() => {
-            console.log('hi')
             content.className = tw(block.getAttribute('code'));
           
             const tag = document.createElement('style')

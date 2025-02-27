@@ -2,17 +2,25 @@
 <div class="page-container content-container">
     <div class="relative flex">
         <div class="relative lg:sticky lg:top-20 flex-none h-[calc(100vh-5rem)]">
-            {{!-- <div class="hidden lg:block absolute h-full top-0 left-0 -translate-x-full h-full w-screen">
-                <div class="bg-gray-100 lg:bg-transparent w-full h-full"></div>
-            </div> --}}
             <!-- Mobile Menu Toggle -->
-            <button class="fixed z-20 top-20 lg:top-36 xl:40 left-4 sm:left-8 flex items-center justify-center leading-none bg-brand-blue/70 text-white hover:text-brand-blue hover:bg-white hover:border border-brand-blue w-12 h-12 rounded-full shadow-lg lg:hidden block" id="sidebar-toggle">
-                <div>
-                    <span class="block w-6 h-0.5 bg-[currentColor] mb-1"></span>
-                    <span class="block w-6 h-0.5 bg-[currentColor] mb-1"></span>
-                    <span class="block w-6 h-0.5 bg-[currentColor]"></span>
+            <div class="fixed z-20 top-16 left-0 w-full bg-gray-100 lg:hidden">
+                <div class="content-container py-4 flex items-center">
+                    <button class="text-gray-400 hover:text-gray-600 lg:hidden block" id="sidebar-toggle">
+                        <span class="block w-6 h-0.5 bg-[currentColor] mb-1"></span>
+                        <span class="block w-6 h-0.5 bg-[currentColor] mb-1"></span>
+                        <span class="block w-6 h-0.5 bg-[currentColor]"></span>
+                    </button>
+
+                    <div class="ml-8 text-base font-semibold text-gray-400">
+                        <span>
+                            {{post.tag}}
+                        </span>
+                        <span>&gt;</span>
+                        <span>
+                        </span>
+                    </div>
                 </div>
-            </button>
+            </div>
             <div id="sidebar" class="fixed bg-white lg:bg-transparent lg:relative top-16 pl-12 lg:pl-0 left-0 lg:top-0 h-full z-20 text-gray-900 border-tr border-gray-200 lg:border-0">        
                 <div class="absolute h-full left-full w-screen bg-black/50 backdrop-blur-sm lg:hidden"></div>
                 <button id="sidebar-close" class="block absolute top-2 right-2 w-6 h-6 lg:top-6 lg:hidden hover:text-gray-400">{{> icons/x }}</button>
@@ -24,7 +32,7 @@
                                     <li class="mb-8">
                                         <button class="collapse-toggle hover:text-[var(--ghost-accent-color)]">
                                             <div class="flex items-center gap-4 mb-2">
-                                                <h4 class="font-bold text-base">{{name}}</h4>
+                                                <h4 class="font-bold text-base text-inherit">{{name}}</h4>
                                                 <div class="chevron w-2 h-2 transform">{{> icons/chevron-down}}</div>
                                             </div>
                                         </button>
@@ -56,10 +64,10 @@
         </div>
         <div class="flex-auto basis-0 min-w-0">
             {{#post}}
-            <article class="gh-article relative leading-snug text-base lg:text-lg {{post_class}}">
+            <article class="gh-article relative leading-snug text-lg {{post_class}}">
                 <header id="doc-header" class="gh-header gh-canvas text-left mt-12 md:mt-0">
 
-                    <h1 id="main-heading" class="text-4xl lg:text-6xl text-left">{{title}}</h1>
+                    <h1 id="main-heading" class="text-4xl text-left">{{title}}</h1>
 
                     {{#if custom_excerpt}}
                     <p class="gh-excerpt text-left">{{custom_excerpt}}</p>
@@ -110,7 +118,7 @@
                     {{/if}}
                 </header>
 
-                <div id="doc-content" class="gh-content gh-canvas">
+                <div id="doc-content" class="gh-content gh-canvas max-w-[100%] text-lg">
                     {{content}}
                 </div>
 
@@ -152,19 +160,19 @@
                     <div>
                         <a id="prev-link" href="#" class="hidden flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-600 shadow hover:shadow-lg">
                             <span class="w-2 h-3 flex-none flex items-center">{{>"icons/arrow-left"}}</span>
-                            <h4 class="text-base">Previous</h4>
+                            <h4 class="text-base text-inherit">Previous</h4>
                         </a>
                     </div>
                     <div>
                         <a id="next-link" href="#" class="hidden flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-600 shadow hover:shadow-lg">
-                            <h4 class="text-right text-base">Next</h4>
+                            <h4 class="text-right text-base text-inherit">Next</h4>
                             <span class="w-2 h-3 flex-none flex items-center">{{>"icons/arrow-right"}}</span>
                         </a>
                     </div>
                 </div>
             </aside>
         </div>
-        {{> toc title=title }}
+        {{> toc }}
         {{/post}}
     </div>
 </div>

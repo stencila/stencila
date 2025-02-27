@@ -12,7 +12,7 @@
     {{else}}
     {{!-- default post laytout --}}
     <div class="content-container">
-        <article class="gh-article relative {{post_class}} leading-snug text-base lg:text-lg">
+        <article class="gh-article relative {{post_class}} leading-snug text-base text-lg">
             <header class="gh-header gh-canvas">
                 <span class="absolute top-4 right-0">
                     {{#foreach authors}}<a href="{{url}}" class="hover:text-gray-400">{{name}}</a> &bull; {{/foreach}}
@@ -92,12 +92,12 @@
                 <div>
                     {{#next_post in="primary_tag"}}<a href="{{url}}" class="flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-400 hover:text-gray-600 shadow hover:shadow-lg">
                         <span class="w-2 h-3 flex-none flex items-center">{{>"icons/arrow-left"}}</span>
-                        <h4 class="text-base lg:text-xl">{{title}}</h4>
+                        <h4 class="text-base text-inherit">{{title}}</h4>
                     </a>{{/next_post}}
                 </div>
                 <div >
                     {{#prev_post in="primary_tag"}}<a href="{{url}}" class="flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-400 hover:text-gray-600 shadow hover:shadow-lg">
-                        <h4 class="text-right text-base lg:text-xl">{{title}}</h4>
+                        <h4 class="text-right text-base text-inherit">{{title}}</h4>
                         <span class="w-2 h-3 flex-none flex items-center">{{>"icons/arrow-right"}}</span>
                     </a>{{/prev_post}}
                 </div>
