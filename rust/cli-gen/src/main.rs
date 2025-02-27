@@ -1,6 +1,7 @@
 use cli::Cli;
 
 /// Generates documentation for the CLI in the sibling `stencila` crate
+#[allow(clippy::print_stdout)]
 fn main() {
     let help = clap_markdown::help_markdown::<Cli>();
 
@@ -20,11 +21,11 @@ fn main() {
             if line.starts_with("## ") {
                 // Promote H2 -> H1
                 output.push_str(&line[1..]);
-            } else if line.starts_with("###### ") {
+            } else if let Some(stripped) = line.strip_prefix("###### ") {
                 // Remove H6's and just use bolded
-                output.push_str(&line[7..]);
+                output.push_str(stripped);
             } else {
-                output.push_str(&line);
+                output.push_str(line);
             }
             output.push('\n');
         }
