@@ -11,13 +11,16 @@
                         <span class="block w-6 h-0.5 bg-[currentColor]"></span>
                     </button>
 
-                    <div class="ml-8 text-base font-semibold text-gray-400">
-                        <span>
-                            {{post.tag}}
+                    <div class="ml-8 text-sm font-semibold text-gray-400">
+                        {{#is "post"}}
+                        {{currentTag}}
+                        <span class="mx-2">&gt;</span>
+                        <span class="text-gray-600">
+                            {{post.title}}
                         </span>
-                        <span>&gt;</span>
-                        <span>
-                        </span>
+                        {{else}}
+                            {{page.title}}
+                        {{/is}}
                     </div>
                 </div>
             </div>

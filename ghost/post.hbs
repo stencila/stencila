@@ -5,7 +5,7 @@
         {{#foreach tags}}
             {{#get "pages" filter="tag:{{slug}}+tag:hash-doc-page" limit="1" include="tags" }}
                 {{#foreach pages limit="1" as |page|}}
-                    {{> docviewer post=../../.. page=page currentSlug=../../../slug }}    
+                    {{> docviewer post=../../.. page=page currentSlug=../../../slug currentTag=../../name }}    
                 {{/foreach }}
             {{/get}}
         {{/foreach}}

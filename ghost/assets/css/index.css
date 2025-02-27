@@ -22,8 +22,6 @@ production stylesheet in assets/built/screen.css using: npm run dev
 @import "ghost/content.css";
 @import "ghost/members.css";
 @import "ghost/errors.css";
-@import "ghost/badge.css";
-@import "ghost/pagination.css";
 @import "ghost/comments.css";
 
 
@@ -46,6 +44,8 @@ html {
     z-index: 1;
 }
 
+
+/* view port background circles */
 
 /* .gh-viewport::before {
     content: "";
@@ -156,15 +156,6 @@ html {
     padding: 0 0 8vmin 0;
     text-align: center;
 }
-
-/* .gh-post-meta {
-    display: block;
-    margin: 0 0 1rem;
-    font-size: 1.4rem;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    opacity: 0.8;
-} */
 
 .gh-excerpt {
     margin: 1rem 0 0 0;

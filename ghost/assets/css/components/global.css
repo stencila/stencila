@@ -1,5 +1,4 @@
-/* Reset
-/* ---------------------------------------------------------- */
+
 
 *,
 *::before,
@@ -43,12 +42,6 @@ figcaption,
 blockquote {
     margin: 0;
     padding: 0;
-}
-
-ul[class],
-ol[class] {
-    padding: 0;
-    list-style: none;
 }
 
 img {
@@ -117,21 +110,6 @@ sub {
 ol:not([class]) li + li,
 ul:not([class]) li + li {
     margin-top: 0.6em;
-}
-
-/* a:not([class]) {
-    color: var(--color-primary);
-    text-decoration-skip-ink: auto;
-} */
-
-a[class] {
-    /* color: inherit; */
-    text-decoration: none;
-    /* transition: 0.4s ease; */
-}
-
-a[class]:hover {
-    transition: 0.2s ease;
 }
 
 h1,
