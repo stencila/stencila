@@ -42,8 +42,8 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila kernels execute`↴](#stencila-kernels-execute)
 * [`stencila kernels evaluate`↴](#stencila-kernels-evaluate)
 * [`stencila kernels lint`↴](#stencila-kernels-lint)
-* [`stencila codecs`↴](#stencila-codecs)
-* [`stencila codecs list`↴](#stencila-codecs-list)
+* [`stencila formats`↴](#stencila-formats)
+* [`stencila formats list`↴](#stencila-formats-list)
 * [`stencila plugins`↴](#stencila-plugins)
 * [`stencila plugins list`↴](#stencila-plugins-list)
 * [`stencila plugins install`↴](#stencila-plugins-install)
@@ -89,7 +89,7 @@ CLI subcommands and global options
 * `prompts` — Manage prompts
 * `models` — Manage generative models
 * `kernels` — Manage execution kernels
-* `codecs` — Manage format conversion codecs
+* `formats` — List the support for formats
 * `plugins` — Manage plugins
 * `secrets` — Manage secrets
 * `upgrade` — Upgrade to the latest version
@@ -1212,23 +1212,23 @@ Mainly intended for testing of linting by kernels during development of Stencila
 
 
 
-## `stencila codecs`
+## `stencila formats`
 
-Manage format conversion codecs
+List the support for formats
 
-**Usage:** `stencila codecs [COMMAND]`
+**Usage:** `stencila formats [COMMAND]`
 
 ###### **Subcommands:**
 
-* `list` — List the codecs available
+* `list` — List the support for formats
 
 
 
-## `stencila codecs list`
+## `stencila formats list`
 
-List the codecs available
+List the support for formats
 
-**Usage:** `stencila codecs list [OPTIONS]`
+**Usage:** `stencila formats list [OPTIONS]`
 
 ###### **Options:**
 
