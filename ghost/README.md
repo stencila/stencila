@@ -87,8 +87,16 @@ To implement this or a similar structure, upload the routes.yml file via the adm
 
 All posts are still tagged with the #doc tag, and the schema docs are also tagged with the '#schema' tag.
 
-__If there is a crossover of sections on either of the pages (eg. both pages have the 'API Reference' tag). You will need to create seperate tags for each page, or the #doc will show up under both sections on both pages. To achieve this you can name the seperate tags 'API Reference - docs' & 'API Reference - schema' then you can edit the tags 'Meta title' field so they both display as 'API Reference'.__
+__If there is a crossover of sections on either/any of the pages (eg. both pages have the 'API Reference' tag). You will need to create seperate tags for each page, or the #doc will show up under both sections on both pages. To achieve this you can name the seperate tags 'API Reference - docs' & 'API Reference - schema' then you can edit the tags 'Meta title' field so they both display as 'API Reference'.__
 
+
+## Stencila posts/pages
+
+Stencila docs can be published as pages/posts and will stencila web components.
+
+The content of the published stencila documents should show up as expected with any required styling being imported via the ghost.css.
+
+If the post is tagged with the '#stencila' internal tag then the stencila ui for the nodes will be avaiable.
 
 
 ## Misc.
@@ -109,9 +117,43 @@ To add these links, in the admin view go to **Settings** -> **Design & branding*
 
 Ghost sites have configurable primary and secondary navigation fields.
 
-In the stencila theme, the primary navigation relates to the site header nav menu.
+In the stencila theme, the primary navigation relates to the site header nav menu, and the dropdown for smaller screens.
 
-The secondary navigation is shown on the right side of the site footer.
+The pages tagged with #doc-page will appear under the resources menu, so do not need to be 
+added to the navigation unless needed.
+
+The secondary navigation is shown on the right side of the site footer, or will appear in the right of the header as buttons.
+
+
+
+## Useful Tags
+
+A list of tags
+
+Internal:
+- #doc: "post" 
+- #schema: "post", requires '#doc', must be applied along with the #doc tag, and denotes (if usign the custom routes)
+- #doc-page: "page", apply to any pages that will display there own documentation posts, currently the schema and docs pages use this, will appear under the resources in the header
+- #stencila: "page" and "post",
+- #stencila-expand: "page" and "post", requires #stencila
+
+General:
+- Changelog: "post", apply to a post to view in the 'Changelog' post collection
+- News: "post", apply to a post to view in the 'News' post collection
+
+
+## Custom config properties
+
+The current ghost [custom settings](https://ghost.org/docs/themes/custom-settings/) for this theme are as follows:
+
+- discord: link to discord server.
+- github: link to github repository.
+- whatsapp: link to whatapp.
+- instagram: link to instagram page.
+- youtube: link youtube channel.
+- copyright: company name and year.
+
+These values are editable in the ghost admin settings via the **Design & Branding** page under the **Theme** tab.
 
 
 ## Local Development
@@ -130,7 +172,7 @@ ln -s /path/to/stencila/repo/ghost /ghost/content/themes/stencila
 Then compile the stencila web components into the theme by running the following `make` command from the stencila repo root:
 
 ```bash
-make -C ghost compile-stencila
+make -C ghost compile
 ```
 
 In the browser navigate to your local ghost admin site (usually http://localhost:2368/ghost/).
@@ -141,3 +183,14 @@ After initialising the theme, upload the relevant `routes.yml` file in **Labs** 
 To enable development with hot-loading, In the stencila theme directory and `npm run dev` to start the dev server.
 
 ghost themes use handlebars templating language, for more information refer to ghost's [developer documentaion](https://ghost.org/docs/themes/).
+
+
+## stylesheets
+
+general style rules are applied with [tailwind css](https://tailwindcss.com/), 
+
+Also we are still utilising some of the default ghost stylesheets (`assets/css/ghost`), as well as component related stylesheets (`assets/css/ghost`).
+
+The required stencila styles are all compiled with the web components, and are inserted into the head `<link rel="stylesheet" href="{{asset "built/stencila-web/ghost.css"}}">`.
+
+The only exception being the stencila raw and styled blocks, where the styles needto be compiled at runtime. this is done using [twind](https://twind.dev/).

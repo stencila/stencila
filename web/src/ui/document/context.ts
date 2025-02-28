@@ -3,17 +3,9 @@ import { createContext } from '@lit/context'
 import { NodeId } from '../../types'
 
 /**
- * Alternative states for the display of node markers
- *
- *  TODO: When in 'expand-all' state
- *    - edit block functionality to stop the cards from being collapsible
- *    - collapse all the cards again when state changes from 'expand-all' to another
+ * States for the display of node markers
  */
-export type NodeMarkerState =
-  | 'hidden'
-  | 'hover-only'
-  | 'show-all'
-  | 'expand-all'
+export type NodeMarkerState = 'hidden' | 'hover-only' | 'show-all'
 
 /**
  * Context controlling the display of various components within the document

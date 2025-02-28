@@ -34,7 +34,6 @@
     },
     "ghost": {
       "source": [
-        "src/themes/nodes.css",
         "src/views/ghost.ts"
       ],
       "distDir": "../ghost/assets/built/stencila-web"

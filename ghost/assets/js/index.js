@@ -9,6 +9,8 @@ import infiniteScroll from "./infiniteScroll";
 import { sidebar, menuCollapse } from './docviewer/sidebar';
 import generateTableOfContents from './docviewer/toc';
 
+import subnavDropdown from './subnavDropdown';
+
 import pagination from './pagination';
 import processRuntimeTwind from './twind';
 
@@ -21,4 +23,4 @@ pagination();
 menuCollapse();
 processRuntimeTwind();
 generateTableOfContents();
-
+subnavDropdown();

@@ -77,18 +77,28 @@ export class WalkthroughStep extends Entity {
   }
 
   override render() {
+    const contentStyle = apply(
+      'transition-all duration-1000 ease-in-out',
+      this.isCollapsed ? 'max-h-0 opacity-0' : 'max-h-[5000px] opacity-100'
+    )
+
+    return html`
+      ${this.hasDocumentRootNode() ? this.renderStepActions() : ''}
+      <div class=${contentStyle}>
+        <slot name="content"></slot>
+      </div>
+    `
+  }
+
+  protected renderStepActions() {
     const actionsStyle = apply(
       'flex gap-4 my-4 font-sans text-sm',
       'transition-all duration-500 ease-in-out',
       this.isNext ? 'max-h-screen opacity-100' : 'max-h-0 opacity-0'
     )
 
-    const contentStyle = apply(
-      'transition-all duration-1000 ease-in-out',
-      this.isCollapsed ? 'max-h-0 opacity-0' : 'max-h-[5000px] opacity-100'
-    )
-
-    return html`<div class=${actionsStyle}>
+    return html`
+      <div class=${actionsStyle}>
         <sl-tooltip content="Expand next step">
           <span
             class="flex gap-2 items-center opacity-50"
@@ -112,8 +122,6 @@ export class WalkthroughStep extends Entity {
           </span>
         </sl-tooltip>
       </div>
-      <div class=${contentStyle}>
-        <slot name="content"></slot>
-      </div>`
+    `
   }
 }

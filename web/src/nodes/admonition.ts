@@ -83,7 +83,8 @@ export class Admonition extends Entity {
 
     // Render with an insert chip when in model chat response but not if
     // a "Thinking" admonition
-    if (this.isWithinModelChatMessage) {
+    if (this.isWithinModelChatMessage()) {
+      console.log('what what why,', this.titleSlotText)
       return html`
         <div class="group relative">
           ${this.titleSlotText !== 'Thinking' ? this.renderInsertChip() : ''}
