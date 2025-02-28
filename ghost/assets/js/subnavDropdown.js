@@ -8,7 +8,6 @@ export default function subnavDropdown() {
       let isOpen = false;
 
       menuTrigger.addEventListener('click', function () {
-        console.log('hi')
         isOpen = !isOpen;
         menuContainer.classList.toggle('open')
       });
