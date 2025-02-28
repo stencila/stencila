@@ -117,9 +117,12 @@ To add these links, in the admin view go to **Settings** -> **Design & branding*
 
 Ghost sites have configurable primary and secondary navigation fields.
 
-In the stencila theme, the primary navigation relates to the site header nav menu.
+In the stencila theme, the primary navigation relates to the site header nav menu, and the dropdown for smaller screens.
 
-The secondary navigation is shown on the right side of the site footer.
+The pages tagged with #doc-page will appear under the resources menu, so do not need to be 
+added to the navigation unless needed.
+
+The secondary navigation is shown on the right side of the site footer, or will appear in the right of the header as buttons.
 
 
 
