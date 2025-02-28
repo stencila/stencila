@@ -29,7 +29,11 @@
 </article>
 
 {{#has tag="#stencila"}}
+    {{#has tag="#stencila-expand"}}
+    {{> 'activateStencilaEvent' expand='true'}}
+    {{else}}
     {{> 'activateStencilaEvent'}}
+    {{/has}}
 {{/has}}
 
 {{/post}}

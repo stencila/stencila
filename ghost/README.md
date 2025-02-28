@@ -141,17 +141,16 @@ General:
 
 ## Custom config properties
 
+The current ghost [custom settings](https://ghost.org/docs/themes/custom-settings/) for this theme are as follows:
 
+- discord: link to discord server.
+- github: link to github repository.
+- whatsapp: link to whatapp.
+- instagram: link to instagram page.
+- youtube: link youtube channel.
+- copyright: company name and year.
 
-- discord
-- github
-- whatsapp
-- instagram
-- youtube
-
-- copyright
-
-
+These values are editable in the ghost admin settings via the **Design & Branding** page under the **Theme** tab.
 
 
 ## Local Development

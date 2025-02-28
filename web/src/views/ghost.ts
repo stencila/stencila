@@ -72,11 +72,11 @@ export abstract class DocumentView extends LitElement {
         (element) => {
           return (
             element.tagName.toLowerCase().startsWith('stencila-') &&
-            element instanceof Entity &&
-            DocumentView.expandingNodeTypes.includes(element.constructor.name)
+            element instanceof Entity
           )
         }
       )
+
       stencilaNodes.forEach((el) => {
         const card = el.shadowRoot.querySelector(
           'stencila-ui-block-on-demand, stencila-ui-inline-on-demand'

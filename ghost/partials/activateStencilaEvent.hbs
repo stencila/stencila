@@ -8,7 +8,10 @@
                     bubbles: true,
                     composed: true,
                     detail: {
-                        nodeMarkerState: 'hover-only'
+                        nodeMarkerState: 'hover-only',
+                        {{#if expand}}
+                        expandCards: true
+                        {{/if}}
                     }
                 })
         )
