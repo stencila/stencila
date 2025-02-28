@@ -1,0 +1,53 @@
+{{!-- List the links to the #doc-page pages, either as a dropdown, for the header nav, or a simple list, for the mobile menu --}}
+{{#match type '=' "dropdown"}}
+<div class="subnav-dropdown mx-4 relative">
+
+  <button class="subnav-menu-trigger flex items-center hover:text-[var(--ghost-accent-color)]">
+    <span>Resources</span>
+    <span class="w-3 h-3 ml-1">{{> icons/chevron-down }}</span>
+  </button>
+
+    
+
+  <div 
+    class="subnav-menu-container 
+    absolute top-[calc(100%+1.5rem)] left-1/2 p-4 bg-white
+    border border-gray-200
+    text-xl font-semibold shadow-lg rounded-lg 
+    origin-top-left transform -translate-x-1/2 
+    transition-all duration-300 ease-in-out z-50"
+  >
+    {{#get "pages" filter="tag:hash-doc-page" include="tags" order="published_at asc" }}
+      <ul>
+        {{#foreach pages}}
+          <a href="{{url}}">
+            <li class=" px-2 py-2 hover:bg-gray-100 rounded-md">
+                {{title}}
+
+                {{#if meta_description}}
+                  <p class="text-sm font-normal">
+                    {{meta_description}}
+                  </p>
+                {{/if}}
+            </li>
+          </a>
+        {{/foreach}}
+      </ul>
+    {{/get}}
+  </div>
+
+</div>
+{{else}}
+  <div>
+    <div class="text-base font-semibold mb-4">Resources</div>
+    {{#get "pages" filter="tag:hash-doc-page" include="tags" order="published_at asc" }}
+      <ul>
+        {{#foreach pages}}
+          <li><a class="hover:text-[var(--ghost-accent-color)]" href="{{url}}">{{title}}</a></li>
+        {{/foreach}}
+      </ul>
+    {{/get}}
+  </div>
+
+{{/match}}
+

@@ -13,6 +13,7 @@
         </div>
 
         <div id="site-nav-menu" class="hidden lg:flex items-center font-semibold">
+            {{> 'docSubnav' type='dropdown'}}
             {{navigation}}
         </div>
         
@@ -48,6 +49,8 @@
             <div id="mobile-menu-container" class="fixed right-0 top-16 bg-gray-50 w-screen bg-gray-100 shadow-lg rounded-lg origin-top transition-all duration-300 ease-in-out z-20">
                 <div class="p-4 text-xl">
                     {{navigation}}
+                    <div class="h-px bg-gray-400 my-4"></div>
+                        {{> 'docSubnav'}}
                     <div class="h-px bg-gray-400 my-4"></div>
                     {{#if @site.members_enabled}}
                         {{^if @member}}

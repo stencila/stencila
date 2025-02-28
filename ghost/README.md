@@ -122,6 +122,38 @@ In the stencila theme, the primary navigation relates to the site header nav men
 The secondary navigation is shown on the right side of the site footer.
 
 
+
+## Useful Tags
+
+A list of tags
+
+Internal:
+- #doc: "post" 
+- #schema: "post", requires '#doc', must be applied along with the #doc tag, and denotes (if usign the custom routes)
+- #doc-page: "page", apply to any pages that will display there own documentation posts, currently the schema and docs pages use this, will appear under the resources in the header
+- #stencila: "page" and "post",
+- #stencila-expand: "page" and "post", requires #stencila
+
+General:
+- Changelog: "post", apply to a post to view in the 'Changelog' post collection
+- News: "post", apply to a post to view in the 'News' post collection
+
+
+## Custom config properties
+
+
+
+- discord
+- github
+- whatsapp
+- instagram
+- youtube
+
+- copyright
+
+
+
+
 ## Local Development
 
 This theme has created using the ghost theme [starter](https://github.com/TryGhost/Starter).

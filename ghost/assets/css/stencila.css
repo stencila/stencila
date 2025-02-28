@@ -10,6 +10,11 @@
 stencila-heading {
   display: block;
   border: 1px solid transparent;
+
+
+  &:not(:first-child) {
+    margin-top: 2rem;
+  }
 }
 
 

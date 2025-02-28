@@ -40,15 +40,14 @@
   background-color: var(--color-brand-blue);
 }
 
-
-/* mobile menu */
-
+.subnav-menu-container,
 #mobile-menu-container {
   scale: 0;
   opacity: 0;
   visibility: hidden;
 }
 
+.subnav-menu-container.open,
 #mobile-menu-container.open  {
   scale: 1;
   opacity: 1;
