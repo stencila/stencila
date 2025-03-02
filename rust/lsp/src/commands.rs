@@ -77,7 +77,7 @@ pub(super) const INSERT_NODE: &str = "stencila.insert-node";
 pub(super) const INSERT_CLONES: &str = "stencila.insert-clones";
 pub(super) const INSERT_INSTRUCTION: &str = "stencila.insert-instruction";
 
-pub(super) const DELETE_NODE: &str = "stencila.remove-node";
+pub(super) const DELETE_NODE: &str = "stencila.delete-node";
 
 pub(super) const CREATE_CHAT: &str = "stencila.create-chat";
 
