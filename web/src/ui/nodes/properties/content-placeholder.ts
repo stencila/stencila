@@ -17,15 +17,16 @@ export class UINodeContentPlaceholder extends LitElement {
   /**
    * The text for the tooltip
    */
-  tooltip: string = 'No content for this node yet'
+  tooltip: string = 'No content yet'
 
   override render() {
     // Currently uses a small icon and a tooltip.
     // Previously tried using placeholder text, and using just a dashed
     // border on <p> but both felt too heavy weight in comparison.
-    return html`<sl-tooltip content=${this.tooltip}
-      ><p class="text-center text-grey-400">
-        <stencila-ui-icon name="fullscreen"></stencila-ui-icon></p
-    ></sl-tooltip>`
+    return html`<sl-tooltip content=${this.tooltip}>
+      <div class="flex justify-center text-grey-400">
+        <stencila-ui-icon name="fullscreen"></stencila-ui-icon>
+      </div>
+    </sl-tooltip>`
   }
 }
