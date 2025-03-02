@@ -30,7 +30,7 @@
     "executionMode",
     "title",
     "suggestions",
-    "isTemporary"
+    "isEmbedded"
   ],
   "properties": {
     "type": {
@@ -856,6 +856,16 @@
         "$ref": "ExecutionMessage.schema.json"
       }
     },
+    "isEmbedded": {
+      "@id": "stencila:isEmbedded",
+      "description": "Whether the chat is embedded within a document (i.e. is not standalone).",
+      "$comment": "This property should be set to `false` for `Chat`s that are not standalone.\n",
+      "aliases": [
+        "is-embedded",
+        "is_embedded"
+      ],
+      "type": "boolean"
+    },
     "prompt": {
       "@id": "stencila:prompt",
       "description": "The prompt selected, rendered and provided to the model",
@@ -932,34 +942,6 @@
       "items": {
         "$ref": "SuggestionBlock.schema.json"
       }
-    },
-    "isTemporary": {
-      "@id": "stencila:isTemporary",
-      "description": "Whether a chat within another node (i.e. is not standalone) is temporary.",
-      "$comment": "This property should be set to `false` for `Chat`s that are not standalone but not\ntemporary so that the messages are not patched by formats that do not support them.\n",
-      "aliases": [
-        "is-temporary",
-        "is_temporary"
-      ],
-      "type": "boolean"
-    },
-    "previousBlock": {
-      "@id": "stencila:previousBlock",
-      "description": "The id of the block immediately before the chat (only applies to temporary chats).",
-      "aliases": [
-        "previous-block",
-        "previous_block"
-      ],
-      "type": "string"
-    },
-    "nextBlock": {
-      "@id": "stencila:nextBlock",
-      "description": "The id of the block immediately after the chat (only applies to temporary chats).",
-      "aliases": [
-        "next-block",
-        "next_block"
-      ],
-      "type": "string"
     }
   }
 }

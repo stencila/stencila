@@ -16,8 +16,14 @@ required:
 core:
   - title
   - suggestions
-  - isTemporary
+  - isEmbedded
 properties:
+  isEmbedded:
+    "@id": stencila:isEmbedded
+    description: Whether the chat is embedded within a document (i.e. is not standalone).
+    $comment: |
+      This property should be set to `false` for `Chat`s that are not standalone.
+    type: boolean
   prompt:
     "@id": stencila:prompt
     description: The prompt selected, rendered and provided to the model
@@ -68,18 +74,3 @@ properties:
     walk: true
     dom:
       with: Chat::suggestions_to_dom_elem
-  isTemporary:
-    "@id": stencila:isTemporary
-    description: Whether a chat within another node (i.e. is not standalone) is temporary.
-    $comment: |
-      This property should be set to `false` for `Chat`s that are not standalone but not
-      temporary so that the messages are not patched by formats that do not support them.
-    type: boolean
-  previousBlock:
-    "@id": stencila:previousBlock
-    description: The id of the block immediately before the chat (only applies to temporary chats).
-    type: string
-  nextBlock:
-    "@id": stencila:nextBlock
-    description: The id of the block immediately after the chat (only applies to temporary chats).
-    type: string

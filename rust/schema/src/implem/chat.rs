@@ -1,7 +1,7 @@
 use codec_dom_trait::DomCodec;
 use common::serde_yaml;
 
-use crate::{prelude::*, Chat, Node, SuggestionBlock};
+use crate::{prelude::*, Chat, SuggestionBlock};
 
 impl Chat {
     /// Custom implementation of [`PatchNode::apply`]
@@ -11,31 +11,26 @@ impl Chat {
         op: &PatchOp,
         context: &mut PatchContext,
     ) -> Result<bool> {
-        if path.is_empty() && matches!(op, PatchOp::Archive | PatchOp::Temporize) {
-            // Add this instruction to the root's archive or temporary set
-            let (property, is_temporary) = match op {
-                PatchOp::Archive => (NodeProperty::Archive, false),
-                _ => (NodeProperty::Temporary, true),
-            };
-            let chat = Chat {
-                is_temporary: Some(is_temporary),
-                ..self.clone()
-            };
-            context.op_additional(
-                PatchPath::from(property),
-                PatchOp::Push(PatchValue::Node(Node::Chat(chat))),
-            );
-
-            // Remove this from the containing vector, if any
-            let mut path = context.path();
-            if let Some(PatchSlot::Index(index)) = path.pop_back() {
-                context.op_additional(path, PatchOp::Remove(vec![index]));
+        // Handle a patch to archive or delete this chat
+        if path.is_empty() && matches!(op, PatchOp::Archive | PatchOp::Delete) {
+            if matches!(op, PatchOp::Archive) {
+                // Add this chat to the root's archive
+                context.op_additional(
+                    PatchPath::from(NodeProperty::Archive),
+                    PatchOp::Push(self.to_value()?),
+                );
             }
 
-            return Ok(true);
-        }
+            // Get the path and index for applying the additional op to remove this node
+            let mut path = context.path();
+            let index = match path.pop_back() {
+                Some(PatchSlot::Index(index)) => index,
+                slot => bail!("Expected index slot, got: {slot:?}"),
+            };
+            context.op_additional(path, PatchOp::Remove(vec![index]));
 
-        if matches!(
+            Ok(true)
+        } else if matches!(
             path.front(),
             Some(PatchSlot::Property(NodeProperty::Content))
         ) {
@@ -43,7 +38,7 @@ impl Chat {
             // only apply patches to the content of the chat if the patch is
             // associated with no, or a lossless, format, or if it is a root
             // node (not nested)
-            if context.format_is_lossless() || self.is_temporary.is_none() {
+            if context.format_is_lossless() || !self.is_embedded.unwrap_or(false) {
                 // Apply the patch
                 path.pop_front();
                 context.within_property(NodeProperty::Content, |context| {
@@ -52,10 +47,10 @@ impl Chat {
             }
 
             // Return true, even if not applied, so as to ignore op
-            return Ok(true);
+            Ok(true)
+        } else {
+            Ok(false)
         }
-
-        Ok(false)
     }
 
     /// Custom implementation of `to_dom` for the `suggestions` property to use

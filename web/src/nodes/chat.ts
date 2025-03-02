@@ -6,6 +6,7 @@ import { apply } from '@twind/core'
 import { css, html, PropertyValues } from 'lit'
 import { customElement, state } from 'lit/decorators'
 
+import { archiveNode, deleteNode } from '../clients/commands'
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
 import '../ui/nodes/chat/chat-message-inputs'
@@ -271,15 +272,38 @@ export class Chat extends Executable {
   private renderFullscreen() {
     const { borderColour, colour, textColour } = nodeUi('Chat')
 
-    const headerClasses = apply([
+    const headerClasses = apply(
+      'flex flex-row justify-between items-center',
       `bg-[${colour}] border-b border-[${borderColour}]`,
-      'px-3 py-1',
-      `font-sans font-semibold text-sm text-[${textColour}]`,
-    ])
+      'px-3 pt-2 pb-1',
+      `font-sans font-semibold text-sm text-[${textColour}]`
+    )
 
     return html`
       <div class="h-screen w-screen flex flex-col">
-        <div class=${headerClasses}>Chat</div>
+        <div class=${headerClasses}>
+          <div>Chat</div>
+
+          <div class="flex flex-row items-center gap-3">
+            <sl-tooltip content="Archive chat">
+              <stencila-ui-icon-button
+                name="archive"
+                @click=${() => this.dispatchEvent(archiveNode('Chat', this.id))}
+              >
+                Archive
+              </stencila-ui-icon-button>
+            </sl-tooltip>
+
+            <sl-tooltip content="Delete chat">
+              <stencila-ui-icon-button
+                name="trash"
+                @click=${() => this.dispatchEvent(deleteNode('Chat', this.id))}
+              >
+                Delete
+              </stencila-ui-icon-button>
+            </sl-tooltip>
+          </div>
+        </div>
 
         <div class="flex-grow overflow-y-hidden">
           <sl-split-panel

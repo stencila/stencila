@@ -990,15 +990,6 @@
       }
     },
     {
-      "@id": "stencila:temporary",
-      "@type": "rdfs:Property",
-      "rdfs:label": "temporary",
-      "rdfs:comment": "Temporary nodes on document",
-      "schema:domainIncludes": {
-        "@id": "schema:Article"
-      }
-    },
-    {
       "@id": "stencila:extra",
       "@type": "rdfs:Property",
       "rdfs:label": "extra",

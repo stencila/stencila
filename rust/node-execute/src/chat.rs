@@ -42,7 +42,7 @@ impl Executable for Chat {
                 None | Some(InstructionType::Discuss)
             )
         {
-            let target = if self.is_temporary.is_some() {
+            let target = if self.is_embedded.unwrap_or_default() {
                 "stencila/discuss/document"
             } else {
                 "stencila/discuss/anything"
@@ -111,10 +111,10 @@ impl Executable for Chat {
 
         // Check if this chat is to be executed:
         // - force_all is on
-        // - no node ids and this is not an embedded chat (`is_temporary` is None)
+        // - no node ids and this is not an embedded chat
         // - node id is this chat
         let is_pending = force_all
-            || (executor.node_ids.is_none() && self.is_temporary.is_none())
+            || (executor.node_ids.is_none() && !self.is_embedded.unwrap_or_default())
             || executor.node_ids.iter().flatten().any(|id| id == &node_id);
 
         // If not to be executed, then return early and continue walking document

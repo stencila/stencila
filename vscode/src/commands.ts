@@ -89,7 +89,6 @@ nodeTypes: []
   // Commands executed by the server but which are invoked on the client
   // and which use are passed the document URI and selection (position) as arguments
   for (const command of [
-    "run-curr",
     "run-below",
     "run-above",
     "run-doc",
@@ -119,6 +118,33 @@ nodeTypes: []
       })
     );
   }
+
+  // Run the current node
+  vscode.commands.registerCommand(`stencila.invoke.run-curr`, async () => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+      vscode.window.showErrorMessage("No active editor");
+      return;
+    }
+
+    const [nodeType, nodeId] = await vscode.commands.executeCommand<
+      [string, string]
+    >(
+      `stencila.run-curr`,
+      editor.document.uri.toString(),
+      editor.selection.active
+    );
+    
+    if (nodeType === "Chat") {
+      await createNodeViewPanel(
+        context,
+        editor.document.uri,
+        null,
+        nodeType,
+        nodeId
+      );
+    }
+  });
 
   // Retry the active suggestion without feedback
   context.subscriptions.push(
@@ -436,16 +462,6 @@ nodeTypes: []
         });
       }
     )
-  );
-
-  // Extract and run a chat written in the document
-  // e.g. `/create code`
-  context.subscriptions.push(
-    vscode.commands.registerCommand("stencila.extract-chat", async () => {
-      await vscode.commands.executeCommand("stencila.invoke.create-chat", {
-        executeChat: true,
-      });
-    })
   );
 
   // Typed wrapper to the `invoke.create-chat` command for convenience

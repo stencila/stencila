@@ -1132,9 +1132,6 @@ class Article(CreativeWork, Executable):
     archive: list[Node] | None = None
     """Nodes, usually from within `content` of the article, that have been archived."""
 
-    temporary: list[Node] | None = None
-    """Temporary nodes on document"""
-
     extra: Object | None = None
     """Additional metadata for the article."""
 
@@ -1255,6 +1252,9 @@ class Chat(CreativeWork, Executable):
 
     type: Literal["Chat"] = "Chat"
 
+    is_embedded: bool | None = None
+    """Whether the chat is embedded within a document (i.e. is not standalone)."""
+
     prompt: PromptBlock
     """The prompt selected, rendered and provided to the model"""
 
@@ -1266,15 +1266,6 @@ class Chat(CreativeWork, Executable):
 
     suggestions: list[SuggestionBlock] | None = None
     """Suggestions of content that is the focus of the chat."""
-
-    is_temporary: bool | None = None
-    """Whether a chat within another node (i.e. is not standalone) is temporary."""
-
-    previous_block: str | None = None
-    """The id of the block immediately before the chat (only applies to temporary chats)."""
-
-    next_block: str | None = None
-    """The id of the block immediately after the chat (only applies to temporary chats)."""
 
 
 @dataclass(kw_only=True, repr=False)

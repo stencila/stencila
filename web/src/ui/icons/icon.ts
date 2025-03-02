@@ -151,6 +151,7 @@ import terminal from './terminal.svg'
 import tex from './tex.svg'
 import thermometer from './thermometer.svg'
 import toggleOff from './toggle-off.svg'
+import trash from './trash.svg'
 import volumeUp from './volume-up.svg'
 import xCircle from './x-circle.svg'
 import x from './x.svg'
@@ -291,6 +292,7 @@ const icons = {
   tex,
   thermometer,
   toggleOff,
+  trash,
   volumeUp,
   xCircle,
   x,

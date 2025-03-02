@@ -205,10 +205,6 @@ pub struct Executor {
     /// The last programming language used
     programming_language: Option<String>,
 
-    /// Temporary nodes to be executed that are outside of the main tree
-    /// but which should be executed as though between other nodes
-    temporaries: Vec<(Option<NodeId>, Option<NodeId>, Node)>,
-
     /// Information about nodes, their code and language, and whether they have changed,
     /// used for linting
     linting_context: Vec<(Option<NodeId>, String, Option<String>, bool)>,
@@ -407,7 +403,6 @@ impl Executor {
             equation_count: 0,
             last_block: None,
             programming_language: None,
-            temporaries: Vec::new(),
             linting_context: Vec::new(),
             force_all: false,
             is_last: false,
@@ -469,18 +464,6 @@ impl Executor {
             kernels: self.fork_kernels(None).await?,
             ..self.clone()
         })
-    }
-
-    /// Create a fork of the executor that walks over temporaries
-    ///
-    /// This empties any temporaries, and resets the `last_block`
-    /// since neither should be used within temporary chats
-    fn fork_for_temporaries(&self) -> Self {
-        Self {
-            temporaries: Vec::new(),
-            last_block: None,
-            ..self.clone()
-        }
     }
 
     /// Create a fork of the executor's kernels
@@ -864,17 +847,9 @@ impl Executor {
 
     /// Run [`Phase::Execute`]
     async fn execute(&mut self, root: &mut Node) -> Result<()> {
-        // Clear temporary nodes before executing
-        self.temporaries.clear();
-
         self.phase = Phase::Execute;
         self.last_block = None;
         root.walk_async(self).await?;
-
-        // Execute any un-executed temporary nodes (those not walked in `visit_block`)
-        for (.., mut node) in self.temporaries.drain(..).collect_vec() {
-            self.visit_node(&mut node).await?;
-        }
 
         Ok(())
     }
@@ -1138,29 +1113,6 @@ impl VisitorAsync for Executor {
 
     async fn visit_block(&mut self, block: &mut Block) -> Result<WalkControl> {
         let current_block = block.node_id();
-
-        if !self.temporaries.is_empty() {
-            // Visit those where last block is same as previous (including no previous)
-            let mut visit = Vec::new();
-            for (index, (previous, next, ..)) in self.temporaries.iter().enumerate() {
-                if (previous.is_some() && &self.last_block == previous)
-                    || (next.is_some() && &current_block == next)
-                {
-                    visit.push(index);
-                }
-            }
-
-            // If any to be visited here fork the executor so that the document context etc
-            // is not modified by what is in the temporary chat but the chat gets the current
-            // document context, figure numbers etc.
-            if !visit.is_empty() {
-                let mut fork = self.fork_for_temporaries();
-                for (shift, index) in visit.iter().enumerate() {
-                    let (.., mut node) = self.temporaries.remove(index - shift);
-                    fork.visit_node(&mut node).await?;
-                }
-            }
-        }
 
         use Block::*;
         let walk_control = match block {

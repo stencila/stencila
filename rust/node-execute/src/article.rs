@@ -1,5 +1,4 @@
 use codec_markdown::decode_frontmatter;
-use common::itertools::Itertools;
 use schema::{diff, Article, NodeType, PatchSlot};
 
 use crate::{interrupt_impl, prelude::*, HeadingInfo};
@@ -32,8 +31,7 @@ impl Executable for Article {
         // Compile `content` and other properties
         if let Err(error) = async {
             self.title.walk_async(executor).await?;
-            self.content.walk_async(executor).await?;
-            self.temporary.walk_async(executor).await
+            self.content.walk_async(executor).await
         }
         .await
         {
@@ -99,28 +97,6 @@ impl Executable for Article {
         );
 
         let started = Timestamp::now();
-
-        // Move temporaries into the executor so it can handle when to execute them
-        if let Some(temporaries) = &mut self.temporary {
-            let mut chats = temporaries
-                .drain(..)
-                .filter_map(|node| match node {
-                    Node::Chat(ref chat) => Some((
-                        chat.options
-                            .previous_block
-                            .as_ref()
-                            .and_then(|id| id.parse().ok()),
-                        chat.options
-                            .next_block
-                            .as_ref()
-                            .and_then(|id| id.parse().ok()),
-                        node,
-                    )),
-                    _ => None,
-                })
-                .collect_vec();
-            executor.temporaries.append(&mut chats);
-        }
 
         let messages = if let Err(error) = async {
             self.title.walk_async(executor).await?;

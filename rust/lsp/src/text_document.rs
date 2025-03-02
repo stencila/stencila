@@ -234,6 +234,7 @@ impl TextNode {
     }
 
     /// Get the [`NodeId`] of a block at a position
+    #[allow(unused)]
     pub fn block_id_at(&self, position: Position) -> Option<NodeId> {
         // Search through children (and thus recursively through all
         // descendants so that the deepest (most narrow range) node is selected
@@ -270,6 +271,7 @@ impl TextNode {
     }
 
     /// Get the [`NodeId`]s of the previous and next blocks relative to a range
+    #[allow(unused)]
     pub fn block_ids_previous_next(&self, range: Range) -> (Option<NodeId>, Option<NodeId>) {
         // Search for previous block
         let start_block = self.block_id_at(range.start);

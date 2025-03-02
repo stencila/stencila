@@ -136,6 +136,15 @@ export const archiveNode = (nodeType: NodeType, nodeId: NodeId) =>
   })
 
 /**
+ * Create an `delete-node` command event
+ */
+export const deleteNode = (nodeType: NodeType, nodeId: NodeId) =>
+  documentCommandEvent({
+    command: 'delete-node',
+    args: [nodeType, nodeId],
+  })
+
+/**
  * Create a `revise-node` command event
  */
 export const reviseNode = (

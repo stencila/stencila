@@ -13,8 +13,8 @@ use schema::NodeType;
 
 use crate::{
     commands::{
-        ARCHIVE_NODE, CANCEL_NODE, NEXT_NODE, PATCH_VALUE, PREV_NODE, REVISE_NODE, RUN_NODE,
-        VERIFY_NODE,
+        ARCHIVE_NODE, CANCEL_NODE, DELETE_NODE, NEXT_NODE, PATCH_VALUE, PREV_NODE, REVISE_NODE,
+        RUN_NODE, VERIFY_NODE,
     },
     text_document::TextNode,
 };
@@ -105,6 +105,9 @@ pub(crate) async fn request(
                         // TODO: A cancel lens is not provided because this is currently
                         // not fully implemented
                         vec![lens(RUN_NODE), lens(VIEW_NODE)]
+                    }
+                    NodeType::Chat => {
+                        vec![lens(ARCHIVE_NODE), lens(DELETE_NODE), lens(VIEW_NODE)]
                     }
                     NodeType::InstructionBlock => {
                         let mut lenses = vec![lens(RUN_NODE), lens(VIEW_NODE)];
@@ -269,6 +272,7 @@ pub(crate) async fn resolve(
             "stencila.invoke.revise-node".to_string(),
             arguments,
         ),
+        DELETE_NODE => Command::new("$(trash) Delete".to_string(), command, arguments),
         VIEW_NODE => Command::new("$(preview) View".to_string(), command, arguments),
         VERIFY_NODE => Command::new("$(verified) Verify".to_string(), command, arguments),
         PROV_NODE => Command::new(

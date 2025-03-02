@@ -67,6 +67,10 @@ pub struct Chat {
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     pub execution_mode: Option<ExecutionMode>,
 
+    /// Whether the chat is embedded within a document (i.e. is not standalone).
+    #[serde(alias = "is-embedded", alias = "is_embedded")]
+    pub is_embedded: Option<Boolean>,
+
     /// The prompt selected, rendered and provided to the model
     #[serde(default)]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
@@ -94,10 +98,6 @@ pub struct Chat {
     #[walk]
     #[dom(with = "Chat::suggestions_to_dom_elem")]
     pub suggestions: Option<Vec<SuggestionBlock>>,
-
-    /// Whether a chat within another node (i.e. is not standalone) is temporary.
-    #[serde(alias = "is-temporary", alias = "is_temporary")]
-    pub is_temporary: Option<Boolean>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -374,14 +374,6 @@ pub struct ChatOptions {
     #[strip(execution)]
     #[dom(elem = "span")]
     pub execution_messages: Option<Vec<ExecutionMessage>>,
-
-    /// The id of the block immediately before the chat (only applies to temporary chats).
-    #[serde(alias = "previous-block", alias = "previous_block")]
-    pub previous_block: Option<String>,
-
-    /// The id of the block immediately after the chat (only applies to temporary chats).
-    #[serde(alias = "next-block", alias = "next_block")]
-    pub next_block: Option<String>,
 }
 
 impl Chat {

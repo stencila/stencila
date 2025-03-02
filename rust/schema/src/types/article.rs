@@ -199,14 +199,6 @@ pub struct Article {
     #[dom(skip)]
     pub archive: Option<Vec<Node>>,
 
-    /// Temporary nodes on document
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    #[strip(content, temporary)]
-    #[walk]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    #[dom(skip)]
-    pub temporary: Option<Vec<Node>>,
-
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]

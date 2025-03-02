@@ -56,11 +56,6 @@ export class Article extends CreativeWork {
   archive?: Node[];
 
   /**
-   * Temporary nodes on document
-   */
-  temporary?: Node[];
-
-  /**
    * Additional metadata for the article.
    */
   extra?: Object;

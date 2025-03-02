@@ -195,7 +195,10 @@ impl Format {
     /// Is this a lossless format for Stencila nodes?
     pub fn is_lossless(&self) -> bool {
         use Format::*;
-        matches!(self, Cbor | CborZst | Json | Json5 | JsonLd | JsonZip | Yaml)
+        matches!(
+            self,
+            Cbor | CborZst | Json | Json5 | JsonLd | JsonZip | Yaml
+        )
     }
 
     /// Is this a lossy format for Stencila nodes?
@@ -408,7 +411,7 @@ impl Format {
         use Format::*;
         match self {
             Jats => "jats.xml".to_string(),
-            _ => self.to_string()
+            _ => self.to_string(),
         }
     }
 }

@@ -37,7 +37,6 @@ core:
   - frontmatter
   - config
   - headings
-  - temporary
   - archive
 properties:
   pageStart:
@@ -117,16 +116,6 @@ properties:
     items:
       $ref: Node
     strip: [content, archive]
-    dom:
-      skip: true
-  temporary:
-    "@id": stencila:temporary
-    description: Temporary nodes on document
-    type: array
-    items:
-      $ref: Node
-    strip: [content, temporary]
-    walk: true
     dom:
       skip: true
   extra:
