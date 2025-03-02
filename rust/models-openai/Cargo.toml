@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 model = { path = "../model" }
-async-openai = { version = "0.23.4", features = ["rustls"] }
+async-openai = { version = "0.27.2", features = ["rustls"] }
 cached = { workspace = true }
 
 [lints]

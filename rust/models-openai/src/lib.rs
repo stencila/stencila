@@ -3,12 +3,13 @@ use std::sync::Arc;
 use async_openai::{
     config::OpenAIConfig,
     types::{
-        ChatCompletionRequestAssistantMessage, ChatCompletionRequestMessage,
-        ChatCompletionRequestMessageContentPart, ChatCompletionRequestMessageContentPartImage,
+        ChatCompletionRequestAssistantMessage, ChatCompletionRequestAssistantMessageContent,
+        ChatCompletionRequestMessage, ChatCompletionRequestMessageContentPartImage,
         ChatCompletionRequestMessageContentPartText, ChatCompletionRequestSystemMessage,
-        ChatCompletionRequestUserMessage, ChatCompletionRequestUserMessageContent,
+        ChatCompletionRequestSystemMessageContent, ChatCompletionRequestUserMessage,
+        ChatCompletionRequestUserMessageContent, ChatCompletionRequestUserMessageContentPart,
         CreateChatCompletionRequest, CreateImageRequestArgs, Image, ImageDetail, ImageQuality,
-        ImageSize, ImageStyle, ImageUrl, ListModelResponse, ResponseFormat, Stop,
+        ImageResponseFormat, ImageSize, ImageStyle, ImageUrl, ListModelResponse, Stop,
     },
     Client,
 };
@@ -147,20 +148,22 @@ impl OpenAIModel {
             .map(|message| match message.role.unwrap_or_default() {
                 MessageRole::System => {
                     ChatCompletionRequestMessage::System(ChatCompletionRequestSystemMessage {
-                        content: message
-                            .parts
-                            .iter()
-                            .filter_map(|part| match part {
-                                MessagePart::Text(text) => Some(text.to_value_string()),
-                                _ => {
-                                    tracing::warn!(
-                                        "System message part `{part}` is ignored by model `{}`",
-                                        self.id()
-                                    );
-                                    None
-                                }
-                            })
-                            .join("\n\n"),
+                        content: ChatCompletionRequestSystemMessageContent::Text(
+                            message
+                                .parts
+                                .iter()
+                                .filter_map(|part| match part {
+                                    MessagePart::Text(text) => Some(text.to_value_string()),
+                                    _ => {
+                                        tracing::warn!(
+                                            "System message part `{part}` is ignored by model `{}`",
+                                            self.id()
+                                        );
+                                        None
+                                    }
+                                })
+                                .join("\n\n"),
+                        ),
                         ..Default::default()
                     })
                 }
@@ -170,14 +173,14 @@ impl OpenAIModel {
                         .iter()
                         .filter_map(|part| match part {
                             MessagePart::Text(text) => {
-                                Some(ChatCompletionRequestMessageContentPart::Text(
+                                Some(ChatCompletionRequestUserMessageContentPart::Text(
                                     ChatCompletionRequestMessageContentPartText {
                                         text: text.to_value_string(),
                                     },
                                 ))
                             }
                             MessagePart::ImageObject(ImageObject { content_url, .. }) => {
-                                Some(ChatCompletionRequestMessageContentPart::ImageUrl(
+                                Some(ChatCompletionRequestUserMessageContentPart::ImageUrl(
                                     ChatCompletionRequestMessageContentPartImage {
                                         image_url: ImageUrl {
                                             url: content_url.clone(),
@@ -202,20 +205,22 @@ impl OpenAIModel {
                     })
                 }
                 MessageRole::Model => {
-                    let content = message
-                        .parts
-                        .iter()
-                        .filter_map(|part| match part {
-                            MessagePart::Text(text) => Some(text.to_value_string()),
-                            _ => {
-                                tracing::warn!(
-                                    "Assistant message part `{part}` is ignored by model `{}`",
-                                    self.id()
-                                );
-                                None
-                            }
-                        })
-                        .join("");
+                    let content = ChatCompletionRequestAssistantMessageContent::Text(
+                        message
+                            .parts
+                            .iter()
+                            .filter_map(|part| match part {
+                                MessagePart::Text(text) => Some(text.to_value_string()),
+                                _ => {
+                                    tracing::warn!(
+                                        "Assistant message part `{part}` is ignored by model `{}`",
+                                        self.id()
+                                    );
+                                    None
+                                }
+                            })
+                            .join(""),
+                    );
 
                     ChatCompletionRequestMessage::Assistant(ChatCompletionRequestAssistantMessage {
                         content: Some(content),
@@ -232,7 +237,7 @@ impl OpenAIModel {
             presence_penalty: task.repeat_penalty,
             temperature: task.temperature,
             seed: task.seed.map(|seed| seed as i64),
-            max_tokens: task.max_tokens.map(|tokens| tokens as u32),
+            max_completion_tokens: task.max_tokens.map(|tokens| tokens as u32),
             top_p: task.top_p,
             stop: task.stop.clone().map(Stop::String),
             ..Default::default()
@@ -312,7 +317,9 @@ impl OpenAIModel {
 
         // Create the request
         let mut request = CreateImageRequestArgs::default();
-        let request = request.prompt(prompt).response_format(ResponseFormat::Url);
+        let request = request
+            .prompt(prompt)
+            .response_format(ImageResponseFormat::Url);
 
         if let Some((w, h)) = task.image_size {
             match (w, h) {
