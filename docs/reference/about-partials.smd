@@ -1,0 +1,64 @@
+---
+title: "Understanding Partials in Stencila Documents: Enhancing Context and Reusability"
+description: Details on how partials are used in prompt and document building
+config:
+  publish:
+    ghost:
+      type: post
+      slug: about-partials
+      state: publish
+      tags:
+      - '#doc'
+      - 'Reference'
+      - Code
+---
+
+# Overview
+
+Partials in Stencila documents are a powerful feature that allows you to include reusable content and context in your prompts and documents. In this post, we'll explore how partials work and how they can enhance your document creation process.
+
+## What are Partials?
+
+Partials are small Stencila documents designed for reuse in prompts via `::: include` directives. They're not special files but rather regular Stencila documents stored in the prompts/partials directory.
+
+## How Partials Work
+
+Document Execution: When a Stencila document is executed, it goes through two phases:
+
+- Prepare phase: Collects certain node types into vectors representing the document context.
+- Execute phase: Moves through these vectors using a "cursor" to expose context to prompt authors.
+ 
+### Context Collection 
+
+The document context is condensed into a flat structure, making it easily accessible within prompts. This includes metadata, sections, headings, paragraphs, and more.
+
+### Flexible API 
+
+Prompt authors can choose what context to bring in using simple syntax:
+
+ {{ document.paragraphs.previous }} : Includes the previous paragraph
+ {{ document.paragraphs.preceding(4) }} : Includes the preceding 4 paragraphs
+
+Details on this sytnax are [here](FIXME).
+ 
+### In-Memory Processing 
+
+All context collection and processing is done in memory, without generating additional files.
+
+## Benefits of Using Partials
+
+- Reusability: Create common prompt templates that can be used across multiple documents.
+- Contextual Awareness: Easily include relevant context from the surrounding document structure.
+- Flexibility: Choose specific parts of the document to include in your prompts.
+ 
+## Best Practices
+
+ - Organize your partials: Keep them in a dedicated directory for easy management.
+ - Be specific: Create partials for different purposes to maintain clarity.
+ - Leverage document structure: Use Stencila's document object to access various elements like headings, paragraphs, and metadata.
+
+## Conclusion
+
+Partials in Stencila documents provide a powerful way to enhance your prompts with contextual information and reusable content. By understanding how they work and leveraging the document structure, you can create more dynamic and context-aware documents and prompts.
+
+Remember, partials are just Stencila documents with special namespaces available due to their inclusion in the main document. This allows for a flexible and powerful system for managing context in your Stencila projects.
