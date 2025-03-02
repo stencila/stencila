@@ -333,8 +333,19 @@ pub(super) async fn execute_command(
         }
         RUN_CURR => {
             let position = position_arg(args.next())?;
-            if let Some(node_id) = root.read().await.node_id_closest(position) {
-                let node_type = NodeType::try_from(&node_id).map_err(internal_error)?;
+            let root = root.read().await;
+            if let Some(mut node_id) = root.node_id_closest(position) {
+                let mut node_type = NodeType::try_from(&node_id).map_err(internal_error)?;
+
+                // If the node type is an `IfBlockClause` then find the parent `IfBlock` to execute
+                if matches!(node_type, NodeType::IfBlockClause) {
+                    if let Some(if_block_node_id) =
+                        root.node_type_ancestor(NodeType::IfBlock, position)
+                    {
+                        node_type = NodeType::IfBlock;
+                        node_id = if_block_node_id;
+                    }
+                }
 
                 // Only update if running an instruction or chat message (since these update
                 // the content of the document)

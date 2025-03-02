@@ -90,12 +90,20 @@ impl Executable for IfBlock {
         if !self.clauses.is_empty() {
             let started = Timestamp::now();
 
-            // Explicitly re-set all clauses to inactive so it is possible to shortcut
-            // evaluation by breaking on the first truthy clause. Because of the short
-            // cutting a patch needs to be sent here too
+            // Explicitly re-set all clauses to inactive and skipped, so it is possible to shortcut
+            // evaluation by breaking on the first truthy clause. Because of the short-cutting a
+            // patch needs to be sent here too.
             for clause in self.clauses.iter_mut() {
                 clause.is_active = None;
-                executor.patch(&clause.node_id(), [none(NodeProperty::IsActive)]);
+                clause.options.execution_status = Some(ExecutionStatus::Skipped);
+
+                executor.patch(
+                    &clause.node_id(),
+                    [
+                        none(NodeProperty::IsActive),
+                        set(NodeProperty::ExecutionStatus, ExecutionStatus::Skipped),
+                    ],
+                );
             }
 
             // Iterate over clauses breaking on the first that is active

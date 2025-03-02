@@ -132,6 +132,14 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
             // This comes first because it reflects something currently in progress
             let status = status.to_string();
             (status.clone(), status)
+        } else if let (NodeType::IfBlockClause, Some(ExecutionStatus::Skipped)) =
+            (node.node_type, execution.status)
+        {
+            // Special handling for skipped if block clauses
+            (
+                "Skipped".to_string(),
+                "Skipped: a preceding clause is active".to_string(),
+            )
         } else if let Some(
             reason @ (ExecutionRequired::NeverExecuted
             | ExecutionRequired::KernelRestarted
