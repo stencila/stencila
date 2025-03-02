@@ -275,7 +275,7 @@ export class Chat extends Executable {
     const headerClasses = apply(
       'flex flex-row justify-between items-center',
       `bg-[${colour}] border-b border-[${borderColour}]`,
-      'px-3 py-1',
+      'px-3 pt-2 pb-1',
       `font-sans font-semibold text-sm text-[${textColour}]`
     )
 
@@ -284,7 +284,7 @@ export class Chat extends Executable {
         <div class=${headerClasses}>
           <div>Chat</div>
 
-          <div class="flex flex-row items-center gap-2">
+          <div class="flex flex-row items-center gap-3">
             <sl-tooltip content="Archive chat">
               <stencila-ui-icon-button
                 name="archive"
@@ -296,7 +296,7 @@ export class Chat extends Executable {
 
             <sl-tooltip content="Delete chat">
               <stencila-ui-icon-button
-                name="lightning"
+                name="trash"
                 @click=${() => this.dispatchEvent(deleteNode('Chat', this.id))}
               >
                 Delete

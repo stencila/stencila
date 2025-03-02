@@ -88,6 +88,7 @@ icons=(
     terminal
     thermometer
     toggle-off
+    trash
     volume-up
     x-circle
 )
