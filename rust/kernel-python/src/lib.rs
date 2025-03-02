@@ -954,6 +954,7 @@ para = {'type':'Paragraph', 'content':[]}
 a1 = np.array([True, False], dtype=np.bool_)
 a2 = np.array([-1, 0, 1], dtype=np.int_)
 a3 = np.array([1, 2 , 3], dtype=np.uint)
+a364 = np.array([4, 5, 6], dtype=np.uint64)
 a4 = np.array([1.23, 4.56], dtype=np.float64)
 
 # TODO: implement handling for these
@@ -1056,6 +1057,33 @@ a4 = np.array([1.23, 4.56], dtype=np.float64)
                 Primitive::Integer(1),
                 Primitive::Integer(2),
                 Primitive::Integer(3)
+            ]))
+        );
+
+        assert_eq!(
+            var!("a364"),
+            Variable {
+                name: "a364".to_string(),
+                native_type: Some("ndarray".to_string()),
+                node_type: Some("Array".to_string()),
+                hint: Some(Hint::ArrayHint(ArrayHint {
+                    length: 3,
+                    item_types: Some(vec!["UnsignedInteger".to_string()]),
+                    minimum: Some(Primitive::Integer(4)),
+                    maximum: Some(Primitive::Integer(6)),
+                    nulls: Some(0),
+                    ..Default::default()
+                })),
+                programming_language: Some("Python".to_string()),
+                ..Default::default()
+            },
+        );
+        assert_eq!(
+            get!("a364"),
+            Node::Array(Array(vec![
+                Primitive::Integer(4),
+                Primitive::Integer(5),
+                Primitive::Integer(6)
             ]))
         );
 
