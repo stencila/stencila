@@ -1,3 +1,6 @@
+/**
+ * Handles the expanding of collapsible navigation menus.
+ */
 export default function subnavDropdown() {
   const dropdowns = document.querySelectorAll('.subnav-dropdown');
 

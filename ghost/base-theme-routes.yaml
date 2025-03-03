@@ -6,10 +6,10 @@ routes:
     data: page.home
 
 collections:
-  /docview/:
-    permalink: /docview/{slug}/
+  /docs/:
+    permalink: /docs/{slug}/
     template: index
-    data: page.docview
+    data: page.docs
     filter: "tag:hash-doc"
 
   /:
