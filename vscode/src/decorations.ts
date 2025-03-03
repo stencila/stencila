@@ -158,6 +158,29 @@ export const succeededForkDecoration =
     },
   });
 
+const succeededLimit = "180deg";
+const succeededLimitMid = `hsl(${succeededLimit} 90% 30%)`;
+const succeededLimitLight = `hsl(${succeededLimit} 90% 95%)`;
+const succeededLimitDark = `hsl(${succeededLimit} 90% 5%)`;
+
+export const succeededLimitDecoration =
+  vscode.window.createTextEditorDecorationType({
+    overviewRulerColor: succeededLimitMid,
+    overviewRulerLane: vscode.OverviewRulerLane.Right,
+    light: {
+      after: {
+        color: succeededLimitMid,
+        backgroundColor: succeededLimitLight,
+      },
+    },
+    dark: {
+      after: {
+        color: succeededLimitMid,
+        backgroundColor: succeededLimitDark,
+      },
+    },
+  });
+
 const failed = "0deg";
 const failedMid = `hsl(${failed} 100% 80%)`;
 
