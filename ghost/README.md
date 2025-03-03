@@ -74,7 +74,7 @@ Dynamic styles for raw/styled Stencila blocks are compiled at runtime using [Twi
 
 ## Routing Setup
 
-The stencila site contains requires certain routes, use the ghost theme [dynamic routing](https://ghost.org/docs/themes/routing/) feature.
+The stencila site requires certain routes, use the ghost theme [dynamic routing](https://ghost.org/docs/themes/routing/) feature.
 
 First configure the routes in your ghost instance:
 1. Go to your Ghost admin panel.
@@ -101,7 +101,7 @@ Currently the stencila site has a document page for the **Documentation** and **
 
 1. Create a new page.
 2. In the page editing view, open the sidebar.
-3. For the Documentation page add `docs` to the slug input, for the **Schema reference** add `schema`.
+3. For the Documentation page add `docs` to the slug input, for the **Schema reference** add the `schema` slug.
 4. Add the internal tag `#doc-page` to both pages. 
 5. To create menu sections (e.g., 'Get Started' or 'API Reference'), add these as tags in the page's tag field.
 6. The content on this page will act as the document's cover/welcome page.
@@ -112,7 +112,7 @@ Currently the stencila site has a document page for the **Documentation** and **
 #### Adding Posts to the Doc View Page
 
 1. Create a new post.
-2. Add the internal `#doc` tag.
+2. Add the internal `#doc` tag, if a schema reference post also add the `#schema`.
 3. Add the appropriate section tag (e.g., 'Get Started').
 4. Posts are sorted by publication date, so adjust accordingly to change the order.
 
@@ -122,6 +122,20 @@ Adding posts to the 'Changelog' or 'News' collections, just tag the post with 'C
 
 
 If another collection is needed, you can add a collection the routes.yaml file, or use the default [taxonmomy routing](https://ghost.org/docs/themes/routing/#taxonomies).
+
+
+### Reference tab;e
+
+This table has the pages as layed out in the `stencila` and the relevant template and any tags or slugs required for the page.
+
+| Name       | Template             | Slug           | Tags       | 
+|------------|----------------------|----------------|------------|
+| Home       | `home.hbs`           | `home`         |            |
+| Documentation/Schema | `index.hbs` | `docs`/`schema` | `#doc-page` |
+| Changelog*  | `changelog.hbs`      |                |            |
+| News*       | `tag.hbs`            |                |            |
+
+*\*does not require a page to be created in admin interface*
 
 
 ## Published Stencila Posts/Pages
