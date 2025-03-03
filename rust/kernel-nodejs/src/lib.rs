@@ -8,12 +8,12 @@ use kernel_micro::{
     common::{eyre::Result, serde::Deserialize, serde_json, tempfile, tracing},
     format::Format,
     schema::{
-        AuthorRole, AuthorRoleName, CodeLocation, CompilationMessage, MessageLevel,
-        SoftwareApplication, Timestamp,
+        AuthorRole, AuthorRoleName, CodeLocation, CompilationMessage, ExecutionBounds,
+        MessageLevel, SoftwareApplication, Timestamp,
     },
-    Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
-    KernelLint, KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider,
-    KernelTerminate, Microkernel,
+    Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelLint,
+    KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider, KernelTerminate,
+    Microkernel,
 };
 
 /// A kernel for executing JavaScript code in Node.js
@@ -78,14 +78,17 @@ impl Kernel for NodeJsKernel {
         self.microkernel_supports_kill()
     }
 
-    fn supports_forks(&self) -> KernelForks {
-        // Supported on all platforms because uses Node.js `child_process.fork`
-        // rather than Unix `fork`.
-        KernelForks::Yes
+    fn supported_bounds(&self) -> Vec<ExecutionBounds> {
+        vec![
+            ExecutionBounds::Full,
+            // Fork: Supported on all platforms because uses Node.js `child_process.fork`
+            // rather than Unix `fork`.
+            ExecutionBounds::Fork,
+        ]
     }
 
-    fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        self.microkernel_create_instance(NAME)
+    fn create_instance(&self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
+        self.microkernel_create_instance(NAME, bounds)
     }
 }
 
@@ -716,7 +719,7 @@ console.log(typeof fs.read, typeof path.join, typeof crypto.createHash)
             ]
         );
 
-        let mut fork = instance.fork().await?;
+        let mut fork = instance.replicate(ExecutionBounds::Fork).await?;
         let (outputs, messages) = fork
             .execute(
                 r#"

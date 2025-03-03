@@ -1,5 +1,6 @@
 use std::path::Path;
 
+use codec::schema::ExecutionBounds;
 use common::{
     async_trait::async_trait,
     eyre::{bail, Result},
@@ -8,8 +9,8 @@ use common::{
 use kernel::{
     format::Format,
     schema::{ExecutionMessage, Node, SoftwareApplication, SoftwareSourceCode, Variable},
-    Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
-    KernelProvider, KernelTerminate,
+    Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelProvider,
+    KernelTerminate,
 };
 
 use crate::{plugins, Plugin, PluginEnabled, PluginInstance, PluginStatus};
@@ -37,9 +38,9 @@ pub struct PluginKernel {
     #[serde(default)]
     kill: KernelKill,
 
-    /// Does the kernel support forks?
+    /// Execution bounds supported by the kernel
     #[serde(default)]
-    forks: KernelForks,
+    bounds: Vec<ExecutionBounds>,
 
     /// The plugin that provides this kernel
     ///
@@ -111,14 +112,19 @@ impl Kernel for PluginKernel {
         self.kill
     }
 
-    fn supports_forks(&self) -> KernelForks {
-        self.forks
+    fn supported_bounds(&self) -> Vec<ExecutionBounds> {
+        self.bounds.clone()
     }
 
-    fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
+    fn create_instance(&self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         let Some(plugin) = self.plugin.clone() else {
             bail!("No plugin associated with this plugin kernel!")
         };
+
+        if !self.bounds.contains(&bounds) {
+            bail!("Execution bounds `{bounds}` are not supported by this plugin kernel")
+        };
+
         Ok(Box::new(PluginKernelInstance::new(self.clone(), plugin)))
     }
 }
@@ -380,6 +386,10 @@ impl KernelInstance for PluginKernelInstance {
                 },
             )
             .await
+    }
+
+    async fn replicate(&mut self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
+        bail!("Replicating plugin kernel is not supported")
     }
 }
 

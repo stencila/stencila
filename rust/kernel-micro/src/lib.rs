@@ -11,9 +11,9 @@ use which::which;
 // Re-exports for the convenience of internal crates implementing
 // the `Microkernel` trait
 pub use kernel::{
-    common, format, schema, tests, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, KernelLint, KernelLinting, KernelLintingOptions,
-    KernelLintingOutput, KernelProvider, KernelSignal, KernelStatus, KernelTerminate,
+    common, format, schema, tests, Kernel, KernelAvailability, KernelInstance, KernelInterrupt,
+    KernelKill, KernelLint, KernelLinting, KernelLintingOptions, KernelLintingOutput,
+    KernelProvider, KernelSignal, KernelStatus, KernelTerminate,
 };
 
 use kernel::{
@@ -35,8 +35,8 @@ use kernel::{
     },
     generate_id,
     schema::{
-        ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication, SoftwareSourceCode,
-        Variable,
+        ExecutionBounds, ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication,
+        SoftwareSourceCode, Variable,
     },
 };
 
@@ -123,18 +123,17 @@ pub trait Microkernel: Sync + Send + Kernel {
         }
     }
 
-    /// An implementation of `Kernel::supports_forks` for microkernels
-    fn microkernel_supports_forks(&self) -> KernelForks {
-        if cfg!(unix) {
-            KernelForks::Yes
-        } else {
-            KernelForks::No
-        }
-    }
-
     /// An implementation of `Kernel::create_instance` for microkernels
-    fn microkernel_create_instance(&self, kernel_name: &str) -> Result<Box<dyn KernelInstance>> {
+    fn microkernel_create_instance(
+        &self,
+        kernel_name: &str,
+        bounds: ExecutionBounds,
+    ) -> Result<Box<dyn KernelInstance>> {
         tracing::debug!("Creating microkernel instance");
+
+        if !self.supports_bounds(bounds) {
+            bail!("Execution bounds `{bounds}` are not supported by `{kernel_name}` kernel")
+        }
 
         let id = generate_id(kernel_name);
         let kernel_name = kernel_name.to_string();
@@ -686,7 +685,8 @@ impl KernelInstance for MicrokernelInstance {
         Ok(())
     }
 
-    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
+    async fn replicate(&mut self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
+        // TODO: use bounds
         #[cfg(unix)]
         {
             use kernel::common::tempfile::tempdir;

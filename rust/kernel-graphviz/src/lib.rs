@@ -10,10 +10,10 @@ use kernel::{
     format::Format,
     generate_id,
     schema::{
-        ExecutionMessage, ImageObject, MessageLevel, Node, SoftwareApplication,
+        ExecutionBounds, ExecutionMessage, ImageObject, MessageLevel, Node, SoftwareApplication,
         SoftwareApplicationOptions,
     },
-    Kernel, KernelForks, KernelInstance, KernelType,
+    Kernel, KernelInstance, KernelType,
 };
 
 const NAME: &str = "graphviz";
@@ -35,11 +35,18 @@ impl Kernel for GraphvizKernel {
         vec![Format::Dot]
     }
 
-    fn supports_forks(&self) -> kernel::KernelForks {
-        KernelForks::Yes
+    fn supported_bounds(&self) -> Vec<ExecutionBounds> {
+        vec![
+            ExecutionBounds::Full,
+            // Fork, Limit, & Box all supported because no state mutation,
+            // or filesystem or network access
+            ExecutionBounds::Fork,
+            ExecutionBounds::Limit,
+            ExecutionBounds::Box,
+        ]
     }
 
-    fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
+    fn create_instance(&self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         Ok(Box::new(GraphvizKernelInstance::new()))
     }
 }
@@ -136,7 +143,7 @@ impl KernelInstance for GraphvizKernelInstance {
         })
     }
 
-    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
+    async fn replicate(&mut self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         Ok(Box::new(Self::new()))
     }
 }

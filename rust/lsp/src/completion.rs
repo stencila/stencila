@@ -402,8 +402,8 @@ fn execution_keywords(line: &str) -> Result<Option<CompletionResponse>, Response
                     label_details: Some(CompletionItemLabelDetails {
                         description: Some(
                             match bounds {
-                                "main" => "Run in main kernel",
-                                "fork" => "Run in forked kernel",
+                                "full" => "Run in main kernel with full capabilities",
+                                "fork" => "Run in forked kernel with full capabilities",
                                 "limit" => "Run in forked kernel with limited capabilities",
                                 "box" => "Run in forked kernel within a sandbox",
                                 _ => "",

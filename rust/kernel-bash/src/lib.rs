@@ -1,6 +1,6 @@
 use kernel_micro::{
-    common::eyre::Result, format::Format, Kernel, KernelAvailability, KernelForks, KernelInstance,
-    KernelInterrupt, KernelKill, KernelProvider, KernelTerminate, Microkernel,
+    common::eyre::Result, format::Format, schema::ExecutionBounds, Kernel, KernelAvailability,
+    KernelInstance, KernelInterrupt, KernelKill, KernelProvider, KernelTerminate, Microkernel,
 };
 
 /// A kernel for executing Bash code locally
@@ -38,12 +38,12 @@ impl Kernel for BashKernel {
         self.microkernel_supports_kill()
     }
 
-    fn supports_forks(&self) -> KernelForks {
-        KernelForks::No
+    fn supported_bounds(&self) -> Vec<ExecutionBounds> {
+        vec![ExecutionBounds::Full]
     }
 
-    fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        self.microkernel_create_instance(NAME)
+    fn create_instance(&self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
+        self.microkernel_create_instance(NAME, bounds)
     }
 }
 

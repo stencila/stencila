@@ -3,10 +3,10 @@ use kernel::{
     format::Format,
     generate_id,
     schema::{
-        ExecutionMessage, ImageObject, Node, SoftwareApplication, SoftwareApplicationOptions,
+        ExecutionBounds, ExecutionMessage, ImageObject, Node, SoftwareApplication,
+        SoftwareApplicationOptions,
     },
-    Kernel, KernelForks, KernelInstance, KernelType, KernelVariableRequester,
-    KernelVariableResponder,
+    Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
 };
 use kernel_jinja::JinjaKernelInstance;
 
@@ -29,15 +29,22 @@ impl Kernel for MermaidKernel {
         vec![Format::Mermaid]
     }
 
-    fn supports_forks(&self) -> kernel::KernelForks {
-        KernelForks::Yes
+    fn supported_bounds(&self) -> Vec<ExecutionBounds> {
+        vec![
+            ExecutionBounds::Full,
+            // Fork, Limit & Box all supported because no state mutation,
+            // or filesystem or network access
+            ExecutionBounds::Fork,
+            ExecutionBounds::Limit,
+            ExecutionBounds::Box,
+        ]
     }
 
     fn supports_variable_requests(&self) -> bool {
         true
     }
 
-    fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
+    fn create_instance(&self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         Ok(Box::new(MermaidKernelInstance::new()))
     }
 }
@@ -121,7 +128,7 @@ impl KernelInstance for MermaidKernelInstance {
         self.jinja.variable_channel(requester, responder)
     }
 
-    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
+    async fn replicate(&mut self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         Ok(Box::<MermaidKernelInstance>::default())
     }
 }

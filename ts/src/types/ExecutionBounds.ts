@@ -3,7 +3,7 @@
  * The bounds placed on the execution of a document node.
  */
 export type ExecutionBounds =
-  'Main' |
+  'Full' |
   'Fork' |
   'Limit' |
   'Box';

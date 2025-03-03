@@ -127,13 +127,13 @@
   },
   "anyOf": [
     {
-      "@id": "stencila:Main",
-      "description": "Execute within the main set of kernels.",
-      "const": "Main"
+      "@id": "stencila:Full",
+      "description": "Execute within the main set of kernels with full capabilities.",
+      "const": "Full"
     },
     {
       "@id": "stencila:Fork",
-      "description": "Execute within a forked set of kernels.",
+      "description": "Execute within a forked set of kernels with full capabilities.",
       "const": "Fork"
     },
     {
@@ -147,5 +147,5 @@
       "const": "Box"
     }
   ],
-  "default": "Main"
+  "default": "Full"
 }

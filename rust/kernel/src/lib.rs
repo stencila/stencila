@@ -18,8 +18,8 @@ pub use common;
 pub use format;
 pub use schema;
 use schema::{
-    AuthorRole, CompilationMessage, ExecutionMessage, Node, Null, SoftwareApplication,
-    SoftwareSourceCode, Variable,
+    AuthorRole, CompilationMessage, ExecutionBounds, ExecutionMessage, Node, Null,
+    SoftwareApplication, SoftwareSourceCode, Variable,
 };
 
 /// A kernel for executing code in some language
@@ -87,18 +87,21 @@ pub trait Kernel: Sync + Send {
         KernelKill::No
     }
 
-    /// Does the kernel support forking?
-    fn supports_forks(&self) -> KernelForks {
-        KernelForks::No
-    }
-
     /// Does the kernel support requesting variables on-demand from other kernels
     fn supports_variable_requests(&self) -> bool {
         false
     }
 
+    fn supported_bounds(&self) -> Vec<ExecutionBounds> {
+        vec![ExecutionBounds::Full]
+    }
+
+    fn supports_bounds(&self, bounds: ExecutionBounds) -> bool {
+        self.supported_bounds().contains(&bounds)
+    }
+
     /// Create a new instance of the kernel
-    fn create_instance(&self) -> Result<Box<dyn KernelInstance>>;
+    fn create_instance(&self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>>;
 }
 
 /// The type of a kernel
@@ -289,18 +292,6 @@ pub enum KernelKill {
     No,
 }
 
-/// Whether a kernel supports forking on the current machine
-#[derive(Debug, Display, Default, Clone, Copy, Serialize, Deserialize)]
-#[strum(serialize_all = "lowercase")]
-#[serde(crate = "common::serde")]
-pub enum KernelForks {
-    /// Kernel supports forking on this machine
-    Yes,
-    /// Kernel does not support forking on this machine
-    #[default]
-    No,
-}
-
 /// Specifications for a kernel
 ///
 /// Currently used only for outputs and display.
@@ -312,7 +303,7 @@ pub struct KernelSpecification {
     provider: KernelProvider,
     availability: KernelAvailability,
     languages: Vec<Format>,
-    supports_forks: KernelForks,
+    supported_bounds: Vec<ExecutionBounds>,
     supports_interrupt: KernelInterrupt,
     supports_terminate: KernelTerminate,
     supports_kill: KernelKill,
@@ -326,7 +317,7 @@ impl From<&dyn Kernel> for KernelSpecification {
             provider: kernel.provider(),
             availability: kernel.availability(),
             languages: kernel.supports_languages(),
-            supports_forks: kernel.supports_forks(),
+            supported_bounds: kernel.supported_bounds(),
             supports_interrupt: kernel.supports_interrupt(),
             supports_terminate: kernel.supports_terminate(),
             supports_kill: kernel.supports_kill(),
@@ -445,10 +436,8 @@ pub trait KernelInstance: Sync + Send {
         Ok(())
     }
 
-    /// Create a fork of the kernel instance
-    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
-        bail!("Kernel `{}` does not support forks", self.id())
-    }
+    /// Replicate the kernel instance with a given execution bounds
+    async fn replicate(&mut self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>>;
 
     /// Get a watcher of the status of the kernel instance
     fn status_watcher(&self) -> Result<watch::Receiver<KernelStatus>> {
@@ -545,7 +534,9 @@ pub mod tests {
     {
         let kernel = K::default();
         match kernel.availability() {
-            KernelAvailability::Available => Ok(Some(kernel.create_instance()?)),
+            KernelAvailability::Available => {
+                Ok(Some(kernel.create_instance(ExecutionBounds::Full)?))
+            }
             _ => Ok(None),
         }
     }
@@ -811,7 +802,7 @@ pub mod tests {
             .await?;
 
         // Create a fork and check that the variables are available in it
-        let mut fork = instance.fork().await?;
+        let mut fork = instance.replicate(ExecutionBounds::Fork).await?;
         assert_eq!(fork.get("var1").await?, Some(Node::Integer(123)));
         assert_eq!(fork.get("var2").await?, Some(Node::Number(4.56)));
         assert_eq!(

@@ -9,12 +9,12 @@ use kernel_micro::{
     common::{eyre::Result, serde::Deserialize, serde_json, tempfile, tracing},
     format::Format,
     schema::{
-        AuthorRole, AuthorRoleName, CodeLocation, CompilationMessage, MessageLevel,
-        SoftwareApplication, Timestamp,
+        AuthorRole, AuthorRoleName, CodeLocation, CompilationMessage, ExecutionBounds,
+        MessageLevel, SoftwareApplication, Timestamp,
     },
-    Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
-    KernelLint, KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider,
-    KernelTerminate, Microkernel,
+    Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelLint,
+    KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider, KernelTerminate,
+    Microkernel,
 };
 
 /// A kernel for executing R code
@@ -70,12 +70,19 @@ impl Kernel for RKernel {
         self.microkernel_supports_kill()
     }
 
-    fn supports_forks(&self) -> KernelForks {
-        self.microkernel_supports_forks()
+    fn supported_bounds(&self) -> Vec<ExecutionBounds> {
+        let mut bounds = vec![ExecutionBounds::Full];
+
+        if cfg!(unix) {
+            // Fork: uses `parallel:::mcfork` which is only available on POSIX-based systems
+            bounds.push(ExecutionBounds::Fork);
+        }
+
+        bounds
     }
 
-    fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        self.microkernel_create_instance(NAME)
+    fn create_instance(&self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
+        self.microkernel_create_instance(NAME, bounds)
     }
 }
 
@@ -964,7 +971,7 @@ class(toRd)
         assert_eq!(messages, vec![]);
         assert_eq!(outputs, vec![Node::String("function".to_string())]);
 
-        let mut fork = instance.fork().await?;
+        let mut fork = instance.replicate(ExecutionBounds::Fork).await?;
         let (outputs, messages) = fork
             .execute(
                 r#"

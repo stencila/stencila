@@ -16,9 +16,9 @@ use kernel::{
         tracing,
     },
     format::Format,
-    schema::{ExecutionMessage, Node},
-    Kernel, KernelForks, KernelInstance, KernelLint, KernelLinting, KernelLintingOutput,
-    KernelVariableRequest, KernelVariableRequester, KernelVariableResponse,
+    schema::{ExecutionBounds, ExecutionMessage, Node},
+    Kernel, KernelInstance, KernelLint, KernelLinting, KernelLintingOutput, KernelVariableRequest,
+    KernelVariableRequester, KernelVariableResponse,
 };
 use kernel_asciimath::AsciiMathKernel;
 use kernel_bash::BashKernel;
@@ -175,6 +175,11 @@ type KernelInstances = Arc<RwLock<Vec<KernelInstanceEntry>>>;
 
 /// A collection of kernel instances associated with a document
 pub struct Kernels {
+    /// The current execution bounds for the kernels
+    ///
+    /// Used to set the execution bounds on each new kernel instance.
+    bounds: ExecutionBounds,
+
     /// The home directory of the kernels
     ///
     /// Used to start each kernel in the home directory of the document
@@ -198,7 +203,7 @@ impl fmt::Debug for Kernels {
 
 impl Kernels {
     /// Create a new set of kernels
-    pub fn new(home: &Path) -> Self {
+    pub fn new(bounds: ExecutionBounds, home: &Path) -> Self {
         let instances = KernelInstances::default();
 
         let (variable_request_sender, variable_request_receiver) = mpsc::unbounded_channel();
@@ -228,6 +233,7 @@ impl Kernels {
         };
 
         Self {
+            bounds,
             home,
             instances,
             variable_request_sender,
@@ -236,9 +242,9 @@ impl Kernels {
     }
 
     /// Create a new set of kernels in the current working directory
-    pub fn new_here() -> Self {
+    pub fn new_here(bounds: ExecutionBounds) -> Self {
         let path = std::env::current_dir().expect("should always be a current dir");
-        Self::new(&path)
+        Self::new(bounds, &path)
     }
 
     /// A task to handle requests from kernels for variables in other contexts
@@ -298,7 +304,7 @@ impl Kernels {
             None => default(),
         };
 
-        let mut instance = kernel.create_instance()?;
+        let mut instance = kernel.create_instance(self.bounds)?;
         let id = instance.id().to_string();
         if kernel.supports_variable_requests() {
             instance.variable_channel(
@@ -487,32 +493,53 @@ impl Kernels {
         instance.remove(name).await
     }
 
-    /// Whether all kernels in the set support forking
-    pub async fn supports_forks(&self) -> bool {
-        self.instances
-            .read()
-            .await
-            .iter()
-            .all(|entry| matches!(entry.kernel.supports_forks(), KernelForks::Yes))
-    }
-
-    /// Fork the kernels
-    ///
-    /// Creates a new [`Kernels`] set with a fork of each current instance.
-    /// Errors if any of the forks fails (i.e. a complete fork is not possible).
-    pub async fn fork(&self, lang: Option<&str>) -> Result<Self> {
-        if let Some(lang) = lang {
-            // Check that forking is possible for provided language
-            let kernel = get_for(lang).await?;
-            if !matches!(kernel.supports_forks(), KernelForks::Yes) {
-                bail!("Kernel `{}` does not support forks", kernel.name())
+    /// Determine if the kernels can
+    pub async fn can_replicate(&self, bounds: ExecutionBounds) -> bool {
+        for entry in self.instances.read().await.iter() {
+            if !entry.kernel.supports_bounds(bounds) {
+                return false;
             }
         }
 
-        let mut kernels = Self::new(&self.home);
+        true
+    }
+
+    /// Replicate the kernels with specified execution bounds
+    ///
+    /// Creates a new [`Kernels`] collection with replicates of each of the
+    /// existing kernel instances, but with (usually) different bounds.
+    ///
+    /// Errors if any of the existing kernels, or the kernel for the provided language,
+    /// does not support the bounds.
+    pub async fn replicate(&self, bounds: ExecutionBounds, lang: Option<&str>) -> Result<Self> {
+        // Check that bounds are supported by each of the existing kernels
+        for entry in self.instances.read().await.iter() {
+            if !entry.kernel.supports_bounds(bounds) {
+                bail!(
+                    "`{}` kernel does not support `{}` execution bounds ",
+                    entry.kernel.name(),
+                    bounds
+                )
+            }
+        }
+
+        // Check that bounds are supported by the kernel associated with the provided language
+        if let Some(lang) = lang {
+            let kernel = get_for(lang).await?;
+            if !kernel.supports_bounds(bounds) {
+                bail!(
+                    "`{}` kernel does not support `{}` execution bounds ",
+                    kernel.name(),
+                    bounds
+                )
+            }
+        }
+
+        // Perform the replication
+        let mut kernels = Self::new(bounds, &self.home);
         for entry in self.instances.read().await.iter() {
             let kernel = entry.kernel.clone();
-            let instance = entry.instance.lock().await.fork().await?;
+            let instance = entry.instance.lock().await.replicate(bounds).await?;
             kernels.add_instance(kernel, instance).await?;
         }
 
@@ -535,7 +562,7 @@ mod tests {
     /// Multithreaded test needed so that variable request does not hang.
     #[test_log::test(tokio::test(flavor = "multi_thread", worker_threads = 2))]
     async fn variables_to_jinja() -> Result<()> {
-        let mut kernels = Kernels::new_here();
+        let mut kernels = Kernels::new_here(ExecutionBounds::Full);
 
         let (_, messages, ..) = kernels.execute("var a = 123", Some("js")).await?;
         assert_eq!(messages, vec![]);
@@ -563,11 +590,11 @@ mod tests {
     /// are also "forked".
     #[test_log::test(tokio::test(flavor = "multi_thread", worker_threads = 2))]
     async fn fork() -> Result<()> {
-        let mut kernels = Kernels::new_here();
+        let mut kernels = Kernels::new_here(ExecutionBounds::Full);
         kernels.execute("var a = 1", Some("js")).await?;
         kernels.execute("var b = 2", Some("js")).await?;
 
-        let mut fork = kernels.fork(None).await?;
+        let mut fork = kernels.replicate(ExecutionBounds::Fork, None).await?;
         fork.execute("a = 11", Some("js")).await?;
         fork.execute("b = 22", Some("js")).await?;
         fork.execute("var c = 33", Some("js")).await?;

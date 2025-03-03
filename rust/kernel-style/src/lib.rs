@@ -11,11 +11,10 @@ use kernel::{
     format::Format,
     generate_id,
     schema::{
-        CodeLocation, ExecutionMessage, MessageLevel, Node, SoftwareApplication,
+        CodeLocation, ExecutionBounds, ExecutionMessage, MessageLevel, Node, SoftwareApplication,
         SoftwareApplicationOptions,
     },
-    Kernel, KernelForks, KernelInstance, KernelType, KernelVariableRequester,
-    KernelVariableResponder,
+    Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
 };
 
 /// A kernel for compiling styles, including Tailwind classes and Jinja templates, into CSS.
@@ -37,15 +36,22 @@ impl Kernel for StyleKernel {
         vec![Format::Css, Format::Html, Format::Tailwind]
     }
 
-    fn supports_forks(&self) -> kernel::KernelForks {
-        KernelForks::Yes
+    fn supported_bounds(&self) -> Vec<ExecutionBounds> {
+        vec![
+            ExecutionBounds::Full,
+            // Fork, Limit, & Box all supported because no state mutation,
+            // or filesystem or network access
+            ExecutionBounds::Fork,
+            ExecutionBounds::Limit,
+            ExecutionBounds::Box,
+        ]
     }
 
     fn supports_variable_requests(&self) -> bool {
         true
     }
 
-    fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
+    fn create_instance(&self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         Ok(Box::new(StyleKernelInstance::new()))
     }
 }
@@ -204,7 +210,7 @@ impl KernelInstance for StyleKernelInstance {
         self.jinja.variable_channel(requester, responder)
     }
 
-    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
+    async fn replicate(&mut self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         Ok(Box::<StyleKernelInstance>::default())
     }
 }

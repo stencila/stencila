@@ -242,7 +242,7 @@ class ExecutionBounds(StrEnum):
     The bounds placed on the execution of a document node.
     """
 
-    Main = "Main"
+    Full = "Full"
     Fork = "Fork"
     Limit = "Limit"
     Box = "Box"
