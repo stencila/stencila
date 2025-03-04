@@ -140,10 +140,8 @@ export class CodeChunk extends CodeExecutable {
             execution-required=${this.executionRequired}
             ?read-only=${readOnly}
           >
-            <div slot="messages">
-              <slot name="compilation-messages"></slot>
-              <slot name="execution-messages"></slot>
-            </div>
+            <slot name="compilation-messages" slot="messages"></slot>
+            <slot name="execution-messages" slot="messages"></slot>
           </stencila-ui-node-code>
         </div>
 
@@ -168,10 +166,8 @@ export class CodeChunk extends CodeExecutable {
         no-gutters
         container-classes=${`rounded-sm border border-gray-200`}
       >
-        <div slot="messages">
-          <slot name="compilation-messages"></slot>
-          <slot name="execution-messages"></slot>
-        </div>
+        <slot name="compilation-messages" slot="messages"></slot>
+        <slot name="execution-messages" slot="messages"></slot>
       </stencila-ui-node-code>
     </div>`
   }

@@ -59,7 +59,7 @@ export class CallArgument extends Parameter {
           container-classes="inline-block w-full rounded-sm border border-[${borderColour}] overflow-hidden text-ellipsis"
           ?read-only=${!this.hasDocumentRootNode()}
         >
-          <slot name="execution-messages"></slot>
+          <slot name="execution-messages" slot="messages"></slot>
         </stencila-ui-node-code>
 
         ${language
