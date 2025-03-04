@@ -15,7 +15,7 @@ export declare class MarkerToggleInterface {
   protected documentContext: DocumentContext
   protected renderMarker: () => void
   protected toggle: boolean
-  protected noVisibleContent: boolean
+  protected noContent: boolean
   protected toggleMarkerPosition: string
   protected toggleMarker: () => void
   protected dispatchToggleEvent: () => void
@@ -45,18 +45,18 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
   superClass: T
 ) => {
   abstract class ToggleMixin extends superClass {
+    /**
+     * Boolean switch property, to handle nodes with empty content/output
+     */
+    @property({ attribute: 'no-content', type: Boolean })
+    protected noContent: boolean = false
+
     @consume({ context: documentContext, subscribe: true })
     @state()
     protected docViewContext: DocumentContext
 
     @state()
     protected toggle: boolean = false
-
-    /**
-     * Boolean switch property, to handle nodes with empty content/output
-     */
-    @property({ type: Boolean })
-    protected noVisibleContent: boolean = false
 
     /**
      * Used to allow clients to override css classes (tailwind) to change the
@@ -128,11 +128,12 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
       const nodeDisplay = InlineTypeList.includes(this.type)
         ? 'inline'
         : 'block'
+
       let offset = BASE_OFFSET
       if (nodeDisplay === 'block') {
-        if (this.noVisibleContent) {
+        if (this.noContent) {
           offset += HORIZ_INSET_PIXELS
-        } else if (this.depth > 1 && !this.noVisibleContent) {
+        } else if (this.depth > 1) {
           offset -= HORIZ_INSET_PIXELS * (this.depth - 1)
         }
       }

@@ -63,8 +63,8 @@ export class ForBlock extends CodeExecutable {
         type="ForBlock"
         node-id=${this.id}
         depth=${this.depth}
-        ?removeContentPadding=${true}
-        ?noVisibleContent=${!this.hasIterations}
+        no-content-padding
+        ?no-content=${!this.hasIterations}
         ?no-root=${!hasDocRoot}
       >
         <div slot="header-right">

@@ -86,7 +86,7 @@ export class CodeChunk extends CodeExecutable {
         depth=${this.depth}
         header-icon=${icon}
         header-title=${title}
-        ?noVisibleContent=${!this.hasOutputs}
+        ?no-content=${!this.hasOutputs || this.isHidden}
         ?no-root=${!hasDocRoot}
       >
         <span slot="header-right" class="flex flex-row items-center gap-3">
