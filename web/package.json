@@ -107,7 +107,7 @@
     "vega-lite": "5.23.0"
   },
   "devDependencies": {
-    "@argos-ci/playwright": "3.10.0",
+    "@argos-ci/playwright": "4.1.0",
     "@parcel/compressor-brotli": "2.13.3",
     "@parcel/transformer-inline-string": "2.13.3",
     "@parcel/transformer-typescript-tsc": "2.13.3",
