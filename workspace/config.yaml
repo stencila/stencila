@@ -2,5 +2,5 @@
 
 models:
   executeContent: true
-  executionBounds: Fork
-  maximumRetries: 3.0
+  executionBounds: Box
+  maximumRetries: 2
