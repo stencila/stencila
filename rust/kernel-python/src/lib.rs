@@ -358,7 +358,7 @@ mod tests {
             IntegerValidator, MessageLevel, Node, Null, NumberValidator, Object, ObjectHint,
             Primitive, StringHint, StringValidator, Validator, Variable,
         },
-        tests::{create_instance, start_instance},
+        tests::{create_instance, start_instance, start_instance_with},
     };
 
     use super::*;
@@ -1657,6 +1657,58 @@ func()",
             .await?;
         assert_eq!(messages, []);
         assert_eq!(outputs.len(), 1);
+
+        Ok(())
+    }
+
+    /// Custom test for boxed kernel
+    /// 
+    /// Currently just a few tests covering the main categories of restriction.
+    #[tokio::test]
+    async fn boxed() -> Result<()> {
+        let Some(mut instance) = start_instance_with::<PythonKernel>(ExecutionBounds::Box).await?
+        else {
+            return Ok(());
+        };
+
+        instance.execute("import os").await?;
+
+        // Read-only access to files
+        let (.., messages) = instance.execute("open('write.txt', 'w')").await?;
+        assert_eq!(
+            messages[0].message,
+            "Write access to filesystem is not permitted (restricted kernel)"
+        );
+
+        let (.., messages) = instance
+            .execute("os.open('read-write.txt', os.O_RDWR)")
+            .await?;
+        assert_eq!(
+            messages[0].message,
+            "Write access to filesystem is not permitted (restricted kernel)"
+        );
+
+        let (.., messages) = instance.execute("os.remove('some-file.txt')").await?;
+        assert_eq!(
+            messages[0].message,
+            "Write access to filesystem is not permitted (restricted kernel)"
+        );
+
+        // No process management
+        let (.., messages) = instance.execute("os.system('command')").await?;
+        assert_eq!(
+            messages[0].message,
+            "Process management is not permitted (restricted kernel)"
+        );
+
+        // No network access
+        let (.., messages) = instance
+            .execute("from urllib.request import urlopen; urlopen('http://example.com')")
+            .await?;
+        assert_eq!(
+            messages[0].message,
+            "<urlopen error Network access is not permitted (restricted kernel)>"
+        );
 
         Ok(())
     }

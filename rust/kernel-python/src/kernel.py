@@ -151,6 +151,7 @@ LINE = "|" if DEV_MODE else "\U0010abba"
 EXEC = "EXEC" if DEV_MODE else "\U0010b522"
 EVAL = "EVAL" if DEV_MODE else "\U001010cc"
 FORK = "FORK" if DEV_MODE else "\U0010de70"
+BOX = "BOX" if DEV_MODE else "\U0010b0c5"
 INFO = "INFO" if DEV_MODE else "\U0010ee15"
 PKGS = "PKGS" if DEV_MODE else "\U0010bec4"
 LIST = "LIST" if DEV_MODE else "\U0010c155"
@@ -871,6 +872,137 @@ def fork(pipes: list[str]) -> None:
         sys.stdout.write(str(pid))
 
 
+def box() -> None:
+    """
+    Restrict the capabilities of the kernel
+
+    - erases potentially secret environment variables
+    - read-only filesystem access
+    - no process management
+    - no network access
+
+    Functions in `pathlib` and `shutil` mostly rely on functions in `io` and `os`
+    (which are patched) so are not patched directly here.
+    """
+
+    import builtins
+    import io
+    import os
+    import socket
+
+    # Erase environment variables
+    for key in os.environ:
+        if "SECRET" in key.upper() or "KEY" in key.upper() or "TOKEN" in key.upper():
+            del os.environ[key]
+
+    # Patch builtins.open to deny write access (which is also io.open in Python 3)
+    builtins_open = builtins.open
+
+    def readonly_open(file, mode="r", *args, **kwargs):
+        # Prevent any mode that implies writing
+        if any(m in mode for m in ("w", "a", "+", "x")):
+            readonly_permission_error()
+        return builtins_open(file, mode, *args, **kwargs)
+
+    builtins.open = readonly_open
+
+    # Patch os.open to deny write access
+    os_open = os.open
+
+    def readonly_os_open(file, flags, *args, **kwargs):
+        if flags & os.O_WRONLY or flags & os.O_RDWR:
+            readonly_permission_error()
+        return os_open(file, flags, *args, **kwargs)
+
+    os.open = readonly_os_open
+
+    # Read-only filesystem access
+    def readonly_permission_error(*args, **kwargs):
+        raise PermissionError(
+            "Write access to filesystem is not permitted (restricted kernel)"
+        )
+
+    # Patch functions that create or delete directories/files
+    os.makedirs = readonly_permission_error
+    os.mkdir = readonly_permission_error
+    os.remove = readonly_permission_error
+    os.removedirs = readonly_permission_error
+    os.rmdir = readonly_permission_error
+    os.unlink = readonly_permission_error
+
+    # Patch functions that modify files (rename, link, truncate, etc.)
+    os.rename = readonly_permission_error
+    os.replace = readonly_permission_error
+    os.link = readonly_permission_error
+    os.symlink = readonly_permission_error
+    os.truncate = readonly_permission_error
+
+    # Patch functions that change file permissions and ownership
+    os.chmod = readonly_permission_error
+    os.chown = readonly_permission_error
+    os.utime = readonly_permission_error
+
+    # No process management
+    def process_permission_error(*args, **kwargs):
+        raise PermissionError("Process management is not permitted (restricted kernel)")
+
+    # Creating processes
+    os.execl = process_permission_error
+    os.execle = process_permission_error
+    os.execlp = process_permission_error
+    os.execlpe = process_permission_error
+    os.execv = process_permission_error
+    os.execve = process_permission_error
+    os.execvp = process_permission_error
+    os.execvpe = process_permission_error
+    os.fork = process_permission_error
+    os.forkpty = process_permission_error
+    os.popen = process_permission_error
+    os.popen2 = process_permission_error
+    os.popen3 = process_permission_error
+    os.popen4 = process_permission_error
+    os.posix_spawn = process_permission_error
+    os.posix_spawnp = process_permission_error
+    os.spawnl = process_permission_error
+    os.spawnle = process_permission_error
+    os.spawnlp = process_permission_error
+    os.spawnlpe = process_permission_error
+    os.spawnv = process_permission_error
+    os.spawnve = process_permission_error
+    os.spawnvp = process_permission_error
+    os.spawnvpe = process_permission_error
+    os.system = process_permission_error
+    os.waitid = process_permission_error
+    os.waitpid = process_permission_error
+    os.waitid = process_permission_error
+    os.wait3 = process_permission_error
+    os.wait4 = process_permission_error
+
+    # Killing / changing priority
+    os.abort = process_permission_error
+    os._exit = process_permission_error
+    os.kill = process_permission_error
+    os.killpg = process_permission_error
+    os.nice = process_permission_error
+    os.setpriority = process_permission_error
+
+    # User/group ids and management
+    os.setegid = process_permission_error
+    os.seteuid = process_permission_error
+    os.setgid = process_permission_error
+    os.setgroups = process_permission_error
+    os.setpgid = process_permission_error
+    os.setpgrp = process_permission_error
+    os.setsid = process_permission_error
+
+    # No network access
+    def network_permission_error(*args, **kwargs):
+        raise PermissionError("Network access is not permitted (restricted kernel)")
+
+    socket.socket = network_permission_error
+    socket.create_connection = network_permission_error
+
+
 def main() -> None:
     # Signal that ready to receive tasks
     for stream in (sys.stdout, sys.stderr):
@@ -909,6 +1041,8 @@ def main() -> None:
                 remove_variable(lines[1])
             elif task_type == FORK:
                 fork(lines[1:])
+            elif task_type == BOX:
+                box()
             else:
                 raise ValueError(f"Unrecognized task: {task_type}")
 

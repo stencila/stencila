@@ -555,6 +555,24 @@ pub mod tests {
         }
     }
 
+    /// Create and start a new kernel instance with specific execution bounds
+    pub async fn start_instance_with<K>(
+        bounds: ExecutionBounds,
+    ) -> Result<Option<Box<dyn KernelInstance>>>
+    where
+        K: Default + Kernel,
+    {
+        let kernel = K::default();
+        match kernel.availability() {
+            KernelAvailability::Available => {
+                let mut instance = kernel.create_instance(bounds)?;
+                instance.start_here().await?;
+                Ok(Some(instance))
+            }
+            _ => Ok(None),
+        }
+    }
+
     /// Test execution of code by a kernel instance
     ///
     /// All kernel instances must implement this method. This tests is
