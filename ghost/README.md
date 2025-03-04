@@ -124,7 +124,7 @@ Adding posts to the 'Changelog' or 'News' collections, just tag the post with 'C
 If another collection is needed, you can add a collection the routes.yaml file, or use the default [taxonmomy routing](https://ghost.org/docs/themes/routing/#taxonomies).
 
 
-### Reference tab;e
+### Reference table
 
 This table has the pages as layed out in the `stencila` and the relevant template and any tags or slugs required for the page.
 
