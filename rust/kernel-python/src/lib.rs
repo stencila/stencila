@@ -57,11 +57,11 @@ impl Kernel for PythonKernel {
     }
 
     fn supported_bounds(&self) -> Vec<ExecutionBounds> {
-        let mut bounds = vec![ExecutionBounds::Full];
+        let mut bounds = vec![ExecutionBounds::Main];
 
+        // Fork & Box both use Python `os.fork()` which is only available on POSIX-based systems
         if cfg!(unix) {
-            // Fork: uses Python `os.fork()` which is only available on POSIX-based systems
-            bounds.push(ExecutionBounds::Fork);
+            bounds.append(&mut vec![ExecutionBounds::Fork, ExecutionBounds::Box]);
         }
 
         bounds

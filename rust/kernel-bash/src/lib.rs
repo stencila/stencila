@@ -39,7 +39,7 @@ impl Kernel for BashKernel {
     }
 
     fn supported_bounds(&self) -> Vec<ExecutionBounds> {
-        vec![ExecutionBounds::Full]
+        vec![ExecutionBounds::Main]
     }
 
     fn create_instance(&self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {

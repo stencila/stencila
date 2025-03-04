@@ -111,7 +111,7 @@ impl List {
                 .join(", ");
             let lint = kernel.supports_linting();
             let bounds = kernel.supported_bounds();
-            let max_bounds = bounds.iter().max().unwrap_or(&ExecutionBounds::Full);
+            let max_bounds = bounds.iter().max().unwrap_or(&ExecutionBounds::Main);
 
             table.add_row([
                 Cell::new(kernel.name()).add_attribute(Attribute::Bold),
@@ -145,9 +145,8 @@ impl List {
                     KernelLinting::FormatFix => Color::Green,
                 }),
                 Cell::new(max_bounds.to_string().to_lowercase()).fg(match max_bounds {
-                    ExecutionBounds::Full => Color::Yellow,
+                    ExecutionBounds::Main => Color::Yellow,
                     ExecutionBounds::Fork => Color::Cyan,
-                    ExecutionBounds::Limit => Color::Blue,
                     ExecutionBounds::Box => Color::Green,
                 }),
             ]);
@@ -172,7 +171,7 @@ struct Info {
 impl Info {
     #[allow(clippy::print_stdout)]
     async fn run(self) -> Result<()> {
-        let mut kernels = Kernels::new_here(ExecutionBounds::Full);
+        let mut kernels = Kernels::new_here(ExecutionBounds::Main);
         let instance = kernels.create_instance(Some(&self.name)).await?;
 
         let info = instance.lock().await.info().await?;
@@ -205,7 +204,7 @@ struct Packages {
 
 impl Packages {
     async fn run(self) -> Result<()> {
-        let mut kernels = Kernels::new_here(ExecutionBounds::Full);
+        let mut kernels = Kernels::new_here(ExecutionBounds::Main);
         let instance = kernels.create_instance(Some(&self.name)).await?;
 
         let packages = instance.lock().await.packages().await?;
@@ -258,24 +257,18 @@ struct Execute {
     /// before passing to the kernel.
     code: String,
 
-    /// Execute code in a kernel instance with execution bounds `Limit`
-    #[arg(long, short, conflicts_with = "box")]
-    limit: bool,
-
-    /// Execute code in a kernel instance with execution bounds `Box`
-    #[arg(long, short, conflicts_with = "limit")]
+    /// Execute code in a kernel instance with `Box` execution bounds
+    #[arg(long, short)]
     r#box: bool,
 }
 
 impl Execute {
     #[allow(clippy::print_stdout)]
     async fn run(self) -> Result<()> {
-        let bounds = if self.limit {
-            ExecutionBounds::Limit
-        } else if self.r#box {
+        let bounds = if self.r#box {
             ExecutionBounds::Box
         } else {
-            ExecutionBounds::Full
+            ExecutionBounds::Main
         };
 
         let mut kernels = Kernels::new_here(bounds);
@@ -316,7 +309,7 @@ struct Evaluate {
 impl Evaluate {
     #[allow(clippy::print_stdout)]
     async fn run(self) -> Result<()> {
-        let mut kernels = Kernels::new_here(ExecutionBounds::Full);
+        let mut kernels = Kernels::new_here(ExecutionBounds::Main);
         let instance = kernels.create_instance(Some(&self.name)).await?;
 
         let (output, messages) = instance.lock().await.evaluate(&self.code).await?;

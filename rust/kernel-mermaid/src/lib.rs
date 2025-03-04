@@ -31,11 +31,10 @@ impl Kernel for MermaidKernel {
 
     fn supported_bounds(&self) -> Vec<ExecutionBounds> {
         vec![
-            ExecutionBounds::Full,
-            // Fork, Limit & Box all supported because no state mutation,
+            ExecutionBounds::Main,
+            // Fork & Box supported because no state mutation,
             // or filesystem or network access
             ExecutionBounds::Fork,
-            ExecutionBounds::Limit,
             ExecutionBounds::Box,
         ]
     }

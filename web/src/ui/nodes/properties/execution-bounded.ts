@@ -21,24 +21,19 @@ export class UINodeExecutionBounded extends LitElement {
     let tooltip = 'Bounds on last execution'
 
     switch (this.value) {
-      case 'Full': {
+      case 'Main': {
         icon = 'arrowNarrowUp'
-        tooltip = 'Executed in main kernel with full capabilities'
+        tooltip = 'Executed in main kernel'
         break
       }
       case 'Fork': {
         icon = 'arrowRampRight3'
-        tooltip = 'Executed in a forked kernel with full capabilities'
-        break
-      }
-      case 'Limit': {
-        icon = 'coneStriped'
-        tooltip = 'Executed in a forked kernel with limited capabilities'
+        tooltip = 'Executed in a forked kernel'
         break
       }
       case 'Box': {
         icon = 'box'
-        tooltip = 'Executed in a forked kernel within a sandbox'
+        tooltip = 'Executed in a forked and restricted kernel'
         break
       }
     }

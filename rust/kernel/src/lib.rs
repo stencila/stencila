@@ -93,7 +93,7 @@ pub trait Kernel: Sync + Send {
     }
 
     fn supported_bounds(&self) -> Vec<ExecutionBounds> {
-        vec![ExecutionBounds::Full]
+        vec![ExecutionBounds::Main]
     }
 
     fn supports_bounds(&self, bounds: ExecutionBounds) -> bool {
@@ -535,7 +535,7 @@ pub mod tests {
         let kernel = K::default();
         match kernel.availability() {
             KernelAvailability::Available => {
-                Ok(Some(kernel.create_instance(ExecutionBounds::Full)?))
+                Ok(Some(kernel.create_instance(ExecutionBounds::Main)?))
             }
             _ => Ok(None),
         }

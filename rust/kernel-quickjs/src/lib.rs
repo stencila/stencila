@@ -66,11 +66,10 @@ impl Kernel for QuickJsKernel {
 
     fn supported_bounds(&self) -> Vec<ExecutionBounds> {
         vec![
-            ExecutionBounds::Full,
-            // Fork, Limit, & Box all supported because no state mutation,
-            // or filesystem or network access
+            ExecutionBounds::Main,
+            // Fork & Box supported because no state mutation,
+            // or filesystem or network access in this kernel
             ExecutionBounds::Fork,
-            ExecutionBounds::Limit,
             ExecutionBounds::Box,
         ]
     }

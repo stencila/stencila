@@ -71,7 +71,7 @@ impl Kernel for RKernel {
     }
 
     fn supported_bounds(&self) -> Vec<ExecutionBounds> {
-        let mut bounds = vec![ExecutionBounds::Full];
+        let mut bounds = vec![ExecutionBounds::Main];
 
         if cfg!(unix) {
             // Fork: uses `parallel:::mcfork` which is only available on POSIX-based systems

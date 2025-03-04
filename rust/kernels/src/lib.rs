@@ -562,7 +562,7 @@ mod tests {
     /// Multithreaded test needed so that variable request does not hang.
     #[test_log::test(tokio::test(flavor = "multi_thread", worker_threads = 2))]
     async fn variables_to_jinja() -> Result<()> {
-        let mut kernels = Kernels::new_here(ExecutionBounds::Full);
+        let mut kernels = Kernels::new_here(ExecutionBounds::Main);
 
         let (_, messages, ..) = kernels.execute("var a = 123", Some("js")).await?;
         assert_eq!(messages, vec![]);
@@ -590,7 +590,7 @@ mod tests {
     /// are also "forked".
     #[test_log::test(tokio::test(flavor = "multi_thread", worker_threads = 2))]
     async fn fork() -> Result<()> {
-        let mut kernels = Kernels::new_here(ExecutionBounds::Full);
+        let mut kernels = Kernels::new_here(ExecutionBounds::Main);
         kernels.execute("var a = 1", Some("js")).await?;
         kernels.execute("var b = 2", Some("js")).await?;
 

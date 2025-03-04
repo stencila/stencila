@@ -321,7 +321,7 @@ impl Document {
     #[tracing::instrument]
     pub fn init(home: PathBuf, path: Option<PathBuf>, node_type: Option<NodeType>) -> Result<Self> {
         // Create the document's kernels with the same home directory
-        let kernels = Arc::new(RwLock::new(Kernels::new(ExecutionBounds::Full, &home)));
+        let kernels = Arc::new(RwLock::new(Kernels::new(ExecutionBounds::Main, &home)));
 
         // Create the default root node type, if there is no sidecar file
         // The default node type itself defaults to none, because that is used in the

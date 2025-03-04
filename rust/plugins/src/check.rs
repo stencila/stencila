@@ -79,7 +79,7 @@ pub async fn check(
         tracing::info!("Checking plugin `{name}` kernel `{}`", kernel.name());
 
         // Start an instance of the kernel
-        let mut instance = kernel.create_instance(ExecutionBounds::Full)?;
+        let mut instance = kernel.create_instance(ExecutionBounds::Main)?;
         instance.start_here().await?;
 
         // Call methods on the instance. The return value will vary between

@@ -33,12 +33,10 @@ export class UINodeExecutionBounds extends UIBaseClass {
 
     const icon = (value: ExecutionBounds): IconName => {
       switch (value) {
-        case 'Full':
+        case 'Main':
           return 'arrowNarrowUp'
         case 'Fork':
           return 'arrowRampRight3'
-        case 'Limit':
-          return 'coneStriped'
         case 'Box':
           return 'box'
       }
@@ -46,14 +44,12 @@ export class UINodeExecutionBounds extends UIBaseClass {
 
     const help = (value: ExecutionBounds): string => {
       switch (value) {
-        case 'Full':
-          return 'Run in main kernel with full capabilities'
+        case 'Main':
+          return 'Run in main kernel'
         case 'Fork':
-          return 'Run in forked kernel with full capabilities'
-        case 'Limit':
-          return 'Run in forked kernel with limited capabilities'
+          return 'Run in forked kernel'
         case 'Box':
-          return 'Run in forked kernel within a sandbox'
+          return 'Run in forked and restricted kernel'
       }
     }
 
@@ -64,13 +60,7 @@ export class UINodeExecutionBounds extends UIBaseClass {
       }
     `
 
-    const alternatives: ExecutionBounds[] = [
-      'Main',
-      'Fork',
-      // Following variants not provided until implemented
-      //'Limit',
-      //'Box',
-    ]
+    const alternatives: ExecutionBounds[] = ['Main', 'Fork', 'Box']
 
     const menuItems = alternatives.map(
       (value: ExecutionBounds) =>

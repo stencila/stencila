@@ -80,7 +80,7 @@ impl Kernel for NodeJsKernel {
 
     fn supported_bounds(&self) -> Vec<ExecutionBounds> {
         vec![
-            ExecutionBounds::Full,
+            ExecutionBounds::Main,
             // Fork: Supported on all platforms because uses Node.js `child_process.fork`
             // rather than Unix `fork`.
             ExecutionBounds::Fork,

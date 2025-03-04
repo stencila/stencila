@@ -132,7 +132,7 @@ pub trait Microkernel: Sync + Send + Kernel {
         tracing::debug!("Creating microkernel instance");
 
         if !self.supports_bounds(bounds) {
-            bail!("Execution bounds `{bounds}` are not supported by `{kernel_name}` kernel")
+            bail!("`{kernel_name}` kernel does not support `{bounds}` execution bounds")
         }
 
         let id = generate_id(kernel_name);
@@ -170,6 +170,7 @@ pub trait Microkernel: Sync + Send + Kernel {
         Ok(Box::new(MicrokernelInstance {
             id,
             kernel_name,
+            bounds,
             executable_name,
             executable_args,
             default_message_level,
@@ -198,6 +199,9 @@ pub struct MicrokernelInstance {
     ///
     /// Used to generate ids for forks that are consistent with the parent kernel.
     kernel_name: String,
+
+    /// The execution bounds on the instance
+    bounds: ExecutionBounds,
 
     /// The name of the executable
     executable_name: String,
@@ -293,6 +297,8 @@ enum MicrokernelFlag {
     Eval,
     /// Sent by Rust to signal the start of a `fork` task
     Fork,
+    /// Sent by Rust to signal that the kernel should have restricted capabilities
+    Box,
     /// Sent by Rust to get runtime information about the kernel
     Info,
     /// Sent by Rust to get a list of packages/libraries available to the kernel
@@ -324,6 +330,7 @@ impl MicrokernelFlag {
             Exec => "\u{10B522}",
             Eval => "\u{1010CC}",
             Fork => "\u{10DE70}",
+            Box => "\u{10B0C5}",
             List => "\u{10C155}",
             Get => "\u{10A51A}",
             Set => "\u{107070}",
@@ -508,7 +515,7 @@ impl KernelInstance for MicrokernelInstance {
         let mut stderr_reader = BufReader::new(stderr);
 
         // Emit any startup warnings and clear streams
-        startup_warnings(
+        startup_messages(
             &mut stdout_reader,
             &mut stderr_reader,
             &self.default_message_level,
@@ -529,6 +536,10 @@ impl KernelInstance for MicrokernelInstance {
             .wrap_err_with(|| eyre!("Unable to check status of starting kernel"))?;
         if matches!(status, KernelStatus::Failed | KernelStatus::Stopped) {
             bail!("Startup of `{}` kernel failed; perhaps the runtime version on this machine is not supported?", self.id())
+        }
+
+        if matches!(self.bounds, ExecutionBounds::Box) {
+            self.r#box().await?;
         }
 
         self.set_status(KernelStatus::Ready)?;
@@ -686,7 +697,16 @@ impl KernelInstance for MicrokernelInstance {
     }
 
     async fn replicate(&mut self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
-        // TODO: use bounds
+        if matches!(bounds, ExecutionBounds::Main) {
+            bail!(
+                "Microkernels can not be replicated with execution bounds `{bounds}`; use `Fork` or `Box` instead"
+            );
+        }
+
+        if matches!(bounds, ExecutionBounds::Fork | ExecutionBounds::Box) && cfg!(windows) {
+            bail!("Execution bounds `{bounds}` is not supported on Windows");
+        }
+
         #[cfg(unix)]
         {
             use kernel::common::tempfile::tempdir;
@@ -747,8 +767,8 @@ impl KernelInstance for MicrokernelInstance {
 
             let default_message_level = self.default_message_level;
 
-            // Emit any startup warnings and clear streams
-            startup_warnings(
+            // Emit any startup messages and clear streams
+            startup_messages(
                 &mut stdout_reader,
                 &mut stderr_reader,
                 &default_message_level,
@@ -767,9 +787,10 @@ impl KernelInstance for MicrokernelInstance {
 
             let signal_sender = Some(Self::setup_signals_channel(id.clone(), pid));
 
-            Ok(Box::new(Self {
+            let mut replicate = Self {
                 id,
                 kernel_name,
+                bounds,
                 executable_name: Default::default(),
                 executable_args: Default::default(),
                 working_dir: None,
@@ -785,12 +806,13 @@ impl KernelInstance for MicrokernelInstance {
                 input,
                 output,
                 errors,
-            }))
-        }
+            };
 
-        #[cfg(windows)]
-        {
-            bail!("Microkernel forking is not supported on Windows");
+            if matches!(bounds, ExecutionBounds::Box) {
+                replicate.r#box().await?
+            }
+
+            Ok(Box::new(replicate))
         }
     }
 }
@@ -799,6 +821,13 @@ impl MicrokernelInstance {
     /// Whether a microkernel instance is a fork
     fn is_fork(&self) -> bool {
         self.command.is_none()
+    }
+
+    /// Send the [`MicrokernelFlag::Limit`] flag to the microkernel to limit its capabilities
+    async fn r#box(&mut self) -> Result<()> {
+        self.send_receive(MicrokernelFlag::Box, []).await?;
+
+        Ok(())
     }
 
     /// Crate a channel for broadcasting status updates
@@ -997,7 +1026,7 @@ impl MicrokernelInstance {
 /// Receive outputs on stdout and messages on stderr during kernel startup
 /// (until READY flag). Used to "clear" streams and be ready to accept tasks but
 /// to also report any messages received.
-async fn startup_warnings<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
+async fn startup_messages<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
     stdout: &mut R1,
     stderr: &mut R2,
     default_message_level: &MessageLevel,
@@ -1010,7 +1039,7 @@ async fn startup_warnings<R1: AsyncBufRead + Unpin, R2: AsyncBufRead + Unpin>(
                     .map(|message| message.message)
                     .collect::<Vec<String>>()
                     .join("\n");
-                tracing::warn!("While starting kernel got output on stderr: {messages}")
+                tracing::debug!("While starting kernel got output on stderr: {messages}")
             }
         }
         Err(error) => {

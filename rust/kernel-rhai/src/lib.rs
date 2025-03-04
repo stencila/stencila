@@ -53,12 +53,11 @@ impl Kernel for RhaiKernel {
 
     fn supported_bounds(&self) -> Vec<ExecutionBounds> {
         vec![
-            ExecutionBounds::Full,
+            ExecutionBounds::Main,
             // Fork supported by cloning context
             ExecutionBounds::Fork,
-            // Limit & Box supported because no state mutation,
+            // Box supported because no state mutation,
             // or filesystem or network access
-            ExecutionBounds::Limit,
             ExecutionBounds::Box,
         ]
     }

@@ -9,14 +9,11 @@ use crate::prelude::*;
 pub enum ExecutionBounds {
     /// Execute within the main set of kernels with full capabilities.
     #[default]
-    Full,
+    Main,
 
     /// Execute within a forked set of kernels with full capabilities.
     Fork,
 
-    /// Execute within a forked set of kernels with limited capabilities.
-    Limit,
-
-    /// Execute within a forked set of kernels within a sandbox.
+    /// Execute within a forked set of kernels with restricted capabilities.
     Box,
 }
