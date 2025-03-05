@@ -78,6 +78,7 @@ audit:
 build:
 	make -C rust build
 	make -C ts build
+	make -C mermaid-ui build
 	make -C node build
 	make -C python/stencila build
 	make -C web build

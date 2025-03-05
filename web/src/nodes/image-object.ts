@@ -136,7 +136,7 @@ export class ImageObject extends Entity {
   private async compileMermaid() {
     // Import Mermaid dynamically, when it is required, rather than have
     // it bundled into the main JS file for the view
-    const { default: mermaid } = await import('mermaid')
+    const { default: mermaid } = await import('@stencila/mermaid')
 
     const container = document.createElement('div')
     document.body.appendChild(container)

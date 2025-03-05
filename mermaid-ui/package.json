@@ -1,0 +1,19 @@
+{
+  "name": "@stencila/mermaid",
+  "version": "1.0.0",
+  "description": "A bundle for mermaid.js",
+  "main": "dist/index.mjs",
+  "module": "dist/index.mjs",
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "mermaid": "9.1.3",
+    "vite-plugin-dts": "^4.5.3"
+  },
+  "devDependencies": {
+    "@types/mermaid": "^9.1.0",
+    "typescript": "5.7.3",
+    "vite": "4.0.0"
+  }
+}

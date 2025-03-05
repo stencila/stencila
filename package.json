@@ -4,7 +4,8 @@
     "node/stencila-plugin",
     "ts",
     "web",
-    "ghost"
+    "ghost",
+    "mermaid-ui"
   ],
   "scripts": {
     "audit": "better-npm-audit audit"
