@@ -44,7 +44,7 @@ on:
 
 env:
   RUST_VERSION: "1.85.0"
-  NODE_VERSION: "20"
+  NODE_VERSION: "22"
 
 jobs:
   # Build and publish @stencila/types package

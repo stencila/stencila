@@ -19,7 +19,7 @@ on:
 env:
   RUST_VERSION: "1.85.0"
   CARGO_TERM_COLOR: always
-  NODE_VERSION: "20"
+  NODE_VERSION: "22"
   PYTHON_VERSION: "3.12"
 
 jobs:

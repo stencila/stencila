@@ -19,7 +19,7 @@ on:
         default: true
 
 env:
-  NODE_VERSION: "20"
+  NODE_VERSION: "22"
 
 jobs:
   dist:
