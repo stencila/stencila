@@ -35,6 +35,7 @@ pub mod cli;
 
 mod config;
 mod dirs;
+mod files;
 mod sync_directory;
 mod sync_dom;
 mod sync_file;

@@ -2,22 +2,25 @@ use std::path::PathBuf;
 
 use common::{
     clap::{self, Parser},
-    eyre::{OptionExt, Result},
+    eyre::{bail, OptionExt, Result},
     tokio,
 };
-use document::SyncDirection;
+use document::{Document, SyncDirection};
 use server::{get_access_token, ServeOptions};
 
-/// Preview a document or site
+/// Preview a document
 ///
-/// Opens a preview of a document or site in the browser.
+/// Opens a preview of a document in the browser. If the path supplied
+/// is a folder then the first file with name `index.*`, `main.*`, or `readme.*`
+/// will be opened.
+///
 /// When `--sync=in` (the default) the preview will update when
-/// the document is saved to disk.
+/// the document is changed and saved to disk.
 #[derive(Debug, Parser)]
 pub struct Cli {
-    /// The path to the document file or site directory to preview
+    /// The path to the document or parent folder
     ///
-    /// Defaults to the current directory.
+    /// Defaults to the current folder.
     #[arg(default_value = ".")]
     path: PathBuf,
 
@@ -28,18 +31,23 @@ pub struct Cli {
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
-        let path = self.path.canonicalize()?;
+        // Resolve the path to a document file
+        let Some(file) = Document::resolve_file(&self.path)? else {
+            bail!(
+                "Unable to resolve which document file to preview from path {}",
+                self.path.display()
+            )
+        };
 
-        // Serve the directory of the path
-        let dir = if path.is_file() {
-            path.parent().ok_or_eyre("File has no parent")?
-        } else {
-            &path
-        }
-        .to_path_buf();
+        let file = file.canonicalize()?;
 
-        // Get (or generate) an access token so it can be included
-        // in the URL
+        // Serve the parent directory of the file
+        let dir = file
+            .parent()
+            .ok_or_eyre("File has no parent")?
+            .to_path_buf();
+
+        // Get (or generate) an access token so it can be included in the URL
         let access_token = get_access_token();
 
         // Serve the directory
@@ -52,7 +60,7 @@ impl Cli {
         let serve = tokio::spawn(async move { server::serve(options).await });
 
         // Open the browser to the login page with redirect to the document path
-        let path = path.strip_prefix(&dir)?.to_string_lossy();
+        let path = file.strip_prefix(&dir)?.to_string_lossy();
         let url = format!("http://127.0.0.1:9000/~login?access_token={access_token}&next={path}");
         webbrowser::open(&url)?;
 

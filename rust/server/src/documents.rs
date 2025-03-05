@@ -1,9 +1,7 @@
 use std::{
-    cmp::Ordering,
     collections::HashMap,
     path::{Component, PathBuf},
     sync::Arc,
-    time::UNIX_EPOCH,
 };
 
 use axum::{
@@ -25,7 +23,6 @@ use common::{
         stream::{SplitSink, SplitStream},
         SinkExt, StreamExt,
     },
-    glob::{glob, glob_with, MatchOptions},
     itertools::Itertools,
     serde::{de::DeserializeOwned, Serialize},
     serde_json,
@@ -131,90 +128,6 @@ impl Documents {
     }
 }
 
-/// Resolve a URL path into a file or directory path
-///
-/// This is an interim implementation and is likely to be replaced with
-/// an implementation which uses a tries and which handles parameterized routes.
-fn resolve_path(path: PathBuf) -> Result<Option<PathBuf>, InternalError> {
-    // If the path ends with `*` and a directory exists there then resolve to it
-    if let Some(path) = path.to_string_lossy().strip_suffix('*') {
-        let path = PathBuf::from(path);
-        if path.exists() && path.is_dir() {
-            return Ok(Some(path));
-        }
-    }
-
-    // If a file exists at the path then just resolve to it
-    if path.exists() && path.is_file() {
-        return Ok(Some(path));
-    }
-
-    // If any files have the same stem as the path (everything minus the extension)
-    // then use the one with the format with highest precedence and latest modification date.
-    // This checks that the file has a stem otherwise files like `.gitignore` match against it.
-    let pattern = format!("{}.*", path.display());
-    if let Some(path) = glob(&pattern)
-        .map_err(InternalError::new)?
-        .flatten()
-        .filter(|path| {
-            path.file_name()
-                .is_some_and(|name| !name.to_string_lossy().starts_with('.'))
-                && path.is_file()
-        })
-        .sorted_by(|a, b| {
-            let a_format = Format::from_path(a);
-            let b_format = Format::from_path(b);
-            match a_format.rank().cmp(&b_format.rank()) {
-                Ordering::Equal => {
-                    let a_modified = std::fs::metadata(a)
-                        .and_then(|metadata| metadata.modified())
-                        .unwrap_or(UNIX_EPOCH);
-                    let b_modified = std::fs::metadata(b)
-                        .and_then(|metadata| metadata.modified())
-                        .unwrap_or(UNIX_EPOCH);
-                    a_modified.cmp(&b_modified).reverse()
-                }
-                ordering => ordering,
-            }
-        })
-        .next()
-    {
-        return Ok(Some(path));
-    }
-
-    // If the path correlates to a folder with an index, main, or readme file
-    // then use the one with the highest precedence
-    let pattern = format!("{}/*", path.display());
-    if let Some(path) = glob_with(
-        &pattern,
-        MatchOptions {
-            case_sensitive: false,
-            ..Default::default()
-        },
-    )
-    .map_err(InternalError::new)?
-    .flatten()
-    .find(|path| {
-        // Select the first file matching these criteria
-        // noting that `glob` returns entries sorted alphabetically
-        path.is_file()
-            && path
-                .file_name()
-                .and_then(|name| name.to_str())
-                .map(|name| {
-                    let name = name.to_lowercase();
-                    name.starts_with("index.")
-                        || name.starts_with("main.")
-                        || name.starts_with("readme.")
-                })
-                .unwrap_or_default()
-    }) {
-        return Ok(Some(path));
-    }
-
-    Ok(None)
-}
-
 /// Create a router for document routes
 pub fn router() -> Router<ServerState> {
     Router::new().route("/{id}/websocket", get(websocket_for_document))
@@ -258,7 +171,7 @@ pub async fn serve_path(
     }
 
     // Resolve the URL path into a filesystem path
-    let path = resolve_path(path)?;
+    let path = Document::resolve_file(&path).map_err(InternalError::new)?;
 
     // Return early if no path resolved
     let Some(path) = path else {
@@ -436,7 +349,7 @@ async fn open_document(
     }
 
     // Resolve the URL path into a filesystem path
-    let path = resolve_path(path)?;
+    let path = Document::resolve_file(&path).map_err(InternalError::new)?;
 
     // Return early if no path resolved
     let Some(path) = path else {
