@@ -163,25 +163,17 @@ impl Executable for CodeChunk {
             // Get the kernels to execute within, based on the the execution bounds
             let (kernels, message, bounded) = match self.execution_bounds {
                 Some(ExecutionBounds::Main) | None => (Some(executor.kernels.clone()), None, None),
-                Some(ExecutionBounds::Fork) => match executor.fork_kernels(lang.as_deref()).await {
-                    Ok(kernels) => (Some(kernels), None, Some(ExecutionBounds::Fork)),
+                Some(bounds) => match executor.replicate_kernels(bounds, lang.as_deref()).await {
+                    Ok(kernels) => (Some(kernels), None, Some(bounds)),
                     Err(error) => (
                         None,
-                        Some(error_to_execution_message("While forking kernels", error)),
+                        Some(error_to_execution_message(
+                            "While replicating kernels",
+                            error,
+                        )),
                         None,
                     ),
                 },
-                _ => (
-                    None,
-                    Some(ExecutionMessage::new(
-                        MessageLevel::Error,
-                        format!(
-                            "Execution bounds `{}` not yet supported",
-                            self.execution_bounds.unwrap_or_default()
-                        ),
-                    )),
-                    None,
-                ),
             };
 
             let (outputs, messages, instance) = if let Some(kernels) = kernels {

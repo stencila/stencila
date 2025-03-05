@@ -8,12 +8,12 @@ use kernel_micro::{
     common::{eyre::Result, serde::Deserialize, serde_json, tempfile, tracing},
     format::Format,
     schema::{
-        AuthorRole, AuthorRoleName, CodeLocation, CompilationMessage, MessageLevel,
-        SoftwareApplication, Timestamp,
+        AuthorRole, AuthorRoleName, CodeLocation, CompilationMessage, ExecutionBounds,
+        MessageLevel, SoftwareApplication, Timestamp,
     },
-    Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
-    KernelLint, KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider,
-    KernelTerminate, Microkernel,
+    Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelLint,
+    KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider, KernelTerminate,
+    Microkernel,
 };
 
 /// A kernel for executing JavaScript code in Node.js
@@ -78,14 +78,18 @@ impl Kernel for NodeJsKernel {
         self.microkernel_supports_kill()
     }
 
-    fn supports_forks(&self) -> KernelForks {
-        // Supported on all platforms because uses Node.js `child_process.fork`
-        // rather than Unix `fork`.
-        KernelForks::Yes
+    fn supported_bounds(&self) -> Vec<ExecutionBounds> {
+        vec![
+            ExecutionBounds::Main,
+            // Fork & Box: supported on all platforms because uses Node.js `child_process.fork`
+            // rather than Unix `fork`.
+            ExecutionBounds::Fork,
+            ExecutionBounds::Box,
+        ]
     }
 
-    fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        self.microkernel_create_instance(NAME)
+    fn create_instance(&self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
+        self.microkernel_create_instance(NAME, bounds)
     }
 }
 
@@ -270,7 +274,7 @@ mod tests {
             Array, ArrayHint, CodeLocation, ExecutionMessage, Hint, MessageLevel, Node, Null,
             Object, ObjectHint, Primitive, StringHint, Variable,
         },
-        tests::{create_instance, start_instance},
+        tests::{create_instance, start_instance, start_instance_with},
     };
 
     use super::*;
@@ -716,7 +720,7 @@ console.log(typeof fs.read, typeof path.join, typeof crypto.createHash)
             ]
         );
 
-        let mut fork = instance.fork().await?;
+        let mut fork = instance.replicate(ExecutionBounds::Fork).await?;
         let (outputs, messages) = fork
             .execute(
                 r#"
@@ -733,6 +737,41 @@ console.log(typeof fs.read, typeof path.join, typeof crypto.createHash)
                 Node::String("function".to_string())
             ]
         );
+
+        Ok(())
+    }
+
+    /// Custom test for boxed kernel
+    ///
+    /// Currently just a few tests covering the main categories of restriction.
+    #[tokio::test]
+    async fn boxed() -> Result<()> {
+        let Some(mut instance) = start_instance_with::<NodeJsKernel>(ExecutionBounds::Box).await?
+        else {
+            return Ok(());
+        };
+
+        instance.execute("const fs = require('fs'); const https = require('https'); const child_process = require('child_process');").await?;
+
+        // Read-only access to files
+        let (.., messages) = instance.execute("fs.writeFile('write.txt')").await?;
+        assert_eq!(
+            messages[0].message,
+            "Write access to filesystem is restricted in boxed kernel"
+        );
+
+        let (.., messages) = instance.execute("fs.unlink('some-file.txt')").await?;
+        assert_eq!(
+            messages[0].message,
+            "Write access to filesystem is restricted in boxed kernel"
+        );
+
+        // No process management
+        let (.., messages) = instance.execute("child_process.spawn('command')").await?;
+        assert_eq!(messages[0].message, "Process management is restricted in boxed kernel");
+
+        let (.., messages) = instance.execute("https.get('https://example.com')").await?;
+        assert_eq!(messages[0].message, "Network access is restricted in boxed kernel");
 
         Ok(())
     }

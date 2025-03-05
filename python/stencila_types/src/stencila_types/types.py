@@ -244,7 +244,6 @@ class ExecutionBounds(StrEnum):
 
     Main = "Main"
     Fork = "Fork"
-    Limit = "Limit"
     Box = "Box"
 
 

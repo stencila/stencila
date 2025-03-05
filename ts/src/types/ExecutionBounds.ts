@@ -5,7 +5,6 @@
 export type ExecutionBounds =
   'Main' |
   'Fork' |
-  'Limit' |
   'Box';
 
 

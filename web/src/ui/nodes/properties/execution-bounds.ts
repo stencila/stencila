@@ -37,8 +37,6 @@ export class UINodeExecutionBounds extends UIBaseClass {
           return 'arrowNarrowUp'
         case 'Fork':
           return 'arrowRampRight3'
-        case 'Limit':
-          return 'coneStriped'
         case 'Box':
           return 'box'
       }
@@ -50,10 +48,8 @@ export class UINodeExecutionBounds extends UIBaseClass {
           return 'Run in main kernel'
         case 'Fork':
           return 'Run in forked kernel'
-        case 'Limit':
-          return 'Run in forked kernel with limited capabilities'
         case 'Box':
-          return 'Run in forked kernel within a sandbox'
+          return 'Run in forked and restricted kernel'
       }
     }
 
@@ -64,13 +60,7 @@ export class UINodeExecutionBounds extends UIBaseClass {
       }
     `
 
-    const alternatives: ExecutionBounds[] = [
-      'Main',
-      'Fork',
-      // Following variants not provided until implemented
-      //'Limit',
-      //'Box',
-    ]
+    const alternatives: ExecutionBounds[] = ['Main', 'Fork', 'Box']
 
     const menuItems = alternatives.map(
       (value: ExecutionBounds) =>

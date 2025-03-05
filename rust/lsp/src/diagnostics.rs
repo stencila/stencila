@@ -328,6 +328,9 @@ fn execution_status(node: &TextNode, execution: &TextNodeExecution) -> Option<St
             let status = if let Some(ExecutionBounds::Fork) = &execution.bounded {
                 message.push_str(" in forked kernel");
                 "SucceededFork"
+            } else if let Some(ExecutionBounds::Box) = &execution.bounded {
+                message.push_str(" in boxed kernel");
+                "SucceededBox"
             } else {
                 "Succeeded"
             }

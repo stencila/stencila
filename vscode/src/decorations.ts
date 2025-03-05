@@ -158,6 +158,29 @@ export const succeededForkDecoration =
     },
   });
 
+const succeededBox = "180deg";
+const succeededBoxMid = `hsl(${succeededBox} 90% 30%)`;
+const succeededBoxLight = `hsl(${succeededBox} 90% 95%)`;
+const succeededBoxDark = `hsl(${succeededBox} 90% 5%)`;
+
+export const succeededBoxDecoration =
+  vscode.window.createTextEditorDecorationType({
+    overviewRulerColor: succeededBoxMid,
+    overviewRulerLane: vscode.OverviewRulerLane.Right,
+    light: {
+      after: {
+        color: succeededBoxMid,
+        backgroundColor: succeededBoxLight,
+      },
+    },
+    dark: {
+      after: {
+        color: succeededBoxMid,
+        backgroundColor: succeededBoxDark,
+      },
+    },
+  });
+
 const failed = "0deg";
 const failedMid = `hsl(${failed} 100% 80%)`;
 

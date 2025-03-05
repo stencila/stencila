@@ -185,7 +185,7 @@ repository:
             \s+
             (?:
               always|auto|demand|need|lock|
-              fork|limit|box|main|
+              main|fork|box|
               echo|
               hide
             )
@@ -219,7 +219,7 @@ repository:
             \s+
             (?:
               always|auto|demand|need|lock|
-              fork|limit|box|main|
+              main|fork|box|
               echo|
               hide
             )
@@ -249,7 +249,7 @@ repository:
             \s+
             (?:
               always|auto|demand|need|lock|
-              fork|limit|box|main|
+              main|fork|box|
               echo|
               hide
             )

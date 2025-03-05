@@ -1,4 +1,4 @@
-use schema::{SuggestionBlock, SuggestionStatus};
+use schema::{ExecutionBounds, SuggestionBlock, SuggestionStatus};
 
 use crate::prelude::*;
 
@@ -72,7 +72,11 @@ impl Executable for SuggestionBlock {
             }
             Some(SuggestionStatus::Rejected) | None => {
                 // Suggestion is rejected or proposed so execute within a fork, but only if that is possible
-                let forkable = executor.kernels().await.supports_forks().await;
+                let forkable = executor
+                    .kernels()
+                    .await
+                    .can_replicate(ExecutionBounds::Fork)
+                    .await;
                 if forkable {
                     tracing::trace!(
                         "Executing proposed suggestion block `{node_id}` with forked executor"

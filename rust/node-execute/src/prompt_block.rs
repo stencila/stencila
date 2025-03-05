@@ -6,7 +6,7 @@ use common::{
 };
 use kernels::Kernels;
 use prompts::prompt::{KernelsContext, PromptContext};
-use schema::{replicate, CompilationDigest, PromptBlock};
+use schema::{replicate, CompilationDigest, ExecutionBounds, PromptBlock};
 
 use crate::{prelude::*, state_digest};
 
@@ -209,7 +209,7 @@ async fn prompt_executor(executor: &Executor, home: PathBuf) -> Result<Executor>
     let kernel_instance = context.into_kernel().await?;
 
     // Create a set of kernels to execute the prompt and add the kernel instance to it
-    let mut kernels = Kernels::new(&home);
+    let mut kernels = Kernels::new(ExecutionBounds::Main, &home);
     kernels
         .add_instance(Arc::new(kernel), kernel_instance)
         .await?;

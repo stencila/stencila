@@ -3,10 +3,10 @@ use kernel::{
     format::Format,
     generate_id,
     schema::{
-        CodeLocation, ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication,
-        SoftwareApplicationOptions,
+        CodeLocation, ExecutionBounds, ExecutionMessage, MessageLevel, Node, Null,
+        SoftwareApplication, SoftwareApplicationOptions,
     },
-    Kernel, KernelForks, KernelInstance, KernelType,
+    Kernel, KernelInstance, KernelType,
 };
 
 const NAME: &str = "asciimath";
@@ -32,11 +32,17 @@ impl Kernel for AsciiMathKernel {
         vec![Format::AsciiMath]
     }
 
-    fn supports_forks(&self) -> kernel::KernelForks {
-        KernelForks::Yes
+    fn supported_bounds(&self) -> Vec<ExecutionBounds> {
+        vec![
+            ExecutionBounds::Main,
+            // Fork & Box supported because no state mutation,
+            // or filesystem or network access in this kernel
+            ExecutionBounds::Fork,
+            ExecutionBounds::Box,
+        ]
     }
 
-    fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
+    fn create_instance(&self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         Ok(Box::new(AsciiMathKernelInstance::new()))
     }
 }
@@ -195,7 +201,7 @@ impl KernelInstance for AsciiMathKernelInstance {
         })
     }
 
-    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
+    async fn replicate(&mut self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         Ok(Box::new(Self::new()))
     }
 }

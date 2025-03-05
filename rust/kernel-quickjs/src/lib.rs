@@ -31,11 +31,11 @@ use kernel::{
     format::Format,
     generate_id,
     schema::{
-        Array, ArrayHint, CodeLocation, ExecutionMessage, Hint, MessageLevel, Node, NodeType, Null,
-        Object, ObjectHint, Primitive, SoftwareApplication, SoftwareApplicationOptions,
-        SoftwareSourceCode, StringHint, Variable,
+        Array, ArrayHint, CodeLocation, ExecutionBounds, ExecutionMessage, Hint, MessageLevel,
+        Node, NodeType, Null, Object, ObjectHint, Primitive, SoftwareApplication,
+        SoftwareApplicationOptions, SoftwareSourceCode, StringHint, Variable,
     },
-    Kernel, KernelForks, KernelInstance, KernelSignal, KernelStatus, KernelTerminate,
+    Kernel, KernelInstance, KernelSignal, KernelStatus, KernelTerminate,
 };
 
 // Re-export primarily for use by the `prompt` crate
@@ -60,15 +60,21 @@ impl Kernel for QuickJsKernel {
         vec![Format::JavaScript]
     }
 
-    fn supports_forks(&self) -> KernelForks {
-        KernelForks::Yes
-    }
-
     fn supports_terminate(&self) -> KernelTerminate {
         KernelTerminate::Yes
     }
 
-    fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
+    fn supported_bounds(&self) -> Vec<ExecutionBounds> {
+        vec![
+            ExecutionBounds::Main,
+            // Fork & Box supported because no state mutation,
+            // or filesystem or network access in this kernel
+            ExecutionBounds::Fork,
+            ExecutionBounds::Box,
+        ]
+    }
+
+    fn create_instance(&self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         Ok(Box::new(QuickJsKernelInstance::new()))
     }
 }
@@ -276,7 +282,7 @@ impl KernelInstance for QuickJsKernelInstance {
         self.set_status(KernelStatus::Ready)
     }
 
-    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
+    async fn replicate(&mut self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         tracing::trace!("Forking QuickJS kernel instance");
 
         // Create instance

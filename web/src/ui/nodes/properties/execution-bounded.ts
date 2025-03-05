@@ -31,14 +31,9 @@ export class UINodeExecutionBounded extends LitElement {
         tooltip = 'Executed in a forked kernel'
         break
       }
-      case 'Limit': {
-        icon = 'coneStriped'
-        tooltip = 'Executed in a forked kernel with limited capabilities'
-        break
-      }
       case 'Box': {
         icon = 'box'
-        tooltip = 'Executed in a forked kernel within a sandbox'
+        tooltip = 'Executed in a forked and restricted kernel'
         break
       }
     }

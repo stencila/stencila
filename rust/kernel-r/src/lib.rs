@@ -9,12 +9,12 @@ use kernel_micro::{
     common::{eyre::Result, serde::Deserialize, serde_json, tempfile, tracing},
     format::Format,
     schema::{
-        AuthorRole, AuthorRoleName, CodeLocation, CompilationMessage, MessageLevel,
-        SoftwareApplication, Timestamp,
+        AuthorRole, AuthorRoleName, CodeLocation, CompilationMessage, ExecutionBounds,
+        MessageLevel, SoftwareApplication, Timestamp,
     },
-    Kernel, KernelAvailability, KernelForks, KernelInstance, KernelInterrupt, KernelKill,
-    KernelLint, KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider,
-    KernelTerminate, Microkernel,
+    Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelLint,
+    KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider, KernelTerminate,
+    Microkernel,
 };
 
 /// A kernel for executing R code
@@ -70,12 +70,19 @@ impl Kernel for RKernel {
         self.microkernel_supports_kill()
     }
 
-    fn supports_forks(&self) -> KernelForks {
-        self.microkernel_supports_forks()
+    fn supported_bounds(&self) -> Vec<ExecutionBounds> {
+        let mut bounds = vec![ExecutionBounds::Main];
+
+        if cfg!(unix) {
+            // Fork & Box both use `parallel:::mcfork` which is only available on POSIX-based systems
+            bounds.append(&mut vec![ExecutionBounds::Fork, ExecutionBounds::Box]);
+        }
+
+        bounds
     }
 
-    fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
-        self.microkernel_create_instance(NAME)
+    fn create_instance(&self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
+        self.microkernel_create_instance(NAME, bounds)
     }
 }
 
@@ -226,7 +233,7 @@ mod tests {
             IntegerValidator, Node, Null, NumberValidator, Object, ObjectHint, Primitive,
             StringHint, StringValidator, Validator, Variable,
         },
-        tests::{create_instance, start_instance},
+        tests::{create_instance, start_instance, start_instance_with},
     };
 
     use super::*;
@@ -392,6 +399,7 @@ b",
 
         // Syntax error
         let (outputs, messages) = kernel.execute("bad ^ # syntax").await?;
+        assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].error_type.as_deref(), Some("SyntaxError"));
         assert_eq!(
             messages[0].message,
@@ -404,6 +412,7 @@ b",
 
         // Runtime error
         let (outputs, messages) = kernel.execute("foo").await?;
+        assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].error_type.as_deref(), Some("RuntimeError"));
         assert_eq!(messages[0].message, "object 'foo' not found");
         assert!(messages[0].stack_trace.is_none());
@@ -413,6 +422,7 @@ b",
         let (outputs, messages) = kernel
             .execute("tidyr::pivot_longer(mtcars, cols = -foo)")
             .await?;
+        assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].error_type.as_deref(), Some("RuntimeError"));
         assert_eq!(
             messages[0].message,
@@ -433,6 +443,7 @@ warns()
 "#,
             )
             .await?;
+        assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].message, "a warning");
         assert_eq!(messages[0].level, MessageLevel::Warning);
         assert_eq!(outputs, vec![Node::Integer(3)]);
@@ -447,6 +458,7 @@ ggplot(data.frame(x=c(1, 2, NA), y=c(2, 4, NA)), aes(x=x,y=y)) + geom_point()
 "#,
             )
             .await?;
+        assert_eq!(messages.len(), 1);
         assert_eq!(
             messages[0].message,
             "Removed 1 row containing missing values or values outside the scale range\n(`geom_point()`)."
@@ -464,6 +476,7 @@ ggplot(data.frame(x=c(1, 2, NA), y=c(2, 4, NA)), aes(x=x,y=y)) + geom_point()
         let (output, messages) = kernel
             .evaluate(r#"base::warning("another warning"); 6*7"#)
             .await?;
+        assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].message, "another warning");
         assert_eq!(messages[0].level, MessageLevel::Warning);
         assert_eq!(output, Node::Integer(42));
@@ -964,7 +977,7 @@ class(toRd)
         assert_eq!(messages, vec![]);
         assert_eq!(outputs, vec![Node::String("function".to_string())]);
 
-        let mut fork = instance.fork().await?;
+        let mut fork = instance.replicate(ExecutionBounds::Fork).await?;
         let (outputs, messages) = fork
             .execute(
                 r#"
@@ -974,6 +987,27 @@ class(toRd)
             .await?;
         assert_eq!(messages, vec![]);
         assert_eq!(outputs, vec![Node::String("function".to_string())]);
+
+        Ok(())
+    }
+
+    /// Regression test for then need to reset the random seed when forking kernel (otherwise get same numbers)
+    #[test_log::test(tokio::test)]
+    async fn forking_randoms() -> Result<()> {
+        let Some(mut instance) = start_instance::<RKernel>().await? else {
+            return Ok(());
+        };
+
+        let (rand, ..) = instance.evaluate("runif(1)").await?;
+
+        let mut fork1 = instance.replicate(ExecutionBounds::Fork).await?;
+        let (rand1, ..) = fork1.evaluate("runif(1)").await?;
+        assert_ne!(rand, rand1);
+
+        let mut fork2 = instance.replicate(ExecutionBounds::Fork).await?;
+        let (rand2, ..) = fork2.evaluate("runif(1)").await?;
+        assert_ne!(rand, rand2);
+        assert_ne!(rand1, rand2);
 
         Ok(())
     }
@@ -1020,5 +1054,50 @@ Sys.sleep(100)",
         };
 
         kernel_micro::tests::stop(instance).await
+    }
+
+    /// Custom test for boxed kernel
+    ///
+    /// Currently just a few tests covering the main categories of restriction.
+    #[tokio::test]
+    async fn boxed() -> Result<()> {
+        let Some(mut instance) = start_instance_with::<RKernel>(ExecutionBounds::Box).await? else {
+            return Ok(());
+        };
+
+        // Read-only access to files
+        let (.., messages) = instance.execute("file('write.txt', 'w')").await?;
+        assert_eq!(
+            messages[0].message,
+            "Write access to filesystem is restricted in boxed kernel"
+        );
+
+        let (.., messages) = instance.execute("file.create('read-write.txt')").await?;
+        assert_eq!(
+            messages[0].message,
+            "Write access to filesystem is restricted in boxed kernel"
+        );
+
+        let (.., messages) = instance.execute("unlink('some-file.txt')").await?;
+        assert_eq!(
+            messages[0].message,
+            "Write access to filesystem is restricted in boxed kernel"
+        );
+
+        // No process management
+        let (.., messages) = instance.execute("system('command')").await?;
+        assert_eq!(
+            messages[0].message,
+            "Process management is restricted in boxed kernel"
+        );
+
+        // No network access
+        let (.., messages) = instance.execute("url('http://example.com')").await?;
+        assert_eq!(
+            messages[0].message,
+            "Network access is restricted in boxed kernel"
+        );
+
+        Ok(())
     }
 }

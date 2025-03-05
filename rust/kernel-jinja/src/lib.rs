@@ -15,10 +15,11 @@ use kernel::{
     format::Format,
     generate_id,
     schema::{
-        ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication, SoftwareApplicationOptions,
+        ExecutionBounds, ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication,
+        SoftwareApplicationOptions,
     },
-    Kernel, KernelForks, KernelInstance, KernelType, KernelVariableRequest,
-    KernelVariableRequester, KernelVariableResponder,
+    Kernel, KernelInstance, KernelType, KernelVariableRequest, KernelVariableRequester,
+    KernelVariableResponder,
 };
 
 const NAME: &str = "jinja";
@@ -40,15 +41,21 @@ impl Kernel for JinjaKernel {
         vec![Format::Jinja]
     }
 
-    fn supports_forks(&self) -> kernel::KernelForks {
-        KernelForks::Yes
+    fn supported_bounds(&self) -> Vec<ExecutionBounds> {
+        vec![
+            ExecutionBounds::Main,
+            // Fork & Box supported because no state mutation,
+            // or filesystem or network access in this kernel
+            ExecutionBounds::Fork,
+            ExecutionBounds::Box,
+        ]
     }
 
     fn supports_variable_requests(&self) -> bool {
         true
     }
 
-    fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
+    fn create_instance(&self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         Ok(Box::new(JinjaKernelInstance::new()))
     }
 }
@@ -204,7 +211,7 @@ impl KernelInstance for JinjaKernelInstance {
         }));
     }
 
-    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
+    async fn replicate(&mut self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         Ok(Box::new(Self::new()))
     }
 }

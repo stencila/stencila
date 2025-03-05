@@ -23,11 +23,11 @@ use kernel::{
     format::Format,
     generate_id,
     schema::{
-        ArrayHint, ExecutionMessage, Hint, MessageLevel, Node, NodeType, Null, ObjectHint,
-        SoftwareApplication, SoftwareApplicationOptions, SoftwareSourceCode, StringHint, Unknown,
-        Variable,
+        ArrayHint, ExecutionBounds, ExecutionMessage, Hint, MessageLevel, Node, NodeType, Null,
+        ObjectHint, SoftwareApplication, SoftwareApplicationOptions, SoftwareSourceCode,
+        StringHint, Unknown, Variable,
     },
-    Kernel, KernelForks, KernelInstance, KernelSignal, KernelStatus, KernelTerminate,
+    Kernel, KernelInstance, KernelSignal, KernelStatus, KernelTerminate,
 };
 
 /// A kernel for executing Rhai.
@@ -47,15 +47,22 @@ impl Kernel for RhaiKernel {
         vec![Format::Rhai]
     }
 
-    fn supports_forks(&self) -> kernel::KernelForks {
-        KernelForks::Yes
-    }
-
     fn supports_terminate(&self) -> KernelTerminate {
         KernelTerminate::Yes
     }
 
-    fn create_instance(&self) -> Result<Box<dyn KernelInstance>> {
+    fn supported_bounds(&self) -> Vec<ExecutionBounds> {
+        vec![
+            ExecutionBounds::Main,
+            // Fork supported by cloning context
+            ExecutionBounds::Fork,
+            // Box supported because no state mutation,
+            // or filesystem or network access
+            ExecutionBounds::Box,
+        ]
+    }
+
+    fn create_instance(&self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         Ok(Box::new(RhaiKernelInstance::new()))
     }
 }
@@ -286,7 +293,7 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
         self.set_status(KernelStatus::Ready)
     }
 
-    async fn fork(&mut self) -> Result<Box<dyn KernelInstance>> {
+    async fn replicate(&mut self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         tracing::trace!("Forking Rhai kernel instance");
 
         // Create instance

@@ -9,6 +9,7 @@ import {
   staleDecoration,
   succeededDecoration,
   succeededForkDecoration,
+  succeededBoxDecoration,
   failedDecoration,
   unexecutedDecoration,
 } from "./decorations";
@@ -26,6 +27,7 @@ interface Status {
     | "Running"
     | "Succeeded"
     | "SucceededFork"
+    | "SucceededBox"
     | "Failed"
     | "Active";
   message: string;
@@ -88,6 +90,7 @@ export function registerStatusNotifications(
       decorationsFor("Running", runningDecoration);
       decorationsFor("Succeeded", succeededDecoration);
       decorationsFor("SucceededFork", succeededForkDecoration);
+      decorationsFor("SucceededBox", succeededBoxDecoration);
       decorationsFor("Failed", failedDecoration);
       decorationsFor("Active", activeDecoration);
     }

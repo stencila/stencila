@@ -16,9 +16,9 @@ use kernels::{KernelLintingOptions, Kernels};
 use prompts::prompt::{DocumentContext, InstructionContext};
 use schema::{
     AuthorRole, AuthorRoleName, Block, CompilationDigest, CompilationMessage, Config,
-    ExecutionMode, ExecutionStatus, Inline, Link, List, ListItem, ListOrder, Node, NodeId,
-    NodeProperty, NodeType, Paragraph, Patch, PatchNode, PatchOp, PatchPath, PatchValue, Timestamp,
-    VisitorAsync, WalkControl, WalkNode,
+    ExecutionBounds, ExecutionMode, ExecutionStatus, Inline, Link, List, ListItem, ListOrder, Node,
+    NodeId, NodeProperty, NodeType, Paragraph, Patch, PatchNode, PatchOp, PatchPath, PatchValue,
+    Timestamp, VisitorAsync, WalkControl, WalkNode,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -461,14 +461,18 @@ impl Executor {
     async fn fork_for_execute(&self) -> Result<Self> {
         Ok(Self {
             phase: Phase::Execute,
-            kernels: self.fork_kernels(None).await?,
+            kernels: self.replicate_kernels(ExecutionBounds::Fork, None).await?,
             ..self.clone()
         })
     }
 
     /// Create a fork of the executor's kernels
-    async fn fork_kernels(&self, lang: Option<&str>) -> Result<Arc<RwLock<Kernels>>> {
-        let kernels = self.kernels().await.fork(lang).await?;
+    async fn replicate_kernels(
+        &self,
+        bounds: ExecutionBounds,
+        lang: Option<&str>,
+    ) -> Result<Arc<RwLock<Kernels>>> {
+        let kernels = self.kernels().await.replicate(bounds, lang).await?;
         Ok(Arc::new(RwLock::new(kernels)))
     }
 

@@ -51,15 +51,12 @@ pub(super) fn execution_mode(input: &mut Located<&str>) -> ModalResult<Execution
 
 /// Parse an execution bounds variant
 pub(super) fn execution_bounds(input: &mut Located<&str>) -> ModalResult<ExecutionBounds> {
-    alt(("main", "fork", "limit", "box"))
-        .map(|typ| match typ {
-            "main" => ExecutionBounds::Main,
-            "fork" => ExecutionBounds::Fork,
-            "limit" => ExecutionBounds::Limit,
-            "box" => ExecutionBounds::Box,
-            _ => unreachable!(),
-        })
-        .parse_next(input)
+    alt((
+        "main".value(ExecutionBounds::Main),
+        "fork".value(ExecutionBounds::Fork),
+        "box".value(ExecutionBounds::Box),
+    ))
+    .parse_next(input)
 }
 
 /// Parse an instruction type

@@ -1,5 +1,5 @@
 use cli_utils::{message, Message};
-use codec::schema::shortcuts;
+use codec::schema::{shortcuts, ExecutionBounds};
 use common::{
     clap::{self, Args},
     eyre::Result,
@@ -79,7 +79,7 @@ pub async fn check(
         tracing::info!("Checking plugin `{name}` kernel `{}`", kernel.name());
 
         // Start an instance of the kernel
-        let mut instance = kernel.create_instance()?;
+        let mut instance = kernel.create_instance(ExecutionBounds::Main)?;
         instance.start_here().await?;
 
         // Call methods on the instance. The return value will vary between

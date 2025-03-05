@@ -353,7 +353,7 @@ async fn kernel_snippets(line_num: u32) -> Result<Option<CompletionResponse>, Re
 /// Provide list of keyword for execution mode and bounds
 fn execution_keywords(line: &str) -> Result<Option<CompletionResponse>, ResponseError> {
     const MODE: [&str; 5] = ["auto", "always", "lock", "need", "demand"];
-    const BOUNDS: [&str; 4] = ["fork", "limit", "box", "main"];
+    const BOUNDS: [&str; 2] = ["fork", "box"]; // Although `main` is valid keyword, it is default, so not offered in completions
     const ECHO: &str = "echo";
     const HIDE: &str = "hide";
 
@@ -402,10 +402,8 @@ fn execution_keywords(line: &str) -> Result<Option<CompletionResponse>, Response
                     label_details: Some(CompletionItemLabelDetails {
                         description: Some(
                             match bounds {
-                                "main" => "Run in main kernel",
                                 "fork" => "Run in forked kernel",
-                                "limit" => "Run in forked kernel with limited capabilities",
-                                "box" => "Run in forked kernel within a sandbox",
+                                "box" => "Run in forked and restricted kernel",
                                 _ => "",
                             }
                             .into(),

@@ -19,6 +19,7 @@ const LINE = dev ? "|" : new RegExp("\u{10ABBA}", "g");
 const EXEC = dev ? "EXEC" : "\u{10B522}";
 const EVAL = dev ? "EVAL" : "\u{1010CC}";
 const FORK = dev ? "FORK" : "\u{10DE70}";
+const BOX = dev ? "BOX" : "\u{10B0C5}";
 const INFO = dev ? "INFO" : "\u{10EE15}";
 const PKGS = dev ? "PKGS" : "\u{10BEC4}";
 const LIST = dev ? "LIST" : "\u{10C155}";
@@ -297,6 +298,108 @@ function fork(pipes) {
   stdout.write(child.pid.toString());
 }
 
+function box() {
+  // Remove environment variables with SECRET, KEY, or TOKEN
+  for (const key of Object.keys(process.env)) {
+    const upper = key.toUpperCase();
+    if (
+      upper.includes("SECRET") ||
+      upper.includes("KEY") ||
+      upper.includes("TOKEN")
+    ) {
+      delete process.env[key];
+    }
+  }
+
+  // Restrict filesystem writes
+  function readonlyFsError() {
+    throw new Error("Write access to filesystem is restricted in boxed kernel");
+  }
+
+  // Replace write-related functions
+  const fs = require("fs");
+  fs.writeFile = readonlyFsError;
+  fs.writeFileSync = readonlyFsError;
+  fs.appendFile = readonlyFsError;
+  fs.appendFileSync = readonlyFsError;
+  fs.truncate = readonlyFsError;
+  fs.truncateSync = readonlyFsError;
+  fs.chmod = readonlyFsError;
+  fs.chmodSync = readonlyFsError;
+  fs.chown = readonlyFsError;
+  fs.chownSync = readonlyFsError;
+  fs.mkdir = readonlyFsError;
+  fs.mkdirSync = readonlyFsError;
+  fs.rmdir = readonlyFsError;
+  fs.rmdirSync = readonlyFsError;
+  fs.rm = readonlyFsError;
+  fs.rmSync = readonlyFsError;
+  fs.unlink = readonlyFsError;
+  fs.unlinkSync = readonlyFsError;
+  fs.rename = readonlyFsError;
+  fs.renameSync = readonlyFsError;
+  fs.symlink = readonlyFsError;
+  fs.symlinkSync = readonlyFsError;
+  fs.lchown = readonlyFsError;
+  fs.lchownSync = readonlyFsError;
+  fs.lchmod = readonlyFsError;
+  fs.lchmodSync = readonlyFsError;
+  fs.copyFile = readonlyFsError;
+  fs.copyFileSync = readonlyFsError;
+  fs.createWriteStream = readonlyFsError;
+
+  // Intercept fs.open to forbid flags containing 'w', 'a', or '+'
+  const originalFsOpen = fs.open;
+  fs.open = function (path, flags, mode, callback) {
+    if (typeof flags === "string" && /[wa+]/.test(flags)) {
+      return readonlyFsError();
+    }
+    return originalFsOpen.apply(this, arguments);
+  };
+
+  const originalFsOpenSync = fs.openSync;
+  fs.openSync = function (path, flags, mode) {
+    if (typeof flags === "string" && /[wa+]/.test(flags)) {
+      readonlyFsError();
+    }
+    return originalFsOpenSync.apply(this, arguments);
+  };
+
+  // Restrict process management
+  function processError() {
+    throw new Error("Process management is restricted in boxed kernel");
+  }
+
+  const child_process = require("child_process");
+  child_process.spawn = processError;
+  child_process.spawnSync = processError;
+  child_process.exec = processError;
+  child_process.execSync = processError;
+  child_process.fork = processError;
+  child_process.execFile = processError;
+  child_process.execFileSync = processError;
+
+  // Restrict network connections
+  function networkError() {
+    throw new Error("Network access is restricted in boxed kernel");
+  }
+
+  globalThis.fetch = networkError;
+
+  const net = require("net");
+  net.createServer = networkError;
+  net.createConnection = networkError;
+  net.connect = networkError;
+
+  const http = require("http");
+  http.request = networkError;
+  http.get = networkError;
+
+  const https = require("https");
+  https.request = networkError;
+  https.get = networkError;
+}
+
 // Read lines and handle tasks
 const rl = readline.createInterface({
   input: stdin,
@@ -327,6 +430,8 @@ rl.on("line", (task) => {
           return remove(lines[1]);
         case FORK:
           return fork(lines.slice(1));
+        case BOX:
+            return box();
         default:
           throw new Error(`Unrecognized task ${lines[0]}`);
       }
@@ -365,7 +470,7 @@ rl.on("line", (task) => {
           // Filter out lines related to evaluation
           if (
             !(
-              line.includes("kernels/kernel.js:") ||  // Linux & MacOS
+              line.includes("kernels/kernel.js:") || // Linux & MacOS
               line.includes("kernels\\kernel.js:") || // Windows
               line.includes("node:vm:") ||
               line.includes("node:internal/readline/interface:") ||

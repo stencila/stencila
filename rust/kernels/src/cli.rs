@@ -13,10 +13,9 @@ use kernel::{
         tokio::fs::read_to_string,
     },
     format::Format,
-    schema::StringOrNumber,
-    KernelAvailability, KernelForks, KernelInterrupt, KernelKill, KernelLinting,
-    KernelLintingOptions, KernelLintingOutput, KernelProvider, KernelSpecification,
-    KernelTerminate, KernelType,
+    schema::{ExecutionBounds, StringOrNumber},
+    KernelAvailability, KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider,
+    KernelSpecification, KernelType,
 };
 
 use crate::Kernels;
@@ -97,16 +96,11 @@ impl List {
             "Provider",
             "Availability",
             "Languages",
-            "Lint",
-            "Fork",
-            "Interrupt",
-            "Terminate",
-            "Kill",
+            "Linting",
+            "Highest bounds",
         ]);
 
         for kernel in list {
-            use KernelAvailability::*;
-
             let r#type = kernel.r#type();
             let provider = kernel.provider();
             let availability = kernel.availability();
@@ -116,10 +110,8 @@ impl List {
                 .map(|format| format.name())
                 .join(", ");
             let lint = kernel.supports_linting();
-            let forks = kernel.supports_forks();
-            let interrupt = kernel.supports_interrupt();
-            let terminate = kernel.supports_terminate();
-            let kill = kernel.supports_kill();
+            let bounds = kernel.supported_bounds();
+            let max_bounds = bounds.iter().max().unwrap_or(&ExecutionBounds::Main);
 
             table.add_row([
                 Cell::new(kernel.name()).add_attribute(Attribute::Bold),
@@ -137,37 +129,26 @@ impl List {
                         Cell::new(format!("plugin \"{name}\"")).fg(Color::Blue)
                     }
                 },
-                match availability {
-                    Available => Cell::new(availability).fg(Color::Green),
-                    Disabled => Cell::new(availability).fg(Color::DarkBlue),
-                    Installable => Cell::new(availability).fg(Color::Cyan),
-                    Unavailable => Cell::new(availability).fg(Color::Grey),
-                },
+                Cell::new(availability).fg(match availability {
+                    KernelAvailability::Available => Color::Green,
+                    KernelAvailability::Disabled => Color::DarkBlue,
+                    KernelAvailability::Installable => Color::Cyan,
+                    KernelAvailability::Unavailable => Color::Grey,
+                }),
                 Cell::new(langs),
-                match lint {
-                    KernelLinting::No => Cell::new(lint).fg(Color::DarkGrey),
-                    KernelLinting::Format => Cell::new(lint).fg(Color::Yellow),
-                    KernelLinting::Check => Cell::new(lint).fg(Color::Magenta),
-                    KernelLinting::Fix => Cell::new(lint).fg(Color::Blue),
-                    KernelLinting::FormatCheck => Cell::new(lint).fg(Color::Cyan),
-                    KernelLinting::FormatFix => Cell::new(lint).fg(Color::Green),
-                },
-                match forks {
-                    KernelForks::Yes => Cell::new(forks).fg(Color::Green),
-                    KernelForks::No => Cell::new(forks).fg(Color::DarkGrey),
-                },
-                match interrupt {
-                    KernelInterrupt::Yes => Cell::new(interrupt).fg(Color::Green),
-                    KernelInterrupt::No => Cell::new(interrupt).fg(Color::DarkGrey),
-                },
-                match terminate {
-                    KernelTerminate::Yes => Cell::new(terminate).fg(Color::Green),
-                    KernelTerminate::No => Cell::new(terminate).fg(Color::DarkGrey),
-                },
-                match kill {
-                    KernelKill::Yes => Cell::new(kill).fg(Color::Green),
-                    KernelKill::No => Cell::new(kill).fg(Color::DarkGrey),
-                },
+                Cell::new(lint).fg(match lint {
+                    KernelLinting::No => Color::DarkGrey,
+                    KernelLinting::Format => Color::Yellow,
+                    KernelLinting::Check => Color::Magenta,
+                    KernelLinting::Fix => Color::Blue,
+                    KernelLinting::FormatCheck => Color::Cyan,
+                    KernelLinting::FormatFix => Color::Green,
+                }),
+                Cell::new(max_bounds.to_string().to_lowercase()).fg(match max_bounds {
+                    ExecutionBounds::Main => Color::Yellow,
+                    ExecutionBounds::Fork => Color::Cyan,
+                    ExecutionBounds::Box => Color::Green,
+                }),
             ]);
         }
 
@@ -190,7 +171,7 @@ struct Info {
 impl Info {
     #[allow(clippy::print_stdout)]
     async fn run(self) -> Result<()> {
-        let mut kernels = Kernels::new_here();
+        let mut kernels = Kernels::new_here(ExecutionBounds::Main);
         let instance = kernels.create_instance(Some(&self.name)).await?;
 
         let info = instance.lock().await.info().await?;
@@ -223,7 +204,7 @@ struct Packages {
 
 impl Packages {
     async fn run(self) -> Result<()> {
-        let mut kernels = Kernels::new_here();
+        let mut kernels = Kernels::new_here(ExecutionBounds::Main);
         let instance = kernels.create_instance(Some(&self.name)).await?;
 
         let packages = instance.lock().await.packages().await?;
@@ -275,12 +256,22 @@ struct Execute {
     /// Escaped newline characters (i.e. "\n") in the code will be transformed into new lines
     /// before passing to the kernel.
     code: String,
+
+    /// Execute code in a kernel instance with `Box` execution bounds
+    #[arg(long, short)]
+    r#box: bool,
 }
 
 impl Execute {
     #[allow(clippy::print_stdout)]
     async fn run(self) -> Result<()> {
-        let mut kernels = Kernels::new_here();
+        let bounds = if self.r#box {
+            ExecutionBounds::Box
+        } else {
+            ExecutionBounds::Main
+        };
+
+        let mut kernels = Kernels::new_here(bounds);
         let instance = kernels.create_instance(Some(&self.name)).await?;
 
         let code = self.code.replace("\\n", "\n");
@@ -318,7 +309,7 @@ struct Evaluate {
 impl Evaluate {
     #[allow(clippy::print_stdout)]
     async fn run(self) -> Result<()> {
-        let mut kernels = Kernels::new_here();
+        let mut kernels = Kernels::new_here(ExecutionBounds::Main);
         let instance = kernels.create_instance(Some(&self.name)).await?;
 
         let (output, messages) = instance.lock().await.evaluate(&self.code).await?;

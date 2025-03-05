@@ -26,8 +26,8 @@ use node_diagnostics::{diagnostics, Diagnostic};
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
-    authorship, Article, AuthorRole, Chat, Config, File, Node, NodeId, NodeProperty, NodeType,
-    Null, Patch, Prompt,
+    authorship, Article, AuthorRole, Chat, Config, ExecutionBounds, File, Node, NodeId,
+    NodeProperty, NodeType, Null, Patch, Prompt,
 };
 
 #[allow(clippy::print_stderr)]
@@ -321,7 +321,7 @@ impl Document {
     #[tracing::instrument]
     pub fn init(home: PathBuf, path: Option<PathBuf>, node_type: Option<NodeType>) -> Result<Self> {
         // Create the document's kernels with the same home directory
-        let kernels = Arc::new(RwLock::new(Kernels::new(&home)));
+        let kernels = Arc::new(RwLock::new(Kernels::new(ExecutionBounds::Main, &home)));
 
         // Create the default root node type, if there is no sidecar file
         // The default node type itself defaults to none, because that is used in the
