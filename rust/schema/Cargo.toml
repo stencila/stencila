@@ -23,7 +23,7 @@ derive_more = { workspace = true }
 format = { path = "../format" }
 human_name = "2.0.3"
 images = { path = "../images" }
-interim = { version = "0.2.0", features = ["chrono_0_4"] }
+interim = { version = "0.2.1", features = ["chrono_0_4"] }
 monostate = { workspace = true }
 node-id = { path = "../node-id" }
 node-patch-derive = { path = "../node-patch-derive" }

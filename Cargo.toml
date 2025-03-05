@@ -23,16 +23,16 @@ directories = "6.0.0"
 flate2 = "1.0.35"
 mime = "0.3.17"
 mime_guess = "2.0.5"
-monostate = "0.1.12"
+monostate = "0.1.14"
 quick-xml = "0.37.2"
 rand = "0.9.0"
-serde = { version = "1.0.217", features = ["derive", "rc"] }
-semver = { version = "1.0.25", features = ["serde"] }
+serde = { version = "1.0.218", features = ["derive", "rc"] }
+semver = { version = "1.0.26", features = ["serde"] }
 smart-default = "0.7.1"
 test-log = { version = "0.2.17", default-features = false, features = ["trace"] }
 url = { version = "2.5.4", features = ["serde"] }
-which = "7.0.1"
-zip = "2.2.2"
+which = "7.0.2"
+zip = "2.2.3"
 
 [workspace.lints.rust]
 unsafe_code = "deny"
