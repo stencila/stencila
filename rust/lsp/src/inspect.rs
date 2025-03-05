@@ -379,6 +379,34 @@ trait Inspect {
     fn inspect(&self, inspector: &mut Inspector);
 }
 
+impl Inspect for Chat {
+    fn inspect(&self, inspector: &mut Inspector) {
+        let node_id = self.node_id();
+
+        let code_range = inspector
+            .poshmap
+            .node_property_to_range16(&node_id, NodeProperty::Frontmatter)
+            .map(range16_to_range);
+
+        let execution = Some(TextNodeExecution {
+            compilation_messages: self.options.compilation_messages.clone(),
+            execution_messages: self.options.execution_messages.clone(),
+            code_range,
+            ..Default::default()
+        });
+
+        inspector.enter_node(self.node_type(), node_id, None, None, execution, None);
+        
+        // Do not visit the messages of embedded chats otherwise can get phantom
+        // code lenses for blocks that are not rendered in content
+        if !self.is_embedded.unwrap_or_default() {
+            inspector.visit(self);
+        }
+
+        inspector.exit_node();
+    }
+}
+
 impl Inspect for ChatMessage {
     fn inspect(&self, inspector: &mut Inspector) {
         let execution = Some(TextNodeExecution {
@@ -809,7 +837,7 @@ macro_rules! root {
         })*
     };
 }
-root!(Article, Prompt, Chat);
+root!(Article, Prompt);
 
 /// Implementation for nodes with compilation messages
 macro_rules! compiled_options {
