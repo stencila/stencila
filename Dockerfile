@@ -1,5 +1,5 @@
 # Use the official Node.js image to build web clients and components
-FROM node:20 AS web
+FROM node:22 AS web
 
 # Set the working directory to /build and copy files into it
 WORKDIR /build
