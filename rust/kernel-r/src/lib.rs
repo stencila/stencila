@@ -46,14 +46,14 @@ impl Kernel for RKernel {
             .arg("styler::style_file")
             .stdout(Stdio::null())
             .status()
-            .map_or(false, |status| status.success());
+            .is_ok_and(|status| status.success());
 
         let lintr = Command::new("Rscript")
             .arg("-e")
             .arg("lintr::lint")
             .stdout(Stdio::null())
             .status()
-            .map_or(false, |status| status.success());
+            .is_ok_and(|status| status.success());
 
         KernelLinting::new(styler, lintr, false)
     }

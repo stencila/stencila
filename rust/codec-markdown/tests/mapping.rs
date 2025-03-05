@@ -26,8 +26,7 @@ async fn unicode() -> Result<()> {
     let (.., EncodeInfo { mapping, .. }) = codec.to_string(&art([p([t("4 🏳️‍🌈")])]), None).await?;
     assert_eq!(mapping.entry_at(0).unwrap().range.len(), 6);
 
-    let (.., EncodeInfo { mapping, .. }) =
-        codec.to_string(&art([p([t("7 👨‍👩‍👧‍👦")])]), None).await?;
+    let (.., EncodeInfo { mapping, .. }) = codec.to_string(&art([p([t("7 👨‍👩‍👧‍👦")])]), None).await?;
     assert_eq!(mapping.entry_at(0).unwrap().range.len(), 9);
 
     Ok(())

@@ -88,7 +88,7 @@ pub struct RhaiKernelInstance<'lt> {
 }
 
 #[async_trait]
-impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
+impl KernelInstance for RhaiKernelInstance<'_> {
     fn id(&self) -> &str {
         &self.id
     }
@@ -312,7 +312,7 @@ impl<'lt> KernelInstance for RhaiKernelInstance<'lt> {
     }
 }
 
-impl<'lt> RhaiKernelInstance<'lt> {
+impl RhaiKernelInstance<'_> {
     /// Create a new kernel instance
     fn new() -> Self {
         let scope = Scope::new();

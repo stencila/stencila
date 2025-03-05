@@ -1,21 +1,21 @@
+//! Lexical node types represented as Rust structs with support
+//! for serialization/deserialization
+//!
+//! Implements the node types in Lexical:
+//!
+//! https://lexical.dev/docs/concepts/nodes
+//! https://lexical.dev/docs/api/classes/lexical.LexicalNode
+//!
+//! As well as those extension node type found in Koenig:
+//!
+//! https://github.com/TryGhost/Koenig
+
 use bitflags::bitflags;
 use monostate::MustBe;
 use serde::{Deserialize, Serialize};
 use smart_default::SmartDefault;
 
 use codec::common::{serde_json, serde_with::skip_serializing_none};
-
-/// Lexical node types represented as Rust structs with support
-/// for serialization/deserialization
-///
-/// Implements the node types in Lexical:
-///
-/// https://lexical.dev/docs/concepts/nodes
-/// https://lexical.dev/docs/api/classes/lexical.LexicalNode
-///
-/// As well as those extension node type found in Koenig:
-///
-/// https://github.com/TryGhost/Koenig
 
 /// Block node types
 ///

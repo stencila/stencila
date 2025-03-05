@@ -52,7 +52,7 @@ impl Kernel for NodeJsKernel {
             .arg("--version") // Smaller output than without
             .stdout(Stdio::null())
             .status()
-            .map_or(false, |status| status.success());
+            .is_ok_and(|status| status.success());
 
         let fix = Command::new("npx")
             .arg("--no") // Do not install eslint if not already
@@ -61,7 +61,7 @@ impl Kernel for NodeJsKernel {
             .arg("--version") // To prevent eslint waiting for input
             .stdout(Stdio::null())
             .status()
-            .map_or(false, |status| status.success());
+            .is_ok_and(|status| status.success());
 
         KernelLinting::new(format, fix, fix)
     }

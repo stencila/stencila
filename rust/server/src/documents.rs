@@ -158,7 +158,7 @@ fn resolve_path(path: PathBuf) -> Result<Option<PathBuf>, InternalError> {
         .flatten()
         .filter(|path| {
             path.file_name()
-                .map_or(false, |name| !name.to_string_lossy().starts_with('.'))
+                .is_some_and(|name| !name.to_string_lossy().starts_with('.'))
                 && path.is_file()
         })
         .sorted_by(|a, b| {

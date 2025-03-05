@@ -1,3 +1,19 @@
+//! The semver requirement for Pandoc.
+//!
+//! Note that this is a semver *requirement*, so higher versions of Pandoc
+//! that meet this, should still work.
+//!
+//! This is mostly based on compatibility with the `pandoc_types` crate.
+//! Some recent changes to the pandoc-types versions used by Pandoc (from https://pandoc.org/releases.html):
+//!
+//!   pandoc 3.5 (?upgrade may have been in earlier version) : pandoc-types 1.23.1
+//!   pandoc 2.11 (2020-10-11) : pandoc-types 1.22
+//!   pandoc 2.10 (2020-06-29) : pandoc-types 1.21
+//!
+//! If/when there are future changes the `pandoc-types` version used in Pandoc itself
+//! then this semver requirement will need to be updated (i.e. be given an upper bound
+//! or `pandoc_types` crate updated and the lower bound raised)
+
 use std::{path::Path, process::Stdio};
 
 use codec::common::{
@@ -7,22 +23,6 @@ use codec::common::{
     tracing,
 };
 use pandoc_types::definition::Pandoc;
-
-/// The semver requirement for Pandoc.
-///
-/// Note that this is a semver *requirement*, so higher versions of Pandoc
-/// that meet this, should still work.
-///
-/// This is mostly based on compatibility with the `pandoc_types` crate.
-/// Some recent changes to the pandoc-types versions used by Pandoc (from https://pandoc.org/releases.html):
-///
-///   pandoc 3.5 (?upgrade may have been in earlier version) : pandoc-types 1.23.1
-///   pandoc 2.11 (2020-10-11) : pandoc-types 1.22
-///   pandoc 2.10 (2020-06-29) : pandoc-types 1.21
-///
-/// If/when there are future changes the `pandoc-types` version used in Pandoc itself
-/// then this semver requirement will need to be updated (i.e. be given an upper bound
-/// or `pandoc_types` crate updated and the lower bound raised)
 
 /// Call Pandoc binary to convert some input content to Pandoc JSON.
 #[tracing::instrument(skip(input))]

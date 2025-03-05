@@ -125,7 +125,7 @@ impl<'source, 'generated> Inspector<'source, 'generated> {
     }
 }
 
-impl<'source, 'generated> Visitor for Inspector<'source, 'generated> {
+impl Visitor for Inspector<'_, '_> {
     fn visit_node(&mut self, node: &Node) -> WalkControl {
         #[allow(clippy::single_match)]
         match node {

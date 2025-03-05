@@ -294,7 +294,7 @@ pub async fn infer(
             });
 
         // Get the prompt with the highest matches / lowest generality
-        counts.map(|(prompt, ..)| prompt).next().take()
+        counts.map(|(prompt, ..)| prompt).next()
     } else if let Some(node_types) = node_types {
         // Sort nodes by whether any of the lower case node types occur in the name of the prompt
         prompts
@@ -311,13 +311,11 @@ pub async fn infer(
                 }
             })
             .next()
-            .take()
     } else {
         // Get the prompt with the lowest generality
         prompts
             .sorted_by(|prompt_a, prompt_b| prompt_a.generality.cmp(&prompt_b.generality))
             .next()
-            .take()
     }
 }
 

@@ -88,15 +88,13 @@ pub struct Cli {
     #[arg(long)]
     id: Option<String>,
 
-    #[rustfmt::skip]
     // The following options are applicable only to pushes.
     // Using `conflicts_with = "pull"` for these is better than
     // using `requires = "push"` because with the latter the user
     // always has to enter `--push` even though it is the default.
-
     /// Title for page or post
-    #[arg(long,conflicts_with = "pull")]
-    #[arg(help_heading("Post/Page Settings"),display_order(2))]
+    #[arg(long, conflicts_with = "pull")]
+    #[arg(help_heading("Post/Page Settings"), display_order(2))]
     title: Option<String>,
 
     /// Mark page or post as draft
