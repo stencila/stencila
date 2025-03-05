@@ -127,14 +127,25 @@ nodeTypes: []
       return;
     }
 
-    const [nodeType, nodeId] = await vscode.commands.executeCommand<
-      [string, string]
-    >(
+    const result = await vscode.commands.executeCommand(
       `stencila.run-curr`,
       editor.document.uri.toString(),
       editor.selection.active
     );
-    
+
+    let nodeType;
+    let nodeId;
+    if (
+      Array.isArray(result) &&
+      typeof result[0] === "string" &&
+      typeof result[1] === "string"
+    ) {
+      nodeType = result[0];
+      nodeId = result[1];
+    } else {
+      return;
+    }
+
     if (nodeType === "Chat") {
       await createNodeViewPanel(
         context,

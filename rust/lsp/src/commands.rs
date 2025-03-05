@@ -29,7 +29,8 @@ use common::{
     serde_json::{self, json, Value},
     tokio::{
         self,
-        sync::{mpsc, RwLock},
+        sync::{mpsc, watch::Receiver, RwLock},
+        time::timeout,
     },
     tracing,
 };
@@ -43,7 +44,11 @@ use schema::{
     SuggestionStatus, Timestamp,
 };
 
-use crate::{formatting::format_doc, text_document::TextNode, ServerState};
+use crate::{
+    formatting::format_doc,
+    text_document::{SyncState, TextNode},
+    ServerState,
+};
 
 pub(super) const PATCH_VALUE: &str = "stencila.patch-value";
 pub(super) const PATCH_VALUE_EXECUTE: &str = "stencila.patch-value-execute";
@@ -132,12 +137,40 @@ pub(super) async fn execute_command(
     source: Arc<RwLock<String>>,
     root: Arc<RwLock<TextNode>>,
     doc: Arc<RwLock<Document>>,
+    mut sync_state_receiver: Receiver<SyncState>,
     source_doc: Option<Arc<RwLock<Document>>>,
     mut client: ClientSocket,
 ) -> Result<Option<Value>, ResponseError> {
     let command = command.as_str();
-    let mut args = arguments.into_iter();
 
+    // Before running command wait for document to be in sync.
+    // Use a timeout so that user is not confused if command does not run. Should be same as or longer
+    // that the delay in `TextDocument::diagnostics_task`.
+    // TODO: Make this timeout configurable https://github.com/stencila/stencila/issues/2405
+    const TIMEOUT_MILLIS: u64 = 3000;
+    match timeout(
+        Duration::from_millis(TIMEOUT_MILLIS),
+        sync_state_receiver.wait_for(|sync_state| matches!(sync_state, SyncState::Updated)),
+    )
+    .await
+    {
+        Err(..) => {
+            client.show_message(ShowMessageParams {
+                typ: MessageType::ERROR,
+                message: format!("Unable to run command `{command}` because document is out-of-sync with source, probably due to syntax errors"),
+            }).ok();
+            return Ok(None);
+        }
+        Ok(Err(..)) => {
+            return Err(ResponseError::new(
+                ErrorCode::INTERNAL_ERROR,
+                "Unable to wait for is_synced",
+            ))
+        }
+        _ => {}
+    };
+
+    let mut args = arguments.into_iter();
     let uri = uri_arg(args.next())?;
 
     let file_name = PathBuf::from(&uri.to_string())

@@ -53,8 +53,8 @@ export class IfBlock extends Executable {
         type="IfBlock"
         node-id=${this.id}
         depth=${this.depth}
-        ?removeContentPadding=${true}
-        ?noVisibleContent=${!this.hasClauses}
+        no-content-padding
+        ?no-content=${!this.hasClauses}
         ?no-root=${!hasDocRoot}
       >
         <div slot="header-right">

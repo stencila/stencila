@@ -250,7 +250,7 @@ export class InstructionBlock extends Instruction {
       node-id=${this.id}
       depth=${this.depth}
       header-title="${this.instructionType} Command"
-      ?noVisibleContent=${this.hasContent && !this.hasSuggestions}
+      ?no-content=${!this.hasContent && !this.hasSuggestions}
     >
       <span slot="header-right" class="flex">
         <stencila-ui-node-execution-commands

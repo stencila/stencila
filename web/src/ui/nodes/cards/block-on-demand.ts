@@ -19,8 +19,8 @@ import '../../animation/collapsible'
 @customElement('stencila-ui-block-on-demand')
 @withTwind()
 export class UIBlockOnDemand extends ToggleMarkerMixin(UIBaseCard) {
-  @property({ type: Boolean })
-  removeContentPadding: boolean = false
+  @property({ attribute: 'no-content-padding', type: Boolean })
+  noContentPadding: boolean = false
 
   protected override toggleMarkerPosition: string = ''
 
@@ -50,13 +50,17 @@ export class UIBlockOnDemand extends ToggleMarkerMixin(UIBaseCard) {
   }
 
   protected override renderBody() {
-    const bodyStyles = apply([
+    const hasBorder = (this.depth > 0 || this.noDocRoot) && this.toggle
+
+    const bodyStyles = apply(
       'relative',
       'w-full h-full',
       `bg-[${this.ui.colour}]`,
-      `border-b border-[${this.ui.borderColour}]`,
-      `text-[${this.ui.textColour}]`,
-    ])
+      !hasBorder || !this.noContent
+        ? `border-b border-[${this.ui.borderColour}]`
+        : '',
+      `text-[${this.ui.textColour}]`
+    )
 
     return html`<div class=${bodyStyles}>
       <slot name="body"></slot>
@@ -64,15 +68,15 @@ export class UIBlockOnDemand extends ToggleMarkerMixin(UIBaseCard) {
   }
 
   protected override renderContent() {
-    const contentStyles = apply([
+    const contentStyles = apply(
       'transition-[padding] ease-in-out duration-[250ms]',
-      this.toggle && (this.removeContentPadding ? '' : 'p-3'),
-    ])
+      this.toggle && !(this.noContent || this.noContentPadding) ? 'p-3' : ''
+    )
 
     return html`
       <div class=${!this.displayContent && this.toggle ? 'hidden' : 'block'}>
         ${this.renderMarker()}
-        <div class="content-block ${contentStyles}">
+        <div class="${contentStyles}">
           <slot name="content" class="relative w-full"></slot>
         </div>
       </div>

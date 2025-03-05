@@ -440,48 +440,45 @@ export class UINodeCode extends LitElement {
    * Handle a change, including on initial load, of the `messages` slot
    */
   private onMessagesSlotChange(event: Event) {
-    // Get the messages element
-    const messagesElem = (event.target as HTMLSlotElement).assignedElements({
+    // Get the messages elements: may be more than one, compilation and execution messages
+    // are both assigned to the messages slot
+    const messagesElems = (event.target as HTMLSlotElement).assignedElements({
       flatten: true,
-    })[0] as HTMLElement
+    }) as HTMLElement[]
 
-    if (!messagesElem) {
+    if (!messagesElems || messagesElems.length == 0) {
       return
     }
 
     // Update messages
-    this.updateMessages(messagesElem)
+    this.updateMessages(messagesElems)
 
     // Also update the messages when the element is mutated
     this.messagesObserver = new MutationObserver(() => {
-      this.updateMessages(messagesElem)
+      this.updateMessages(messagesElems)
     })
-    this.messagesObserver.observe(messagesElem, {
-      childList: true,
-      subtree: true,
-    })
+    for (const messagesElem of messagesElems) {
+      this.messagesObserver.observe(messagesElem, {
+        attributes: true,
+        childList: true,
+        subtree: true,
+      })
+    }
   }
 
   /**
    * Updates the `messages` property, generates linter
    * diagnostics for them, and updates the editor with those diagnostics
    */
-  private updateMessages(messagesElem?: HTMLElement) {
-    if (messagesElem) {
-      this.messages = Array.from(
-        messagesElem.querySelectorAll(
-          'stencila-compilation-message,stencila-execution-message'
-        ) ?? []
-      ).filter(
-        (message: CompilationMessage | ExecutionMessage) =>
-          message?.message?.length > 0
-      ) as (CompilationMessage | ExecutionMessage)[]
+  private updateMessages(messagesElems: HTMLElement[]) {
+    this.messages = messagesElems.flatMap((elem) =>
+      Array.from(elem.children)
+    ) as (CompilationMessage | ExecutionMessage)[]
 
-      if (this.editorView) {
-        this.updateDiagnostics(
-          createLinterDiagnostics(this.editorView, this.messages)
-        )
-      }
+    if (this.editorView) {
+      this.updateDiagnostics(
+        createLinterDiagnostics(this.editorView, this.messages)
+      )
     }
   }
 
@@ -499,8 +496,8 @@ export class UINodeCode extends LitElement {
     }
   }
 
-  override update(changedProperties: PropertyValues) {
-    super.update(changedProperties)
+  override updated(changedProperties: PropertyValues) {
+    super.updated(changedProperties)
 
     if (changedProperties.has('language')) {
       // Destroy the existing editor if there is one
@@ -513,8 +510,10 @@ export class UINodeCode extends LitElement {
           extensions,
           doc: this.code,
         })
-        // Always update messages when editor first created
-        this.updateMessages()
+        // Update diagnostics when editor first created
+        this.updateDiagnostics(
+          createLinterDiagnostics(this.editorView, this.messages)
+        )
       })
     } else if (changedProperties.has('readOnly')) {
       // update the editorView readonly state
@@ -532,10 +531,11 @@ export class UINodeCode extends LitElement {
       }
     }
 
-    // Clear diagnostics if the code has changed either explicitly, or
+    // Clear diagnostics if the code or language has changed either explicitly, or
     // via an update to executionRequired
     if (
       changedProperties.has('code') ||
+      changedProperties.has('language') ||
       (changedProperties.has('executionRequired') &&
         ['StateChanged', 'SemanticsChanged'].includes(this.executionRequired))
     ) {
