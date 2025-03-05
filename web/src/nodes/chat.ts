@@ -266,7 +266,7 @@ export class Chat extends Executable {
   }
 
   override render() {
-    return this.depth == 0 ? this.renderFullscreen() : this.renderCard()
+    return this.depth == 0 ? this.renderFullscreen() : html``
   }
 
   private renderFullscreen() {
@@ -360,48 +360,6 @@ export class Chat extends Executable {
           </sl-split-panel>
         </div>
       </div>
-    `
-  }
-
-  private renderCard() {
-    return html`
-      <stencila-ui-block-on-demand
-        type="Chat"
-        node-id=${this.id}
-        depth=${this.depth}
-      >
-        <div slot="header-right">
-          <stencila-ui-node-execution-commands
-            type="Chat"
-            node-id=${this.id}
-            depth=${this.depth}
-          >
-          </stencila-ui-node-execution-commands>
-        </div>
-
-        <div slot="body">
-          <stencila-ui-node-execution-details
-            type="Chat"
-            node-id=${this.id}
-            mode=${this.executionMode}
-            .tags=${this.executionTags}
-            status=${this.executionStatus}
-            required=${this.executionRequired}
-            count=${this.executionCount}
-            ended=${this.executionEnded}
-            duration=${this.executionDuration}
-          >
-          </stencila-ui-node-execution-details>
-
-          <stencila-ui-node-execution-messages type="Chat">
-            <slot name="execution-messages"></slot>
-          </stencila-ui-node-execution-messages>
-
-          <slot name="model-parameters"></slot>
-
-          <slot name="prompt"></slot>
-        </div>
-      </stencila-ui-block-on-demand>
     `
   }
 }
