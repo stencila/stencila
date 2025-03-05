@@ -305,31 +305,41 @@ export async function initializeWebViewPanel(
   //    for messages from the `vscode` API
   // 2. Instantiate the `vscode` API early so it is ready to ready to
   //    receive `postMessage` messages from here as soon as possible
+
   panel.webview.html = `
     <!DOCTYPE html>
-      <html lang="en">
-        <head>
-          <title>Stencila: Document Preview</title>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <link rel="preconnect" href="https://fonts.googleapis.com">
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-          <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-          <link title="theme:${themeName}" rel="stylesheet" type="text/css" href="${themeCss}">
-          <link rel="stylesheet" type="text/css" href="${viewCss}">
-          <script type="text/javascript" src="${viewJs}"></script>
-          <script>
-            const vscode = acquireVsCodeApi()
-          </script>
-        </head>
-        <body style="background: white;">
-          <stencila-vscode-view theme="${themeName}" workspace="${workspaceUri}">
-            ${viewHtml}
-          </stencila-vscode-view>
-        </body>
+    <html lang="en">
+      <head>
+        <title>Stencila: Document Preview</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+        <link title="theme:${themeName}" rel="stylesheet" type="text/css" href="${themeCss}">
+        <link rel="stylesheet" type="text/css" href="${viewCss}">
+        <script type="text/javascript" src="${viewJs}"></script>
+        <script>
+          const vscode = acquireVsCodeApi()
+        </script>
+        <script>
+            window.onload = () => {
+              console.log('page is fully loaded')
+              document.querySelector('stencila-vscode-view').removeAttribute('hidden')
+              document.querySelector('.loader').remove()
+            }
+        </script>
+      </head>
+      <body style="background: white;">
+        <stencila-vscode-loader class="loader">
+        </stencila-vscode-loader>
+        
+        <stencila-vscode-view theme="${themeName}" workspace="${workspaceUri}" hidden>
+          ${viewHtml}
+        </stencila-vscode-view>
+      </body>
     </html>
   `;
-
   // Send system data to the webview until the `system-data-received` message is received
   // This is necessary because the webview may not be ready to receive the message initially
   // and so the first messages may be ignored.
