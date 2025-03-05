@@ -703,10 +703,6 @@ impl KernelInstance for MicrokernelInstance {
             );
         }
 
-        if matches!(bounds, ExecutionBounds::Fork | ExecutionBounds::Box) && cfg!(windows) {
-            bail!("Execution bounds `{bounds}` is not supported on Windows");
-        }
-
         #[cfg(unix)]
         {
             use kernel::common::tempfile::tempdir;
@@ -813,6 +809,11 @@ impl KernelInstance for MicrokernelInstance {
             }
 
             Ok(Box::new(replicate))
+        }
+
+        #[cfg(windows)]
+        {
+            bail!("Microkernels can not be replicated on Windows");
         }
     }
 }
