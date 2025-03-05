@@ -1069,28 +1069,34 @@ Sys.sleep(100)",
         let (.., messages) = instance.execute("file('write.txt', 'w')").await?;
         assert_eq!(
             messages[0].message,
-            "Write access to filesystem is restricted"
+            "Write access to filesystem is restricted in boxed kernel"
         );
 
         let (.., messages) = instance.execute("file.create('read-write.txt')").await?;
         assert_eq!(
             messages[0].message,
-            "Write access to filesystem is restricted"
+            "Write access to filesystem is restricted in boxed kernel"
         );
 
         let (.., messages) = instance.execute("unlink('some-file.txt')").await?;
         assert_eq!(
             messages[0].message,
-            "Write access to filesystem is restricted"
+            "Write access to filesystem is restricted in boxed kernel"
         );
 
         // No process management
         let (.., messages) = instance.execute("system('command')").await?;
-        assert_eq!(messages[0].message, "Process management is restricted");
+        assert_eq!(
+            messages[0].message,
+            "Process management is restricted in boxed kernel"
+        );
 
         // No network access
         let (.., messages) = instance.execute("url('http://example.com')").await?;
-        assert_eq!(messages[0].message, "Network access is restricted");
+        assert_eq!(
+            messages[0].message,
+            "Network access is restricted in boxed kernel"
+        );
 
         Ok(())
     }

@@ -919,7 +919,7 @@ def box() -> None:
     # Restrict filesystem writes
     def readonly_permission_error(*args, **kwargs):
         raise PermissionError(
-            "Write access to filesystem is restricted"
+            "Write access to filesystem is restricted in boxed kernel"
         )
 
     # Patch functions that create or delete directories/files
@@ -944,7 +944,7 @@ def box() -> None:
 
     # Restrict process management
     def process_permission_error(*args, **kwargs):
-        raise PermissionError("Process management is restricted")
+        raise PermissionError("Process management is restricted in boxed kernel")
 
     # Creating processes
     os.execl = process_permission_error
@@ -997,7 +997,7 @@ def box() -> None:
 
     # Restrict network access
     def network_permission_error(*args, **kwargs):
-        raise PermissionError("Network access is restricted")
+        raise PermissionError("Network access is restricted in boxed kernel")
 
     socket.socket = network_permission_error
     socket.create_connection = network_permission_error

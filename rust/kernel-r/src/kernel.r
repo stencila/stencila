@@ -590,7 +590,7 @@ box_ <- function() {
   
   # Restrict filesystem writes
   readonly_error <- function(...) {
-    stop("Write access to filesystem is restricted", call. = FALSE)
+    stop("Write access to filesystem is restricted in boxed kernel", call. = FALSE)
   }
 
   assign("file", function (description, open, ...) {
@@ -623,7 +623,7 @@ box_ <- function() {
   
   # Restrict process management
   process_error <- function(...) {
-    stop("Process management is restricted", call. = FALSE)
+    stop("Process management is restricted in boxed kernel", call. = FALSE)
   }
   for(name in c(
     'system', 'system2', 'kill'
@@ -633,7 +633,7 @@ box_ <- function() {
 
   # Restrict network access
   network_error <- function(...) {
-    stop("Network access is restricted", call. = FALSE)
+    stop("Network access is restricted in boxed kernel", call. = FALSE)
   }
   for(name in c(
     'socketConnection', 'url', 'download.file'
