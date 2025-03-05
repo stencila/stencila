@@ -399,6 +399,7 @@ b",
 
         // Syntax error
         let (outputs, messages) = kernel.execute("bad ^ # syntax").await?;
+        assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].error_type.as_deref(), Some("SyntaxError"));
         assert_eq!(
             messages[0].message,
@@ -411,6 +412,7 @@ b",
 
         // Runtime error
         let (outputs, messages) = kernel.execute("foo").await?;
+        assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].error_type.as_deref(), Some("RuntimeError"));
         assert_eq!(messages[0].message, "object 'foo' not found");
         assert!(messages[0].stack_trace.is_none());
@@ -420,6 +422,7 @@ b",
         let (outputs, messages) = kernel
             .execute("tidyr::pivot_longer(mtcars, cols = -foo)")
             .await?;
+        assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].error_type.as_deref(), Some("RuntimeError"));
         assert_eq!(
             messages[0].message,
@@ -440,6 +443,7 @@ warns()
 "#,
             )
             .await?;
+        assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].message, "a warning");
         assert_eq!(messages[0].level, MessageLevel::Warning);
         assert_eq!(outputs, vec![Node::Integer(3)]);
@@ -454,6 +458,7 @@ ggplot(data.frame(x=c(1, 2, NA), y=c(2, 4, NA)), aes(x=x,y=y)) + geom_point()
 "#,
             )
             .await?;
+        assert_eq!(messages.len(), 1);
         assert_eq!(
             messages[0].message,
             "Removed 1 row containing missing values or values outside the scale range\n(`geom_point()`)."
@@ -471,6 +476,7 @@ ggplot(data.frame(x=c(1, 2, NA), y=c(2, 4, NA)), aes(x=x,y=y)) + geom_point()
         let (output, messages) = kernel
             .evaluate(r#"base::warning("another warning"); 6*7"#)
             .await?;
+        assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].message, "another warning");
         assert_eq!(messages[0].level, MessageLevel::Warning);
         assert_eq!(output, Node::Integer(42));

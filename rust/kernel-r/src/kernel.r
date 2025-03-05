@@ -383,7 +383,6 @@ execute <- function(lines) {
           warning(msg)
           invokeRestart("muffleWarning")
         },
-        error = exception,
         interrupt = interrupt
       )
     }
@@ -397,7 +396,6 @@ execute <- function(lines) {
           warning(msg)
           invokeRestart("muffleWarning")
         },
-        error = exception,
         interrupt = interrupt
       )
     }
