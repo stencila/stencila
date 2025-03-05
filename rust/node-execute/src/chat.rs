@@ -321,7 +321,7 @@ impl Executable for Chat {
         let execution_bounds = self
             .model_parameters
             .execution_bounds
-            .unwrap_or(ExecutionBounds::Fork);
+            .unwrap_or(ExecutionBounds::Box);
         let maximum_retries = self.model_parameters.maximum_retries.unwrap_or(0);
         while let Some((model_id, message_id, mut task, started, ended, result)) =
             futures.next().await
