@@ -8,6 +8,10 @@ production stylesheet in assets/built/screen.css using: npm run dev
 /* Lib - Local component imports
 /* ---------------------------------------------------------- */
 
+@import "stencila.css";
+
+@import "prism.css";
+
 /* Base components */
 @import "vars.css";
 @import "components/global.css";
@@ -16,13 +20,12 @@ production stylesheet in assets/built/screen.css using: npm run dev
 @import "components/header.css";
 @import "components/footer.css";
 @import "components/toc.css";
+@import "components/subscribe.css";
 
 /* Ghost components */
 @import "ghost/content.css";
 @import "ghost/members.css";
 @import "ghost/errors.css";
-@import "ghost/badge.css";
-@import "ghost/pagination.css";
 @import "ghost/comments.css";
 
 
@@ -45,6 +48,8 @@ html {
     z-index: 1;
 }
 
+
+/* view port background circles */
 
 /* .gh-viewport::before {
     content: "";
@@ -97,17 +102,6 @@ html {
 .gh-article {
     padding: 4rem 0;
 }
-
-/* .gh-postfeed {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(350px, 100%), 1fr));
-    gap: 4.8vmin 4vmin;
-    padding: 8vmin 0;
-}
-
-.gh-postfeed > *:first-child {
-    grid-column: 1 / -1;
-} */
 
 .gh-head-actions a:not(.gh-button) {
     display: inline-flex;
@@ -166,15 +160,6 @@ html {
     padding: 0 0 8vmin 0;
     text-align: center;
 }
-
-/* .gh-post-meta {
-    display: block;
-    margin: 0 0 1rem;
-    font-size: 1.4rem;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    opacity: 0.8;
-} */
 
 .gh-excerpt {
     margin: 1rem 0 0 0;

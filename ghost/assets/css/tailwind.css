@@ -3,6 +3,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@plugin "@tailwindcss/typography";
+
 @layer components {
   .content-container {
     @apply max-w-content w-full mx-auto px-4;

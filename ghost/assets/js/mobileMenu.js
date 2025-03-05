@@ -23,11 +23,11 @@ export default function mobileMenu() {
         if (menuContainer.classList.contains('open')) {
             if (!menuTrigger.contains(event.target) && !menuContainer.contains(event.target)) {
                 isOpen = false;
-                menuContainer.classList.add("opacity-0", "scale-y-0");
-                menuContainer.classList.remove("opacity-100", "scale-y-100");
+                menuContainer.classList.remove('open');
+
                 burgerIcon.classList.remove("hidden");
                 chevronIcon.classList.add("hidden");
             }
         }
     });
-}
+};

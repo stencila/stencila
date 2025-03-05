@@ -18,8 +18,10 @@
   padding: 0.5rem 0;
 }
 
-#site-nav-menu .nav-current a,
-#site-nav-menu .nav-current-parent a {
+
+
+#site-nav-menu .nav-current-parent a,
+#site-nav-menu .nav-current a {
   color: var(--ghost-accent-color);
   box-shadow: 0 -1px 0 0 currentcolor inset;
 }
@@ -30,6 +32,7 @@
   padding: 0.5rem;
   border: 1px solid var(--color-brand-blue);
   border-radius: 0.25rem;
+  transition: background-color 150ms, color 150ms;
 }
 
 #secondary-nav a:hover {
@@ -37,15 +40,14 @@
   background-color: var(--color-brand-blue);
 }
 
-
-/* mobile menu */
-
+.subnav-menu-container,
 #mobile-menu-container {
   scale: 0;
   opacity: 0;
   visibility: hidden;
 }
 
+.subnav-menu-container.open,
 #mobile-menu-container.open  {
   scale: 1;
   opacity: 1;
@@ -54,7 +56,7 @@
 
 #mobile-menu-container .nav a {
   display: block;
-  font-size: 1.25rem;
+  /* font-size: 1.25rem; */
   padding: 0.5rem 0;
 }
 

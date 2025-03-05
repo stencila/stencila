@@ -2,7 +2,7 @@
 
 {{#post}}
 <div class="content-container">
-    <article class="gh-article {{post_class}}">
+    <article class="gh-article text-lg {{post_class}}">
         {{#match @page.show_title_and_feature_image}}
         <header class="gh-header gh-canvas">
             {{#if feature_image}}
@@ -21,6 +21,9 @@
             {{content}}
         </div>
 
+        <aside class="w-full gh-canvas">
+            {{> "forms/subscribe"}}
+        </aside>
     </article>
 </div>
 {{/post}}

@@ -3,15 +3,16 @@
 {{#post}}
     {{#has tag="#doc"}}
         {{#foreach tags}}
-            {{#get "pages" filter="tag:{{slug}}" limit="1" include="tags" }}
+            {{#get "pages" filter="tag:{{slug}}+tag:hash-doc-page" limit="1" include="tags" }}
                 {{#foreach pages limit="1" as |page|}}
-                    {{> docviewer post=../../.. page=page currentSlug=../../../slug }}    
+                    {{> docviewer post=../../.. page=page currentSlug=../../../slug currentTag=../../name }}    
                 {{/foreach }}
             {{/get}}
         {{/foreach}}
     {{else}}
+    {{!-- default post laytout --}}
     <div class="content-container">
-        <article class="gh-article relative {{post_class}} leading-snug text-base lg:text-lg">
+        <article class="gh-article relative {{post_class}} leading-snug text-base text-lg">
             <header class="gh-header gh-canvas">
                 <span class="absolute top-4 right-0">
                     {{#foreach authors}}<a href="{{url}}" class="hover:text-gray-400">{{name}}</a> &bull; {{/foreach}}
@@ -86,22 +87,30 @@
 
             </footer>
         </article>        
-        <aside class="gh-canvas yfont-sans w-full py-8">
-            <div class="flex justify-between gap-8 px-8 text-lg font-semibold w-full">
+        <aside class="gh-canvas font-sans w-full py-8">
+            <div class="flex justify-between gap-8 text-lg font-semibold w-full">
                 <div>
-                    {{#next_post in="primary_tag"}}<a href="{{url}}" class="flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-400 hover:border-gray-400 shadow hover:shadow-xl">
-                        <span class="w-4 h-6 flex-none">{{>"icons/arrow-left"}}</span>
-                        <h4 class="text-base lg:text-xl">{{title}}</h4>
+                    {{#next_post in="primary_tag"}}<a href="{{url}}" class="flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-400 hover:text-gray-600 shadow hover:shadow-lg">
+                        <span class="w-2 h-3 flex-none flex items-center">{{>"icons/arrow-left"}}</span>
+                        <h4 class="text-base text-inherit">{{title}}</h4>
                     </a>{{/next_post}}
                 </div>
                 <div >
-                    {{#prev_post in="primary_tag"}}<a href="{{url}}" class="flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-400 hover:border-gray-400 shadow hover:shadow-xl">
-                        <h4 class="text-right text-base lg:text-xl">{{title}}</h4>
-                        <span class="w-4 h-6 flex-none">{{>"icons/arrow-right"}}</span>
+                    {{#prev_post in="primary_tag"}}<a href="{{url}}" class="flex items-center gap-4 p-4 border border-gray-100 text-gray-500 rounded hover:text-gray-400 hover:text-gray-600 shadow hover:shadow-lg">
+                        <h4 class="text-right text-base text-inherit">{{title}}</h4>
+                        <span class="w-2 h-3 flex-none flex items-center">{{>"icons/arrow-right"}}</span>
                     </a>{{/prev_post}}
                 </div>
             </div>
         </aside>
     </div>
+
+    {{/has}}
+    {{#has tag="#stencila"}}
+        {{#has tag="#stencila-expand"}}
+            {{> 'activateStencilaEvent' expand='true'}}
+        {{else}}
+            {{> 'activateStencilaEvent'}}
+        {{/has}}
     {{/has}}
 {{/post}}
