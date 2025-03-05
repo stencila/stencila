@@ -396,7 +396,7 @@ impl Inspect for Chat {
         });
 
         inspector.enter_node(self.node_type(), node_id, None, None, execution, None);
-        
+
         // Do not visit the messages of embedded chats otherwise can get phantom
         // code lenses for blocks that are not rendered in content
         if !self.is_embedded.unwrap_or_default() {
