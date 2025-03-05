@@ -1581,6 +1581,29 @@ print(type(sys), type(datetime), type(glob))
         Ok(())
     }
 
+    /// Test that each forked kernel generates unique random numbers
+    #[test_log::test(tokio::test)]
+    async fn forking_randoms() -> Result<()> {
+        let Some(mut instance) = start_instance::<PythonKernel>().await? else {
+            return Ok(());
+        };
+
+        instance.execute("from random import random").await?;
+
+        let (rand, ..) = instance.evaluate("random()").await?;
+
+        let mut fork1 = instance.replicate(ExecutionBounds::Fork).await?;
+        let (rand1, ..) = fork1.evaluate("random()").await?;
+        assert_ne!(rand, rand1);
+
+        let mut fork2 = instance.replicate(ExecutionBounds::Fork).await?;
+        let (rand2, ..) = fork2.evaluate("random()").await?;
+        assert_ne!(rand, rand2);
+        assert_ne!(rand1, rand2);
+
+        Ok(())
+    }
+
     /// Standard kernel test for signals
     #[ignore = "signals not received when `uv run` is used"]
     #[test_log::test(tokio::test)]
@@ -1662,7 +1685,7 @@ func()",
     }
 
     /// Custom test for boxed kernel
-    /// 
+    ///
     /// Currently just a few tests covering the main categories of restriction.
     #[tokio::test]
     async fn boxed() -> Result<()> {
@@ -1696,10 +1719,7 @@ func()",
 
         // No process management
         let (.., messages) = instance.execute("os.system('command')").await?;
-        assert_eq!(
-            messages[0].message,
-            "Process management is restricted"
-        );
+        assert_eq!(messages[0].message, "Process management is restricted");
 
         // No network access
         let (.., messages) = instance
