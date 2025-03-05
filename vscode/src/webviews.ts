@@ -334,20 +334,13 @@ export async function initializeWebViewPanel(
             opacity: 0;
           }
         </style>
-        <script>
-          window.onload = () => {
-            document.querySelector('stencila-vscode-view').removeAttribute('hidden')
-            
-            const loader = document.querySelector('#loader');
-            loader.classList.add('fade-out');
-            loader.addEventListener('transitionend', () => {
-              loader.remove();
-            });
-          }
-        </script>
       </head>
-      <body style="background: white;">        
-        <div id="loader">
+      <body style="background: white;">    
+        <stencila-vscode-view theme="${themeName}" workspace="${workspaceUri}" hidden>
+          ${viewHtml}
+        </stencila-vscode-view>
+  
+        <div id="loader" hidden>
           <div style="width: 70px">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="40" fill="none" stroke="#e6e6e6" stroke-width="10"/>
@@ -365,10 +358,32 @@ export async function initializeWebViewPanel(
             </svg>
           </div>
         </div>
-  
-        <stencila-vscode-view theme="${themeName}" workspace="${workspaceUri}" hidden>
-          ${viewHtml}
-        </stencila-vscode-view>
+
+        <script>
+          setTimeout(() => {
+            // Only show loader if taken some time already to load
+            // Avoids flashing a spinner unnecessarily when local, or when caching
+            // makes loads quick
+            const loader = document.querySelector('#loader');
+            if (loader) {
+              loader.removeAttribute('hidden');
+            }
+          }, 300);
+
+          window.onload = () => {
+            document.querySelector('stencila-vscode-view').removeAttribute('hidden')
+            
+            const loader = document.querySelector('#loader');
+            if (loader.hasAttribute('hidden')) {
+              loader.remove();
+            } else {
+              loader.classList.add('fade-out');
+              loader.addEventListener('transitionend', () => {
+                loader.remove();
+              });
+            }
+          }
+        </script>
       </body>
     </html>
   `;
