@@ -9,6 +9,7 @@ LINE = ifelse(DEV_MODE, "|", "\U0010ABBA")
 EXEC = ifelse(DEV_MODE, "EXEC", "\U0010B522")
 EVAL = ifelse(DEV_MODE, "EVAL", "\U001010CC")
 FORK = ifelse(DEV_MODE, "FORK", "\U0010DE70")
+BOX = ifelse(DEV_MODE, "BOX", "\U0010B0C5")
 INFO = ifelse(DEV_MODE, "INFO", "\U0010EE15")
 PKGS = ifelse(DEV_MODE, "PKGS", "\U0010BEC4")
 LIST = ifelse(DEV_MODE, "LIST", "\U0010C155")
@@ -564,6 +565,79 @@ fork <- function(pipes) {
   }
 }
 
+# Restrict the capabilities of the kernel
+#
+# - erases potentially secret environment variables
+# - restricts filesystem writes
+# - restricts process management
+# - restricts network access
+#
+# Instead on fully monkey patching, this just overrides functions in the kernel's environment.
+# Monkey patching in R is not straight forward. We tried using `assignInNamespace` et al
+# but found we could not unlock the base environment. 
+# https://dlukes.github.io/monkey-patching-in-r.html
+box_ <- function() {
+  # Remove sensitive environment variables
+  envs <- Sys.getenv()
+  to_remove <- grep("SECRET|KEY|TOKEN", names(envs), ignore.case = TRUE, value = TRUE)
+  for (var in to_remove) {
+    Sys.unsetenv(var)
+  }
+  
+  # Restrict filesystem writes
+  readonly_error <- function(...) {
+    stop("Write access to filesystem is restricted", call. = FALSE)
+  }
+
+  assign("file", function (description, open, ...) {
+    if (open %in% c('r', 'rt', 'rb')) {
+      base::file(description, open, ...)
+    } else {
+      readonly_error()
+    }
+  }, envir = envir)
+
+  for(name in c(
+    'file.append',
+    'file.copy',
+    'file.create',
+    'file.link',
+    'file.remove',
+    'file.rename',
+    'file.symlink',
+    'unlink',
+    'dir.create',
+    'dir.remove',
+    'Sys.chmod',
+    'write',
+    'write.csv',
+    'write.csv2',
+    'write.table'
+  )) {
+    assign(name, readonly_error, envir = envir)
+  }
+  
+  # Restrict process management
+  process_error <- function(...) {
+    stop("Process management is restricted", call. = FALSE)
+  }
+  for(name in c(
+    'system', 'system2', 'kill'
+  )) {
+    assign(name, process_error, envir = envir)
+  }
+
+  # Restrict network access
+  network_error <- function(...) {
+    stop("Network access is restricted", call. = FALSE)
+  }
+  for(name in c(
+    'socketConnection', 'url', 'download.file'
+  )) {
+    assign(name, network_error, envir = envir)
+  }
+}
+
 # Indicate that ready
 write(READY, stdout)
 write(READY, stderr)
@@ -600,6 +674,7 @@ while (!is.null(stdin)) {
     else if (task_type == SET) set_variable(lines[2], lines[3])
     else if (task_type == REMOVE) remove_variable(lines[2])
     else if (task_type == FORK) fork(lines[2:length(lines)])
+    else if (task_type == BOX) box_()
     else exception(list(message = paste("Unrecognized task:", task_type), error_type = "MicrokernelError"))
   },
   warning = warning,

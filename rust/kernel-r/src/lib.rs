@@ -74,8 +74,8 @@ impl Kernel for RKernel {
         let mut bounds = vec![ExecutionBounds::Main];
 
         if cfg!(unix) {
-            // Fork: uses `parallel:::mcfork` which is only available on POSIX-based systems
-            bounds.push(ExecutionBounds::Fork);
+            // Fork & Box both use `parallel:::mcfork` which is only available on POSIX-based systems
+            bounds.append(&mut vec![ExecutionBounds::Fork, ExecutionBounds::Box]);
         }
 
         bounds
@@ -233,7 +233,7 @@ mod tests {
             IntegerValidator, Node, Null, NumberValidator, Object, ObjectHint, Primitive,
             StringHint, StringValidator, Validator, Variable,
         },
-        tests::{create_instance, start_instance},
+        tests::{create_instance, start_instance, start_instance_with},
     };
 
     use super::*;
@@ -1027,5 +1027,44 @@ Sys.sleep(100)",
         };
 
         kernel_micro::tests::stop(instance).await
+    }
+
+    /// Custom test for boxed kernel
+    ///
+    /// Currently just a few tests covering the main categories of restriction.
+    #[tokio::test]
+    async fn boxed() -> Result<()> {
+        let Some(mut instance) = start_instance_with::<RKernel>(ExecutionBounds::Box).await? else {
+            return Ok(());
+        };
+
+        // Read-only access to files
+        let (.., messages) = instance.execute("file('write.txt', 'w')").await?;
+        assert_eq!(
+            messages[0].message,
+            "Write access to filesystem is restricted"
+        );
+
+        let (.., messages) = instance.execute("file.create('read-write.txt')").await?;
+        assert_eq!(
+            messages[0].message,
+            "Write access to filesystem is restricted"
+        );
+
+        let (.., messages) = instance.execute("unlink('some-file.txt')").await?;
+        assert_eq!(
+            messages[0].message,
+            "Write access to filesystem is restricted"
+        );
+
+        // No process management
+        let (.., messages) = instance.execute("system('command')").await?;
+        assert_eq!(messages[0].message, "Process management is restricted");
+
+        // No network access
+        let (.., messages) = instance.execute("url('http://example.com')").await?;
+        assert_eq!(messages[0].message, "Network access is restricted");
+
+        Ok(())
     }
 }
