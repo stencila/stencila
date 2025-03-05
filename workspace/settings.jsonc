@@ -26,6 +26,7 @@
   // Avoid dialogs and notifications on startup,
   "git.openRepositoryInParentFolders": "always",
   "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
+  "chat.commandCenter.enabled": false,
 
   // Editor customizations
   "editor.minimap.enabled": false,
