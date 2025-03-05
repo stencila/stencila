@@ -991,6 +991,27 @@ class(toRd)
         Ok(())
     }
 
+    /// Regression test for then need to reset the random seed when forking kernel (otherwise get same numbers)
+    #[test_log::test(tokio::test)]
+    async fn forking_randoms() -> Result<()> {
+        let Some(mut instance) = start_instance::<RKernel>().await? else {
+            return Ok(());
+        };
+
+        let (rand, ..) = instance.evaluate("runif(1)").await?;
+
+        let mut fork1 = instance.replicate(ExecutionBounds::Fork).await?;
+        let (rand1, ..) = fork1.evaluate("runif(1)").await?;
+        assert_ne!(rand, rand1);
+
+        let mut fork2 = instance.replicate(ExecutionBounds::Fork).await?;
+        let (rand2, ..) = fork2.evaluate("runif(1)").await?;
+        assert_ne!(rand, rand2);
+        assert_ne!(rand1, rand2);
+
+        Ok(())
+    }
+
     /// Standard kernel test for signals
     #[test_log::test(tokio::test)]
     async fn signals() -> Result<()> {

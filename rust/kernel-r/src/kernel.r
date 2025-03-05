@@ -560,6 +560,12 @@ fork <- function(pipes) {
     stdin <<- file(pipes[1], open = "r", raw = TRUE)
     stdout <<- file(pipes[2], open = "w", raw = TRUE)
     stderr <<- file(pipes[3], open = "w", raw = TRUE)
+
+    # Remove the current random seed. It will be regenerated the next
+    # time a random number is generated. If this is not done, each fork
+    # will have the same random seed as the parent kernel, which leads
+    # to unexpected non-randomness when running forks
+    rm(.Random.seed, envir = globalenv())
   }
 }
 
