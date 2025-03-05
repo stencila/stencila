@@ -21,7 +21,7 @@ fi
 # It is important to set up `gh` as the Git authentication provider for `git`
 # commands below
 if [[ -n "${GITHUB_TOKEN:-}" ]]; then
-    echo "📛 Authenticating with GitHub"
+    echo "👤 Authenticating with GitHub"
     GITHUB_TOKEN= gh auth login --git-protocol=https --with-token <<< "$GITHUB_TOKEN"
     gh auth setup-git
     echo
@@ -30,7 +30,7 @@ fi
 # Clone the repository if specified
 if [[ -n "${GITHUB_REPO:-}" ]]; then
     # Clone the repo as quickly as possible but with some commit history
-    echo "📨 Cloning repository $GITHUB_REPO"
+    echo "📋 Cloning repository $GITHUB_REPO"
     git clone "https://github.com/$GITHUB_REPO" . --depth=10 --filter=blob:none --no-checkout
     echo
 
