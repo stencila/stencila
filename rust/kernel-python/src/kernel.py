@@ -877,9 +877,9 @@ def box() -> None:
     Restrict the capabilities of the kernel
 
     - erases potentially secret environment variables
-    - read-only filesystem access
-    - no process management
-    - no network access
+    - restricts filesystem writes
+    - restricts process management
+    - restricts network access
 
     Functions in `pathlib` and `shutil` mostly rely on functions in `io` and `os`
     (which are patched) so are not patched directly here.
@@ -916,10 +916,10 @@ def box() -> None:
 
     os.open = readonly_os_open
 
-    # Read-only filesystem access
+    # Restrict filesystem writes
     def readonly_permission_error(*args, **kwargs):
         raise PermissionError(
-            "Write access to filesystem is not permitted (restricted kernel)"
+            "Write access to filesystem is restricted"
         )
 
     # Patch functions that create or delete directories/files
@@ -942,9 +942,9 @@ def box() -> None:
     os.chown = readonly_permission_error
     os.utime = readonly_permission_error
 
-    # No process management
+    # Restrict process management
     def process_permission_error(*args, **kwargs):
-        raise PermissionError("Process management is not permitted (restricted kernel)")
+        raise PermissionError("Process management is restricted")
 
     # Creating processes
     os.execl = process_permission_error
@@ -995,9 +995,9 @@ def box() -> None:
     os.setpgrp = process_permission_error
     os.setsid = process_permission_error
 
-    # No network access
+    # Restrict network access
     def network_permission_error(*args, **kwargs):
-        raise PermissionError("Network access is not permitted (restricted kernel)")
+        raise PermissionError("Network access is restricted")
 
     socket.socket = network_permission_error
     socket.create_connection = network_permission_error

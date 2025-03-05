@@ -1677,7 +1677,7 @@ func()",
         let (.., messages) = instance.execute("open('write.txt', 'w')").await?;
         assert_eq!(
             messages[0].message,
-            "Write access to filesystem is not permitted (restricted kernel)"
+            "Write access to filesystem is restricted"
         );
 
         let (.., messages) = instance
@@ -1685,20 +1685,20 @@ func()",
             .await?;
         assert_eq!(
             messages[0].message,
-            "Write access to filesystem is not permitted (restricted kernel)"
+            "Write access to filesystem is restricted"
         );
 
         let (.., messages) = instance.execute("os.remove('some-file.txt')").await?;
         assert_eq!(
             messages[0].message,
-            "Write access to filesystem is not permitted (restricted kernel)"
+            "Write access to filesystem is restricted"
         );
 
         // No process management
         let (.., messages) = instance.execute("os.system('command')").await?;
         assert_eq!(
             messages[0].message,
-            "Process management is not permitted (restricted kernel)"
+            "Process management is restricted"
         );
 
         // No network access
@@ -1707,7 +1707,7 @@ func()",
             .await?;
         assert_eq!(
             messages[0].message,
-            "<urlopen error Network access is not permitted (restricted kernel)>"
+            "<urlopen error Network access is restricted>"
         );
 
         Ok(())
