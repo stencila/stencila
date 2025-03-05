@@ -886,7 +886,6 @@ def box() -> None:
     """
 
     import builtins
-    import io
     import os
     import socket
 
@@ -898,7 +897,7 @@ def box() -> None:
     # Patch builtins.open to deny write access (which is also io.open in Python 3)
     builtins_open = builtins.open
 
-    def readonly_open(file, mode="r", *args, **kwargs):
+    def readonly_open(file, mode="r", *args, **kwargs): #noqa
         # Prevent any mode that implies writing
         if any(m in mode for m in ("w", "a", "+", "x")):
             readonly_permission_error()
@@ -909,7 +908,7 @@ def box() -> None:
     # Patch os.open to deny write access
     os_open = os.open
 
-    def readonly_os_open(file, flags, *args, **kwargs):
+    def readonly_os_open(file, flags, *args, **kwargs): #noqa
         if flags & os.O_WRONLY or flags & os.O_RDWR:
             readonly_permission_error()
         return os_open(file, flags, *args, **kwargs)
@@ -917,7 +916,7 @@ def box() -> None:
     os.open = readonly_os_open
 
     # Restrict filesystem writes
-    def readonly_permission_error(*args, **kwargs):
+    def readonly_permission_error(*args, **kwargs): #noqa
         raise PermissionError(
             "Write access to filesystem is restricted in boxed kernel"
         )
@@ -943,7 +942,7 @@ def box() -> None:
     os.utime = readonly_permission_error
 
     # Restrict process management
-    def process_permission_error(*args, **kwargs):
+    def process_permission_error(*args, **kwargs): #noqa
         raise PermissionError("Process management is restricted in boxed kernel")
 
     # Creating processes
@@ -958,9 +957,6 @@ def box() -> None:
     os.fork = process_permission_error
     os.forkpty = process_permission_error
     os.popen = process_permission_error
-    os.popen2 = process_permission_error
-    os.popen3 = process_permission_error
-    os.popen4 = process_permission_error
     os.posix_spawn = process_permission_error
     os.posix_spawnp = process_permission_error
     os.spawnl = process_permission_error
@@ -996,7 +992,7 @@ def box() -> None:
     os.setsid = process_permission_error
 
     # Restrict network access
-    def network_permission_error(*args, **kwargs):
+    def network_permission_error(*args, **kwargs): #noqa
         raise PermissionError("Network access is restricted in boxed kernel")
 
     socket.socket = network_permission_error

@@ -768,10 +768,16 @@ console.log(typeof fs.read, typeof path.join, typeof crypto.createHash)
 
         // No process management
         let (.., messages) = instance.execute("child_process.spawn('command')").await?;
-        assert_eq!(messages[0].message, "Process management is restricted in boxed kernel");
+        assert_eq!(
+            messages[0].message,
+            "Process management is restricted in boxed kernel"
+        );
 
         let (.., messages) = instance.execute("https.get('https://example.com')").await?;
-        assert_eq!(messages[0].message, "Network access is restricted in boxed kernel");
+        assert_eq!(
+            messages[0].message,
+            "Network access is restricted in boxed kernel"
+        );
 
         Ok(())
     }

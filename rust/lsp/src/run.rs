@@ -130,7 +130,7 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) -> Result<()> {
                                 text_doc.source.clone(),
                                 text_doc.root.clone(),
                                 text_doc.doc.clone(),
-                                text_doc.sync_state().clone()
+                                text_doc.sync_state().clone(),
                             )
                         })
                     });
@@ -156,7 +156,8 @@ pub async fn run(log_level: LevelFilter, log_filter: &str) -> Result<()> {
                     match doc_props {
                         Some((author, format, source, root, doc, sync_state)) => {
                             commands::execute_command(
-                                params, author, format, source, root, doc, sync_state, source_doc, client,
+                                params, author, format, source, root, doc, sync_state, source_doc,
+                                client,
                             )
                             .await
                         }
