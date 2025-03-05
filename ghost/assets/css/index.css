@@ -10,6 +10,8 @@ production stylesheet in assets/built/screen.css using: npm run dev
 
 @import "stencila.css";
 
+@import "prism.css";
+
 /* Base components */
 @import "vars.css";
 @import "components/global.css";
