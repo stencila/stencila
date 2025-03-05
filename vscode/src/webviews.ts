@@ -324,7 +324,6 @@ export async function initializeWebViewPanel(
         </script>
         <script>
             window.onload = () => {
-              console.log('page is fully loaded')
               document.querySelector('stencila-vscode-view').removeAttribute('hidden')
               document.querySelector('.loader').remove()
             }
