@@ -39,7 +39,7 @@ export class DomClient extends FormatClient {
       try {
         Idiomorph.morph(documentRoot, html)
       } catch (error) {
-        console.log('While morphing DOM', error)
+        console.error('While morphing DOM', error)
         this.sendMessage({ version: 0 })
       }
     })

@@ -173,8 +173,6 @@ export class CodeMirrorClient extends FormatClient {
 
       // Send changes
       update.changes.iterChanges((from, to, _fromB, _toB, inserted) => {
-        //console.log(from, to, fromB, toB, inserted)
-
         const insert = inserted.toJSON().join('\n')
 
         let op: FormatOperation
