@@ -17,7 +17,7 @@ on:
         default: "ubuntu,macos,windows"
 
 env:
-  RUST_VERSION: "1.81.0"
+  RUST_VERSION: "1.85.0"
 
 jobs:
   test-rust:
