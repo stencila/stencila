@@ -56,7 +56,6 @@ pub struct MediaObject {
     pub options: Box<MediaObjectOptions>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

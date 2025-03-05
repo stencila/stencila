@@ -161,9 +161,7 @@ pub struct Schema {
     #[serde(rename = "$ref", serialize_with = "serialize_ref_option")]
     pub r#ref: Option<String>,
 
-    #[rustfmt::skip]
     // Validation keywords for any instance type
-
     /// The value of this keyword MUST be either a string or an array.  If it
     /// is an array, elements of the array MUST be strings and MUST be
     /// unique.
@@ -194,9 +192,7 @@ pub struct Schema {
     /// is equal to the value of the keyword.
     pub r#const: Option<Value>,
 
-    #[rustfmt::skip]
     // Validation keywords for numeric instances (number and integer)
-
     /// The exclusive minimum valid value
     ///
     /// The value of "exclusiveMinimum" MUST be a number, representing an exclusive lower limit for a numeric instance.
@@ -225,9 +221,7 @@ pub struct Schema {
     /// equal to "maximum".
     pub maximum: Option<f64>,
 
-    #[rustfmt::skip]
     // Validation keywords for strings
-
     /// The expected format of the value
     ///
     /// The value of this keyword MUST be a string. This string SHOULD be a valid regular expression,
@@ -239,13 +233,11 @@ pub struct Schema {
     /// The expected format of the value
     pub format: Option<String>,
 
-    #[rustfmt::skip]
     // Validation keywords for arrays
-
     /// Subschema for valid items in the array
-    /// 
+    ///
     /// The value of "items" MUST be a valid JSON Schema. This keyword applies its
-    /// subschema to all instance array elements. 
+    /// subschema to all instance array elements.
     pub items: Option<Items>,
 
     /// The minimum number of items in the array
@@ -263,11 +255,9 @@ pub struct Schema {
     /// of this keyword.
     pub max_items: Option<usize>,
 
-    #[rustfmt::skip]
     // Validation keywords for objects
-
     /// The names of required properties of an object schema
-    /// 
+    ///
     /// The value of this keyword MUST be an array. Elements of this array, if any, MUST be strings,
     /// and MUST be unique. An object instance is valid against this keyword if every item in the array
     /// is the name of a property in the instance. Omitting this keyword has the same behavior
@@ -301,11 +291,9 @@ pub struct Schema {
     /// validates against the "additionalProperties" schema.
     pub additional_properties: Option<Box<Schema>>,
 
-    #[rustfmt::skip]
     // Validation keywords for unions
-
     /// Subschema of a union type
-    /// 
+    ///
     /// This keyword's value MUST be a non-empty array. Each item of the array MUST be a valid JSON Schema.
     /// An instance validates successfully against this keyword if it validates successfully against at least
     /// one schema defined by this keyword's value. Note that when annotations are being collected, all
@@ -321,10 +309,8 @@ pub struct Schema {
     /// particular schema. It is RECOMMENDED that a default value be valid against the associated schema.
     pub default: Option<Value>,
 
-    #[rustfmt::skip]
     // Derived properties, not intended to be specified in schema, but
     // used internally when generating code etc.
-
     /// The schema that the property is defined on
     #[serde(skip)]
     pub defined_on: String,

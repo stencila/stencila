@@ -47,7 +47,6 @@ pub struct Person {
     pub options: Box<PersonOptions>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

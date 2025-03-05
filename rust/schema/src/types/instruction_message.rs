@@ -49,7 +49,6 @@ pub struct InstructionMessage {
     pub provenance: Option<Vec<ProvenanceCount>>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

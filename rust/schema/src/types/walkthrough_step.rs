@@ -34,7 +34,6 @@ pub struct WalkthroughStep {
     pub content: Vec<Block>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

@@ -41,7 +41,6 @@ pub struct CodeLocation {
     pub end_column: Option<UnsignedInteger>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

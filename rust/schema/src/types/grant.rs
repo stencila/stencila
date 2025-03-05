@@ -31,7 +31,6 @@ pub struct Grant {
     pub options: Box<GrantOptions>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

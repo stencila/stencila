@@ -42,7 +42,6 @@ pub struct CompilationDigest {
     pub dependencies_failed: Option<UnsignedInteger>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

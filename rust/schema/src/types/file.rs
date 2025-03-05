@@ -47,7 +47,6 @@ pub struct File {
     pub options: Box<FileOptions>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

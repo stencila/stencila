@@ -38,7 +38,6 @@ pub struct Annotation {
     pub annotation: Option<Vec<Block>>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

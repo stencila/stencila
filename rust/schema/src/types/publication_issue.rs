@@ -54,7 +54,6 @@ pub struct PublicationIssue {
     pub options: Box<PublicationIssueOptions>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

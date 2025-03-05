@@ -43,7 +43,6 @@ pub struct ConfigPublishGhost {
     pub tags: Option<Vec<String>>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

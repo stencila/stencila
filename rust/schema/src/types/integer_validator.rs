@@ -45,7 +45,6 @@ pub struct IntegerValidator {
     pub multiple_of: Option<Number>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

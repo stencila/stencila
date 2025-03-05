@@ -60,7 +60,6 @@ pub struct PostalAddress {
     pub options: Box<PostalAddressOptions>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

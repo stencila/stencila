@@ -36,7 +36,6 @@ pub struct ObjectHint {
     pub values: Vec<Hint>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

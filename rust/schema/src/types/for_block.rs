@@ -140,8 +140,8 @@ pub struct ForBlock {
     pub options: Box<ForBlockOptions>,
 
     /// A unique identifier for a node within a document
-    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     #[serde(skip)]
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub uid: NodeUid
 }
 

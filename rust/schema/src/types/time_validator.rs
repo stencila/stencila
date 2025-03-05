@@ -30,7 +30,6 @@ pub struct TimeValidator {
     pub maximum: Option<Time>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

@@ -38,7 +38,6 @@ pub struct Organization {
     pub options: Box<OrganizationOptions>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

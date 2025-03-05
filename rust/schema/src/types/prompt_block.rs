@@ -81,7 +81,6 @@ pub struct PromptBlock {
     pub options: Box<PromptBlockOptions>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

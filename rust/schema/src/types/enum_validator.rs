@@ -28,7 +28,6 @@ pub struct EnumValidator {
     pub values: Vec<Node>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

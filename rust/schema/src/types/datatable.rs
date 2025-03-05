@@ -50,7 +50,6 @@ pub struct Datatable {
     pub options: Box<DatatableOptions>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

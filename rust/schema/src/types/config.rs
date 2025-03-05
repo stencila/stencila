@@ -27,7 +27,6 @@ pub struct Config {
     pub publish: Option<ConfigPublish>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

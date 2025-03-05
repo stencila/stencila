@@ -961,7 +961,8 @@ pub struct {title}Options {{
         };
 
         let uid_proptest = if schema.proptest.is_some() {
-            r#"#[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]"#
+            r#"
+    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]"#
         } else {
             ""
         };
@@ -1002,8 +1003,7 @@ pub struct {title} {{
     {core_fields}
 
     /// A unique identifier for a node within a document
-    {uid_proptest}
-    #[serde(skip)]
+    #[serde(skip)]{uid_proptest}
     pub uid: NodeUid
 }}{options}
 

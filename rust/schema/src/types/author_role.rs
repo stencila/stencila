@@ -39,7 +39,6 @@ pub struct AuthorRole {
     pub last_modified: Option<Timestamp>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

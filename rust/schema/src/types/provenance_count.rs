@@ -35,7 +35,6 @@ pub struct ProvenanceCount {
     pub character_percent: Option<UnsignedInteger>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

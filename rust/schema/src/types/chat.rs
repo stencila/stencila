@@ -106,7 +106,6 @@ pub struct Chat {
     pub options: Box<ChatOptions>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

@@ -34,7 +34,6 @@ pub struct ConfigPublishZenodo {
     pub method: Option<String>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

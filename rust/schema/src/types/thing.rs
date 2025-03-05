@@ -29,7 +29,6 @@ pub struct Thing {
     pub options: Box<ThingOptions>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

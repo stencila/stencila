@@ -67,7 +67,6 @@ pub struct SoftwareSourceCode {
     pub options: Box<SoftwareSourceCodeOptions>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

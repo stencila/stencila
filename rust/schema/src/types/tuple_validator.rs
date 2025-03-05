@@ -28,7 +28,6 @@ pub struct TupleValidator {
     pub items: Option<Vec<Validator>>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

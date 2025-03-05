@@ -33,7 +33,6 @@ pub struct DefinedTerm {
     pub options: Box<DefinedTermOptions>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

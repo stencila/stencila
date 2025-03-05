@@ -30,7 +30,6 @@ pub struct ChatMessageGroup {
     pub messages: Vec<ChatMessage>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

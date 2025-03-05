@@ -34,7 +34,6 @@ pub struct Function {
     pub returns: Option<Validator>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

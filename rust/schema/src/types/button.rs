@@ -90,7 +90,6 @@ pub struct Button {
     pub options: Box<ButtonOptions>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

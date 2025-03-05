@@ -30,7 +30,6 @@ pub struct ConfigModels {
     pub maximum_retries: Option<Number>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

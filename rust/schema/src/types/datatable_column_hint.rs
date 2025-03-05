@@ -39,7 +39,6 @@ pub struct DatatableColumnHint {
     pub nulls: Option<Integer>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

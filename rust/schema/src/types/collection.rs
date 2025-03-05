@@ -51,7 +51,6 @@ pub struct Collection {
     pub options: Box<CollectionOptions>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

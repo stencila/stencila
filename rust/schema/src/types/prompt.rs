@@ -116,7 +116,6 @@ pub struct Prompt {
     pub options: Box<PromptOptions>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

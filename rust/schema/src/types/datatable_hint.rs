@@ -31,7 +31,6 @@ pub struct DatatableHint {
     pub columns: Vec<DatatableColumnHint>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

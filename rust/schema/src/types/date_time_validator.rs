@@ -30,7 +30,6 @@ pub struct DateTimeValidator {
     pub maximum: Option<DateTime>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

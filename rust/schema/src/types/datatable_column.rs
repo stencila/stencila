@@ -34,7 +34,6 @@ pub struct DatatableColumn {
     pub validator: Option<ArrayValidator>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }

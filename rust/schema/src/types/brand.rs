@@ -33,7 +33,6 @@ pub struct Brand {
     pub options: Box<BrandOptions>,
 
     /// A unique identifier for a node within a document
-    
     #[serde(skip)]
     pub uid: NodeUid
 }
