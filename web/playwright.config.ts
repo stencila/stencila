@@ -1,3 +1,4 @@
+import { createArgosReporterOptions } from '@argos-ci/playwright/reporter'
 import { defineConfig, devices } from '@playwright/test'
 
 /**
@@ -27,9 +28,9 @@ export default defineConfig({
     process.env.CI ? ['dot'] : ['list'],
     [
       '@argos-ci/playwright/reporter',
-      {
+      createArgosReporterOptions({
         uploadToArgos: !!process.env.CI,
-      },
+      }),
     ],
   ],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
