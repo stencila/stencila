@@ -63,9 +63,10 @@ export class ChatMessage extends Executable {
 
     return (
       types.includes(nodeType) &&
-      // Expand anywhere in chat, including initial content, that
-      // is the target of an editing, or describing chat.
-      closestGlobally(card, 'stencila-chat') !== null
+      // Expand these node types in chat content which includes blocks that
+      // is the target of an editing, or describing chat as well as messages.
+      // but excludes nodes in the prompt preview for the chat.
+      closestGlobally(card, 'stencila-chat > [slot="content"]') !== null
     )
   }
 
