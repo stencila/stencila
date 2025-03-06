@@ -619,7 +619,7 @@ fn group_to_instr_msg(group: &ChatMessageGroup) -> Option<InstructionMessage> {
     group
         .messages
         .iter()
-        .find(|msg| msg.is_selected.unwrap_or_default())
+        .find(|msg| msg.options.is_selected.unwrap_or_default())
         .or_else(|| group.messages.first())
         .and_then(msg_to_instr_msg)
 }
