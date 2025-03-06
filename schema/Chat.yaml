@@ -65,12 +65,3 @@ properties:
       $ref: Block
     dom:
       elem: div
-  suggestions:
-    "@id": stencila:suggestions
-    description: Suggestions of content that is the focus of the chat.
-    type: array
-    items:
-      $ref: SuggestionBlock
-    walk: true
-    dom:
-      with: Chat::suggestions_to_dom_elem

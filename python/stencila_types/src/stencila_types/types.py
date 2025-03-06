@@ -1263,9 +1263,6 @@ class Chat(CreativeWork, Executable):
     content: list[Block]
     """The messages, and optionally other content, that make up the chat."""
 
-    suggestions: list[SuggestionBlock] | None = None
-    """Suggestions of content that is the focus of the chat."""
-
 
 @dataclass(kw_only=True, repr=False)
 class ChatMessage(Executable):

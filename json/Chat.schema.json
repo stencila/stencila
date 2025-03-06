@@ -927,21 +927,6 @@
       "items": {
         "$ref": "Block.schema.json"
       }
-    },
-    "suggestions": {
-      "@id": "stencila:suggestions",
-      "description": "Suggestions of content that is the focus of the chat.",
-      "aliases": [
-        "suggestion"
-      ],
-      "walk": true,
-      "dom": {
-        "with": "Chat::suggestions_to_dom_elem"
-      },
-      "type": "array",
-      "items": {
-        "$ref": "SuggestionBlock.schema.json"
-      }
     }
   }
 }
