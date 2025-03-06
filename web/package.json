@@ -92,7 +92,7 @@
     "@viz-js/lang-dot": "1.0.4",
     "codemirror-lang-mermaid": "0.5.0",
     "codemirror-lang-r": "0.1.1",
-    "idiomorph": "0.7.2",
+    "idiomorph": "0.7.3",
     "just-diff-apply": "5.5.0",
     "katex": "0.16.21",
     "lit": "3.2.1",
