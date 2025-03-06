@@ -38,10 +38,9 @@ use document::{Command, CommandNodes, CommandScope, CommandStatus, ContentType, 
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
-    replicate, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ExecutionMode,
-    InstructionBlock, InstructionMessage, InstructionType, MessageRole, ModelParameters, Node,
-    NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock,
-    SuggestionBlock, Timestamp,
+    replicate, AuthorRole, AuthorRoleName, Block, Chat, ExecutionMode, InstructionBlock,
+    InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodeProperty, NodeType,
+    Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock, SuggestionBlock, Timestamp,
 };
 
 use crate::{
