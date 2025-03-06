@@ -1,10 +1,9 @@
 import { MutationController } from '@lit-labs/observers/mutation-controller'
 import SlCarousel from '@shoelace-style/shoelace/dist/components/carousel/carousel'
 import SlCarouselItem from '@shoelace-style/shoelace/dist/components/carousel-item/carousel-item'
-import SlSplitPanel from '@shoelace-style/shoelace/dist/components/split-panel/split-panel'
 import { apply } from '@twind/core'
 import { css, html, PropertyValues } from 'lit'
-import { customElement, state } from 'lit/decorators'
+import { customElement } from 'lit/decorators'
 
 import { archiveNode, deleteNode } from '../clients/commands'
 import { withTwind } from '../twind'
@@ -43,61 +42,6 @@ export class Chat extends Executable {
    */
   // @ts-expect-error is never read
   private contentMutationController: MutationController
-
-  /**
-   * A mutation controller used to expand the suggestions
-   * slider open when a suggestion is added
-   *
-   * @see onSuggestionSlotChange
-   */
-  // @ts-expect-error is never read
-  private suggestionsMutationController: MutationController
-
-  /**
-   * The number of suggestions
-   *
-   * Currently only used for changing the position of
-   * the split panel when a suggestion is first added.
-   *
-   * In the future, an indicator could be provided to the
-   * user to show the number of suggestions, when that panel is closed.
-   *
-   * @see onSuggestionSlotChange
-   */
-  @state()
-  private suggestionsCount: number = 0
-
-  /**
-   * The position of the split panel
-   *
-   * Used for changing the position of the split panel when a suggestion
-   * is first added and keeping track of position selected by user.
-   *
-   * Not a @state to avoid reactive loop.
-   */
-  private splitPosition: number = 100
-
-  /**
-   * The initial position of the split panel when suggestions
-   * are present
-   */
-  private static splitPositionInitial = 50.001
-
-  /**
-   * When user changes the split position record the position so that
-   * it can be used on the next `render()`.
-   */
-  onSplitPositionChange(event: Event) {
-    // Avoid overwrite of the initial split position
-    if (this.splitPosition === Chat.splitPositionInitial) {
-      return
-    }
-
-    const panel = event.target as SlSplitPanel
-    if (panel.position) {
-      this.splitPosition = panel.position
-    }
-  }
 
   /**
    * On a change to the content slot initialize the
@@ -217,52 +161,39 @@ export class Chat extends Executable {
   }
 
   /**
-   * On a change to the suggestions slot initialize the
-   * mutation controller to open the slider.
-   *
-   * Only applied for top level chats.
-   */
-  private onSuggestionsSlotChange({ target: slot }: Event) {
-    if (this.depth > 0) {
-      return
-    }
-
-    const suggestionsElem = (slot as HTMLSlotElement).assignedElements()[0]
-    if (!suggestionsElem) {
-      return
-    }
-
-    const update = () => {
-      const count = suggestionsElem.querySelectorAll(
-        'stencila-chat-suggestions-item'
-      ).length
-
-      // If the first suggestion has been added and the suggestions panel
-      // is currently hidden then make the split 50%
-      if (this.suggestionsCount === 0 && count > 0 && this.splitPosition > 95) {
-        this.splitPosition = Chat.splitPositionInitial
-      }
-
-      if (count != this.suggestionsCount) {
-        this.suggestionsCount = count
-      }
-    }
-    update()
-
-    this.suggestionsMutationController = new MutationController(this, {
-      target: suggestionsElem,
-      config: { childList: true, subtree: true },
-      callback: update,
-    })
-  }
-
-  /**
    * On message input, forward the input value to the prompt component
    * for potential use as an implied query for prompt target
    */
   private onMessageInput({ detail: value }: CustomEvent) {
     const prompt = this.querySelector('stencila-prompt-block') as PromptBlock
     prompt.onQueryImplied(value)
+  }
+
+  private getPlaceholder(): string {
+    const prompt = this.querySelector(
+      'stencila-prompt-block'
+    ) as PromptBlock | null
+
+    if (!prompt) {
+      return ''
+    }
+
+    const messages = this.querySelectorAll('stencila-chat-message')
+    if (messages && messages.length > 0) {
+      return 'What would you like to improve?'
+    }
+
+    switch (prompt.instructionType) {
+      case 'Create':
+        return 'What would you like to create?'
+      case 'Discuss':
+        return 'What would you like to discuss?'
+      case 'Edit':
+        return 'How would you like to edit this?'
+      case 'Fix':
+      case 'Describe':
+        return ''
+    }
   }
 
   override render() {
@@ -306,58 +237,46 @@ export class Chat extends Executable {
         </div>
 
         <div class="flex-grow overflow-y-hidden">
-          <sl-split-panel
-            class="h-full"
-            position=${this.splitPosition}
-            @sl-reposition=${this.onSplitPositionChange}
-          >
-            <div slot="start" class="h-full overflow-y-hidden flex flex-col">
-              <div class="flex-grow overflow-y-hidden">
-                <div
-                  class="relative h-full overflow-auto"
-                  id="chat-scroll-container"
-                >
-                  <div class="px-3 pb-6">
-                    <slot
-                      name="content"
-                      @slotchange=${this.onContentSlotChange}
-                    ></slot>
-                    <stencila-ui-nodes-selected
-                      type="Chat"
-                      node-id=${this.id}
-                    ></stencila-ui-nodes-selected>
-                  </div>
-                </div>
-              </div>
-
+          <div class="h-full overflow-y-hidden flex flex-col">
+            <div class="flex-grow overflow-y-hidden">
               <div
-                class="bg-[${colour}] border-t border-[${borderColour}] px-3 py-2"
+                class="relative h-full overflow-auto"
+                id="chat-scroll-container"
               >
-                <div class="pb-2">
-                  <slot name="prompt"></slot>
+                <div class="px-3 pb-6 min-w-[50ch] max-w-[80ch] mx-auto">
+                  <slot
+                    name="content"
+                    @slotchange=${this.onContentSlotChange}
+                  ></slot>
+                  <stencila-ui-nodes-selected
+                    type="Chat"
+                    node-id=${this.id}
+                  ></stencila-ui-nodes-selected>
                 </div>
-
-                <stencila-ui-chat-message-inputs
-                  type="Chat"
-                  node-id=${this.id}
-                  @stencila-message-input=${this.onMessageInput}
-                >
-                  <slot name="model-parameters" slot="model-parameters"></slot>
-                </stencila-ui-chat-message-inputs>
-
-                <stencila-ui-node-execution-messages type="Chat">
-                  <slot name="execution-messages"></slot>
-                </stencila-ui-node-execution-messages>
               </div>
             </div>
 
-            <div slot="end" class="h-full overflow-auto px-1 py-2">
-              <slot
-                name="suggestions"
-                @slotchange=${this.onSuggestionsSlotChange}
-              ></slot>
+            <div
+              class="bg-[${colour}] border-t border-[${borderColour}] px-3 py-2"
+            >
+              <div class="pb-2">
+                <slot name="prompt"></slot>
+              </div>
+
+              <stencila-ui-chat-message-inputs
+                type="Chat"
+                node-id=${this.id}
+                placeholder=${this.getPlaceholder()}
+                @stencila-message-input=${this.onMessageInput}
+              >
+                <slot name="model-parameters" slot="model-parameters"></slot>
+              </stencila-ui-chat-message-inputs>
+
+              <stencila-ui-node-execution-messages type="Chat">
+                <slot name="execution-messages"></slot>
+              </stencila-ui-node-execution-messages>
             </div>
-          </sl-split-panel>
+          </div>
         </div>
       </div>
     `

@@ -174,8 +174,17 @@ impl Executable for Chat {
 
         // Execute the prompt and render to a system message
         self.prompt.execute(executor).await;
-        if let Some(content) = &self.prompt.content {
-            instruction_messages.push(blocks_to_system_message(content));
+        if let Some(mut blocks) = self.prompt.content.clone() {
+            // Append any content before the first chat message to the system message.
+            // Applies to "edit", "describe" etc chats which begin with some target content.
+            for block in &self.content {
+                if matches!(block, Block::ChatMessage(..)) {
+                    break;
+                }
+                blocks.push(block.clone());
+            }
+
+            instruction_messages.push(blocks_to_system_message(&blocks));
         }
 
         // If there are no messages yet, and the prompt block contains a query
@@ -610,7 +619,7 @@ fn group_to_instr_msg(group: &ChatMessageGroup) -> Option<InstructionMessage> {
     group
         .messages
         .iter()
-        .find(|msg| msg.options.is_selected.unwrap_or_default())
+        .find(|msg| msg.is_selected.unwrap_or_default())
         .or_else(|| group.messages.first())
         .and_then(msg_to_instr_msg)
 }

@@ -38,10 +38,10 @@ use document::{Command, CommandNodes, CommandScope, CommandStatus, ContentType, 
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
-    replicate, AuthorRole, AuthorRoleName, Block, Chat, ExecutionMode, InstructionBlock,
-    InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodeProperty, NodeType,
-    Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock, SuggestionBlock,
-    SuggestionStatus, Timestamp,
+    replicate, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ExecutionMode,
+    InstructionBlock, InstructionMessage, InstructionType, MessageRole, ModelParameters, Node,
+    NodeId, NodeProperty, NodeType, Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock,
+    SuggestionBlock, Timestamp,
 };
 
 use crate::{
@@ -863,7 +863,7 @@ pub(super) async fn execute_command(
             );
 
             // If any, add them to the suggestions as the original
-            let suggestions = if !node_ids.is_empty() {
+            let content = if !node_ids.is_empty() {
                 // Get clones of the blocks
                 let content = {
                     let doc = doc.read().await;
@@ -881,15 +881,9 @@ pub(super) async fn execute_command(
                 };
 
                 // Replicate to avoid duplicate ids
-                let content = replicate(&content).map_err(internal_error)?;
-
-                Some(vec![SuggestionBlock {
-                    suggestion_status: Some(SuggestionStatus::Original),
-                    content,
-                    ..Default::default()
-                }])
+                replicate(&content).map_err(internal_error)?
             } else {
-                None
+                vec![]
             };
 
             // If no prompt provided then infer one from the instruction type, node type etc
@@ -908,7 +902,7 @@ pub(super) async fn execute_command(
                     ..Default::default()
                 },
                 is_embedded: Some(true),
-                suggestions,
+                content,
                 ..Default::default()
             };
 
