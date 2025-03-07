@@ -65,34 +65,26 @@ export class Admonition extends Entity {
   }
 
   override render() {
-    const { borderColour } = admonitionUi(this.admonitionType)
-
-    const styles = apply([
-      'my-4',
-      `border border-l-4 border-[${borderColour}]`,
-      'shadow rounded',
-    ])
-
     if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
-      return html`
-        <div class=${styles}>
-          ${this.renderHeader()} ${this.renderContent()}
-        </div>
-      `
+      return this.renderContent()
     }
 
     // Render with an insert chip when in model chat response but not if
     // a "Thinking" admonition
     if (this.isWithinModelChatMessage()) {
-      return html`
-        <div class="group relative">
-          ${this.titleSlotText !== 'Thinking' ? this.renderInsertChip() : ''}
-          <div class=${styles}>
-            ${this.renderHeader()} ${this.renderContent()}
-          </div>
-        </div>
-      `
+      return this.titleSlotText !== 'Thinking'
+        ? html`
+            <div class="group relative">
+              ${this.renderInsertChip()} ${this.renderCard()}
+            </div>
+          `
+        : this.renderCard()
     }
+
+    return this.renderCard()
+  }
+
+  private renderCard() {
     const hasDocRoot = this.hasDocumentRootNode()
 
     return html`
@@ -111,16 +103,26 @@ export class Admonition extends Entity {
           </stencila-ui-node-authors>
         </div>
 
-        <div slot="content" class="mt-2">
-          <div class=${styles}>
-            ${this.renderHeader()} ${this.renderContent()}
-          </div>
-        </div>
+        <div slot="content" class="mt-2">${this.renderContent()}</div>
       </stencila-ui-block-on-demand>
     `
   }
 
-  protected renderHeader() {
+  private renderContent() {
+    const { borderColour } = admonitionUi(this.admonitionType)
+
+    const styles = apply([
+      'my-4',
+      `border border-l-4 border-[${borderColour}]`,
+      'shadow rounded',
+    ])
+
+    return html`
+      <div class=${styles}>${this.renderHeader()} ${this.renderBody()}</div>
+    `
+  }
+
+  private renderHeader() {
     const { textColour, baseColour, icon } = admonitionUi(this.admonitionType)
 
     const styles = apply([
@@ -151,7 +153,7 @@ export class Admonition extends Entity {
     `
   }
 
-  protected renderContent() {
+  private renderBody() {
     const styles = apply([
       this.isFolded ? 'opacity-0' : 'opacity-100',
       this.isFolded ? 'max-h-0' : 'max-h-[10000px]',

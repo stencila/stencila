@@ -67,12 +67,15 @@ export class Heading extends Entity {
     if (this.isWithinModelChatMessage()) {
       return html`
         <div class="group relative">
-          ${this.renderInsertChip()}
-          <slot name="content"></slot>
+          ${this.renderInsertChip()} ${this.renderCard()}
         </div>
       `
     }
 
+    return this.renderCard()
+  }
+
+  private renderCard() {
     const hasDocRoot = this.hasDocumentRootNode()
 
     return html`

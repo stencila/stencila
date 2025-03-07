@@ -54,14 +54,15 @@ export class Section extends Entity {
     if (this.isWithinModelChatMessage()) {
       return html`
         <div class="group relative">
-          ${this.renderInsertChip()}
-          ${this.sectionType === 'Iteration'
-            ? this.renderIteration()
-            : this.renderSection()}
+          ${this.renderInsertChip()} ${this.renderCard()}
         </div>
       `
     }
 
+    return this.renderCard()
+  }
+
+  private renderCard() {
     return this.sectionType === 'Iteration'
       ? this.renderIteration()
       : this.renderSection()

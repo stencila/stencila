@@ -121,7 +121,7 @@ export class IncludeBlock extends Executable {
     return this.renderCard()
   }
 
-  renderCard() {
+  protected renderCard() {
     const hasDocRoot = this.hasDocumentRootNode()
 
     return html`
