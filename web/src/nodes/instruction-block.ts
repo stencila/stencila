@@ -227,23 +227,15 @@ export class InstructionBlock extends Instruction {
       `
     }
 
-    // render with the `insert` chip in model chat response
     if (this.isWithinModelChatMessage()) {
-      return html`
-        <div class="group relative">
-          ${this.renderInsertChip()} ${this.renderCard()}
-        </div>
-      `
+      return this.renderCardWithInsert()
     }
 
     return this.renderCard()
   }
 
-  private renderCard() {
+  override renderCard() {
     const { borderColour } = nodeUi('InstructionBlock')
-
-    // const hasDocRoot = this.hasDocumentRootNode()
-    // ?no-root=${!hasDocRoot}
 
     return html`<stencila-ui-block-on-demand
       type="InstructionBlock"

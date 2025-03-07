@@ -23,19 +23,14 @@ export class QuoteBlock extends Entity {
       return html`<slot name="content"></slot>`
     }
 
-    // render with the `insert` chip in model chat response
     if (this.isWithinModelChatMessage()) {
-      return html`
-        <div class="group relative">
-          ${this.renderInsertChip()} ${this.renderCard()}
-        </div>
-      `
+      return this.renderCardWithInsert()
     }
 
     return this.renderCard()
   }
 
-  private renderCard() {
+  override renderCard() {
     const hasDocRoot = this.hasDocumentRootNode()
 
     return html`

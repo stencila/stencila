@@ -18,7 +18,6 @@ import '../ui/nodes/properties/provenance'
 @withTwind()
 export class List extends Entity {
   override render() {
-    // Do not render a node card for document headings slot or StyledBlock
     if (
       this.closestGlobally('nav[slot=headings]') ||
       this.isWithin('StyledBlock') ||
@@ -28,17 +27,13 @@ export class List extends Entity {
     }
 
     if (this.isWithinModelChatMessage()) {
-      return html`
-        <div class="group relative">
-          ${this.renderInsertChip()} ${this.renderCard()}
-        </div>
-      `
+      return this.renderCardWithInsert()
     }
 
     return this.renderCard()
   }
 
-  private renderCard() {
+  override renderCard() {
     const hasDocRoot = this.hasDocumentRootNode()
 
     return html`

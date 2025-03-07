@@ -198,24 +198,17 @@ export abstract class Entity extends LitElement {
     return html`<slot></slot>`
   }
 
+  protected renderCard() {
+    return html``
+  }
+
   /**
-   * Renders the chip control for the particular entity
-   *
-   * To use correctly this must be inside a non-static positioned element
-   * with the `"group"` utility class applied.
-   *
-   * eg:
-   *
-   *  ```
-   *  <div class="group relative">
-   *    ${this.renderInsertChip()}
-   *    <slot></slot>
-   *  </div>
-   *  ```
+   * Renders a node card with a <stencila-ui-node-insert> component
+   * so that the node can be inserted into a document
    */
-  protected renderInsertChip() {
+  protected renderCardWithInsert() {
     const classes = apply([
-      'absolute -left-[40px] top-0',
+      'absolute -left-[27px] top-0',
       'opacity-0 group-hover:opacity-100',
       'transition-opacity duration-300',
     ])
@@ -227,9 +220,12 @@ export abstract class Entity extends LitElement {
     const nodeTuple = [this.nodeName, this.id]
 
     return html`
-      <div class="${classes} ${styles}">
-        <stencila-ui-node-insert .selectedNodes=${[nodeTuple]}>
-        </stencila-ui-node-insert>
+      <div class="group relative">
+        <div class="${classes} ${styles}">
+          <stencila-ui-node-insert .selectedNodes=${[nodeTuple]}>
+          </stencila-ui-node-insert>
+        </div>
+        ${this.renderCard()}
       </div>
     `
   }

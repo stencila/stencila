@@ -73,18 +73,14 @@ export class Admonition extends Entity {
     // a "Thinking" admonition
     if (this.isWithinModelChatMessage()) {
       return this.titleSlotText !== 'Thinking'
-        ? html`
-            <div class="group relative">
-              ${this.renderInsertChip()} ${this.renderCard()}
-            </div>
-          `
+        ? this.renderCardWithInsert()
         : this.renderCard()
     }
 
     return this.renderCard()
   }
 
-  private renderCard() {
+  override renderCard() {
     const hasDocRoot = this.hasDocumentRootNode()
 
     return html`
