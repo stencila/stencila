@@ -427,7 +427,7 @@ nodeTypes: []
   // Create a temporary chat in the current document
   //
   // If the instruction type is not supplied it is inferred from the selected node
-  // types (if any). Defaults to running the chat straightaway.
+  // types (if any).
   context.subscriptions.push(
     vscode.commands.registerCommand(
       `stencila.invoke.create-chat`,
@@ -460,7 +460,7 @@ nodeTypes: []
           context,
           editor.document.uri,
           editor.selection.active,
-          "Temporary chat",
+          "Chat",
           chatId
         );
 
@@ -518,7 +518,9 @@ nodeTypes: []
         async () =>
           await insertChat({
             instructionType: "Create",
-            prompt: `stencila/create/${prompt}`,
+            // Do not need to prefix prompt with `stencila/create` because
+            // providing instruction type
+            prompt,
           })
       )
     );

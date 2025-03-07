@@ -890,13 +890,15 @@ pub(super) async fn execute_command(
                 Some(prompt) => Some(prompt),
                 None => prompts::infer(&instruction_type, &node_types, &None)
                     .await
-                    .map(|prompt| prompt.name.clone()),
+                    .map(|prompt| [&prompt.name, "?"].concat()),
             };
 
             let chat = Chat {
                 prompt: PromptBlock {
+                    // Do not set `node_types` since already used to infer prompt
+                    // if necessary and can be confusing, especially if more than
+                    // on node is selected
                     instruction_type,
-                    node_types,
                     target,
                     ..Default::default()
                 },
@@ -917,7 +919,11 @@ pub(super) async fn execute_command(
                 .map(|range| range.start)
                 .and_then(|position| root.block_content_index(position))
             {
-                Some((node_id, index)) => (Some(node_id), PatchOp::Insert(vec![(index, chat)])),
+                Some((node_id, index)) => (
+                    Some(node_id),
+                    // Insert before the selected range
+                    PatchOp::Insert(vec![(index.saturating_sub(1), chat)]),
+                ),
                 None => (None, PatchOp::Push(chat)),
             };
 
