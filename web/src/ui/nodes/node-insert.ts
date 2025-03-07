@@ -76,8 +76,6 @@ export class UINodeInsert extends LitElement {
 
   /**
    * Render a larger element, with each selected element shown as a `sl-tag`
-   *
-   * provide a fucntion for `this.onTagRemove` property to make the tags removable
    */
   renderLarge() {
     const tagStyles = css`
@@ -135,13 +133,13 @@ export class UINodeInsert extends LitElement {
       return html`
         <div class="bg-brand-blue text-white font-sans text-sm rounded">
           <sl-tooltip content="Insert ${nodes.join(', ')}">
-            <button class="flex p-2 items-center" @click=${this.insertIds}>
+            <button class="flex p-1 items-center" @click=${this.insertIds}>
               <stencila-ui-icon
                 name="boxArrowInLeft"
                 class="text-lg"
               ></stencila-ui-icon>
             </button>
-          <sl-tooltip>
+          </sl-tooltip>
         </div>
       `
     }
