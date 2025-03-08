@@ -403,24 +403,16 @@ nodeTypes: []
         null, // range
         "Discuss", // instruction type
         null, // node type
-        "stencila/discuss/document"
+        "document"
       );
 
-      const panel = await createNodeViewPanel(
+      await createNodeViewPanel(
         context,
         editor.document.uri,
         null,
-        "Temporary document chat",
+        "Chat",
         chatId
       );
-
-      panel.onDidDispose(async () => {
-        await vscode.commands.executeCommand(
-          "stencila.delete-chat",
-          editor.document.uri.toString(),
-          chatId
-        );
-      });
     })
   );
 
@@ -456,21 +448,13 @@ nodeTypes: []
           executeChat
         );
 
-        const panel = await createNodeViewPanel(
+        await createNodeViewPanel(
           context,
           editor.document.uri,
           editor.selection.active,
           "Chat",
           chatId
         );
-
-        panel.onDidDispose(async () => {
-          await vscode.commands.executeCommand(
-            "stencila.delete-chat",
-            editor.document.uri.toString(),
-            chatId
-          );
-        });
       }
     )
   );

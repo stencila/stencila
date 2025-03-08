@@ -83,6 +83,15 @@ export const insertClones = (nodeIds: NodeId[]) =>
   })
 
 /**
+ * Create a `merge-node` command event
+ */
+export const mergeNode = (oldNodeId: NodeId, newNodeId: NodeId) =>
+  documentCommandEvent({
+    command: 'merge-node',
+    args: [oldNodeId, newNodeId],
+  })
+
+/**
  * Create an `invoke.insert-instruction` command event
  */
 export const insertInstructions = (

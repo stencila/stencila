@@ -173,8 +173,7 @@ export async function createNodeViewPanel(
   position: vscode.Position | null,
   nodeType: string,
   nodeId: string,
-  expandAuthors: boolean = false,
-  viewColumn: vscode.ViewColumn = vscode.ViewColumn.Beside
+  expandAuthors: boolean = false
 ): Promise<vscode.WebviewPanel> {
   const uri = documentUri.with({ fragment: nodeId });
 
@@ -196,7 +195,7 @@ export async function createNodeViewPanel(
   const panel = vscode.window.createWebviewPanel(
     "node-view",
     title,
-    viewColumn,
+    vscode.ViewColumn.Beside,
     {
       enableScripts: true,
       retainContextWhenHidden: true,
@@ -214,6 +213,17 @@ export async function createNodeViewPanel(
       type: "view-node",
       nodeId,
       expandAuthors,
+    });
+  }
+
+  if (nodeType.toLowerCase().includes("chat") || nodeId.startsWith("cht")) {
+    panel.onDidDispose(async () => {
+      await vscode.commands.executeCommand(
+        "stencila.delete-node",
+        documentUri.toString(),
+        "Chat",
+        nodeId
+      );
     });
   }
 

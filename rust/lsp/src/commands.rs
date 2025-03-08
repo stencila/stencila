@@ -38,7 +38,7 @@ use document::{Command, CommandNodes, CommandScope, CommandStatus, ContentType, 
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
-    replicate, AuthorRole, AuthorRoleName, Block, Chat, ExecutionMode, InstructionBlock,
+    diff, replicate, AuthorRole, AuthorRoleName, Block, Chat, ExecutionMode, InstructionBlock,
     InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodeProperty, NodeType,
     Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock, SuggestionBlock, Timestamp,
 };
@@ -81,6 +81,7 @@ pub(super) const INSERT_NODE: &str = "stencila.insert-node";
 pub(super) const INSERT_CLONES: &str = "stencila.insert-clones";
 pub(super) const INSERT_INSTRUCTION: &str = "stencila.insert-instruction";
 
+pub(super) const MERGE_NODE: &str = "stencila.merge-node";
 pub(super) const DELETE_NODE: &str = "stencila.delete-node";
 
 pub(super) const CREATE_CHAT: &str = "stencila.create-chat";
@@ -116,6 +117,7 @@ pub(super) fn commands() -> Vec<String> {
         INSERT_NODE,
         INSERT_CLONES,
         INSERT_INSTRUCTION,
+        MERGE_NODE,
         DELETE_NODE,
         CREATE_CHAT,
         EXPORT_DOC,
@@ -767,6 +769,30 @@ pub(super) async fn execute_command(
                 true,
             )
         }
+        MERGE_NODE => {
+            let old_id = node_id_arg(args.next())?;
+            let new_id = node_id_arg(args.next())?;
+
+            let doc = doc.read().await;
+            let old = doc
+                .find(old_id.clone())
+                .await
+                .ok_or_else(|| internal_error("Unable to find old node"))?;
+            let new = doc
+                .find(new_id)
+                .await
+                .ok_or_else(|| internal_error("Unable to find new node"))?;
+
+            let mut patch = diff(&old, &new, None, None).map_err(internal_error)?;
+            patch.node_id = Some(old_id);
+
+            (
+                "Merging node".to_string(),
+                Command::PatchNode(patch),
+                false,
+                true,
+            )
+        }
         DELETE_NODE => {
             args.next(); // Node type arg not currently used
             let node_id = node_id_arg(args.next())?;
@@ -861,8 +887,10 @@ pub(super) async fn execute_command(
                     .collect_vec(),
             );
 
-            // If any, add them to the suggestions as the original
-            let content = if !node_ids.is_empty() {
+            // If nodes selected, replicate them into the chat.
+            let (target_nodes, content) = if !node_ids.is_empty() {
+                let target_nodes = node_ids.iter().map(|id| id.to_string()).collect_vec();
+
                 // Get clones of the blocks
                 let content = {
                     let doc = doc.read().await;
@@ -880,9 +908,11 @@ pub(super) async fn execute_command(
                 };
 
                 // Replicate to avoid duplicate ids
-                replicate(&content).map_err(internal_error)?
+                let content = replicate(&content).map_err(internal_error)?;
+
+                (Some(target_nodes), content)
             } else {
-                vec![]
+                (None, Vec::new())
             };
 
             // If no prompt provided then infer one from the instruction type, node type etc
@@ -903,6 +933,7 @@ pub(super) async fn execute_command(
                     ..Default::default()
                 },
                 is_embedded: Some(true),
+                target_nodes,
                 content,
                 ..Default::default()
             };
