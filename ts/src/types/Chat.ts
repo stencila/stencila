@@ -28,6 +28,11 @@ export class Chat extends CreativeWork {
   modelParameters: ModelParameters;
 
   /**
+   * The ids of the nodes that this chat is targeting
+   */
+  targetNodes?: string[];
+
+  /**
    * The messages, and optionally other content, that make up the chat.
    */
   content: Block[];

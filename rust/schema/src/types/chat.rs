@@ -84,6 +84,11 @@ pub struct Chat {
     #[dom(elem = "div")]
     pub model_parameters: Box<ModelParameters>,
 
+    /// The ids of the nodes that this chat is targeting
+    #[serde(alias = "target-nodes", alias = "target_nodes", alias = "targetNode", alias = "target-node", alias = "target_node")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub target_nodes: Option<Vec<String>>,
+
     /// The messages, and optionally other content, that make up the chat.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]

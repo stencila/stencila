@@ -803,6 +803,18 @@
       }
     },
     {
+      "@id": "stencila:targetNodes",
+      "@type": "rdfs:Property",
+      "rdfs:label": "targetNodes",
+      "rdfs:comment": "The ids of the nodes that this chat is targeting",
+      "schema:domainIncludes": {
+        "@id": "stencila:Chat"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",

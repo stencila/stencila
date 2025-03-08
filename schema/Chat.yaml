@@ -17,6 +17,7 @@ core:
   - title
   - suggestions
   - isEmbedded
+  - targetNodes
 properties:
   isEmbedded:
     "@id": stencila:isEmbedded
@@ -53,13 +54,23 @@ properties:
       default: true
     dom:
       elem: div
+  targetNodes:
+    "@id": stencila:targetNodes
+    description: The ids of the nodes that this chat is targeting
+    $comment: |
+      Used when the chat is targeting some content within the document
+      to be able to apply changes to those original nodes.
+    type: array
+    items:
+      type: string
   content:
     "@id": stencila:content
     description: The messages, and optionally other content, that make up the chat.
     $comment: |
       Usually, a chat will only contain `ChatMessage`s that alternate
       between user and model roles. However, other types of block content
-      are permitted.
+      are permitted. Specifically, when a chat is targeting some content (e.g. to edit it)
+      then that content will be inserted into the chat before the first chat message.
     type: array
     items:
       $ref: Block
