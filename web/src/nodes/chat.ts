@@ -3,9 +3,9 @@ import SlCarousel from '@shoelace-style/shoelace/dist/components/carousel/carous
 import SlCarouselItem from '@shoelace-style/shoelace/dist/components/carousel-item/carousel-item'
 import { apply } from '@twind/core'
 import { css, html, PropertyValues } from 'lit'
-import { customElement } from 'lit/decorators'
+import { customElement, property } from 'lit/decorators'
 
-import { archiveNode, deleteNode } from '../clients/commands'
+import { archiveNode } from '../clients/commands'
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
 import '../ui/nodes/chat/chat-message-inputs'
@@ -27,6 +27,9 @@ import { PromptBlock } from './prompt-block'
 @customElement('stencila-chat')
 @withTwind()
 export class Chat extends Executable {
+  @property({ attribute: 'target-nodes', type: Array })
+  targetNodes?: string[]
+
   /**
    * A mutation controller used to update the instruction type of the chat
    *
@@ -169,6 +172,10 @@ export class Chat extends Executable {
     prompt.onQueryImplied(value)
   }
 
+  /**
+   * Generate placeholder test for the messages input based on
+   * the instruction type and the number of existing messages.
+   */
   private getPlaceholder(): string {
     const prompt = this.querySelector(
       'stencila-prompt-block'
@@ -222,15 +229,6 @@ export class Chat extends Executable {
                 @click=${() => this.dispatchEvent(archiveNode('Chat', this.id))}
               >
                 Archive
-              </stencila-ui-icon-button>
-            </sl-tooltip>
-
-            <sl-tooltip content="Delete chat">
-              <stencila-ui-icon-button
-                name="trash"
-                @click=${() => this.dispatchEvent(deleteNode('Chat', this.id))}
-              >
-                Delete
               </stencila-ui-icon-button>
             </sl-tooltip>
           </div>

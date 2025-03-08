@@ -35,7 +35,7 @@ export class IfBlock extends Executable {
     }
 
     if (this.isWithinModelChatMessage()) {
-      return this.renderCardWithInsert()
+      return this.renderCardWithChatAction()
     }
 
     return this.renderCard()

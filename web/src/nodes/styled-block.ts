@@ -24,7 +24,7 @@ export class StyledBlock extends Styled {
     }
 
     if (this.isWithinModelChatMessage()) {
-      return this.renderCardWithInsert()
+      return this.renderCardWithChatAction()
     }
 
     return this.renderCard()

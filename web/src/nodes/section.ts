@@ -51,7 +51,7 @@ export class Section extends Entity {
     }
 
     if (this.isWithinModelChatMessage()) {
-      return this.renderCardWithInsert()
+      return this.renderCardWithChatAction()
     }
 
     return this.renderCard()

@@ -21,7 +21,7 @@ export class CodeBlock extends CodeStatic {
 
     // render with the `insert` chip in model chat response
     if (this.isWithinModelChatMessage()) {
-      return this.renderCardWithInsert()
+      return this.renderCardWithChatAction()
     }
 
     return this.renderCard()

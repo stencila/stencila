@@ -9,15 +9,7 @@ import { nodeUi } from './icons-and-colours'
 import { tagNameToNodeType } from './node-tag-map'
 
 /**
- * Renders the control to insert nodes into a document,
- *
- * Can render a large card style element with tags for each selected node (`this.size='large'`)
- *
- * OR
- *
- * can return a small chip button element with icon and tooltip with the `NodeType` to be inserted. (`this.size === 'small'`)
- *
- * defaults to the 'small' size.
+ * Renders the control to insert selected nodes into a document.
  */
 @customElement('stencila-ui-node-insert')
 @withTwind()
@@ -27,14 +19,6 @@ export class UINodeInsert extends LitElement {
    */
   @property({ type: Array })
   selectedNodes: [string, string][]
-
-  /**
-   * Size attribute to set which size element to render.
-   *
-   * defaults to 'small'
-   */
-  @property({ type: String })
-  size: 'small' | 'large'
 
   /**
    * Set to true if this element should clear its selected nodes
@@ -68,16 +52,6 @@ export class UINodeInsert extends LitElement {
   }
 
   protected override render() {
-    if (this.size === 'large') {
-      return this.renderLarge()
-    }
-    return this.renderSmall()
-  }
-
-  /**
-   * Render a larger element, with each selected element shown as a `sl-tag`
-   */
-  renderLarge() {
     const tagStyles = css`
       &::part(base) {
         display: flex;
@@ -117,33 +91,5 @@ export class UINodeInsert extends LitElement {
         </div>
       </div>
     `
-  }
-
-  /**
-   * Render a small chip style element, suitable for a single node type
-   */
-  renderSmall() {
-    if (this.selectedNodes.length) {
-      const nodes = this.selectedNodes.map((node) => {
-        const n = tagNameToNodeType(
-          node[0].toLowerCase() as keyof typeof tagNameToNodeType
-        )
-        return n !== 'Null' ? n : 'Node'
-      })
-      return html`
-        <div class="bg-brand-blue text-white font-sans text-sm rounded">
-          <sl-tooltip content="Insert ${nodes.join(', ')}">
-            <button class="flex p-1 items-center" @click=${this.insertIds}>
-              <stencila-ui-icon
-                name="boxArrowInLeft"
-                class="text-lg"
-              ></stencila-ui-icon>
-            </button>
-          </sl-tooltip>
-        </div>
-      `
-    }
-    // if no selected elements, render nothing
-    return ''
   }
 }

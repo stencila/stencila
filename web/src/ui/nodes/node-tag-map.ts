@@ -65,7 +65,7 @@ const nodeTypeToTagNameMap: { [k in NodeType]?: string } = {
   InstructionInline: 'stencila-instruction-inline',
   Integer: 'stencila-integer',
   List: 'stencila-list',
-  MathBlock: 'stencial-math-block',
+  MathBlock: 'stencila-math-block',
   MathInline: 'stencila-math-inline',
   Number: 'stencila-number',
   Paragraph: 'stencila-paragraph',

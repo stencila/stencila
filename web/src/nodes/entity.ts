@@ -4,14 +4,17 @@ import { apply, css } from '@twind/core'
 import { html, LitElement } from 'lit'
 import { property, state } from 'lit/decorators'
 
+import { insertClones, mergeNode } from '../clients/commands'
 import { DocumentAccess, DocumentView, NodeId } from '../types'
 import { EntityContext, entityContext } from '../ui/nodes/entity-context'
+import { tagNameToNodeType } from '../ui/nodes/node-tag-map'
 import { closestGlobally } from '../utilities/closestGlobally'
 import { getModeParam } from '../utilities/getModeParam'
 
 import '../ui/nodes/node-insert'
-
 import '../shoelace'
+
+import { Chat } from './chat'
 
 /**
  * Abstract base class for web components representing Stencila Schema `Entity` node types
@@ -203,12 +206,11 @@ export abstract class Entity extends LitElement {
   }
 
   /**
-   * Renders a node card with a <stencila-ui-node-insert> component
-   * so that the node can be inserted into a document
+   * Renders a node card with an action when in a chats
    */
-  protected renderCardWithInsert() {
+  protected renderCardWithChatAction() {
     const classes = apply([
-      'absolute -left-[27px] top-0',
+      'absolute -left-[28px] top-0',
       'opacity-0 group-hover:opacity-100',
       'transition-opacity duration-300',
     ])
@@ -217,14 +219,48 @@ export abstract class Entity extends LitElement {
       box-shadow: 0px 0px 4px 0px rgba(0, 0, 0, 0.25);
     `
 
-    const nodeTuple = [this.nodeName, this.id]
+    const chat = this.closestGlobally('stencila-chat') as Chat | null
+    let targetId: string | undefined
+    if (chat?.targetNodes) {
+      if (chat.targetNodes.length === 1) {
+        // Only one target node, so use that
+        targetId = chat.targetNodes[0]
+      } else {
+        // Use the target node at the same index as this
+        const index = Array.from(this.parentElement.children).indexOf(this)
+        if (index < chat.targetNodes.length) {
+          targetId = chat.targetNodes[index]
+        }
+      }
+    }
+
+    let tooltip
+    let color
+    let action
+    if (targetId) {
+      tooltip = 'Apply changes'
+      color = 'bg-orange-500'
+      action = () => this.dispatchEvent(mergeNode(targetId, this.id))
+    } else {
+      tooltip = `Insert ${tagNameToNodeType(this.nodeName.toLowerCase())}`
+      color = 'bg-brand-blue'
+      action = () => this.dispatchEvent(insertClones([this.id]))
+    }
 
     return html`
       <div class="group relative">
         <div class="${classes} ${styles}">
-          <stencila-ui-node-insert .selectedNodes=${[nodeTuple]}>
-          </stencila-ui-node-insert>
+          <sl-tooltip content="${tooltip}">
+            <div class="${color} text-white font-sans text-sm rounded">
+              <button class="flex p-1 items-center" @click=${action}>
+                <stencila-ui-icon
+                  name="boxArrowInLeft"
+                  class="text-lg"
+                ></stencila-ui-icon>
+              </button></div
+          ></sl-tooltip>
         </div>
+
         ${this.renderCard()}
       </div>
     `

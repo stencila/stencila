@@ -26,7 +26,7 @@ export class CallBlock extends IncludeBlock {
     }
 
     if (this.isWithinModelChatMessage()) {
-      return this.renderCardWithInsert()
+      return this.renderCardWithChatAction()
     }
 
     return this.renderCard()

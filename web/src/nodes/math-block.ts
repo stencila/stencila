@@ -20,7 +20,7 @@ export class MathBlock extends Math {
     }
 
     if (this.isWithinModelChatMessage()) {
-      return this.renderCardWithInsert()
+      return this.renderCardWithChatAction()
     }
 
     return this.renderCard()
