@@ -43,9 +43,9 @@ impl Executable for Chat {
             )
         {
             let target = if self.is_embedded.unwrap_or_default() {
-                "stencila/discuss/document"
+                "document"
             } else {
-                "stencila/discuss/anything"
+                "anything"
             }
             .to_string();
 

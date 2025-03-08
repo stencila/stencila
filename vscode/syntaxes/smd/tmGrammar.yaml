@@ -352,7 +352,7 @@ repository:
       (?x)
       ^
         (/)\s*
-        (create|edit|fix|describe)\b
+        (create|edit|fix|describe|discuss)\b
         (?:
           \s+
           ((?:prev(?:ious)?)|above|next|below)\b

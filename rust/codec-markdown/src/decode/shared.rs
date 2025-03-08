@@ -66,6 +66,7 @@ pub(super) fn instruction_type(input: &mut Located<&str>) -> ModalResult<Instruc
         "edit".value(InstructionType::Edit),
         "fix".value(InstructionType::Fix),
         "describe".value(InstructionType::Describe),
+        "discuss".value(InstructionType::Discuss),
     ))
     .parse_next(input)
 }
