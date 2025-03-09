@@ -1,4 +1,4 @@
-use codec_markdown::to_markdown_with;
+use codec_markdown::to_markdown;
 use codecs::{DecodeOptions, Format};
 use common::{
     eyre::{bail, Result},
@@ -15,7 +15,7 @@ use schema::{
 /// Uses a [`MarkdownEncodeContext`] with the render option set to true.
 /// Used for generating Markdown from an executed prompt.
 pub(super) fn blocks_to_system_message(blocks: &Vec<Block>) -> InstructionMessage {
-    let md = to_markdown_with(blocks, Format::Markdown, true);
+    let md = to_markdown(blocks);
 
     InstructionMessage {
         role: Some(MessageRole::System),
@@ -26,7 +26,7 @@ pub(super) fn blocks_to_system_message(blocks: &Vec<Block>) -> InstructionMessag
 
 /// Convert Stencila [`Block`] nodes to a [`MessagePart`]
 pub(super) fn blocks_to_message_part(blocks: &Vec<Block>) -> Option<MessagePart> {
-    let md = to_markdown_with(blocks, Format::Markdown, true);
+    let md = to_markdown(blocks);
 
     (!md.trim().is_empty()).then_some(MessagePart::Text(md.into()))
 }

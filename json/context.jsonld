@@ -428,6 +428,7 @@
     "suggestionStatus": "stencila:suggestionStatus",
     "suggestions": "stencila:suggestions",
     "target": "schema:target",
+    "targetNodes": "stencila:targetNodes",
     "targetProducts": "schema:targetProduct",
     "telephoneNumbers": "schema:telephone",
     "temperature": "stencila:temperature",

@@ -1,6 +1,6 @@
 import { File } from '@stencila/types'
 import { html } from 'lit'
-import { customElement, state } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 import { createRef, ref, Ref } from 'lit/directives/ref'
 
 import { runChat } from '../../../clients/commands'
@@ -12,6 +12,12 @@ import { UIBaseClass } from '../mixins/ui-base-class'
 @customElement('stencila-ui-chat-message-inputs')
 @withTwind()
 export class UIChatMessageInputs extends UIBaseClass {
+  /**
+   * The placeholder to use for the text input
+   */
+  @property()
+  placeholder: string = ''
+
   /**
    * Whether there is any text input to send
    *
@@ -158,7 +164,7 @@ export class UIChatMessageInputs extends UIBaseClass {
       <div class="bg-white rounded border border-[${borderColour}] p-2">
         <textarea
           class="w-full resize-none overflow-hidden outline-none px-1 py-1 text-base"
-          placeholder=""
+          placeholder=${this.placeholder}
           rows=${1}
           @input=${this.onTextInput}
           @keydown=${this.onTextKeyDown}

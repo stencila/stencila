@@ -6,7 +6,7 @@ title: Edit Block Prompt
 description: Edit a block.
 keywords: edit
 
-version: "0.1.0"
+version: "0.1.1"
 instruction-type: Edit
 ---
 
@@ -72,10 +72,18 @@ The results were inconclusive due to large variances in individual responses. Fu
 
 # Content
 
+::: if instruction?.contentTypes
+
 The following is the content to edit. It contains these document element types, ensure you respond with the same element types, in the same order:
 
 {{ instruction.contentTypes.join(', ') }}
 
+:::
+
+::: if instruction?.content
+
 Edit this content:
 
 {{ instruction.content }}
+
+:::

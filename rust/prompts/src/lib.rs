@@ -273,7 +273,7 @@ pub async fn infer(
         _ => true,
     });
 
-    if let Some(query) = query {
+    let prompts: Vec<PromptInstance> = if let Some(query) = query {
         // If there is a query, count the number of characters in the query that
         // are matched by each of the patterns in each of the candidate prompts
         let counts = prompts
@@ -294,7 +294,7 @@ pub async fn infer(
             });
 
         // Get the prompt with the highest matches / lowest generality
-        counts.map(|(prompt, ..)| prompt).next()
+        counts.map(|(prompt, ..)| prompt).collect()
     } else if let Some(node_types) = node_types {
         // Sort nodes by whether any of the lower case node types occur in the name of the prompt
         prompts
@@ -310,13 +310,17 @@ pub async fn infer(
                     _ => prompt_a.generality.cmp(&prompt_b.generality),
                 }
             })
-            .next()
+            .collect()
     } else {
-        // Get the prompt with the lowest generality
+        // Get the prompt with the highest generality because no node types or query provided
         prompts
-            .sorted_by(|prompt_a, prompt_b| prompt_a.generality.cmp(&prompt_b.generality))
-            .next()
-    }
+            .sorted_by(|prompt_a, prompt_b| prompt_a.generality.cmp(&prompt_b.generality).reverse())
+            .collect()
+    };
+
+    //eprintln!("{}\n", prompts.iter().map(|prompt| &prompt.name).join("\n"));
+
+    prompts.first().cloned()
 }
 
 /// Expand a prompt name by removing any "?"" suffix (used to indicate inferred prompt)

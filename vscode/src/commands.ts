@@ -403,31 +403,23 @@ nodeTypes: []
         null, // range
         "Discuss", // instruction type
         null, // node type
-        "stencila/discuss/document"
+        "document"
       );
 
-      const panel = await createNodeViewPanel(
+      await createNodeViewPanel(
         context,
         editor.document.uri,
         null,
-        "Temporary document chat",
+        "Chat",
         chatId
       );
-
-      panel.onDidDispose(async () => {
-        await vscode.commands.executeCommand(
-          "stencila.delete-chat",
-          editor.document.uri.toString(),
-          chatId
-        );
-      });
     })
   );
 
   // Create a temporary chat in the current document
   //
   // If the instruction type is not supplied it is inferred from the selected node
-  // types (if any). Defaults to running the chat straightaway.
+  // types (if any).
   context.subscriptions.push(
     vscode.commands.registerCommand(
       `stencila.invoke.create-chat`,
@@ -456,21 +448,13 @@ nodeTypes: []
           executeChat
         );
 
-        const panel = await createNodeViewPanel(
+        await createNodeViewPanel(
           context,
           editor.document.uri,
           editor.selection.active,
-          "Temporary chat",
+          "Chat",
           chatId
         );
-
-        panel.onDidDispose(async () => {
-          await vscode.commands.executeCommand(
-            "stencila.delete-chat",
-            editor.document.uri.toString(),
-            chatId
-          );
-        });
       }
     )
   );
@@ -518,7 +502,9 @@ nodeTypes: []
         async () =>
           await insertChat({
             instructionType: "Create",
-            prompt: `stencila/create/${prompt}`,
+            // Do not need to prefix prompt with `stencila/create` because
+            // providing instruction type
+            prompt,
           })
       )
     );

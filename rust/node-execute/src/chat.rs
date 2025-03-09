@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use common::{
     futures::{stream::FuturesUnordered, StreamExt},
     itertools::Itertools,
@@ -43,9 +45,9 @@ impl Executable for Chat {
             )
         {
             let target = if self.is_embedded.unwrap_or_default() {
-                "stencila/discuss/document"
+                "document"
             } else {
-                "stencila/discuss/anything"
+                "anything"
             }
             .to_string();
 
@@ -174,8 +176,17 @@ impl Executable for Chat {
 
         // Execute the prompt and render to a system message
         self.prompt.execute(executor).await;
-        if let Some(content) = &self.prompt.content {
-            instruction_messages.push(blocks_to_system_message(content));
+        if let Some(mut blocks) = self.prompt.content.clone() {
+            // Append any content before the first chat message to the system message.
+            // Applies to "edit", "describe" etc chats which begin with some target content.
+            for block in &self.content {
+                if matches!(block, Block::ChatMessage(..)) {
+                    break;
+                }
+                blocks.push(block.clone());
+            }
+
+            instruction_messages.push(blocks_to_system_message(&blocks));
         }
 
         // If there are no messages yet, and the prompt block contains a query
@@ -221,6 +232,18 @@ impl Executable for Chat {
                 })
                 .collect(),
         );
+
+        // Create an author role for the prompt
+        let mut prompt_author_role: Option<AuthorRole> = None;
+        if let Some(target) = &self.prompt.target {
+            let target = prompts::expand(target, &self.prompt.instruction_type);
+            if let Ok(prompt) = prompts::get(&target).await {
+                prompt_author_role = Some(AuthorRole {
+                    last_modified: Some(Timestamp::now()),
+                    ..prompt.deref().clone().into()
+                })
+            }
+        }
 
         // Create an author role for the author (if any) of the last user message
         let user_author_role = self.content.iter().rev().find_map(|message| match message {
@@ -330,6 +353,9 @@ impl Executable for Chat {
 
             let (content, messages) = match result {
                 Ok((mut content, mut authors)) => {
+                    if let Some(role) = &prompt_author_role {
+                        authors.push(role.clone());
+                    }
                     if let Some(role) = &user_author_role {
                         authors.push(role.clone());
                     }

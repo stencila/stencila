@@ -44,18 +44,6 @@ pub fn merge<T: PatchNode + Debug>(
     format: Option<Format>,
     authors: Option<Vec<AuthorRole>>,
 ) -> Result<()> {
-    // If no authors are supplied then use the authors of the new node
-    // when generating the patch.
-    let authors = authors.or_else(|| {
-        Some(
-            new.authors()
-                .into_iter()
-                .flatten()
-                .map(|author| author.into_author_role_same(AuthorRoleName::Writer))
-                .collect_vec(),
-        )
-    });
-
     let ops = diff(old, new, format, authors)?;
     patch(old, ops)
 }
@@ -65,8 +53,18 @@ pub fn diff<T: PatchNode>(
     old: &T,
     new: &T,
     format: Option<Format>,
-    mut authors: Option<Vec<AuthorRole>>,
+    authors: Option<Vec<AuthorRole>>,
 ) -> Result<Patch> {
+    // If no authors are supplied then try to use the authors of the new node
+    let mut authors = authors.or_else(|| {
+        new.authors().map(|authors| {
+            authors
+                .into_iter()
+                .map(|author| author.into_author_role_same(AuthorRoleName::Writer))
+                .collect_vec()
+        })
+    });
+
     // Ensure that each author role has a last_modified timestamp
     if let Some(roles) = authors.as_mut() {
         for role in roles {

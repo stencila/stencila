@@ -36,17 +36,13 @@ export class RawBlock extends Entity {
     }
 
     if (this.isWithinModelChatMessage()) {
-      return html`
-        <div class="group relative">
-          ${this.renderInsertChip()} ${this.renderCard()}
-        </div>
-      `
+      return this.renderCardWithChatAction()
     }
 
     return this.renderCard()
   }
 
-  private renderCard() {
+  override renderCard() {
     const { title, icon } = getTitleIcon(this.format) ?? {
       title: this.format,
       icon: 'fileTypeRaw',

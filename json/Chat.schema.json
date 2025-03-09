@@ -30,7 +30,8 @@
     "executionMode",
     "title",
     "suggestions",
-    "isEmbedded"
+    "isEmbedded",
+    "targetNodes"
   ],
   "properties": {
     "type": {
@@ -916,31 +917,32 @@
       },
       "$ref": "ModelParameters.schema.json"
     },
+    "targetNodes": {
+      "@id": "stencila:targetNodes",
+      "description": "The ids of the nodes that this chat is targeting",
+      "$comment": "Used when the chat is targeting some content within the document\nto be able to apply changes to those original nodes.\n",
+      "aliases": [
+        "target-nodes",
+        "target_nodes",
+        "targetNode",
+        "target-node",
+        "target_node"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
     "content": {
       "@id": "stencila:content",
       "description": "The messages, and optionally other content, that make up the chat.",
-      "$comment": "Usually, a chat will only contain `ChatMessage`s that alternate\nbetween user and model roles. However, other types of block content\nare permitted.\n",
+      "$comment": "Usually, a chat will only contain `ChatMessage`s that alternate\nbetween user and model roles. However, other types of block content\nare permitted. Specifically, when a chat is targeting some content (e.g. to edit it)\nthen that content will be inserted into the chat before the first chat message.\n",
       "dom": {
         "elem": "div"
       },
       "type": "array",
       "items": {
         "$ref": "Block.schema.json"
-      }
-    },
-    "suggestions": {
-      "@id": "stencila:suggestions",
-      "description": "Suggestions of content that is the focus of the chat.",
-      "aliases": [
-        "suggestion"
-      ],
-      "walk": true,
-      "dom": {
-        "with": "Chat::suggestions_to_dom_elem"
-      },
-      "type": "array",
-      "items": {
-        "$ref": "SuggestionBlock.schema.json"
       }
     }
   }

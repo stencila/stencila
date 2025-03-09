@@ -50,18 +50,14 @@ export class Section extends Entity {
       return html`<slot name="content"></slot>`
     }
 
-    // render with the `insert` chip in model chat response
     if (this.isWithinModelChatMessage()) {
-      return html`
-        <div class="group relative">
-          ${this.renderInsertChip()}
-          ${this.sectionType === 'Iteration'
-            ? this.renderIteration()
-            : this.renderSection()}
-        </div>
-      `
+      return this.renderCardWithChatAction()
     }
 
+    return this.renderCard()
+  }
+
+  override renderCard() {
     return this.sectionType === 'Iteration'
       ? this.renderIteration()
       : this.renderSection()

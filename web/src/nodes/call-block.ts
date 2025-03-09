@@ -25,15 +25,14 @@ export class CallBlock extends IncludeBlock {
       return this.renderContent()
     }
 
-    // render with the `insert` chip in model chat response
     if (this.isWithinModelChatMessage()) {
-      return html`
-        <div class="group relative">
-          ${this.renderInsertChip()} ${this.renderContent()}
-        </div>
-      `
+      return this.renderCardWithChatAction()
     }
 
+    return this.renderCard()
+  }
+
+  override renderCard() {
     const hasDocRoot = this.hasDocumentRootNode()
 
     return html`

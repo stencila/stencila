@@ -168,23 +168,24 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
         <div
           class=${`chip absolute top-0 h-full ${nodeDisplay === 'block' && ''}`}
         >
-          <div class=${styles}>
-            ${nodeDisplay === 'block'
-              ? html`
-                  <div
-                    @click=${this.toggleMarker}
-                    class="relative top-0 left-0 w-2 h-full ${baseMarkerStyles}"
-                  ></div>
-                `
-              : ''}
-            <div
-              @click=${this.toggleMarker}
-              class="flex justify-center items-center absolute top-0 left-0 w-6 h-6 text-sm ${baseMarkerStyles} rounded-bl-none"
-            >
-              <stencila-ui-icon class="text-xs" name=${icon}>
-              </stencila-ui-icon>
-            </div>
-          </div>
+          <sl-tooltip content="Inspect ${this.type}"
+            ><div class=${styles}>
+              ${nodeDisplay === 'block'
+                ? html`
+                    <div
+                      @click=${this.toggleMarker}
+                      class="relative top-0 left-0 w-2 h-full ${baseMarkerStyles}"
+                    ></div>
+                  `
+                : ''}
+              <div
+                @click=${this.toggleMarker}
+                class="flex justify-center items-center absolute top-0 left-0 w-6 h-6 text-sm ${baseMarkerStyles} rounded-bl-none"
+              >
+                <stencila-ui-icon class="text-xs" name=${icon}>
+                </stencila-ui-icon>
+              </div></div
+          ></sl-tooltip>
         </div>
       `
     }

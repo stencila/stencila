@@ -317,13 +317,13 @@ export class ImageObject extends Entity {
     }
 
     if (this.isWithinModelChatMessage()) {
-      return html`
-        <div class="group relative">
-          ${this.renderInsertChip()}${this.renderContent()}
-        </div>
-      `
+      return this.renderCardWithChatAction()
     }
 
+    return this.renderCard()
+  }
+
+  override renderCard() {
     return this.parentNodeIs('CodeChunk')
       ? this.renderBlockOnDemand()
       : this.renderInlineOnDemand()

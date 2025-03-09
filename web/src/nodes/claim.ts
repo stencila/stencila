@@ -25,16 +25,14 @@ export class Claim extends Entity {
       return html`<slot name="content"></slot>`
     }
 
-    // render with the `insert` chip in model chat response
     if (this.isWithinModelChatMessage()) {
-      return html`
-        <div class="group relative">
-          ${this.renderInsertChip()}
-          <slot name="content"></slot>
-        </div>
-      `
+      return this.renderCardWithChatAction()
     }
 
+    return this.renderCard()
+  }
+
+  override renderCard() {
     const hasDocRoot = this.hasDocumentRootNode()
 
     return html`

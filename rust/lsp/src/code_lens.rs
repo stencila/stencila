@@ -107,7 +107,7 @@ pub(crate) async fn request(
                         vec![lens(RUN_NODE), lens(VIEW_NODE)]
                     }
                     NodeType::Chat => {
-                        vec![lens(ARCHIVE_NODE), lens(DELETE_NODE), lens(VIEW_NODE)]
+                        vec![lens(ARCHIVE_NODE), lens(VIEW_NODE)]
                     }
                     NodeType::InstructionBlock => {
                         let mut lenses = vec![lens(RUN_NODE), lens(VIEW_NODE)];

@@ -212,7 +212,6 @@ export class UINodesSelected extends UIBaseClass {
       >
         <stencila-ui-node-insert
           .selectedNodes=${this.selectedNodes}
-          size="large"
           .handleTagRemove=${this.handleTagRemove.bind(this)}
           ?clearOnInsert=${true}
         >

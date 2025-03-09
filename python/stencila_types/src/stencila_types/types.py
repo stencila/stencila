@@ -1260,11 +1260,11 @@ class Chat(CreativeWork, Executable):
     model_parameters: ModelParameters
     """Model selection and inference parameters."""
 
+    target_nodes: list[str] | None = None
+    """The ids of the nodes that this chat is targeting"""
+
     content: list[Block]
     """The messages, and optionally other content, that make up the chat."""
-
-    suggestions: list[SuggestionBlock] | None = None
-    """Suggestions of content that is the focus of the chat."""
 
 
 @dataclass(kw_only=True, repr=False)

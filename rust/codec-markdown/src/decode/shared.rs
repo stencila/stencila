@@ -4,7 +4,9 @@ use std::str::FromStr;
 
 use markdown::mdast;
 use winnow::{
-    ascii::{dec_int, digit1, float, multispace0, multispace1, take_escaped, Caseless},
+    ascii::{
+        alphanumeric1, dec_int, digit1, float, multispace0, multispace1, take_escaped, Caseless,
+    },
     combinator::{alt, delimited, not, opt, peek, preceded, separated, separated_pair, terminated},
     error::ParserError,
     stream::Stream,
@@ -61,12 +63,16 @@ pub(super) fn execution_bounds(input: &mut Located<&str>) -> ModalResult<Executi
 
 /// Parse an instruction type
 pub(super) fn instruction_type(input: &mut Located<&str>) -> ModalResult<InstructionType> {
-    alt((
-        "create".value(InstructionType::Create),
-        "edit".value(InstructionType::Edit),
-        "fix".value(InstructionType::Fix),
-        "describe".value(InstructionType::Describe),
-    ))
+    terminated(
+        alt((
+            "create".value(InstructionType::Create),
+            "edit".value(InstructionType::Edit),
+            "fix".value(InstructionType::Fix),
+            "describe".value(InstructionType::Describe),
+            "discuss".value(InstructionType::Discuss),
+        )),
+        peek(not(alphanumeric1)),
+    )
     .parse_next(input)
 }
 

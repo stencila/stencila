@@ -258,6 +258,7 @@ pub enum NodeProperty {
     Suggestions,
     Tags,
     Target,
+    TargetNodes,
     TargetProducts,
     TelephoneNumbers,
     Temperature,

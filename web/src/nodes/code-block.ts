@@ -21,17 +21,13 @@ export class CodeBlock extends CodeStatic {
 
     // render with the `insert` chip in model chat response
     if (this.isWithinModelChatMessage()) {
-      return html`
-        <div class="group relative">
-          ${this.renderInsertChip()} ${this.renderCard()}
-        </div>
-      `
+      return this.renderCardWithChatAction()
     }
 
     return this.renderCard()
   }
 
-  private renderCard() {
+  override renderCard() {
     const { icon, title } = getTitleIcon(this.programmingLanguage) ?? {
       title: 'Code Block',
       icon: 'code',

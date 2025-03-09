@@ -22,19 +22,14 @@ export class Datatable extends Entity {
       return this.renderContent()
     }
 
-    // render with the `insert` chip in model chat response
     if (this.isWithinModelChatMessage()) {
-      return html`
-        <div class="group relative">
-          ${this.renderInsertChip()} ${this.renderCard()}
-        </div>
-      `
+      return this.renderCardWithChatAction()
     }
 
     return this.renderCard()
   }
 
-  private renderCard() {
+  override renderCard() {
     const hasDocRoot = this.hasDocumentRootNode()
     return html`
       <stencila-ui-block-on-demand

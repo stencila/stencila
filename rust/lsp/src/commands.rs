@@ -38,10 +38,9 @@ use document::{Command, CommandNodes, CommandScope, CommandStatus, ContentType, 
 use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
-    replicate, AuthorRole, AuthorRoleName, Block, Chat, ExecutionMode, InstructionBlock,
+    diff, replicate, AuthorRole, AuthorRoleName, Block, Chat, ExecutionMode, InstructionBlock,
     InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodeProperty, NodeType,
-    Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock, SuggestionBlock,
-    SuggestionStatus, Timestamp,
+    Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock, SuggestionBlock, Timestamp,
 };
 
 use crate::{
@@ -82,6 +81,7 @@ pub(super) const INSERT_NODE: &str = "stencila.insert-node";
 pub(super) const INSERT_CLONES: &str = "stencila.insert-clones";
 pub(super) const INSERT_INSTRUCTION: &str = "stencila.insert-instruction";
 
+pub(super) const MERGE_NODE: &str = "stencila.merge-node";
 pub(super) const DELETE_NODE: &str = "stencila.delete-node";
 
 pub(super) const CREATE_CHAT: &str = "stencila.create-chat";
@@ -117,6 +117,7 @@ pub(super) fn commands() -> Vec<String> {
         INSERT_NODE,
         INSERT_CLONES,
         INSERT_INSTRUCTION,
+        MERGE_NODE,
         DELETE_NODE,
         CREATE_CHAT,
         EXPORT_DOC,
@@ -768,6 +769,30 @@ pub(super) async fn execute_command(
                 true,
             )
         }
+        MERGE_NODE => {
+            let old_id = node_id_arg(args.next())?;
+            let new_id = node_id_arg(args.next())?;
+
+            let doc = doc.read().await;
+            let old = doc
+                .find(old_id.clone())
+                .await
+                .ok_or_else(|| internal_error("Unable to find old node"))?;
+            let new = doc
+                .find(new_id)
+                .await
+                .ok_or_else(|| internal_error("Unable to find new node"))?;
+
+            let mut patch = diff(&old, &new, None, None).map_err(internal_error)?;
+            patch.node_id = Some(old_id);
+
+            (
+                "Merging node".to_string(),
+                Command::PatchNode(patch),
+                false,
+                true,
+            )
+        }
         DELETE_NODE => {
             args.next(); // Node type arg not currently used
             let node_id = node_id_arg(args.next())?;
@@ -862,8 +887,10 @@ pub(super) async fn execute_command(
                     .collect_vec(),
             );
 
-            // If any, add them to the suggestions as the original
-            let suggestions = if !node_ids.is_empty() {
+            // If nodes selected, replicate them into the chat.
+            let (target_nodes, content) = if !node_ids.is_empty() {
+                let target_nodes = node_ids.iter().map(|id| id.to_string()).collect_vec();
+
                 // Get clones of the blocks
                 let content = {
                     let doc = doc.read().await;
@@ -883,13 +910,9 @@ pub(super) async fn execute_command(
                 // Replicate to avoid duplicate ids
                 let content = replicate(&content).map_err(internal_error)?;
 
-                Some(vec![SuggestionBlock {
-                    suggestion_status: Some(SuggestionStatus::Original),
-                    content,
-                    ..Default::default()
-                }])
+                (Some(target_nodes), content)
             } else {
-                None
+                (None, Vec::new())
             };
 
             // If no prompt provided then infer one from the instruction type, node type etc
@@ -897,18 +920,21 @@ pub(super) async fn execute_command(
                 Some(prompt) => Some(prompt),
                 None => prompts::infer(&instruction_type, &node_types, &None)
                     .await
-                    .map(|prompt| prompt.name.clone()),
+                    .map(|prompt| [&prompt.name, "?"].concat()),
             };
 
             let chat = Chat {
                 prompt: PromptBlock {
+                    // Do not set `node_types` since already used to infer prompt
+                    // if necessary and can be confusing, especially if more than
+                    // on node is selected
                     instruction_type,
-                    node_types,
                     target,
                     ..Default::default()
                 },
                 is_embedded: Some(true),
-                suggestions,
+                target_nodes,
+                content,
                 ..Default::default()
             };
 
@@ -924,7 +950,11 @@ pub(super) async fn execute_command(
                 .map(|range| range.start)
                 .and_then(|position| root.block_content_index(position))
             {
-                Some((node_id, index)) => (Some(node_id), PatchOp::Insert(vec![(index, chat)])),
+                Some((node_id, index)) => (
+                    Some(node_id),
+                    // Insert before the selected range
+                    PatchOp::Insert(vec![(index.saturating_sub(1), chat)]),
+                ),
                 None => (None, PatchOp::Push(chat)),
             };
 
