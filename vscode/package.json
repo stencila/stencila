@@ -832,6 +832,11 @@
         {
           "submenu": "stencila.insert-chat.create-submenu",
           "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/",
+          "group": "000-Stencila@1"
+        },
+        {
+          "command": "stencila.insert-chat.edit",
+          "when": "editorLangId =~ /^(md|smd|qmd|myst|latex)$/",
           "group": "000-Stencila@2"
         },
         {
