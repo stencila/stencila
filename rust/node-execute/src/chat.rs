@@ -1,3 +1,5 @@
+use std::ops::Deref;
+
 use common::{
     futures::{stream::FuturesUnordered, StreamExt},
     itertools::Itertools,
@@ -231,6 +233,18 @@ impl Executable for Chat {
                 .collect(),
         );
 
+        // Create an author role for the prompt
+        let mut prompt_author_role: Option<AuthorRole> = None;
+        if let Some(target) = &self.prompt.target {
+            let target = prompts::expand(target, &self.prompt.instruction_type);
+            if let Ok(prompt) = prompts::get(&target).await {
+                prompt_author_role = Some(AuthorRole {
+                    last_modified: Some(Timestamp::now()),
+                    ..prompt.deref().clone().into()
+                })
+            }
+        }
+
         // Create an author role for the author (if any) of the last user message
         let user_author_role = self.content.iter().rev().find_map(|message| match message {
             Block::ChatMessage(ChatMessage {
@@ -339,6 +353,9 @@ impl Executable for Chat {
 
             let (content, messages) = match result {
                 Ok((mut content, mut authors)) => {
+                    if let Some(role) = &prompt_author_role {
+                        authors.push(role.clone());
+                    }
                     if let Some(role) = &user_author_role {
                         authors.push(role.clone());
                     }
