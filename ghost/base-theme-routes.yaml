@@ -10,12 +10,12 @@ collections:
     permalink: /docs/{slug}/
     template: index
     data: page.docs
-    filter: "tag:hash-doc"
+    filter: "tag:hash-docs"
 
   /:
     permalink: /{slug}/
     template: post
-    filter: "tag:-hash-doc"
+    filter: "tag:-hash-docs"
 
 taxonomies:
   tag: /tag/{slug}/

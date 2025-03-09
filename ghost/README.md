@@ -112,7 +112,7 @@ Currently the stencila site has a document page for the **Documentation** and **
 #### Adding Posts to the Doc View Page
 
 1. Create a new post.
-2. Add the internal `#doc` tag, if a schema reference post also add the `#schema`.
+2. Add the internal `#docs` tag, if a schema reference post also add the `#schema`.
 3. Add the appropriate section tag (e.g., 'Get Started').
 4. Posts are sorted by publication date, so adjust accordingly to change the order.
 
@@ -173,8 +173,8 @@ Pages tagged with `#doc-page` automatically appear under the "Resources" menu in
 
 ### Internal Tags
 
-- `#doc`: Marks a post as a documentation entry.
-- `#schema`: Used with `#doc` for schema-related posts.
+- `#docs`: Marks a post as a documentation entry.
+- `#schema`: Used with `#docs` for schema-related posts.
 - `#doc-page`: Tags pages that display documentation.
 - `#stencila`: Enables Stencila UI for pages and posts.
 - `#stencila-expand`: Enables expandable Stencila UI.

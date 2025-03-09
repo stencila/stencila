@@ -12,13 +12,13 @@ collections:
     permalink: /resources/docs/{slug}/
     template: index
     data: page.docs
-    filter: "tag:hash-doc+tag:-hash-schema"
+    filter: "tag:hash-docs+tag:-hash-schema"
 
   /resources/schema/:
     permalink: /resources/schema/{slug}/
     template: index
     data: page.schema
-    filter: "tag:hash-doc+tag:hash-schema"
+    filter: "tag:hash-docs+tag:hash-schema"
 
   # other posts
   /changelog/:
@@ -38,7 +38,7 @@ collections:
   /:
     permalink: /{slug}/
     template: post
-    filter: "tag:-hash-doc"
+    filter: "tag:-hash-docs"
 
 taxonomies:
   tag: /tag/{slug}/

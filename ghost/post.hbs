@@ -1,7 +1,7 @@
 {{!< default}}
 
 {{#post}}
-    {{#has tag="#doc"}}
+    {{#has tag="#docs"}}
         {{#foreach tags}}
             {{#get "pages" filter="tag:{{slug}}+tag:hash-doc-page" limit="1" include="tags" }}
                 {{#foreach pages limit="1" as |page|}}

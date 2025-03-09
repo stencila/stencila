@@ -47,7 +47,7 @@
                                             class="collapsible-section {{#foreach ../../post.tags as |postTag|}}{{#match postTag.slug "=" ../slug}}expand{{/match}}{{/foreach}}"
                                         {{/is}}
                                         >
-                                            {{#get "posts" filter="tags:{{slug}}+tags:hash-doc" limit="all" order="published_at asc"}}
+                                            {{#get "posts" filter="tags:{{slug}}+tags:hash-docs" limit="all" order="published_at asc"}}
                                                 {{#foreach posts as |post|}}
                                                     <li class="mb-2 ml-4 flex items-start hover:text-[var(--ghost-accent-color)]">
                                                         <a href="{{post.url}}" class="{{#match ../../../../currentSlug "=" post.slug}}active font-semibold{{else}} hover:text-[var(--ghost-accent-color)]{{/match}}">
@@ -144,7 +144,7 @@
                     <h3 class="mb-8">Explore {{title}}:</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                     {{#foreach tags}}
-                        {{#get 'posts' filter="tags:{{slug}}+tags:hash-doc" limit="1" order="published_at asc"}}
+                        {{#get 'posts' filter="tags:{{slug}}+tags:hash-docs" limit="1" order="published_at asc"}}
                             {{#foreach posts}}
                                 <a class="p-4 border border-gray-100 rounded shadow hover:shadow-lg" href="{{url}}">
                                     <div class="w-full h-full flex flex-col justify-center">
