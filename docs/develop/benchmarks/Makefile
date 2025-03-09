@@ -1,2 +1,0 @@
-update:
-	python update.py
