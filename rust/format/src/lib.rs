@@ -71,7 +71,7 @@ pub enum Format {
     Json5,
     JsonLd,
     Cbor,
-    CborZst,
+    CborZstd,
     Toml,
     Yaml,
     Lexical,
@@ -117,7 +117,7 @@ impl Format {
             Avi => "AVI",
             Bash => "Bash",
             Cbor => "CBOR",
-            CborZst => "CBOR+Zstandard",
+            CborZstd => "CBOR+Zstd",
             Css => "CSS",
             Debug => "Debug",
             Directory => "Directory",
@@ -180,7 +180,7 @@ impl Format {
     pub fn rank(&self) -> u8 {
         use Format::*;
         match self {
-            Json | Json5 | JsonLd | Cbor | CborZst | Yaml => 0,
+            Json | JsonZip | Json5 | JsonLd | Cbor | CborZstd | Yaml => 0,
             Html | Jats | Markdown => 1,
             _ => u8::MAX,
         }
@@ -197,7 +197,7 @@ impl Format {
         use Format::*;
         matches!(
             self,
-            Cbor | CborZst | Json | Json5 | JsonLd | JsonZip | Yaml
+            Cbor | CborZstd | Json | Json5 | JsonLd | JsonZip | Yaml
         )
     }
 
@@ -254,7 +254,7 @@ impl Format {
             "avi" => Avi,
             "bash" => Bash,
             "cbor" => Cbor,
-            "cborzst" | "cbor.zstd" => CborZst,
+            "cborzstd" | "cbor.zstd" => CborZstd,
             "css" => Css,
             "debug" => Debug,
             "directory" | "dir" => Directory,
@@ -321,7 +321,7 @@ impl Format {
         // Catch "double extensions" here
         let path_string = path.to_string_lossy();
         for (end, format) in [
-            (".cbor.zst", CborZst),
+            (".cbor.zstd", CborZstd),
             (".dom.html", Dom),
             (".jats.xml", Jats),
             (".json.zip", JsonZip),
@@ -358,7 +358,7 @@ impl Format {
         use Format::*;
         match media_type {
             "application/cbor" => Ok(Cbor),
-            "application/cbor+zstd" => Ok(CborZst),
+            "application/cbor+zstd" => Ok(CborZstd),
             "application/json" => Ok(Json),
             "application/json+zip" => Ok(JsonZip),
             "application/ld+json" => Ok(JsonLd),
@@ -384,7 +384,7 @@ impl Format {
         use Format::*;
         match self {
             Cbor => "application/cbor".to_string(),
-            CborZst => "application/cbor+zstd".to_string(),
+            CborZstd => "application/cbor+zstd".to_string(),
             Json => "application/json".to_string(),
             JsonZip => "application/json+zip".to_string(),
             JsonLd => "application/ld+json".to_string(),
@@ -433,7 +433,7 @@ impl Display for Format {
             Avi => "avi",
             Bash => "bash",
             Cbor => "cbor",
-            CborZst => "cbor.zstd",
+            CborZstd => "cbor.zstd",
             Css => "css",
             Debug => "debug",
             Directory => "directory",
@@ -503,8 +503,8 @@ mod test {
         assert_eq!(Format::from_url("Py"), Format::Python);
         assert_eq!(Format::from_url("py"), Format::Python);
 
-        assert_eq!(Format::from_url("cborZst"), Format::CborZst);
-        assert_eq!(Format::from_url("cborzst"), Format::CborZst);
+        assert_eq!(Format::from_url("cborZstd"), Format::CborZstd);
+        assert_eq!(Format::from_url("cborzstd"), Format::CborZstd);
 
         assert_eq!(Format::from_url("mp3"), Format::Mp3);
 

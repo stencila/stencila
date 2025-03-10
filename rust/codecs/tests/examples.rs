@@ -67,13 +67,6 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             },
         ),
         (
-            "cbor.zst".into(),
-            FormatConfig {
-                format: Format::CborZst,
-                ..Default::default()
-            },
-        ),
-        (
             "dom.html".into(),
             FormatConfig {
                 format: Format::Dom,
@@ -152,13 +145,6 @@ static CONFIG: Lazy<Config> = Lazy::new(|| {
             "json".into(),
             FormatConfig {
                 format: Format::Json,
-                ..Default::default()
-            },
-        ),
-        (
-            "json.zip".into(),
-            FormatConfig {
-                format: Format::JsonZip,
                 ..Default::default()
             },
         ),
