@@ -594,13 +594,26 @@ impl Document {
     /// If there is no entry for the `from` path then the `to` path will
     /// be tracked.
     ///
-    /// Will error if the from `path` does not yet exist. Will create parent
-    /// directories of the `to` path if necessary.
+    /// Will create parent directories of the `to` path if necessary.
     #[tracing::instrument]
     pub async fn move_path(from: &Path, to: &Path) -> Result<()> {
-        // This is a simple, unoptimized implementation
-        Document::untrack_path(from).await?;
-        rename(from, to).await?;
+        // Move the file if it exists
+        if from.exists() {
+            rename(from, to).await?;
+        }
+
+        // If the `from` path is already being tracked then just change the relative path for the entry.
+        if let Some((tracking_dir, mut entries)) = read_tracking(from, false).await? {
+            let from_relative_path = workspace_relative_path(&tracking_dir, from, false)?;
+            if let Some(entry) = entries.remove(&from_relative_path) {
+                let to_relative_path = workspace_relative_path(&tracking_dir, to, false)?;
+                entries.insert(to_relative_path, entry);
+                write_tracking(&tracking_dir, &entries).await?;
+                return Ok(());
+            }
+        }
+
+        // Otherwise, if `from` is not being tracked already, then just track `to`
         Document::track_path(to, None).await?;
 
         Ok(())
