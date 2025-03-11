@@ -530,16 +530,18 @@ impl Cli {
                     if let Some(config) = &article.config {
                         if let Some(publish) = &config.publish {
                             if let Some(publisher) = &publish.ghost {
-                                if self.slug.is_none() {
-                                    slug = publisher.slug.clone();
-                                } else {
+                                if self.slug.is_some() {
                                     slug = self.slug.clone();
-                                }
-                                if !self.featured {
-                                    featured = publisher.featured;
                                 } else {
-                                    featured = Some(self.featured);
+                                    slug = publisher.slug.clone();
                                 }
+                                
+                                if self.featured {
+                                    featured = Some(self.featured);
+                                } else {
+                                    featured = publisher.featured;
+                                }
+
                                 if !self.publish && !self.draft && self.schedule.is_none() {
                                     if let Some(doc_schedule) = &publisher.schedule {
                                         status = Some(Status::Scheduled);
@@ -561,8 +563,12 @@ impl Cli {
                                         };
                                     }
                                 } else {
-                                    //Defaults to draft
-                                    status = Some(Status::Draft);
+                                    status = if self.publish {
+                                        Some(Status::Published)
+                                    } else {
+                                        Some(Status::Draft)
+                                    };
+
                                     if self.schedule.is_some() {
                                         if self.schedule <= Some(Utc::now()) {
                                             bail!(
@@ -574,10 +580,11 @@ impl Cli {
                                         schedule = self.schedule;
                                     }
                                 }
-                                if self.tags.is_none() {
-                                    tags = publisher.tags.clone();
+
+                                if self.tags.is_some() {
+                                    tags = self.tags.clone();
                                 } else {
-                                    tags = self.tags.clone()
+                                    tags = publisher.tags.clone();
                                 }
                             }
                         }
