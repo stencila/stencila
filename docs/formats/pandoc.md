@@ -1,6 +1,6 @@
 ---
-title: pandoc
-description: Pandoc JSON
+title: Pandoc JSON
+description: Format for integrating with the Pandoc
 config:
   publish:
     ghost:
@@ -16,7 +16,7 @@ Pandoc is a document converter that allows you to translate content between a wi
 
 [Pandoc JSON](https://hackage.haskell.org/package/pandoc-types-1.23.1/docs/Text-Pandoc-JSON.html) is a JSON representation of Pandoc's internal document element types.
 
-Stencila delegates conversion to/from several formats (e.g. [DOCX](../formats/docx.md)) via Pandoc JSON.
+Stencila delegates conversion to/from several formats (e.g. [DOCX](../docx)) via Pandoc JSON.
 
 # Usage
 

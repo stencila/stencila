@@ -12,9 +12,9 @@ config:
 
 # Introduction
 
-This format combines [Concise Binary Object Representation (CBOR)](../formats/cbor) and [ZStandard](http://facebook.github.io/zstd/), a fast lossless compression algorithm.
+This format combines [Concise Binary Object Representation (CBOR)](../cbor) and [ZStandard](http://facebook.github.io/zstd/), a fast lossless compression algorithm.
 
-Stencila provides support for CBOR+ZStd as a more compact alternative to [JSON](../formats/json) or [CBOR](../formats/cbor) for storing documents. It may be preferred over those formats for storing very large documents. Also consider [JSON+Zip](../formats/jsonzip) which may provide similar levels of compression, but which is more portable.
+Stencila provides support for CBOR+ZStd as a more compact alternative to [JSON](../json) or [CBOR](../cbor) for storing documents. It may be preferred over those formats for storing very large documents. Also consider [JSON+Zip](../jsonzip) which may provide similar levels of compression, but which is more portable.
 
 # Usage
 

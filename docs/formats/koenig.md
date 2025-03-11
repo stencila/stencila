@@ -12,7 +12,7 @@ config:
 
 # Introduction
 
-[Koenig](https://github.com/TryGhost/Koenig) is an editor developed by, and used within, the [Ghost](https://ghost.org) content management system. Koenig is based on the [Lexical](https://lexical.dev) editor framework and this format simply extends [Lexical JSON](../formats/lexical) to accommodate some of the customizations of the Koenig document schema.
+[Koenig](https://github.com/TryGhost/Koenig) is an editor developed by, and used within, the [Ghost](https://ghost.org) content management system. Koenig is based on the [Lexical](https://lexical.dev) editor framework and this format simply extends [Lexical JSON](../lexical) to accommodate some of the customizations of the Koenig document schema.
 
 Stencila supports conversion to/from Koenig JSON to support publishing Stencila documents to Ghost.
 

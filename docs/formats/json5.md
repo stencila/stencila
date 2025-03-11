@@ -14,7 +14,7 @@ config:
 
 [JSON5](https://json5.org/) is an extension of the JSON (JavaScript Object Notation) format that incorporates additional features for enhanced readability and flexibility. It maintains compatibility with standard JSON while introducing human-friendly syntax elements such as comments, trailing commas, and relaxed quoting rules.
 
-Stencila provides support for JSON5 as a more human-readable, while still lossless, alternative to [JSON](../formats/json) for storing documents. JSON5 is also used internally within Stencila as a more human-friendly, JavaScript-like way to represent nodes within documents in formats such as Markdown.
+Stencila provides support for JSON5 as a more human-readable, while still lossless, alternative to [JSON](../json) for storing documents. JSON5 is also used internally within Stencila as a more human-friendly, JavaScript-like way to represent nodes within documents in formats such as Markdown.
 
 # Usage
 

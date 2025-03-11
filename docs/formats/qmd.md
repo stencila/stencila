@@ -1,6 +1,6 @@
 ---
-title: qmd
-description: Quarto Markdown
+title: Quarto Markdown
+description: An extended flavor of Markdown tailored for technical and scientific publishing
 config:
   publish:
     ghost:
@@ -27,7 +27,7 @@ stencila convert doc.smd doc.qmd
 
 # Implementation
 
-Stencila support bi-directional conversion between Stencila documents and Quarto Markdown. See our [CommonMark](../formats/md.md) documentation for implementation details.
+Stencila support bi-directional conversion between Stencila documents and Quarto Markdown. See our [CommonMark](../md) documentation for implementation details.
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->

@@ -12,9 +12,9 @@ config:
 
 # Introduction
 
-This format combines [JavaScript Object Notation (JSON)](../formats/json) and the [Zip](<https://en.wikipedia.org/wiki/ZIP_(file_format)>), compressed archive file format.
+This format combines [JavaScript Object Notation (JSON)](../json) and the [Zip](<https://en.wikipedia.org/wiki/ZIP_(file_format)>), compressed archive file format.
 
-Stencila provides support for JSON+Zip as a more compact alternative to [JSON](../formats/json) for storing large documents. Also consider [CBOR+Zstd](../formats/cborzstd) which may provide better levels of compression.
+Stencila provides support for JSON+Zip as a more compact alternative to [JSON](../json) for storing large documents. Also consider [CBOR+Zstd](../cborzstd) which may provide better levels of compression.
 
 # Usage
 

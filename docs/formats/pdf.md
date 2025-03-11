@@ -30,7 +30,7 @@ stencila convert doc.smd doc.pdf
 
 # Implementation
 
-Stencila provides lossy bidirectional conversion to PDF is powered by [Pandoc](https://pandoc.org/). To convert documents to PDF, you will need to have Pandoc and a PDF engine installed. See the [`pandoc`](../formats/pandoc) format for more details.
+Stencila provides lossy bidirectional conversion to PDF is powered by [Pandoc](https://pandoc.org/). To convert documents to PDF, you will need to have Pandoc and a PDF engine installed. See the [`pandoc`](../pandoc) format for more details.
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->

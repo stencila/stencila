@@ -1,6 +1,6 @@
 ---
-title: text
-description: Plain Text
+title: Plain Text
+description: A simple plain text representation of documents
 config:
   publish:
     ghost:

@@ -1,6 +1,6 @@
 ---
-title: myst
-description: MyST Markdown
+title: MyST Markdown
+description: An extended flavor of Markdown for technical, scientific communication and publication
 config:
   publish:
     ghost:
@@ -27,7 +27,7 @@ stencila convert doc.smd doc.myst
 
 # Implementation
 
-Stencila support bi-directional conversion between Stencila documents and MyST Markdown. See our [CommonMark](../formats/md.md) documentation for implementation details.
+Stencila support bi-directional conversion between Stencila documents and MyST Markdown. See our [CommonMark](../md) documentation for implementation details.
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->

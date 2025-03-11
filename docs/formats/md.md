@@ -1,6 +1,6 @@
 ---
 title: Markdown
-description: CommonMark Markdown
+description: A lightweight markup language
 config:
   publish:
     ghost:
@@ -18,9 +18,9 @@ Markdown is a lightweight markup language widely used for formatting plain text 
 
 In addition to supporting CommonMark, Stencila supports several 'flavors' of Markdown each with extensions to support document elements that are not part of the Commonmark specification:
 
-- [MyST Markdown](../formats/myst)
-- [Quarto Markdown](../formats/qmd)
-- [Stencila Markdown](../formats/smd)
+- [MyST Markdown](../myst)
+- [Quarto Markdown](../qmd)
+- [Stencila Markdown](../smd)
 
 # Usage
 

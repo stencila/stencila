@@ -30,7 +30,7 @@ stencila convert doc.smd doc.odt
 
 # Implementation
 
-Stencila provides lossy bidirectional conversion to ODT powered by [Pandoc](https://pandoc.org/). To convert documents to/from ODT, you will need to have Pandoc installed. See the [`pandoc`](../formats/pandoc) format for more details.
+Stencila provides lossy bidirectional conversion to ODT powered by [Pandoc](https://pandoc.org/). To convert documents to/from ODT, you will need to have Pandoc installed. See the [`pandoc`](../pandoc) format for more details.
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->

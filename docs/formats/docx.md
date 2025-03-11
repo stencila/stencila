@@ -1,6 +1,6 @@
 ---
 title: DOCX
-description: Microsoft Word DOCX
+description: Microsoft Word DOCX Format
 config:
   publish:
     ghost:
@@ -32,7 +32,7 @@ stencila convert doc.smd doc.docx
 
 # Implementation
 
-Stencila provides lossy bidirectional conversion to DOCX powered by [Pandoc](https://pandoc.org/). To convert documents to/from DOCX, you will need to have Pandoc installed. See the [`pandoc`](../formats/pandoc) format for more details.
+Stencila provides lossy bidirectional conversion to DOCX powered by [Pandoc](https://pandoc.org/). To convert documents to/from DOCX, you will need to have Pandoc installed. See the [`pandoc`](../pandoc) format for more details.
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
