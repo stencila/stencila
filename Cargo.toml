@@ -16,17 +16,17 @@ codegen-units = 1
 panic = "abort"
 
 [workspace.dependencies]
-base64 = "0.22.0"
-cached = { version = "0.55.0", features = ["async"] }
-derive_more = { version = "1.0.0", features = ["display", "deref", "deref_mut", "into_iterator"] }
+base64 = "0.22.1"
+cached = { version = "0.55.1", features = ["async"] }
+derive_more = { version = "2.0.1", features = ["display", "deref", "deref_mut", "into_iterator"] }
 directories = "6.0.0"
-flate2 = "1.0.35"
+flate2 = "1.1.0"
 mime = "0.3.17"
 mime_guess = "2.0.5"
 monostate = "0.1.14"
 quick-xml = "0.37.2"
 rand = "0.9.0"
-serde = { version = "1.0.218", features = ["derive", "rc"] }
+serde = { version = "1.0.219", features = ["derive", "rc"] }
 semver = { version = "1.0.26", features = ["serde"] }
 smart-default = "0.7.1"
 test-log = { version = "0.2.17", default-features = false, features = ["trace"] }
