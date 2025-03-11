@@ -37,7 +37,7 @@ server = { path = "../server" }
 tracing-error = "0.2.1"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter", "json"] }
 version = { path = "../version" }
-webbrowser = "1.0.3"
+webbrowser = "1.0.4"
 zip = { workspace = true }
 
 [lints.rust]
