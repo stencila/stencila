@@ -1,37 +1,45 @@
 ---
+title: IPYNB
+description: Jupyter Notebook Format
 config:
   publish:
     ghost:
-      slug: docx-format
-      state: publish
+      slug: ipynb
       tags:
-      - '#doc'
-      - Formats
-      type: post
-description: Word Document XML format
-title: docx
+        - "#docs"
+        - Formats
 ---
 
 # Introduction
 
-**File Extension:** `.docx` - Used when converting or exporting Stencila documents to docx format.
+The [Jupyter Notebook Format](https://nbformat.readthedocs.io/en/latest/) (previously known the IPython Notebook (IPYNB) format), is a JSON-based format that integrates code, visualizations, equations, and narrative text in a single document. It is designed to support reproducible computational workflows by allowing users to execute code in real time while interweaving multimedia content and explanatory text.
 
-The [DOCX format](https://learn.microsoft.com/en-us/openspecs/office_standards/ms-docx/d683fa62-8042-4360-a824-b79045a6aabd) is a format useful for sharing documents with others in a format they may be familiar and comfortable with. 
+# Usage
 
+Use the `.ipynb` file extension, or the `--to ipynb` or `--from ipynb` options, when converting to/from Jupyter Notebooks e.g.
+
+```sh
+stencila convert doc.smd doc.ipynb
+```
+
+> [!warning]
+> Stencila's IPYNB support is in beta status. If you find bugs or unexpected results please [file an issue](https://github.com/stencila/stencila/issues/new).
 
 # Implementation
 
-It is made possible in Stencila by using the intermediate Stencila format [pandoc](docs/format-pandoc), which converts documents to [pandoc-json](https://hackage.haskell.org/package/pandoc-types-1.23.1/docs/Text-Pandoc-JSON.html).
+Stencila support bi-directional conversion between Stencila documents and `ipynb` files powered by the [`nbformat`](https://crates.io/crates/nbformat) Rust crate.
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
 
 # Support
 
-Stencila supports these operations for Microsoft Word DOCX:
+Stencila supports these operations for IPYNB:
 
 - decoding from a file
+- decoding from a string
 - encoding to a file
+- encoding to a string
 
 Support and degree of loss by node type:
 
@@ -180,7 +188,7 @@ Support and degree of loss by node type:
 | [RawBlock](https://stencila.ghost.io/docs/reference/schema/raw_block)                        | 🔷 Low loss | 🔷 Low loss |       |
 | [Thing](https://stencila.ghost.io/docs/reference/schema/thing)                               | 🔷 Low loss | 🔷 Low loss |       |
 
-See the Rust crate [`codec-docx`](https://github.com/stencila/stencila/tree/main/rust/codec-docx) for more details.
+See the Rust crate [`codec-ipynb`](https://github.com/stencila/stencila/tree/main/rust/codec-ipynb) for more details.
 
 
 <!-- CODEC-DOCS:STOP -->

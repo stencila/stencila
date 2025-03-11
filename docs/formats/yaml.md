@@ -1,44 +1,57 @@
 ---
+title: YAML
+description: YAML A'int Markup Language
 config:
   publish:
     ghost:
-      slug: cbor-format
-      state: publish
+      slug: yaml
       tags:
-      - '#doc'
-      - Formats
-      type: post
-description: Concise Binary Object Representation
-title: CBOR
+        - "#docs"
+        - Formats
 ---
 
 # Introduction
 
-**File Extension:** `.cbor` - Used when converting or exporting Stencila documents to CBORZST format.
+[YAML (YAML Ain't Markup Language)](https://yaml.org/) is a human-readable data serialization format commonly used for configuration files and data representation. It is known for its simplicity and readability, making it a preferred choice for settings and data structures. YAML's structure is based on indentation, allowing users to represent data hierarchies in an easily understandable manner.
 
-The [CBOR (Concise Binary Object Representation)](https://cbor.io/) format is a serialization format is a convenient binary serialization format that can be used when machine readability and efficiency are more important than human readability. It follows closely the data model of JSON with key value pairs and true, false, null values similar to JavaScript and JSON. It can save on file bloat and enable faster processing of files. Like JSON it enables data interchange without needing a formally specified schema.
+Stencila provides support for YAML as a more human-readable, while still lossless, alternative to [JSON](../formats/json) for storing documents.
 
-CBOR is "a data format whose design goals include the possibility of extremely small code size, fairly small message size, and extensibility without the need for version negotiation".
+# Usage
 
-Stencila provides support for CBOR as a faster, more compact, alternative to [JSON](json) for storing documents.
+Use the `.yaml` file extension, or the `--to yaml` or `--from yaml` options, when converting to/from YAML e.g.
 
-# Specification
-
-See [RFC 8949](https://www.rfc-editor.org/rfc/rfc8949.html) and other [CBOR specs](https://cbor.io/spec.html).
+```sh
+stencila convert doc.smd doc.yaml
+```
 
 # Implementation
 
-Stencila support lossless, bi-directional conversion between Stencila documents and CBOR powered by [`ciborium`](https://crates.io/crates/ciborium).
+Stencila support lossless, bi-directional conversion between Stencila documents and YAML. The `codec-yaml` Rust crate implements `from_yaml` and `to_yaml` methods for all node types in Stencila Schema, powered by [`serde_yaml`](https://crates.io/crates/serde_yaml).
+
+When the `--standalone` option is used (the default for encoding to files), two properties are added to the YAML encoding of root nodes to improve interoperability:
+
+- a `$schema` property which links to the [JSON Schema](https://json-schema.org) for the node type
+- a `@context` property which links to the [JSON-LD](https://json-ld.org) context for the Stencila Schema
+
+For example,
+
+```yaml
+$schema: https://stencila.org/Article.schema.json
+"@context": https://stencila.org/context.jsonld
+type: Article
+```
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
 
 # Support
 
-Stencila supports these operations for CBOR:
+Stencila supports these operations for YAML:
 
 - decoding from a file
+- decoding from a string
 - encoding to a file
+- encoding to a string
 
 Support and degree of loss by node type:
 
@@ -187,7 +200,7 @@ Support and degree of loss by node type:
 | [RawBlock](https://stencila.ghost.io/docs/reference/schema/raw_block)                        | 🟢 No loss | 🟢 No loss |       |
 | [Thing](https://stencila.ghost.io/docs/reference/schema/thing)                               | 🟢 No loss | 🟢 No loss |       |
 
-See the Rust crate [`codec-cbor`](https://github.com/stencila/stencila/tree/main/rust/codec-cbor) for more details.
+See the Rust crate [`codec-yaml`](https://github.com/stencila/stencila/tree/main/rust/codec-yaml) for more details.
 
 
 <!-- CODEC-DOCS:STOP -->

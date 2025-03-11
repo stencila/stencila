@@ -1,76 +1,42 @@
 ---
+title: CBOR+ZStd
+description: Concise Binary Object Representation with ZStandard Compression
 config:
   publish:
     ghost:
-      slug: jsonld-format
-      state: publish
+      slug: cborzstd
       tags:
-      - '#doc'
-      - Formats
-      type: post
-description: JavaScript Object Notation for Linked Data
-title: JSON-LD
+        - "#docs"
+        - Formats
 ---
 
 # Introduction
 
-**File Extension:** `.jsonld` - Used when converting or exporting Stencila documents to JSON-LD format.
+This format combines [Concise Binary Object Representation (CBOR)](../formats/cbor) and [ZStandard](http://facebook.github.io/zstd/), a fast lossless compression algorithm.
 
-[JSON-LD](https://json-ld.org/), or JSON for Linked Data, is a lightweight data interchange format designed to express linked data in a format that is both human-readable and machine-friendly. It extends JSON by providing a standard way to embed linked data within JSON documents, allowing for a network of standards-based, machine-readable, structured data on the web.
+Stencila provides support for CBOR+ZStd as a more compact alternative to [JSON](../formats/json) or [CBOR](../formats/cbor) for storing documents. It may be preferred over those formats for storing very large documents. Also consider [JSON+Zip](../formats/jsonzip) which may provide similar levels of compression, but which is more portable.
 
-Stencila provides support for JSON-LD for storing and transferring documents in a format with high interoperability.
+# Usage
+
+Use the `.cbor.zstd` file extension, or the `--to cborzstd` or `--from cborzstd` options, when converting to/from CBOR+Zstd e.g.
+
+```sh
+stencila convert doc.smd doc.cbor.zstd
+```
 
 # Implementation
 
-Stencila Schema is based on [schema.org](https://schema.org) and has a JSON-LD `@context` published at https://stencila.org/context.jsonld. When Stencila documents are exported as JSON, this context is applied. As such, the JSON documents that Stencila produces are inherently JSON-LD documents.
-
-For example, an `Article` is exported like so:
-
-```json
-{
-  "$schema": "https://stencila.org/Article.schema.json",
-  "@context": "https://stencila.org/context.jsonld",
-  "type": "Article",
-  "content": [
-    {
-      "type": "Paragraph",
-      "content": [
-        {
-          "type": "Text",
-```
-
-However, because the the schema.org is the most widely used vocabulary for JSON-LD, the `JsonLdCodec` translates terms in the Stencila context, to those in the schema.org context, and uses schema.org as the [default vocabulary](https://www.w3.org/TR/json-ld11/#default-vocabulary), with the Stencila context as an extension. This saves consumers of the JSON-LD from having to do this translation themselves.
-
-In addition, when exporting to JSON-LD, the `@type` and `@id` [keywords](https://www.w3.org/TR/json-ld11/#syntax-tokens-and-keywords) are used instead of `type` and `id`.
-
-For example, the above article as exported to JSON-LD as follows. Note that because the types `Article` and `Text` are part of schema.org, there is no need to prefix their name. However because schema.org does not have a `Paragraph` type or a `content` property, it is necessary to prefix those with `stencila:`.
-
-```json
-{
-  "@context": {
-    "@vocab": "https://schema.org/",
-    "stencila": "https://stencila.org/"
-  },
-  "@type": "Article",
-  "stencila:content": [
-    {
-      "@type": "stencila:Paragraph",
-      "stencila:content": [
-        {
-          "@type": "Text",
-```
+Stencila support lossless, bi-directional conversion between Stencila documents and CBOR+ZStd powered by the Rust crates [`ciborium`](https://crates.io/crates/ciborium) and [`zstd`](https://crates.io/crates/zstd).
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
 
 # Support
 
-Stencila supports these operations for JSON-LD:
+Stencila supports these operations for CBOR+Zstandard:
 
 - decoding from a file
-- decoding from a string
 - encoding to a file
-- encoding to a string
 
 Support and degree of loss by node type:
 
@@ -219,7 +185,7 @@ Support and degree of loss by node type:
 | [RawBlock](https://stencila.ghost.io/docs/reference/schema/raw_block)                        | 🟢 No loss | 🟢 No loss |       |
 | [Thing](https://stencila.ghost.io/docs/reference/schema/thing)                               | 🟢 No loss | 🟢 No loss |       |
 
-See the Rust crate [`codec-jsonld`](https://github.com/stencila/stencila/tree/main/rust/codec-jsonld) for more details.
+See the Rust crate [`codec-cbor`](https://github.com/stencila/stencila/tree/main/rust/codec-cbor) for more details.
 
 
 <!-- CODEC-DOCS:STOP -->

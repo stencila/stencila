@@ -1,49 +1,58 @@
 ---
+title: JSON
+description: JavaScript Object Notation
 config:
   publish:
     ghost:
-      slug: yaml-format
-      state: publish
+      slug: json
       tags:
-      - '#doc'
-      - Formats
-      type: post
-description: YAML A'int Markup Language
-title: YAML
+        - "#docs"
+        - Formats
 ---
 
 # Introduction
 
-**File Extension:** `.yaml` - Used when converting or exporting Stencila documents to YAML format.
+[JavaScript Object Notation (JSON)](https://www.json.org/) is a lightweight data interchange format widely used for structured data storage and transmission. JSON's simplicity, flexibility, and compatibility with various programming languages make it a popular choice for APIs, configuration files, and data exchange between applications. Stencila uses JSON as the default storage format for documents.
 
-[YAML (YAML Ain't Markup Language)](https://yaml.org/) is a human-readable data serialization format commonly used for configuration files and data representation. It is known for its simplicity and readability, making it a preferred choice for settings and data structures. YAML's structure is based on indentation, allowing users to represent data hierarchies in an easily understandable manner.
+# Usage
 
-Stencila provides support for YAML as a more human-readable, while still lossless, alternative to [JSON](json) for storing documents.
+Use the `.json` file extension, or the `--to json` or `--from json` options, when converting to/from JSON e.g.
 
-# Implementation
+```sh
+stencila convert doc.smd doc.json
+```
 
-Stencila support lossless, bi-directional conversion between Stencila documents and YAML.  The `codec-yaml` Rust crate implements `from_yaml` and `to_yaml` methods for all node types in Stencila Schema, powered by [`serde_yaml`](https://crates.io/crates/serde_yaml).
+By default, the encoded JSON is indented. The `--compact` option can be used to produce un-indented, single line JSON.
 
-When the `--standalone` option is used (the default for encoding to files), two properties are added to the YAML encoding of root nodes to improve interoperability:
+When the `--standalone` option is used (the default for encoding to files), two properties are added to the JSON encoding of root nodes to improve interoperability:
 
 - a `$schema` property which links to the [JSON Schema](https://json-schema.org) for the node type
 - a `@context` property which links to the [JSON-LD](https://json-ld.org) context for the Stencila Schema
 
 For example,
 
-```yaml
-$schema: https://stencila.org/Article.schema.json
-'@context': https://stencila.org/context.jsonld
-type: Article
-...
+```json
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "@context": "https://stencila.org/context.jsonld",
+  "type": "Article",
+  ...
 ```
+
+# Specification
+
+See the [ECMA-404 The JSON Data Interchange Standard](https://ecma-international.org/publications-and-standards/standards/ecma-404/).
+
+# Implementation
+
+Stencila support lossless, bi-directional conversion between Stencila documents and JSON powered by [`serde_json`](https://crates.io/crates/serde_json).
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
 
 # Support
 
-Stencila supports these operations for YAML:
+Stencila supports these operations for JSON:
 
 - decoding from a file
 - decoding from a string
@@ -197,7 +206,7 @@ Support and degree of loss by node type:
 | [RawBlock](https://stencila.ghost.io/docs/reference/schema/raw_block)                        | 🟢 No loss | 🟢 No loss |       |
 | [Thing](https://stencila.ghost.io/docs/reference/schema/thing)                               | 🟢 No loss | 🟢 No loss |       |
 
-See the Rust crate [`codec-yaml`](https://github.com/stencila/stencila/tree/main/rust/codec-yaml) for more details.
+See the Rust crate [`codec-json`](https://github.com/stencila/stencila/tree/main/rust/codec-json) for more details.
 
 
 <!-- CODEC-DOCS:STOP -->

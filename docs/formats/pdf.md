@@ -1,26 +1,36 @@
 ---
+title: PDF
+description: Portable Document Format
 config:
   publish:
     ghost:
-      slug: pdf-format
-      state: publish
+      slug: pdf
       tags:
-      - '#doc'
-      - Formats
-      type: post
-description: Portable Document Format
-title: PDF
+        - "#docs"
+        - Formats
 ---
 
 # Introduction
 
-**File Extension:** `.pdf` - Used one-way when converting or exporting Stencila documents to PDF.
+[Portable Document Format (PDF)](https://pdfa.org/resource/pdf-specification-archive/) is an output format that can be used to render documents suitable for publication or sharing.
 
-The [PDF](https://pdfa.org/resource/pdf-specification-archive/) format is an output format that can be used to render documents suitable for publication or sharing.
+# Usage
+
+> [!info]
+> Converting to PDF requires [Pandoc](https://pandoc.org/installing.html) and a PDF engine (e.g. `pdflatex`) to be installed.
+
+Use the `.pdf` file extension, or the `--to pdf` option, when converting to PDF e.g.
+
+```sh
+stencila convert doc.smd doc.pdf
+```
+
+> [!warning]
+> Stencila's PDF support is in beta status. If you find bugs or unexpected results please [file an issue](https://github.com/stencila/stencila/issues/new).
 
 # Implementation
 
-PDF uses LaTeX and depends on Pandoc's default LaTeX template , and thus requires LaTeX to be installed on systems exporting to PDF with Stencila.
+Stencila provides lossy bidirectional conversion to PDF is powered by [Pandoc](https://pandoc.org/). To convert documents to PDF, you will need to have Pandoc and a PDF engine installed. See the [`pandoc`](../formats/pandoc) format for more details.
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->

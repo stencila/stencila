@@ -1,46 +1,69 @@
 ---
+title: JSON-LD
+description: JavaScript Object Notation for Linked Data
 config:
   publish:
     ghost:
-      slug: json-format
-      state: publish
+      slug: jsonld
       tags:
-      - '#doc'
-      - Formats
-      type: post
-description: JavaScript Object Notation
-title: JSON
+        - "#docs"
+        - Formats
 ---
 
 # Introduction
 
-**File Extension:** `.json` - Used when converting or exporting Stencila documents to JSON format.
+[JSON-LD](https://json-ld.org/), or JSON for Linked Data, is a lightweight data interchange format designed to express linked data in a format that is both human-readable and machine-friendly. It extends JSON by providing a standard way to embed linked data within JSON documents, allowing for a network of standards-based, machine-readable, structured data on the web.
 
-[JavaScript Object Notation (JSON)](https://www.json.org/) is a lightweight data interchange format widely used for structured data storage and transmission. JSON's simplicity, flexibility, and compatibility with various programming languages make it a popular choice for APIs, configuration files, and data exchange between applications. Stencila uses JSON as the default storage format for documents.
+Stencila provides support for JSON-LD for storing and transferring documents in a format with high interoperability.
 
-# Specification
+# Usage
 
-See the [ECMA-404 The JSON Data Interchange Standard](https://ecma-international.org/publications-and-standards/standards/ecma-404/).
+Use the `.jsonld` file extension, or the `--to jsonld` or `--from jsonld` options, when converting to/from JSON-LD e.g.
+
+```sh
+stencila convert doc.smd doc.jsonld
+```
+
+By default, the encoded JSON-LD is indented. The `--compact` option can be used to produce un-indented, single line JSON-LD.
 
 # Implementation
 
-Stencila support lossless, bi-directional conversion between Stencila documents and JSON powered by [`serde_json`](https://crates.io/crates/serde_json).
+Stencila Schema is based on [schema.org](https://schema.org) and has a JSON-LD `@context` published at https://stencila.org/context.jsonld. When Stencila documents are exported as JSON, this context is applied. As such, the JSON documents that Stencila produces are inherently JSON-LD documents.
 
-By default, the encoded JSON is indented. The `--compact` CLI option can be used to produce un-indented, single line JSON.
-
-When the `--standalone` option is used (the default for encoding to files), two properties are added to the JSON encoding of root nodes to improve interoperability:
-
-- a `$schema` property which links to the [JSON Schema](https://json-schema.org) for the node type
-- a `@context` property which links to the [JSON-LD](https://json-ld.org) context for the Stencila Schema
-
-For example,
+For example, an `Article` is exported like so:
 
 ```json
 {
   "$schema": "https://stencila.org/Article.schema.json",
   "@context": "https://stencila.org/context.jsonld",
   "type": "Article",
-  ...
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+```
+
+However, because the the schema.org is the most widely used vocabulary for JSON-LD, the `JsonLdCodec` translates terms in the Stencila context, to those in the schema.org context, and uses schema.org as the [default vocabulary](https://www.w3.org/TR/json-ld11/#default-vocabulary), with the Stencila context as an extension. This saves consumers of the JSON-LD from having to do this translation themselves.
+
+In addition, when exporting to JSON-LD, the `@type` and `@id` [keywords](https://www.w3.org/TR/json-ld11/#syntax-tokens-and-keywords) are used instead of `type` and `id`.
+
+For example, the above article as exported to JSON-LD as follows. Note that because the types `Article` and `Text` are part of schema.org, there is no need to prefix their name. However because schema.org does not have a `Paragraph` type or a `content` property, it is necessary to prefix those with `stencila:`.
+
+```json
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": [
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
 ```
 
 <!-- prettier-ignore-start -->
@@ -48,7 +71,7 @@ For example,
 
 # Support
 
-Stencila supports these operations for JSON:
+Stencila supports these operations for JSON-LD:
 
 - decoding from a file
 - decoding from a string
@@ -202,7 +225,7 @@ Support and degree of loss by node type:
 | [RawBlock](https://stencila.ghost.io/docs/reference/schema/raw_block)                        | 🟢 No loss | 🟢 No loss |       |
 | [Thing](https://stencila.ghost.io/docs/reference/schema/thing)                               | 🟢 No loss | 🟢 No loss |       |
 
-See the Rust crate [`codec-json`](https://github.com/stencila/stencila/tree/main/rust/codec-json) for more details.
+See the Rust crate [`codec-jsonld`](https://github.com/stencila/stencila/tree/main/rust/codec-jsonld) for more details.
 
 
 <!-- CODEC-DOCS:STOP -->

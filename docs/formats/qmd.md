@@ -1,26 +1,33 @@
 ---
+title: qmd
+description: Quarto Markdown
 config:
   publish:
     ghost:
-      slug: qmd-format
-      state: publish
+      slug: qmd
       tags:
-      - '#doc'
-      - Formats
-      type: post
-description: Quarto Markdown
-title: qmd
+        - "#docs"
+        - Formats
 ---
 
 # Introduction
 
-**File Extension:** `.qmd` - Used when converting or exporting Stencila documents to CBORZST format.
+[Quarto Markdown](https://quarto.org/docs/authoring/markdown-basics.html) is an extended version of Markdown tailored for technical and scientific publishing, enabling reproducible research and literate programming. It builds on the simplicity of standard Markdown by incorporating advanced features like code execution, citations, cross-references, and customizable output formats.
 
-The [Quarto Markdown](https://quarto.org/docs/authoring/markdown-basics.html) is a special flavor of Markdown supported by Stencila and used by those that use the Quarto document publishing system.
+# Usage
+
+To convert to/from QuartoMarkdown, use the `.qmd` file extension, or the `--to qmd` or `--from qmd` options e.g.
+
+```sh
+stencila convert doc.smd doc.qmd
+```
+
+> [!warning]
+> Stencila's Quarto Markdown support is in beta status. If you find bugs or unexpected results please [file an issue](https://github.com/stencila/stencila/issues/new).
 
 # Implementation
 
-Stencila support bi-directional conversion between Stencila documents and QMD powered by the CommonMark compliant [`markdown`](https://crates.io/crates/markdown) crate.
+Stencila support bi-directional conversion between Stencila documents and Quarto Markdown. See our [CommonMark](../formats/md.md) documentation for implementation details.
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->

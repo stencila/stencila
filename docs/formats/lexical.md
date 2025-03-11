@@ -1,33 +1,39 @@
 ---
+title: Lexical JSON
+description: Format for integrating with Lexical-based editors
 config:
   publish:
     ghost:
-      slug: ipynb-format
-      state: publish
+      slug: lexical
       tags:
-      - '#doc'
-      - Formats
-      type: post
-description: Jupyter Notebook Format
-title: ipynb
+        - "#docs"
+        - Formats
 ---
 
 # Introduction
 
-**File Extension:** `.ipynb` - Used when converting or exporting Stencila documents to ipynb format.
+Facebook's [Lexical](https://lexical.dev) editor is a modern, extensible text editor framework designed for building interactive web applications with rich text capabilities. [Lexical JSON](https://lexical.dev/docs/concepts/serialization) is a serialization format for documents written using Lexical.
 
-The [ipynb or Jupyter Notebook Format](https://nbformat.readthedocs.io/en/latest/) format is a literate programming format where code cells and Markdown blocks can be composed together to build runable documents.
+Stencila supports conversion to/from Lexical JSON as a way of integrating with Lexical and editors built on in.
+
+# Usage
+
+Use the `.lexical` file extension, or the `--to lexical` or `--from lexical` options, when converting to/from Lexical JSON e.g.
+
+```sh
+stencila convert doc.smd doc.lexical
+```
 
 # Implementation
 
-Stencila support bi-directional conversion between Stencila documents and ipynb.
+Stencila supports bi-directional conversion between Stencila documents and Lexical JSON. This is built on top of [`serde_json`](https://crates.io/crates/serde_json) with transformer functions to transform between Lexical node types and Stencila nde types.
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
 
 # Support
 
-Stencila supports these operations for IPYNB:
+Stencila supports these operations for Lexical JSON:
 
 - decoding from a file
 - decoding from a string
@@ -181,7 +187,7 @@ Support and degree of loss by node type:
 | [RawBlock](https://stencila.ghost.io/docs/reference/schema/raw_block)                        | 🔷 Low loss | 🔷 Low loss |       |
 | [Thing](https://stencila.ghost.io/docs/reference/schema/thing)                               | 🔷 Low loss | 🔷 Low loss |       |
 
-See the Rust crate [`codec-ipynb`](https://github.com/stencila/stencila/tree/main/rust/codec-ipynb) for more details.
+See the Rust crate [`codec-lexical`](https://github.com/stencila/stencila/tree/main/rust/codec-lexical) for more details.
 
 
 <!-- CODEC-DOCS:STOP -->

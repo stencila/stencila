@@ -1,26 +1,36 @@
 ---
+title: ODT
+description: Open Document Text
 config:
   publish:
     ghost:
-      slug: odt-format
-      state: publish
+      slug: odt
       tags:
-      - '#doc'
-      - Formats
-      type: post
-description: Open Document Template
-title: ODT
+        - "#docs"
+        - Formats
 ---
 
 # Introduction
 
-**File Extension:** `.odt` - Used when converting or exporting Stencila documents to odt format.
+The [Open Document Text (ODT)](https://docs.oasis-open.org/office/v1.1/OS/OpenDocument-v1.1-html/OpenDocument-v1.1.html) format is a serialization format is a convenient when you want to pass open documents to and from word processors.
 
-The [ODT](https://docs.oasis-open.org/office/v1.1/OS/OpenDocument-v1.1-html/OpenDocument-v1.1.html) format is a serialization format is a convenient when you want to pass open documents to and from word processors.
+# Usage
+
+> [!info]
+> Converting to/from ODT requires [Pandoc to be installed](https://pandoc.org/installing.html).
+
+Use the `.odt` file extension, or the `--to odt` or `--from odt` options, when converting to/from ODT e.g.
+
+```sh
+stencila convert doc.smd doc.odt
+```
+
+> [!warning]
+> Stencila's ODT support is in beta status. If you find bugs or unexpected results please [file an issue](https://github.com/stencila/stencila/issues/new).
 
 # Implementation
 
-It is made possible in Stencila by using the intermediate Stencila format [pandoc](docs/format-pandoc), which converts documents to [pandoc-json](https://hackage.haskell.org/package/pandoc-types-1.23.1/docs/Text-Pandoc-JSON.html).
+Stencila provides lossy bidirectional conversion to ODT powered by [Pandoc](https://pandoc.org/). To convert documents to/from ODT, you will need to have Pandoc installed. See the [`pandoc`](../formats/pandoc) format for more details.
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->

@@ -1,44 +1,42 @@
 ---
+title: CBOR
+description: Concise Binary Object Representation
 config:
   publish:
     ghost:
-      slug: json5-format
-      state: publish
+      slug: cbor
       tags:
-      - '#doc'
-      - Formats
-      type: post
-description: A more human readable flavor of JSON
-title: JSON5
+        - "#docs"
+        - Formats
 ---
 
 # Introduction
 
-**File Extension:** `.json5` - Used when converting or exporting Stencila documents to JSON5 format.
+The [CBOR (Concise Binary Object Representation)](https://cbor.io/) format is a binary serialization format suitable when speed and storage efficiency are important. It follows the data model of JSON closely, and like JSON, it enables data interchange without needing a formally specified schema. For further details about CBOR, see [RFC 8949](https://www.rfc-editor.org/rfc/rfc8949.html) and other [CBOR specs](https://cbor.io/spec.html).
 
-[JSON5](https://json5.org/) is an extension of the JSON (JavaScript Object Notation) format that incorporates additional features for enhanced readability and flexibility. It maintains compatibility with standard JSON while introducing human-friendly syntax elements such as comments, trailing commas, and relaxed quoting rules.
+Stencila provides support for CBOR as a faster, more compact, alternative to [JSON](../formats/json) for storing documents.
 
-Stencila provides support for JSON5 as a more human-readable, while still lossless, alternative to [JSON](json) for storing documents. JSON5 is also used internally within Stencila as a more human-friendly, JavaScript-like way to represent nodes within documents in formats such as Markdown.
+# Usage
+
+Use the `.cbor` file extension, or the `--to cbor` or `--from cbor` options, when converting to/from CBOR e.g.
+
+```sh
+stencila convert doc.smd soc.cbor
+```
 
 # Implementation
 
-Stencila support lossless, bi-directional conversion between Stencila documents and JSON5. The `codec-json5-trait` Rust crate implements `from_json5` and `to_json5` methods (and variants of those) for all node types in Stencila Schema, powered by [`json5`](https://crates.io/crates/json5) and [`json5format`](https://crates.io/crates/json5format).
-
-# Encodings
-
-By default, the encoded JSON5 is indented but the `--compact` option is supported which produces un-indented, single line JSON5.
+Stencila support lossless, bi-directional conversion between Stencila documents and CBOR powered by the Rust crate [`ciborium`](https://crates.io/crates/ciborium).
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
 
 # Support
 
-Stencila supports these operations for JSON5:
+Stencila supports these operations for CBOR:
 
 - decoding from a file
-- decoding from a string
 - encoding to a file
-- encoding to a string
 
 Support and degree of loss by node type:
 
@@ -187,7 +185,7 @@ Support and degree of loss by node type:
 | [RawBlock](https://stencila.ghost.io/docs/reference/schema/raw_block)                        | 🟢 No loss | 🟢 No loss |       |
 | [Thing](https://stencila.ghost.io/docs/reference/schema/thing)                               | 🟢 No loss | 🟢 No loss |       |
 
-See the Rust crate [`codec-json5`](https://github.com/stencila/stencila/tree/main/rust/codec-json5) for more details.
+See the Rust crate [`codec-cbor`](https://github.com/stencila/stencila/tree/main/rust/codec-cbor) for more details.
 
 
 <!-- CODEC-DOCS:STOP -->

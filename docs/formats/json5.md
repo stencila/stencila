@@ -1,38 +1,50 @@
 ---
+title: JSON5
+description: A more human readable flavor of JSON
 config:
   publish:
     ghost:
-      slug: cborzst-format
-      state: publish
+      slug: json5
       tags:
-      - '#doc'
-      - Formats
-      type: post
-description: Concise Binary Object Representation with ZStandard Compression
-title: CBOR + ZStandard
+        - "#docs"
+        - Formats
 ---
 
 # Introduction
 
-**Extension:** `.cborzst` - Used when converting or exporting Stencila documents to CBORZST format.
+[JSON5](https://json5.org/) is an extension of the JSON (JavaScript Object Notation) format that incorporates additional features for enhanced readability and flexibility. It maintains compatibility with standard JSON while introducing human-friendly syntax elements such as comments, trailing commas, and relaxed quoting rules.
 
-This format combines [Concise Binary Object Representation (CBOR)](cbor) and [ZStandard](http://facebook.github.io/zstd/), a fast lossless compression algorithm.
+Stencila provides support for JSON5 as a more human-readable, while still lossless, alternative to [JSON](../formats/json) for storing documents. JSON5 is also used internally within Stencila as a more human-friendly, JavaScript-like way to represent nodes within documents in formats such as Markdown.
 
-Stencila provides support for CBOR+ZStandard as a more compact alternative to [JSON](json) or [CBOR](cbor) for storing documents. It may be preferred over those formats for storing very large documents.
+# Usage
+
+Use the `.json5` file extension, or the `--to json5` or `--from json5` options, when converting to/from JSON5 e.g.
+
+```sh
+stencila convert doc.smd doc.json5
+```
+
+By default, the encoded JSON5 is indented. The `--compact` option can be used to produce un-indented, single line JSON5.
 
 # Implementation
 
-Stencila support lossless, bi-directional conversion between Stencila documents and CBOR+ZStandard powered by [`ciborium`](https://crates.io/crates/ciborium).
+Stencila support lossless, bi-directional conversion between Stencila documents and JSON5. The `codec-json5-trait` Rust crate implements `from_json5` and `to_json5` methods (and variants of those) for all node types in Stencila Schema, powered by [`json5`](https://crates.io/crates/json5) and [`json5format`](https://crates.io/crates/json5format).
+
+# Encodings
+
+By default, the encoded JSON5 is indented but the `--compact` option is supported which produces un-indented, single line JSON5.
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
 
 # Support
 
-Stencila supports these operations for CBOR+Zstandard:
+Stencila supports these operations for JSON5:
 
 - decoding from a file
+- decoding from a string
 - encoding to a file
+- encoding to a string
 
 Support and degree of loss by node type:
 
@@ -181,7 +193,7 @@ Support and degree of loss by node type:
 | [RawBlock](https://stencila.ghost.io/docs/reference/schema/raw_block)                        | 🟢 No loss | 🟢 No loss |       |
 | [Thing](https://stencila.ghost.io/docs/reference/schema/thing)                               | 🟢 No loss | 🟢 No loss |       |
 
-See the Rust crate [`codec-cbor`](https://github.com/stencila/stencila/tree/main/rust/codec-cbor) for more details.
+See the Rust crate [`codec-json5`](https://github.com/stencila/stencila/tree/main/rust/codec-json5) for more details.
 
 
 <!-- CODEC-DOCS:STOP -->

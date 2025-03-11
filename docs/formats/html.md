@@ -1,26 +1,37 @@
 ---
+title: HTML
+description: HyperText Markup Language
 config:
   publish:
     ghost:
-      slug: html-format
-      state: publish
+      slug: html
       tags:
-      - '#doc'
-      - Formats
-      type: post
-description: HyperText Markup Language
-title: HTML
+        - "#docs"
+        - Formats
 ---
 
 # Introduction
 
-**File Extension:** `.html` - Used when converting or exporting Stencila documents to HTML format.
+HTML (HyperText Markup Language) is the standard markup language used to structure and display content on the web
 
-The HTML format is a serialization format is a format that can be used to represent documents as HTML with custom HTML blocks for Stencila Sections, metadata and other document enhancements.
+Stencila provides, currently limited, support for converting to, and from, HTML.
+
+> [!note] When previewing documents (e.g. using `stencila preview` or in our VSCode extension) Stencila uses a specific encoding of HTML, distinct to the one described here, which we call "DOM HTML". I has very low loss and includes custom elements for Stencila node types (e.g. `<stencila-paragraph>` and `<stencila-codec-chunk`>) but as a result is intentionally verbose.
+
+# Usage
+
+Use the `.html` file extension, or the `--to html` or `--from html` options, when converting to/from HTML e.g.
+
+```sh
+stencila convert doc.smd doc.html
+```
+
+> [!warning]
+> Stencila's HTML support is in alpha status. If you find bugs or unexpected results please [file an issue](https://github.com/stencila/stencila/issues/new).
 
 # Implementation
 
-Parsing of HTML is largely done using the [quick-xml](https://crates.io/crates/quick-xml) crate and is low loss for most document attributes.
+Parsing of HTML is largely done using the [quick-xml](https://crates.io/crates/quick-xml) Rust crate.
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->

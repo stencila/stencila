@@ -1,60 +1,38 @@
 ---
+title: Markdown
+description: CommonMark Markdown
 config:
   publish:
     ghost:
-      slug: markdown-format
-      state: publish
+      slug: md
       tags:
-      - '#doc'
-      - Formats
-      type: post
-description: Markdown lightweight markup
-title: Markdown
+        - "#docs"
+        - Formats
 ---
+
 # Introduction
-
-**File Extension:** `.smd`, `.md`, `.myst`, `.qmd` - Used when converting or exporting Stencila documents to various flavours of Markdown.
-
-In Stencila we support various 'flavors' of Markdown with varying extensions added to Markdown for other tools to support. To get the most out of Stencila we recommend using `.smd` or Stencila Markdown, but we also have support for vanilla Markdown (`.md`), MyST Markdown (`.myst`) and Quarto Markdown ('.qmd`).
 
 Markdown is a lightweight markup language widely used for formatting plain text documents. It provides a simple and human-readable way to structure text and add basic styling, such as headers, lists, links, and emphasis. Markdown's benefits include ease of use, and compatibility with various web and documentation platforms.
 
+[CommonMark](https://spec.commonmark.org/) is a formal specification that defines a consistent, unambiguous syntax for Markdown, addressing the inconsistencies found in the original Markdown implementation. It serves as a standardization effort to ensure that Markdown content is processed uniformly across different platforms and tools.
+
+In addition to supporting CommonMark, Stencila supports several 'flavors' of Markdown each with extensions to support document elements that are not part of the Commonmark specification:
+
+- [MyST Markdown](../formats/myst)
+- [Quarto Markdown](../formats/qmd)
+- [Stencila Markdown](../formats/smd)
+
+# Usage
+
+To convert to/from CommonMark, use the `.md` file extension, or the `--to md` or `--from md` options e.g.
+
+```sh
+stencila convert doc.smd doc.md
+```
+
 # Implementation
 
-Stencila support bi-directional conversion between Stencila documents and Markdown.
-
-Three internal Rust crates are involved in the conversion from Stencila documents to Markdown:
-
-- The `codec-markdown` crate defines the `MarkdownCodec` `struct` which implements `to_string` method of the `Codec` `trait` by calling the `to_markdown` method of the `MarkdownCodec` `trait`.
-
-- The `codec-markdown-trait` crate defines the `MarkdownCodec` `trait` which has the `to_markdown` method.
-
-- The `codec-markdown-derive` crate provides a derive macro which is used to derive the `MarkdownCodec` trait for all types in the Stencila Schema.
-
-It is necessary to have three separate crates because of the need to have a separate crate for derive macros and to avoid circular dependencies.
-
-The `MarkdownCodec` derive macro has a `#[markdown(...)]` helper attribute which can be used to specify options for how the `to_markdown` method is derived for a type:
-
-- `template`: A string, compatible with the Rust [`format!` macro](https://doc.rust-lang.org/std/macro.format.html), which specifies how a node will be represented in Markdown
-
-- `escape`: A character that should be escaped (with a single backslash) prior to applying the template
-
-- `special`: A boolean specifying whether a special, manually written function should be used for encoding the type to Markdown. If this is `true` then the type must implement a function named `to_markdown_special` with the same signature as the `to_markdown` method.
-
-These options should be set in the `schema/*.yaml` files. These options will flow through to the `#[markdown(...)]` derive helper for the type when the files in `rust/schema/type` are regenerated. For example, the `schema/Strong.yaml` file contains the following:
-
-```yaml
-markdown:
-  template: '**{content}**'
-  escape: '*'
-```
-
-And the `schema/Heading.yaml` file contains the following:
-
-```yaml
-markdown:
-  special: true
-```
+Stencila supports bi-directional conversion between Stencila documents and CommonMark. Parsing of CommonMark is powered by the [`markdown`](https://crates.io/crates/markdown) Rust crate. Extensions to CommonMark are either supported by the `markdown` crate, or by our own parsing functions, mostly written using the [`winnow`](https://crates.io/crates/winnow) Rust crate.
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->

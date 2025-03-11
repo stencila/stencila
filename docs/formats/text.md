@@ -1,22 +1,26 @@
 ---
+title: text
+description: Plain Text
 config:
   publish:
     ghost:
-      slug: text-format
-      state: publish
+      slug: text
       tags:
-      - '#doc'
-      - Formats
-      type: post
-description: Plain Text
-title: text
+        - "#docs"
+        - Formats
 ---
 
 # Introduction
 
-**File Extension:** `.text` - Used when converting or exporting Stencila documents to plain text format.
+Stencila provides support for conversion of documents to plain text. This format is intentionally lossy and only useful when you explicitly want a plain text representation of a document (i.e. lacking structure such as headings and links).
 
-The text format is a lossy output format which can be used to convert many document types to plain text representations.
+# Usage
+
+Use the `.txt` file extension, or the `--to text` option, when converting to/from plain text e.g.
+
+```sh
+stencila convert doc.smd doc.txt
+```
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->

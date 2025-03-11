@@ -1,28 +1,32 @@
 ---
+title: JATS
+description: Journal Article Tag Suite
 config:
   publish:
     ghost:
-      slug: jats-format
-      state: publish
+      slug: jats
       tags:
-      - '#doc'
-      - Formats
-      type: post
-description: Journal Article Tag Suite
-title: JATS
+        - "#docs"
+        - Formats
 ---
 
 # Introduction
 
-**File Extension:** `.jats` - Used when converting or exporting Stencila documents to HTML format.
+The [JATS (Journal Article Tag Suite)](https://jats.nlm.nih.gov/) is an XML format that can be used to tag and describe scientific articles. It was developed by the NIH and has been adopted by several journals as a de facto standard for describing journal articles.
 
-The [JATS (Journal Article Tag Suite)](https://jats.nlm.nih.gov/) is an XML format that can be used to tag and deescribe scientific articles. It was developed by the NIH and has been adopted by several journals as a de facto standard for describing journal articles.
+# Usage
 
-It can be used to represent documents, figures, citations, code blocks and more.
+Use the `.jats.xml` file extension, or the `--to jats` or `--from jats` options, when converting to/from JATS e.g.
+
+```sh
+stencila convert doc.smd doc.jats.xml
+```
+
+By default, the encoded JATS is un-indented. Use the `--pretty` option for indented XML but note that this may affect whitespace.
 
 # Implementation
 
-Parsing of JATS is largely done using the [quick-xml](https://crates.io/crates/quick-xml) crate and is low loss for most document attributes (see below).
+Stencila supports bi-direction conversion between Stencila document and JATS. Parsing of JATS built on top of the [`quick-xml`](https://crates.io/crates/quick-xml) Rust crate.
 
 <!-- prettier-ignore-start -->
 <!-- CODEC-DOCS:START -->
