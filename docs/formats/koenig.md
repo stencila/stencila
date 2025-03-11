@@ -33,7 +33,7 @@ Stencila supports bi-directional conversion between Stencila documents and Lexic
 
 # Support
 
-Stencila supports these operations for Lexical JSON:
+Stencila supports these operations for Koenig JSON:
 
 - decoding from a file
 - decoding from a string

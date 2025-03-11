@@ -33,7 +33,7 @@ Stencila support lossless, bi-directional conversion between Stencila documents 
 
 # Support
 
-Stencila supports these operations for CBOR+Zstandard:
+Stencila supports these operations for CBOR+Zstd:
 
 - decoding from a file
 - encoding to a file

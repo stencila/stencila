@@ -34,7 +34,7 @@ impl Schemas {
     pub async fn docs_codecs(&self) -> Result<()> {
         eprintln!("Generating documentation for codecs");
 
-        let dest = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../docs/reference/formats");
+        let dest = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../docs/formats");
 
         const START: &str = "<!-- CODEC-DOCS:START -->";
         const STOP: &str = "<!-- CODEC-DOCS:STOP -->";
