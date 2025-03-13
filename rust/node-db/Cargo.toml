@@ -1,0 +1,11 @@
+[package]
+name = "node-db"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+common = { path = "../common" }
+kuzu = "0.8.2"
+
+[lints]
+workspace = true
