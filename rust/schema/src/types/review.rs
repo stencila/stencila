@@ -18,7 +18,6 @@ use super::provenance_count::ProvenanceCount;
 use super::string::String;
 use super::string_or_number::StringOrNumber;
 use super::text::Text;
-use super::thing::Thing;
 use super::thing_type::ThingType;
 
 /// A review of an item, e.g of an `Article` or `SoftwareApplication`.
@@ -244,7 +243,7 @@ pub struct ReviewOptions {
 
     /// The item that is being reviewed.
     #[serde(alias = "item-reviewed", alias = "item_reviewed")]
-    pub item_reviewed: Option<Thing>,
+    pub item_reviewed: Option<ThingType>,
 
     /// The part or facet of the item that is being reviewed.
     #[serde(alias = "review-aspect", alias = "review_aspect")]
