@@ -2,10 +2,13 @@
 mod node_property;
 #[rustfmt::skip]
 mod node_type;
+#[rustfmt::skip]
+mod node_type_properties;
 
 use std::str::FromStr;
 
-use common::eyre::Result;
+use common::{eyre::Result, inflector::Inflector};
+use node_type_properties::node_type_properties;
 
 pub use crate::node_type::NodeType;
 pub use node_property::NodeProperty;
@@ -84,5 +87,22 @@ impl NodeType {
                 | InstructionBlock
                 | InstructionInline
         )
+    }
+
+    /// Get the properties of the node type
+    pub fn properties(&self) -> Vec<NodeProperty> {
+        return node_type_properties(self);
+    }
+}
+
+impl NodeProperty {
+    /// The property as a camelCased string
+    pub fn to_camel_case(&self) -> String {
+        self.to_string().to_camel_case()
+    }
+
+    /// The property as a snake_cased string
+    pub fn to_snake_case(&self) -> String {
+        self.to_string().to_snake_case()
     }
 }
