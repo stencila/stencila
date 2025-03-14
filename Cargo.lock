@@ -3998,6 +3998,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "kuzu",
+ "schema",
 ]
 
 [[package]]

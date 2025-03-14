@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 common = { path = "../common" }
 kuzu = "0.8.2"
+schema = { path = "../schema" }
 
 [lints]
 workspace = true
