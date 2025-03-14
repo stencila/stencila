@@ -9,6 +9,7 @@ mod docs_types;
 
 mod json_ld;
 mod json_schema;
+mod kuzu;
 mod python;
 mod rust;
 mod typescript;

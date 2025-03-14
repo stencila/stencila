@@ -79,6 +79,7 @@
         "jinja",
         "jsonld",
         "koenig",
+        "kuzu",
         "lezer",
         "llmd",
         "lucide",

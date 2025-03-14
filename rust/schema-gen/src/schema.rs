@@ -908,6 +908,10 @@ impl Schema {
         self.r#type.is_some()
     }
 
+    pub fn is_enumeration(&self) -> bool {
+        self.extends.contains(&"Enumeration".to_string()) && self.any_of.is_some()
+    }
+
     pub fn is_object(&self) -> bool {
         self.r#type.is_none() && self.any_of.is_none()
     }
