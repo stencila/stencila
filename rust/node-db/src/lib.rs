@@ -4,7 +4,10 @@ use kuzu::{
     Connection, Database, LogicalType, PreparedStatement, QueryResult, SystemConfig, Value,
 };
 
-use common::{eyre::Result, itertools::Itertools};
+use common::{
+    eyre::{Context, Result, eyre},
+    itertools::Itertools,
+};
 use schema::{Block, Inline, Node, NodeId, NodeProperty, NodeType, Visitor, WalkControl};
 
 mod node_types;
@@ -118,7 +121,9 @@ impl NodeDatabase {
             values.push(node_id.to_kuzu_value());
             let params = names.zip(values.into_iter()).collect_vec();
 
-            connection.execute(statement, params)?;
+            connection
+                .execute(statement, params)
+                .wrap_err_with(|| eyre!("Unable to create node entry for `{node_type}`"))?;
         }
 
         Ok(())
@@ -278,33 +283,17 @@ impl DatabaseWalker {
 
 impl Visitor for DatabaseWalker {
     fn visit_node(&mut self, node: &Node) -> WalkControl {
-        // TODO: impl DatabaseNode for Node
-        match node {
-            Node::Article(node) => self.visit_database_node(node),
-            _ => {}
-        };
-
+        self.visit_database_node(node);
         WalkControl::Continue
     }
 
     fn visit_block(&mut self, node: &Block) -> WalkControl {
-        // TODO: impl DatabaseNode for Block
-        match node {
-            Block::Paragraph(node) => self.visit_database_node(node),
-            _ => {}
-        };
-
+        self.visit_database_node(node);
         WalkControl::Continue
     }
 
     fn visit_inline(&mut self, node: &Inline) -> WalkControl {
-        // TODO: impl DatabaseNode for Block
-        match node {
-            Inline::Strong(node) => self.visit_database_node(node),
-            Inline::Text(node) => self.visit_database_node(node),
-            _ => {}
-        };
-
+        self.visit_database_node(node);
         WalkControl::Continue
     }
 }

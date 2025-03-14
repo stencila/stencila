@@ -76,6 +76,7 @@ impl Schemas {
             "UnsignedInteger",
             "Number",
             "String",
+            "Cord",
             "Array",
             "Object",
             "Date",
@@ -433,6 +434,75 @@ impl Schemas {
             ),
         )
         .await?;
+
+        for title in ["Node", "Block", "Inline"] {
+            let variants = self
+                .schemas
+                .get(title)
+                .ok_or_eyre("schema should exist")?
+                .any_of
+                .as_ref()
+                .ok_or_eyre("any_of should be some")?
+                .iter()
+                .filter_map(|schema| {
+                    let variant = schema.r#ref.as_deref().expect("should exit");
+                    (!skip_types.contains(&variant)).then_some(variant)
+                })
+                .collect_vec();
+
+            let node_type = variants
+                .iter()
+                .map(|variant| format!("{title}::{variant}(node) => node.node_type()"))
+                .join(",\n            ");
+
+            let node_id = variants
+                .iter()
+                .map(|variant| format!("{title}::{variant}(node) => node.node_id()"))
+                .join(",\n            ");
+
+            let node_table = variants
+                .iter()
+                .map(|variant| format!("{title}::{variant}(node) => node.node_table()"))
+                .join(",\n            ");
+
+            let rel_tables = variants
+                .iter()
+                .map(|variant| format!("{title}::{variant}(node) => node.rel_tables()"))
+                .join(",\n            ");
+
+            implems.push(format!(
+                r#"impl DatabaseNode for {title} {{
+    fn node_type(&self) -> NodeType {{
+        match self {{
+            {node_type},
+            _ => NodeType::Null
+        }}
+    }}
+
+    fn node_id(&self) -> NodeId {{
+        match self {{
+            {node_id},
+            _ => NodeId::null()
+        }}
+    }}
+
+    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {{
+        match self {{
+            {node_table},
+            _ => Vec::new()
+        }}
+    }}
+
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {{
+        match self {{
+            {rel_tables},
+            _ => Vec::new()
+        }}
+    }}
+}}
+"#
+            ));
+        }
 
         let implems = implems.join("\n");
 
