@@ -35,6 +35,24 @@ impl FromStr for Author {
 }
 
 impl Author {
+    pub fn node_type(&self) -> NodeType {
+        match self {
+            Author::Person(person) => person.node_type(),
+            Author::Organization(org) => org.node_type(),
+            Author::SoftwareApplication(software) => software.node_type(),
+            Author::AuthorRole(role) => role.node_type(),
+        }
+    }
+
+    pub fn node_id(&self) -> NodeId {
+        match self {
+            Author::Person(person) => person.node_id(),
+            Author::Organization(org) => org.node_id(),
+            Author::SoftwareApplication(software) => software.node_id(),
+            Author::AuthorRole(role) => role.node_id(),
+        }
+    }
+
     /**
      * Create an [`AuthorRole`] from an author
      *
