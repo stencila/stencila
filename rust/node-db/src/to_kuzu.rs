@@ -92,7 +92,9 @@ where
     T: ToKuzu,
 {
     fn to_kuzu_type() -> LogicalType {
-        T::to_kuzu_type()
+        LogicalType::List {
+            child_type: Box::new(T::to_kuzu_type()),
+        }
     }
 
     fn to_kuzu_value(&self) -> Value {
