@@ -10,6 +10,7 @@ use common::{
 };
 use schema::{Block, Inline, Node, NodeId, NodeProperty, NodeType, Visitor, WalkControl};
 
+#[rustfmt::skip]
 mod node_types;
 mod to_kuzu;
 
@@ -102,7 +103,7 @@ impl NodeDatabase {
             None => {
                 let properties = properties
                     .iter()
-                    .map(|name| [&name, ": $", &name].concat())
+                    .map(|name| [name, ": $", name].concat())
                     .join(", ");
                 let statement = format!("CREATE (:{node_type} {{{}}})", properties);
 
@@ -194,6 +195,7 @@ impl NodeDatabase {
 /// The implementation of this trait is generated, by the `schema-gen` crate
 /// for each node type. To minimize compiled code size, we use enums such as
 /// [`NodeType`] and [`NodeProperty`] for the return types of the trait's methods.
+#[allow(clippy::type_complexity)]
 trait DatabaseNode {
     /// Get the [`NodeType`] for the node
     ///
@@ -225,6 +227,7 @@ trait DatabaseNode {
 /// `rel_tables` hash maps which are optimized for having one prepared statement for
 /// each entry.
 #[derive(Default)]
+#[allow(clippy::type_complexity)]
 struct DatabaseWalker {
     node_tables: HashMap<NodeType, (Vec<(NodeProperty, LogicalType)>, Vec<(NodeId, Vec<Value>)>)>,
 
@@ -250,7 +253,7 @@ impl DatabaseWalker {
                     node_table
                         .iter()
                         .map(|(node_property, logical_type, ..)| {
-                            (node_property.clone(), logical_type.clone())
+                            (*node_property, logical_type.clone())
                         })
                         .collect(),
                     Vec::new(),

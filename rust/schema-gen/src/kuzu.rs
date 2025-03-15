@@ -154,16 +154,17 @@ impl Schemas {
                                 .as_ref()
                                 .ok_or_eyre("type `array` should always have `items` specified")?
                             {
-                                Items::Type(items_type) => match items_type {
-                                    ItemsType { r#type } => match r#type {
+                                Items::Type(items_type) => {
+                                    let ItemsType { r#type } = items_type;
+                                    match r#type {
                                         Type::Null => "NULL[]",
                                         Type::Boolean => "BOOLEAN[]",
                                         Type::Integer => "INT64[]",
                                         Type::Number => "DOUBLE[]",
                                         Type::String => "STRING[]",
                                         _ => bail!("Unhandled items type: {type}"),
-                                    },
-                                },
+                                    }
+                                }
                                 Items::Ref(ItemsRef { r#ref: ref_type }) => {
                                     if skip_types.contains(&ref_type.as_str()) {
                                         continue;

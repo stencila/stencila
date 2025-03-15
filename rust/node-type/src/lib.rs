@@ -91,7 +91,7 @@ impl NodeType {
 
     /// Get the properties of the node type
     pub fn properties(&self) -> Vec<NodeProperty> {
-        return node_type_properties(self);
+        node_type_properties(self)
     }
 }
 
