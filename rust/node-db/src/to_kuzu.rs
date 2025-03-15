@@ -121,8 +121,10 @@ impl ToKuzu for Date {
     }
 
     fn to_kuzu_value(&self) -> Value {
-        // TODO: impl
-        todo!()
+        match self.try_into() {
+            Ok(value) => Value::Date(value),
+            Err(..) => Value::Null(Self::to_kuzu_type()),
+        }
     }
 }
 
@@ -132,8 +134,10 @@ impl ToKuzu for DateTime {
     }
 
     fn to_kuzu_value(&self) -> Value {
-        // TODO: impl
-        todo!()
+        match self.try_into() {
+            Ok(value) => Value::Timestamp(value),
+            Err(..) => Value::Null(Self::to_kuzu_type()),
+        }
     }
 }
 
@@ -143,8 +147,10 @@ impl ToKuzu for Timestamp {
     }
 
     fn to_kuzu_value(&self) -> Value {
-        // TODO: impl
-        todo!()
+        match self.try_into() {
+            Ok(value) => Value::Timestamp(value),
+            Err(..) => Value::Null(Self::to_kuzu_type()),
+        }
     }
 }
 
@@ -154,8 +160,7 @@ impl ToKuzu for Duration {
     }
 
     fn to_kuzu_value(&self) -> Value {
-        // TODO: impl
-        todo!()
+        Value::Interval(self.into())
     }
 }
 
