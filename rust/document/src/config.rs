@@ -8,7 +8,7 @@ use common::{
     eyre::Result,
     serde_yaml,
     tokio::{
-        fs::{read_to_string, write},
+        fs::{create_dir_all, read_to_string, write},
         sync::RwLock,
     },
 };
@@ -26,6 +26,11 @@ pub async fn config_file(workspace_dir: &Path, ensure: bool) -> Result<PathBuf> 
     let config_file = workspace_dir.join(STENCILA_DIR).join(CONFIG_FILE);
 
     if ensure && !config_file.exists() {
+        if let Some(dir) = config_file.parent() {
+            if !dir.exists() {
+                create_dir_all(&dir).await?
+            }
+        }
         write(&config_file, "\n").await?;
     }
 
