@@ -234,6 +234,24 @@ impl NodeDatabase {
             }
         }
 
+        /*
+        The above repeated calls to `connection.execute` is slow. It is normally recommended
+        to use batch loads. This requires creating a temporary CSV file but is only ~25% faster.
+        So for now, we don't use this approach.
+
+        fs::File, io::Write
+
+        let mut csv = File::create("temp.csv")?;
+        for (from_node_id, to_nodes) in entries {
+            for (node_id, position) in to_nodes {
+                write!(&mut csv, "{from_node_id},{node_id},{position}\n")?;
+            }
+        }
+        connection.query(&format!(
+            "COPY {node_property} FROM 'temp.csv' (from='{from_node_type}',to='{to_node_type}');"
+        ))?;
+        */
+
         Ok(())
     }
 
