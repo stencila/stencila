@@ -160,9 +160,9 @@ impl NodeDatabase {
             None => {
                 let properties = properties
                     .iter()
-                    .map(|name| [name, ": $", name].concat())
+                    .map(|name| ["`", name, "`: $", name, "_"].concat())
                     .join(", ");
-                let statement = format!("CREATE (:{node_type} {{{}}})", properties);
+                let statement = format!("CREATE (:`{node_type}` {{{}}})", properties);
 
                 let statement = connection.prepare(&statement)?;
 
@@ -175,8 +175,16 @@ impl NodeDatabase {
 
         // Execute prepared statement for each entry
         for (node_id, mut values) in entries {
-            let names = properties.iter().map(|name| name.as_str());
+            // The trailing underscore on parameter names is necessary for parameters like 'order'
+            // to prevent clashes with keywords
+            let names = properties
+                .iter()
+                .map(|name| [name, "_"].concat())
+                .collect_vec();
+            let names = names.iter().map(|name| name.as_str());
+
             values.append(&mut vec![doc_id.to_kuzu_value(), node_id.to_kuzu_value()]);
+
             let params = names.zip(values.into_iter()).collect_vec();
 
             connection
@@ -207,9 +215,9 @@ impl NodeDatabase {
             None => {
                 let statement = format!(
                     "
-                    MATCH (from:{from_node_type}), (to:{to_node_type})
+                    MATCH (from:`{from_node_type}`), (to:`{to_node_type}`)
                     WHERE from.nodeId = $from_node_id AND to.nodeId = $to_node_id
-                    CREATE (from)-[:{node_property} {{position: $position}}]->(to)
+                    CREATE (from)-[:`{node_property}` {{position: $position}}]->(to)
                     "
                 );
 
