@@ -2050,6 +2050,7 @@ dependencies = [
  "format",
  "json-patch",
  "kernels",
+ "node-db",
  "node-diagnostics",
  "node-execute",
  "node-find",
@@ -4043,6 +4044,7 @@ version = "0.0.0"
 dependencies = [
  "common",
  "derive_more",
+ "rand 0.9.0",
 ]
 
 [[package]]

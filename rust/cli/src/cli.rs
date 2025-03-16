@@ -97,11 +97,13 @@ pub enum Command {
 
     Init(document::cli::Init),
     Config(document::cli::Config),
+
+    Add(document::cli::Add),
+    Remove(document::cli::Remove),
+    Move(document::cli::Move),
     Status(document::cli::Status),
     Track(document::cli::Track),
     Untrack(document::cli::Untrack),
-    Move(document::cli::Move),
-    Remove(document::cli::Remove),
 
     Convert(convert::Cli),
     Sync(sync::Cli),
@@ -144,11 +146,13 @@ impl Cli {
 
             Command::Init(init) => init.run().await?,
             Command::Config(config) => config.run().await?,
-            Command::Status(status) => status.run().await?,
+
+            Command::Add(add) => add.run().await?,
+            Command::Remove(remove) => remove.run().await?,
+            Command::Move(mov) => mov.run().await?,
             Command::Track(track) => track.run().await?,
             Command::Untrack(untrack) => untrack.run().await?,
-            Command::Move(mov) => mov.run().await?,
-            Command::Remove(remove) => remove.run().await?,
+            Command::Status(status) => status.run().await?,
 
             Command::Convert(convert) => convert.run().await?,
             Command::Sync(sync) => sync.run().await?,

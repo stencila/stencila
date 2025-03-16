@@ -10,6 +10,11 @@ use common::{
 
 pub(super) const STENCILA_DIR: &str = ".stencila";
 
+/// Get the path of the workspace directory for a given Stencila directory
+pub fn workspace_dir(stencila_dir: &Path) -> Result<&Path> {
+    stencila_dir.parent().ok_or_eyre("No parent")
+}
+
 /// Get the path of the closest `.stencila` directory to a path
 ///
 /// If the `path` is a file then starts with the parent directory of that file.

@@ -16,14 +16,14 @@ use common::{
     eyre::{bail, Report, Result},
     futures::future::try_join_all,
     reqwest::Url,
-    tokio::fs::write,
+    tokio::fs::{create_dir_all, write},
 };
 use format::Format;
 
 use crate::{
     config::config_file,
     dirs::{closest_workspace_dir, STENCILA_DIR},
-    track::{tracking_file, DocumentRemote},
+    track::{tracking_file, db_dir, DocumentRemote},
 };
 
 use super::{track::DocumentTrackingStatus, Document};
@@ -45,21 +45,19 @@ pub struct Init {
 impl Init {
     pub async fn run(self) -> Result<()> {
         if !self.dir.exists() {
-            bail!(
-                "Workspace directory `{}` does not exist",
-                self.dir.display()
-            );
+            create_dir_all(&self.dir).await?;
         }
 
         config_file(&self.dir, true).await?;
         tracking_file(&self.dir, true).await?;
+        db_dir(&self.dir, true).await?;
 
         if self.gitignore {
             write(self.dir.join(STENCILA_DIR).join(".gitignore"), "*\n").await?;
         }
 
         eprintln!(
-            "🟢 Initialized document config and tracking in `{}`",
+            "🟢 Initialized document config and tracking for directory `{}`",
             self.dir.display()
         );
 
@@ -116,7 +114,7 @@ impl Track {
                 self.file.display()
             );
         } else {
-            let (already_tracked, ..) = Document::track_path(&self.file, None).await?;
+            let (_, already_tracked, ..) = Document::track_path(&self.file, None).await?;
             eprintln!(
                 "🟢 {} tracking `{}`",
                 if already_tracked {
@@ -151,6 +149,22 @@ impl Untrack {
             Document::untrack_path(&self.file).await?;
             eprintln!("🟥 Stopped tracking `{}`", self.file.display());
         }
+
+        Ok(())
+    }
+}
+
+/// Add a tracked document
+#[derive(Debug, Parser)]
+pub struct Add {
+    /// The path of the file
+    file: PathBuf,
+}
+
+impl Add {
+    pub async fn run(self) -> Result<()> {
+        let doc = Document::open(&self.file).await?;
+        doc.store().await?;
 
         Ok(())
     }
