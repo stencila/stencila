@@ -35,8 +35,21 @@ impl Schemas {
 
         let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../node-db/src");
 
+        // Mostly config or derived properties unlikely to be queried for
+        // so avoid bloating db with them
         let skip_props = [
-            "type", "id", "extra", "config", "text", "headings", "archive",
+            // General
+            "type",
+            "id",
+            // Articles & other creative works
+            "extra",
+            "config",
+            "text",
+            "headings",
+            "archive",
+            // Others (not excluded by skip_types below)
+            "executionInstance",
+            "mathml",
         ];
 
         let skip_types = [

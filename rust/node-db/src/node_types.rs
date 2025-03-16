@@ -80,7 +80,6 @@ impl DatabaseNode for Article {
             (NodeProperty::ExecutionCount, i64::to_kuzu_type(), self.options.execution_count.to_kuzu_value()),
             (NodeProperty::ExecutionRequired, String::to_kuzu_type(), self.options.execution_required.to_kuzu_value()),
             (NodeProperty::ExecutionStatus, String::to_kuzu_type(), self.options.execution_status.to_kuzu_value()),
-            (NodeProperty::ExecutionInstance, String::to_kuzu_type(), self.options.execution_instance.to_kuzu_value()),
             (NodeProperty::ExecutionEnded, Timestamp::to_kuzu_type(), self.options.execution_ended.to_kuzu_value()),
             (NodeProperty::ExecutionDuration, Duration::to_kuzu_type(), self.options.execution_duration.to_kuzu_value()),
             (NodeProperty::Pagination, String::to_kuzu_type(), self.options.pagination.to_kuzu_value()),
@@ -326,7 +325,6 @@ impl DatabaseNode for CodeChunk {
             (NodeProperty::ExecutionCount, i64::to_kuzu_type(), self.options.execution_count.to_kuzu_value()),
             (NodeProperty::ExecutionRequired, String::to_kuzu_type(), self.options.execution_required.to_kuzu_value()),
             (NodeProperty::ExecutionStatus, String::to_kuzu_type(), self.options.execution_status.to_kuzu_value()),
-            (NodeProperty::ExecutionInstance, String::to_kuzu_type(), self.options.execution_instance.to_kuzu_value()),
             (NodeProperty::ExecutionEnded, Timestamp::to_kuzu_type(), self.options.execution_ended.to_kuzu_value()),
             (NodeProperty::ExecutionDuration, Duration::to_kuzu_type(), self.options.execution_duration.to_kuzu_value()),
             (NodeProperty::Code, String::to_kuzu_type(), self.code.to_kuzu_value()),
@@ -365,7 +363,6 @@ impl DatabaseNode for CodeExpression {
             (NodeProperty::ExecutionCount, i64::to_kuzu_type(), self.options.execution_count.to_kuzu_value()),
             (NodeProperty::ExecutionRequired, String::to_kuzu_type(), self.options.execution_required.to_kuzu_value()),
             (NodeProperty::ExecutionStatus, String::to_kuzu_type(), self.options.execution_status.to_kuzu_value()),
-            (NodeProperty::ExecutionInstance, String::to_kuzu_type(), self.options.execution_instance.to_kuzu_value()),
             (NodeProperty::ExecutionEnded, Timestamp::to_kuzu_type(), self.options.execution_ended.to_kuzu_value()),
             (NodeProperty::ExecutionDuration, Duration::to_kuzu_type(), self.options.execution_duration.to_kuzu_value()),
             (NodeProperty::Code, String::to_kuzu_type(), self.code.to_kuzu_value()),
@@ -705,7 +702,6 @@ impl DatabaseNode for ForBlock {
             (NodeProperty::ExecutionCount, i64::to_kuzu_type(), self.options.execution_count.to_kuzu_value()),
             (NodeProperty::ExecutionRequired, String::to_kuzu_type(), self.options.execution_required.to_kuzu_value()),
             (NodeProperty::ExecutionStatus, String::to_kuzu_type(), self.options.execution_status.to_kuzu_value()),
-            (NodeProperty::ExecutionInstance, String::to_kuzu_type(), self.options.execution_instance.to_kuzu_value()),
             (NodeProperty::ExecutionEnded, Timestamp::to_kuzu_type(), self.options.execution_ended.to_kuzu_value()),
             (NodeProperty::ExecutionDuration, Duration::to_kuzu_type(), self.options.execution_duration.to_kuzu_value()),
             (NodeProperty::Code, String::to_kuzu_type(), self.code.to_kuzu_value()),
@@ -811,7 +807,6 @@ impl DatabaseNode for IfBlock {
             (NodeProperty::ExecutionCount, i64::to_kuzu_type(), self.options.execution_count.to_kuzu_value()),
             (NodeProperty::ExecutionRequired, String::to_kuzu_type(), self.options.execution_required.to_kuzu_value()),
             (NodeProperty::ExecutionStatus, String::to_kuzu_type(), self.options.execution_status.to_kuzu_value()),
-            (NodeProperty::ExecutionInstance, String::to_kuzu_type(), self.options.execution_instance.to_kuzu_value()),
             (NodeProperty::ExecutionEnded, Timestamp::to_kuzu_type(), self.options.execution_ended.to_kuzu_value()),
             (NodeProperty::ExecutionDuration, Duration::to_kuzu_type(), self.options.execution_duration.to_kuzu_value())
         ]
@@ -839,7 +834,6 @@ impl DatabaseNode for IfBlockClause {
             (NodeProperty::ExecutionCount, i64::to_kuzu_type(), self.options.execution_count.to_kuzu_value()),
             (NodeProperty::ExecutionRequired, String::to_kuzu_type(), self.options.execution_required.to_kuzu_value()),
             (NodeProperty::ExecutionStatus, String::to_kuzu_type(), self.options.execution_status.to_kuzu_value()),
-            (NodeProperty::ExecutionInstance, String::to_kuzu_type(), self.options.execution_instance.to_kuzu_value()),
             (NodeProperty::ExecutionEnded, Timestamp::to_kuzu_type(), self.options.execution_ended.to_kuzu_value()),
             (NodeProperty::ExecutionDuration, Duration::to_kuzu_type(), self.options.execution_duration.to_kuzu_value()),
             (NodeProperty::Code, String::to_kuzu_type(), self.code.to_kuzu_value()),
@@ -918,7 +912,6 @@ impl DatabaseNode for IncludeBlock {
             (NodeProperty::ExecutionCount, i64::to_kuzu_type(), self.options.execution_count.to_kuzu_value()),
             (NodeProperty::ExecutionRequired, String::to_kuzu_type(), self.options.execution_required.to_kuzu_value()),
             (NodeProperty::ExecutionStatus, String::to_kuzu_type(), self.options.execution_status.to_kuzu_value()),
-            (NodeProperty::ExecutionInstance, String::to_kuzu_type(), self.options.execution_instance.to_kuzu_value()),
             (NodeProperty::ExecutionEnded, Timestamp::to_kuzu_type(), self.options.execution_ended.to_kuzu_value()),
             (NodeProperty::ExecutionDuration, Duration::to_kuzu_type(), self.options.execution_duration.to_kuzu_value()),
             (NodeProperty::Source, String::to_kuzu_type(), self.source.to_kuzu_value()),
@@ -1022,7 +1015,6 @@ impl DatabaseNode for MathBlock {
         vec![
             (NodeProperty::Code, String::to_kuzu_type(), self.code.to_kuzu_value()),
             (NodeProperty::MathLanguage, String::to_kuzu_type(), self.math_language.to_kuzu_value()),
-            (NodeProperty::Mathml, String::to_kuzu_type(), self.options.mathml.to_kuzu_value()),
             (NodeProperty::Label, String::to_kuzu_type(), self.label.to_kuzu_value()),
             (NodeProperty::LabelAutomatically, bool::to_kuzu_type(), self.label_automatically.to_kuzu_value())
         ]
@@ -1047,8 +1039,7 @@ impl DatabaseNode for MathInline {
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::Code, String::to_kuzu_type(), self.code.to_kuzu_value()),
-            (NodeProperty::MathLanguage, String::to_kuzu_type(), self.math_language.to_kuzu_value()),
-            (NodeProperty::Mathml, String::to_kuzu_type(), self.options.mathml.to_kuzu_value())
+            (NodeProperty::MathLanguage, String::to_kuzu_type(), self.math_language.to_kuzu_value())
         ]
     }
 
@@ -1219,7 +1210,6 @@ impl DatabaseNode for Parameter {
             (NodeProperty::ExecutionCount, i64::to_kuzu_type(), self.options.execution_count.to_kuzu_value()),
             (NodeProperty::ExecutionRequired, String::to_kuzu_type(), self.options.execution_required.to_kuzu_value()),
             (NodeProperty::ExecutionStatus, String::to_kuzu_type(), self.options.execution_status.to_kuzu_value()),
-            (NodeProperty::ExecutionInstance, String::to_kuzu_type(), self.options.execution_instance.to_kuzu_value()),
             (NodeProperty::ExecutionEnded, Timestamp::to_kuzu_type(), self.options.execution_ended.to_kuzu_value()),
             (NodeProperty::ExecutionDuration, Duration::to_kuzu_type(), self.options.execution_duration.to_kuzu_value()),
             (NodeProperty::Name, String::to_kuzu_type(), self.name.to_kuzu_value()),
