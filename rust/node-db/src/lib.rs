@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, path::Path};
 
 use kuzu::{
     Connection, Database, LogicalType, PreparedStatement, QueryResult, SystemConfig, Value,
@@ -25,12 +25,17 @@ pub struct NodeDatabase {
     /// The instance of the Kuzu database
     database: Database,
 
+    /// Prepared statements for deleting a document and all its root node
+    delete_doc_statement: Option<PreparedStatement>,
+
     /// Prepared statements for creating a node
     create_node_statements: HashMap<NodeType, PreparedStatement>,
 
     /// Prepared statements for creating a relation
     create_rel_statements: HashMap<(NodeType, NodeProperty, NodeType), PreparedStatement>,
 }
+
+const EXPECT_JUST_INSERTED: &str = "should exist, just inserted";
 
 impl NodeDatabase {
     /// Create a new node database
@@ -47,6 +52,7 @@ impl NodeDatabase {
 
         Ok(Self {
             database,
+            delete_doc_statement: None,
             create_node_statements: HashMap::new(),
             create_rel_statements: HashMap::new(),
         })
@@ -57,18 +63,68 @@ impl NodeDatabase {
         NodeDatabase::new(":memory:")
     }
 
+    /// Create a new in-memory node database
+    pub fn at(path: &Path) -> Result<Self> {
+        let database = Database::new(path, SystemConfig::default())?;
+
+        Ok(Self {
+            database,
+            delete_doc_statement: None,
+            create_node_statements: HashMap::new(),
+            create_rel_statements: HashMap::new(),
+        })
+    }
+
+    /// Insert a document into the database
+    pub fn insert(&mut self, doc_id: &NodeId, node: &Node) -> Result<()> {
+        self.create_node(doc_id, node)?;
+
+        Ok(())
+    }
+
+    /// Upsert a document into the database
+    ///
+    /// If the document is already in the database it is replaced with
+    /// the new `node`.
+    pub fn upsert(&mut self, doc_id: &NodeId, node: &Node) -> Result<()> {
+        self.delete(doc_id)?;
+        self.insert(doc_id, node)?;
+
+        Ok(())
+    }
+
+    /// Delete a document from the database
+    pub fn delete(&mut self, doc_id: &NodeId) -> Result<()> {
+        let connection = Connection::new(&self.database)?;
+
+        let delete_doc = match self.delete_doc_statement.as_mut() {
+            Some(statement) => statement,
+            None => {
+                let statement = connection
+                    .prepare("MATCH (node) WHERE node.docId = $doc_id DETACH DELETE node")?;
+                self.delete_doc_statement = Some(statement);
+                self.delete_doc_statement
+                    .as_mut()
+                    .expect(EXPECT_JUST_INSERTED)
+            }
+        };
+        connection.execute(delete_doc, vec![("doc_id", doc_id.to_kuzu_value())])?;
+
+        Ok(())
+    }
+
     /// Create a node in the database
     ///
     /// Instantiates a [`DatabaseWalker`] which walks over the node and creates entries for
     /// it, and all its child nodes, in relation tables.
-    pub fn create(&mut self, node: &Node) -> Result<()> {
+    fn create_node(&mut self, doc_id: &NodeId, node: &Node) -> Result<()> {
         // Walk over the node and collect nodes and relations
         let mut walker = DatabaseWalker::default();
         walker.visit(node);
 
         // Create entries for each of the node types collected
         for (node_type, (properties, rows)) in walker.node_tables {
-            self.create_node_entries(node_type, properties, rows)?;
+            self.create_node_entries(doc_id, node_type, properties, rows)?;
         }
 
         // Create entries for each of the relations collected
@@ -84,6 +140,7 @@ impl NodeDatabase {
     /// Creates or retrieves the prepared statement for the node table and inserts each entry.
     fn create_node_entries(
         &mut self,
+        doc_id: &NodeId,
         node_type: NodeType,
         properties: Vec<(NodeProperty, LogicalType)>,
         entries: Vec<(NodeId, Vec<Value>)>,
@@ -93,7 +150,7 @@ impl NodeDatabase {
             .into_iter()
             .map(|(prop, ..)| prop.to_camel_case())
             .collect_vec();
-        properties.push("nodeId".to_string());
+        properties.append(&mut vec!["docId".to_string(), "nodeId".to_string()]);
 
         let connection = Connection::new(&self.database)?;
 
@@ -112,14 +169,14 @@ impl NodeDatabase {
                 self.create_node_statements.insert(node_type, statement);
                 self.create_node_statements
                     .get_mut(&node_type)
-                    .expect("should exist because just inserted")
+                    .expect(EXPECT_JUST_INSERTED)
             }
         };
 
         // Execute prepared statement for each entry
         for (node_id, mut values) in entries {
             let names = properties.iter().map(|name| name.as_str());
-            values.push(node_id.to_kuzu_value());
+            values.append(&mut vec![doc_id.to_kuzu_value(), node_id.to_kuzu_value()]);
             let params = names.zip(values.into_iter()).collect_vec();
 
             connection
@@ -161,7 +218,7 @@ impl NodeDatabase {
                 self.create_rel_statements.insert(key, statement);
                 self.create_rel_statements
                     .get_mut(&key)
-                    .expect("just inserted")
+                    .expect(EXPECT_JUST_INSERTED)
             }
         };
 
@@ -298,25 +355,5 @@ impl Visitor for DatabaseWalker {
     fn visit_inline(&mut self, node: &Inline) -> WalkControl {
         self.visit_database_node(node);
         WalkControl::Continue
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use schema::shortcuts::{art, p, stg, t};
-
-    use super::*;
-
-    #[test]
-    fn create_nodes() -> Result<()> {
-        let mut db = NodeDatabase::in_memory()?;
-
-        let art = art([
-            p([t("Para "), stg([t("one")]), t(".")]),
-            p([t("Para two.")]),
-        ]);
-        db.create(&art)?;
-
-        Ok(())
     }
 }

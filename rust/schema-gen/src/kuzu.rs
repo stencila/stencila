@@ -288,7 +288,7 @@ impl Schemas {
             }
 
             node_tables.push(format!(
-                "CREATE NODE TABLE IF NOT EXISTS `{title}` ({}\n  `nodeId` STRING PRIMARY KEY\n);",
+                "CREATE NODE TABLE IF NOT EXISTS `{title}` ({}\n  `docId` STRING,\n  `nodeId` STRING PRIMARY KEY\n);",
                 properties
                     .iter()
                     .map(|(name, data_type, ..)| format!("\n  `{name}` {data_type},"))
