@@ -8,48 +8,16 @@ use common::{
     eyre::Result,
     serde_yaml,
     tokio::{
-        fs::{create_dir_all, read_to_string, write},
+        fs::{read_to_string, write},
         sync::RwLock,
     },
 };
 use schema::{Article, Config, Node};
 
 use crate::{
-    dirs::{closest_stencila_dir, STENCILA_DIR},
+    dirs::{closest_config_file, CONFIG_FILE},
     Document,
 };
-
-const CONFIG_FILE: &str = "config.yaml";
-
-/// Get the path of the Stencila config file for a workspace directory
-pub async fn config_file(workspace_dir: &Path, ensure: bool) -> Result<PathBuf> {
-    let config_file = workspace_dir.join(STENCILA_DIR).join(CONFIG_FILE);
-
-    if ensure && !config_file.exists() {
-        if let Some(dir) = config_file.parent() {
-            if !dir.exists() {
-                create_dir_all(&dir).await?
-            }
-        }
-        write(&config_file, "\n").await?;
-    }
-
-    Ok(config_file)
-}
-
-/// Get the path of the closest Stencila config file for a path
-///
-/// Unless `ensure` is true, the returned path may not exist
-pub async fn closest_config_file(path: &Path, ensure: bool) -> Result<PathBuf> {
-    let stencila_dir = closest_stencila_dir(path, ensure).await?;
-    let config_file = stencila_dir.join(CONFIG_FILE);
-
-    if ensure && !config_file.exists() {
-        write(&config_file, "\n").await?;
-    }
-
-    Ok(config_file)
-}
 
 /// Read in the closest config file
 ///

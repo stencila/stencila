@@ -20,65 +20,24 @@ use common::{
     strum::Display,
     tokio::{
         self,
-        fs::{create_dir_all, read_to_string, remove_file, rename, write},
+        fs::{read_to_string, remove_file, rename, write},
     },
     tracing,
 };
 use format::Format;
 
 use crate::{
-    dirs::{closest_workspace_dir, workspace_dir, STENCILA_DIR},
+    dirs::{
+        closest_stencila_dir, stencila_docs_file, workspace_relative_path, DB_DIR, DOCS_FILE,
+        STORE_DIR,
+    },
     Document,
 };
 
-const TRACKING_FILE: &str = "docs.json";
-const STORE_DIR: &str = "store";
-const DB_DIR: &str = "db";
-
-/// Get the path of the Stencila tracking file for a workspace directory
-pub async fn tracking_file(workspace_dir: &Path, ensure: bool) -> Result<PathBuf> {
-    let tracking_file = workspace_dir.join(STENCILA_DIR).join(TRACKING_FILE);
-
-    if ensure && !tracking_file.exists() {
-        write(&tracking_file, "{}\n").await?;
-    }
-
-    Ok(tracking_file)
-}
-
-/// Get the path of the database directory for a workspace directory
-pub async fn db_dir(workspace_dir: &Path, ensure: bool) -> Result<PathBuf> {
-    let db_dir = workspace_dir.join(STENCILA_DIR).join(DB_DIR);
-
-    if ensure && !db_dir.exists() {
-        create_dir_all(&db_dir).await?;
-        node_db::NodeDatabase::new(&db_dir.to_string_lossy())?;
-    }
-
-    Ok(db_dir)
-}
-
-/// Get the path of closest tracking file to a path
-async fn closest_tracking_file(path: &Path, ensure: bool) -> Result<PathBuf> {
-    tracking_file(&closest_workspace_dir(path, ensure).await?, ensure).await
-}
-
-/// Get the closest tracking entries to a path, if any
-async fn closest_tracking_entries(path: &Path) -> Result<Option<DocumentTrackingEntries>> {
-    let tracking_file = closest_tracking_file(path, false).await?;
-    if !tracking_file.exists() {
-        return Ok(None);
-    }
-
-    let tracking_data = read_to_string(&tracking_file).await?;
-
-    Ok(Some(serde_json::from_str(&tracking_data)?))
-}
-
-/// Read the closest `.stencila` dir and entries to a path and ensure they exist
+/// Find the closest `.stencila/docs.json` file to a path and read it's entries
 ///
-/// If there is no closest tracking dir, one will be created.
-async fn read_tracking(
+/// If `ensure` is true and there is no closest `docs.json` file, one will be created.
+async fn closest_entries(
     path: &Path,
     ensure: bool,
 ) -> Result<Option<(PathBuf, DocumentTrackingEntries)>> {
@@ -91,60 +50,27 @@ async fn read_tracking(
         current_dir()?
     };
 
-    let tracking_file = closest_tracking_file(&origin_path, ensure).await?;
-    if !tracking_file.exists() {
+    let stencila_dir = closest_stencila_dir(&origin_path, ensure).await?;
+    let docs_file = stencila_docs_file(&stencila_dir, ensure).await?;
+
+    if !docs_file.exists() {
         return Ok(None);
     }
-    let stencila_dir = tracking_file
-        .parent()
-        .ok_or_eyre("no parent")?
-        .to_path_buf();
 
-    let tracking_data = read_to_string(&tracking_file).await?;
-    let entries = serde_json::from_str(&tracking_data).unwrap_or_default();
+    let json = read_to_string(&docs_file).await?;
+    let entries = serde_json::from_str(&json)?;
 
     Ok(Some((stencila_dir, entries)))
 }
 
-/// Write tracking entries to the tracking file in a tracking directory
-async fn write_tracking(
-    stencila_dir: &Path,
-    tracking_entries: &DocumentTrackingEntries,
-) -> Result<()> {
-    let tracking_file = stencila_dir.join(TRACKING_FILE);
-    let json = serde_json::to_string_pretty(tracking_entries)?;
+/// Write document tracking entries to the `docs.json` file in a `.stencila` directory
+async fn write_entries(stencila_dir: &Path, entries: &DocumentTrackingEntries) -> Result<()> {
+    let tracking_file = stencila_dir.join(DOCS_FILE);
+
+    let json = serde_json::to_string_pretty(entries)?;
     write(&tracking_file, json).await?;
 
     Ok(())
-}
-
-/// Make a path relative to the workspace directory of a tracking directory
-fn workspace_relative_path(
-    stencila_dir: &Path,
-    doc_path: &Path,
-    must_exist: bool,
-) -> Result<PathBuf> {
-    let workspace_dir = workspace_dir(stencila_dir)?.canonicalize()?;
-
-    let relative_path = match doc_path.canonicalize() {
-        // The document exists so make relative to the working directory
-        Ok(doc_path) => match doc_path.strip_prefix(workspace_dir) {
-            Ok(path) => path.to_path_buf(),
-            Err(..) => bail!(
-                "Path is not in the workspace being tracked: {}",
-                doc_path.display()
-            ),
-        },
-        // The document does not exist
-        Err(..) => {
-            if must_exist {
-                bail!("File does not exist: {}", doc_path.display())
-            }
-            doc_path.to_path_buf()
-        }
-    };
-
-    Ok(relative_path)
 }
 
 /// Create a new document id
@@ -335,12 +261,13 @@ impl Document {
     }
 
     /// Store the document in the workspace's `.stencila` directory
+    #[tracing::instrument(skip(self))]
     pub async fn store(&self) -> Result<()> {
         let Some(path) = &self.path else {
             bail!("Can't store document, it has no path yet; save it first")
         };
 
-        // Get the storage path for the document, ensuring it is tracked
+        // Get the storage and database paths for the document, ensuring both exist
         let (doc_id, .., store_path, db_path) =
             Document::track_path(path, Some(time_now())).await?;
 
@@ -364,6 +291,7 @@ impl Document {
     }
 
     /// Restore a document from the workspace's `.stencila` directory
+    #[tracing::instrument]
     pub fn restore(path: &Path) -> Result<Node> {
         // Get the storage path for the document
         // Currently, this function needs to be sync because of where is is called from
@@ -384,10 +312,10 @@ impl Document {
     ///
     /// Starts tracking the path by saving the document at the
     /// path to `.stencila/store/<ID>.json` and adding an entry
-    /// to the tracking file at `.stencila/docs.json`.
+    /// to the `.stencila/docs.json` file.
     ///
     /// If the path is already being tracked (i.e. it has an entry
-    /// in the tracking file) returns true, otherwise false.
+    /// in the `docs.json` file) returns true, otherwise false.
     #[tracing::instrument]
     pub async fn track_path(
         path: &Path,
@@ -401,7 +329,7 @@ impl Document {
             bail!("File format is not supported: {}", path.display())
         }
 
-        let (stencila_dir, mut entries) = read_tracking(path, true)
+        let (stencila_dir, mut entries) = closest_entries(path, true)
             .await?
             .ok_or_eyre("no tracking file despite ensure")?;
 
@@ -418,7 +346,7 @@ impl Document {
             if stored_at.is_some() {
                 entry.stored_at = stored_at;
             }
-            write_tracking(&stencila_dir, &entries).await?;
+            write_entries(&stencila_dir, &entries).await?;
 
             Ok((id, true, store_path, db_path))
         } else {
@@ -434,7 +362,7 @@ impl Document {
             let store_path = store_dir.join(entry.store_file());
 
             entries.insert(relative_path, entry);
-            write_tracking(&stencila_dir, &entries).await?;
+            write_entries(&stencila_dir, &entries).await?;
 
             Ok((id, false, store_path, db_path))
         }
@@ -460,7 +388,7 @@ impl Document {
             bail!("File format is not supported: {}", path.display())
         }
 
-        let (stencila_dir, mut entries) = read_tracking(path, true)
+        let (stencila_dir, mut entries) = closest_entries(path, true)
             .await?
             .ok_or_eyre("no tracking file despite ensure")?;
         let relative_path = workspace_relative_path(&stencila_dir, path, true)?;
@@ -502,7 +430,7 @@ impl Document {
                 remotes,
                 ..Default::default()
             });
-        write_tracking(&stencila_dir, &entries).await?;
+        write_entries(&stencila_dir, &entries).await?;
 
         Ok(already_tracked)
     }
@@ -531,7 +459,7 @@ impl Document {
     /// Gives a warning if the path is not being tracked.
     #[tracing::instrument]
     pub async fn untrack_path(path: &Path) -> Result<()> {
-        let Some((stencila_dir, mut entries)) = read_tracking(path, false).await? else {
+        let Some((stencila_dir, mut entries)) = closest_entries(path, false).await? else {
             tracing::warn!("Path is not being tracked: {}", path.display());
             return Ok(());
         };
@@ -554,7 +482,7 @@ impl Document {
             }
 
             // Update tracking file
-            write_tracking(&stencila_dir, &entries).await?;
+            write_entries(&stencila_dir, &entries).await?;
         } else {
             tracing::warn!("Path is not being tracked: {}", path.display());
         }
@@ -570,7 +498,7 @@ impl Document {
     /// Gives a warning if the path, or the remote, is not being tracked.
     #[tracing::instrument]
     pub async fn untrack_remote(path: &Path, remote: &Url) -> Result<()> {
-        let Some((stencila_dir, mut entries)) = read_tracking(path, false).await? else {
+        let Some((stencila_dir, mut entries)) = closest_entries(path, false).await? else {
             tracing::warn!("Path is not being tracked: {}", path.display());
             return Ok(());
         };
@@ -597,7 +525,7 @@ impl Document {
         }
 
         // Update tracking file
-        write_tracking(&stencila_dir, &entries).await?;
+        write_entries(&stencila_dir, &entries).await?;
 
         Ok(())
     }
@@ -665,7 +593,7 @@ impl Document {
     ///
     /// Returns the path of the store directory and the tracking info for the document if any.
     pub async fn tracking_path(path: &Path) -> Result<Option<(PathBuf, Option<DocumentTracking>)>> {
-        let Some((stencila_dir, mut entries)) = read_tracking(path, false).await? else {
+        let Some((stencila_dir, mut entries)) = closest_entries(path, false).await? else {
             return Ok(None);
         };
 
@@ -687,7 +615,9 @@ impl Document {
     /// Finds the closest `.stencila` directory to the path (be it a file or directory),
     /// reads the tracking file, if any, and returns a vector tracking information
     pub async fn tracking_all(path: &Path) -> Result<Option<DocumentTrackingEntries>> {
-        closest_tracking_entries(path).await
+        Ok(closest_entries(path, false)
+            .await?
+            .map(|(.., entries)| entries))
     }
 
     /// Returns a list of tracked remotes for a document

@@ -7,6 +7,7 @@ use kuzu::{
 use common::{
     eyre::{Context, Result, eyre},
     itertools::Itertools,
+    tracing,
 };
 use schema::{Block, Inline, Node, NodeId, NodeProperty, NodeType, Visitor, WalkControl};
 
@@ -76,6 +77,7 @@ impl NodeDatabase {
     }
 
     /// Insert a document into the database
+    #[tracing::instrument(skip(self, node))]
     pub fn insert(&mut self, doc_id: &NodeId, node: &Node) -> Result<()> {
         self.create_node(doc_id, node)?;
 
@@ -86,6 +88,7 @@ impl NodeDatabase {
     ///
     /// If the document is already in the database it is replaced with
     /// the new `node`.
+    #[tracing::instrument(skip(self, node))]
     pub fn upsert(&mut self, doc_id: &NodeId, node: &Node) -> Result<()> {
         self.delete(doc_id)?;
         self.insert(doc_id, node)?;
@@ -94,6 +97,7 @@ impl NodeDatabase {
     }
 
     /// Delete a document from the database
+    #[tracing::instrument(skip(self))]
     pub fn delete(&mut self, doc_id: &NodeId) -> Result<()> {
         let connection = Connection::new(&self.database)?;
 
@@ -117,6 +121,7 @@ impl NodeDatabase {
     ///
     /// Instantiates a [`DatabaseWalker`] which walks over the node and creates entries for
     /// it, and all its child nodes, in relation tables.
+    #[tracing::instrument(skip(self, node))]
     fn create_node(&mut self, doc_id: &NodeId, node: &Node) -> Result<()> {
         // Walk over the node and collect nodes and relations
         let mut walker = DatabaseWalker::default();
@@ -138,6 +143,7 @@ impl NodeDatabase {
     /// Create entries in a node table
     ///
     /// Creates or retrieves the prepared statement for the node table and inserts each entry.
+    #[tracing::instrument(skip(self, properties, entries))]
     fn create_node_entries(
         &mut self,
         doc_id: &NodeId,
@@ -199,6 +205,7 @@ impl NodeDatabase {
     ///
     /// Creates or retrieves the prepared statement for the relation table and inserts each entry.
     /// Each relation includes the 1-based position of the relation.
+    #[tracing::instrument(skip(self, entries))]
     fn create_rel_entries(
         &mut self,
         from_node_type: NodeType,

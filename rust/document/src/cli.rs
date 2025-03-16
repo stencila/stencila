@@ -16,14 +16,14 @@ use common::{
     eyre::{bail, Report, Result},
     futures::future::try_join_all,
     reqwest::Url,
-    tokio::fs::{create_dir_all, write},
+    tokio::fs::create_dir_all,
+    tracing,
 };
 use format::Format;
 
 use crate::{
-    config::config_file,
-    dirs::{closest_workspace_dir, STENCILA_DIR},
-    track::{tracking_file, db_dir, DocumentRemote},
+    dirs::{closest_workspace_dir, stencila_dir_create, CreateStencilaDirOptions, STENCILA_DIR},
+    track::DocumentRemote,
 };
 
 use super::{track::DocumentTrackingStatus, Document};
@@ -37,24 +37,26 @@ pub struct Init {
     #[arg(default_value = ".")]
     dir: PathBuf,
 
-    /// Create a `.gitignore` file
+    /// Do not create a `.gitignore` file
     #[arg(long)]
-    gitignore: bool,
+    no_gitignore: bool,
 }
 
 impl Init {
+    #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         if !self.dir.exists() {
             create_dir_all(&self.dir).await?;
         }
 
-        config_file(&self.dir, true).await?;
-        tracking_file(&self.dir, true).await?;
-        db_dir(&self.dir, true).await?;
-
-        if self.gitignore {
-            write(self.dir.join(STENCILA_DIR).join(".gitignore"), "*\n").await?;
-        }
+        stencila_dir_create(
+            &self.dir.join(STENCILA_DIR),
+            CreateStencilaDirOptions {
+                gitignore_file: !self.no_gitignore,
+                ..Default::default()
+            },
+        )
+        .await?;
 
         eprintln!(
             "🟢 Initialized document config and tracking for directory `{}`",
@@ -73,6 +75,7 @@ pub struct Config {
 }
 
 impl Config {
+    #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         let doc = Document::open(&self.file).await?;
 
@@ -99,6 +102,7 @@ pub struct Track {
 }
 
 impl Track {
+    #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         if let Some(url) = self.url {
             let already_tracked =
@@ -141,6 +145,7 @@ pub struct Untrack {
 }
 
 impl Untrack {
+    #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         if let Some(url) = self.url {
             Document::untrack_remote(&self.file, &url).await?;
@@ -154,7 +159,9 @@ impl Untrack {
     }
 }
 
-/// Add a tracked document
+/// Add documents to the workspace database
+///
+/// Requires that the workspace has been initialized already using `stencila init`.
 #[derive(Debug, Parser)]
 pub struct Add {
     /// The path of the file
@@ -162,6 +169,7 @@ pub struct Add {
 }
 
 impl Add {
+    #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         let doc = Document::open(&self.file).await?;
         doc.store().await?;
@@ -189,6 +197,7 @@ pub struct Move {
 }
 
 impl Move {
+    #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         if self.to.exists()
             && !self.force
@@ -217,6 +226,7 @@ pub struct Remove {
 }
 
 impl Remove {
+    #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         if self.file.exists()
             && !self.force
@@ -244,6 +254,7 @@ pub struct Status {
 }
 
 impl Status {
+    #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         let statuses = if self.files.is_empty() {
             // No paths provided, so get statuses from tracking dir
