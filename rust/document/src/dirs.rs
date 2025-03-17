@@ -100,8 +100,7 @@ pub async fn stencila_db_dir(stencila_dir: &Path, ensure: bool) -> Result<PathBu
     let db_dir = stencila_dir.join(DB_DIR);
 
     if ensure && !db_dir.exists() {
-        create_dir_all(&db_dir).await?;
-        node_db::NodeDatabase::new(&db_dir.to_string_lossy())?;
+        node_db::NodeDatabase::new(&db_dir)?;
     }
 
     Ok(db_dir)

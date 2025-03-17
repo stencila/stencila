@@ -1,11 +1,16 @@
-use std::{collections::HashMap, io::Write, path::Path};
+use std::{
+    collections::HashMap,
+    fs::remove_dir_all,
+    io::Write,
+    path::{Path, PathBuf},
+};
 
 use kuzu::{
     Connection, Database, LogicalType, PreparedStatement, QueryResult, SystemConfig, Value,
 };
 
 use common::{
-    eyre::{Context, Result, eyre},
+    eyre::{Context, Report, Result, eyre},
     itertools::Itertools,
     tempfile::NamedTempFile,
     tracing,
@@ -50,12 +55,31 @@ impl NodeDatabase {
     ///
     /// Note that `path` should be a directory (not a file) and will be created if it
     /// does not yet exist.
-    pub fn new(path: &str) -> Result<Self> {
+    pub fn new(path: &Path) -> Result<Self> {
+        let exists = path.exists();
+
         let database = Database::new(path, SystemConfig::default())?;
 
-        {
-            let connection = Connection::new(&database)?;
-            connection.query(include_str!("schema.kuzu"))?;
+        if !exists {
+            let create = || {
+                let connection = Connection::new(&database)?;
+                let schema = include_str!("schema.kuzu");
+                for statement in schema.split(";") {
+                    if statement.starts_with("//") || statement.trim().is_empty() {
+                        continue;
+                    }
+                    connection.query(statement)?;
+                }
+                Ok::<(), Report>(())
+            };
+            if let Err(error) = create() {
+                // If there is any error in creating the database then remove it so that
+                // it is not in a corrupted/partial state
+                drop(database);
+                remove_dir_all(path)?;
+
+                return Err(error);
+            }
         }
 
         Ok(Self {
@@ -68,19 +92,7 @@ impl NodeDatabase {
 
     /// Create a new in-memory node database
     pub fn in_memory() -> Result<Self> {
-        NodeDatabase::new(":memory:")
-    }
-
-    /// Create a new in-memory node database
-    pub fn at(path: &Path) -> Result<Self> {
-        let database = Database::new(path, SystemConfig::default())?;
-
-        Ok(Self {
-            database,
-            delete_doc_statement: None,
-            create_node_statements: HashMap::new(),
-            create_rel_statements: HashMap::new(),
-        })
+        NodeDatabase::new(&PathBuf::from(":memory:"))
     }
 
     /// Insert a document into the database

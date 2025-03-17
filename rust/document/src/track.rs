@@ -284,7 +284,7 @@ impl Document {
         )?;
 
         // Update the document in the database
-        let mut db = NodeDatabase::at(&db_path)?;
+        let mut db = NodeDatabase::new(&db_path)?;
         db.upsert(&doc_id, &root)?;
 
         Ok(())
