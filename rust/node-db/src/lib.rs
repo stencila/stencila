@@ -1,4 +1,4 @@
-use std::{collections::HashMap, path::Path};
+use std::{collections::HashMap, io::Write, path::Path};
 
 use kuzu::{
     Connection, Database, LogicalType, PreparedStatement, QueryResult, SystemConfig, Value,
@@ -7,9 +7,13 @@ use kuzu::{
 use common::{
     eyre::{Context, Result, eyre},
     itertools::Itertools,
+    tempfile::NamedTempFile,
     tracing,
 };
-use schema::{Block, Inline, Node, NodeId, NodeProperty, NodeType, Visitor, WalkControl};
+use schema::{
+    Block, Inline, ListItem, Node, NodeId, NodeProperty, NodeType, TableCell, TableRow, Visitor,
+    WalkControl,
+};
 
 #[rustfmt::skip]
 mod node_types;
@@ -35,6 +39,9 @@ pub struct NodeDatabase {
     /// Prepared statements for creating a relation
     create_rel_statements: HashMap<(NodeType, NodeProperty, NodeType), PreparedStatement>,
 }
+
+// The number of entries, above which `COPY FROM` CSV file should be used
+const USE_CSV_COUNT: usize = 5;
 
 const EXPECT_JUST_INSERTED: &str = "should exist, just inserted";
 
@@ -151,51 +158,67 @@ impl NodeDatabase {
         properties: Vec<(NodeProperty, LogicalType)>,
         entries: Vec<(NodeId, Vec<Value>)>,
     ) -> Result<()> {
-        // Get node table properties and add additional properties
-        let mut properties = properties
-            .into_iter()
-            .map(|(prop, ..)| prop.to_camel_case())
-            .collect_vec();
-        properties.append(&mut vec!["docId".to_string(), "nodeId".to_string()]);
-
         let connection = Connection::new(&self.database)?;
 
-        // Get, or prepare, `CREATE` statement
-        let statement = match self.create_node_statements.get_mut(&node_type) {
-            Some(statement) => statement,
-            None => {
-                let properties = properties
-                    .iter()
-                    .map(|name| ["`", name, "`: $", name, "_"].concat())
-                    .join(", ");
-                let statement = format!("CREATE (:`{node_type}` {{{}}})", properties);
-
-                let statement = connection.prepare(&statement)?;
-
-                self.create_node_statements.insert(node_type, statement);
-                self.create_node_statements
-                    .get_mut(&node_type)
-                    .expect(EXPECT_JUST_INSERTED)
-            }
-        };
-
-        // Execute prepared statement for each entry
-        for (node_id, mut values) in entries {
-            // The trailing underscore on parameter names is necessary for parameters like 'order'
-            // to prevent clashes with keywords
-            let names = properties
-                .iter()
-                .map(|name| [name, "_"].concat())
+        if entries.len() < USE_CSV_COUNT {
+            // Get node table properties and add additional properties
+            let mut properties = properties
+                .into_iter()
+                .map(|(prop, ..)| prop.to_camel_case())
                 .collect_vec();
-            let names = names.iter().map(|name| name.as_str());
+            properties.append(&mut vec!["docId".to_string(), "nodeId".to_string()]);
 
-            values.append(&mut vec![doc_id.to_kuzu_value(), node_id.to_kuzu_value()]);
+            // Get, or prepare, `CREATE` statement
+            let statement = match self.create_node_statements.get_mut(&node_type) {
+                Some(statement) => statement,
+                None => {
+                    let properties = properties
+                        .iter()
+                        .map(|name| ["`", name, "`: $", name, "_"].concat())
+                        .join(", ");
+                    let statement = format!("CREATE (:`{node_type}` {{{}}})", properties);
 
-            let params = names.zip(values.into_iter()).collect_vec();
+                    let statement = connection.prepare(&statement)?;
 
-            connection
-                .execute(statement, params)
-                .wrap_err_with(|| eyre!("Unable to create node entry for `{node_type}`"))?;
+                    self.create_node_statements.insert(node_type, statement);
+                    self.create_node_statements
+                        .get_mut(&node_type)
+                        .expect(EXPECT_JUST_INSERTED)
+                }
+            };
+
+            // Execute prepared statement for each entry
+            for (node_id, mut values) in entries {
+                // The trailing underscore on parameter names is necessary for parameters like 'order'
+                // to prevent clashes with keywords
+                let names = properties
+                    .iter()
+                    .map(|name| [name, "_"].concat())
+                    .collect_vec();
+                let names = names.iter().map(|name| name.as_str());
+
+                values.append(&mut vec![doc_id.to_kuzu_value(), node_id.to_kuzu_value()]);
+
+                let params = names.zip(values.into_iter()).collect_vec();
+
+                connection
+                    .execute(statement, params)
+                    .wrap_err_with(|| eyre!("Unable to create node entry for `{node_type}`"))?;
+            }
+        } else {
+            let mut csv = NamedTempFile::new()?;
+            for (node_id, values) in entries {
+                for value in values {
+                    let field = escape_csv_field(value.to_string());
+                    write!(&mut csv, "{field},")?;
+                }
+                writeln!(&mut csv, "{doc_id},{node_id}")?;
+            }
+
+            let filename = csv.path().to_string_lossy();
+            connection.query(&format!(
+                "COPY `{node_type}` FROM '{filename}' (file_format='csv', auto_detect=false);"
+            ))?;
         }
 
         Ok(())
@@ -214,58 +237,55 @@ impl NodeDatabase {
         entries: Vec<(NodeId, Vec<(NodeId, usize)>)>,
     ) -> Result<()> {
         let connection = Connection::new(&self.database)?;
+        let relation = node_property.to_camel_case();
 
-        // Get, or prepare, `MATCH ... CREATE` statement
-        let key = (from_node_type, node_property, to_node_type);
-        let statement = match self.create_rel_statements.get_mut(&key) {
-            Some(statement) => statement,
-            None => {
-                let statement = format!(
-                    "
+        if entries.len() < USE_CSV_COUNT {
+            // Get, or prepare, `MATCH ... CREATE` statement
+            let key = (from_node_type, node_property, to_node_type);
+            let statement = match self.create_rel_statements.get_mut(&key) {
+                Some(statement) => statement,
+                None => {
+                    let statement = format!(
+                        "
                     MATCH (from:`{from_node_type}`), (to:`{to_node_type}`)
                     WHERE from.nodeId = $from_node_id AND to.nodeId = $to_node_id
-                    CREATE (from)-[:`{node_property}` {{position: $position}}]->(to)
+                    CREATE (from)-[:`{relation}` {{position: $position}}]->(to)
                     "
-                );
+                    );
 
-                let statement = connection.prepare(&statement)?;
+                    let statement = connection.prepare(&statement)?;
 
-                self.create_rel_statements.insert(key, statement);
-                self.create_rel_statements
-                    .get_mut(&key)
-                    .expect(EXPECT_JUST_INSERTED)
+                    self.create_rel_statements.insert(key, statement);
+                    self.create_rel_statements
+                        .get_mut(&key)
+                        .expect(EXPECT_JUST_INSERTED)
+                }
+            };
+
+            // Execute prepared statement for each entry
+            for (from_node_id, to_nodes) in entries {
+                for (node_id, position) in to_nodes {
+                    let params = vec![
+                        ("from_node_id", from_node_id.to_kuzu_value()),
+                        ("to_node_id", node_id.to_kuzu_value()),
+                        ("position", position.to_kuzu_value()),
+                    ];
+                    connection.execute(statement, params)?;
+                }
             }
-        };
-
-        // Execute prepared statement for each entry
-        for (from_node_id, to_nodes) in entries {
-            for (node_id, position) in to_nodes {
-                let params = vec![
-                    ("from_node_id", from_node_id.to_kuzu_value()),
-                    ("to_node_id", node_id.to_kuzu_value()),
-                    ("position", position.to_kuzu_value()),
-                ];
-                connection.execute(statement, params)?;
+        } else {
+            let mut csv = NamedTempFile::new()?;
+            for (from_node_id, to_nodes) in entries {
+                for (node_id, position) in to_nodes {
+                    writeln!(&mut csv, "{from_node_id},{node_id},{position}")?;
+                }
             }
+
+            let filename = csv.path().to_string_lossy();
+            connection.query(&format!(
+                "COPY `{relation}` FROM '{filename}' (from='{from_node_type}',to='{to_node_type}', file_format='csv', auto_detect=false);"
+            ))?;
         }
-
-        /*
-        The above repeated calls to `connection.execute` is slow. It is normally recommended
-        to use batch loads. This requires creating a temporary CSV file but is only ~25% faster.
-        So for now, we don't use this approach.
-
-        fs::File, io::Write
-
-        let mut csv = File::create("temp.csv")?;
-        for (from_node_id, to_nodes) in entries {
-            for (node_id, position) in to_nodes {
-                write!(&mut csv, "{from_node_id},{node_id},{position}\n")?;
-            }
-        }
-        connection.query(&format!(
-            "COPY {node_property} FROM 'temp.csv' (from='{from_node_type}',to='{to_node_type}');"
-        ))?;
-        */
 
         Ok(())
     }
@@ -277,6 +297,15 @@ impl NodeDatabase {
         let result = connection.query(cypher)?;
 
         Ok(result)
+    }
+}
+
+fn escape_csv_field(field: String) -> String {
+    if field.contains(',') || field.contains('\n') || field.contains('"') {
+        let escaped = field.replace("\"", "\"\"").replace("\n", "\\n");
+        format!("\"{}\"", escaped)
+    } else {
+        field
     }
 }
 
@@ -381,6 +410,21 @@ impl Visitor for DatabaseWalker {
     }
 
     fn visit_block(&mut self, node: &Block) -> WalkControl {
+        self.visit_database_node(node);
+        WalkControl::Continue
+    }
+
+    fn visit_list_item(&mut self, node: &ListItem) -> WalkControl {
+        self.visit_database_node(node);
+        WalkControl::Continue
+    }
+
+    fn visit_table_row(&mut self, node: &TableRow) -> WalkControl {
+        self.visit_database_node(node);
+        WalkControl::Continue
+    }
+
+    fn visit_table_cell(&mut self, node: &TableCell) -> WalkControl {
         self.visit_database_node(node);
         WalkControl::Continue
     }
