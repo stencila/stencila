@@ -1,7 +1,4 @@
-// Generated file, do not edit. See the Rust `schema-gen` crate.
-
-INSTALL FTS;
-LOAD EXTENSION FTS;
+// Generated file, do not edit. See the Rust `schema-gen` crate;
 
 CREATE NODE TABLE IF NOT EXISTS `Admonition` (
   `admonitionType` STRING,
@@ -120,8 +117,6 @@ CREATE NODE TABLE IF NOT EXISTS `CodeBlock` (
   `nodeId` STRING PRIMARY KEY
 );
 
-CALL CREATE_FTS_INDEX('CodeBlock', 'code', ['code']);
-
 CREATE NODE TABLE IF NOT EXISTS `CodeChunk` (
   `executionMode` STRING,
   `executionCount` INT64,
@@ -143,8 +138,6 @@ CREATE NODE TABLE IF NOT EXISTS `CodeChunk` (
   `nodeId` STRING PRIMARY KEY
 );
 
-CALL CREATE_FTS_INDEX('CodeChunk', 'code', ['code']);
-
 CREATE NODE TABLE IF NOT EXISTS `CodeExpression` (
   `executionMode` STRING,
   `executionCount` INT64,
@@ -160,16 +153,12 @@ CREATE NODE TABLE IF NOT EXISTS `CodeExpression` (
   `nodeId` STRING PRIMARY KEY
 );
 
-CALL CREATE_FTS_INDEX('CodeExpression', 'code', ['code']);
-
 CREATE NODE TABLE IF NOT EXISTS `CodeInline` (
   `code` STRING,
   `programmingLanguage` STRING,
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY
 );
-
-CALL CREATE_FTS_INDEX('CodeInline', 'code', ['code']);
 
 CREATE NODE TABLE IF NOT EXISTS `Collection` (
   `alternateNames` STRING[],
@@ -416,16 +405,12 @@ CREATE NODE TABLE IF NOT EXISTS `MathBlock` (
   `nodeId` STRING PRIMARY KEY
 );
 
-CALL CREATE_FTS_INDEX('MathBlock', 'code', ['code']);
-
 CREATE NODE TABLE IF NOT EXISTS `MathInline` (
   `code` STRING,
   `mathLanguage` STRING,
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY
 );
-
-CALL CREATE_FTS_INDEX('MathInline', 'code', ['code']);
 
 CREATE NODE TABLE IF NOT EXISTS `MediaObject` (
   `alternateNames` STRING[],
@@ -479,8 +464,6 @@ CREATE NODE TABLE IF NOT EXISTS `Paragraph` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY
 );
-
-CALL CREATE_FTS_INDEX('Paragraph', 'text', ['text']);
 
 CREATE NODE TABLE IF NOT EXISTS `Parameter` (
   `executionMode` STRING,
@@ -621,8 +604,6 @@ CREATE NODE TABLE IF NOT EXISTS `RawBlock` (
   `nodeId` STRING PRIMARY KEY
 );
 
-CALL CREATE_FTS_INDEX('RawBlock', 'content', ['content']);
-
 CREATE NODE TABLE IF NOT EXISTS `Review` (
   `alternateNames` STRING[],
   `description` STRING,
@@ -752,8 +733,6 @@ CREATE NODE TABLE IF NOT EXISTS `TableCell` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY
 );
-
-CALL CREATE_FTS_INDEX('TableCell', 'text', ['text']);
 
 CREATE NODE TABLE IF NOT EXISTS `TableRow` (
   `rowType` STRING,

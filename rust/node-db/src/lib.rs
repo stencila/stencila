@@ -5,6 +5,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use fts_indices::FTS_INDICES;
 use kuzu::{
     Connection, Database, LogicalType, PreparedStatement, QueryResult, SystemConfig, Value,
 };
@@ -22,6 +23,8 @@ use schema::{
 
 #[rustfmt::skip]
 mod node_types;
+#[rustfmt::skip]
+mod fts_indices;
 mod to_kuzu;
 
 use to_kuzu::ToKuzu;
@@ -100,8 +103,11 @@ impl NodeDatabase {
 
     /// Insert a document into the database
     #[tracing::instrument(skip(self, node))]
-    pub fn insert(&mut self, doc_id: &NodeId, node: &Node) -> Result<()> {
+    pub fn insert(&mut self, doc_id: &NodeId, node: &Node, update: bool) -> Result<()> {
         self.create_node(doc_id, node)?;
+        if update {
+            self.update()?;
+        }
 
         Ok(())
     }
@@ -111,30 +117,44 @@ impl NodeDatabase {
     /// If the document is already in the database it is replaced with
     /// the new `node`.
     #[tracing::instrument(skip(self, node))]
-    pub fn upsert(&mut self, doc_id: &NodeId, node: &Node) -> Result<()> {
-        self.delete(doc_id)?;
-        self.insert(doc_id, node)?;
+    pub fn upsert(&mut self, doc_id: &NodeId, node: &Node, update: bool) -> Result<()> {
+        self.delete(&[doc_id])?;
+        self.insert(doc_id, node, update)?;
 
         Ok(())
     }
 
     /// Delete a document from the database
     #[tracing::instrument(skip(self))]
-    pub fn delete(&mut self, doc_id: &NodeId) -> Result<()> {
+    pub fn delete(&mut self, doc_ids: &[&NodeId]) -> Result<()> {
         let connection = Connection::new(&self.database)?;
 
         let delete_doc = match self.delete_doc_statement.as_mut() {
             Some(statement) => statement,
             None => {
                 let statement = connection
-                    .prepare("MATCH (node) WHERE node.docId = $doc_id DETACH DELETE node")?;
+                    .prepare("MATCH (node) WHERE node.docId IN $doc_ids DETACH DELETE node")?;
                 self.delete_doc_statement = Some(statement);
                 self.delete_doc_statement
                     .as_mut()
                     .expect(EXPECT_JUST_INSERTED)
             }
         };
-        connection.execute(delete_doc, vec![("doc_id", doc_id.to_kuzu_value())])?;
+
+        let doc_ids = doc_ids
+            .iter()
+            .map(|&doc_id| doc_id.clone())
+            .collect_vec()
+            .to_kuzu_value();
+        connection.execute(delete_doc, vec![("doc_ids", doc_ids)])?;
+
+        Ok(())
+    }
+
+    /// Update database indices
+    #[tracing::instrument(skip(self))]
+    pub fn update(&self) -> Result<()> {
+        self.create_fts_indices()?;
 
         Ok(())
     }
@@ -302,6 +322,30 @@ impl NodeDatabase {
             let filename = csv.path().to_string_lossy();
             connection.query(&format!(
                 "COPY `{relation}` FROM '{filename}' (from='{from_node_type}',to='{to_node_type}', file_format='csv', auto_detect=false);"
+            ))?;
+        }
+
+        Ok(())
+    }
+
+    /// Create FTS indices
+    #[tracing::instrument(skip(self))]
+    pub fn create_fts_indices(&self) -> Result<()> {
+        let connection = Connection::new(&self.database)?;
+
+        connection.query("LOAD EXTENSION FTS;")?;
+
+        for (table, properties) in FTS_INDICES {
+            connection
+                .query(&format!("CALL DROP_FTS_INDEX('{table}', 'fts');"))
+                .ok();
+
+            connection.query(&format!(
+                "CALL CREATE_FTS_INDEX('{table}', 'fts', [{}]);",
+                properties
+                    .iter()
+                    .map(|name| ["'", name, "'"].concat())
+                    .join(",")
             ))?;
         }
 

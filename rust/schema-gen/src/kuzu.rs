@@ -1,7 +1,4 @@
-use std::{
-    collections::{BTreeMap, HashMap},
-    path::PathBuf,
-};
+use std::{collections::BTreeMap, path::PathBuf};
 
 use common::{
     eyre::{bail, OptionExt, Result},
@@ -141,18 +138,26 @@ impl Schemas {
         // representation of the node to be used in FTS and semantic search
         let add_text = ["Paragraph", "TableCell"];
 
-        // Full text search index definitions for each node type
-        let fts_indices = HashMap::from([
-            ("CodeBlock", [("code", vec!["code"])]),
-            ("CodeChunk", [("code", vec!["code"])]),
-            ("CodeExpression", [("code", vec!["code"])]),
-            ("CodeInline", [("code", vec!["code"])]),
-            ("MathBlock", [("code", vec!["code"])]),
-            ("MathInline", [("code", vec!["code"])]),
-            ("RawBlock", [("content", vec!["content"])]),
-            ("Paragraph", [("text", vec!["text"])]),
-            ("TableCell", [("text", vec!["text"])]),
-        ]);
+        write(
+            dir.join("fts_indices.rs"),
+            format!(
+                r#"// Generated file, do not edit. See the Rust `schema-gen` crate.
+
+pub const FTS_INDICES: &[(&str, &[&str])] = &[
+    ("CodeBlock",      &["code"]),
+    ("CodeChunk",      &["code"]),
+    ("CodeExpression", &["code"]),
+    ("CodeInline",     &["code"]),
+    ("MathBlock",      &["code"]),
+    ("MathInline",     &["code"]),
+    ("RawBlock",       &["content"]),
+    ("Paragraph",      &["text"]),
+    ("TableCell",      &["text"]),
+];
+"#
+            ),
+        )
+        .await?;
 
         let mut node_tables = Vec::new();
         let mut one_to_many = BTreeMap::new();
@@ -339,18 +344,6 @@ impl Schemas {
                     .join("")
             ));
 
-            if let Some(indexes) = fts_indices.get(&title.as_str()) {
-                for (name, fields) in indexes {
-                    node_tables.push(format!(
-                        "CALL CREATE_FTS_INDEX('{title}', '{name}', [{}]);",
-                        fields
-                            .iter()
-                            .map(|field| ["'", field, "'"].concat())
-                            .join(", ")
-                    ))
-                }
-            }
-
             let implem_node_table = properties
                 .iter()
                 .map(|&(name, data_type, on_options)| {
@@ -474,10 +467,7 @@ impl Schemas {
         write(
             dir.join("schema.kuzu"),
             format!(
-                "// Generated file, do not edit. See the Rust `schema-gen` crate.
-
-INSTALL FTS;
-LOAD EXTENSION FTS;
+                "// Generated file, do not edit. See the Rust `schema-gen` crate;
 
 {node_tables}
 

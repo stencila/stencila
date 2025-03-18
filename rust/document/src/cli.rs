@@ -186,10 +186,7 @@ pub struct Add {
 impl Add {
     #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
-        for file in self.files {
-            let doc = Document::open(&file).await?;
-            doc.store().await?;
-        }
+        Document::store_many(&self.files).await?;
 
         Ok(())
     }

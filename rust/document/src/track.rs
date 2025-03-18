@@ -283,9 +283,46 @@ impl Document {
             }),
         )?;
 
-        // Update the document in the database
+        // Upsert the document into the database including updating document indices
         let mut db = NodeDatabase::new(&db_path)?;
-        db.upsert(&doc_id, &root)?;
+        db.upsert(&doc_id, &root, true)?;
+
+        Ok(())
+    }
+
+    /// Store the document in the workspace's `.stencila` directory
+    #[tracing::instrument(skip(paths))]
+    pub async fn store_many(paths: &[PathBuf]) -> Result<()> {
+        let Some(first_path) = paths.first() else {
+            return Ok(());
+        };
+        let stencila_dir = closest_stencila_dir(first_path, false).await?;
+        let db_path = stencila_db_dir(&stencila_dir, false).await?;
+
+        let mut db = NodeDatabase::new(&db_path)?;
+
+        for path in paths {
+            let (doc_id, _, store_path, _) = Document::track_path(path, Some(time_now())).await?;
+
+            let doc = Document::open(path).await?;
+            let root = doc.root().await;
+
+            // Write the root node to storage
+            codec_json::to_path(
+                &root,
+                &store_path,
+                Some(EncodeOptions {
+                    compact: Some(false),
+                    ..Default::default()
+                }),
+            )?;
+
+            // Update the document in the database without updating indices
+            db.upsert(&doc_id, &root, false)?;
+        }
+
+        // Update indices
+        db.update()?;
 
         Ok(())
     }
@@ -481,7 +518,7 @@ impl Document {
             let db_path = stencila_db_dir(&stencila_dir, false).await?;
             if db_path.exists() {
                 let mut db = NodeDatabase::new(&db_path)?;
-                db.delete(&doc_id)?;
+                db.delete(&[&doc_id])?;
             }
         }
 
