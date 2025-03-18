@@ -1,4 +1,7 @@
-use std::{collections::BTreeMap, path::PathBuf};
+use std::{
+    collections::{BTreeMap, HashMap},
+    path::PathBuf,
+};
 
 use common::{
     eyre::{bail, OptionExt, Result},
@@ -50,6 +53,7 @@ impl Schemas {
             // Others (not excluded by skip_types below)
             "executionInstance",
             "mathml",
+            "value",
         ];
 
         let skip_types = [
@@ -90,6 +94,7 @@ impl Schemas {
             "Number",
             "String",
             "Cord",
+            "Text",
             "Array",
             "Object",
             "Date",
@@ -128,6 +133,23 @@ impl Schemas {
 
         // Union types that need to be expanded
         let expand_types = ["Block", "Inline", "Author", "AuthorRoleAuthor"];
+
+        // Node types for which a `text` property should be added with the plain text
+        // representation of the node to be used in FTS and semantic search
+        let add_text = ["Paragraph", "TableCell"];
+
+        // Full text search index definitions for each node type
+        let fts_indices = HashMap::from([
+            ("CodeBlock", [("code", vec!["code"])]),
+            ("CodeChunk", [("code", vec!["code"])]),
+            ("CodeExpression", [("code", vec!["code"])]),
+            ("CodeInline", [("code", vec!["code"])]),
+            ("MathBlock", [("code", vec!["code"])]),
+            ("MathInline", [("code", vec!["code"])]),
+            ("RawBlock", [("content", vec!["content"])]),
+            ("Paragraph", [("text", vec!["text"])]),
+            ("TableCell", [("text", vec!["text"])]),
+        ]);
 
         let mut node_tables = Vec::new();
         let mut one_to_many = BTreeMap::new();
@@ -300,6 +322,10 @@ impl Schemas {
                 }
             }
 
+            if add_text.contains(&title.as_str()) {
+                properties.push(("text", "STRING", false));
+            }
+
             node_tables.push(format!(
                 "CREATE NODE TABLE IF NOT EXISTS `{title}` ({}\n  `docId` STRING,\n  `nodeId` STRING PRIMARY KEY\n);",
                 properties
@@ -308,9 +334,25 @@ impl Schemas {
                     .join("")
             ));
 
+            if let Some(indexes) = fts_indices.get(&title.as_str()) {
+                for (name, fields) in indexes {
+                    node_tables.push(format!(
+                        "CALL CREATE_FTS_INDEX('{title}', '{name}', [{}]);",
+                        fields
+                            .iter()
+                            .map(|field| ["'", field, "'"].concat())
+                            .join(", ")
+                    ))
+                }
+            }
+
             let implem_node_table = properties
                 .iter()
                 .map(|&(name, data_type, on_options)| {
+                    if name == "text" {
+                        return format!("(NodeProperty::Text, String::to_kuzu_type(), to_text(self).to_kuzu_value())")
+                    }
+
                     let mut property = name.to_pascal_case();
                     if property.ends_with("ID") {
                         property.pop();
@@ -344,7 +386,7 @@ impl Schemas {
 
             let implem_rel_tables = relations
                 .into_iter()
-                .map(|(name, on_options, is_option, is_array, ref_type)| {
+                .map(|(name, on_options, is_option, is_array, ref_type)| {                    
                     let property = name.to_pascal_case();
 
                     let mut field = name.to_snake_case();
@@ -371,7 +413,9 @@ impl Schemas {
 
                         collect += ".enumerate()";
 
-                        collect += if ["Block", "Inline"].contains(&ref_type.as_str()) {
+                        collect += if ref_type == "Inline" {
+                            ".flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) })"
+                        } else if ref_type == "Block" {
                             ".flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)))"
                         } else {
                             ".map(|(index, item)| (item.node_type(), item.node_id(), index + 1))"
@@ -437,7 +481,10 @@ impl Schemas {
         write(
             dir.join("schema.kuzu"),
             format!(
-                "// Generated file; do not edit. See the Rust `schema-gen` crate.
+                "// Generated file, do not edit. See the Rust `schema-gen` crate.
+
+INSTALL FTS;
+LOAD EXTENSION FTS;
 
 {node_tables}
 
@@ -489,7 +536,7 @@ impl Schemas {
     fn node_type(&self) -> NodeType {{
         match self {{
             {node_type},
-            _ => NodeType::Null
+            _ => NodeType::Unknown
         }}
     }}
 
@@ -523,10 +570,11 @@ impl Schemas {
         write(
             dir.join("node_types.rs"),
             format!(
-                "// Generated file; do not edit. See the Rust `schema-gen` crate.
+                "// Generated file, do not edit. See the Rust `schema-gen` crate.
 
 use kuzu::{{LogicalType, Value}};
 
+use codec_text_trait::to_text;
 use schema::*;
 
 use super::{{DatabaseNode, ToKuzu}};

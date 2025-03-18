@@ -1,4 +1,7 @@
-// Generated file; do not edit. See the Rust `schema-gen` crate.
+// Generated file, do not edit. See the Rust `schema-gen` crate.
+
+INSTALL FTS;
+LOAD EXTENSION FTS;
 
 CREATE NODE TABLE IF NOT EXISTS `Admonition` (
   `admonitionType` STRING,
@@ -117,6 +120,8 @@ CREATE NODE TABLE IF NOT EXISTS `CodeBlock` (
   `nodeId` STRING PRIMARY KEY
 );
 
+CALL CREATE_FTS_INDEX('CodeBlock', 'code', ['code']);
+
 CREATE NODE TABLE IF NOT EXISTS `CodeChunk` (
   `executionMode` STRING,
   `executionCount` INT64,
@@ -138,6 +143,8 @@ CREATE NODE TABLE IF NOT EXISTS `CodeChunk` (
   `nodeId` STRING PRIMARY KEY
 );
 
+CALL CREATE_FTS_INDEX('CodeChunk', 'code', ['code']);
+
 CREATE NODE TABLE IF NOT EXISTS `CodeExpression` (
   `executionMode` STRING,
   `executionCount` INT64,
@@ -153,12 +160,16 @@ CREATE NODE TABLE IF NOT EXISTS `CodeExpression` (
   `nodeId` STRING PRIMARY KEY
 );
 
+CALL CREATE_FTS_INDEX('CodeExpression', 'code', ['code']);
+
 CREATE NODE TABLE IF NOT EXISTS `CodeInline` (
   `code` STRING,
   `programmingLanguage` STRING,
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY
 );
+
+CALL CREATE_FTS_INDEX('CodeInline', 'code', ['code']);
 
 CREATE NODE TABLE IF NOT EXISTS `Collection` (
   `alternateNames` STRING[],
@@ -405,12 +416,16 @@ CREATE NODE TABLE IF NOT EXISTS `MathBlock` (
   `nodeId` STRING PRIMARY KEY
 );
 
+CALL CREATE_FTS_INDEX('MathBlock', 'code', ['code']);
+
 CREATE NODE TABLE IF NOT EXISTS `MathInline` (
   `code` STRING,
   `mathLanguage` STRING,
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY
 );
+
+CALL CREATE_FTS_INDEX('MathInline', 'code', ['code']);
 
 CREATE NODE TABLE IF NOT EXISTS `MediaObject` (
   `alternateNames` STRING[],
@@ -460,9 +475,12 @@ CREATE NODE TABLE IF NOT EXISTS `Organization` (
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Paragraph` (
+  `text` STRING,
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY
 );
+
+CALL CREATE_FTS_INDEX('Paragraph', 'text', ['text']);
 
 CREATE NODE TABLE IF NOT EXISTS `Parameter` (
   `executionMode` STRING,
@@ -603,6 +621,8 @@ CREATE NODE TABLE IF NOT EXISTS `RawBlock` (
   `nodeId` STRING PRIMARY KEY
 );
 
+CALL CREATE_FTS_INDEX('RawBlock', 'content', ['content']);
+
 CREATE NODE TABLE IF NOT EXISTS `Review` (
   `alternateNames` STRING[],
   `description` STRING,
@@ -728,18 +748,15 @@ CREATE NODE TABLE IF NOT EXISTS `TableCell` (
   `horizontalAlignment` STRING,
   `horizontalAlignmentCharacter` STRING,
   `verticalAlignment` STRING,
+  `text` STRING,
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY
 );
+
+CALL CREATE_FTS_INDEX('TableCell', 'text', ['text']);
 
 CREATE NODE TABLE IF NOT EXISTS `TableRow` (
   `rowType` STRING,
-  `docId` STRING,
-  `nodeId` STRING PRIMARY KEY
-);
-
-CREATE NODE TABLE IF NOT EXISTS `Text` (
-  `value` STRING,
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY
 );
@@ -1416,7 +1433,6 @@ CREATE REL TABLE IF NOT EXISTS `caption` (
   FROM `AudioObject` TO `Strong`,
   FROM `AudioObject` TO `Subscript`,
   FROM `AudioObject` TO `Superscript`,
-  FROM `AudioObject` TO `Text`,
   FROM `AudioObject` TO `Underline`,
   FROM `AudioObject` TO `VideoObject`,
   FROM `CodeChunk` TO `Admonition`,
@@ -1482,7 +1498,6 @@ CREATE REL TABLE IF NOT EXISTS `caption` (
   FROM `ImageObject` TO `Strong`,
   FROM `ImageObject` TO `Subscript`,
   FROM `ImageObject` TO `Superscript`,
-  FROM `ImageObject` TO `Text`,
   FROM `ImageObject` TO `Underline`,
   FROM `ImageObject` TO `VideoObject`,
   FROM `Table` TO `Admonition`,
@@ -1526,7 +1541,6 @@ CREATE REL TABLE IF NOT EXISTS `caption` (
   FROM `VideoObject` TO `Strong`,
   FROM `VideoObject` TO `Subscript`,
   FROM `VideoObject` TO `Superscript`,
-  FROM `VideoObject` TO `Text`,
   FROM `VideoObject` TO `Underline`,
   FROM `VideoObject` TO `VideoObject`,
   `position` UINT32,
@@ -1615,7 +1629,6 @@ CREATE REL TABLE IF NOT EXISTS `content` (
   FROM `Annotation` TO `Strong`,
   FROM `Annotation` TO `Subscript`,
   FROM `Annotation` TO `Superscript`,
-  FROM `Annotation` TO `Text`,
   FROM `Annotation` TO `Underline`,
   FROM `Annotation` TO `VideoObject`,
   FROM `Article` TO `Admonition`,
@@ -1659,7 +1672,6 @@ CREATE REL TABLE IF NOT EXISTS `content` (
   FROM `Cite` TO `Strong`,
   FROM `Cite` TO `Subscript`,
   FROM `Cite` TO `Superscript`,
-  FROM `Cite` TO `Text`,
   FROM `Cite` TO `Underline`,
   FROM `Cite` TO `VideoObject`,
   FROM `Claim` TO `Admonition`,
@@ -1725,7 +1737,6 @@ CREATE REL TABLE IF NOT EXISTS `content` (
   FROM `Emphasis` TO `Strong`,
   FROM `Emphasis` TO `Subscript`,
   FROM `Emphasis` TO `Superscript`,
-  FROM `Emphasis` TO `Text`,
   FROM `Emphasis` TO `Underline`,
   FROM `Emphasis` TO `VideoObject`,
   FROM `Figure` TO `Admonition`,
@@ -1791,7 +1802,6 @@ CREATE REL TABLE IF NOT EXISTS `content` (
   FROM `Heading` TO `Strong`,
   FROM `Heading` TO `Subscript`,
   FROM `Heading` TO `Superscript`,
-  FROM `Heading` TO `Text`,
   FROM `Heading` TO `Underline`,
   FROM `Heading` TO `VideoObject`,
   FROM `IfBlockClause` TO `Admonition`,
@@ -1857,7 +1867,6 @@ CREATE REL TABLE IF NOT EXISTS `content` (
   FROM `Link` TO `Strong`,
   FROM `Link` TO `Subscript`,
   FROM `Link` TO `Superscript`,
-  FROM `Link` TO `Text`,
   FROM `Link` TO `Underline`,
   FROM `Link` TO `VideoObject`,
   FROM `ListItem` TO `Admonition`,
@@ -1923,7 +1932,6 @@ CREATE REL TABLE IF NOT EXISTS `content` (
   FROM `Paragraph` TO `Strong`,
   FROM `Paragraph` TO `Subscript`,
   FROM `Paragraph` TO `Superscript`,
-  FROM `Paragraph` TO `Text`,
   FROM `Paragraph` TO `Underline`,
   FROM `Paragraph` TO `VideoObject`,
   FROM `QuoteBlock` TO `Admonition`,
@@ -1967,7 +1975,6 @@ CREATE REL TABLE IF NOT EXISTS `content` (
   FROM `QuoteInline` TO `Strong`,
   FROM `QuoteInline` TO `Subscript`,
   FROM `QuoteInline` TO `Superscript`,
-  FROM `QuoteInline` TO `Text`,
   FROM `QuoteInline` TO `Underline`,
   FROM `QuoteInline` TO `VideoObject`,
   FROM `Section` TO `Admonition`,
@@ -2011,7 +2018,6 @@ CREATE REL TABLE IF NOT EXISTS `content` (
   FROM `Strikeout` TO `Strong`,
   FROM `Strikeout` TO `Subscript`,
   FROM `Strikeout` TO `Superscript`,
-  FROM `Strikeout` TO `Text`,
   FROM `Strikeout` TO `Underline`,
   FROM `Strikeout` TO `VideoObject`,
   FROM `Strong` TO `Annotation`,
@@ -2033,7 +2039,6 @@ CREATE REL TABLE IF NOT EXISTS `content` (
   FROM `Strong` TO `Strong`,
   FROM `Strong` TO `Subscript`,
   FROM `Strong` TO `Superscript`,
-  FROM `Strong` TO `Text`,
   FROM `Strong` TO `Underline`,
   FROM `Strong` TO `VideoObject`,
   FROM `StyledBlock` TO `Admonition`,
@@ -2077,7 +2082,6 @@ CREATE REL TABLE IF NOT EXISTS `content` (
   FROM `StyledInline` TO `Strong`,
   FROM `StyledInline` TO `Subscript`,
   FROM `StyledInline` TO `Superscript`,
-  FROM `StyledInline` TO `Text`,
   FROM `StyledInline` TO `Underline`,
   FROM `StyledInline` TO `VideoObject`,
   FROM `Subscript` TO `Annotation`,
@@ -2099,7 +2103,6 @@ CREATE REL TABLE IF NOT EXISTS `content` (
   FROM `Subscript` TO `Strong`,
   FROM `Subscript` TO `Subscript`,
   FROM `Subscript` TO `Superscript`,
-  FROM `Subscript` TO `Text`,
   FROM `Subscript` TO `Underline`,
   FROM `Subscript` TO `VideoObject`,
   FROM `Superscript` TO `Annotation`,
@@ -2121,7 +2124,6 @@ CREATE REL TABLE IF NOT EXISTS `content` (
   FROM `Superscript` TO `Strong`,
   FROM `Superscript` TO `Subscript`,
   FROM `Superscript` TO `Superscript`,
-  FROM `Superscript` TO `Text`,
   FROM `Superscript` TO `Underline`,
   FROM `Superscript` TO `VideoObject`,
   FROM `TableCell` TO `Admonition`,
@@ -2165,7 +2167,6 @@ CREATE REL TABLE IF NOT EXISTS `content` (
   FROM `Underline` TO `Strong`,
   FROM `Underline` TO `Subscript`,
   FROM `Underline` TO `Superscript`,
-  FROM `Underline` TO `Text`,
   FROM `Underline` TO `Underline`,
   FROM `Underline` TO `VideoObject`,
   `position` UINT32,
@@ -2445,7 +2446,6 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `Admonition` TO `Strong`,
   FROM `Admonition` TO `Subscript`,
   FROM `Admonition` TO `Superscript`,
-  FROM `Admonition` TO `Text`,
   FROM `Admonition` TO `Underline`,
   FROM `Admonition` TO `VideoObject`,
   FROM `Article` TO `Annotation`,
@@ -2467,7 +2467,6 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `Article` TO `Strong`,
   FROM `Article` TO `Subscript`,
   FROM `Article` TO `Superscript`,
-  FROM `Article` TO `Text`,
   FROM `Article` TO `Underline`,
   FROM `Article` TO `VideoObject`,
   FROM `AudioObject` TO `Annotation`,
@@ -2489,7 +2488,6 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `AudioObject` TO `Strong`,
   FROM `AudioObject` TO `Subscript`,
   FROM `AudioObject` TO `Superscript`,
-  FROM `AudioObject` TO `Text`,
   FROM `AudioObject` TO `Underline`,
   FROM `AudioObject` TO `VideoObject`,
   FROM `Claim` TO `Annotation`,
@@ -2511,7 +2509,6 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `Claim` TO `Strong`,
   FROM `Claim` TO `Subscript`,
   FROM `Claim` TO `Superscript`,
-  FROM `Claim` TO `Text`,
   FROM `Claim` TO `Underline`,
   FROM `Claim` TO `VideoObject`,
   FROM `Collection` TO `Annotation`,
@@ -2533,7 +2530,6 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `Collection` TO `Strong`,
   FROM `Collection` TO `Subscript`,
   FROM `Collection` TO `Superscript`,
-  FROM `Collection` TO `Text`,
   FROM `Collection` TO `Underline`,
   FROM `Collection` TO `VideoObject`,
   FROM `Comment` TO `Annotation`,
@@ -2555,7 +2551,6 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `Comment` TO `Strong`,
   FROM `Comment` TO `Subscript`,
   FROM `Comment` TO `Superscript`,
-  FROM `Comment` TO `Text`,
   FROM `Comment` TO `Underline`,
   FROM `Comment` TO `VideoObject`,
   FROM `CreativeWork` TO `Annotation`,
@@ -2577,7 +2572,6 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `CreativeWork` TO `Strong`,
   FROM `CreativeWork` TO `Subscript`,
   FROM `CreativeWork` TO `Superscript`,
-  FROM `CreativeWork` TO `Text`,
   FROM `CreativeWork` TO `Underline`,
   FROM `CreativeWork` TO `VideoObject`,
   FROM `Figure` TO `Annotation`,
@@ -2599,7 +2593,6 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `Figure` TO `Strong`,
   FROM `Figure` TO `Subscript`,
   FROM `Figure` TO `Superscript`,
-  FROM `Figure` TO `Text`,
   FROM `Figure` TO `Underline`,
   FROM `Figure` TO `VideoObject`,
   FROM `ImageObject` TO `Annotation`,
@@ -2621,7 +2614,6 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `ImageObject` TO `Strong`,
   FROM `ImageObject` TO `Subscript`,
   FROM `ImageObject` TO `Superscript`,
-  FROM `ImageObject` TO `Text`,
   FROM `ImageObject` TO `Underline`,
   FROM `ImageObject` TO `VideoObject`,
   FROM `MediaObject` TO `Annotation`,
@@ -2643,7 +2635,6 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `MediaObject` TO `Strong`,
   FROM `MediaObject` TO `Subscript`,
   FROM `MediaObject` TO `Superscript`,
-  FROM `MediaObject` TO `Text`,
   FROM `MediaObject` TO `Underline`,
   FROM `MediaObject` TO `VideoObject`,
   FROM `Periodical` TO `Annotation`,
@@ -2665,7 +2656,6 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `Periodical` TO `Strong`,
   FROM `Periodical` TO `Subscript`,
   FROM `Periodical` TO `Superscript`,
-  FROM `Periodical` TO `Text`,
   FROM `Periodical` TO `Underline`,
   FROM `Periodical` TO `VideoObject`,
   FROM `PublicationIssue` TO `Annotation`,
@@ -2687,7 +2677,6 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `PublicationIssue` TO `Strong`,
   FROM `PublicationIssue` TO `Subscript`,
   FROM `PublicationIssue` TO `Superscript`,
-  FROM `PublicationIssue` TO `Text`,
   FROM `PublicationIssue` TO `Underline`,
   FROM `PublicationIssue` TO `VideoObject`,
   FROM `PublicationVolume` TO `Annotation`,
@@ -2709,7 +2698,6 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `PublicationVolume` TO `Strong`,
   FROM `PublicationVolume` TO `Subscript`,
   FROM `PublicationVolume` TO `Superscript`,
-  FROM `PublicationVolume` TO `Text`,
   FROM `PublicationVolume` TO `Underline`,
   FROM `PublicationVolume` TO `VideoObject`,
   FROM `Review` TO `Annotation`,
@@ -2731,7 +2719,6 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `Review` TO `Strong`,
   FROM `Review` TO `Subscript`,
   FROM `Review` TO `Superscript`,
-  FROM `Review` TO `Text`,
   FROM `Review` TO `Underline`,
   FROM `Review` TO `VideoObject`,
   FROM `SoftwareApplication` TO `Annotation`,
@@ -2753,7 +2740,6 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `SoftwareApplication` TO `Strong`,
   FROM `SoftwareApplication` TO `Subscript`,
   FROM `SoftwareApplication` TO `Superscript`,
-  FROM `SoftwareApplication` TO `Text`,
   FROM `SoftwareApplication` TO `Underline`,
   FROM `SoftwareApplication` TO `VideoObject`,
   FROM `SoftwareSourceCode` TO `Annotation`,
@@ -2775,7 +2761,6 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `SoftwareSourceCode` TO `Strong`,
   FROM `SoftwareSourceCode` TO `Subscript`,
   FROM `SoftwareSourceCode` TO `Superscript`,
-  FROM `SoftwareSourceCode` TO `Text`,
   FROM `SoftwareSourceCode` TO `Underline`,
   FROM `SoftwareSourceCode` TO `VideoObject`,
   FROM `Table` TO `Annotation`,
@@ -2797,7 +2782,6 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `Table` TO `Strong`,
   FROM `Table` TO `Subscript`,
   FROM `Table` TO `Superscript`,
-  FROM `Table` TO `Text`,
   FROM `Table` TO `Underline`,
   FROM `Table` TO `VideoObject`,
   FROM `VideoObject` TO `Annotation`,
@@ -2819,7 +2803,6 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `VideoObject` TO `Strong`,
   FROM `VideoObject` TO `Subscript`,
   FROM `VideoObject` TO `Superscript`,
-  FROM `VideoObject` TO `Text`,
   FROM `VideoObject` TO `Underline`,
   FROM `VideoObject` TO `VideoObject`,
   `position` UINT32,

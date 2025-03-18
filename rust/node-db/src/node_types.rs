@@ -1,7 +1,8 @@
-// Generated file; do not edit. See the Rust `schema-gen` crate.
+// Generated file, do not edit. See the Rust `schema-gen` crate.
 
 use kuzu::{LogicalType, Value};
 
+use codec_text_trait::to_text;
 use schema::*;
 
 use super::{DatabaseNode, ToKuzu};
@@ -24,7 +25,7 @@ impl DatabaseNode for Admonition {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Title, self.title.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
+            (NodeProperty::Title, self.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
             (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
             (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
         ]
@@ -48,7 +49,7 @@ impl DatabaseNode for Annotation {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
+            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
             (NodeProperty::Annotation, self.annotation.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
         ]
     }
@@ -95,7 +96,7 @@ impl DatabaseNode for Article {
             (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.title.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
+            (NodeProperty::Title, self.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
             (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
         ]
     }
@@ -140,8 +141,8 @@ impl DatabaseNode for AudioObject {
             (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.title.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Caption, self.caption.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Title, self.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
+            (NodeProperty::Caption, self.caption.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
         ]
     }
 }
@@ -219,7 +220,7 @@ impl DatabaseNode for Cite {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.options.content.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Content, self.options.content.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
         ]
     }
 }
@@ -281,7 +282,7 @@ impl DatabaseNode for Claim {
             (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
+            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
             (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
         ]
     }
@@ -435,7 +436,7 @@ impl DatabaseNode for Collection {
             (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
         ]
     }
 }
@@ -474,7 +475,7 @@ impl DatabaseNode for Comment {
             (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
+            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
             (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
             (NodeProperty::ParentItem, self.options.parent_item.iter().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
         ]
@@ -542,7 +543,7 @@ impl DatabaseNode for CreativeWork {
             (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
         ]
     }
 }
@@ -613,7 +614,7 @@ impl DatabaseNode for Emphasis {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
         ]
     }
 }
@@ -653,7 +654,7 @@ impl DatabaseNode for Figure {
             (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
+            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
             (NodeProperty::Caption, self.caption.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
             (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
         ]
@@ -786,7 +787,7 @@ impl DatabaseNode for Heading {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
+            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
             (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
         ]
     }
@@ -890,8 +891,8 @@ impl DatabaseNode for ImageObject {
             (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.title.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Caption, self.caption.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
+            (NodeProperty::Title, self.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
+            (NodeProperty::Caption, self.caption.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
             (NodeProperty::Thumbnail, self.options.thumbnail.iter().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
         ]
     }
@@ -946,7 +947,7 @@ impl DatabaseNode for Link {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
         ]
     }
 }
@@ -1088,7 +1089,7 @@ impl DatabaseNode for MediaObject {
             (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
         ]
     }
 }
@@ -1183,13 +1184,13 @@ impl DatabaseNode for Paragraph {
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
-            
+            (NodeProperty::Text, String::to_kuzu_type(), to_text(self).to_kuzu_value())
         ]
     }
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
+            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
             (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
         ]
     }
@@ -1261,7 +1262,7 @@ impl DatabaseNode for Periodical {
             (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
         ]
     }
 }
@@ -1422,7 +1423,7 @@ impl DatabaseNode for PublicationIssue {
             (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
         ]
     }
 }
@@ -1461,7 +1462,7 @@ impl DatabaseNode for PublicationVolume {
             (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
         ]
     }
 }
@@ -1506,7 +1507,7 @@ impl DatabaseNode for QuoteInline {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
         ]
     }
 }
@@ -1569,7 +1570,7 @@ impl DatabaseNode for Review {
             (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
         ]
     }
 }
@@ -1632,7 +1633,7 @@ impl DatabaseNode for SoftwareApplication {
             (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
+            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
             (NodeProperty::SoftwareRequirements, self.options.software_requirements.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
         ]
     }
@@ -1675,7 +1676,7 @@ impl DatabaseNode for SoftwareSourceCode {
             (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
+            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
             (NodeProperty::TargetProducts, self.target_products.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
         ]
     }
@@ -1698,7 +1699,7 @@ impl DatabaseNode for Strikeout {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
         ]
     }
 }
@@ -1720,7 +1721,7 @@ impl DatabaseNode for Strong {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
         ]
     }
 }
@@ -1772,7 +1773,7 @@ impl DatabaseNode for StyledInline {
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
             (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
         ]
     }
 }
@@ -1794,7 +1795,7 @@ impl DatabaseNode for Subscript {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
         ]
     }
 }
@@ -1816,7 +1817,7 @@ impl DatabaseNode for Superscript {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
         ]
     }
 }
@@ -1856,7 +1857,7 @@ impl DatabaseNode for Table {
             (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
+            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
             (NodeProperty::Caption, self.caption.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
             (NodeProperty::Rows, self.rows.iter().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Notes, self.notes.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
@@ -1881,7 +1882,8 @@ impl DatabaseNode for TableCell {
             (NodeProperty::RowSpan, i64::to_kuzu_type(), self.options.row_span.to_kuzu_value()),
             (NodeProperty::HorizontalAlignment, String::to_kuzu_type(), self.horizontal_alignment.to_kuzu_value()),
             (NodeProperty::HorizontalAlignmentCharacter, String::to_kuzu_type(), self.horizontal_alignment_character.to_kuzu_value()),
-            (NodeProperty::VerticalAlignment, String::to_kuzu_type(), self.vertical_alignment.to_kuzu_value())
+            (NodeProperty::VerticalAlignment, String::to_kuzu_type(), self.vertical_alignment.to_kuzu_value()),
+            (NodeProperty::Text, String::to_kuzu_type(), to_text(self).to_kuzu_value())
         ]
     }
 
@@ -1910,28 +1912,6 @@ impl DatabaseNode for TableRow {
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
             (NodeProperty::Cells, self.cells.iter().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
-        ]
-    }
-}
-
-impl DatabaseNode for Text {
-    fn node_type(&self) -> NodeType {
-        NodeType::Text
-    }
-
-    fn node_id(&self) -> NodeId {
-        Text::node_id(self)
-    }
-    
-    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
-        vec![
-            (NodeProperty::Value, String::to_kuzu_type(), self.value.to_kuzu_value())
-        ]
-    }
-
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
-        vec![
-            
         ]
     }
 }
@@ -2000,7 +1980,7 @@ impl DatabaseNode for Underline {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
         ]
     }
 }
@@ -2092,8 +2072,8 @@ impl DatabaseNode for VideoObject {
             (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
             (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.title.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Caption, self.caption.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
+            (NodeProperty::Title, self.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
+            (NodeProperty::Caption, self.caption.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
             (NodeProperty::Thumbnail, self.options.thumbnail.iter().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
         ]
     }
@@ -2166,14 +2146,13 @@ impl DatabaseNode for Node {
             Node::Table(node) => node.node_type(),
             Node::TableCell(node) => node.node_type(),
             Node::TableRow(node) => node.node_type(),
-            Node::Text(node) => node.node_type(),
             Node::ThematicBreak(node) => node.node_type(),
             Node::Thing(node) => node.node_type(),
             Node::Underline(node) => node.node_type(),
             Node::Unknown(node) => node.node_type(),
             Node::Variable(node) => node.node_type(),
             Node::VideoObject(node) => node.node_type(),
-            _ => NodeType::Null
+            _ => NodeType::Unknown
         }
     }
 
@@ -2243,7 +2222,6 @@ impl DatabaseNode for Node {
             Node::Table(node) => node.node_id(),
             Node::TableCell(node) => node.node_id(),
             Node::TableRow(node) => node.node_id(),
-            Node::Text(node) => node.node_id(),
             Node::ThematicBreak(node) => node.node_id(),
             Node::Thing(node) => node.node_id(),
             Node::Underline(node) => node.node_id(),
@@ -2320,7 +2298,6 @@ impl DatabaseNode for Node {
             Node::Table(node) => node.node_table(),
             Node::TableCell(node) => node.node_table(),
             Node::TableRow(node) => node.node_table(),
-            Node::Text(node) => node.node_table(),
             Node::ThematicBreak(node) => node.node_table(),
             Node::Thing(node) => node.node_table(),
             Node::Underline(node) => node.node_table(),
@@ -2397,7 +2374,6 @@ impl DatabaseNode for Node {
             Node::Table(node) => node.rel_tables(),
             Node::TableCell(node) => node.rel_tables(),
             Node::TableRow(node) => node.rel_tables(),
-            Node::Text(node) => node.rel_tables(),
             Node::ThematicBreak(node) => node.rel_tables(),
             Node::Thing(node) => node.rel_tables(),
             Node::Underline(node) => node.rel_tables(),
@@ -2434,7 +2410,7 @@ impl DatabaseNode for Block {
             Block::Table(node) => node.node_type(),
             Block::ThematicBreak(node) => node.node_type(),
             Block::VideoObject(node) => node.node_type(),
-            _ => NodeType::Null
+            _ => NodeType::Unknown
         }
     }
 
@@ -2545,10 +2521,9 @@ impl DatabaseNode for Inline {
             Inline::Strong(node) => node.node_type(),
             Inline::Subscript(node) => node.node_type(),
             Inline::Superscript(node) => node.node_type(),
-            Inline::Text(node) => node.node_type(),
             Inline::Underline(node) => node.node_type(),
             Inline::VideoObject(node) => node.node_type(),
-            _ => NodeType::Null
+            _ => NodeType::Unknown
         }
     }
 
@@ -2573,7 +2548,6 @@ impl DatabaseNode for Inline {
             Inline::Strong(node) => node.node_id(),
             Inline::Subscript(node) => node.node_id(),
             Inline::Superscript(node) => node.node_id(),
-            Inline::Text(node) => node.node_id(),
             Inline::Underline(node) => node.node_id(),
             Inline::VideoObject(node) => node.node_id(),
             _ => NodeId::null()
@@ -2601,7 +2575,6 @@ impl DatabaseNode for Inline {
             Inline::Strong(node) => node.node_table(),
             Inline::Subscript(node) => node.node_table(),
             Inline::Superscript(node) => node.node_table(),
-            Inline::Text(node) => node.node_table(),
             Inline::Underline(node) => node.node_table(),
             Inline::VideoObject(node) => node.node_table(),
             _ => Vec::new()
@@ -2629,7 +2602,6 @@ impl DatabaseNode for Inline {
             Inline::Strong(node) => node.rel_tables(),
             Inline::Subscript(node) => node.rel_tables(),
             Inline::Superscript(node) => node.rel_tables(),
-            Inline::Text(node) => node.rel_tables(),
             Inline::Underline(node) => node.rel_tables(),
             Inline::VideoObject(node) => node.rel_tables(),
             _ => Vec::new()

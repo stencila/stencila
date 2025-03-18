@@ -3997,6 +3997,7 @@ dependencies = [
 name = "node-db"
 version = "0.0.0"
 dependencies = [
+ "codec-text-trait",
  "common",
  "kuzu",
  "schema",

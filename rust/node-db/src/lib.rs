@@ -148,7 +148,9 @@ impl NodeDatabase {
 
         // Create entries for each of the node types collected
         for (node_type, (properties, rows)) in walker.node_tables {
-            self.create_node_entries(doc_id, node_type, properties, rows)?;
+            if !matches!(node_type, NodeType::Unknown) {
+                self.create_node_entries(doc_id, node_type, properties, rows)?;
+            }
         }
 
         // Create entries for each of the relations collected
