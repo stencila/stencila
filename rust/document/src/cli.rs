@@ -227,35 +227,22 @@ impl Move {
     }
 }
 
-/// Remove a tracked document
-///
-/// Deletes the document file (if it still exists) and removes
-/// any tracking data from the `.stencila` directory.
+/// Remove documents from the workspace database
 #[derive(Debug, Parser)]
 #[clap(alias = "rm")]
 pub struct Remove {
-    /// The path of the file to remove
-    file: PathBuf,
-
-    /// Do not ask for confirmation of removal
-    #[arg(long, short)]
-    force: bool,
+    /// The files to remove
+    files: Vec<PathBuf>,
 }
 
 impl Remove {
     #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
-        if self.file.exists()
-            && !self.force
-            && !confirm(&format!(
-                "Are you sure you want to remove {}?",
-                self.file.display()
-            ))?
-        {
-            return Ok(());
+        for file in self.files {
+            Document::untrack_path(&file).await?;
         }
 
-        Document::remove_path(&self.file).await
+        Ok(())
     }
 }
 

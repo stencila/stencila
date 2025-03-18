@@ -372,7 +372,7 @@ impl Document {
     ///
     /// Starts tracking the remote by saving the document at the path
     /// to `.stencila/track/<ID>.json` and, if necessary, adding an
-    /// entry to the tracking file at `.stencila/track/docs.json`.
+    /// entry to the tracking file at `.stencila/docs.json`.
     ///
     /// If the path or remote is already being tracked (i.e. there is
     /// a corresponding entry in the tracking file) the exiting
@@ -452,9 +452,9 @@ impl Document {
 
     /// Stop tracking a document path
     ///
-    /// Removes the entry for the path in the tracking file at `.stencila/track/docs.json` and
-    /// the corresponding `.stencila/track/<ID>.json`. Does not remove any other
-    /// entries for the document id in the tracking file.
+    /// Removes the entry for the path in `.stencila/docs.json`,
+    /// deletes the corresponding `.stencila/store/<ID>.json`,
+    /// and removes nodes for the document from the workspace database.
     ///
     /// Gives a warning if the path is not being tracked.
     #[tracing::instrument]
@@ -465,15 +465,25 @@ impl Document {
         };
         let relative_path = workspace_relative_path(&stencila_dir, path, false)?;
 
+        let mut doc_id = None;
         let mut storage_file = None;
         entries.retain(|path, entry| {
             if path == &relative_path {
+                doc_id = Some(entry.id.clone());
                 storage_file = Some(entry.store_file());
                 false
             } else {
                 true
             }
         });
+
+        if let Some(doc_id) = doc_id {
+            let db_path = stencila_db_dir(&stencila_dir, false).await?;
+            if db_path.exists() {
+                let mut db = NodeDatabase::new(&db_path)?;
+                db.delete(&doc_id)?;
+            }
+        }
 
         if let Some(storage_file) = storage_file {
             let stored_path = stencila_dir.join(storage_file);
@@ -492,7 +502,7 @@ impl Document {
 
     /// Stop tracking a document remote
     ///
-    /// Removes the entry for the remote in the tracking file at `.stencila/track/docs.json`
+    /// Removes the entry for the remote in the tracking file at `.stencila/docs.json`
     /// but does not remove the corresponding `.stencila/track/<ID>.json`.
     ///
     /// Gives a warning if the path, or the remote, is not being tracked.
@@ -533,7 +543,7 @@ impl Document {
     /// Move a tracked document
     ///
     /// Moves (renames) the file and updates the entry in the tracking file
-    /// at `.stencila/track/docs.json`.
+    /// at `.stencila/docs.json`.
     ///
     /// If there is no entry for the `from` path then the `to` path will
     /// be tracked.
@@ -546,20 +556,6 @@ impl Document {
         Document::untrack_path(from).await?;
         rename(from, to).await?;
         Document::track_path(to, None).await?;
-
-        Ok(())
-    }
-
-    /// Remove a tracked document
-    ///
-    /// Removes the file from the workspace, the corresponding
-    /// entry in the tracking file at `.stencila/track/docs.json`,
-    /// and the corresponding `.stencila/track/<ID>.json`.
-    #[tracing::instrument]
-    pub async fn remove_path(path: &Path) -> Result<()> {
-        Document::untrack_path(path).await?;
-
-        remove_file(path).await?;
 
         Ok(())
     }
@@ -621,10 +617,10 @@ impl Document {
     }
 
     /// Rebuild the store and db directories
-    /// 
+    ///
     /// Deletes any existing `store` and `db` directories and re-stores document's in
     /// the `docs.json file`.
-    /// 
+    ///
     /// Useful if any changes to the Stencila Schema require a rebuild of the stored
     /// JSON and/or database without having to remove other tracking information.
     pub async fn tracking_rebuild(path: &Path) -> Result<()> {
