@@ -221,7 +221,7 @@ impl DatabaseNode for Cite {
         vec![
             (NodeProperty::Target, String::to_kuzu_type(), self.target.to_kuzu_value()),
             (NodeProperty::CitationMode, String::to_kuzu_type(), self.citation_mode.to_kuzu_value()),
-            (NodeProperty::CitationIntent, String::to_kuzu_type(), self.options.citation_intent.to_kuzu_value()),
+            (NodeProperty::CitationIntent, Vec::<String>::to_kuzu_type(), self.options.citation_intent.to_kuzu_value()),
             (NodeProperty::Pagination, String::to_kuzu_type(), self.options.pagination.to_kuzu_value()),
             (NodeProperty::CitationPrefix, String::to_kuzu_type(), self.options.citation_prefix.to_kuzu_value()),
             (NodeProperty::CitationSuffix, String::to_kuzu_type(), self.options.citation_suffix.to_kuzu_value())

@@ -216,7 +216,7 @@ impl Schemas {
                                         .ok_or_eyre("schema should exist")?;
 
                                     if schema.is_enumeration() {
-                                        properties.push((name, "STRING", on_options));
+                                        properties.push((name, "STRING[]", on_options));
                                         continue;
                                     }
 

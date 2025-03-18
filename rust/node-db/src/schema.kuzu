@@ -82,7 +82,7 @@ CREATE NODE TABLE IF NOT EXISTS `Brand` (
 CREATE NODE TABLE IF NOT EXISTS `Cite` (
   `target` STRING,
   `citationMode` STRING,
-  `citationIntent` STRING,
+  `citationIntent` STRING[],
   `pagination` STRING,
   `citationPrefix` STRING,
   `citationSuffix` STRING,
