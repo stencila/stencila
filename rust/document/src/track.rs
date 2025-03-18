@@ -29,7 +29,7 @@ use format::Format;
 use crate::{
     dirs::{
         closest_stencila_dir, stencila_db_dir, stencila_docs_file, stencila_store_dir,
-        workspace_dir, workspace_relative_path, DB_DIR, DOCS_FILE, STORE_DIR,
+        workspace_relative_path, DB_DIR, DOCS_FILE, STORE_DIR,
     },
     Document,
 };
@@ -107,11 +107,11 @@ pub struct DocumentTracking {
     /// so that the user can use `.gitignore` patterns based on the extension.
     pub format: Format,
 
-    /// The last time the document was stored in the tracking directory
+    /// The last time the document was stored
     pub stored_at: Option<u64>,
 
-    /// The source that the file was stored from
-    pub stored_from: Option<String>,
+    /// The last time the document was upserted into database
+    pub upserted_at: Option<u64>,
 
     /// The remotes that are tracked for the path
     pub remotes: Option<BTreeMap<Url, DocumentRemote>>,
@@ -123,7 +123,7 @@ impl Default for DocumentTracking {
             id: new_id(),
             format: Default::default(),
             stored_at: Default::default(),
-            stored_from: Default::default(),
+            upserted_at: Default::default(),
             remotes: Default::default(),
         }
     }
@@ -212,7 +212,7 @@ impl Document {
         if let Some(remote) = remote {
             Document::track_remote(path, remote).await?;
         } else {
-            Document::track_path(path, None).await?;
+            Document::track_path(path, None, None).await?;
         }
 
         Ok(())
@@ -268,8 +268,7 @@ impl Document {
         };
 
         // Get the storage and database paths for the document, ensuring both exist
-        let (doc_id, .., store_path, db_path) =
-            Document::track_path(path, Some(time_now())).await?;
+        let (_, _, store_path, ..) = Document::track_path(path, Some(time_now()), None).await?;
 
         let root = self.root.read().await;
 
@@ -282,47 +281,6 @@ impl Document {
                 ..Default::default()
             }),
         )?;
-
-        // Upsert the document into the database including updating document indices
-        let mut db = NodeDatabase::new(&db_path)?;
-        db.upsert(&doc_id, &root, true)?;
-
-        Ok(())
-    }
-
-    /// Store the document in the workspace's `.stencila` directory
-    #[tracing::instrument(skip(paths))]
-    pub async fn store_many(paths: &[PathBuf]) -> Result<()> {
-        let Some(first_path) = paths.first() else {
-            return Ok(());
-        };
-        let stencila_dir = closest_stencila_dir(first_path, false).await?;
-        let db_path = stencila_db_dir(&stencila_dir, false).await?;
-
-        let mut db = NodeDatabase::new(&db_path)?;
-
-        for path in paths {
-            let (doc_id, _, store_path, _) = Document::track_path(path, Some(time_now())).await?;
-
-            let doc = Document::open(path).await?;
-            let root = doc.root().await;
-
-            // Write the root node to storage
-            codec_json::to_path(
-                &root,
-                &store_path,
-                Some(EncodeOptions {
-                    compact: Some(false),
-                    ..Default::default()
-                }),
-            )?;
-
-            // Update the document in the database without updating indices
-            db.upsert(&doc_id, &root, false)?;
-        }
-
-        // Update indices
-        db.update()?;
 
         Ok(())
     }
@@ -357,6 +315,7 @@ impl Document {
     pub async fn track_path(
         path: &Path,
         stored_at: Option<u64>,
+        upserted_at: Option<u64>,
     ) -> Result<(NodeId, bool, PathBuf, PathBuf)> {
         if !(path.exists() && path.is_file()) {
             bail!("Path does not exist or is not a file: {}", path.display())
@@ -374,19 +333,20 @@ impl Document {
         let db_path = stencila_dir.join(DB_DIR);
         let relative_path = workspace_relative_path(&stencila_dir, path, true)?;
 
-        // Reuse existing id or create a new one
         if entries.contains_key(&relative_path) {
+            // Update existing entry
             let entry = entries.get_mut(&relative_path).expect("checked above");
             let id = entry.id.clone();
             let store_path = store_dir.join(entry.store_file());
 
-            if stored_at.is_some() {
-                entry.stored_at = stored_at;
-            }
+            entry.stored_at = stored_at;
+            entry.upserted_at = upserted_at;
+
             write_entries(&stencila_dir, &entries).await?;
 
             Ok((id, true, store_path, db_path))
         } else {
+            // Create a new entry
             let id = new_id();
             let format = Format::from_path(path);
 
@@ -394,6 +354,7 @@ impl Document {
                 id: id.clone(),
                 format,
                 stored_at,
+                upserted_at,
                 ..Default::default()
             };
             let store_path = store_dir.join(entry.store_file());
@@ -472,6 +433,65 @@ impl Document {
         Ok(already_tracked)
     }
 
+    /// Add documents to a workspace database
+    #[tracing::instrument(skip(paths))]
+    pub async fn add_paths(stencila_dir: &Path, paths: &[PathBuf]) -> Result<()> {
+        let db_path = stencila_db_dir(&stencila_dir, false).await?;
+        let mut db = NodeDatabase::new(&db_path)?;
+
+        // Open each document, store it and upsert to database
+        for path in paths {
+            let (doc_id, _, store_path, _) =
+                Document::track_path(path, Some(time_now()), Some(time_now())).await?;
+
+            let doc = Document::open(path).await?;
+            let root = doc.root().await;
+
+            // Store root node
+            codec_json::to_path(
+                &root,
+                &store_path,
+                Some(EncodeOptions {
+                    compact: Some(false),
+                    ..Default::default()
+                }),
+            )?;
+
+            // Upsert root node to database
+            db.upsert(&doc_id, &root)?;
+        }
+
+        // Update database indices
+        db.update()?;
+
+        Ok(())
+    }
+
+    /// Remove documents from a workspace database
+    #[tracing::instrument(skip(paths))]
+    pub async fn remove_paths(stencila_dir: &Path, paths: &[PathBuf]) -> Result<()> {
+        let db_path = stencila_db_dir(&stencila_dir, false).await?;
+        let mut db = NodeDatabase::new(&db_path)?;
+
+        // Remove any storage file and db nodes for document
+        for path in paths {
+            let (doc_id, _, store_path, _) = Document::track_path(path, None, None).await?;
+
+            // Remove storage file
+            if store_path.exists() {
+                remove_file(&store_path).await?;
+            }
+
+            // Delete database nodes
+            db.delete(&doc_id)?;
+        }
+
+        // Update database indices
+        db.update()?;
+
+        Ok(())
+    }
+
     /// Stop tracking the document
     ///
     /// Will error if the document does not have a path yet (i.e. if
@@ -518,7 +538,7 @@ impl Document {
             let db_path = stencila_db_dir(&stencila_dir, false).await?;
             if db_path.exists() {
                 let mut db = NodeDatabase::new(&db_path)?;
-                db.delete(&[&doc_id])?;
+                db.delete(&doc_id)?;
             }
         }
 
@@ -592,7 +612,7 @@ impl Document {
         // This is a simple, unoptimized implementation
         Document::untrack_path(from).await?;
         rename(from, to).await?;
-        Document::track_path(to, None).await?;
+        Document::track_path(to, None, None).await?;
 
         Ok(())
     }
@@ -665,14 +685,17 @@ impl Document {
             bail!("No `.stencila/docs.json` entries to rebuild")
         };
 
-        remove_dir_all(stencila_store_dir(&stencila_dir, false).await?).await?;
-        remove_dir_all(stencila_db_dir(&stencila_dir, false).await?).await?;
-
-        for (path, _) in entries {
-            let path = workspace_dir(&stencila_dir)?.join(&path);
-            let doc = Document::open(&path).await?;
-            doc.store().await?;
+        let store_dir = stencila_store_dir(&stencila_dir, false).await?;
+        if store_dir.exists() {
+            remove_dir_all(&store_dir).await?;
         }
+
+        let db_dir = stencila_db_dir(&stencila_dir, false).await?;
+        if db_dir.exists() {
+            remove_dir_all(&db_dir).await?;
+        }
+
+        Self::add_paths(&stencila_dir, &entries.into_keys().collect_vec()).await?;
 
         Ok(())
     }

@@ -103,11 +103,9 @@ impl NodeDatabase {
 
     /// Insert a document into the database
     #[tracing::instrument(skip(self, node))]
-    pub fn insert(&mut self, doc_id: &NodeId, node: &Node, update: bool) -> Result<()> {
+    pub fn insert(&mut self, doc_id: &NodeId, node: &Node) -> Result<()> {
         self.create_node(doc_id, node)?;
-        if update {
-            self.update()?;
-        }
+        self.update()?;
 
         Ok(())
     }
@@ -117,23 +115,23 @@ impl NodeDatabase {
     /// If the document is already in the database it is replaced with
     /// the new `node`.
     #[tracing::instrument(skip(self, node))]
-    pub fn upsert(&mut self, doc_id: &NodeId, node: &Node, update: bool) -> Result<()> {
-        self.delete(&[doc_id])?;
-        self.insert(doc_id, node, update)?;
+    pub fn upsert(&mut self, doc_id: &NodeId, node: &Node) -> Result<()> {
+        self.delete(doc_id)?;
+        self.insert(doc_id, node)?;
 
         Ok(())
     }
 
     /// Delete a document from the database
     #[tracing::instrument(skip(self))]
-    pub fn delete(&mut self, doc_ids: &[&NodeId]) -> Result<()> {
+    pub fn delete(&mut self, doc_id: &NodeId) -> Result<()> {
         let connection = Connection::new(&self.database)?;
 
         let delete_doc = match self.delete_doc_statement.as_mut() {
             Some(statement) => statement,
             None => {
                 let statement = connection
-                    .prepare("MATCH (node) WHERE node.docId IN $doc_ids DETACH DELETE node")?;
+                    .prepare("MATCH (node) WHERE node.docId = $doc_id DETACH DELETE node")?;
                 self.delete_doc_statement = Some(statement);
                 self.delete_doc_statement
                     .as_mut()
@@ -141,12 +139,7 @@ impl NodeDatabase {
             }
         };
 
-        let doc_ids = doc_ids
-            .iter()
-            .map(|&doc_id| doc_id.clone())
-            .collect_vec()
-            .to_kuzu_value();
-        connection.execute(delete_doc, vec![("doc_ids", doc_ids)])?;
+        connection.execute(delete_doc, vec![("doc_id", doc_id.to_kuzu_value())])?;
 
         Ok(())
     }
@@ -154,9 +147,7 @@ impl NodeDatabase {
     /// Update database indices
     #[tracing::instrument(skip(self))]
     pub fn update(&self) -> Result<()> {
-        self.create_fts_indices()?;
-
-        Ok(())
+        self.create_fts_indices()
     }
 
     /// Create a node in the database
@@ -333,9 +324,13 @@ impl NodeDatabase {
     pub fn create_fts_indices(&self) -> Result<()> {
         let connection = Connection::new(&self.database)?;
 
-        connection.query("LOAD EXTENSION FTS;")?;
+        // This occasionally throws error "Too many values for string_format",
+        // although it seems to succeed, so is `ok()`ed.
+        connection.query("LOAD EXTENSION FTS;").ok();
 
         for (table, properties) in FTS_INDICES {
+            // This is `ok()`ed because it may may fail if the index does not exist yet.
+            // This is a lot less code than explicitly listing indices and checking for each one.
             connection
                 .query(&format!("CALL DROP_FTS_INDEX('{table}', 'fts');"))
                 .ok();

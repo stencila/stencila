@@ -22,7 +22,10 @@ use common::{
 use format::Format;
 
 use crate::{
-    dirs::{closest_workspace_dir, stencila_dir_create, CreateStencilaDirOptions, STENCILA_DIR},
+    dirs::{
+        closest_stencila_dir, closest_workspace_dir, stencila_dir_create, CreateStencilaDirOptions,
+        STENCILA_DIR,
+    },
     track::DocumentRemote,
 };
 
@@ -135,7 +138,7 @@ impl Track {
                 self.file.display()
             );
         } else {
-            let (_, already_tracked, ..) = Document::track_path(&self.file, None).await?;
+            let (_, already_tracked, ..) = Document::track_path(&self.file, None, None).await?;
             eprintln!(
                 "🟢 {} tracking `{}`",
                 if already_tracked {
@@ -186,9 +189,32 @@ pub struct Add {
 impl Add {
     #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
-        Document::store_many(&self.files).await?;
+        let Some(first_path) = self.files.first() else {
+            return Ok(());
+        };
+        let stencila_dir = closest_stencila_dir(first_path, false).await?;
 
-        Ok(())
+        Document::add_paths(&stencila_dir, &self.files).await
+    }
+}
+
+/// Remove documents from the workspace database
+#[derive(Debug, Parser)]
+#[clap(alias = "rm")]
+pub struct Remove {
+    /// The files to remove
+    files: Vec<PathBuf>,
+}
+
+impl Remove {
+    #[tracing::instrument]
+    pub async fn run(self) -> Result<()> {
+        let Some(first_path) = self.files.first() else {
+            return Ok(());
+        };
+        let stencila_dir = closest_stencila_dir(first_path, false).await?;
+
+        Document::remove_paths(&stencila_dir, &self.files).await
     }
 }
 
@@ -221,25 +247,6 @@ impl Move {
         }
 
         Document::move_path(&self.from, &self.to).await
-    }
-}
-
-/// Remove documents from the workspace database
-#[derive(Debug, Parser)]
-#[clap(alias = "rm")]
-pub struct Remove {
-    /// The files to remove
-    files: Vec<PathBuf>,
-}
-
-impl Remove {
-    #[tracing::instrument]
-    pub async fn run(self) -> Result<()> {
-        for file in self.files {
-            Document::untrack_path(&file).await?;
-        }
-
-        Ok(())
     }
 }
 
@@ -300,8 +307,9 @@ impl Status {
         table.set_header([
             "File\n↳ Remote",
             "Status",
-            "Modified\n↳ Pulled",
-            "Stored\n↳ Pushed",
+            "Modified\n",
+            "Stored\n↳ Pulled",
+            "Upserted\n↳ Pushed",
         ]);
 
         for (path, entry) in statuses {
@@ -325,19 +333,21 @@ impl Status {
                     String::new()
                 })
                 .fg(color),
-                // Do not show time if deleted
+                // Do not show modified time if deleted
                 Cell::new(if matches!(status, DocumentTrackingStatus::Deleted) {
                     String::new()
                 } else {
                     humanize_timestamp(modified_at)?
                 }),
                 Cell::new(humanize_timestamp(entry.stored_at)?),
+                Cell::new(humanize_timestamp(entry.upserted_at)?),
             ]);
 
             for (url, remote) in entry.remotes.iter().flatten() {
                 table.add_row([
                     Cell::new(format!("↳ {url}")),
-                    Cell::new("").fg(color),
+                    Cell::new(""),
+                    Cell::new(""),
                     Cell::new(format!("↳ {}", humanize_timestamp(remote.pulled_at)?))
                         .add_attribute(if remote.pulled_at.is_none() {
                             Attribute::Dim
@@ -364,7 +374,7 @@ fn humanize_timestamp(time: Option<u64>) -> Result<String> {
     use chrono_humanize::{Accuracy, HumanTime, Tense};
 
     let Some(time) = time else {
-        return Ok(String::from("never"));
+        return Ok(String::from("-"));
     };
 
     let seconds = SystemTime::now()
