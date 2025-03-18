@@ -3,7 +3,7 @@
 use common::{
     proc_macro2::TokenStream,
     quote::quote,
-    syn::{parse_macro_input, Data, DataEnum, DataStruct, DeriveInput, Fields},
+    syn::{parse_macro_input, Data, DataEnum, DataStruct, DeriveInput, Fields, PathSegment, Type},
 };
 
 /// Derive the `TextCodec` trait for a `struct` or an `enum`
@@ -46,7 +46,7 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
     let mut fields = TokenStream::new();
     for field in &data.fields {
         let field_indent = &field.ident;
-        let field_name = &field
+        let field_name = field
             .ident
             .as_ref()
             .map(|ident| ident.to_string())
@@ -60,13 +60,51 @@ fn derive_struct(input: &DeriveInput, data: &DataStruct) -> TokenStream {
             continue;
         }
 
-        let field = {
+        let Type::Path(type_path) = &field.ty else {
+            continue;
+        };
+        let Some(PathSegment {
+            ident: field_type, ..
+        }) = type_path.path.segments.last()
+        else {
+            continue;
+        };
+
+        // Only treat certain properties as having text content. This avoid string properties like
+        // `programmingLanguage` and enums like `List.order` from being included in text.
+        let field = if [
+            "abstract",
+            "caption",
+            "cells",
+            "code",
+            "content",
+            "description",
+            "rows",
+            "title",
+            "value",
+        ]
+        .contains(&field_name.as_str())
+        {
             quote! {
                 let (field_text, field_losses) = self.#field_indent.to_text();
+                if !text.is_empty() && !text.ends_with(" ") {
+                    text.push(' ');
+                }
                 text.push_str(&field_text);
                 losses.merge(field_losses);
             }
+        } else if field_type == "Option" {
+            quote! {
+                if self.#field_indent.is_some() {
+                    losses.add_prop(self, stringify!(#field_name));
+                }
+            }
+        } else {
+            quote! {
+                losses.add_prop(self, stringify!(#field_name));
+            }
         };
+
         fields.extend(field);
     }
 

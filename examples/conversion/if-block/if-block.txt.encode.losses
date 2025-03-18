@@ -1,4 +1,6 @@
 Article#: 1
-IfBlock#: 6
-IfBlockClause#: 11
-Paragraph#: 15
+Article.options: 1
+IfBlock#: 5
+IfBlock.clauses: 5
+IfBlock.options: 5
+Paragraph#: 5

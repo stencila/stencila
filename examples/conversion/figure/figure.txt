@@ -1,1 +1,1 @@
-https://example.org/cat.jpg 2falseA dog.https://example.org/dog.jpg A figure of a mouse inside a section.https://example.org/mouse.jpg
+ A dog. A figure of a mouse inside a section. 

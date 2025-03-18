@@ -1,7 +1,11 @@
 Article#: 1
-Date#: 3
+Article.dateAccepted: 1
+Article.dateCreated: 1
+Article.datePublished: 1
+Article.frontmatter: 1
+Article.keywords: 1
+Article.options: 1
 Link#: 1
-Organization#: 1
+Link.target: 1
 Paragraph#: 1
-Person#: 1
 QuoteInline#: 1

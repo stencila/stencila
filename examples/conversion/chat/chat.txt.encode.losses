@@ -1,6 +1,10 @@
 Chat#: 1
-ChatMessage#: 6
+Chat.modelParameters: 1
+Chat.options: 1
+Chat.prompt: 1
+ChatMessage#: 4
+ChatMessage.options: 4
+ChatMessage.role: 4
 ChatMessageGroup#: 1
-ModelParameters#: 1
-Paragraph#: 6
-PromptBlock#: 1
+ChatMessageGroup.messages: 1
+Paragraph#: 4
