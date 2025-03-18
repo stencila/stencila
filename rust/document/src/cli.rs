@@ -28,7 +28,7 @@ use crate::{
 
 use super::{track::DocumentTrackingStatus, Document};
 
-/// Initialize document config and database
+/// Initialize workspace config and database
 #[derive(Debug, Parser)]
 pub struct Init {
     /// The workspace directory to initialize
@@ -67,10 +67,10 @@ impl Init {
     }
 }
 
-/// Rebuild the document database
+/// Rebuild the a workspace database
 #[derive(Debug, Parser)]
 pub struct Rebuild {
-    /// TThe workspace directory to rebuild the database for
+    /// The workspace directory to rebuild the database for
     ///
     /// Defaults to the current directory.
     #[arg(default_value = ".")]
@@ -177,19 +177,19 @@ impl Untrack {
 }
 
 /// Add documents to the workspace database
-///
-/// Requires that the workspace has been initialized already using `stencila init`.
 #[derive(Debug, Parser)]
 pub struct Add {
-    /// The path of the file
-    file: PathBuf,
+    /// The files to add
+    files: Vec<PathBuf>,
 }
 
 impl Add {
     #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
-        let doc = Document::open(&self.file).await?;
-        doc.store().await?;
+        for file in self.files {
+            let doc = Document::open(&file).await?;
+            doc.store().await?;
+        }
 
         Ok(())
     }
