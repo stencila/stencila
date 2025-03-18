@@ -55,8 +55,8 @@ impl Schemas {
             "mathml",
             "value",
             // Avoid many paragraph nodes for each table cell with `text`
-            // same as the `text` of the table cell itself (most table cells have a single paragraph) 
-            "TableCell.content"
+            // same as the `text` of the table cell itself (most table cells have a single paragraph)
+            "TableCell.content",
         ];
 
         let skip_types = [
@@ -170,7 +170,9 @@ impl Schemas {
             let mut properties = Vec::new();
             let mut relations = Vec::new();
             for (name, property) in &schema.properties {
-                if skip_props.contains(&name.as_str()) || skip_props.contains(&format!("{title}.{name}").as_str()) {
+                if skip_props.contains(&name.as_str())
+                    || skip_props.contains(&format!("{title}.{name}").as_str())
+                {
                     continue;
                 }
 
@@ -389,7 +391,7 @@ impl Schemas {
 
             let implem_rel_tables = relations
                 .into_iter()
-                .map(|(name, on_options, is_option, is_array, ref_type)| {                    
+                .map(|(name, on_options, is_option, is_array, ref_type)| {
                     let property = name.to_pascal_case();
 
                     let mut field = name.to_snake_case();
@@ -414,19 +416,7 @@ impl Schemas {
                             collect += ".flatten()"
                         }
 
-                        collect += ".enumerate()";
-
-                        collect += if ref_type == "Inline" {
-                            ".flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) })"
-                        } else if ref_type == "Block" {
-                            ".flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)))"
-                        } else {
-                            ".map(|(index, item)| (item.node_type(), item.node_id(), index + 1))"
-                        };
-
-                        collect += ".collect()";
-
-                        collect
+                        format!("relations({collect})")
                     };
 
                     format!("(NodeProperty::{property}, {collect})")
@@ -499,7 +489,7 @@ LOAD EXTENSION FTS;
         )
         .await?;
 
-        for title in ["Node", "Block", "Inline"] {
+        for title in ["Node", "Block", "Inline", "Author"] {
             let variants = self
                 .schemas
                 .get(title)
@@ -535,7 +525,8 @@ LOAD EXTENSION FTS;
                 .join(",\n            ");
 
             implems.push(format!(
-                r#"impl DatabaseNode for {title} {{
+                r#"#[allow(unreachable_patterns)]
+impl DatabaseNode for {title} {{
     fn node_type(&self) -> NodeType {{
         match self {{
             {node_type},
@@ -581,6 +572,16 @@ use codec_text_trait::to_text;
 use schema::*;
 
 use super::{{DatabaseNode, ToKuzu}};
+
+fn relations<'lt, I, D>(iter: I) -> Vec<(NodeType, NodeId, usize)>
+where
+    I: Iterator<Item = &'lt D>,
+    D: DatabaseNode + 'lt,
+{{
+    iter.enumerate()
+        .flat_map(|(index, item)| (!matches!(item.node_type(), NodeType::Unknown)).then_some((item.node_type(), item.node_id(), index + 1)))
+        .collect()
+}}
 
 {implems}
 "

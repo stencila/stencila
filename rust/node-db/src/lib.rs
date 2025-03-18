@@ -16,8 +16,8 @@ use common::{
     tracing,
 };
 use schema::{
-    Block, Inline, ListItem, Node, NodeId, NodeProperty, NodeType, TableCell, TableRow, Visitor,
-    WalkControl,
+    Block, IfBlockClause, Inline, ListItem, Node, NodeId, NodeProperty, NodeType, TableCell,
+    TableRow, Visitor, WalkControl,
 };
 
 #[rustfmt::skip]
@@ -428,6 +428,11 @@ impl Visitor for DatabaseWalker {
     }
 
     fn visit_block(&mut self, node: &Block) -> WalkControl {
+        self.visit_database_node(node);
+        WalkControl::Continue
+    }
+
+    fn visit_if_block_clause(&mut self, node: &IfBlockClause) -> WalkControl {
         self.visit_database_node(node);
         WalkControl::Continue
     }

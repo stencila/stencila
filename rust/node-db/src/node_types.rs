@@ -7,6 +7,16 @@ use schema::*;
 
 use super::{DatabaseNode, ToKuzu};
 
+fn relations<'lt, I, D>(iter: I) -> Vec<(NodeType, NodeId, usize)>
+where
+    I: Iterator<Item = &'lt D>,
+    D: DatabaseNode + 'lt,
+{
+    iter.enumerate()
+        .flat_map(|(index, item)| (!matches!(item.node_type(), NodeType::Unknown)).then_some((item.node_type(), item.node_id(), index + 1)))
+        .collect()
+}
+
 impl DatabaseNode for Admonition {
     fn node_type(&self) -> NodeType {
         NodeType::Admonition
@@ -25,9 +35,9 @@ impl DatabaseNode for Admonition {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Title, self.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Title, relations(self.title.iter().flatten())),
+            (NodeProperty::Content, relations(self.content.iter())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -49,8 +59,8 @@ impl DatabaseNode for Annotation {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
-            (NodeProperty::Annotation, self.annotation.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Content, relations(self.content.iter())),
+            (NodeProperty::Annotation, relations(self.annotation.iter().flatten()))
         ]
     }
 }
@@ -90,14 +100,14 @@ impl DatabaseNode for Article {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Abstract, self.r#abstract.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Abstract, relations(self.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::Comments, relations(self.options.comments.iter().flatten())),
+            (NodeProperty::Title, relations(self.title.iter().flatten())),
+            (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
 }
@@ -135,14 +145,14 @@ impl DatabaseNode for AudioObject {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Abstract, self.options.r#abstract.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.options.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
-            (NodeProperty::Caption, self.caption.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::Comments, relations(self.options.comments.iter().flatten())),
+            (NodeProperty::Title, relations(self.title.iter().flatten())),
+            (NodeProperty::Caption, relations(self.caption.iter().flatten()))
         ]
     }
 }
@@ -192,8 +202,8 @@ impl DatabaseNode for Brand {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Logo, self.options.logo.iter().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Logo, relations(self.options.logo.iter()))
         ]
     }
 }
@@ -220,7 +230,7 @@ impl DatabaseNode for Cite {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.options.content.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
+            (NodeProperty::Content, relations(self.options.content.iter().flatten()))
         ]
     }
 }
@@ -242,7 +252,7 @@ impl DatabaseNode for CiteGroup {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Items, self.items.iter().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Items, relations(self.items.iter()))
         ]
     }
 }
@@ -276,14 +286,14 @@ impl DatabaseNode for Claim {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Abstract, self.options.r#abstract.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::Comments, relations(self.options.comments.iter().flatten())),
+            (NodeProperty::Title, relations(self.options.title.iter().flatten())),
+            (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
 }
@@ -306,7 +316,7 @@ impl DatabaseNode for CodeBlock {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -343,8 +353,8 @@ impl DatabaseNode for CodeChunk {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Caption, self.caption.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
+            (NodeProperty::Caption, relations(self.caption.iter().flatten()))
         ]
     }
 }
@@ -375,7 +385,7 @@ impl DatabaseNode for CodeExpression {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -398,7 +408,7 @@ impl DatabaseNode for CodeInline {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -430,13 +440,13 @@ impl DatabaseNode for Collection {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Abstract, self.options.r#abstract.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.options.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::Comments, relations(self.options.comments.iter().flatten())),
+            (NodeProperty::Title, relations(self.options.title.iter().flatten()))
         ]
     }
 }
@@ -469,15 +479,15 @@ impl DatabaseNode for Comment {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Abstract, self.options.r#abstract.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::ParentItem, self.options.parent_item.iter().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::Comments, relations(self.options.comments.iter().flatten())),
+            (NodeProperty::Title, relations(self.options.title.iter().flatten())),
+            (NodeProperty::Content, relations(self.content.iter())),
+            (NodeProperty::ParentItem, relations(self.options.parent_item.iter()))
         ]
     }
 }
@@ -505,7 +515,7 @@ impl DatabaseNode for ContactPoint {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten()))
         ]
     }
 }
@@ -537,13 +547,13 @@ impl DatabaseNode for CreativeWork {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Abstract, self.options.r#abstract.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.options.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::Comments, relations(self.options.comments.iter().flatten())),
+            (NodeProperty::Title, relations(self.options.title.iter().flatten()))
         ]
     }
 }
@@ -569,7 +579,7 @@ impl DatabaseNode for DefinedTerm {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten()))
         ]
     }
 }
@@ -614,7 +624,7 @@ impl DatabaseNode for Emphasis {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
+            (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
 }
@@ -648,15 +658,15 @@ impl DatabaseNode for Figure {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Abstract, self.options.r#abstract.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
-            (NodeProperty::Caption, self.caption.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::Comments, relations(self.options.comments.iter().flatten())),
+            (NodeProperty::Title, relations(self.options.title.iter().flatten())),
+            (NodeProperty::Caption, relations(self.caption.iter().flatten())),
+            (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
 }
@@ -715,10 +725,10 @@ impl DatabaseNode for ForBlock {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Otherwise, self.otherwise.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Iterations, self.iterations.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
+            (NodeProperty::Content, relations(self.content.iter())),
+            (NodeProperty::Otherwise, relations(self.otherwise.iter().flatten())),
+            (NodeProperty::Iterations, relations(self.iterations.iter().flatten()))
         ]
     }
 }
@@ -740,7 +750,7 @@ impl DatabaseNode for Function {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Parameters, self.parameters.iter().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Parameters, relations(self.parameters.iter()))
         ]
     }
 }
@@ -765,7 +775,7 @@ impl DatabaseNode for Grant {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten()))
         ]
     }
 }
@@ -787,8 +797,8 @@ impl DatabaseNode for Heading {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Content, relations(self.content.iter())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -815,7 +825,7 @@ impl DatabaseNode for IfBlock {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Clauses, self.clauses.iter().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Clauses, relations(self.clauses.iter()))
         ]
     }
 }
@@ -847,8 +857,8 @@ impl DatabaseNode for IfBlockClause {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
+            (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
 }
@@ -885,15 +895,15 @@ impl DatabaseNode for ImageObject {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Abstract, self.options.r#abstract.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.options.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
-            (NodeProperty::Caption, self.caption.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
-            (NodeProperty::Thumbnail, self.options.thumbnail.iter().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::Comments, relations(self.options.comments.iter().flatten())),
+            (NodeProperty::Title, relations(self.title.iter().flatten())),
+            (NodeProperty::Caption, relations(self.caption.iter().flatten())),
+            (NodeProperty::Thumbnail, relations(self.options.thumbnail.iter()))
         ]
     }
 }
@@ -923,7 +933,7 @@ impl DatabaseNode for IncludeBlock {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Content, relations(self.content.iter().flatten()))
         ]
     }
 }
@@ -947,7 +957,7 @@ impl DatabaseNode for Link {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
+            (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
 }
@@ -969,8 +979,8 @@ impl DatabaseNode for List {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Items, self.items.iter().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Items, relations(self.items.iter())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -997,8 +1007,8 @@ impl DatabaseNode for ListItem {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
 }
@@ -1023,7 +1033,7 @@ impl DatabaseNode for MathBlock {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -1046,7 +1056,7 @@ impl DatabaseNode for MathInline {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -1083,13 +1093,13 @@ impl DatabaseNode for MediaObject {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Abstract, self.options.r#abstract.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.options.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::Comments, relations(self.options.comments.iter().flatten())),
+            (NodeProperty::Title, relations(self.options.title.iter().flatten()))
         ]
     }
 }
@@ -1115,7 +1125,7 @@ impl DatabaseNode for MonetaryGrant {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten()))
         ]
     }
 }
@@ -1137,7 +1147,7 @@ impl DatabaseNode for Note {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
 }
@@ -1163,12 +1173,12 @@ impl DatabaseNode for Organization {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Brands, self.options.brands.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::ContactPoints, self.options.contact_points.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Departments, self.options.departments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Logo, self.options.logo.iter().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::ParentOrganization, self.options.parent_organization.iter().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Brands, relations(self.options.brands.iter().flatten())),
+            (NodeProperty::ContactPoints, relations(self.options.contact_points.iter().flatten())),
+            (NodeProperty::Departments, relations(self.options.departments.iter().flatten())),
+            (NodeProperty::Logo, relations(self.options.logo.iter())),
+            (NodeProperty::ParentOrganization, relations(self.options.parent_organization.iter()))
         ]
     }
 }
@@ -1190,8 +1200,8 @@ impl DatabaseNode for Paragraph {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Content, relations(self.content.iter())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -1256,13 +1266,13 @@ impl DatabaseNode for Periodical {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Abstract, self.options.r#abstract.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.options.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::Comments, relations(self.options.comments.iter().flatten())),
+            (NodeProperty::Title, relations(self.options.title.iter().flatten()))
         ]
     }
 }
@@ -1294,9 +1304,9 @@ impl DatabaseNode for Person {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Affiliations, self.affiliations.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::MemberOf, self.options.member_of.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Affiliations, relations(self.affiliations.iter().flatten())),
+            (NodeProperty::MemberOf, relations(self.options.member_of.iter().flatten()))
         ]
     }
 }
@@ -1330,7 +1340,7 @@ impl DatabaseNode for PostalAddress {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten()))
         ]
     }
 }
@@ -1356,9 +1366,9 @@ impl DatabaseNode for Product {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Brands, self.options.brands.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Logo, self.options.logo.iter().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Brands, relations(self.options.brands.iter().flatten())),
+            (NodeProperty::Logo, relations(self.options.logo.iter()))
         ]
     }
 }
@@ -1384,7 +1394,7 @@ impl DatabaseNode for PropertyValue {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten()))
         ]
     }
 }
@@ -1417,13 +1427,13 @@ impl DatabaseNode for PublicationIssue {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Abstract, self.options.r#abstract.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.options.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::Comments, relations(self.options.comments.iter().flatten())),
+            (NodeProperty::Title, relations(self.options.title.iter().flatten()))
         ]
     }
 }
@@ -1456,13 +1466,13 @@ impl DatabaseNode for PublicationVolume {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Abstract, self.options.r#abstract.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.options.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::Comments, relations(self.options.comments.iter().flatten())),
+            (NodeProperty::Title, relations(self.options.title.iter().flatten()))
         ]
     }
 }
@@ -1484,8 +1494,8 @@ impl DatabaseNode for QuoteBlock {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Content, relations(self.content.iter())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -1507,7 +1517,7 @@ impl DatabaseNode for QuoteInline {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
+            (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
 }
@@ -1531,7 +1541,7 @@ impl DatabaseNode for RawBlock {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -1564,13 +1574,13 @@ impl DatabaseNode for Review {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Abstract, self.options.r#abstract.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.options.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::Comments, relations(self.options.comments.iter().flatten())),
+            (NodeProperty::Title, relations(self.options.title.iter().flatten()))
         ]
     }
 }
@@ -1592,8 +1602,8 @@ impl DatabaseNode for Section {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Content, relations(self.content.iter())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -1627,14 +1637,14 @@ impl DatabaseNode for SoftwareApplication {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Abstract, self.options.r#abstract.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.options.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
-            (NodeProperty::SoftwareRequirements, self.options.software_requirements.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::Comments, relations(self.options.comments.iter().flatten())),
+            (NodeProperty::Title, relations(self.options.title.iter().flatten())),
+            (NodeProperty::SoftwareRequirements, relations(self.options.software_requirements.iter().flatten()))
         ]
     }
 }
@@ -1670,14 +1680,14 @@ impl DatabaseNode for SoftwareSourceCode {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Abstract, self.options.r#abstract.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.options.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
-            (NodeProperty::TargetProducts, self.target_products.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::Comments, relations(self.options.comments.iter().flatten())),
+            (NodeProperty::Title, relations(self.options.title.iter().flatten())),
+            (NodeProperty::TargetProducts, relations(self.target_products.iter().flatten()))
         ]
     }
 }
@@ -1699,7 +1709,7 @@ impl DatabaseNode for Strikeout {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
+            (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
 }
@@ -1721,7 +1731,7 @@ impl DatabaseNode for Strong {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
+            (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
 }
@@ -1746,8 +1756,8 @@ impl DatabaseNode for StyledBlock {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
+            (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
 }
@@ -1772,8 +1782,8 @@ impl DatabaseNode for StyledInline {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
+            (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
 }
@@ -1795,7 +1805,7 @@ impl DatabaseNode for Subscript {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
+            (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
 }
@@ -1817,7 +1827,7 @@ impl DatabaseNode for Superscript {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
+            (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
 }
@@ -1851,16 +1861,16 @@ impl DatabaseNode for Table {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Abstract, self.options.r#abstract.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.options.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
-            (NodeProperty::Caption, self.caption.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Rows, self.rows.iter().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Notes, self.notes.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::Comments, relations(self.options.comments.iter().flatten())),
+            (NodeProperty::Title, relations(self.options.title.iter().flatten())),
+            (NodeProperty::Caption, relations(self.caption.iter().flatten())),
+            (NodeProperty::Rows, relations(self.rows.iter())),
+            (NodeProperty::Notes, relations(self.notes.iter().flatten()))
         ]
     }
 }
@@ -1911,7 +1921,7 @@ impl DatabaseNode for TableRow {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Cells, self.cells.iter().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Cells, relations(self.cells.iter()))
         ]
     }
 }
@@ -1958,7 +1968,7 @@ impl DatabaseNode for Thing {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten()))
         ]
     }
 }
@@ -1980,7 +1990,7 @@ impl DatabaseNode for Underline {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect())
+            (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
 }
@@ -2066,19 +2076,20 @@ impl DatabaseNode for VideoObject {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Images, self.options.images.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Abstract, self.options.r#abstract.iter().flatten().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect()),
-            (NodeProperty::Authors, self.options.authors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Contributors, self.options.contributors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Editors, self.options.editors.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Comments, self.options.comments.iter().flatten().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect()),
-            (NodeProperty::Title, self.title.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
-            (NodeProperty::Caption, self.caption.iter().flatten().enumerate().flat_map(|(index, item)| if matches!(item.node_type(), NodeType::Text) { None } else { item.node_id().map(|node_id| (item.node_type(), node_id, index + 1)) }).collect()),
-            (NodeProperty::Thumbnail, self.options.thumbnail.iter().enumerate().map(|(index, item)| (item.node_type(), item.node_id(), index + 1)).collect())
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::Comments, relations(self.options.comments.iter().flatten())),
+            (NodeProperty::Title, relations(self.title.iter().flatten())),
+            (NodeProperty::Caption, relations(self.caption.iter().flatten())),
+            (NodeProperty::Thumbnail, relations(self.options.thumbnail.iter()))
         ]
     }
 }
 
+#[allow(unreachable_patterns)]
 impl DatabaseNode for Node {
     fn node_type(&self) -> NodeType {
         match self {
@@ -2385,6 +2396,7 @@ impl DatabaseNode for Node {
     }
 }
 
+#[allow(unreachable_patterns)]
 impl DatabaseNode for Block {
     fn node_type(&self) -> NodeType {
         match self {
@@ -2499,6 +2511,7 @@ impl DatabaseNode for Block {
     }
 }
 
+#[allow(unreachable_patterns)]
 impl DatabaseNode for Inline {
     fn node_type(&self) -> NodeType {
         match self {
@@ -2604,6 +2617,49 @@ impl DatabaseNode for Inline {
             Inline::Superscript(node) => node.rel_tables(),
             Inline::Underline(node) => node.rel_tables(),
             Inline::VideoObject(node) => node.rel_tables(),
+            _ => Vec::new()
+        }
+    }
+}
+
+#[allow(unreachable_patterns)]
+impl DatabaseNode for Author {
+    fn node_type(&self) -> NodeType {
+        match self {
+            Author::Person(node) => node.node_type(),
+            Author::Organization(node) => node.node_type(),
+            Author::SoftwareApplication(node) => node.node_type(),
+            Author::AuthorRole(node) => node.node_type(),
+            _ => NodeType::Unknown
+        }
+    }
+
+    fn node_id(&self) -> NodeId {
+        match self {
+            Author::Person(node) => node.node_id(),
+            Author::Organization(node) => node.node_id(),
+            Author::SoftwareApplication(node) => node.node_id(),
+            Author::AuthorRole(node) => node.node_id(),
+            _ => NodeId::null()
+        }
+    }
+
+    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
+        match self {
+            Author::Person(node) => node.node_table(),
+            Author::Organization(node) => node.node_table(),
+            Author::SoftwareApplication(node) => node.node_table(),
+            Author::AuthorRole(node) => node.node_table(),
+            _ => Vec::new()
+        }
+    }
+
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
+        match self {
+            Author::Person(node) => node.rel_tables(),
+            Author::Organization(node) => node.rel_tables(),
+            Author::SoftwareApplication(node) => node.rel_tables(),
+            Author::AuthorRole(node) => node.rel_tables(),
             _ => Vec::new()
         }
     }
