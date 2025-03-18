@@ -65,10 +65,13 @@ impl NodeDatabase {
                 let connection = Connection::new(&database)?;
                 let schema = include_str!("schema.kuzu");
                 for statement in schema.split(";") {
-                    if statement.starts_with("//") || statement.trim().is_empty() {
+                    let statement = statement.trim();
+                    if statement.starts_with("//") || statement.is_empty() {
                         continue;
                     }
-                    connection.query(statement)?;
+                    connection
+                        .query(statement)
+                        .wrap_err_with(|| eyre!("Failed to execute: {statement}"))?;
                 }
                 Ok::<(), Report>(())
             };
@@ -174,14 +177,14 @@ impl NodeDatabase {
     ) -> Result<()> {
         let connection = Connection::new(&self.database)?;
 
-        if entries.len() < USE_CSV_COUNT {
-            // Get node table properties and add additional properties
-            let mut properties = properties
-                .into_iter()
-                .map(|(prop, ..)| prop.to_camel_case())
-                .collect_vec();
-            properties.append(&mut vec!["docId".to_string(), "nodeId".to_string()]);
+        // Get node table properties and add additional properties
+        let mut properties = properties
+            .into_iter()
+            .map(|(prop, ..)| prop.to_camel_case())
+            .collect_vec();
+        properties.append(&mut vec!["docId".to_string(), "nodeId".to_string()]);
 
+        if entries.len() < USE_CSV_COUNT {
             // Get, or prepare, `CREATE` statement
             let statement = match self.create_node_statements.get_mut(&node_type) {
                 Some(statement) => statement,
@@ -221,6 +224,7 @@ impl NodeDatabase {
             }
         } else {
             let mut csv = NamedTempFile::new()?;
+            writeln!(&mut csv, "{}", properties.join(","))?;
             for (node_id, values) in entries {
                 for value in values {
                     let field = escape_csv_field(value.to_string());
@@ -231,7 +235,7 @@ impl NodeDatabase {
 
             let filename = csv.path().to_string_lossy();
             connection.query(&format!(
-                "COPY `{node_type}` FROM '{filename}' (file_format='csv', auto_detect=false);"
+                "COPY `{node_type}` FROM '{filename}' (HEADER=true, file_format='csv', auto_detect=false);"
             ))?;
         }
 
