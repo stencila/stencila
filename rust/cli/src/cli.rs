@@ -101,9 +101,10 @@ pub enum Command {
     Add(document::cli::Add),
     Remove(document::cli::Remove),
     Move(document::cli::Move),
-    Status(document::cli::Status),
     Track(document::cli::Track),
     Untrack(document::cli::Untrack),
+    Status(document::cli::Status),
+    Rebuild(document::cli::Rebuild),
 
     Convert(convert::Cli),
     Sync(sync::Cli),
@@ -153,6 +154,7 @@ impl Cli {
             Command::Track(track) => track.run().await?,
             Command::Untrack(untrack) => untrack.run().await?,
             Command::Status(status) => status.run().await?,
+            Command::Rebuild(rebuild) => rebuild.run().await?,
 
             Command::Convert(convert) => convert.run().await?,
             Command::Sync(sync) => sync.run().await?,

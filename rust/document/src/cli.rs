@@ -28,10 +28,10 @@ use crate::{
 
 use super::{track::DocumentTrackingStatus, Document};
 
-/// Initialize document config and tracking
+/// Initialize document config and database
 #[derive(Debug, Parser)]
 pub struct Init {
-    /// The directory to start document tracking in
+    /// The workspace directory to initialize
     ///
     /// Defaults to the current directory.
     #[arg(default_value = ".")]
@@ -64,6 +64,23 @@ impl Init {
         );
 
         Ok(())
+    }
+}
+
+/// Rebuild the document database
+#[derive(Debug, Parser)]
+pub struct Rebuild {
+    /// TThe workspace directory to rebuild the database for
+    ///
+    /// Defaults to the current directory.
+    #[arg(default_value = ".")]
+    dir: PathBuf,
+}
+
+impl Rebuild {
+    #[tracing::instrument]
+    pub async fn run(self) -> Result<()> {
+        Document::tracking_rebuild(&self.dir).await
     }
 }
 

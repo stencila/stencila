@@ -20,7 +20,7 @@ use common::{
     strum::Display,
     tokio::{
         self,
-        fs::{read_to_string, remove_file, rename, write},
+        fs::{read_to_string, remove_dir_all, remove_file, rename, write},
     },
     tracing,
 };
@@ -28,8 +28,8 @@ use format::Format;
 
 use crate::{
     dirs::{
-        closest_stencila_dir, stencila_docs_file, workspace_relative_path, DB_DIR, DOCS_FILE,
-        STORE_DIR,
+        closest_stencila_dir, stencila_db_dir, stencila_docs_file, stencila_store_dir,
+        workspace_dir, workspace_relative_path, DB_DIR, DOCS_FILE, STORE_DIR,
     },
     Document,
 };
@@ -618,6 +618,30 @@ impl Document {
         Ok(closest_entries(path, false)
             .await?
             .map(|(.., entries)| entries))
+    }
+
+    /// Rebuild the store and db directories
+    /// 
+    /// Deletes any existing `store` and `db` directories and re-stores document's in
+    /// the `docs.json file`.
+    /// 
+    /// Useful if any changes to the Stencila Schema require a rebuild of the stored
+    /// JSON and/or database without having to remove other tracking information.
+    pub async fn tracking_rebuild(path: &Path) -> Result<()> {
+        let Some((stencila_dir, entries)) = closest_entries(path, false).await? else {
+            bail!("No `.stencila/docs.json` entries to rebuild")
+        };
+
+        remove_dir_all(stencila_store_dir(&stencila_dir, false).await?).await?;
+        remove_dir_all(stencila_db_dir(&stencila_dir, false).await?).await?;
+
+        for (path, _) in entries {
+            let path = workspace_dir(&stencila_dir)?.join(&path);
+            let doc = Document::open(&path).await?;
+            doc.store().await?;
+        }
+
+        Ok(())
     }
 
     /// Returns a list of tracked remotes for a document
