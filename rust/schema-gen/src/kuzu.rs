@@ -54,6 +54,9 @@ impl Schemas {
             "executionInstance",
             "mathml",
             "value",
+            // Avoid many paragraph nodes for each table cell with `text`
+            // same as the `text` of the table cell itself (most table cells have a single paragraph) 
+            "TableCell.content"
         ];
 
         let skip_types = [
@@ -167,7 +170,7 @@ impl Schemas {
             let mut properties = Vec::new();
             let mut relations = Vec::new();
             for (name, property) in &schema.properties {
-                if skip_props.contains(&name.as_str()) {
+                if skip_props.contains(&name.as_str()) || skip_props.contains(&format!("{title}.{name}").as_str()) {
                     continue;
                 }
 

@@ -1889,7 +1889,7 @@ impl DatabaseNode for TableCell {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {
         vec![
-            (NodeProperty::Content, self.content.iter().enumerate().flat_map(|(index, item)| item.node_id().map(|node_id| (item.node_type(), node_id, index + 1))).collect())
+            
         ]
     }
 }
