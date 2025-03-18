@@ -94,7 +94,8 @@ impl DatabaseNode for Article {
             (NodeProperty::ExecutionEnded, Timestamp::to_kuzu_type(), self.options.execution_ended.to_kuzu_value()),
             (NodeProperty::ExecutionDuration, Duration::to_kuzu_type(), self.options.execution_duration.to_kuzu_value()),
             (NodeProperty::Pagination, String::to_kuzu_type(), self.options.pagination.to_kuzu_value()),
-            (NodeProperty::Frontmatter, String::to_kuzu_type(), self.frontmatter.to_kuzu_value())
+            (NodeProperty::Frontmatter, String::to_kuzu_type(), self.frontmatter.to_kuzu_value()),
+            (NodeProperty::Abstract, String::to_kuzu_type(), to_text(&self.r#abstract).to_kuzu_value())
         ]
     }
 
@@ -347,7 +348,8 @@ impl DatabaseNode for CodeChunk {
             (NodeProperty::LabelAutomatically, bool::to_kuzu_type(), self.label_automatically.to_kuzu_value()),
             (NodeProperty::IsEchoed, bool::to_kuzu_type(), self.is_echoed.to_kuzu_value()),
             (NodeProperty::IsHidden, bool::to_kuzu_type(), self.is_hidden.to_kuzu_value()),
-            (NodeProperty::ExecutionPure, bool::to_kuzu_type(), self.options.execution_pure.to_kuzu_value())
+            (NodeProperty::ExecutionPure, bool::to_kuzu_type(), self.options.execution_pure.to_kuzu_value()),
+            (NodeProperty::Caption, String::to_kuzu_type(), to_text(&self.caption).to_kuzu_value())
         ]
     }
 
@@ -652,7 +654,8 @@ impl DatabaseNode for Figure {
             (NodeProperty::Genre, Vec::<String>::to_kuzu_type(), self.options.genre.to_kuzu_value()),
             (NodeProperty::Keywords, Vec::<String>::to_kuzu_type(), self.options.keywords.to_kuzu_value()),
             (NodeProperty::Label, String::to_kuzu_type(), self.label.to_kuzu_value()),
-            (NodeProperty::LabelAutomatically, bool::to_kuzu_type(), self.label_automatically.to_kuzu_value())
+            (NodeProperty::LabelAutomatically, bool::to_kuzu_type(), self.label_automatically.to_kuzu_value()),
+            (NodeProperty::Caption, String::to_kuzu_type(), to_text(&self.caption).to_kuzu_value())
         ]
     }
 
@@ -1855,7 +1858,8 @@ impl DatabaseNode for Table {
             (NodeProperty::Genre, Vec::<String>::to_kuzu_type(), self.options.genre.to_kuzu_value()),
             (NodeProperty::Keywords, Vec::<String>::to_kuzu_type(), self.options.keywords.to_kuzu_value()),
             (NodeProperty::Label, String::to_kuzu_type(), self.label.to_kuzu_value()),
-            (NodeProperty::LabelAutomatically, bool::to_kuzu_type(), self.label_automatically.to_kuzu_value())
+            (NodeProperty::LabelAutomatically, bool::to_kuzu_type(), self.label_automatically.to_kuzu_value()),
+            (NodeProperty::Caption, String::to_kuzu_type(), to_text(&self.caption).to_kuzu_value())
         ]
     }
 

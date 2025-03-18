@@ -1,4 +1,7 @@
-use std::{collections::BTreeMap, path::PathBuf};
+use std::{
+    collections::{BTreeMap, HashMap},
+    path::PathBuf,
+};
 
 use common::{
     eyre::{bail, OptionExt, Result},
@@ -134,9 +137,17 @@ impl Schemas {
         // Union types that need to be expanded
         let expand_types = ["Block", "Inline", "Author", "AuthorRoleAuthor"];
 
-        // Node types for which a `text` property should be added with the plain text
-        // representation of the node to be used in FTS and semantic search
-        let add_text = ["Paragraph", "TableCell"];
+        // Node types for which a text property should be added with the plain text
+        // representation of the node, or one of its properties, to be used in FTS and semantic search,
+        // or in the case of `TableCell` just to use string functions like `contains` or pattern matching
+        let text_properties = HashMap::from([
+            ("Article", ("abstract", "r#abstract")),
+            ("Table", ("caption", "caption")),
+            ("Figure", ("caption", "caption")),
+            ("CodeChunk", ("caption", "caption")),
+            ("Paragraph", ("text", "")),
+            ("TableCell", ("text", "")),
+        ]);
 
         write(
             dir.join("fts_indices.rs"),
@@ -144,15 +155,11 @@ impl Schemas {
                 r#"// Generated file, do not edit. See the Rust `schema-gen` crate.
 
 pub const FTS_INDICES: &[(&str, &[&str])] = &[
-    ("CodeBlock",      &["code"]),
-    ("CodeChunk",      &["code"]),
-    ("CodeExpression", &["code"]),
-    ("CodeInline",     &["code"]),
-    ("MathBlock",      &["code"]),
-    ("MathInline",     &["code"]),
-    ("RawBlock",       &["content"]),
+    ("Article",        &["abstract", "description"]),
+    ("Table",          &["caption"]),
+    ("Figure",         &["caption"]),
+    ("CodeChunk",       &["caption", "code"]),
     ("Paragraph",      &["text"]),
-    ("TableCell",      &["text"]),
 ];
 "#
             ),
@@ -332,25 +339,21 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
                 }
             }
 
-            if add_text.contains(&title.as_str()) {
-                properties.push(("text", "STRING", false));
+            let mut node_table_props = properties
+                .iter()
+                .map(|(name, data_type, ..)| format!("\n  `{name}` {data_type},"))
+                .join("");
+            if let Some((name, ..)) = text_properties.get(&title.as_str()) {
+                node_table_props.push_str(&format!("\n  `{name}` STRING,"));
             }
-
             node_tables.push(format!(
                 "CREATE NODE TABLE IF NOT EXISTS `{title}` ({}\n  `docId` STRING,\n  `nodeId` STRING PRIMARY KEY\n);",
-                properties
-                    .iter()
-                    .map(|(name, data_type, ..)| format!("\n  `{name}` {data_type},"))
-                    .join("")
+                node_table_props
             ));
 
-            let implem_node_table = properties
+            let mut implem_node_table = properties
                 .iter()
                 .map(|&(name, data_type, on_options)| {
-                    if name == "text" {
-                        return format!("(NodeProperty::Text, String::to_kuzu_type(), to_text(self).to_kuzu_value())")
-                    }
-
                     let mut property = name.to_pascal_case();
                     if property.ends_with("ID") {
                         property.pop();
@@ -380,7 +383,20 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
 
                     format!("(NodeProperty::{property}, {rust_type}::to_kuzu_type(), self.{field}.to_kuzu_value())")
                 })
-                .join(",\n            ");
+                .collect_vec();
+            if let Some((name, field)) = text_properties.get(&title.as_str()) {
+                let property = name.to_pascal_case();
+                let field = if field.is_empty() {
+                    "self".to_string()
+                } else {
+                    format!("&self.{field}")
+                };
+
+                implem_node_table.push(format!(
+                    "(NodeProperty::{property}, String::to_kuzu_type(), to_text({field}).to_kuzu_value())"
+                ));
+            }
+            let implem_node_table = implem_node_table.join(",\n            ");
 
             let implem_rel_tables = relations
                 .into_iter()
