@@ -19,7 +19,7 @@ use schema::{
     shortcuts::{art, p, sec, t},
     Article, Author, AuthorRole, AuthorRoleName, Block, CodeChunk, Cord, CordAuthorship, CordOp,
     Figure, Inline, InstructionBlock, InstructionType, Node, NodeProperty, Paragraph, Patch,
-    PatchNode, PatchOp, PatchPath, PatchSlot, PatchValue, Person, Primitive, ProvenanceCategory,
+    PatchNode, PatchOp, NodePath, NodeSlot, PatchValue, Person, Primitive, ProvenanceCategory,
     ProvenanceCount, SoftwareApplication, Strong, SuggestionBlock, SuggestionStatus, Text,
     TimeUnit,
 };
@@ -38,7 +38,7 @@ struct Fixture {
     merged: Node,
 
     /// The operations required to go from `old` to `merged`
-    ops: Vec<(PatchPath, PatchOp)>,
+    ops: Vec<(NodePath, PatchOp)>,
 }
 
 /// A summary of all the fixtures in this test
@@ -146,14 +146,14 @@ async fn fixtures() -> Result<()> {
 }
 
 /// Do a diff and get the ops
-pub fn diff_ops<T: PatchNode>(old: &T, new: &T) -> Result<Vec<(PatchPath, PatchOp)>> {
+pub fn diff_ops<T: PatchNode>(old: &T, new: &T) -> Result<Vec<(NodePath, PatchOp)>> {
     Ok(diff(old, new, Some(Format::Markdown), None)?.ops)
 }
 
 /// Patch a node with an anonymous author role
 fn patch_anon<T: PatchNode + std::fmt::Debug>(
     old: &mut T,
-    ops: Vec<(PatchPath, PatchOp)>,
+    ops: Vec<(NodePath, PatchOp)>,
 ) -> Result<()> {
     patch(
         old,
@@ -174,7 +174,7 @@ fn atoms() -> Result<()> {
     let mut old = true;
     let new = false;
     let ops = diff_ops(&old, &new)?;
-    assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Set(new.to_value()?))]);
+    assert_eq!(ops, vec![(NodePath::new(), PatchOp::Set(new.to_value()?))]);
     patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
@@ -185,7 +185,7 @@ fn atoms() -> Result<()> {
     let mut old = 1_i64;
     let new = 2_i64;
     let ops = diff_ops(&old, &new)?;
-    assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Set(new.to_value()?))]);
+    assert_eq!(ops, vec![(NodePath::new(), PatchOp::Set(new.to_value()?))]);
     patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
@@ -196,7 +196,7 @@ fn atoms() -> Result<()> {
     let mut old = 1_f64;
     let new = 2_f64;
     let ops = diff_ops(&old, &new)?;
-    assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Set(new.to_value()?))]);
+    assert_eq!(ops, vec![(NodePath::new(), PatchOp::Set(new.to_value()?))]);
     patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
@@ -210,7 +210,7 @@ fn atoms() -> Result<()> {
     let mut old = String::from("abc");
     let new = String::from("bcd");
     let ops = diff_ops(&old, &new)?;
-    assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Set(new.to_value()?))]);
+    assert_eq!(ops, vec![(NodePath::new(), PatchOp::Set(new.to_value()?))]);
     patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
@@ -227,7 +227,7 @@ fn cord() -> Result<()> {
     assert_eq!(
         ops,
         vec![(
-            PatchPath::new(),
+            NodePath::new(),
             PatchOp::Apply(vec![
                 CordOp::Delete(0..1),
                 CordOp::Insert(2, "ad".to_string())
@@ -243,7 +243,7 @@ fn cord() -> Result<()> {
     assert_eq!(
         ops,
         vec![(
-            PatchPath::new(),
+            NodePath::new(),
             PatchOp::Apply(vec![
                 CordOp::Replace(10..11, "m".to_string()),
                 CordOp::Insert(12, "tr".to_string()),
@@ -275,11 +275,11 @@ fn vecs() -> Result<()> {
         ops,
         vec![
             (
-                PatchPath::from([PatchSlot::Index(0)]),
+                NodePath::from([NodeSlot::Index(0)]),
                 PatchOp::Set(3.to_value()?)
             ),
             (
-                PatchPath::from([PatchSlot::Index(1)]),
+                NodePath::from([NodeSlot::Index(1)]),
                 PatchOp::Set(4.to_value()?)
             )
         ]
@@ -296,7 +296,7 @@ fn vec_push() -> Result<()> {
     let mut old = vec![];
     let new = vec![1];
     let ops = diff_ops(&old, &new)?;
-    assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Push(1.to_value()?))]);
+    assert_eq!(ops, vec![(NodePath::new(), PatchOp::Push(1.to_value()?))]);
     patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
@@ -304,7 +304,7 @@ fn vec_push() -> Result<()> {
     let mut old = vec![1];
     let new = vec![1, 2];
     let ops = diff_ops(&old, &new)?;
-    assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Push(2.to_value()?))]);
+    assert_eq!(ops, vec![(NodePath::new(), PatchOp::Push(2.to_value()?))]);
     patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
@@ -320,7 +320,7 @@ fn vec_append() -> Result<()> {
     assert_eq!(
         ops,
         vec![(
-            PatchPath::new(),
+            NodePath::new(),
             PatchOp::Append(vec![1.to_value()?, 2.to_value()?, 3.to_value()?])
         )]
     );
@@ -334,7 +334,7 @@ fn vec_append() -> Result<()> {
     assert_eq!(
         ops,
         vec![(
-            PatchPath::new(),
+            NodePath::new(),
             PatchOp::Append(vec![2.to_value()?, 3.to_value()?])
         )]
     );
@@ -353,7 +353,7 @@ fn vec_insert() -> Result<()> {
     assert_eq!(
         ops,
         vec![(
-            PatchPath::new(),
+            NodePath::new(),
             PatchOp::Insert(vec![
                 (0, 0.to_value()?),
                 (2, 2.to_value()?),
@@ -374,7 +374,7 @@ fn vecs_remove() -> Result<()> {
     let mut old = vec![1, 2, 3];
     let new = vec![];
     let ops = diff_ops(&old, &new)?;
-    assert_eq!(ops, vec![(PatchPath::new(), PatchOp::Clear)]);
+    assert_eq!(ops, vec![(NodePath::new(), PatchOp::Clear)]);
     patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
 
@@ -384,7 +384,7 @@ fn vecs_remove() -> Result<()> {
     let ops = diff_ops(&old, &new)?;
     assert_eq!(
         ops,
-        vec![(PatchPath::new(), PatchOp::Remove(vec![1, 3, 4, 5]))]
+        vec![(NodePath::new(), PatchOp::Remove(vec![1, 3, 4, 5]))]
     );
     patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
@@ -395,7 +395,7 @@ fn vecs_remove() -> Result<()> {
     let ops = diff_ops(&old, &new)?;
     assert_eq!(
         ops,
-        vec![(PatchPath::new(), PatchOp::Remove(vec![1, 3, 4, 9]))]
+        vec![(NodePath::new(), PatchOp::Remove(vec![1, 3, 4, 9]))]
     );
     patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
@@ -412,7 +412,7 @@ fn vec_copy() -> Result<()> {
     assert_eq!(
         ops,
         vec![(
-            PatchPath::new(),
+            NodePath::new(),
             PatchOp::Copy(HashMap::from([(0, vec![1, 3])]))
         )]
     );
@@ -426,7 +426,7 @@ fn vec_copy() -> Result<()> {
     assert_eq!(
         ops,
         vec![(
-            PatchPath::new(),
+            NodePath::new(),
             PatchOp::Copy(HashMap::from([(2, vec![1, 4])]))
         )]
     );
@@ -440,7 +440,7 @@ fn vec_copy() -> Result<()> {
     assert_eq!(
         ops,
         vec![(
-            PatchPath::new(),
+            NodePath::new(),
             PatchOp::Copy(HashMap::from([(0, vec![5]), (3, vec![1])]))
         )]
     );
@@ -457,7 +457,7 @@ fn vec_move() -> Result<()> {
     let ops = diff_ops(&old, &new)?;
     assert_eq!(
         ops,
-        vec![(PatchPath::new(), PatchOp::Move(vec![(0, 2), (0, 1)]))]
+        vec![(NodePath::new(), PatchOp::Move(vec![(0, 2), (0, 1)]))]
     );
     patch_anon(&mut old, ops)?;
     assert_eq!(old, new);
@@ -507,46 +507,46 @@ fn enums() -> Result<()> {
     let node2 = Node::Integer(1);
     assert_eq!(
         diff_ops(&node1, &node2)?,
-        vec![(PatchPath::new(), PatchOp::Set(PatchValue::Node(node2)))]
+        vec![(NodePath::new(), PatchOp::Set(PatchValue::Node(node2)))]
     );
 
     let block1 = Block::Paragraph(Paragraph::default());
     let block2 = Block::Figure(Figure::default());
     assert_eq!(
         diff_ops(&block1, &block2)?,
-        vec![(PatchPath::new(), PatchOp::Set(PatchValue::Block(block2)))]
+        vec![(NodePath::new(), PatchOp::Set(PatchValue::Block(block2)))]
     );
 
     let inline1 = Inline::Text(Text::default());
     let inline2 = Inline::Strong(Strong::default());
     assert_eq!(
         diff_ops(&inline1, &inline2)?,
-        vec![(PatchPath::new(), PatchOp::Set(PatchValue::Inline(inline2)))]
+        vec![(NodePath::new(), PatchOp::Set(PatchValue::Inline(inline2)))]
     );
 
     let primitive1 = Primitive::Integer(1);
     let primitive2 = Primitive::String(String::new());
     assert_eq!(
         diff_ops(&primitive1, &primitive2)?,
-        vec![(PatchPath::new(), PatchOp::Set(primitive2.to_value()?))]
+        vec![(NodePath::new(), PatchOp::Set(primitive2.to_value()?))]
     );
 
     let time_unit1 = TimeUnit::Day;
     let time_unit2 = TimeUnit::Month;
     assert_eq!(
         diff_ops(&time_unit1, &time_unit2)?,
-        vec![(PatchPath::new(), PatchOp::Set(time_unit2.to_value()?))]
+        vec![(NodePath::new(), PatchOp::Set(time_unit2.to_value()?))]
     );
 
     // Same variants, different values: ops depend differences
-    use PatchSlot::*;
+    use NodeSlot::*;
 
     let node1 = art([]);
     let node2 = art([p([t("para1")])]);
     assert_eq!(
         diff_ops(&node1, &node2)?,
         vec![(
-            PatchPath::from([Property(NodeProperty::Content)]),
+            NodePath::from([Property(NodeProperty::Content)]),
             PatchOp::Push(PatchValue::Block(p([t("para1")])))
         )]
     );
@@ -901,7 +901,7 @@ fn archive_patch_new() -> Result<()> {
         &mut article,
         Patch {
             node_id: Some(inb.node_id()),
-            ops: vec![(PatchPath::default(), PatchOp::Archive)],
+            ops: vec![(NodePath::default(), PatchOp::Archive)],
             ..Default::default()
         },
     )?;
@@ -934,7 +934,7 @@ fn archive_patch_new() -> Result<()> {
         &mut article,
         Patch {
             node_id: Some(inb.node_id()),
-            ops: vec![(PatchPath::default(), PatchOp::Archive)],
+            ops: vec![(NodePath::default(), PatchOp::Archive)],
             // The author of the patch is the accepter
             authors: Some(vec![AuthorRole::default()]),
             ..Default::default()
@@ -980,7 +980,7 @@ fn archive_patch_new() -> Result<()> {
         &mut article,
         Patch {
             node_id: Some(inb.node_id()),
-            ops: vec![(PatchPath::default(), PatchOp::Archive)],
+            ops: vec![(NodePath::default(), PatchOp::Archive)],
             ..Default::default()
         },
     )?;

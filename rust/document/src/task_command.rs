@@ -11,7 +11,7 @@ use format::Format;
 use node_execute::{compile, execute, interrupt, lint, ExecuteOptions};
 use schema::{
     transforms::blocks_to_inlines, Article, Block, ChatMessage, ChatMessageOptions, File, Node,
-    NodeId, NodeProperty, Patch, PatchNode, PatchOp, PatchPath,
+    NodeId, NodeProperty, Patch, PatchNode, PatchOp, NodePath,
 };
 
 use crate::{
@@ -177,8 +177,8 @@ impl Document {
                         patch_sender.send(Patch {
                             node_id,
                             ops: vec![
-                                (PatchPath::from(property), PatchOp::Clear),
-                                (PatchPath::from(property), PatchOp::Append(value)),
+                                (NodePath::from(property), PatchOp::Clear),
+                                (NodePath::from(property), PatchOp::Append(value)),
                             ],
                             ..Default::default()
                         })?;
@@ -352,7 +352,7 @@ async fn chat_patch(chat_id: &NodeId, text: String, files: Option<Vec<File>>) ->
     Ok(Patch {
         node_id: Some(chat_id.clone()),
         ops: vec![(
-            PatchPath::from(NodeProperty::Content),
+            NodePath::from(NodeProperty::Content),
             PatchOp::Push(chat_message.to_value()?),
         )],
         ..Default::default()

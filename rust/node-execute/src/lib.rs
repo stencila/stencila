@@ -17,7 +17,7 @@ use prompts::prompt::{DocumentContext, InstructionContext};
 use schema::{
     AuthorRole, AuthorRoleName, Block, CompilationDigest, CompilationMessage, Config,
     ExecutionBounds, ExecutionMode, ExecutionStatus, Inline, Link, List, ListItem, ListOrder, Node,
-    NodeId, NodeProperty, NodeType, Paragraph, Patch, PatchNode, PatchOp, PatchPath, PatchValue,
+    NodeId, NodeProperty, NodeType, Paragraph, Patch, PatchNode, PatchOp, NodePath, PatchValue,
     Timestamp, VisitorAsync, WalkControl, WalkNode,
 };
 
@@ -799,7 +799,7 @@ impl Executor {
 
             if let Some(code) = node_codes.get(node_id) {
                 ops.push((
-                    PatchPath::from(NodeProperty::Code),
+                    NodePath::from(NodeProperty::Code),
                     PatchOp::Set(code.to_value()?),
                 ));
             };
@@ -809,7 +809,7 @@ impl Executor {
                 None => PatchValue::None,
             };
             ops.push((
-                PatchPath::from(NodeProperty::CompilationMessages),
+                NodePath::from(NodeProperty::CompilationMessages),
                 PatchOp::Set(messages),
             ));
 
@@ -1052,7 +1052,7 @@ impl Executor {
 
         let ops = pairs
             .into_iter()
-            .map(|(property, op)| (PatchPath::from(property), op))
+            .map(|(property, op)| (NodePath::from(property), op))
             .collect();
 
         let patch = Patch {

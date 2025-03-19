@@ -8,6 +8,9 @@ mod prelude;
 mod types;
 pub use types::*;
 
+mod path;
+pub use path::*;
+
 mod patch;
 pub use patch::*;
 

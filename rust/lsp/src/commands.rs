@@ -40,7 +40,7 @@ use node_find::find;
 use schema::{
     diff, replicate, AuthorRole, AuthorRoleName, Block, Chat, ExecutionMode, InstructionBlock,
     InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodeProperty, NodeType,
-    Patch, PatchNode, PatchOp, PatchPath, PatchValue, PromptBlock, SuggestionBlock, Timestamp,
+    Patch, PatchNode, PatchOp, NodePath, PatchValue, PromptBlock, SuggestionBlock, Timestamp,
 };
 
 use crate::{
@@ -206,7 +206,7 @@ pub(super) async fn execute_command(
             let path = args
                 .next()
                 .ok_or_eyre("Patch path arg missing")
-                .and_then(PatchPath::try_from)
+                .and_then(NodePath::try_from)
                 .map_err(invalid_request)?;
 
             let value = match command {
@@ -265,7 +265,7 @@ pub(super) async fn execute_command(
             let path = args
                 .next()
                 .ok_or_eyre("Patch path arg missing")
-                .and_then(PatchPath::try_from)
+                .and_then(NodePath::try_from)
                 .map_err(invalid_request)?;
 
             let op = PatchOp::Set(
@@ -330,7 +330,7 @@ pub(super) async fn execute_command(
                 "Verifying node".to_string(),
                 Command::PatchNode(Patch {
                     node_id: Some(node_id),
-                    ops: vec![(PatchPath::default(), PatchOp::Verify)],
+                    ops: vec![(NodePath::default(), PatchOp::Verify)],
                     authors: Some(vec![AuthorRole {
                         role_name: AuthorRoleName::Verifier,
                         ..author
@@ -461,7 +461,7 @@ pub(super) async fn execute_command(
                 Command::PatchNode(Patch {
                     node_id: Some(node_id),
                     ops: vec![(
-                        PatchPath::from(NodeProperty::ExecutionMode),
+                        NodePath::from(NodeProperty::ExecutionMode),
                         PatchOp::Set(ExecutionMode::Lock.to_value().unwrap_or_default()),
                     )],
                     ..Default::default()
@@ -484,7 +484,7 @@ pub(super) async fn execute_command(
                 Command::PatchNode(Patch {
                     node_id: Some(node_id),
                     ops: vec![(
-                        PatchPath::from(NodeProperty::ExecutionMode),
+                        NodePath::from(NodeProperty::ExecutionMode),
                         PatchOp::Set(PatchValue::None),
                     )],
                     ..Default::default()
@@ -511,17 +511,17 @@ pub(super) async fn execute_command(
             let (title, path, op) = match command {
                 PREV_NODE => (
                     "Previous suggestion".to_string(),
-                    PatchPath::from(NodeProperty::ActiveSuggestion),
+                    NodePath::from(NodeProperty::ActiveSuggestion),
                     PatchOp::Decrement,
                 ),
                 NEXT_NODE => (
                     "Next suggestion".to_string(),
-                    PatchPath::from(NodeProperty::ActiveSuggestion),
+                    NodePath::from(NodeProperty::ActiveSuggestion),
                     PatchOp::Increment,
                 ),
                 ARCHIVE_NODE => (
                     "Accepting suggestion and archiving command".to_string(),
-                    PatchPath::new(),
+                    NodePath::new(),
                     PatchOp::Archive,
                 ),
                 _ => unreachable!(),
@@ -568,7 +568,7 @@ pub(super) async fn execute_command(
                             // Instructions do not have a feedback property but have
                             // a custom patch implem that will intercept this and apply
                             // it to the active suggestion
-                            PatchPath::from(NodeProperty::Feedback),
+                            NodePath::from(NodeProperty::Feedback),
                             PatchOp::Set(feedback),
                         )],
                         authors: Some(vec![author]),
@@ -666,7 +666,7 @@ pub(super) async fn execute_command(
             // Patch the `content` of the document
             let patch = Patch {
                 node_id,
-                ops: vec![(PatchPath::from(NodeProperty::Content), op)],
+                ops: vec![(NodePath::from(NodeProperty::Content), op)],
                 ..Default::default()
             };
 
@@ -758,7 +758,7 @@ pub(super) async fn execute_command(
             // Patch the content of the destination document
             let patch = Patch {
                 node_id,
-                ops: vec![(PatchPath::from(NodeProperty::Content), op)],
+                ops: vec![(NodePath::from(NodeProperty::Content), op)],
                 ..Default::default()
             };
 
@@ -801,7 +801,7 @@ pub(super) async fn execute_command(
                 "Deleting node".to_string(),
                 Command::PatchNode(Patch {
                     node_id: Some(node_id.clone()),
-                    ops: vec![(PatchPath::new(), PatchOp::Delete)],
+                    ops: vec![(NodePath::new(), PatchOp::Delete)],
                     ..Default::default()
                 }),
                 false,
@@ -961,7 +961,7 @@ pub(super) async fn execute_command(
             // Patch the content of the destination document
             let patch = Patch {
                 node_id,
-                ops: vec![(PatchPath::from(NodeProperty::Content), op)],
+                ops: vec![(NodePath::from(NodeProperty::Content), op)],
                 // Run compile so that that chat's prompt block is compiled
                 // to infer the target prompt
                 compile: true,

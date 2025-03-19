@@ -1,14 +1,7 @@
-use std::{
-    any::type_name,
-    collections::{HashMap, VecDeque},
-    fmt::{self, Debug},
-    ops::Range,
-};
-
-use derive_more::{Deref, DerefMut, IntoIterator};
+use std::{any::type_name, collections::HashMap, fmt::Debug, ops::Range};
 
 use common::{
-    eyre::{bail, OptionExt, Report, Result},
+    eyre::{bail, Report, Result},
     itertools::Itertools,
     serde::{de::DeserializeOwned, Deserialize, Serialize},
     serde_json::{self, Value as JsonValue},
@@ -19,7 +12,7 @@ use node_type::NodeProperty;
 
 use crate::{
     prelude::AuthorType, replicate, Author, AuthorRole, AuthorRoleName, Block, ChatMessage, CordOp,
-    Inline, Node, PromptBlock, ProvenanceCount, SuggestionBlock, Timestamp,
+    Inline, Node, NodePath, NodeSlot, PromptBlock, ProvenanceCount, SuggestionBlock, Timestamp,
 };
 
 /// Assign authorship to a node
@@ -124,11 +117,11 @@ pub fn patch<T: PatchNode + Debug>(node: &mut T, mut patch: Patch) -> Result<()>
 pub struct PatchContext {
     /// The current path on the depth first walk across nodes during a call to `diff`
     /// or during a call to `patch` (for use when calling `op_additional`).
-    path: PatchPath,
+    path: NodePath,
 
     /// The target paths and operations collected during a call to `diff` or during
     /// a call to `patch` (if `op_additional` is called).
-    ops: Vec<(PatchPath, PatchOp)>,
+    ops: Vec<(NodePath, PatchOp)>,
 
     /// The source format from which a patch is being generated
     pub format: Option<Format>,
@@ -248,12 +241,12 @@ impl PatchContext {
     ///
     /// Ensures that the path is always pushed onto and then popped off the
     /// context's path
-    pub fn within_path<F, R>(&mut self, path: PatchPath, func: F) -> R
+    pub fn within_path<F, R>(&mut self, path: NodePath, func: F) -> R
     where
         F: Fn(&mut Self) -> R,
     {
         let pushed = path.len();
-        for slot in path.0 {
+        for slot in path {
             self.path.push_back(slot);
         }
 
@@ -274,7 +267,7 @@ impl PatchContext {
     where
         F: FnMut(&mut Self) -> R,
     {
-        self.path.push_back(PatchSlot::Property(node_property));
+        self.path.push_back(NodeSlot::Property(node_property));
         let result = func(self);
         self.path.pop_back();
 
@@ -286,7 +279,7 @@ impl PatchContext {
     /// Must be followed by a call to `exit_property`. Prefer using `with_property`
     /// is possible.
     pub fn enter_property(&mut self, node_property: NodeProperty) -> &mut Self {
-        self.path.push_back(PatchSlot::Property(node_property));
+        self.path.push_back(NodeSlot::Property(node_property));
         self
     }
 
@@ -294,7 +287,7 @@ impl PatchContext {
     pub fn exit_property(&mut self) -> &mut Self {
         let popped = self.path.pop_back();
         debug_assert!(
-            matches!(popped, Some(PatchSlot::Property(..))),
+            matches!(popped, Some(NodeSlot::Property(..))),
             "Expected property to be popped off path: {:?}, got {popped:?}",
             self.path
         );
@@ -306,7 +299,7 @@ impl PatchContext {
     where
         F: FnMut(&mut Self) -> R,
     {
-        self.path.push_back(PatchSlot::Index(index));
+        self.path.push_back(NodeSlot::Index(index));
         let result = func(self);
         self.path.pop_back();
 
@@ -318,7 +311,7 @@ impl PatchContext {
     /// Must be followed by a call to `exit_index`. Prefer using `with_index`
     /// is possible.
     pub fn enter_index(&mut self, index: usize) -> &mut Self {
-        self.path.push_back(PatchSlot::Index(index));
+        self.path.push_back(NodeSlot::Index(index));
         self
     }
 
@@ -326,7 +319,7 @@ impl PatchContext {
     pub fn exit_index(&mut self) -> &mut Self {
         let popped = self.path.pop_back();
         debug_assert!(
-            matches!(popped, Some(PatchSlot::Index(..))),
+            matches!(popped, Some(NodeSlot::Index(..))),
             "Expected index to be popped off path: {:?}, got {popped:?}",
             self.path
         );
@@ -334,7 +327,7 @@ impl PatchContext {
     }
 
     /// Get a copy of the current path of the context
-    pub fn path(&self) -> PatchPath {
+    pub fn path(&self) -> NodePath {
         self.path.clone()
     }
 
@@ -401,7 +394,7 @@ impl PatchContext {
     /// Create an additional operation as a result of applying an operation
     ///
     /// The `path` must be relative to the root node.
-    pub fn op_additional(&mut self, path: PatchPath, op: PatchOp) -> &mut Self {
+    pub fn op_additional(&mut self, path: NodePath, op: PatchOp) -> &mut Self {
         self.ops.push((path, op));
         self
     }
@@ -537,7 +530,7 @@ impl PatchContext {
     /// attributed as the acceptors.
     pub fn authors_as_acceptors(&self) -> Patch {
         Patch {
-            ops: vec![(PatchPath::new(), PatchOp::Nothing)],
+            ops: vec![(NodePath::new(), PatchOp::Nothing)],
             format: self.format.clone(),
             authors: self.authors_with_role(AuthorRoleName::Accepter),
             ..Default::default()
@@ -545,7 +538,7 @@ impl PatchContext {
     }
 
     /// Take the operations from the context
-    pub fn ops(self) -> Vec<(PatchPath, PatchOp)> {
+    pub fn ops(self) -> Vec<(NodePath, PatchOp)> {
         self.ops
     }
 }
@@ -558,7 +551,7 @@ pub struct Patch {
     pub node_id: Option<NodeId>,
 
     /// The operations which should be applied for the patch
-    pub ops: Vec<(PatchPath, PatchOp)>,
+    pub ops: Vec<(NodePath, PatchOp)>,
 
     /// The source format from which the patch was generated
     ///
@@ -584,7 +577,7 @@ pub struct Patch {
 
 impl Patch {
     /// Prepend the paths of the operations in the patch
-    pub fn prepend_paths(&mut self, mut slots: Vec<PatchSlot>) {
+    pub fn prepend_paths(&mut self, mut slots: Vec<NodeSlot>) {
         // Reverse order because pushing to the front
         slots.reverse();
         for (path, ..) in self.ops.iter_mut() {
@@ -711,130 +704,6 @@ impl Default for PatchValue {
     }
 }
 
-/// A slot in a node path: either a property identifier or the index of a vector.
-#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
-#[serde(untagged, crate = "common::serde")]
-pub enum PatchSlot {
-    Property(NodeProperty),
-    Index(usize),
-}
-
-impl From<NodeProperty> for PatchSlot {
-    fn from(value: NodeProperty) -> Self {
-        Self::Property(value)
-    }
-}
-
-impl From<usize> for PatchSlot {
-    fn from(value: usize) -> Self {
-        Self::Index(value)
-    }
-}
-
-impl TryFrom<serde_json::Value> for PatchSlot {
-    type Error = Report;
-
-    fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        use serde_json::Value::*;
-        match value {
-            String(name) => Ok(Self::from(NodeProperty::try_from(name.as_str())?)),
-            Number(index) => index
-                .as_u64()
-                .ok_or_eyre("Expected u64")
-                .map(|value| Self::from(value as usize)),
-            _ => bail!("Unhandled JSON value for `PatchSlot`"),
-        }
-    }
-}
-
-/// A path to reach a node from the root: a vector of [`PatchSlot`]s
-///
-/// A [`VecDeque`], rather than a [`Vec`] so that when applying operations in
-/// a call to `patch` the front of the path can be popped off.
-#[derive(
-    Clone,
-    PartialEq,
-    Eq,
-    PartialOrd,
-    Ord,
-    Hash,
-    Deref,
-    DerefMut,
-    IntoIterator,
-    Serialize,
-    Deserialize,
-)]
-#[serde(crate = "common::serde")]
-#[derive(Default)]
-pub struct PatchPath(VecDeque<PatchSlot>);
-
-impl PatchPath {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-
-impl From<NodeProperty> for PatchPath {
-    fn from(value: NodeProperty) -> Self {
-        Self::from(PatchSlot::from(value))
-    }
-}
-
-impl From<usize> for PatchPath {
-    fn from(value: usize) -> Self {
-        Self::from(PatchSlot::from(value))
-    }
-}
-
-impl From<PatchSlot> for PatchPath {
-    fn from(value: PatchSlot) -> Self {
-        Self(VecDeque::from([value]))
-    }
-}
-
-impl<const N: usize> From<[PatchSlot; N]> for PatchPath {
-    fn from(value: [PatchSlot; N]) -> Self {
-        Self(value.into())
-    }
-}
-
-impl<const N: usize> From<[NodeProperty; N]> for PatchPath {
-    fn from(value: [NodeProperty; N]) -> Self {
-        Self(value.into_iter().map(PatchSlot::from).collect())
-    }
-}
-
-impl TryFrom<serde_json::Value> for PatchPath {
-    type Error = Report;
-
-    fn try_from(value: serde_json::Value) -> Result<Self, Self::Error> {
-        use serde_json::Value::*;
-        match value {
-            Number(..) | String(..) => Ok(Self::from(PatchSlot::try_from(value)?)),
-            Array(array) => Ok(Self(VecDeque::from(
-                array
-                    .into_iter()
-                    .map(PatchSlot::try_from)
-                    .collect::<Result<Vec<_>>>()?,
-            ))),
-            _ => bail!("Unhandled JSON value for `PatchPath`"),
-        }
-    }
-}
-
-impl Debug for PatchPath {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for (index, slot) in self.iter().enumerate() {
-            if index != 0 {
-                f.write_str(".")?;
-            }
-            slot.fmt(f)?;
-        }
-
-        Ok(())
-    }
-}
-
 /// A trait for diffing and patching nodes
 pub trait PatchNode: Sized + Serialize + DeserializeOwned {
     /// Get the authors of the node
@@ -920,7 +789,7 @@ pub trait PatchNode: Sized + Serialize + DeserializeOwned {
     #[allow(unused_variables)]
     fn apply(
         &mut self,
-        path: &mut PatchPath,
+        path: &mut NodePath,
         op: PatchOp,
         context: &mut PatchContext,
     ) -> Result<()> {
@@ -971,7 +840,7 @@ macro_rules! atom {
 
             fn apply(
                 &mut self,
-                path: &mut PatchPath,
+                path: &mut NodePath,
                 op: PatchOp,
                 _context: &mut PatchContext,
             ) -> Result<()> {
@@ -1059,7 +928,7 @@ impl PatchNode for String {
 
     fn apply(
         &mut self,
-        path: &mut PatchPath,
+        path: &mut NodePath,
         op: PatchOp,
         _context: &mut PatchContext,
     ) -> Result<()> {
@@ -1116,7 +985,7 @@ where
 
     fn apply(
         &mut self,
-        path: &mut PatchPath,
+        path: &mut NodePath,
         op: PatchOp,
         context: &mut PatchContext,
     ) -> Result<()> {
@@ -1188,7 +1057,7 @@ where
 
     fn apply(
         &mut self,
-        path: &mut PatchPath,
+        path: &mut NodePath,
         op: PatchOp,
         context: &mut PatchContext,
     ) -> Result<()> {
@@ -1596,7 +1465,7 @@ where
 
     fn apply(
         &mut self,
-        path: &mut PatchPath,
+        path: &mut NodePath,
         op: PatchOp,
         context: &mut PatchContext,
     ) -> Result<()> {
@@ -1611,7 +1480,7 @@ where
 
         // Apply operations that are on child item
         if let Some(slot) = path.pop_front() {
-            let PatchSlot::Index(index) = slot else {
+            let NodeSlot::Index(index) = slot else {
                 bail!("Invalid slot for Vec: {slot:?}")
             };
 
@@ -1674,8 +1543,8 @@ where
                 // Create additional operation to append the current items
                 // to the property of the new item
                 let mut path = context.path();
-                path.push_back(PatchSlot::Index(start));
-                path.push_back(PatchSlot::Property(property));
+                path.push_back(NodeSlot::Index(start));
+                path.push_back(NodeSlot::Property(property));
                 context.op_additional(path, PatchOp::Append(existing));
             }
             PatchOp::Push(value) => {
