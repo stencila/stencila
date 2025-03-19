@@ -73,32 +73,32 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         });
     });
 
-    let (empty_path, no_match) = if has_options {
-        (
-            quote! {
+    let empty_path = if !struct_name.to_string().ends_with("Options")
+        && !struct_name.to_string().starts_with("Config")
+    {
+        quote! {
+            if path.is_empty() {
                 return Ok(Node::#struct_name(self.clone()));
-            },
-            quote! {
-                self.options.duplicate(path)
-            },
-        )
+            }
+        }
     } else {
-        (
-            quote! {
-                bail!("Should be unreachable");
-            },
-            quote! {
-                bail!("Invalid property {property}")
-            },
-        )
+        quote!()
+    };
+
+    let no_match = if has_options {
+        quote! {
+            self.options.duplicate(path)
+        }
+    } else {
+        quote! {
+            bail!("Invalid property {property}")
+        }
     };
 
     quote! {
         impl ProbeNode for #struct_name {
             fn duplicate(&self, path: &mut NodePath) -> Result<Node> {
-                if path.is_empty() {
-                    #empty_path
-                }
+                #empty_path
 
                 let Some(NodeSlot::Property(property)) = path.pop_front() else {
                     bail!("Node path should have property at front for struct")

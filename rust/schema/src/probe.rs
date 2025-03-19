@@ -2,6 +2,11 @@ use common::eyre::{bail, Result};
 
 use crate::{Array, Node, NodePath, NodeSlot, Null, Object};
 
+/// Duplicate a node at a path within another node
+pub fn duplicate<T: ProbeNode>(node: &T, mut path: NodePath) -> Result<Node> {
+    node.duplicate(&mut path)
+}
+
 /// A trait to efficiently access a node within another
 /// 
 /// Traverse directly to a node at a given [`NodePath`]. If a path to
