@@ -57,6 +57,8 @@ impl Schemas {
             // Avoid many paragraph nodes for each table cell with `text`
             // same as the `text` of the table cell itself (most table cells have a single paragraph)
             "TableCell.content",
+            // Exclude list item position as it is provided by the position calculated from the node path
+            "ListItem.position",
         ];
 
         let skip_types = [
@@ -158,7 +160,7 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
     ("Article",        &["abstract", "description"]),
     ("Table",          &["caption"]),
     ("Figure",         &["caption"]),
-    ("CodeChunk",       &["caption", "code"]),
+    ("CodeChunk",      &["caption", "code"]),
     ("Paragraph",      &["text"]),
 ];
 "#
@@ -347,7 +349,12 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
                 node_table_props.push_str(&format!("\n  `{name}` STRING,"));
             }
             node_tables.push(format!(
-                "CREATE NODE TABLE IF NOT EXISTS `{title}` ({}\n  `docId` STRING,\n  `nodeId` STRING PRIMARY KEY\n);",
+                "CREATE NODE TABLE IF NOT EXISTS `{title}` ({}
+    `docId` STRING,
+    `nodePath` STRING,
+    `position` UINT32,
+    `nodeId` STRING PRIMARY KEY
+);",
                 node_table_props
             ));
 
@@ -413,7 +420,7 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
                     };
 
                     let collect = if ref_type == "AuthorRoleAuthor" {
-                        format!("vec![(self.{field}.node_type(), self.{field}.node_id(), 1)]")
+                        format!("vec![(self.{field}.node_type(), self.{field}.node_id())]")
                     } else {
                         let mut collect = format!("self.{field}");
 
@@ -448,7 +455,7 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
         ]
     }}
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {{
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {{
         vec![
             {implem_rel_tables}
         ]
@@ -464,7 +471,7 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
             .into_iter()
             .map(|(name, pairs)| {
                 format!(
-                    "CREATE REL TABLE IF NOT EXISTS `{name}` (\n  {},\n  `position` UINT32,\n  ONE_ONE\n);",
+                    "CREATE REL TABLE IF NOT EXISTS `{name}` (\n  {},\n  ONE_ONE\n);",
                     pairs.join(",\n  ")
                 )
             })
@@ -474,7 +481,7 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
             .into_iter()
             .map(|(name, pairs)| {
                 format!(
-                    "CREATE REL TABLE IF NOT EXISTS `{name}` (\n  {},\n  `position` UINT32,\n  ONE_MANY\n);",
+                    "CREATE REL TABLE IF NOT EXISTS `{name}` (\n  {},\n  ONE_MANY\n);",
                     pairs.join(",\n  ")
                 )
             })
@@ -554,7 +561,7 @@ impl DatabaseNode for {title} {{
         }}
     }}
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)> {{
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {{
         match self {{
             {rel_tables},
             _ => Vec::new()
@@ -579,13 +586,12 @@ use schema::*;
 
 use super::{{DatabaseNode, ToKuzu}};
 
-fn relations<'lt, I, D>(iter: I) -> Vec<(NodeType, NodeId, usize)>
+fn relations<'lt, I, D>(iter: I) -> Vec<(NodeType, NodeId)>
 where
     I: Iterator<Item = &'lt D>,
     D: DatabaseNode + 'lt,
 {{
-    iter.enumerate()
-        .flat_map(|(index, item)| (!matches!(item.node_type(), NodeType::Unknown)).then_some((item.node_type(), item.node_id(), index + 1)))
+    iter.flat_map(|item| (!matches!(item.node_type(), NodeType::Unknown)).then_some((item.node_type(), item.node_id())))
         .collect()
 }}
 

@@ -1,6 +1,6 @@
 use std::{
     collections::VecDeque,
-    fmt::{self, Debug},
+    fmt::{self, Debug, Display},
 };
 
 use derive_more::{Deref, DerefMut, IntoIterator};
@@ -127,11 +127,17 @@ impl Debug for NodePath {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for (index, slot) in self.iter().enumerate() {
             if index != 0 {
-                f.write_str(".")?;
+                f.write_str("/")?;
             }
             slot.fmt(f)?;
         }
 
         Ok(())
+    }
+}
+
+impl Display for NodePath {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        Debug::fmt(&self, f)
     }
 }

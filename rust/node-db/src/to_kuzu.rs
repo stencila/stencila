@@ -2,7 +2,7 @@ use kuzu::{LogicalType, Value};
 
 use schema::*;
 
-/// A trait for converting Rust types to Kuzu types
+/// A trait for converting Stencila nodes to Kuzu values
 pub trait ToKuzu {
     /// Get the corresponding Kuzu logical type
     fn to_kuzu_type() -> LogicalType;
@@ -106,6 +106,16 @@ where
 }
 
 impl ToKuzu for NodeId {
+    fn to_kuzu_type() -> LogicalType {
+        LogicalType::String
+    }
+
+    fn to_kuzu_value(&self) -> Value {
+        Value::String(self.to_string())
+    }
+}
+
+impl ToKuzu for NodePath {
     fn to_kuzu_type() -> LogicalType {
         LogicalType::String
     }

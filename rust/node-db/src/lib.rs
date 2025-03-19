@@ -17,17 +17,51 @@ use common::{
     tracing,
 };
 use schema::{
-    Block, IfBlockClause, Inline, ListItem, Node, NodeId, NodeProperty, NodeType, TableCell,
-    TableRow, Visitor, WalkControl,
+    Node, NodeId, NodePath,
+    NodeProperty, NodeSlot, NodeType, Visitor,
 };
 
 #[rustfmt::skip]
 mod node_types;
 #[rustfmt::skip]
 mod fts_indices;
+
+mod from_kuzu;
 mod to_kuzu;
+mod walker;
 
 use to_kuzu::ToKuzu;
+use walker::DatabaseWalker;
+
+/// A trait for representing Stencila Schema nodes in a [`NodeDatabase`]
+///
+/// The implementation of this trait is generated, by the `schema-gen` crate
+/// for each node type. To minimize compiled code size, we use enums such as
+/// [`NodeType`] and [`NodeProperty`] for the return types of the trait's methods.
+#[allow(clippy::type_complexity)]
+pub trait DatabaseNode {
+    /// Get the [`NodeType`] for the node
+    ///
+    /// Used for the name of the node table and as they key for storing prepared
+    /// statements for the node type.
+    fn node_type(&self) -> NodeType;
+
+    /// Get the [`NodeId`] for the node
+    ///
+    /// Used for the `nodeId` and `parentId` columns of the node table.
+    fn node_id(&self) -> NodeId;
+
+    /// Get the names, types, and values of properties of the node table for the node type
+    ///
+    /// Used to create an entry in the node table for the node type.
+    /// In the future may also be used to generate the Cypher to `CREATE NODE TABLE`.
+    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)>;
+
+    /// Get the names of relation tables and lists of node id and position for each
+    ///
+    /// Used to create an entry in relation tables.
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)>;
+}
 
 /// A database of Stencila Schema nodes
 ///
@@ -37,6 +71,9 @@ use to_kuzu::ToKuzu;
 pub struct NodeDatabase {
     /// The instance of the Kuzu database
     database: Database,
+
+    /// The document storage directory associated with the database
+    store: Option<PathBuf>,
 
     /// Prepared statements for deleting a document and all its root node
     delete_doc_statement: Option<PreparedStatement>,
@@ -88,8 +125,15 @@ impl NodeDatabase {
             }
         }
 
+        let store = if path.to_string_lossy() == ":memory:" {
+            None
+        } else {
+            path.parent().map(|parent| parent.join("store"))
+        };
+
         Ok(Self {
             database,
+            store,
             delete_doc_statement: None,
             create_node_statements: HashMap::new(),
             create_rel_statements: HashMap::new(),
@@ -184,7 +228,7 @@ impl NodeDatabase {
         doc_id: &NodeId,
         node_type: NodeType,
         properties: Vec<(NodeProperty, LogicalType)>,
-        entries: Vec<(NodeId, Vec<Value>)>,
+        entries: Vec<(NodePath, NodeId, Vec<Value>)>,
     ) -> Result<()> {
         let connection = Connection::new(&self.database)?;
 
@@ -193,7 +237,12 @@ impl NodeDatabase {
             .into_iter()
             .map(|(prop, ..)| prop.to_camel_case())
             .collect_vec();
-        properties.append(&mut vec!["docId".to_string(), "nodeId".to_string()]);
+        properties.append(&mut vec![
+            "docId".to_string(),
+            "nodePath".to_string(),
+            "position".to_string(),
+            "nodeId".to_string(),
+        ]);
 
         if entries.len() < USE_CSV_COUNT {
             // Get, or prepare, `CREATE` statement
@@ -216,7 +265,7 @@ impl NodeDatabase {
             };
 
             // Execute prepared statement for each entry
-            for (node_id, mut values) in entries {
+            for (node_path, node_id, mut values) in entries {
                 // The trailing underscore on parameter names is necessary for parameters like 'order'
                 // to prevent clashes with keywords
                 let names = properties
@@ -225,7 +274,16 @@ impl NodeDatabase {
                     .collect_vec();
                 let names = names.iter().map(|name| name.as_str());
 
-                values.append(&mut vec![doc_id.to_kuzu_value(), node_id.to_kuzu_value()]);
+                let position = match node_path.back() {
+                    Some(NodeSlot::Index(index)) => Value::UInt32((index + 1) as u32),
+                    _ => Value::Null(LogicalType::UInt32),
+                };
+                values.append(&mut vec![
+                    doc_id.to_kuzu_value(),
+                    node_path.to_kuzu_value(),
+                    position,
+                    node_id.to_kuzu_value(),
+                ]);
 
                 let params = names.zip(values.into_iter()).collect_vec();
 
@@ -236,12 +294,17 @@ impl NodeDatabase {
         } else {
             let mut csv = NamedTempFile::new()?;
             writeln!(&mut csv, "{}", properties.join(","))?;
-            for (node_id, values) in entries {
+            for (node_path, node_id, values) in entries {
                 for value in values {
                     let field = escape_csv_field(value.to_string());
                     write!(&mut csv, "{field},")?;
                 }
-                writeln!(&mut csv, "{doc_id},{node_id}")?;
+
+                let position = match node_path.back() {
+                    Some(NodeSlot::Index(index)) => (index + 1).to_string(),
+                    _ => String::new(),
+                };
+                writeln!(&mut csv, "{doc_id},{node_path},{position},{node_id}")?;
             }
 
             let filename = csv.path().to_string_lossy();
@@ -263,7 +326,7 @@ impl NodeDatabase {
         from_node_type: NodeType,
         node_property: NodeProperty,
         to_node_type: NodeType,
-        entries: Vec<(NodeId, Vec<(NodeId, usize)>)>,
+        entries: Vec<(NodeId, Vec<NodeId>)>,
     ) -> Result<()> {
         let connection = Connection::new(&self.database)?;
         let relation = node_property.to_camel_case();
@@ -278,7 +341,7 @@ impl NodeDatabase {
                         "
                     MATCH (from:`{from_node_type}`), (to:`{to_node_type}`)
                     WHERE from.nodeId = $from_node_id AND to.nodeId = $to_node_id
-                    CREATE (from)-[:`{relation}` {{position: $position}}]->(to)
+                    CREATE (from)-[:`{relation}`]->(to)
                     "
                     );
 
@@ -293,11 +356,10 @@ impl NodeDatabase {
 
             // Execute prepared statement for each entry
             for (from_node_id, to_nodes) in entries {
-                for (node_id, position) in to_nodes {
+                for node_id in to_nodes {
                     let params = vec![
                         ("from_node_id", from_node_id.to_kuzu_value()),
                         ("to_node_id", node_id.to_kuzu_value()),
-                        ("position", position.to_kuzu_value()),
                     ];
                     connection.execute(statement, params)?;
                 }
@@ -305,8 +367,8 @@ impl NodeDatabase {
         } else {
             let mut csv = NamedTempFile::new()?;
             for (from_node_id, to_nodes) in entries {
-                for (node_id, position) in to_nodes {
-                    writeln!(&mut csv, "{from_node_id},{node_id},{position}")?;
+                for node_id in to_nodes {
+                    writeln!(&mut csv, "{from_node_id},{node_id}")?;
                 }
             }
 
@@ -363,136 +425,5 @@ fn escape_csv_field(field: String) -> String {
         format!("\"{}\"", escaped)
     } else {
         field
-    }
-}
-
-/// A trait for representing Stencila Schema nodes in a Kuzu database
-///
-/// The implementation of this trait is generated, by the `schema-gen` crate
-/// for each node type. To minimize compiled code size, we use enums such as
-/// [`NodeType`] and [`NodeProperty`] for the return types of the trait's methods.
-#[allow(clippy::type_complexity)]
-trait DatabaseNode {
-    /// Get the [`NodeType`] for the node
-    ///
-    /// Used for the name of the node table and as they key for storing prepared
-    /// statements for the node type.
-    fn node_type(&self) -> NodeType;
-
-    /// Get the [`NodeId`] for the node
-    ///
-    /// Used for the `nodeId` and `parentId` columns of the node table.
-    fn node_id(&self) -> NodeId;
-
-    /// Get the names, types, and values of properties of the node table for the node type
-    ///
-    /// Used to create an entry in the node table for the node type.
-    /// In the future may also be used to generate the Cypher to `CREATE NODE TABLE`.
-    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)>;
-
-    /// Get the names of relation tables and lists of node id and position for each
-    ///
-    /// Used to create an entry in relation tables.
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId, usize)>)>;
-}
-
-/// A visitor which collects entries for node and relation tables from a node
-///
-/// Walks over a [`Node`] and collects the results of [`DatabaseNode::node_table`] and
-/// [`DatabaseNode::rel_tables`]. These results are normalized into the `node_tables` and
-/// `rel_tables` hash maps which are optimized for having one prepared statement for
-/// each entry.
-#[derive(Default)]
-#[allow(clippy::type_complexity)]
-struct DatabaseWalker {
-    node_tables: HashMap<NodeType, (Vec<(NodeProperty, LogicalType)>, Vec<(NodeId, Vec<Value>)>)>,
-
-    rel_tables: HashMap<(NodeType, NodeProperty, NodeType), Vec<(NodeId, Vec<(NodeId, usize)>)>>,
-}
-
-impl DatabaseWalker {
-    /// Visit a [`DatabaseNode`] and insert the results of [`DatabaseNode::node_table`] and
-    /// [`DatabaseNode::rel_tables`] into `node_tables` and `rel_tables`.
-    fn visit_database_node<T>(&mut self, node: &T)
-    where
-        T: DatabaseNode,
-    {
-        let node_type = node.node_type();
-        let node_id = node.node_id();
-        let node_table = node.node_table();
-        let rel_tables = node.rel_tables();
-
-        self.node_tables
-            .entry(node_type)
-            .or_insert_with(|| {
-                (
-                    node_table
-                        .iter()
-                        .map(|(node_property, logical_type, ..)| {
-                            (*node_property, logical_type.clone())
-                        })
-                        .collect(),
-                    Vec::new(),
-                )
-            })
-            .1
-            .push((
-                node_id.clone(),
-                node_table.into_iter().map(|(.., value)| value).collect(),
-            ));
-
-        for (node_property, to_nodes) in rel_tables {
-            let mut to_node_ids: HashMap<NodeType, Vec<(NodeId, usize)>> = HashMap::new();
-            for (to_node_type, to_node_id, position) in to_nodes {
-                to_node_ids
-                    .entry(to_node_type)
-                    .or_default()
-                    .push((to_node_id, position));
-            }
-
-            for (to_node_type, to_node_ids) in to_node_ids {
-                self.rel_tables
-                    .entry((node_type, node_property, to_node_type))
-                    .or_default()
-                    .push((node_id.clone(), to_node_ids));
-            }
-        }
-    }
-}
-
-impl Visitor for DatabaseWalker {
-    fn visit_node(&mut self, node: &Node) -> WalkControl {
-        self.visit_database_node(node);
-        WalkControl::Continue
-    }
-
-    fn visit_block(&mut self, node: &Block) -> WalkControl {
-        self.visit_database_node(node);
-        WalkControl::Continue
-    }
-
-    fn visit_if_block_clause(&mut self, node: &IfBlockClause) -> WalkControl {
-        self.visit_database_node(node);
-        WalkControl::Continue
-    }
-
-    fn visit_list_item(&mut self, node: &ListItem) -> WalkControl {
-        self.visit_database_node(node);
-        WalkControl::Continue
-    }
-
-    fn visit_table_row(&mut self, node: &TableRow) -> WalkControl {
-        self.visit_database_node(node);
-        WalkControl::Continue
-    }
-
-    fn visit_table_cell(&mut self, node: &TableCell) -> WalkControl {
-        self.visit_database_node(node);
-        WalkControl::Continue
-    }
-
-    fn visit_inline(&mut self, node: &Inline) -> WalkControl {
-        self.visit_database_node(node);
-        WalkControl::Continue
     }
 }
