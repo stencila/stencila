@@ -1,0 +1,14 @@
+[package]
+name = "node-probe-derive"
+version = "0.0.0"
+edition = "2021"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+common = { path = "../common" }
+darling = "0.20.10"
+
+[lints]
+workspace = true

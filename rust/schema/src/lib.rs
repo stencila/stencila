@@ -14,6 +14,9 @@ pub use path::*;
 mod patch;
 pub use patch::*;
 
+mod probe;
+pub use probe::*;
+
 mod walk;
 pub use walk::*;
 
