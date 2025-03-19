@@ -16,10 +16,7 @@ use common::{
     tempfile::NamedTempFile,
     tracing,
 };
-use schema::{
-    Node, NodeId, NodePath,
-    NodeProperty, NodeSlot, NodeType, Visitor,
-};
+use schema::{Node, NodeId, NodePath, NodeProperty, NodeSlot, NodeType, Visitor};
 
 #[rustfmt::skip]
 mod node_types;
@@ -239,9 +236,9 @@ impl NodeDatabase {
             .collect_vec();
         properties.append(&mut vec![
             "docId".to_string(),
+            "nodeId".to_string(),
             "nodePath".to_string(),
             "position".to_string(),
-            "nodeId".to_string(),
         ]);
 
         if entries.len() < USE_CSV_COUNT {
@@ -280,9 +277,9 @@ impl NodeDatabase {
                 };
                 values.append(&mut vec![
                     doc_id.to_kuzu_value(),
+                    node_id.to_kuzu_value(),
                     node_path.to_kuzu_value(),
                     position,
-                    node_id.to_kuzu_value(),
                 ]);
 
                 let params = names.zip(values.into_iter()).collect_vec();
@@ -304,7 +301,7 @@ impl NodeDatabase {
                     Some(NodeSlot::Index(index)) => (index + 1).to_string(),
                     _ => String::new(),
                 };
-                writeln!(&mut csv, "{doc_id},{node_path},{position},{node_id}")?;
+                writeln!(&mut csv, "{doc_id},{node_id},{node_path},{position}")?;
             }
 
             let filename = csv.path().to_string_lossy();

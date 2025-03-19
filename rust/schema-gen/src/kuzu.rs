@@ -350,10 +350,10 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
             }
             node_tables.push(format!(
                 "CREATE NODE TABLE IF NOT EXISTS `{title}` ({}
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );",
                 node_table_props
             ));

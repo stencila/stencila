@@ -3,17 +3,17 @@
 CREATE NODE TABLE IF NOT EXISTS `Admonition` (
   `admonitionType` STRING,
   `isFolded` BOOLEAN,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Annotation` (
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Article` (
@@ -37,10 +37,10 @@ CREATE NODE TABLE IF NOT EXISTS `Article` (
   `pagination` STRING,
   `frontmatter` STRING,
   `abstract` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `AudioObject` (
@@ -61,20 +61,20 @@ CREATE NODE TABLE IF NOT EXISTS `AudioObject` (
   `embedUrl` STRING,
   `mediaType` STRING,
   `transcript` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `AuthorRole` (
   `roleName` STRING,
   `format` STRING,
   `lastModified` TIMESTAMP,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Brand` (
@@ -83,10 +83,10 @@ CREATE NODE TABLE IF NOT EXISTS `Brand` (
   `name` STRING,
   `url` STRING,
   `reviews` STRING[],
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Cite` (
@@ -96,17 +96,17 @@ CREATE NODE TABLE IF NOT EXISTS `Cite` (
   `pagination` STRING,
   `citationPrefix` STRING,
   `citationSuffix` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `CiteGroup` (
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Claim` (
@@ -123,19 +123,19 @@ CREATE NODE TABLE IF NOT EXISTS `Claim` (
   `keywords` STRING[],
   `claimType` STRING,
   `label` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `CodeBlock` (
   `code` STRING,
   `programmingLanguage` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `CodeChunk` (
@@ -156,10 +156,10 @@ CREATE NODE TABLE IF NOT EXISTS `CodeChunk` (
   `isHidden` BOOLEAN,
   `executionPure` BOOLEAN,
   `caption` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `CodeExpression` (
@@ -173,19 +173,19 @@ CREATE NODE TABLE IF NOT EXISTS `CodeExpression` (
   `programmingLanguage` STRING,
   `executionBounds` STRING,
   `executionBounded` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `CodeInline` (
   `code` STRING,
   `programmingLanguage` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Collection` (
@@ -200,10 +200,10 @@ CREATE NODE TABLE IF NOT EXISTS `Collection` (
   `datePublished` DATE,
   `genre` STRING[],
   `keywords` STRING[],
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Comment` (
@@ -219,10 +219,10 @@ CREATE NODE TABLE IF NOT EXISTS `Comment` (
   `genre` STRING[],
   `keywords` STRING[],
   `commentAspect` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `ContactPoint` (
@@ -233,10 +233,10 @@ CREATE NODE TABLE IF NOT EXISTS `ContactPoint` (
   `emails` STRING[],
   `telephoneNumbers` STRING[],
   `availableLanguages` STRING[],
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `CreativeWork` (
@@ -251,10 +251,10 @@ CREATE NODE TABLE IF NOT EXISTS `CreativeWork` (
   `datePublished` DATE,
   `genre` STRING[],
   `keywords` STRING[],
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `DefinedTerm` (
@@ -263,26 +263,26 @@ CREATE NODE TABLE IF NOT EXISTS `DefinedTerm` (
   `name` STRING,
   `url` STRING,
   `termCode` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Directory` (
   `name` STRING,
   `path` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Emphasis` (
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Figure` (
@@ -300,10 +300,10 @@ CREATE NODE TABLE IF NOT EXISTS `Figure` (
   `label` STRING,
   `labelAutomatically` BOOLEAN,
   `caption` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `File` (
@@ -313,10 +313,10 @@ CREATE NODE TABLE IF NOT EXISTS `File` (
   `transferEncoding` STRING,
   `size` UINT64,
   `content` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `ForBlock` (
@@ -331,18 +331,18 @@ CREATE NODE TABLE IF NOT EXISTS `ForBlock` (
   `executionBounds` STRING,
   `executionBounded` STRING,
   `variable` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Function` (
   `name` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Grant` (
@@ -350,18 +350,18 @@ CREATE NODE TABLE IF NOT EXISTS `Grant` (
   `description` STRING,
   `name` STRING,
   `url` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Heading` (
   `level` INT64,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `IfBlock` (
@@ -371,10 +371,10 @@ CREATE NODE TABLE IF NOT EXISTS `IfBlock` (
   `executionStatus` STRING,
   `executionEnded` TIMESTAMP,
   `executionDuration` INTERVAL,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `IfBlockClause` (
@@ -389,10 +389,10 @@ CREATE NODE TABLE IF NOT EXISTS `IfBlockClause` (
   `executionBounds` STRING,
   `executionBounded` STRING,
   `isActive` BOOLEAN,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `ImageObject` (
@@ -412,10 +412,10 @@ CREATE NODE TABLE IF NOT EXISTS `ImageObject` (
   `contentUrl` STRING,
   `embedUrl` STRING,
   `mediaType` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `IncludeBlock` (
@@ -428,28 +428,28 @@ CREATE NODE TABLE IF NOT EXISTS `IncludeBlock` (
   `source` STRING,
   `mediaType` STRING,
   `select` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Link` (
   `target` STRING,
   `title` STRING,
   `rel` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `List` (
   `order` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `ListItem` (
@@ -458,10 +458,10 @@ CREATE NODE TABLE IF NOT EXISTS `ListItem` (
   `name` STRING,
   `url` STRING,
   `isChecked` BOOLEAN,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `MathBlock` (
@@ -469,19 +469,19 @@ CREATE NODE TABLE IF NOT EXISTS `MathBlock` (
   `mathLanguage` STRING,
   `label` STRING,
   `labelAutomatically` BOOLEAN,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `MathInline` (
   `code` STRING,
   `mathLanguage` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `MediaObject` (
@@ -501,10 +501,10 @@ CREATE NODE TABLE IF NOT EXISTS `MediaObject` (
   `contentUrl` STRING,
   `embedUrl` STRING,
   `mediaType` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `MonetaryGrant` (
@@ -513,18 +513,18 @@ CREATE NODE TABLE IF NOT EXISTS `MonetaryGrant` (
   `name` STRING,
   `url` STRING,
   `amounts` DOUBLE,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Note` (
   `noteType` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Organization` (
@@ -533,18 +533,18 @@ CREATE NODE TABLE IF NOT EXISTS `Organization` (
   `name` STRING,
   `url` STRING,
   `legalName` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Paragraph` (
   `text` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Parameter` (
@@ -557,10 +557,10 @@ CREATE NODE TABLE IF NOT EXISTS `Parameter` (
   `name` STRING,
   `label` STRING,
   `derivedFrom` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Periodical` (
@@ -578,10 +578,10 @@ CREATE NODE TABLE IF NOT EXISTS `Periodical` (
   `dateStart` DATE,
   `dateEnd` DATE,
   `issns` STRING[],
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Person` (
@@ -596,10 +596,10 @@ CREATE NODE TABLE IF NOT EXISTS `Person` (
   `honorificSuffix` STRING,
   `jobTitle` STRING,
   `telephoneNumbers` STRING[],
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `PostalAddress` (
@@ -616,10 +616,10 @@ CREATE NODE TABLE IF NOT EXISTS `PostalAddress` (
   `addressRegion` STRING,
   `postalCode` STRING,
   `addressCountry` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Product` (
@@ -628,10 +628,10 @@ CREATE NODE TABLE IF NOT EXISTS `Product` (
   `name` STRING,
   `url` STRING,
   `productID` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `PropertyValue` (
@@ -640,10 +640,10 @@ CREATE NODE TABLE IF NOT EXISTS `PropertyValue` (
   `name` STRING,
   `url` STRING,
   `propertyID` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `PublicationIssue` (
@@ -659,10 +659,10 @@ CREATE NODE TABLE IF NOT EXISTS `PublicationIssue` (
   `genre` STRING[],
   `keywords` STRING[],
   `pagination` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `PublicationVolume` (
@@ -678,34 +678,34 @@ CREATE NODE TABLE IF NOT EXISTS `PublicationVolume` (
   `genre` STRING[],
   `keywords` STRING[],
   `pagination` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `QuoteBlock` (
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `QuoteInline` (
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `RawBlock` (
   `format` STRING,
   `content` STRING,
   `css` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Review` (
@@ -721,18 +721,18 @@ CREATE NODE TABLE IF NOT EXISTS `Review` (
   `genre` STRING[],
   `keywords` STRING[],
   `reviewAspect` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Section` (
   `sectionType` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `SoftwareApplication` (
@@ -749,10 +749,10 @@ CREATE NODE TABLE IF NOT EXISTS `SoftwareApplication` (
   `keywords` STRING[],
   `softwareVersion` STRING,
   `operatingSystem` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `SoftwareSourceCode` (
@@ -771,24 +771,24 @@ CREATE NODE TABLE IF NOT EXISTS `SoftwareSourceCode` (
   `codeRepository` STRING,
   `codeSampleType` STRING,
   `runtimePlatform` STRING[],
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Strikeout` (
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Strong` (
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `StyledBlock` (
@@ -796,10 +796,10 @@ CREATE NODE TABLE IF NOT EXISTS `StyledBlock` (
   `styleLanguage` STRING,
   `css` STRING,
   `classList` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `StyledInline` (
@@ -807,24 +807,24 @@ CREATE NODE TABLE IF NOT EXISTS `StyledInline` (
   `styleLanguage` STRING,
   `css` STRING,
   `classList` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Subscript` (
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Superscript` (
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Table` (
@@ -842,10 +842,10 @@ CREATE NODE TABLE IF NOT EXISTS `Table` (
   `label` STRING,
   `labelAutomatically` BOOLEAN,
   `caption` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `TableCell` (
@@ -857,25 +857,25 @@ CREATE NODE TABLE IF NOT EXISTS `TableCell` (
   `horizontalAlignmentCharacter` STRING,
   `verticalAlignment` STRING,
   `text` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `TableRow` (
   `rowType` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `ThematicBreak` (
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Thing` (
@@ -883,24 +883,24 @@ CREATE NODE TABLE IF NOT EXISTS `Thing` (
   `description` STRING,
   `name` STRING,
   `url` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Underline` (
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Unknown` (
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `Variable` (
@@ -909,10 +909,10 @@ CREATE NODE TABLE IF NOT EXISTS `Variable` (
   `nativeType` STRING,
   `nodeType` STRING,
   `nativeHint` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE NODE TABLE IF NOT EXISTS `VideoObject` (
@@ -933,10 +933,10 @@ CREATE NODE TABLE IF NOT EXISTS `VideoObject` (
   `embedUrl` STRING,
   `mediaType` STRING,
   `transcript` STRING,
-    `docId` STRING,
-    `nodePath` STRING,
-    `position` UINT32,
-    `nodeId` STRING PRIMARY KEY
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `position` UINT32
 );
 
 CREATE REL TABLE IF NOT EXISTS `author` (
