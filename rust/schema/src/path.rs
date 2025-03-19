@@ -1,6 +1,6 @@
 use std::{
     collections::VecDeque,
-    fmt::{self, Debug, Display},
+    fmt::{self, Display},
 };
 
 use derive_more::{Deref, DerefMut, IntoIterator};
@@ -18,6 +18,15 @@ use node_type::NodeProperty;
 pub enum NodeSlot {
     Property(NodeProperty),
     Index(usize),
+}
+
+impl Display for NodeSlot {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            NodeSlot::Property(slot) => Display::fmt(slot, f),
+            NodeSlot::Index(slot) => Display::fmt(slot, f),
+        }
+    }
 }
 
 impl From<NodeProperty> for NodeSlot {
@@ -66,7 +75,7 @@ impl TryFrom<serde_json::Value> for NodeSlot {
     Deserialize,
 )]
 #[serde(crate = "common::serde")]
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct NodePath(VecDeque<NodeSlot>);
 
 impl NodePath {
@@ -123,21 +132,15 @@ impl TryFrom<serde_json::Value> for NodePath {
     }
 }
 
-impl Debug for NodePath {
+impl Display for NodePath {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for (index, slot) in self.iter().enumerate() {
             if index != 0 {
                 f.write_str("/")?;
             }
-            slot.fmt(f)?;
+            Display::fmt(slot, f)?;
         }
 
         Ok(())
-    }
-}
-
-impl Display for NodePath {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        Debug::fmt(&self, f)
     }
 }
