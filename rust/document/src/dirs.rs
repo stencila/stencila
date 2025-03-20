@@ -8,6 +8,7 @@ use common::{
     smart_default::SmartDefault,
     tokio::fs::{create_dir_all, write},
 };
+use node_db::NodeDatabase;
 
 pub(super) const STENCILA_DIR: &str = ".stencila";
 pub(super) const CONFIG_FILE: &str = "config.yaml";
@@ -56,7 +57,8 @@ pub async fn stencila_dir_create(path: &Path, options: CreateStencilaDirOptions)
     }
 
     if options.db_dir {
-        stencila_db_dir(&path, true).await?;
+        let db_dir = stencila_db_dir(&path, true).await?;
+        NodeDatabase::new(&db_dir)?;
     }
 
     Ok(())
@@ -100,7 +102,7 @@ pub async fn stencila_db_dir(stencila_dir: &Path, ensure: bool) -> Result<PathBu
     let db_dir = stencila_dir.join(DB_DIR);
 
     if ensure && !db_dir.exists() {
-        node_db::NodeDatabase::new(&db_dir)?;
+        create_dir_all(&db_dir).await?;
     }
 
     Ok(db_dir)

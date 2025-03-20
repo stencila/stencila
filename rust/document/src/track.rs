@@ -436,7 +436,7 @@ impl Document {
     /// Add documents to a workspace database
     #[tracing::instrument(skip(paths))]
     pub async fn add_paths(stencila_dir: &Path, paths: &[PathBuf]) -> Result<()> {
-        let db_path = stencila_db_dir(&stencila_dir, false).await?;
+        let db_path = stencila_db_dir(&stencila_dir, true).await?;
         let mut db = NodeDatabase::new(&db_path)?;
 
         // Open each document, store it and upsert to database
@@ -471,6 +471,10 @@ impl Document {
     #[tracing::instrument(skip(paths))]
     pub async fn remove_paths(stencila_dir: &Path, paths: &[PathBuf]) -> Result<()> {
         let db_path = stencila_db_dir(&stencila_dir, false).await?;
+        if !db_path.exists() {
+            return Ok(());
+        }
+
         let mut db = NodeDatabase::new(&db_path)?;
 
         // Remove any storage file and db nodes for document
