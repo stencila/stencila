@@ -22,6 +22,7 @@ use common::{
 };
 use format::Format;
 use node_db::NodeDatabase;
+use schema::Node;
 
 use crate::{
     dirs::{
@@ -117,19 +118,21 @@ impl Query {
         let db = NodeDatabase::new(&db_dir)?;
         let node = db.query(&self.query).await?;
 
-        let format = self.r#as.unwrap_or(Format::Markdown);
+        if let (Node::Datatable(dt), None) = (&node, &self.r#as) {
+            return Ok(dt.to_stdout());
+        }
 
+        let content = self.r#as.unwrap_or(Format::Markdown);
         let md = codecs::to_string(
             &node,
             Some(EncodeOptions {
-                format: Some(format.clone()),
+                format: Some(content.clone()),
                 losses: LossesResponse::Debug,
                 ..Default::default()
             }),
         )
         .await?;
-
-        Code::new(format, &md).to_stdout();
+        Code::new(content, &md).to_stdout();
 
         Ok(())
     }
