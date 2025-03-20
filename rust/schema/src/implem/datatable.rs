@@ -128,29 +128,8 @@ impl MarkdownCodec for Datatable {
             }
         }
 
-        // Now iterate over rows and encode each to Markdown
+        // Iterate over rows and encode each to Markdown
         for (row_index, row) in cells.iter().enumerate() {
-            // If there is only one row, header row should be empty
-            if row_index == 0 && cells.len() == 1 {
-                context.push_str("| ");
-                for width in &column_widths {
-                    context.push_str(&" ".repeat(*width)).push_str(" |");
-                }
-            }
-
-            // Separator
-            if (row_index == 0 && cells.len() == 1) || row_index == 1 {
-                context.push_str("|");
-                for width in &column_widths {
-                    context
-                        .push_str(" ")
-                        .push_str(&"-".repeat(*width))
-                        .push_str(" |");
-                }
-                context.newline();
-            }
-
-            // Cell content (including header row)
             for (col_index, cell) in row.iter().enumerate() {
                 if col_index == 0 {
                     context.push_str("|");
@@ -162,6 +141,18 @@ impl MarkdownCodec for Datatable {
                 ));
             }
             context.newline();
+
+            // Separator after first row
+            if row_index == 0 {
+                context.push_str("|");
+                for width in &column_widths {
+                    context
+                        .push_str(" ")
+                        .push_str(&"-".repeat(*width))
+                        .push_str(" |");
+                }
+                context.newline();
+            }
         }
 
         context.exit_node().newline();
