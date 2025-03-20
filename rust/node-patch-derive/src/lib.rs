@@ -376,7 +376,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             // Put the property back on to the path and try in options
             quote! {
                 {
-                    path.push_back(PatchSlot::Property(property));
+                    path.push_back(NodeSlot::Property(property));
                     self.options.apply(path, op, context)?;
                 }
             }
@@ -387,7 +387,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         };
 
         quote! {
-            fn apply(&mut self, path: &mut PatchPath, op: PatchOp, context: &mut PatchContext) -> Result<()> {
+            fn apply(&mut self, path: &mut NodePath, op: PatchOp, context: &mut PatchContext) -> Result<()> {
                 #call_apply_with
 
                 #call_update_authors
@@ -395,7 +395,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 if matches!(op, PatchOp::Verify) {
                     #apply_verify_fields;
                 } else if !matches!(op, PatchOp::Nothing) {
-                    let Some(PatchSlot::Property(property)) = path.pop_front() else {
+                    let Some(NodeSlot::Property(property)) = path.pop_front() else {
                         bail!("Invalid empty patch path for `{}`", stringify!(#struct_name));
                     };
 
@@ -614,7 +614,7 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
                 #patch
             }
 
-            fn apply(&mut self, path: &mut PatchPath, op: PatchOp, context: &mut PatchContext) -> Result<()> {
+            fn apply(&mut self, path: &mut NodePath, op: PatchOp, context: &mut PatchContext) -> Result<()> {
                 #apply
             }
         }

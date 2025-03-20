@@ -1,3 +1,6 @@
 Article#: 1
+Article.options: 1
 Paragraph#: 3
 StyledInline#: 5
+StyledInline.options: 5
+StyledInline.styleLanguage: 1

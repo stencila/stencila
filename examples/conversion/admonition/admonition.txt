@@ -1,1 +1,1 @@
-NoteA note WarningWith a titleA warning SuccessfalseFoldable, but unfolded DangerFolded with a titletrueFoldable TipNested admonitionsInfoSuccessThis is the first inner-inner admonition ErrorThis is the second inner-inner admonition
+A note With a title A warning Foldable, but unfolded Folded with a title Foldable Nested admonitions This is the first inner-inner admonition This is the second inner-inner admonition

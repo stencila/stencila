@@ -1,4 +1,4 @@
-use crate::{prelude::*, Block, Inline, Node, Paragraph, Section};
+use crate::{prelude::*, Block, Inline, List, Node, Paragraph, Section, Table, TableRow};
 
 impl Block {
     pub fn node_type(&self) -> NodeType {
@@ -94,7 +94,65 @@ impl TryFrom<Node> for Block {
     type Error = ErrReport;
 
     fn try_from(node: Node) -> Result<Self> {
-        macro_rules! variants {
+        // Wrap parts of blocks (e.g. table cells, table rows, list items) accordingly
+        match node {
+            Node::TableCell(cell) => {
+                return Ok(Block::Table(Table::new(vec![TableRow::new(vec![cell])])))
+            }
+            Node::TableRow(row) => return Ok(Block::Table(Table::new(vec![row]))),
+            Node::ListItem(item) => {
+                return Ok(Block::List(List::new(
+                    vec![item],
+                    crate::ListOrder::Unordered,
+                )))
+            }
+            _ => {}
+        }
+
+        // Inlines are wrapped in a paragraph
+        macro_rules! inlines {
+            ($( $variant:ident ),*) => {
+                match node {
+                    $(Node::$variant(node) => return Ok(Block::Paragraph(Paragraph::new(vec![Inline::$variant(node)]))),)*
+                    _ => {}
+                }
+            };
+        }
+        inlines!(
+            Annotation,
+            AudioObject,
+            Button,
+            Cite,
+            CiteGroup,
+            CodeExpression,
+            CodeInline,
+            Date,
+            DateTime,
+            Duration,
+            Emphasis,
+            ImageObject,
+            InstructionInline,
+            Link,
+            MathInline,
+            MediaObject,
+            Note,
+            Parameter,
+            QuoteInline,
+            Strikeout,
+            Strong,
+            StyledInline,
+            Subscript,
+            SuggestionInline,
+            Superscript,
+            Text,
+            Time,
+            Timestamp,
+            Underline,
+            VideoObject
+        );
+
+        // Blocks are directly convertible
+        macro_rules! blocks {
             ($( $variant:ident ),*) => {
                 match node {
                     $(Node::$variant(node) => Ok(Block::$variant(node)),)*
@@ -102,8 +160,7 @@ impl TryFrom<Node> for Block {
                 }
             };
         }
-
-        variants!(
+        blocks!(
             Admonition,
             CallBlock,
             Chat,

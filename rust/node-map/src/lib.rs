@@ -1,33 +1,14 @@
-use derive_more::{Deref, DerefMut};
-
-use common::{
-    indexmap::IndexMap,
-    serde::Serialize,
-    smol_str::{SmolStr, ToSmolStr},
-};
+use common::indexmap::IndexMap;
 use schema::{
-    Block, Inline, ListItem, Node, NodeId, NodeProperty, TableCell, TableRow, Visitor, WalkControl,
-    WalkNode,
+    Block, Inline, ListItem, Node, NodeId, NodePath, NodeProperty, NodeSlot, TableCell, TableRow,
+    Visitor, WalkControl, WalkNode,
 };
 
-/// Walk over a node to generate a mapping of `NodeId`s to paths within the node
-pub fn node_map<T: WalkNode>(node: &T) -> IndexMap<NodeId, NodePath> {
+/// Generate a mapping of [`NodeId`] to [`NodePath`] within a node
+pub fn map<T: WalkNode>(node: &T) -> IndexMap<NodeId, NodePath> {
     let mut mapper = Mapper::default();
     mapper.visit(node);
     mapper.map
-}
-
-/// The path to a node within another node
-#[derive(Default, Clone, Serialize, Deref, DerefMut)]
-#[serde(crate = "common::serde")]
-pub struct NodePath(Vec<NodePathSegment>);
-
-/// A segment in a node path
-#[derive(Clone, Serialize)]
-#[serde(untagged, crate = "common::serde")]
-pub enum NodePathSegment {
-    Property(SmolStr),
-    Index(usize),
 }
 
 /// A visitor that collects node ids and addresses
@@ -85,24 +66,23 @@ impl Visitor for Mapper {
 
     /// Enter a property
     fn enter_property(&mut self, property: NodeProperty) -> WalkControl {
-        self.path
-            .push(NodePathSegment::Property(property.to_smolstr()));
+        self.path.push_back(NodeSlot::Property(property));
         WalkControl::Continue
     }
 
     /// Exit a property
     fn exit_property(&mut self) {
-        self.path.pop();
+        self.path.pop_back();
     }
 
     /// Enter a node at an index
     fn enter_index(&mut self, index: usize) -> WalkControl {
-        self.path.push(NodePathSegment::Index(index));
+        self.path.push_back(NodeSlot::Index(index));
         WalkControl::Continue
     }
 
     /// Exit a node at an index
     fn exit_index(&mut self) {
-        self.path.pop();
+        self.path.pop_back();
     }
 }

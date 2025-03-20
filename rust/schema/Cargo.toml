@@ -27,6 +27,7 @@ interim = { version = "0.2.1", features = ["chrono_0_4"] }
 monostate = { workspace = true }
 node-id = { path = "../node-id" }
 node-patch-derive = { path = "../node-patch-derive" }
+node-probe-derive = { path = "../node-probe-derive" }
 node-store = { path = "../node-store" }
 node-strip = { path = "../node-strip" }
 node-type = { path = "../node-type" }
@@ -34,6 +35,7 @@ node-walk-derive = { path = "../node-walk-derive" }
 proptest = { version = "1.6.0", optional = true }
 proptest-derive = { version = "0.5.1", optional = true }
 serde_with = "3.12.0"
+time = { workspace = true }
 
 [dev-dependencies]
 codec = { path = "../codec" }

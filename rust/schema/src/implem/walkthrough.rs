@@ -11,16 +11,16 @@ impl Walkthrough {
     /// In addition captures operations on [`NodeProperty::IsCollapsed`] to also collapse all steps.
     pub fn apply_with(
         &mut self,
-        path: &mut PatchPath,
+        path: &mut NodePath,
         op: &PatchOp,
         context: &mut PatchContext,
     ) -> Result<bool> {
-        let Some(PatchSlot::Property(property)) = path.pop_front() else {
+        let Some(NodeSlot::Property(property)) = path.pop_front() else {
             bail!("Invalid patch path for walkthrough, expected a property slot")
         };
 
         if matches!(property, NodeProperty::Steps) {
-            let apply = if let Some(PatchSlot::Index(index)) = path.front() {
+            let apply = if let Some(NodeSlot::Index(index)) = path.front() {
                 // If the operation is for a step, then apply if the step IS NOT collapsed
                 !self
                     .steps
@@ -68,7 +68,7 @@ impl Walkthrough {
             } else {
                 // Other patch ops are not expected but handle them anyway
                 self.is_collapsed
-                    .apply(&mut PatchPath::new(), op.clone(), context)?;
+                    .apply(&mut NodePath::new(), op.clone(), context)?;
             }
 
             return Ok(true);

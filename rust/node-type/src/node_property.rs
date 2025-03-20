@@ -271,7 +271,6 @@ pub enum NodeProperty {
     Title,
     Transcript,
     TransferEncoding,
-    Type,
     UniqueItems,
     Url,
     Validator,

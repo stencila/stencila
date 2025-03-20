@@ -114,10 +114,10 @@ impl PatchNode for InstructionBlock {
                     let suggestion = &suggestions[index];
 
                     context.within_path(
-                        PatchPath::from([
-                            PatchSlot::Property(NodeProperty::Suggestions),
-                            PatchSlot::Index(index),
-                            PatchSlot::Property(NodeProperty::Content),
+                        NodePath::from([
+                            NodeSlot::Property(NodeProperty::Suggestions),
+                            NodeSlot::Index(index),
+                            NodeSlot::Property(NodeProperty::Content),
                         ]),
                         |context| suggestion.content.diff(other_content, context),
                     )?;
@@ -191,7 +191,7 @@ impl PatchNode for InstructionBlock {
 
     fn apply(
         &mut self,
-        path: &mut PatchPath,
+        path: &mut NodePath,
         op: PatchOp,
         context: &mut PatchContext,
     ) -> Result<()> {
@@ -199,14 +199,14 @@ impl PatchNode for InstructionBlock {
         if path.is_empty() && matches!(op, PatchOp::Archive) {
             // Add this instruction to the root's archive
             context.op_additional(
-                PatchPath::from(NodeProperty::Archive),
+                NodePath::from(NodeProperty::Archive),
                 PatchOp::Push(self.to_value()?),
             );
 
             // Get the path and index for applying the additional op to remove or replace this node
             let mut path = context.path();
             let index = match path.pop_back() {
-                Some(PatchSlot::Index(index)) => index,
+                Some(NodeSlot::Index(index)) => index,
                 slot => bail!("Expected index slot, got: {slot:?}"),
             };
 
@@ -311,7 +311,7 @@ impl PatchNode for InstructionBlock {
             bail!("Patch path for instruction is unexpectedly empty")
         };
 
-        let PatchSlot::Property(property) = slot else {
+        let NodeSlot::Property(property) = slot else {
             bail!("Patch path for instruction starts with index not property")
         };
 
@@ -392,7 +392,7 @@ impl PatchNode for InstructionBlock {
                 (self.active_suggestion, &mut self.suggestions)
             {
                 if let Some(suggestion) = suggestions.get_mut(index as usize) {
-                    path.push_back(PatchSlot::Property(NodeProperty::Feedback));
+                    path.push_back(NodeSlot::Property(NodeProperty::Feedback));
                     return suggestion.apply(path, op, context);
                 }
             } else {

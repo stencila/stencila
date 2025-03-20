@@ -1,7 +1,7 @@
-Array#: 1
 Article#: 1
-CallArgument#: 7
+Article.options: 1
 CallBlock#: 4
-Integer@: 4
-Number@: 1
+CallBlock.arguments: 4
+CallBlock.options: 4
+CallBlock.source: 4
 Paragraph#: 4

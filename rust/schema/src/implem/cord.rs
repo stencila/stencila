@@ -743,7 +743,7 @@ impl PatchNode for Cord {
 
     fn apply(
         &mut self,
-        path: &mut PatchPath,
+        path: &mut NodePath,
         op: PatchOp,
         context: &mut PatchContext,
     ) -> Result<()> {

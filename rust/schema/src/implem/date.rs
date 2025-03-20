@@ -1,6 +1,11 @@
 use std::str::FromStr;
 
-use common::{once_cell::sync::Lazy, regex::Regex};
+use common::{
+    chrono::{self, Datelike},
+    eyre::{Report, Result},
+    once_cell::sync::Lazy,
+    regex::Regex,
+};
 
 use crate::{prelude::*, Date};
 
@@ -37,5 +42,34 @@ impl FromStr for Date {
         };
 
         Ok(Self::new(string))
+    }
+}
+
+impl TryFrom<&Date> for chrono::NaiveDate {
+    type Error = Report;
+
+    fn try_from(date: &Date) -> Result<Self, Self::Error> {
+        use common::chrono::Local;
+        use interim::{parse_date_string, Dialect};
+
+        let date_time = parse_date_string(&date.value, Local::now(), Dialect::Us)?;
+        let date = date_time.date_naive();
+
+        Ok(date)
+    }
+}
+
+impl TryFrom<&Date> for time::Date {
+    type Error = Report;
+
+    fn try_from(date: &Date) -> Result<Self, Self::Error> {
+        let date: chrono::NaiveDate = date.try_into()?;
+
+        let year = date.year();
+        let month = time::Month::try_from(date.month() as u8)?;
+        let day = date.day() as u8;
+        let date = time::Date::from_calendar_date(year, month, day)?;
+
+        Ok(date)
     }
 }

@@ -97,11 +97,16 @@ pub enum Command {
 
     Init(document::cli::Init),
     Config(document::cli::Config),
-    Status(document::cli::Status),
+
+    Add(document::cli::Add),
+    Remove(document::cli::Remove),
+    Move(document::cli::Move),
     Track(document::cli::Track),
     Untrack(document::cli::Untrack),
-    Move(document::cli::Move),
-    Remove(document::cli::Remove),
+    Status(document::cli::Status),
+    Rebuild(document::cli::Rebuild),
+
+    Query(document::cli::Query),
 
     Convert(convert::Cli),
     Sync(sync::Cli),
@@ -144,11 +149,16 @@ impl Cli {
 
             Command::Init(init) => init.run().await?,
             Command::Config(config) => config.run().await?,
-            Command::Status(status) => status.run().await?,
+
+            Command::Add(add) => add.run().await?,
+            Command::Remove(remove) => remove.run().await?,
+            Command::Move(mov) => mov.run().await?,
             Command::Track(track) => track.run().await?,
             Command::Untrack(untrack) => untrack.run().await?,
-            Command::Move(mov) => mov.run().await?,
-            Command::Remove(remove) => remove.run().await?,
+            Command::Status(status) => status.run().await?,
+            Command::Rebuild(rebuild) => rebuild.run().await?,
+
+            Command::Query(query) => query.run().await?,
 
             Command::Convert(convert) => convert.run().await?,
             Command::Sync(sync) => sync.run().await?,

@@ -1,6 +1,11 @@
 Article#: 1
-Boolean@: 1
+Article.options: 1
 Figure#: 3
+Figure.label: 1
+Figure.labelAutomatically: 1
+Figure.options: 3
 ImageObject#: 3
+ImageObject.contentUrl: 3
+ImageObject.options: 3
 Paragraph#: 5
 Section#: 1

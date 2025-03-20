@@ -5,6 +5,7 @@ mod array;
 mod article;
 mod author;
 mod author_role;
+mod author_role_author;
 mod block;
 mod call_argument;
 mod call_block;

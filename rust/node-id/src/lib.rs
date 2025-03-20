@@ -4,12 +4,12 @@ use std::{
 };
 
 use derive_more::Deref;
+use rand::{distr::Alphanumeric, rng, Rng};
 
-use common::eyre::bail;
-#[allow(unused)]
 use common::{
-    bs58, eyre::Report, once_cell::sync::Lazy, serde_with::DeserializeFromStr,
-    serde_with::SerializeDisplay, uuid::Uuid,
+    eyre::{bail, Report},
+    serde_with::DeserializeFromStr,
+    serde_with::SerializeDisplay,
 };
 
 /// A unique id for a node
@@ -29,7 +29,12 @@ pub struct NodeUid(Vec<u8>);
 
 impl Default for NodeUid {
     fn default() -> Self {
-        Self(Uuid::new_v4().as_bytes().to_vec())
+        // The following alphabet/length has 62^24 ~= 1.0x10^43 random possibilities.
+        // Compare to UUIDv4 which has 2^122 ~= 5.3×10^36.
+        // For collision probabilities see https://alex7kom.github.io/nano-nanoid-cc/?alphabet=ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789&size=24&speed=1000&speedUnit=second
+        let bytes: Vec<u8> = rng().sample_iter(&Alphanumeric).take(24).collect();
+
+        Self(bytes)
     }
 }
 
@@ -41,8 +46,8 @@ impl From<Vec<u8>> for NodeUid {
 
 impl fmt::Debug for NodeUid {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        let id = bs58::encode(&self.0).into_string();
-        f.write_str(&id)
+        let uid = str::from_utf8(&self.0).expect("node uid should always be utf8");
+        f.write_str(uid)
     }
 }
 
@@ -105,8 +110,8 @@ impl fmt::Display for NodeId {
 
         f.write_str("_")?;
 
-        let id = bs58::encode(&self.uid).into_string();
-        f.write_str(&id)
+        let uid = str::from_utf8(&self.uid).expect("node uid should always be utf8");
+        f.write_str(uid)
     }
 }
 
@@ -127,8 +132,7 @@ impl str::FromStr for NodeId {
         }
 
         let nick = [bytes[0], bytes[1], bytes[2]];
-
-        let uid = bs58::decode(&bytes[4..]).into_vec()?;
+        let uid = bytes[4..].to_vec();
 
         Ok(Self { nick, uid })
     }

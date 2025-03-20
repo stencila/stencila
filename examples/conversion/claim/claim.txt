@@ -1,1 +1,1 @@
-TheoremA theorem PropositionProposition 1A proposition with a label
+A theorem A proposition with a label

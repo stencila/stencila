@@ -6,12 +6,12 @@ use super::image_object::ImageObject;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
-use super::thing::Thing;
+use super::thing_type::ThingType;
 
 /// A grant, typically financial or otherwise quantifiable, of resources.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display("Grant")]
@@ -37,7 +37,7 @@ pub struct Grant {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct GrantOptions {
     /// Alternate names (aliases) for the item.
@@ -74,7 +74,7 @@ pub struct GrantOptions {
     /// Indicates an item funded or sponsored through a Grant.
     #[serde(alias = "funded-items", alias = "funded_items", alias = "fundedItem", alias = "funded-item", alias = "funded_item")]
     #[serde(default, deserialize_with = "option_one_or_many")]
-    pub funded_items: Option<Vec<Thing>>,
+    pub funded_items: Option<Vec<ThingType>>,
 
     /// A person or organization that supports a thing through a pledge, promise, or financial contribution.
     #[serde(alias = "sponsor")]

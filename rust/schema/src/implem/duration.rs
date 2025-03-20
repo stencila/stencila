@@ -1,30 +1,18 @@
-use common::{chrono, chrono_humanize, inflector::Inflector};
+use common::{
+    chrono, chrono_humanize,
+    eyre::{OptionExt, Report},
+    inflector::Inflector,
+};
 
 use crate::{prelude::*, Duration, TimeUnit};
 
 impl Duration {
     /// Get a humanized representation of the duration
     pub fn humanize(&self, precise: bool) -> String {
-        use chrono::Duration;
         use chrono_humanize::{Accuracy, HumanTime, Tense};
 
-        let duration = match self.time_unit {
-            TimeUnit::Year => Duration::try_days((self.value as f64 * 365.25) as i64),
-            TimeUnit::Month => Duration::try_days((self.value as f64 * 30.5) as i64),
-            TimeUnit::Week => Duration::try_weeks(self.value),
-            TimeUnit::Day => Duration::try_days(self.value * 86400),
-            TimeUnit::Hour => Duration::try_hours(self.value * 3600),
-            TimeUnit::Minute => Duration::try_minutes(self.value * 60),
-            TimeUnit::Second => Duration::try_seconds(self.value),
-            TimeUnit::Millisecond => Duration::try_milliseconds(self.value),
-            TimeUnit::Microsecond => Some(Duration::seconds(self.value)),
-            TimeUnit::Nanosecond => Some(Duration::nanoseconds(self.value)),
-            TimeUnit::Picosecond => Some(Duration::nanoseconds(self.value * 1_000)),
-            TimeUnit::Femtosecond => Some(Duration::nanoseconds(self.value * 1_000_000)),
-            TimeUnit::Attosecond => Some(Duration::nanoseconds(self.value * 1_000_000_000)),
-        };
-
-        let Some(duration) = duration else {
+        let duration: Result<chrono::Duration> = self.try_into();
+        let Ok(duration) = duration else {
             return "-".to_string();
         };
 
@@ -61,5 +49,52 @@ impl Duration {
             ),
             Losses::none(),
         )
+    }
+}
+
+impl TryFrom<&Duration> for chrono::Duration {
+    type Error = Report;
+
+    fn try_from(duration: &Duration) -> Result<Self, Self::Error> {
+        use chrono::Duration as CD;
+
+        match &duration.time_unit {
+            TimeUnit::Year => CD::try_days((duration.value as f64 * 365.25) as i64),
+            TimeUnit::Month => CD::try_days((duration.value as f64 * 30.5) as i64),
+            TimeUnit::Week => CD::try_weeks(duration.value),
+            TimeUnit::Day => CD::try_days(duration.value * 86400),
+            TimeUnit::Hour => CD::try_hours(duration.value * 3600),
+            TimeUnit::Minute => CD::try_minutes(duration.value * 60),
+            TimeUnit::Second => CD::try_seconds(duration.value),
+            TimeUnit::Millisecond => CD::try_milliseconds(duration.value),
+            TimeUnit::Microsecond => Some(CD::microseconds(duration.value)),
+            TimeUnit::Nanosecond => Some(CD::nanoseconds(duration.value)),
+            TimeUnit::Picosecond => Some(CD::nanoseconds(duration.value * 1_000)),
+            TimeUnit::Femtosecond => Some(CD::nanoseconds(duration.value * 1_000_000)),
+            TimeUnit::Attosecond => Some(CD::nanoseconds(duration.value * 1_000_000_000)),
+        }
+        .ok_or_eyre("Unable to convert Duration to chrono::Duration")
+    }
+}
+
+impl From<&Duration> for time::Duration {
+    fn from(duration: &Duration) -> Self {
+        use time::Duration as TD;
+
+        match &duration.time_unit {
+            TimeUnit::Year => TD::days((duration.value as f64 * 365.25) as i64),
+            TimeUnit::Month => TD::days((duration.value as f64 * 30.5) as i64),
+            TimeUnit::Week => TD::weeks(duration.value),
+            TimeUnit::Day => TD::days(duration.value),
+            TimeUnit::Hour => TD::hours(duration.value),
+            TimeUnit::Minute => TD::minutes(duration.value),
+            TimeUnit::Second => TD::seconds(duration.value),
+            TimeUnit::Millisecond => TD::milliseconds(duration.value),
+            TimeUnit::Microsecond => TD::microseconds(duration.value),
+            TimeUnit::Nanosecond => TD::nanoseconds(duration.value),
+            TimeUnit::Picosecond => TD::nanoseconds(duration.value * 1_000),
+            TimeUnit::Femtosecond => TD::nanoseconds(duration.value * 1_000_000),
+            TimeUnit::Attosecond => TD::nanoseconds(duration.value * 1_000_000_000),
+        }
     }
 }

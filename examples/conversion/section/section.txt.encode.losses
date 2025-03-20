@@ -1,5 +1,7 @@
 Article#: 1
+Article.options: 1
 Heading#: 5
-Integer@: 5
+Heading.level: 5
 Paragraph#: 7
 Section#: 9
+Section.sectionType: 4
