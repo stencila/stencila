@@ -127,7 +127,10 @@ impl Visitor for DatabaseWalker {
     }
 
     fn visit_table_cell(&mut self, node: &TableCell) -> WalkControl {
-        self.visit_database_node(node)
+        self.visit_database_node(node);
+        // Break the walk so that the content (usually just a single Paragraph)
+        // is not collected. We do this to reduce the number of nodes in the db.
+        WalkControl::Break
     }
 
     fn visit_inline(&mut self, node: &Inline) -> WalkControl {
