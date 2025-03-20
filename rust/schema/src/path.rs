@@ -1,12 +1,14 @@
 use std::{
     collections::VecDeque,
     fmt::{self, Display},
+    str::FromStr,
 };
 
 use derive_more::{Deref, DerefMut, IntoIterator};
 
 use common::{
     eyre::{bail, OptionExt, Report, Result},
+    itertools::Itertools,
     serde::{Deserialize, Serialize},
     serde_json::{self},
 };
@@ -142,5 +144,20 @@ impl Display for NodePath {
         }
 
         Ok(())
+    }
+}
+
+impl FromStr for NodePath {
+    type Err = Report;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let slots = s
+            .split("/")
+            .map(|slot| match slot.parse::<usize>() {
+                Ok(index) => Ok(NodeSlot::Index(index)),
+                Err(..) => slot.parse().map(NodeSlot::Property),
+            })
+            .try_collect()?;
+        Ok(NodePath(slots))
     }
 }
