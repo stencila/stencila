@@ -163,7 +163,6 @@ impl NodeDatabase {
     #[tracing::instrument(skip(self, node))]
     pub fn insert(&mut self, doc_id: &NodeId, node: &Node) -> Result<()> {
         self.create_node(doc_id, node)?;
-        self.update()?;
 
         Ok(())
     }
@@ -205,7 +204,13 @@ impl NodeDatabase {
     /// Update database indices
     #[tracing::instrument(skip(self))]
     pub fn update(&self) -> Result<()> {
-        self.create_fts_indices()
+        // TODO: Disable creating FTS indices until the FTS extension is able to be
+        // used with statically linked binary
+        //   https://github.com/kuzudb/kuzu/issues/5065
+        //   https://github.com/kuzudb/kuzu/issues/5076
+        // self.create_fts_indices()
+
+        Ok(())
     }
 
     /// Create a node in the database
