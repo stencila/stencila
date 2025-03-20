@@ -9,7 +9,7 @@ use cli_utils::{
     table::{self, Attribute, Cell, Color},
     AsFormat, Code, ToStdout,
 };
-use codecs::EncodeOptions;
+use codecs::{EncodeOptions, LossesResponse};
 use common::{
     chrono::TimeDelta,
     chrono_humanize,
@@ -123,6 +123,7 @@ impl Query {
             &node,
             Some(EncodeOptions {
                 format: Some(format.clone()),
+                losses: LossesResponse::Debug,
                 ..Default::default()
             }),
         )
