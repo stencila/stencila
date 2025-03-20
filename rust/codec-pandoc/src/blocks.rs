@@ -61,6 +61,7 @@ pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> pand
         Block::IfBlock(block) => if_block_to_pandoc(block, context),
         Block::IncludeBlock(block) => include_block_to_pandoc(block, context),
         Block::InstructionBlock(block) => instruction_block_to_pandoc(block, context),
+        Block::Excerpt(block) => excerpt_to_pandoc(block, context),
         Block::ForBlock(block) => for_block_to_pandoc(block, context),
         Block::QuoteBlock(block) => quote_block_to_pandoc(block, context),
         Block::RawBlock(block) => raw_block_to_pandoc(block, context),
@@ -942,6 +943,16 @@ fn instruction_block_to_pandoc(
     let content = &block.content.clone().unwrap_or_default();
 
     pandoc::Block::Div(attrs, blocks_to_pandoc(content, context))
+}
+
+fn excerpt_to_pandoc(block: &Excerpt, context: &mut PandocEncodeContext) -> pandoc::Block {
+    let attrs = pandoc::Attr {
+        classes: vec!["excerpt".into()],
+        // TODO: encode source to attributes or some other how
+        ..attrs_empty()
+    };
+
+    pandoc::Block::Div(attrs, blocks_to_pandoc(&block.content, context))
 }
 
 fn for_block_to_pandoc(block: &ForBlock, context: &mut PandocEncodeContext) -> pandoc::Block {
