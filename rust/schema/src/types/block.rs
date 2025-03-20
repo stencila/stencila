@@ -11,6 +11,7 @@ use super::chat_message_group::ChatMessageGroup;
 use super::claim::Claim;
 use super::code_block::CodeBlock;
 use super::code_chunk::CodeChunk;
+use super::excerpt::Excerpt;
 use super::figure::Figure;
 use super::file::File;
 use super::for_block::ForBlock;
@@ -76,6 +77,12 @@ pub enum Block {
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     CodeChunk(CodeChunk),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    Excerpt(Excerpt),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Figure(Figure),

@@ -74,6 +74,7 @@ impl Schemas {
             "CompilationMessage",
             "Datatable",
             "DatatableColumn",
+            "Excerpt",
             "Enumeration",
             "ExecutionDependant",
             "ExecutionDependency",

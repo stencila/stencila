@@ -45,6 +45,7 @@ impl NodeType {
                 | Claim
                 | CodeBlock
                 | CodeChunk
+                | Excerpt
                 | Figure
                 | ForBlock
                 | Form

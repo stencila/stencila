@@ -22,8 +22,8 @@ use common::{
 };
 use lru::LruCache;
 use schema::{
-    Article, Block, Datatable, DatatableColumn, List, ListOrder, Node, NodeId, NodePath,
-    NodeProperty, NodeSlot, NodeType, Table, TableRow, Visitor, duplicate,
+    Article, Block, CreativeWorkType, Datatable, DatatableColumn, Excerpt, Node, NodeId, NodePath,
+    NodeProperty, NodeSlot, NodeType, Visitor, duplicate,
 };
 
 #[rustfmt::skip]
@@ -472,7 +472,7 @@ impl NodeDatabase {
             bail!("Expected store to be available");
         };
 
-        let mut nodes = Vec::new();
+        let mut blocks = Vec::new();
         for row in result {
             for value in row {
                 let Value::Node(node_val) = value else {
@@ -499,67 +499,60 @@ impl NodeDatabase {
                 };
                 let node_path = node_path.parse()?;
 
-                let result = {
+                let (source, excerpt) = {
                     let mut docs = self.docs.lock().await;
                     match docs.get(&doc_id) {
-                        Some(doc) => duplicate(doc, node_path),
+                        Some(doc) => {
+                            // TODO: add a cite_as function to cite doc
+                            let source = CreativeWorkType::Article(Article::default());
+                            let excerpt = duplicate(doc, node_path);
+
+                            (source, excerpt)
+                        }
                         None => {
                             let path = store.join(format!("{doc_id}.json"));
                             let json = read_to_string(path)?;
                             let doc = serde_json::from_str(&json)?;
 
-                            let result = duplicate(&doc, node_path);
+                            // TODO: add a cite_as function to cite doc
+                            let source = CreativeWorkType::Article(Article::default());
+                            let excerpt = duplicate(&doc, node_path);
 
                             docs.put(doc_id.clone(), doc);
 
-                            result
+                            (source, excerpt)
                         }
                     }
                 };
 
-                let Ok(node) = result else {
+                let Ok(node) = excerpt else {
                     tracing::warn!("Unable to find node path in `{doc_id}`");
                     continue;
                 };
 
-                nodes.push(node)
+                let content = if node.node_type().is_block() {
+                    // If the node is a block, then just use it as the content
+                    // of the excerpt
+                    vec![node.try_into()?]
+                } else {
+                    // If the node is not a block (e.g. Article, TableRow, ListItem) then
+                    // attempt to convert to a vector of blocks
+                    match node.try_into() {
+                        Ok(block) => block,
+                        Err(error) => {
+                            tracing::warn!("While converting to blocks: {error}");
+                            continue;
+                        }
+                    }
+                };
+
+                let excerpt = Block::Excerpt(Excerpt::new(source, content));
+
+                blocks.push(excerpt)
             }
         }
 
-        if nodes
-            .iter()
-            .all(|node| matches!(node, Node::TableCell(..) | Node::TableRow(..)))
-        {
-            let rows = nodes
-                .into_iter()
-                .filter_map(|node| match node {
-                    Node::TableCell(cell) => Some(TableRow::new(vec![cell])),
-                    Node::TableRow(row) => Some(row),
-                    _ => None,
-                })
-                .collect();
-
-            Ok(Node::Table(Table::new(rows)))
-        } else if nodes.iter().all(|node| matches!(node, Node::ListItem(..))) {
-            let items = nodes
-                .into_iter()
-                .filter_map(|node| match node {
-                    Node::ListItem(item) => Some(item),
-                    _ => None,
-                })
-                .collect();
-
-            Ok(Node::List(List::new(items, ListOrder::Unordered)))
-        } else {
-            // Convert each node into a vector of blocks and flatten, potentially with loss
-            // See `impl TryFrom<Node> for Vec<Block>` for details
-            let content = nodes
-                .into_iter()
-                .flat_map(|node| TryInto::<Vec<Block>>::try_into(node).unwrap_or_default())
-                .collect();
-
-            Ok(Node::Article(Article::new(content)))
-        }
+        Ok(Node::Article(Article::new(blocks)))
     }
 
     /// Convert a query result into a [`Node::Datatable`]

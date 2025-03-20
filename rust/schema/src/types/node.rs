@@ -50,6 +50,7 @@ use super::duration_validator::DurationValidator;
 use super::emphasis::Emphasis;
 use super::enum_validator::EnumValidator;
 use super::enumeration::Enumeration;
+use super::excerpt::Excerpt;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
 use super::execution_message::ExecutionMessage;
@@ -244,6 +245,8 @@ pub enum Node {
     EnumValidator(EnumValidator),
 
     Enumeration(Enumeration),
+
+    Excerpt(Excerpt),
 
     ExecutionDependant(ExecutionDependant),
 
