@@ -106,6 +106,8 @@ pub enum Command {
     Status(document::cli::Status),
     Rebuild(document::cli::Rebuild),
 
+    Query(document::cli::Query),
+
     Convert(convert::Cli),
     Sync(sync::Cli),
 
@@ -155,6 +157,8 @@ impl Cli {
             Command::Untrack(untrack) => untrack.run().await?,
             Command::Status(status) => status.run().await?,
             Command::Rebuild(rebuild) => rebuild.run().await?,
+
+            Command::Query(query) => query.run().await?,
 
             Command::Convert(convert) => convert.run().await?,
             Command::Sync(sync) => sync.run().await?,

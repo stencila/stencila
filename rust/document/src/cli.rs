@@ -9,6 +9,7 @@ use cli_utils::{
     table::{self, Attribute, Cell, Color},
     AsFormat, Code, ToStdout,
 };
+use codecs::EncodeOptions;
 use common::{
     chrono::TimeDelta,
     chrono_humanize,
@@ -20,18 +21,19 @@ use common::{
     tracing,
 };
 use format::Format;
+use node_db::NodeDatabase;
 
 use crate::{
     dirs::{
-        closest_stencila_dir, closest_workspace_dir, stencila_dir_create, CreateStencilaDirOptions,
-        STENCILA_DIR,
+        closest_stencila_dir, closest_workspace_dir, stencila_db_dir, stencila_dir_create,
+        CreateStencilaDirOptions, STENCILA_DIR,
     },
     track::DocumentRemote,
 };
 
 use super::{track::DocumentTrackingStatus, Document};
 
-/// Initialize workspace config and database
+/// Initialize a workspace
 #[derive(Debug, Parser)]
 pub struct Init {
     /// The workspace directory to initialize
@@ -70,7 +72,7 @@ impl Init {
     }
 }
 
-/// Rebuild the a workspace database
+/// Rebuild a workspace database
 #[derive(Debug, Parser)]
 pub struct Rebuild {
     /// The workspace directory to rebuild the database for
@@ -84,6 +86,51 @@ impl Rebuild {
     #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         Document::tracking_rebuild(&self.dir).await
+    }
+}
+
+/// Query a workspace database
+#[derive(Debug, Parser)]
+pub struct Query {
+    query: String,
+
+    /// The workspace directory to query
+    ///
+    /// Defaults to the current directory.
+    #[arg(default_value = ".")]
+    dir: PathBuf,
+
+    /// Output the result as JSON or YAML
+    #[arg(long, short)]
+    r#as: Option<Format>,
+}
+
+impl Query {
+    #[tracing::instrument]
+    pub async fn run(self) -> Result<()> {
+        let stencila_dir = closest_stencila_dir(&self.dir, false).await?;
+        let db_dir = stencila_db_dir(&stencila_dir, false).await?;
+        if !db_dir.exists() {
+            bail!("No database for this workspace")
+        }
+
+        let db = NodeDatabase::new(&db_dir)?;
+        let node = db.query(&self.query).await?;
+
+        let format = self.r#as.unwrap_or(Format::Markdown);
+
+        let md = codecs::to_string(
+            &node,
+            Some(EncodeOptions {
+                format: Some(format.clone()),
+                ..Default::default()
+            }),
+        )
+        .await?;
+
+        Code::new(format, &md).to_stdout();
+
+        Ok(())
     }
 }
 

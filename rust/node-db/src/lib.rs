@@ -1,22 +1,30 @@
 use std::{
     collections::HashMap,
-    fs::remove_dir_all,
+    fs::{read_to_string, remove_dir_all, write},
     io::Write,
+    num::NonZeroUsize,
     path::{Path, PathBuf},
 };
 
+use from_kuzu::{array_validator_from_logical_type, primitive_from_value};
 use fts_indices::FTS_INDICES;
 use kuzu::{
     Connection, Database, LogicalType, PreparedStatement, QueryResult, SystemConfig, Value,
 };
 
 use common::{
-    eyre::{Context, Report, Result, eyre},
+    eyre::{Context, Report, Result, bail, eyre},
     itertools::Itertools,
+    serde_json,
     tempfile::NamedTempFile,
+    tokio::sync::Mutex,
     tracing,
 };
-use schema::{Node, NodeId, NodePath, NodeProperty, NodeSlot, NodeType, Visitor};
+use lru::LruCache;
+use schema::{
+    Article, Block, Datatable, DatatableColumn, List, ListOrder, Node, NodeId, NodePath,
+    NodeProperty, NodeSlot, NodeType, Table, TableRow, Visitor, duplicate,
+};
 
 #[rustfmt::skip]
 mod node_types;
@@ -72,6 +80,8 @@ pub struct NodeDatabase {
     /// The document storage directory associated with the database
     store: Option<PathBuf>,
 
+    docs: Mutex<LruCache<String, Node>>,
+
     /// Prepared statements for deleting a document and all its root node
     delete_doc_statement: Option<PreparedStatement>,
 
@@ -83,7 +93,7 @@ pub struct NodeDatabase {
 }
 
 // The number of entries, above which `COPY FROM` CSV file should be used
-const USE_CSV_COUNT: usize = 5;
+const USE_CSV_COUNT: usize = 100;
 
 const EXPECT_JUST_INSERTED: &str = "should exist, just inserted";
 
@@ -93,12 +103,11 @@ impl NodeDatabase {
     /// Note that `path` should be a directory (not a file) and will be created if it
     /// does not yet exist.
     pub fn new(path: &Path) -> Result<Self> {
-        let exists = path.exists();
-
         let database = Database::new(path, SystemConfig::default())?;
 
-        if !exists {
-            let create = || {
+        let initialized = path.join("stencila.txt");
+        if !initialized.exists() {
+            let initialize = || {
                 let connection = Connection::new(&database)?;
                 let schema = include_str!("schema.kuzu");
                 for statement in schema.split(";") {
@@ -110,9 +119,12 @@ impl NodeDatabase {
                         .query(statement)
                         .wrap_err_with(|| eyre!("Failed to execute: {statement}"))?;
                 }
+
+                write(initialized, "")?;
+
                 Ok::<(), Report>(())
             };
-            if let Err(error) = create() {
+            if let Err(error) = initialize() {
                 // If there is any error in creating the database then remove it so that
                 // it is not in a corrupted/partial state
                 drop(database);
@@ -128,9 +140,14 @@ impl NodeDatabase {
             path.parent().map(|parent| parent.join("store"))
         };
 
+        let docs = Mutex::new(LruCache::new(
+            NonZeroUsize::new(10).expect("valid non-zero"),
+        ));
+
         Ok(Self {
             database,
             store,
+            docs,
             delete_doc_statement: None,
             create_node_statements: HashMap::new(),
             create_rel_statements: HashMap::new(),
@@ -252,7 +269,9 @@ impl NodeDatabase {
                         .join(", ");
                     let statement = format!("CREATE (:`{node_type}` {{{}}})", properties);
 
-                    let statement = connection.prepare(&statement)?;
+                    let statement = connection
+                        .prepare(&statement)
+                        .wrap_err_with(|| eyre!("Error preparing: {statement}"))?;
 
                     self.create_node_statements.insert(node_type, statement);
                     self.create_node_statements
@@ -307,7 +326,7 @@ impl NodeDatabase {
             let filename = csv.path().to_string_lossy();
             connection.query(&format!(
                 "COPY `{node_type}` FROM '{filename}' (HEADER=true, file_format='csv', auto_detect=false);"
-            ))?;
+            )).wrap_err_with(|| eyre!("Error copying into `{node_type}` from CSV with `{}`", properties.join(", ")))?;
         }
 
         Ok(())
@@ -407,12 +426,166 @@ impl NodeDatabase {
     }
 
     /// Query the database using Cypher Query Language
-    pub fn query(&self, cypher: &str) -> Result<QueryResult> {
+    ///
+    /// Returns a Stencila [`Node`] whose type depends upon the shape of the
+    /// the query result.
+    ///
+    /// If all of the columns in the result are nodes, then the [`NodePath`]
+    /// of each node is used to extract it from the corresponding document
+    /// in the store. The nodes are then sorted into "bins" based on their type
+    /// and if all the
+    ///
+    /// - [`TableCell`]s or [`TableRow`]s into a [`Table`]
+    /// - [`ListItem`] into a [`List`]
+    /// - otherwise converted to `Blocks` into an [`Article`]
+    pub async fn query(&self, cypher: &str) -> Result<Node> {
         let connection = Connection::new(&self.database)?;
 
-        let result = connection.query(cypher)?;
+        // Ensure any necessary extensions are loaded
+        if cypher.to_uppercase().contains("QUERY_FTS_INDEX") {
+            connection.query("LOAD EXTENSION FTS;").ok();
+        }
 
-        Ok(result)
+        // Run the query and get column details
+        let result = connection.query(cypher)?;
+        let types = result.get_column_data_types();
+
+        if self.store.is_some()
+            && types
+                .iter()
+                .all(|data_type| matches!(data_type, LogicalType::Node))
+        {
+            self.query_result_nodes(result).await
+        } else {
+            self.query_result_datatable(result)
+        }
+    }
+
+    /// Convert a query result of nodes into a [`Node`]
+    async fn query_result_nodes(&self, result: QueryResult) -> Result<Node> {
+        let Some(store) = &self.store else {
+            bail!("Expected store to be available");
+        };
+
+        let mut nodes = Vec::new();
+        for row in result {
+            for value in row {
+                let Value::Node(node_val) = value else {
+                    bail!("Expected a Kuzu node");
+                };
+
+                let mut doc_id = None;
+                let mut node_path = None;
+                for (name, value) in node_val.get_properties() {
+                    if name == "docId" {
+                        doc_id = Some(value.to_string());
+                    }
+
+                    if name == "nodePath" {
+                        node_path = Some(value.to_string());
+                    }
+
+                    if doc_id.is_some() && node_path.is_some() {
+                        break;
+                    }
+                }
+                let (Some(doc_id), Some(node_path)) = (doc_id, node_path) else {
+                    bail!("docId or nodePath fields missing")
+                };
+                let node_path = node_path.parse()?;
+
+                let result = {
+                    let mut docs = self.docs.lock().await;
+                    match docs.get(&doc_id) {
+                        Some(doc) => duplicate(doc, node_path),
+                        None => {
+                            let path = store.join(&format!("{doc_id}.json"));
+                            let json = read_to_string(path)?;
+                            let doc = serde_json::from_str(&json)?;
+
+                            let result = duplicate(&doc, node_path);
+
+                            docs.put(doc_id.clone(), doc);
+
+                            result
+                        }
+                    }
+                };
+
+                let Ok(node) = result else {
+                    tracing::warn!("Unable to find node path in `{doc_id}`");
+                    continue;
+                };
+
+                nodes.push(node)
+            }
+        }
+
+        if nodes
+            .iter()
+            .all(|node| matches!(node, Node::TableCell(..) | Node::TableRow(..)))
+        {
+            let rows = nodes
+                .into_iter()
+                .filter_map(|node| match node {
+                    Node::TableCell(cell) => Some(TableRow::new(vec![cell])),
+                    Node::TableRow(row) => Some(row),
+                    _ => None,
+                })
+                .collect();
+
+            Ok(Node::Table(Table::new(rows)))
+        } else if nodes.iter().all(|node| matches!(node, Node::ListItem(..))) {
+            let items = nodes
+                .into_iter()
+                .filter_map(|node| match node {
+                    Node::ListItem(item) => Some(item),
+                    _ => None,
+                })
+                .collect();
+
+            Ok(Node::List(List::new(items, ListOrder::Unordered)))
+        } else {
+            // Convert each node into a vector of blocks and flatten, potentially with loss
+            // See `impl TryFrom<Node> for Vec<Block>` for details
+            let content = nodes
+                .into_iter()
+                .flat_map(|node| TryInto::<Vec<Block>>::try_into(node).unwrap_or_default())
+                .collect();
+
+            Ok(Node::Article(Article::new(content)))
+        }
+    }
+
+    /// Convert a query result into a [`Node::Datatable`]
+    fn query_result_datatable(&self, result: QueryResult) -> Result<Node> {
+        let mut columns: Vec<DatatableColumn> = result
+            .get_column_names()
+            .into_iter()
+            .zip(result.get_column_data_types().into_iter())
+            .map(|(name, data_type)| DatatableColumn {
+                name,
+                validator: array_validator_from_logical_type(&data_type),
+                values: Vec::new(),
+                ..Default::default()
+            })
+            .collect();
+
+        for row in result {
+            for (col, value) in row.into_iter().enumerate() {
+                let Some(column) = columns.get_mut(col) else {
+                    bail!("Invalid index");
+                };
+
+                let value = primitive_from_value(value);
+                column.values.push(value);
+            }
+        }
+
+        Ok(Node::Datatable(Datatable {
+            columns,
+            ..Default::default()
+        }))
     }
 }
 
