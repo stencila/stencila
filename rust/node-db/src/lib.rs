@@ -543,7 +543,7 @@ impl NodeDatabase {
                     }
                 };
 
-                let excerpt = Block::Excerpt(Excerpt::new(source, content));
+                let excerpt = Block::Excerpt(Excerpt::new(Box::new(source), content));
 
                 blocks.push(excerpt)
             }

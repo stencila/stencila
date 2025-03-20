@@ -24,7 +24,7 @@ pub struct Excerpt {
 
     /// The `CreativeWork` that the except was taken from.
     #[strip(metadata)]
-    pub source: CreativeWorkType,
+    pub source: Box<CreativeWorkType>,
 
     /// The excerpted content.
     #[serde(deserialize_with = "one_or_many")]
@@ -49,7 +49,7 @@ impl Excerpt {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(source: CreativeWorkType, content: Vec<Block>) -> Self {
+    pub fn new(source: Box<CreativeWorkType>, content: Vec<Block>) -> Self {
         Self {
             source,
             content,
