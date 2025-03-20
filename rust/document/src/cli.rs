@@ -93,46 +93,75 @@ impl Rebuild {
 /// Query a workspace database
 #[derive(Debug, Parser)]
 pub struct Query {
+    /// The Cypher query
     query: String,
 
-    /// The workspace directory to query
+    /// The path of the file to output the result to
     ///
-    /// Defaults to the current directory.
-    #[arg(default_value = ".")]
-    dir: PathBuf,
+    /// If not supplied the output content is written to `stdout`.
+    output: Option<PathBuf>,
 
-    /// Output the result as JSON or YAML
+    /// The format to output the result as
+    ///
+    /// Defaults to inferring the format from the file name extension
+    /// of the `output`. If no `output` is supplied, defaults to JSON.
+    /// See `stencila codecs list` for available formats.
     #[arg(long, short)]
-    r#as: Option<Format>,
+    to: Option<Format>,
+
+    /// The document database to query
+    ///
+    /// Defaults to the closest workspace database (i.e the closest `.stencila/db`
+    /// directory).
+    #[arg(long, short)]
+    db: Option<PathBuf>,
 }
 
 impl Query {
     #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
-        let stencila_dir = closest_stencila_dir(&self.dir, false).await?;
-        let db_dir = stencila_db_dir(&stencila_dir, false).await?;
+        let db_dir = match self.db {
+            Some(db_dir) => db_dir,
+            None => {
+                stencila_db_dir(&closest_stencila_dir(&current_dir()?, false).await?, false).await?
+            }
+        };
         if !db_dir.exists() {
-            bail!("No database for this workspace")
+            bail!("Directory `{}` does not exist", db_dir.display())
         }
 
         let db = NodeDatabase::new(&db_dir)?;
         let node = db.query(&self.query).await?;
 
-        if let (Node::Datatable(dt), None) = (&node, &self.r#as) {
-            return Ok(dt.to_stdout());
+        if let Some(output) = self.output {
+            // If output is defined then encode to file
+            codecs::to_path(
+                &node,
+                &output,
+                Some(EncodeOptions {
+                    format: self.to,
+                    losses: LossesResponse::Debug,
+                    ..Default::default()
+                }),
+            )
+            .await?;
+        } else if let (Node::Datatable(dt), None) = (&node, &self.r#to) {
+            // If node is datatable and no output format is defined, pretty print it
+            dt.to_stdout()
+        } else {
+            // Otherwise pretty print using output format, defaulting to Markdown
+            let format = self.r#to.unwrap_or(Format::Markdown);
+            let content = codecs::to_string(
+                &node,
+                Some(EncodeOptions {
+                    format: Some(format.clone()),
+                    losses: LossesResponse::Debug,
+                    ..Default::default()
+                }),
+            )
+            .await?;
+            Code::new(format, &content).to_stdout();
         }
-
-        let content = self.r#as.unwrap_or(Format::Markdown);
-        let md = codecs::to_string(
-            &node,
-            Some(EncodeOptions {
-                format: Some(content.clone()),
-                losses: LossesResponse::Debug,
-                ..Default::default()
-            }),
-        )
-        .await?;
-        Code::new(content, &md).to_stdout();
 
         Ok(())
     }
