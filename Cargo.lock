@@ -3237,6 +3237,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel-kuzu"
+version = "0.0.0"
+dependencies = [
+ "kernel",
+ "kuzu",
+]
+
+[[package]]
 name = "kernel-mermaid"
 version = "0.0.0"
 dependencies = [
@@ -4015,7 +4023,7 @@ version = "0.0.0"
 dependencies = [
  "codec-text-trait",
  "common",
- "kuzu",
+ "kernel-kuzu",
  "lru",
  "schema",
 ]

@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
-use kuzu::{LogicalType, Value};
-
+use kernel_kuzu::kuzu::{LogicalType, Value};
 use schema::{
     Block, IfBlockClause, Inline, ListItem, Node, NodeId, NodePath, NodeProperty, NodeSlot,
     NodeType, TableCell, TableRow, Visitor, WalkControl,

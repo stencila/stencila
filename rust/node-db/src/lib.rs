@@ -1,17 +1,3 @@
-use std::{
-    collections::HashMap,
-    fs::{read_to_string, remove_dir_all, write},
-    io::Write,
-    num::NonZeroUsize,
-    path::{Path, PathBuf},
-};
-
-use from_kuzu::{array_validator_from_logical_type, primitive_from_value};
-use fts_indices::FTS_INDICES;
-use kuzu::{
-    Connection, Database, LogicalType, PreparedStatement, QueryResult, SystemConfig, Value,
-};
-
 use common::{
     eyre::{Context, Report, Result, bail, eyre},
     itertools::Itertools,
@@ -20,10 +6,23 @@ use common::{
     tokio::sync::Mutex,
     tracing,
 };
+use kernel_kuzu::{
+    ToKuzu, datatable_from_query_result,
+    kuzu::{
+        Connection, Database, LogicalType, PreparedStatement, QueryResult, SystemConfig, Value,
+    },
+};
 use lru::LruCache;
 use schema::{
-    Article, Block, CreativeWorkType, Datatable, DatatableColumn, Excerpt, Node, NodeId, NodePath,
-    NodeProperty, NodeSlot, NodeType, Visitor, duplicate,
+    Article, Block, CreativeWorkType, Excerpt, Node, NodeId, NodePath, NodeProperty, NodeSlot,
+    NodeType, Visitor, duplicate,
+};
+use std::{
+    collections::HashMap,
+    fs::{read_to_string, remove_dir_all, write},
+    io::Write,
+    num::NonZeroUsize,
+    path::{Path, PathBuf},
 };
 
 #[rustfmt::skip]
@@ -31,11 +30,9 @@ mod node_types;
 #[rustfmt::skip]
 mod fts_indices;
 
-mod from_kuzu;
-mod to_kuzu;
 mod walker;
 
-use to_kuzu::ToKuzu;
+use fts_indices::FTS_INDICES;
 use walker::DatabaseWalker;
 
 /// A trait for representing Stencila Schema nodes in a [`NodeDatabase`]
@@ -557,33 +554,7 @@ impl NodeDatabase {
 
     /// Convert a query result into a [`Node::Datatable`]
     fn query_result_datatable(&self, result: QueryResult) -> Result<Node> {
-        let mut columns: Vec<DatatableColumn> = result
-            .get_column_names()
-            .into_iter()
-            .zip(result.get_column_data_types())
-            .map(|(name, data_type)| DatatableColumn {
-                name,
-                validator: array_validator_from_logical_type(&data_type),
-                values: Vec::new(),
-                ..Default::default()
-            })
-            .collect();
-
-        for row in result {
-            for (col, value) in row.into_iter().enumerate() {
-                let Some(column) = columns.get_mut(col) else {
-                    bail!("Invalid index");
-                };
-
-                let value = primitive_from_value(value);
-                column.values.push(value);
-            }
-        }
-
-        Ok(Node::Datatable(Datatable {
-            columns,
-            ..Default::default()
-        }))
+        datatable_from_query_result(result).map(Node::Datatable)
     }
 }
 

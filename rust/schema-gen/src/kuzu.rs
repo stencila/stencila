@@ -579,12 +579,11 @@ impl DatabaseNode for {title} {{
             format!(
                 "// Generated file, do not edit. See the Rust `schema-gen` crate.
 
-use kuzu::{{LogicalType, Value}};
-
+use kernel_kuzu::{{kuzu::{{LogicalType, Value}}, ToKuzu}};
 use codec_text_trait::to_text;
 use schema::*;
 
-use super::{{DatabaseNode, ToKuzu}};
+use super::DatabaseNode;
 
 fn relations<'lt, I, D>(iter: I) -> Vec<(NodeType, NodeId)>
 where

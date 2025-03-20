@@ -1,6 +1,6 @@
 use kuzu::{LogicalType, Value};
 
-use schema::*;
+use kernel::schema::*;
 
 /// A trait for converting Stencila nodes to Kuzu values
 pub trait ToKuzu {

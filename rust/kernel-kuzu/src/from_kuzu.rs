@@ -1,6 +1,40 @@
-use kuzu::{LogicalType, Value};
+use kuzu::{LogicalType, QueryResult, Value};
 
-use schema::*;
+use kernel::{
+    common::eyre::{Result, bail},
+    schema::*,
+};
+
+/// Create a Stencila [`Datatable`] from a Kuzu [`QueryResult`]
+pub fn datatable_from_query_result(result: QueryResult) -> Result<Datatable> {
+    let mut columns: Vec<DatatableColumn> = result
+        .get_column_names()
+        .into_iter()
+        .zip(result.get_column_data_types())
+        .map(|(name, data_type)| DatatableColumn {
+            name,
+            validator: array_validator_from_logical_type(&data_type),
+            values: Vec::new(),
+            ..Default::default()
+        })
+        .collect();
+
+    for row in result {
+        for (col, value) in row.into_iter().enumerate() {
+            let Some(column) = columns.get_mut(col) else {
+                bail!("Invalid index");
+            };
+
+            let value = primitive_from_value(value);
+            column.values.push(value);
+        }
+    }
+
+    Ok(Datatable {
+        columns,
+        ..Default::default()
+    })
+}
 
 /// Get the Stencila [`Validator`] corresponding to a Kuzu [`LogicalType`]
 pub fn validator_from_logical_type(logical_type: &LogicalType) -> Option<Validator> {
