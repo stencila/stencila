@@ -895,6 +895,7 @@ dependencies = [
  "common",
  "format",
  "rpassword",
+ "schema",
  "syntect",
  "url",
 ]
@@ -3341,6 +3342,7 @@ dependencies = [
  "kernel-rhai",
  "kernel-style",
  "kernel-tex",
+ "node-diagnostics",
  "plugins",
  "test-log",
 ]

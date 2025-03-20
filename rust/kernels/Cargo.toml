@@ -18,6 +18,7 @@ kernel-r = { path = "../kernel-r" }
 kernel-rhai = { path = "../kernel-rhai", optional = true }
 kernel-style = { path = "../kernel-style" }
 kernel-tex = { path = "../kernel-tex" }
+node-diagnostics = { path = "../node-diagnostics" }
 plugins = { path = "../plugins" }
 
 [dev-dependencies]
