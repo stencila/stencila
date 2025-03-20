@@ -13,7 +13,7 @@ use schema::{
     shortcuts::{ci, h3, p, t},
     Author, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ChatMessageGroup,
     ChatMessageOptions, ExecutionBounds, InstructionMessage, InstructionType, MessagePart,
-    MessageRole, ModelParameters, Patch, NodePath, SoftwareApplication,
+    MessageRole, ModelParameters, NodePath, Patch, SoftwareApplication,
 };
 
 use crate::{

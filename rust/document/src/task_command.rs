@@ -11,7 +11,7 @@ use format::Format;
 use node_execute::{compile, execute, interrupt, lint, ExecuteOptions};
 use schema::{
     transforms::blocks_to_inlines, Article, Block, ChatMessage, ChatMessageOptions, File, Node,
-    NodeId, NodeProperty, Patch, PatchNode, PatchOp, NodePath,
+    NodeId, NodePath, NodeProperty, Patch, PatchNode, PatchOp,
 };
 
 use crate::{

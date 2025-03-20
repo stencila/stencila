@@ -20,14 +20,14 @@ impl Schemas {
     ///
     /// For each node type in the Stencila Schema we create a node table e.g
     ///
-    ///     CREATE NODE TABLE Paragraph (...)
+    /// CREATE NODE TABLE Paragraph (...)
     ///
     /// with table properties for primitive properties (e.g. strings, numbers).
     ///
     /// For entity type properties we create relationship tables which have `TO`
     /// and `FROM` pairs for every possible parent-child combination. e.g.
     ///
-    ///     CREATE REL TABLE content(FROM Article TO Paragraph, FROM Article TO CodeBlock, ..)
+    /// CREATE REL TABLE content(FROM Article TO Paragraph, FROM Article TO CodeBlock, ..)
     ///
     /// It is currently necessary to create this all in one big schema file which includes
     /// all node and relationship tables. We can can't create these tables on demand
@@ -153,8 +153,7 @@ impl Schemas {
 
         write(
             dir.join("fts_indices.rs"),
-            format!(
-                r#"// Generated file, do not edit. See the Rust `schema-gen` crate.
+            r#"// Generated file, do not edit. See the Rust `schema-gen` crate.
 
 pub const FTS_INDICES: &[(&str, &[&str])] = &[
     ("Article",        &["abstract", "description"]),
@@ -164,7 +163,7 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
     ("Paragraph",      &["text"]),
 ];
 "#
-            ),
+            .to_string(),
         )
         .await?;
 

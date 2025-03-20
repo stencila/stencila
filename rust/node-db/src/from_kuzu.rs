@@ -42,7 +42,7 @@ pub fn primitive_from_value(value: Value) -> Primitive {
         Value::Int8(value) => Primitive::Integer(value as i64),
         Value::Int16(value) => Primitive::Integer(value as i64),
         Value::Int32(value) => Primitive::Integer(value as i64),
-        Value::Int64(value) => Primitive::Integer(value as i64),
+        Value::Int64(value) => Primitive::Integer(value),
         Value::Int128(value) => Primitive::Integer(value as i64),
         Value::UInt8(value) => Primitive::Integer(value as i64),
         Value::UInt16(value) => Primitive::Integer(value as i64),

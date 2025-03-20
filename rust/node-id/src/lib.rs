@@ -47,7 +47,7 @@ impl From<Vec<u8>> for NodeUid {
 impl fmt::Debug for NodeUid {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let uid = str::from_utf8(&self.0).expect("node uid should always be utf8");
-        f.write_str(&uid)
+        f.write_str(uid)
     }
 }
 
@@ -111,7 +111,7 @@ impl fmt::Display for NodeId {
         f.write_str("_")?;
 
         let uid = str::from_utf8(&self.uid).expect("node uid should always be utf8");
-        f.write_str(&uid)
+        f.write_str(uid)
     }
 }
 

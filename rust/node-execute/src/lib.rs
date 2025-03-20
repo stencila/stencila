@@ -17,7 +17,7 @@ use prompts::prompt::{DocumentContext, InstructionContext};
 use schema::{
     AuthorRole, AuthorRoleName, Block, CompilationDigest, CompilationMessage, Config,
     ExecutionBounds, ExecutionMode, ExecutionStatus, Inline, Link, List, ListItem, ListOrder, Node,
-    NodeId, NodeProperty, NodeType, Paragraph, Patch, PatchNode, PatchOp, NodePath, PatchValue,
+    NodeId, NodePath, NodeProperty, NodeType, Paragraph, Patch, PatchNode, PatchOp, PatchValue,
     Timestamp, VisitorAsync, WalkControl, WalkNode,
 };
 

@@ -499,7 +499,7 @@ impl NodeDatabase {
                     match docs.get(&doc_id) {
                         Some(doc) => duplicate(doc, node_path),
                         None => {
-                            let path = store.join(&format!("{doc_id}.json"));
+                            let path = store.join(format!("{doc_id}.json"));
                             let json = read_to_string(path)?;
                             let doc = serde_json::from_str(&json)?;
 
@@ -562,7 +562,7 @@ impl NodeDatabase {
         let mut columns: Vec<DatatableColumn> = result
             .get_column_names()
             .into_iter()
-            .zip(result.get_column_data_types().into_iter())
+            .zip(result.get_column_data_types())
             .map(|(name, data_type)| DatatableColumn {
                 name,
                 validator: array_validator_from_logical_type(&data_type),

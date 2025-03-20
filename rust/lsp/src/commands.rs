@@ -39,8 +39,8 @@ use node_execute::ExecuteOptions;
 use node_find::find;
 use schema::{
     diff, replicate, AuthorRole, AuthorRoleName, Block, Chat, ExecutionMode, InstructionBlock,
-    InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodeProperty, NodeType,
-    Patch, PatchNode, PatchOp, NodePath, PatchValue, PromptBlock, SuggestionBlock, Timestamp,
+    InstructionMessage, InstructionType, ModelParameters, Node, NodeId, NodePath, NodeProperty,
+    NodeType, Patch, PatchNode, PatchOp, PatchValue, PromptBlock, SuggestionBlock, Timestamp,
 };
 
 use crate::{

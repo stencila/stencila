@@ -1,5 +1,5 @@
 use codec_markdown::decode_frontmatter;
-use schema::{diff, Article, NodeType, NodeSlot};
+use schema::{diff, Article, NodeSlot, NodeType};
 
 use crate::{interrupt_impl, prelude::*, HeadingInfo};
 

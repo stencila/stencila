@@ -8,7 +8,7 @@ pub fn duplicate<T: ProbeNode>(node: &T, mut path: NodePath) -> Result<Node> {
 }
 
 /// A trait to efficiently access a node within another
-/// 
+///
 /// Traverse directly to a node at a given [`NodePath`]. If a path to
 /// a node is available this is more efficient than walking the entire node
 /// tree looking for a node with a [`NodeId`] as does the `node_find::find` function.

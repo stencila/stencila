@@ -18,8 +18,8 @@ use schema::{
     authorship, diff, merge, patch,
     shortcuts::{art, p, sec, t},
     Article, Author, AuthorRole, AuthorRoleName, Block, CodeChunk, Cord, CordAuthorship, CordOp,
-    Figure, Inline, InstructionBlock, InstructionType, Node, NodeProperty, Paragraph, Patch,
-    PatchNode, PatchOp, NodePath, NodeSlot, PatchValue, Person, Primitive, ProvenanceCategory,
+    Figure, Inline, InstructionBlock, InstructionType, Node, NodePath, NodeProperty, NodeSlot,
+    Paragraph, Patch, PatchNode, PatchOp, PatchValue, Person, Primitive, ProvenanceCategory,
     ProvenanceCount, SoftwareApplication, Strong, SuggestionBlock, SuggestionStatus, Text,
     TimeUnit,
 };
