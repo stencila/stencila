@@ -7,7 +7,7 @@ use std::{
 use derive_more::{Deref, DerefMut, IntoIterator};
 
 use common::{
-    eyre::{bail, OptionExt, Report, Result},
+    eyre::{bail, Context, OptionExt, Report, Result},
     itertools::Itertools,
     serde::{Deserialize, Serialize},
     serde_json::{self},
@@ -151,13 +151,21 @@ impl FromStr for NodePath {
     type Err = Report;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
+        if s.is_empty() {
+            return Ok(NodePath::new());
+        }
+
         let slots = s
             .split("/")
             .map(|slot| match slot.parse::<usize>() {
                 Ok(index) => Ok(NodeSlot::Index(index)),
-                Err(..) => slot.parse().map(NodeSlot::Property),
+                Err(..) => slot
+                    .parse()
+                    .map(NodeSlot::Property)
+                    .wrap_err_with(|| format!("Not a node property: {slot}")),
             })
             .try_collect()?;
+
         Ok(NodePath(slots))
     }
 }
