@@ -15,8 +15,14 @@ const grammar = yaml.load(readFileSync(path.join(__dirname, "tmGrammar.yaml")));
 const langs = [
   { name: "css", aliases: "css", include: "source.css", chunks: false },
   {
+    name: "cypher",
+    aliases: "cypher|cql|kuzu",
+    include: "source.cypher",
+    chunks: true,
+  },
+  {
     name: "javascript",
-    aliases: "js|javascript",
+    aliases: "js|javascript|quickjs|nodejs",
     include: "source.js",
     chunks: true,
   },
