@@ -102,6 +102,7 @@ import image from './image.svg'
 import infoCircle from './info-circle.svg'
 import javascript from './javascript.svg'
 import json from './json.svg'
+import kuzu from './kuzu.svg'
 import latex from './latex.svg'
 import lightbulb from './lightbulb.svg'
 import lightningChargeFill from './lightning-charge-fill.svg'
@@ -239,6 +240,7 @@ const icons = {
   imageAlt,
   infoCircle,
   javascript,
+  kuzu,
   quickjs: javascript,
   json,
   latex,

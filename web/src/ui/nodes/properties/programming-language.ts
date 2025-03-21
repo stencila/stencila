@@ -44,6 +44,10 @@ export const programmingLanguages: Record<
     title: 'HTML',
     icon: 'codeSlash',
   },
+  kuzu: {
+    title: 'Kuzu',
+    icon: 'kuzu',
+  },
   latex: {
     title: 'LaTeX',
     icon: 'latex',
