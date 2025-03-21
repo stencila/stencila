@@ -3342,6 +3342,7 @@ dependencies = [
  "kernel-bash",
  "kernel-graphviz",
  "kernel-jinja",
+ "kernel-kuzu",
  "kernel-mermaid",
  "kernel-nodejs",
  "kernel-python",

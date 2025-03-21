@@ -261,6 +261,7 @@ async fn kernel_snippets(line_num: u32) -> Result<Option<CompletionResponse>, Re
         .filter_map(|(index, kernel)| {
             let kind = match kernel.r#type() {
                 KernelType::Programming => CompletionItemKind::EVENT,
+                KernelType::Database => CompletionItemKind::VARIABLE,
                 KernelType::Math => CompletionItemKind::OPERATOR,
                 KernelType::Diagrams => CompletionItemKind::INTERFACE,
                 KernelType::Templating => CompletionItemKind::KEYWORD,
@@ -276,7 +277,10 @@ async fn kernel_snippets(line_num: u32) -> Result<Option<CompletionResponse>, Re
 
             if matches!(
                 kernel.r#type(),
-                KernelType::Programming | KernelType::Diagrams | KernelType::Templating
+                KernelType::Programming
+                    | KernelType::Database
+                    | KernelType::Diagrams
+                    | KernelType::Templating
             ) {
                 label.push_str(" exec");
             }
@@ -297,6 +301,11 @@ async fn kernel_snippets(line_num: u32) -> Result<Option<CompletionResponse>, Re
                     },
                 ]
                 .concat(),
+                KernelType::Database => match kernel.name().as_str() {
+                    "kuzu" => "Query a Kuzu graph database",
+                    _ => "Query a database",
+                }
+                .to_string(),
                 KernelType::Math => [
                     "Write math using ",
                     lang.as_deref().unwrap_or("math markup"),

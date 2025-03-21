@@ -98,7 +98,7 @@ impl List {
             "Availability",
             "Languages",
             "Linting",
-            "Highest bounds",
+            "Bounds",
         ]);
 
         for kernel in list {
@@ -120,6 +120,7 @@ impl List {
                     KernelType::Diagrams => Cell::new("diagrams").fg(Color::DarkYellow),
                     KernelType::Math => Cell::new("math").fg(Color::Blue),
                     KernelType::Programming => Cell::new("programming").fg(Color::Green),
+                    KernelType::Database => Cell::new("database").fg(Color::DarkCyan),
                     KernelType::Styling => Cell::new("styling").fg(Color::Magenta),
                     KernelType::Templating => Cell::new("templating").fg(Color::Cyan),
                 },

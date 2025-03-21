@@ -1,9 +1,82 @@
-use kuzu::{LogicalType, QueryResult, Value};
+use kuzu::{Error, LogicalType, NodeVal, QueryResult, RelVal, Value};
 
 use kernel::{
-    common::eyre::{Result, bail},
+    common::{
+        self,
+        eyre::{Result, bail},
+        once_cell::sync::Lazy,
+        regex::Regex,
+        serde::Serialize,
+        serde_json::{self, json},
+    },
     schema::*,
 };
+
+/// Create a Stencila [`ImageObject`] containing a Cytoscape.js graph from a Kuzu [`QueryResult`]
+pub fn cytoscape_from_query_result(result: QueryResult) -> Result<ImageObject> {
+    #[derive(Serialize)]
+    #[serde(crate = "common::serde")]
+    struct Element {
+        data: Data,
+    }
+
+    #[derive(Serialize)]
+    #[serde(untagged, crate = "common::serde")]
+    enum Data {
+        Node {
+            id: String,
+        },
+        Edge {
+            id: String,
+            source: String,
+            target: String,
+        },
+    }
+
+    fn node(node: NodeVal) -> Element {
+        Element {
+            data: Data::Node {
+                id: node.get_node_id().to_string(),
+            },
+        }
+    }
+
+    fn edge(rel: RelVal) -> Element {
+        let source = rel.get_src_node().to_string();
+        let target = rel.get_dst_node().to_string();
+        Element {
+            data: Data::Edge {
+                id: [&source, ".", &target].concat(),
+                source,
+                target,
+            },
+        }
+    }
+
+    let mut elements = Vec::new();
+    for row in result {
+        for value in row {
+            elements.push(match value {
+                Value::Node(node_val) => node(node_val),
+                Value::Rel(rel_val) => edge(rel_val),
+                _ => continue,
+            });
+        }
+    }
+
+    let json = serde_json::to_string(&json!({
+        "elements": elements,
+        "layout": {
+            "name": "cose"
+        }
+    }))?;
+
+    Ok(ImageObject {
+        content_url: json,
+        media_type: Some("application/vnd.cytoscape.v3+json".into()),
+        ..Default::default()
+    })
+}
 
 /// Create a Stencila [`Datatable`] from a Kuzu [`QueryResult`]
 pub fn datatable_from_query_result(result: QueryResult) -> Result<Datatable> {
@@ -85,5 +158,42 @@ pub fn primitive_from_value(value: Value) -> Primitive {
         Value::Float(value) => Primitive::Number(value as f64),
         Value::Double(value) => Primitive::Number(value),
         _ => Primitive::String(value.to_string()),
+    }
+}
+
+/// Create a Stencila [`ExecutionMessage`] from a Kuzu [`Error`]
+pub fn execution_message_from_error(error: Error) -> ExecutionMessage {
+    let error = error
+        .to_string()
+        .replace("Query execution failed:", "")
+        .replace("Binder exception:", "")
+        .trim()
+        .to_string();
+
+    static PARSER_EXC_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"\(line: (\d+), offset: (\d+)\)").expect("invalid regex"));
+
+    let mut code_location = None;
+    let message = if let Some(rest) = error.strip_prefix("Parser exception:") {
+        match PARSER_EXC_REGEX.captures(&rest) {
+            Some(captures) => {
+                code_location = Some(CodeLocation {
+                    start_line: captures[1].parse().ok().map(|line: u64| line - 1),
+                    start_column: captures[2].parse().ok(),
+                    ..Default::default()
+                });
+                "Syntax error".to_string()
+            }
+            None => ["Syntax error: ", rest].concat(),
+        }
+    } else {
+        error
+    };
+
+    ExecutionMessage {
+        level: MessageLevel::Error,
+        message,
+        code_location,
+        ..Default::default()
     }
 }
