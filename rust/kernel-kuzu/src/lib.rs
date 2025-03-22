@@ -1,14 +1,8 @@
-use std::path::Path;
-
 use kuzu::{Connection, Database, LogicalType, SystemConfig, Value};
 
 use kernel::{
     Kernel, KernelInstance, KernelType,
-    common::{
-        async_trait::async_trait,
-        eyre::{Result, bail},
-        tracing,
-    },
+    common::{async_trait::async_trait, eyre::Result, tracing},
     format::Format,
     generate_id,
     schema::{
@@ -64,9 +58,6 @@ pub struct KuzuKernelInstance {
     /// The unique id of the kernel instance
     id: String,
 
-    /// The path to the database
-    path: Option<String>,
-
     /// The database instance
     db: Option<Database>,
 }
@@ -76,7 +67,6 @@ impl KuzuKernelInstance {
     pub fn new() -> Self {
         Self {
             id: generate_id(NAME),
-            path: None,
             db: None,
         }
     }
@@ -88,21 +78,30 @@ impl KernelInstance for KuzuKernelInstance {
         &self.id
     }
 
-    async fn start(&mut self, _directory: &Path) -> Result<()> {
-        let config = SystemConfig::default();
-        let db = Database::in_memory(config)?;
-
-        self.db = Some(db);
-
-        Ok(())
-    }
-
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
         tracing::trace!("Executing Kuzu statements");
 
-        let Some(db) = &self.db else {
-            bail!("Database has not been started");
+        let db = match &self.db {
+            Some(db) => db,
+            None => {
+                let mut db = ":memory:";
+                for line in code.lines() {
+                    if let Some(dir) = line
+                        .strip_prefix("//db")
+                        .or_else(|| line.strip_prefix("// db"))
+                    {
+                        db = dir.trim();
+                    }
+                }
+
+                let config = SystemConfig::default();
+                let db = Database::new(db, config)?;
+
+                self.db = Some(db);
+                self.db.as_ref().expect("just set")
+            }
         };
+
         let connection = Connection::new(&db)?;
 
         // Return on the first error, otherwise treat the result of the last statement
