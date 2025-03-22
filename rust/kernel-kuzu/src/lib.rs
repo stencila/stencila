@@ -1,3 +1,5 @@
+use std::path::{Path, PathBuf};
+
 use kuzu::{Connection, Database, LogicalType, SystemConfig, Value};
 
 use kernel::{
@@ -66,6 +68,12 @@ pub struct KuzuKernelInstance {
     /// The Jinja kernel instance used to render any Jinja templating
     jinja: JinjaKernelInstance,
 
+    /// The path that the database is started in
+    ///
+    /// Used to prefix any relative db path passed in a `//db` comment
+    /// in the execute method.
+    directory: Option<PathBuf>,
+
     /// The database instance
     db: Option<Database>,
 }
@@ -81,6 +89,7 @@ impl KuzuKernelInstance {
             jinja: JinjaKernelInstance::with_id(&id),
 
             id,
+            directory: None,
             db: None,
         }
     }
@@ -92,19 +101,29 @@ impl KernelInstance for KuzuKernelInstance {
         &self.id
     }
 
+    async fn start(&mut self, directory: &Path) -> Result<()> {
+        self.directory = Some(directory.to_owned());
+
+        Ok(())
+    }
+
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
         tracing::trace!("Executing Kuzu statements");
 
         let db = match &self.db {
             Some(db) => db,
             None => {
-                let mut db = ":memory:";
+                let mut db = ":memory:".to_string();
                 for line in code.lines() {
-                    if let Some(dir) = line
+                    if let Some(relative_path) = line
                         .strip_prefix("//db")
                         .or_else(|| line.strip_prefix("// db"))
                     {
-                        db = dir.trim();
+                        let path = relative_path.trim();
+                        db = match &self.directory {
+                            Some(dir) => dir.join(path).to_string_lossy().to_string(),
+                            None => path.to_string(),
+                        }
                     }
                 }
 
