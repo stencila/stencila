@@ -3242,6 +3242,7 @@ version = "0.0.0"
 dependencies = [
  "common-dev",
  "kernel",
+ "kernel-jinja",
  "kuzu",
 ]
 

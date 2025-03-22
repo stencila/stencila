@@ -1,7 +1,7 @@
 use kuzu::{Connection, Database, LogicalType, SystemConfig, Value};
 
 use kernel::{
-    Kernel, KernelInstance, KernelType,
+    Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
     common::{async_trait::async_trait, eyre::Result, tracing},
     format::Format,
     generate_id,
@@ -10,6 +10,7 @@ use kernel::{
         StringOrNumber,
     },
 };
+use kernel_jinja::JinjaKernelInstance;
 
 mod from_kuzu;
 pub use from_kuzu::*;
@@ -48,6 +49,10 @@ impl Kernel for KuzuKernel {
         ]
     }
 
+    fn supports_variable_requests(&self) -> bool {
+        true
+    }
+
     fn create_instance(&self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         Ok(Box::new(KuzuKernelInstance::new()))
     }
@@ -58,6 +63,9 @@ pub struct KuzuKernelInstance {
     /// The unique id of the kernel instance
     id: String,
 
+    /// The Jinja kernel instance used to render any Jinja templating
+    jinja: JinjaKernelInstance,
+
     /// The database instance
     db: Option<Database>,
 }
@@ -65,8 +73,14 @@ pub struct KuzuKernelInstance {
 impl KuzuKernelInstance {
     /// Create a new instance
     pub fn new() -> Self {
+        let id = generate_id(NAME);
         Self {
-            id: generate_id(NAME),
+            // It is important to give the Jinja kernel the same id since
+            // it acting as a proxy to this kernel and a different id can
+            // cause deadlocks for variable requests
+            jinja: JinjaKernelInstance::with_id(&id),
+
+            id,
             db: None,
         }
     }
@@ -103,6 +117,22 @@ impl KernelInstance for KuzuKernelInstance {
         };
 
         let connection = Connection::new(&db)?;
+
+        // Render any Jinja templating
+        let code = if code.contains("{%") || code.contains("{{") && code.contains("}}") {
+            let (rendered, messages) = self.jinja.execute(code).await?;
+            if !messages.is_empty() {
+                return Ok((Vec::new(), messages));
+            }
+
+            if let Some(Node::String(rendered)) = rendered.first() {
+                rendered.to_string()
+            } else {
+                code.to_string()
+            }
+        } else {
+            code.to_string()
+        };
 
         // Return on the first error, otherwise treat the result of the last statement
         // as the output. Keep track of line numbers so that location or error can be
@@ -190,6 +220,14 @@ impl KernelInstance for KuzuKernelInstance {
             }),
             ..Default::default()
         })
+    }
+
+    fn variable_channel(
+        &mut self,
+        requester: KernelVariableRequester,
+        responder: KernelVariableResponder,
+    ) {
+        self.jinja.variable_channel(requester, responder)
     }
 
     async fn replicate(&mut self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
