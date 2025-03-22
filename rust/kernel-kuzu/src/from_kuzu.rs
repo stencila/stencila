@@ -162,7 +162,7 @@ pub fn primitive_from_value(value: Value) -> Primitive {
 }
 
 /// Create a Stencila [`ExecutionMessage`] from a Kuzu [`Error`]
-pub fn execution_message_from_error(error: Error) -> ExecutionMessage {
+pub fn execution_message_from_error(error: Error, line_offset: usize) -> ExecutionMessage {
     let error = error
         .to_string()
         .replace("Query execution failed:", "")
@@ -170,19 +170,29 @@ pub fn execution_message_from_error(error: Error) -> ExecutionMessage {
         .trim()
         .to_string();
 
-    static PARSER_EXC_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"\(line: (\d+), offset: (\d+)\)").expect("invalid regex"));
+    static PARSER_EXC_REGEX: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(r#"(?ms)\(line: (\d+), offset: (\d+)\).*?"(.*?)""#).expect("invalid regex")
+    });
 
     let mut code_location = None;
     let message = if let Some(rest) = error.strip_prefix("Parser exception:") {
         match PARSER_EXC_REGEX.captures(&rest) {
             Some(captures) => {
                 code_location = Some(CodeLocation {
-                    start_line: captures[1].parse().ok().map(|line: u64| line - 1),
+                    start_line: captures[1]
+                        .parse()
+                        .ok()
+                        .map(|line: u64| line + line_offset as u64 - 1),
                     start_column: captures[2].parse().ok(),
                     ..Default::default()
                 });
-                "Syntax error".to_string()
+
+                let rest = captures[3].trim();
+                if rest.is_empty() {
+                    "Syntax error".to_string()
+                } else {
+                    ["Syntax error: ", rest].concat()
+                }
             }
             None => ["Syntax error: ", rest].concat(),
         }

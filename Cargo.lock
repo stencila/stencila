@@ -3240,6 +3240,7 @@ dependencies = [
 name = "kernel-kuzu"
 version = "0.0.0"
 dependencies = [
+ "common-dev",
  "kernel",
  "kuzu",
 ]
