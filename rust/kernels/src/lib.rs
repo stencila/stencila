@@ -377,22 +377,21 @@ impl Kernels {
             .map(|entry| entry.instance.clone())
     }
 
-    /// Get a kernel instance for a language
+    /// Get a kernel instance with matching kernel name, id, or supporting a language
     ///
-    /// The `language` argument can be the name of a programming language, or
-    /// the id of an existing kernel instance.
+    /// The `name` argument can be the name of a kernel, the id of an existing kernel
+    /// instance, or a programming language
     async fn get_instance_for(
         &mut self,
-        language: &str,
+        name: &str,
     ) -> Result<Option<Arc<Mutex<Box<dyn KernelInstance>>>>> {
-        let format = Format::from_name(language);
+        let format = Format::from_name(name);
 
         for entry in self.instances.read().await.iter() {
-            if entry.id == language {
-                return Ok(Some(entry.instance.clone()));
-            }
-
-            if entry.kernel.supports_language(&format) {
+            if entry.id == name
+                || entry.kernel.name() == name
+                || entry.kernel.supports_language(&format)
+            {
                 return Ok(Some(entry.instance.clone()));
             }
         }
