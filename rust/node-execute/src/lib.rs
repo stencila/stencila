@@ -998,19 +998,13 @@ impl Executor {
         }
     }
 
-    /// Get the [`AuthorRole`] for the kernel instance if it is different from the current
-    pub async fn node_execution_instance_author(
-        &self,
-        instance: &String,
-        execution_instance: &Option<String>,
-    ) -> Option<AuthorRole> {
-        if execution_instance.as_ref() != Some(instance) {
-            if let Some(instance) = self.kernels().await.get_instance(instance).await {
-                if let Ok(app) = instance.lock().await.info().await {
-                    let mut role = AuthorRole::software(app, AuthorRoleName::Executor);
-                    role.last_modified = Some(Timestamp::now());
-                    return Some(role);
-                }
+    /// Get the [`AuthorRole`] for a kernel instance with the current timestamp as `last_modified`
+    pub async fn node_execution_author_role(&self, instance: &String) -> Option<AuthorRole> {
+        if let Some(instance) = self.kernels().await.get_instance(instance).await {
+            if let Ok(app) = instance.lock().await.info().await {
+                let mut role = AuthorRole::software(app, AuthorRoleName::Executor);
+                role.last_modified = Some(Timestamp::now());
+                return Some(role);
             }
         }
 
