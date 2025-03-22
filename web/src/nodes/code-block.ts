@@ -29,7 +29,7 @@ export class CodeBlock extends CodeStatic {
 
   override renderCard() {
     const { icon, title } = getTitleIcon(this.programmingLanguage) ?? {
-      title: 'Code Block',
+      title: this.programmingLanguage ?? 'Code Block',
       icon: 'code',
     }
 
