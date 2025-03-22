@@ -116,7 +116,7 @@ impl KernelInstance for KuzuKernelInstance {
                 .map(|line| line.trim())
                 .all(|line| line.starts_with("//") || line.is_empty())
             {
-               match connection.query(query) {
+                match connection.query(query) {
                     Ok(result) => output = Some(result),
                     Err(error) => {
                         let leading_lines = query
@@ -169,7 +169,7 @@ impl KernelInstance for KuzuKernelInstance {
         let output = if output
             .get_column_data_types()
             .iter()
-            .all(|data_type| matches!(data_type, LogicalType::Node))
+            .all(|data_type| matches!(data_type, LogicalType::Node | LogicalType::Rel))
         {
             Node::ImageObject(cytoscape_from_query_result(output)?)
         } else {

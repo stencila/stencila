@@ -1,3 +1,5 @@
+use std::collections::BTreeSet;
+
 use kuzu::{Error, LogicalType, NodeVal, QueryResult, RelVal, Value};
 
 use kernel::{
@@ -25,28 +27,36 @@ pub fn cytoscape_from_query_result(result: QueryResult) -> Result<ImageObject> {
     enum Data {
         Node {
             id: String,
+            label: String,
         },
         Edge {
             id: String,
+            label: String,
             source: String,
             target: String,
         },
     }
 
     fn node(node: NodeVal) -> Element {
+        let label = node.get_label_name().to_string();
+
         Element {
             data: Data::Node {
                 id: node.get_node_id().to_string(),
+                label,
             },
         }
     }
 
     fn edge(rel: RelVal) -> Element {
+        let label = rel.get_label_name().to_string();
         let source = rel.get_src_node().to_string();
         let target = rel.get_dst_node().to_string();
+
         Element {
             data: Data::Edge {
                 id: [&source, ".", &target].concat(),
+                label,
                 source,
                 target,
             },
@@ -64,8 +74,50 @@ pub fn cytoscape_from_query_result(result: QueryResult) -> Result<ImageObject> {
         }
     }
 
+    let mut style = vec![
+        json!({
+            "selector": "node",
+            "style": {
+                "label": "data(label)",
+                "font-size": "12px",
+            }
+        }),
+        json!({
+            "selector": "edge",
+            "style": {
+                "curve-style": "bezier",
+                "target-arrow-shape": "triangle",
+
+                "label": "data(label)",
+                "font-size": "10px",
+                "color": "#666",
+                "text-rotation": "autorotate",
+                "text-margin-y": -10,
+            }
+        }),
+    ];
+
+    let uniques = elements
+        .iter()
+        .filter_map(|elem| match &elem.data {
+            Data::Node { label, .. } => Some(label),
+            _ => None,
+        })
+        .collect::<BTreeSet<_>>();
+    let count = uniques.len() as f32;
+    for (index, label) in uniques.into_iter().enumerate() {
+        let hue = (index as f32 / count) * 360.0;
+        style.push(json!({
+            "selector": format!("node[label = \"{label}\"]"),
+            "style": {
+                "background-color": format!("hsl({:.0}, 70%, 70%)", hue)
+            }
+        }));
+    }
+
     let json = serde_json::to_string(&json!({
         "elements": elements,
+        "style": style,
         "layout": {
             "name": "cose"
         }
