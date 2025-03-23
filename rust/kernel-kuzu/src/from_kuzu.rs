@@ -232,7 +232,7 @@ pub fn execution_message_from_error(
 
     let mut code_location = None;
     let message = if let Some(rest) = error.strip_prefix("Parser exception:") {
-        match PARSER_EXC_REGEX.captures(&rest) {
+        match PARSER_EXC_REGEX.captures(rest) {
             Some(captures) => {
                 let leading_lines = query
                     .chars()

@@ -197,7 +197,7 @@ impl KernelInstance for KuzuKernelInstance {
             }
         };
 
-        let connection = Connection::new(&db)?;
+        let connection = Connection::new(db)?;
 
         // Render any Jinja templating
         let code = if code.contains("{%") || code.contains("{{") && code.contains("}}") {
@@ -227,17 +227,16 @@ impl KernelInstance for KuzuKernelInstance {
                 .all(|line| line.starts_with("//") || line.is_empty())
             {
                 // If `Box` execution bounds then do not allow statements which require filesystem access.
-                if matches!(self.bounds, ExecutionBounds::Box) {
-                    if query
+                if matches!(self.bounds, ExecutionBounds::Box)
+                    && query
                         .lines()
                         .map(|line| line.trim())
                         .any(|line| line.starts_with("COPY"))
-                    {
-                        return Ok((
-                            Vec::new(),
-                            vec![execution_message_for_copy(query, line_offset)],
-                        ));
-                    }
+                {
+                    return Ok((
+                        Vec::new(),
+                        vec![execution_message_for_copy(query, line_offset)],
+                    ));
                 }
 
                 match connection.query(query) {
@@ -345,7 +344,7 @@ fn execution_message_for_copy(query: &str, line_offset: usize) -> ExecutionMessa
 
     ExecutionMessage {
         level: MessageLevel::Exception,
-        message: format!("File system access not permitted with execution bounds `Box`",),
+        message: "File system access not permitted with execution bounds `Box`".to_string(),
         code_location: Some(CodeLocation {
             start_line: Some((line_offset + leading_lines) as u64),
             ..Default::default()
@@ -553,7 +552,7 @@ COPY (MATCH (p:Person) RETURN p) TO '{}';
         // Box: can read but not write or copy to or from
         let mut boxed = KuzuKernelInstance::r#box(Some(path));
         let (.., messages) = boxed
-            .execute(&format!(r#"MATCH (p:Person) RETURN p;"#))
+            .execute(&r#"MATCH (p:Person) RETURN p;"#.to_string())
             .await?;
         assert_eq!(messages, vec![]);
 
@@ -622,7 +621,7 @@ COPY (MATCH (p:Person) RETURN p) TO '{}';
 
         let mut boxed = main.replicate(ExecutionBounds::Box).await?;
         let (.., messages) = boxed
-            .execute(&format!("MATCH (p:Person) RETURN p;"))
+            .execute(&"MATCH (p:Person) RETURN p;".to_string())
             .await?;
         assert_eq!(messages, vec![]);
 
