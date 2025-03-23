@@ -214,7 +214,11 @@ pub fn primitive_from_value(value: Value) -> Primitive {
 }
 
 /// Create a Stencila [`ExecutionMessage`] from a Kuzu [`Error`]
-pub fn execution_message_from_error(error: Error, line_offset: usize) -> ExecutionMessage {
+pub fn execution_message_from_error(
+    error: Error,
+    query: &str,
+    line_offset: usize,
+) -> ExecutionMessage {
     let error = error
         .to_string()
         .replace("Query execution failed:", "")
@@ -230,11 +234,17 @@ pub fn execution_message_from_error(error: Error, line_offset: usize) -> Executi
     let message = if let Some(rest) = error.strip_prefix("Parser exception:") {
         match PARSER_EXC_REGEX.captures(&rest) {
             Some(captures) => {
+                let leading_lines = query
+                    .chars()
+                    .take_while(|&c| c == '\n')
+                    .count()
+                    .saturating_sub(1);
+
                 code_location = Some(CodeLocation {
                     start_line: captures[1]
                         .parse()
                         .ok()
-                        .map(|line: u64| line + line_offset as u64 - 1),
+                        .map(|line: u64| line + line_offset as u64 + leading_lines as u64 - 1),
                     start_column: captures[2].parse().ok(),
                     ..Default::default()
                 });

@@ -4,12 +4,18 @@ use kuzu::{Connection, Database, LogicalType, SystemConfig, Value};
 
 use kernel::{
     Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
-    common::{async_trait::async_trait, eyre::Result, tracing},
+    common::{
+        async_trait::async_trait,
+        eyre::{Result, bail},
+        once_cell::sync::Lazy,
+        regex::Regex,
+        tracing,
+    },
     format::Format,
     generate_id,
     schema::{
-        ExecutionBounds, ExecutionMessage, Node, SoftwareApplication, SoftwareApplicationOptions,
-        StringOrNumber,
+        CodeLocation, ExecutionBounds, ExecutionMessage, MessageLevel, Node, SoftwareApplication,
+        SoftwareApplicationOptions, StringOrNumber,
     },
 };
 use kernel_jinja::JinjaKernelInstance;
@@ -55,8 +61,12 @@ impl Kernel for KuzuKernel {
         true
     }
 
-    fn create_instance(&self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(KuzuKernelInstance::new()))
+    fn create_instance(&self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
+        Ok(Box::new(match bounds {
+            ExecutionBounds::Main => KuzuKernelInstance::main(false, None),
+            ExecutionBounds::Fork => KuzuKernelInstance::fork(None),
+            ExecutionBounds::Box => KuzuKernelInstance::r#box(None),
+        }))
     }
 }
 
@@ -68,20 +78,55 @@ pub struct KuzuKernelInstance {
     /// The Jinja kernel instance used to render any Jinja templating
     jinja: JinjaKernelInstance,
 
-    /// The path that the database is started in
+    /// The path that the kernel is started in
     ///
-    /// Used to prefix any relative db path passed in a `//db` comment
-    /// in the execute method.
+    /// Used to capture the directory passed to `start()` to prefix any relative db path
+    /// later passed in a `//db` comment to `execute()``.
     directory: Option<PathBuf>,
+
+    /// The path to the Kuzu database directory
+    path: Option<PathBuf>,
+
+    /// The execution bounds for the kernel instance
+    ///
+    /// Used to configure read-write/read-only when connecting to
+    /// the database and to disallow certain Cypher statements (in case of `Box`)
+    bounds: ExecutionBounds,
+
+    /// Whether the database connection is read-only
+    ///
+    /// This is necessary in addition to the `bounds` property because it
+    /// is possible to have a `Main` instance that is read-only and in fact this
+    /// is required for replicating the database.
+    read_only: bool,
 
     /// The database instance
     db: Option<Database>,
 }
 
 impl KuzuKernelInstance {
-    /// Create a new instance
-    pub fn new() -> Self {
+    /// Create a new instance with `Main` execution bounds
+    ///
+    /// Can optionally be read-only, which is necessary to be able to
+    /// replicate the kernel instance (i.e. to fork it)
+    pub fn main(read_only: bool, path: Option<PathBuf>) -> Self {
+        Self::init(ExecutionBounds::Main, read_only, path)
+    }
+
+    /// Create a new instance with `Fork` execution bounds
+    pub fn fork(path: Option<PathBuf>) -> Self {
+        Self::init(ExecutionBounds::Fork, true, path)
+    }
+
+    /// Create a new instance with `Box` execution bounds
+    pub fn r#box(path: Option<PathBuf>) -> Self {
+        Self::init(ExecutionBounds::Box, true, path)
+    }
+
+    /// Initialize a new instance
+    fn init(bounds: ExecutionBounds, read_only: bool, path: Option<PathBuf>) -> Self {
         let id = generate_id(NAME);
+
         Self {
             // It is important to give the Jinja kernel the same id since
             // it acting as a proxy to this kernel and a different id can
@@ -89,7 +134,10 @@ impl KuzuKernelInstance {
             jinja: JinjaKernelInstance::with_id(&id),
 
             id,
+            bounds,
+            read_only,
             directory: None,
+            path,
             db: None,
         }
     }
@@ -110,25 +158,39 @@ impl KernelInstance for KuzuKernelInstance {
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
         tracing::trace!("Executing Kuzu statements");
 
+        static DB_REGEX: Lazy<Regex> = Lazy::new(|| {
+            Regex::new(r"(?m)^\/\/\s*db\s+(?:(ro|rw)\s+)?(.*)$").expect("invalid regex")
+        });
+
         let db = match &self.db {
             Some(db) => db,
             None => {
-                let mut db = ":memory:".to_string();
-                for line in code.lines() {
-                    if let Some(relative_path) = line
-                        .strip_prefix("//db")
-                        .or_else(|| line.strip_prefix("// db"))
-                    {
-                        let path = relative_path.trim();
-                        db = match &self.directory {
-                            Some(dir) => dir.join(path).to_string_lossy().to_string(),
-                            None => path.to_string(),
-                        }
-                    }
-                }
+                let path = match &self.path {
+                    Some(path) => path,
+                    None => {
+                        // Search for a "//db" line in the code specifying path, and optionally
+                        // read/write access, to database. Fallback to memory otherwise.
+                        let path = if let Some(captures) = DB_REGEX.captures(code) {
+                            if captures.get(1).map(|m| m.as_str()) == Some("ro") {
+                                self.read_only = true;
+                            }
+                            let relative_path = &captures[2];
 
-                let config = SystemConfig::default();
-                let db = Database::new(db, config)?;
+                            match &self.directory {
+                                Some(dir) => dir.join(relative_path),
+                                None => relative_path.into(),
+                            }
+                        } else {
+                            PathBuf::from(":memory:")
+                        };
+
+                        self.path = Some(path);
+                        self.path.as_ref().expect("just set")
+                    }
+                };
+
+                let config = SystemConfig::default().read_only(self.read_only);
+                let db = Database::new(path, config)?;
 
                 self.db = Some(db);
                 self.db.as_ref().expect("just set")
@@ -164,21 +226,26 @@ impl KernelInstance for KuzuKernelInstance {
                 .map(|line| line.trim())
                 .all(|line| line.starts_with("//") || line.is_empty())
             {
+                // If `Box` execution bounds then do not allow statements which require filesystem access.
+                if matches!(self.bounds, ExecutionBounds::Box) {
+                    if query
+                        .lines()
+                        .map(|line| line.trim())
+                        .any(|line| line.starts_with("COPY"))
+                    {
+                        return Ok((
+                            Vec::new(),
+                            vec![execution_message_for_copy(query, line_offset)],
+                        ));
+                    }
+                }
+
                 match connection.query(query) {
                     Ok(result) => output = Some(result),
                     Err(error) => {
-                        let leading_lines = query
-                            .chars()
-                            .take_while(|&c| c == '\n')
-                            .count()
-                            .saturating_sub(1);
-
                         return Ok((
                             Vec::new(),
-                            vec![execution_message_from_error(
-                                error,
-                                line_offset + leading_lines,
-                            )],
+                            vec![execution_message_from_error(error, query, line_offset)],
                         ));
                     }
                 }
@@ -249,8 +316,41 @@ impl KernelInstance for KuzuKernelInstance {
         self.jinja.variable_channel(requester, responder)
     }
 
-    async fn replicate(&mut self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(Self::new()))
+    async fn replicate(&mut self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
+        if self.path.is_none() {
+            bail!("Can not replicate a Kuzu kernel for an in-memory database")
+        }
+
+        if !self.read_only {
+            // It is not possible to have more than one database instance if one is read-write
+            // See https://docs.kuzudb.com/concurrency/#limitations-of-creating-multiple-database-objects
+            bail!("Can not replicate a Kuzu kernel with read-write access")
+        }
+
+        let path = self.path.clone();
+        Ok(Box::new(match bounds {
+            ExecutionBounds::Main => KuzuKernelInstance::main(true, path),
+            ExecutionBounds::Fork => KuzuKernelInstance::fork(path),
+            ExecutionBounds::Box => KuzuKernelInstance::r#box(path),
+        }))
+    }
+}
+
+fn execution_message_for_copy(query: &str, line_offset: usize) -> ExecutionMessage {
+    let leading_lines = query
+        .chars()
+        .take_while(|&c| c == '\n')
+        .count()
+        .saturating_sub(1);
+
+    ExecutionMessage {
+        level: MessageLevel::Exception,
+        message: format!("File system access not permitted with execution bounds `Box`",),
+        code_location: Some(CodeLocation {
+            start_line: Some((line_offset + leading_lines) as u64),
+            ..Default::default()
+        }),
+        ..Default::default()
     }
 }
 
@@ -258,16 +358,47 @@ impl KernelInstance for KuzuKernelInstance {
 mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use kernel::{
-        common::tokio,
+        common::{eyre::bail, tempfile::TempDir, tokio},
         schema::{CodeLocation, MessageLevel},
     };
 
     use super::*;
 
     #[tokio::test]
+    async fn db_comment() -> Result<()> {
+        let temp = TempDir::new()?;
+        let path = temp.path().to_path_buf();
+
+        {
+            let mut kernel = KuzuKernelInstance::main(false, None);
+            assert_eq!(kernel.path, None);
+            assert_eq!(kernel.read_only, false);
+
+            let (.., messages) = kernel.execute(&format!("//db {}", path.display())).await?;
+            assert_eq!(messages, vec![]);
+            assert_eq!(kernel.path, Some(path.clone()));
+            assert_eq!(kernel.read_only, false);
+        }
+
+        {
+            let mut kernel = KuzuKernelInstance::main(false, None);
+            assert_eq!(kernel.path, None);
+            assert_eq!(kernel.read_only, false);
+
+            let (.., messages) = kernel
+                .execute(&format!("\nRETURN 1;\n//db ro {}", path.display()))
+                .await?;
+            assert_eq!(messages, vec![]);
+            assert_eq!(kernel.path, Some(path));
+            assert_eq!(kernel.read_only, true);
+        }
+
+        Ok(())
+    }
+
+    #[tokio::test]
     async fn outputs() -> Result<()> {
-        let mut kernel = KuzuKernelInstance::new();
-        kernel.start_here().await?;
+        let mut kernel = KuzuKernelInstance::main(false, None);
 
         let (outputs, messages) = kernel
             .execute(
@@ -298,8 +429,7 @@ CREATE (:Person {name: 'Carol', age: 40});",
 
     #[tokio::test]
     async fn errors() -> Result<()> {
-        let mut kernel = KuzuKernelInstance::new();
-        kernel.start_here().await?;
+        let mut kernel = KuzuKernelInstance::main(false, None);
 
         let (outputs, messages) = kernel.execute("Bad syntax").await?;
         assert_eq!(
@@ -366,8 +496,7 @@ RETURN foo
 
     #[tokio::test]
     async fn comments() -> Result<()> {
-        let mut kernel = KuzuKernelInstance::new();
-        kernel.start_here().await?;
+        let mut kernel = KuzuKernelInstance::main(false, None);
 
         let (.., messages) = kernel
             .execute(
@@ -376,6 +505,164 @@ RETURN foo
             )
             .await?;
         assert_eq!(messages, vec![]);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn bounds() -> Result<()> {
+        let temp = TempDir::new()?;
+        let path = temp.path().to_path_buf();
+
+        // Main: can read and write and copy to
+        let mut main = KuzuKernelInstance::main(false, Some(path.clone()));
+        let (.., messages) = main
+            .execute(&format!(
+                "
+CREATE NODE TABLE Person(name STRING PRIMARY KEY, age INT64);
+CREATE (:Person {{name: 'Alice', age: 20}});
+COPY (MATCH (p:Person) RETURN p) TO '{}';
+",
+                temp.path().join("a.csv").display()
+            ))
+            .await?;
+        assert_eq!(messages, vec![]);
+        drop(main); // Must drop the read-write connection before creating read-only connections in same process
+
+        // Fork: can read and copy to, but not write
+        let mut fork = KuzuKernelInstance::fork(Some(path.clone()));
+        let (.., messages) = fork
+            .execute(&format!(
+                "
+MATCH (p:Person) RETURN p;
+COPY (MATCH (p:Person) RETURN p) TO '{}';
+",
+                temp.path().join("a.csv").display()
+            ))
+            .await?;
+        assert_eq!(messages, vec![]);
+
+        let (.., messages) = fork
+            .execute("CREATE (:Person {name: 'Bob', age: 30});")
+            .await?;
+        assert_eq!(
+            messages[0].message,
+            "Connection exception: Cannot execute write operations in a read-only database!"
+        );
+
+        // Box: can read but not write or copy to or from
+        let mut boxed = KuzuKernelInstance::r#box(Some(path));
+        let (.., messages) = boxed
+            .execute(&format!(r#"MATCH (p:Person) RETURN p;"#))
+            .await?;
+        assert_eq!(messages, vec![]);
+
+        let (.., messages) = boxed
+            .execute(r#"CREATE (:Person {name: 'Bob', age: 30});"#)
+            .await?;
+        assert_eq!(
+            messages[0].message,
+            "Connection exception: Cannot execute write operations in a read-only database!"
+        );
+
+        let (.., messages) = boxed
+            .execute(r#"COPY (MATCH (p:Person) RETURN p) TO 'some.csv';"#)
+            .await?;
+        assert_eq!(
+            messages[0].message,
+            "File system access not permitted with execution bounds `Box`"
+        );
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn replicate() -> Result<()> {
+        let temp = TempDir::new()?;
+        let path = temp.path().to_path_buf();
+
+        // Start a read-write instance that we can create a database in
+        let mut main = KuzuKernelInstance::main(false, Some(path.clone()));
+        let (.., messages) = main
+            .execute(
+                r#"
+CREATE NODE TABLE Person(name STRING PRIMARY KEY, age INT64);
+CREATE (:Person {name: 'Alice', age: 20});
+"#,
+            )
+            .await?;
+        assert_eq!(messages, vec![]);
+
+        // Start a read-only instance that can be replicated
+        let mut main = KuzuKernelInstance::main(true, Some(path.clone()));
+
+        // Replicate with execution bounds `Fork`: can read and copy to, but not write
+
+        let mut fork = main.replicate(ExecutionBounds::Fork).await?;
+        let (.., messages) = fork
+            .execute(&format!(
+                r#"
+MATCH (p:Person) RETURN p;
+COPY (MATCH (p:Person) RETURN p) TO '{}';
+"#,
+                temp.path().join("a.csv").display()
+            ))
+            .await?;
+        assert_eq!(messages, vec![]);
+
+        let (.., messages) = fork
+            .execute(r#"CREATE (:Person {name: 'Bob', age: 30});"#)
+            .await?;
+        assert_eq!(
+            messages[0].message,
+            "Connection exception: Cannot execute write operations in a read-only database!"
+        );
+
+        // Replicate with execution bounds `Box`: can read but not write or copy to or from
+
+        let mut boxed = main.replicate(ExecutionBounds::Box).await?;
+        let (.., messages) = boxed
+            .execute(&format!("MATCH (p:Person) RETURN p;"))
+            .await?;
+        assert_eq!(messages, vec![]);
+
+        let (.., messages) = boxed
+            .execute("CREATE (:Person {name: 'Bob', age: 30});")
+            .await?;
+        assert_eq!(
+            messages[0].message,
+            "Connection exception: Cannot execute write operations in a read-only database!"
+        );
+
+        let (.., messages) = boxed
+            .execute("COPY (MATCH (p:Person) RETURN p) TO 'some.csv';")
+            .await?;
+        assert_eq!(
+            messages[0].message,
+            "File system access not permitted with execution bounds `Box`"
+        );
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn replicate_in_memory() -> Result<()> {
+        let mut kernel = KuzuKernelInstance::main(true, None);
+
+        for bounds in [
+            ExecutionBounds::Main,
+            ExecutionBounds::Fork,
+            ExecutionBounds::Box,
+        ] {
+            match kernel.replicate(bounds).await {
+                Ok(..) => bail!("expected error"),
+                Err(error) => assert!(
+                    error
+                        .to_string()
+                        .starts_with("Can not replicate a Kuzu kernel for an in-memory database")
+                ),
+            }
+        }
 
         Ok(())
     }
