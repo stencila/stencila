@@ -30,7 +30,7 @@ pub use kuzu;
 
 const NAME: &str = "kuzu";
 
-/// A kernel for querying Kuzu databases.
+/// A kernel for interacting with Kuzu graph databases.
 #[derive(Default)]
 pub struct KuzuKernel;
 
@@ -50,10 +50,8 @@ impl Kernel for KuzuKernel {
     fn supported_bounds(&self) -> Vec<ExecutionBounds> {
         vec![
             ExecutionBounds::Main,
-            // Fork is possible by creating a read-only connection
-            // but Box is not possible because statements such as `COPY .. TO ..`
-            // will write to the filesystem
             ExecutionBounds::Fork,
+            ExecutionBounds::Box,
         ]
     }
 
