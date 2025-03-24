@@ -269,7 +269,7 @@ impl Kernels {
             };
             for entry in instances.read().await.iter() {
                 // If the candidate instance is the same as the request instance then
-                // skip - because unnecessary because likely to cause deadlock in
+                // skip because unnecessary and likely to cause deadlock in
                 // next step.
                 if entry.id == request.instance {
                     continue;
@@ -470,7 +470,7 @@ impl Kernels {
     /// Get a variable from the kernels
     ///
     /// Currently just iterates over kernels until the variable is found (if at all).
-    pub async fn get(&mut self, name: &str) -> Result<Option<Node>> {
+    pub async fn get(&self, name: &str) -> Result<Option<Node>> {
         for entry in self.instances.read().await.iter() {
             let mut instance = entry.instance.lock().await;
             if let Some(value) = instance.get(name).await? {
