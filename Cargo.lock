@@ -162,14 +162,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "34ac096ce696dc2fcabef30516bb13c0a68a11d30131d3df6f04711467681b04"
 
 [[package]]
-name = "app"
-version = "0.0.0"
-dependencies = [
- "common",
- "directories",
-]
-
-[[package]]
 name = "arbitrary"
 version = "1.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -850,12 +842,12 @@ checksum = "f46ad14479a25103f283c0f10005961cf086d8dc42205bb44c46ac563475dca6"
 name = "cli"
 version = "0.0.0"
 dependencies = [
- "app",
  "cli-utils",
  "codecs",
  "color-eyre",
  "common",
  "console-subscriber",
+ "dirs 0.0.0",
  "document",
  "flate2",
  "format",
@@ -1996,6 +1988,14 @@ dependencies = [
 
 [[package]]
 name = "dirs"
+version = "0.0.0"
+dependencies = [
+ "common",
+ "directories",
+]
+
+[[package]]
+name = "dirs"
 version = "5.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "44c45a9d03d6676652bcb5e724c7e988de1acad23a711b5217ab9cbecbec2225"
@@ -2042,12 +2042,12 @@ dependencies = [
 name = "document"
 version = "0.0.0"
 dependencies = [
- "app",
  "cli-utils",
  "codec-json",
  "codecs",
  "common",
  "common-dev",
+ "dirs 0.0.0",
  "format",
  "json-patch",
  "kernels",
@@ -3219,6 +3219,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel-docs"
+version = "0.0.0"
+dependencies = [
+ "dirs 0.0.0",
+ "kernel-kuzu",
+ "lru",
+]
+
+[[package]]
 name = "kernel-graphviz"
 version = "0.0.0"
 dependencies = [
@@ -3259,8 +3268,8 @@ dependencies = [
 name = "kernel-micro"
 version = "0.0.0"
 dependencies = [
- "app",
  "directories",
+ "dirs 0.0.0",
  "kernel",
  "nix",
  "which",
@@ -3342,6 +3351,7 @@ dependencies = [
  "kernel",
  "kernel-asciimath",
  "kernel-bash",
+ "kernel-docs",
  "kernel-graphviz",
  "kernel-jinja",
  "kernel-kuzu",
@@ -4027,7 +4037,6 @@ dependencies = [
  "codec-text-trait",
  "common",
  "kernel-kuzu",
- "lru",
  "schema",
 ]
 
@@ -4769,11 +4778,11 @@ dependencies = [
 name = "plugins"
 version = "0.0.0"
 dependencies = [
- "app",
  "cli-utils",
  "codec",
  "common",
  "common-dev",
+ "dirs 0.0.0",
  "kernel",
  "model",
  "rand 0.9.0",
@@ -4864,13 +4873,13 @@ dependencies = [
 name = "prompts"
 version = "0.0.0"
 dependencies = [
- "app",
  "cached",
  "cli-utils",
  "codec-markdown",
  "codecs",
  "common",
  "derive_more",
+ "dirs 0.0.0",
  "flate2",
  "images",
  "model",
@@ -6208,7 +6217,7 @@ version = "3.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "da03fa3b94cc19e3ebfc88c4229c49d8f08cdbd1228870a45f0ffdf84988e14b"
 dependencies = [
- "dirs",
+ "dirs 5.0.1",
 ]
 
 [[package]]
