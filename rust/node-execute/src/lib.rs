@@ -504,7 +504,8 @@ impl Executor {
         use Format::*;
         let declaration = match format {
             Some(JavaScript) => format!("var {name} = null;\n"),
-            Some(Python) => format!("{name} = None\n"),
+            // Add `Any` type hint so that linter does not complain
+            Some(Python) => format!("{name}: Any = None\n"),
             Some(R) => format!("{name} <- NULL\n"),
             _ => format!("{name} = 0;\n"),
         };
