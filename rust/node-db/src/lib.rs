@@ -1,27 +1,18 @@
 use common::{
-    eyre::{Context, Report, Result, bail, eyre},
+    eyre::{Context, Report, Result, eyre},
     itertools::Itertools,
-    serde_json,
     tempfile::NamedTempFile,
-    tokio::sync::Mutex,
     tracing,
 };
 use kernel_kuzu::{
-    ToKuzu, datatable_from_query_result,
-    kuzu::{
-        Connection, Database, LogicalType, PreparedStatement, QueryResult, SystemConfig, Value,
-    },
+    ToKuzu,
+    kuzu::{Connection, Database, LogicalType, PreparedStatement, SystemConfig, Value},
 };
-use lru::LruCache;
-use schema::{
-    Article, Block, CreativeWorkType, Excerpt, Node, NodeId, NodePath, NodeProperty, NodeSlot,
-    NodeType, Visitor, duplicate,
-};
+use schema::{Node, NodeId, NodePath, NodeProperty, NodeSlot, NodeType, Visitor};
 use std::{
     collections::HashMap,
-    fs::{read_to_string, remove_dir_all, write},
+    fs::{remove_dir_all, write},
     io::Write,
-    num::NonZeroUsize,
     path::{Path, PathBuf},
 };
 
@@ -73,11 +64,6 @@ pub trait DatabaseNode {
 pub struct NodeDatabase {
     /// The instance of the Kuzu database
     database: Database,
-
-    /// The document storage directory associated with the database
-    store: Option<PathBuf>,
-
-    docs: Mutex<LruCache<String, Node>>,
 
     /// Prepared statements for deleting a document and all its root node
     delete_doc_statement: Option<PreparedStatement>,
@@ -131,20 +117,8 @@ impl NodeDatabase {
             }
         }
 
-        let store = if path.to_string_lossy() == ":memory:" {
-            None
-        } else {
-            path.parent().map(|parent| parent.join("store"))
-        };
-
-        let docs = Mutex::new(LruCache::new(
-            NonZeroUsize::new(10).expect("valid non-zero"),
-        ));
-
         Ok(Self {
             database,
-            store,
-            docs,
             delete_doc_statement: None,
             create_node_statements: HashMap::new(),
             create_rel_statements: HashMap::new(),
@@ -425,136 +399,6 @@ impl NodeDatabase {
         }
 
         Ok(())
-    }
-
-    /// Query the database using Cypher Query Language
-    ///
-    /// Returns a Stencila [`Node`] whose type depends upon the shape of the
-    /// the query result.
-    ///
-    /// If all of the columns in the result are nodes, then the [`NodePath`]
-    /// of each node is used to extract it from the corresponding document
-    /// in the store. The nodes are then sorted into "bins" based on their type
-    /// and if all the
-    ///
-    /// - [`TableCell`]s or [`TableRow`]s into a [`Table`]
-    /// - [`ListItem`] into a [`List`]
-    /// - otherwise converted to `Blocks` into an [`Article`]
-    pub async fn query(&self, cypher: &str) -> Result<Node> {
-        let connection = Connection::new(&self.database)?;
-
-        // Ensure any necessary extensions are loaded
-        if cypher.to_uppercase().contains("QUERY_FTS_INDEX") {
-            connection.query("LOAD EXTENSION FTS;").ok();
-        }
-
-        // Run the query and get column details
-        let result = connection.query(cypher)?;
-        let types = result.get_column_data_types();
-
-        if self.store.is_some()
-            && types
-                .iter()
-                .all(|data_type| matches!(data_type, LogicalType::Node))
-        {
-            self.query_result_nodes(result).await
-        } else {
-            self.query_result_datatable(result)
-        }
-    }
-
-    /// Convert a query result of nodes into a [`Node`]
-    async fn query_result_nodes(&self, result: QueryResult) -> Result<Node> {
-        let Some(store) = &self.store else {
-            bail!("Expected store to be available");
-        };
-
-        let mut blocks = Vec::new();
-        for row in result {
-            for value in row {
-                let Value::Node(node_val) = value else {
-                    bail!("Expected a Kuzu node");
-                };
-
-                let mut doc_id = None;
-                let mut node_path = None;
-                for (name, value) in node_val.get_properties() {
-                    if name == "docId" {
-                        doc_id = Some(value.to_string());
-                    }
-
-                    if name == "nodePath" {
-                        node_path = Some(value.to_string());
-                    }
-
-                    if doc_id.is_some() && node_path.is_some() {
-                        break;
-                    }
-                }
-                let (Some(doc_id), Some(node_path)) = (doc_id, node_path) else {
-                    bail!("docId or nodePath fields missing")
-                };
-                let node_path = node_path.parse()?;
-
-                let (source, excerpt) = {
-                    let mut docs = self.docs.lock().await;
-                    match docs.get(&doc_id) {
-                        Some(doc) => {
-                            // TODO: add a cite_as function to cite doc
-                            let source = CreativeWorkType::Article(Article::default());
-                            let excerpt = duplicate(doc, node_path);
-
-                            (source, excerpt)
-                        }
-                        None => {
-                            let path = store.join(format!("{doc_id}.json"));
-                            let json = read_to_string(path)?;
-                            let doc = serde_json::from_str(&json)?;
-
-                            // TODO: add a cite_as function to cite doc
-                            let source = CreativeWorkType::Article(Article::default());
-                            let excerpt = duplicate(&doc, node_path);
-
-                            docs.put(doc_id.clone(), doc);
-
-                            (source, excerpt)
-                        }
-                    }
-                };
-
-                let Ok(node) = excerpt else {
-                    tracing::warn!("Unable to find node path in `{doc_id}`");
-                    continue;
-                };
-
-                let content = if node.node_type().is_block() {
-                    // If the node is a block, then just use it as the content
-                    // of the excerpt
-                    vec![node.try_into()?]
-                } else {
-                    // If the node is not a block (e.g. Article, TableRow, ListItem) then
-                    // attempt to convert to a vector of blocks
-                    match node.try_into() {
-                        Ok(block) => block,
-                        Err(error) => {
-                            tracing::warn!("While converting to blocks: {error}");
-                            continue;
-                        }
-                    }
-                };
-
-                let excerpt = Block::Excerpt(Excerpt::new(Box::new(source), content));
-
-                blocks.push(excerpt)
-            }
-        }
-
-        Ok(Node::Article(Article::new(blocks)))
-    }
-
-    /// Convert a query result into a [`Node::Datatable`]
-    fn query_result_datatable(&self, result: QueryResult) -> Result<Node> {
-        datatable_from_query_result(result).map(Node::Datatable)
     }
 }
 

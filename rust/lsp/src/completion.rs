@@ -303,6 +303,7 @@ async fn kernel_snippets(line_num: u32) -> Result<Option<CompletionResponse>, Re
                 .concat(),
                 KernelType::Database => match kernel.name().as_str() {
                     "kuzu" => "Query a Kuzu graph database",
+                    "docs" => "Query a Stencila document database",
                     _ => "Query a database",
                 }
                 .to_string(),

@@ -27,6 +27,7 @@ use kernel_jinja::JinjaKernel;
 use kernel_kuzu::KuzuKernel;
 use kernel_mermaid::MermaidKernel;
 use kernel_nodejs::NodeJsKernel;
+use kernel_docs::DocsKernel;
 use kernel_python::PythonKernel;
 use kernel_quickjs::QuickJsKernel;
 use kernel_r::RKernel;
@@ -56,6 +57,7 @@ pub async fn list() -> Vec<Box<dyn Kernel>> {
         Box::<BashKernel>::default() as Box<dyn Kernel>,
         // Database
         Box::<KuzuKernel>::default() as Box<dyn Kernel>,
+        Box::<DocsKernel>::default() as Box<dyn Kernel>,
         // Diagrams
         Box::<MermaidKernel>::default() as Box<dyn Kernel>,
         Box::<GraphvizKernel>::default() as Box<dyn Kernel>,
