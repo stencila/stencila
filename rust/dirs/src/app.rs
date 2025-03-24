@@ -10,11 +10,6 @@ use common::{
     strum::{Display, EnumString},
 };
 
-/// Get a `ProjectDirs` struct for Stencila
-fn get_project_dirs() -> Result<ProjectDirs> {
-    ProjectDirs::from("io", "stencila", "stencila").ok_or_eyre("unable to build project dirs")
-}
-
 #[derive(Debug, Display, Default, Clone, Copy, ValueEnum, EnumString)]
 #[strum(serialize_all = "lowercase", crate = "common::strum")]
 pub enum DirType {
@@ -28,7 +23,8 @@ pub enum DirType {
 
 /// Get an application directory
 pub fn get_app_dir(dir_type: DirType, mut ensure: bool) -> Result<PathBuf> {
-    let dirs = get_project_dirs()?;
+    let dirs = ProjectDirs::from("io", "stencila", "stencila")
+        .ok_or_eyre("unable to build project dirs")?;
 
     let dir = {
         match dir_type {

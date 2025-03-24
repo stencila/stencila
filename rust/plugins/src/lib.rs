@@ -17,7 +17,7 @@ use rand::{distr::Alphanumeric, rng, Rng};
 use semver::{Version, VersionReq};
 use which::which;
 
-use app::{get_app_dir, DirType};
+use dirs::{get_app_dir, DirType};
 use cli_utils::Code;
 use common::{
     eyre::{bail, eyre, OptionExt, Report, Result},

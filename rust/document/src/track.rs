@@ -24,15 +24,13 @@ use common::{
     },
     tracing,
 };
+use dirs::{
+    closest_stencila_dir, stencila_db_dir, stencila_docs_file, stencila_store_dir,
+    workspace_relative_path, DB_DIR, DOCS_FILE, STORE_DIR,
+};
 use format::Format;
 
-use crate::{
-    dirs::{
-        closest_stencila_dir, stencila_db_dir, stencila_docs_file, stencila_store_dir,
-        workspace_relative_path, DB_DIR, DOCS_FILE, STORE_DIR,
-    },
-    Document,
-};
+use crate::Document;
 
 /// Find the closest `.stencila/docs.json` file to a path and read it's entries
 ///

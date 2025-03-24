@@ -12,12 +12,12 @@ path = "src/main.rs"
 tokio-console = ["console-subscriber"]
 
 [dependencies]
-app = { path = "../app" }
 cli-utils = { path = "../cli-utils" }
 codecs = { path = "../codecs" }
 color-eyre = { version = "0.6.3", features = ["issue-url"] }
 common = { path = "../common" }
 console-subscriber = { version = "0.4.1", optional = true }
+dirs = { path = "../dirs" }
 document = { path = "../document" }
 flate2 = { workspace = true }
 format = { path = "../format" }

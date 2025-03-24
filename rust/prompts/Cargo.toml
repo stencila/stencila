@@ -4,13 +4,13 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-app = { path = "../app" }
 cached = { workspace = true }
 cli-utils = { path = "../cli-utils" }
 codec-markdown = {path = "../codec-markdown" }
 codecs = {path = "../codecs" }
 common = { path = "../common" }
 derive_more = { workspace = true }
+dirs = { path = "../dirs" }
 flate2 = { workspace = true }
 images = { path = "../images" }
 model = { path = "../model" }

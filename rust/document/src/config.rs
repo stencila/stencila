@@ -3,7 +3,6 @@ use std::{
     sync::Arc,
 };
 
-use app::{get_app_dir, DirType};
 use common::{
     eyre::Result,
     serde_yaml,
@@ -12,12 +11,10 @@ use common::{
         sync::RwLock,
     },
 };
+use dirs::{closest_config_file, get_app_dir, DirType, CONFIG_FILE};
 use schema::{Article, Config, Node};
 
-use crate::{
-    dirs::{closest_config_file, CONFIG_FILE},
-    Document,
-};
+use crate::Document;
 
 /// Read in the closest config file
 ///

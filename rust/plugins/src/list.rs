@@ -3,7 +3,7 @@ use std::{
     time::Duration,
 };
 
-use app::{get_app_dir, DirType};
+use dirs::{get_app_dir, DirType};
 use cli_utils::table::{self, Attribute, Cell, Color, Table};
 use common::{
     clap::{self, Args},

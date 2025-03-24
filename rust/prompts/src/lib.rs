@@ -11,7 +11,7 @@ use std::{
 
 use derive_more::{Deref, DerefMut};
 
-use app::{get_app_dir, DirType};
+use dirs::{get_app_dir, DirType};
 use codec_markdown::to_markdown;
 use codecs::{DecodeOptions, Format};
 use common::{
