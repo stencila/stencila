@@ -16,21 +16,20 @@ use common::{
     clap::{self, Parser},
     eyre::{bail, Report, Result},
     futures::future::try_join_all,
+    itertools::Itertools,
     reqwest::Url,
     tokio::fs::create_dir_all,
     tracing,
 };
-use format::Format;
-use node_db::NodeDatabase;
-use schema::Node;
-
-use crate::{
-    dirs::{
-        closest_stencila_dir, closest_workspace_dir, stencila_db_dir, stencila_dir_create,
-        CreateStencilaDirOptions, STENCILA_DIR,
-    },
-    track::DocumentRemote,
+use dirs::{
+    closest_stencila_dir, closest_workspace_dir, stencila_dir_create, CreateStencilaDirOptions,
+    STENCILA_DIR,
 };
+use format::Format;
+use node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
+use schema::{Article, Block, Node, NodeId, NodeType};
+
+use crate::track::DocumentRemote;
 
 use super::{track::DocumentTrackingStatus, Document};
 
@@ -109,29 +108,61 @@ pub struct Query {
     #[arg(long, short)]
     to: Option<Format>,
 
-    /// The document database to query
+    /// The directory from which the closest workspace should be found
     ///
-    /// Defaults to the closest workspace database (i.e the closest `.stencila/db`
-    /// directory).
-    #[arg(long, short)]
-    db: Option<PathBuf>,
+    /// Defaults to the current directory. Use this option if wanting
+    /// to query a database outside of the current workspace, or if
+    /// not in a workspace.
+    #[arg(long, short, default_value = ".")]
+    dir: PathBuf,
 }
 
 impl Query {
     #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
-        let db_dir = match self.db {
-            Some(db_dir) => db_dir,
-            None => {
-                stencila_db_dir(&closest_stencila_dir(&current_dir()?, false).await?, false).await?
-            }
-        };
-        if !db_dir.exists() {
-            bail!("Directory `{}` does not exist", db_dir.display())
+        if !self.dir.exists() {
+            bail!("Directory `{}` does not exist", self.dir.display())
         }
 
-        let db = NodeDatabase::new(&db_dir)?;
-        let node = db.query(&self.query).await?;
+        // Create a docs kernel and execute query
+        let Some(kernel) = kernels::get("docs").await else {
+            bail!("Unable to create docs kernel")
+        };
+        let mut kernel = kernel.create_instance(schema::ExecutionBounds::Box)?;
+        kernel.start(&self.dir).await?;
+        kernel.execute("//db workspace").await?;
+        let (nodes, messages) = kernel.execute(&self.query).await?;
+
+        // Display any messages as a diagnostic
+        for msg in messages {
+            Diagnostic {
+                node_type: NodeType::CodeChunk,
+                node_id: NodeId::null(),
+                level: DiagnosticLevel::from(&msg.level),
+                kind: DiagnosticKind::Execution,
+                error_type: msg.error_type.clone(),
+                message: msg.message.clone(),
+                format: None,
+                code: None,
+                code_location: msg.code_location.clone(),
+            }
+            .to_stderr_pretty("<code>", &self.query, &None)
+            .ok();
+        }
+
+        // Collapse outputs to a single node
+        let node = if nodes.is_empty() {
+            eprintln!("No matching nodes");
+            return Ok(());
+        } else if nodes.len() == 1 {
+            nodes[0].clone()
+        } else {
+            let blocks = nodes
+                .into_iter()
+                .flat_map(|node| TryInto::<Vec<Block>>::try_into(node).unwrap_or_default())
+                .collect_vec();
+            Node::Article(Article::new(blocks))
+        };
 
         if let Some(output) = self.output {
             // If output is defined then encode to file

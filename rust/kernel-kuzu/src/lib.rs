@@ -324,20 +324,19 @@ impl KernelInstance for KuzuKernelInstance {
             self.output_kind.clone()
         };
 
-        // Determine output kind
-        let output_kind = match &output_kind {
-            Some(output_kind) => output_kind,
-            None => {
-                if output
-                    .get_column_data_types()
-                    .iter()
-                    .all(|data_type| matches!(data_type, LogicalType::Node | LogicalType::Rel))
-                {
-                    "graph"
-                } else {
-                    "datatable"
-                }
+        // Determine output kind if all columns are nodes or relationships, otherwise
+        // output will be datatable
+        let all_nodes_or_rels = output
+            .get_column_data_types()
+            .iter()
+            .all(|data_type| matches!(data_type, LogicalType::Node | LogicalType::Rel));
+        let output_kind = if all_nodes_or_rels {
+            match &output_kind {
+                Some(output_kind) => output_kind,
+                None => "graph",
             }
+        } else {
+            "datatable"
         };
 
         let outputs = match output_kind {
