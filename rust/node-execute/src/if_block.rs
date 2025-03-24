@@ -274,29 +274,47 @@ async fn execute_if_block_clause(clause: &mut IfBlockClause, executor: &mut Exec
     let mut messages = Vec::new();
     let started = Timestamp::now();
 
-    let is_empty = clause.code.trim().is_empty();
+    let trimmed = clause.code.trim();
+    let is_empty = trimmed.is_empty();
     let (is_active, mut status) = if !is_empty {
-        // Get the programming language, falling back to using the executor's current language
-        let lang = executor.programming_language(&clause.programming_language);
+        // The value to of the clause's expression
+        let mut value = None;
 
-        // Evaluate code in kernels
-        let (output, mut code_messages, ..) = executor
-            .kernels
-            .write()
-            .await
-            .evaluate(&clause.code, lang.as_deref())
-            .await
-            .unwrap_or_else(|error| {
-                (
-                    Node::Null(Null),
-                    vec![error_to_execution_message("While evaluating clause", error)],
-                    String::new(),
-                )
-            });
-        messages.append(&mut code_messages);
+        // If the programming language is none, and the code matches a variable name,
+        // then try to get that variable to use as the value
+        if clause.programming_language.is_none() && is_valid_variable_name(trimmed) {
+            if let Ok(Some(node)) = executor.kernels.read().await.get(trimmed).await {
+                value = Some(node);
+            }
+        }
+
+        let value = if let Some(value) = value {
+            value
+        } else {
+            // Get the programming language, falling back to using the executor's current language
+            let lang = executor.programming_language(&clause.programming_language);
+
+            // Evaluate code in kernels
+            let (output, mut code_messages, ..) = executor
+                .kernels
+                .write()
+                .await
+                .evaluate(&clause.code, lang.as_deref())
+                .await
+                .unwrap_or_else(|error| {
+                    (
+                        Node::Null(Null),
+                        vec![error_to_execution_message("While evaluating clause", error)],
+                        String::new(),
+                    )
+                });
+            messages.append(&mut code_messages);
+
+            output
+        };
 
         // Determine truthy-ness of the code's output value
-        let truthy = match &output {
+        let truthy = match &value {
             Node::Null(..) => false,
             Node::Boolean(bool) => *bool,
             Node::Integer(int) => *int > 0,

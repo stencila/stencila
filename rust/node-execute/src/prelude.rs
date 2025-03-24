@@ -1,7 +1,7 @@
 use std::hash::{Hash, Hasher};
 
-use common::seahash::SeaHasher;
 pub use common::{eyre::Report, tracing};
+use common::{once_cell::sync::Lazy, regex::Regex, seahash::SeaHasher};
 pub use schema::{
     Array, Duration, ExecutionMessage, ExecutionRequired, ExecutionStatus, MessageLevel, Node,
     NodeProperty, Null, PatchNode, PatchOp, PatchValue, Primitive, Timestamp, WalkControl,
@@ -10,6 +10,13 @@ pub use schema::{
 use schema::{CompilationDigest, CompilationMessage};
 
 pub(crate) use crate::{Executable, Executor};
+
+/// Is a name a valid variable name?
+pub fn is_valid_variable_name(name: &str) -> bool {
+    static VARIABLE_REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"^[a-zA-Z_][\w_]+$").expect("invalid regex"));
+    VARIABLE_REGEX.is_match(name)
+}
 
 /// Add to an existing digest
 pub fn add_to_digest(digest: &mut u64, bytes: &[u8]) {

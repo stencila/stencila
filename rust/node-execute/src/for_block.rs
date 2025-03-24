@@ -107,38 +107,56 @@ impl Executable for ForBlock {
 
         let compilation_digest = self.options.compilation_digest.clone();
         let variable = self.variable.trim();
+        let trimmed = self.code.trim();
         let mut iterations = Vec::new();
-        if !(variable.is_empty() && self.code.trim().is_empty()) {
+        if !(variable.is_empty() && trimmed.trim().is_empty()) {
             is_empty = false;
 
-            // Get the programming language, falling back to using the executor's current language
-            let lang = executor.programming_language(&self.programming_language);
+            // The value to iterate over
+            let mut value = None;
 
-            // Evaluate code in kernels to get the iterable
-            let (output, mut code_messages, _instance) = executor
-                .kernels
-                .write()
-                .await
-                .evaluate(&self.code, lang.as_deref())
-                .await
-                .unwrap_or_else(|error| {
-                    (
-                        Node::Null(Null),
-                        vec![error_to_execution_message(
-                            "While evaluating expression",
-                            error,
-                        )],
-                        String::new(),
-                    )
-                });
-            messages.append(&mut code_messages);
+            // If the programming language is none, and the code matches a variable name,
+            // then try to get that variable to use as the value
+            if self.programming_language.is_none() && is_valid_variable_name(trimmed) {
+                if let Ok(Some(node)) = executor.kernels.read().await.get(trimmed).await {
+                    value = Some(node);
+                }
+            }
+
+            let value = if let Some(value) = value {
+                value
+            } else {
+                // Get the programming language, falling back to using the executor's current language
+                let lang = executor.programming_language(&self.programming_language);
+
+                // Evaluate code in kernels to get the iterable
+                let (output, mut code_messages, _instance) = executor
+                    .kernels
+                    .write()
+                    .await
+                    .evaluate(&self.code, lang.as_deref())
+                    .await
+                    .unwrap_or_else(|error| {
+                        (
+                            Node::Null(Null),
+                            vec![error_to_execution_message(
+                                "While evaluating expression",
+                                error,
+                            )],
+                            String::new(),
+                        )
+                    });
+                messages.append(&mut code_messages);
+
+                output
+            };
 
             // Derive an iterator from the code's output value
-            let iterator = match output {
+            let iterator = match value {
                 Node::Null(..) => vec![],
                 Node::Boolean(bool) => {
                     if bool {
-                        vec![output]
+                        vec![value]
                     } else {
                         vec![]
                     }
