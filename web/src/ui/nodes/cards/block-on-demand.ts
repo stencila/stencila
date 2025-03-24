@@ -70,7 +70,13 @@ export class UIBlockOnDemand extends ToggleMarkerMixin(UIBaseCard) {
   protected override renderContent() {
     const contentStyles = apply(
       'transition-[padding] ease-in-out duration-[250ms]',
-      this.toggle && !(this.noContent || this.noContentPadding) ? 'p-3' : ''
+      this.toggle && !(this.noContent || this.noContentPadding)
+        ? this.depth == 0
+          ? // For top level node cars use larger left margin so that
+            // node chips in content are visible
+            'py-3 pl-14 pr-4'
+          : 'p-3'
+        : ''
     )
 
     return html`
