@@ -82,6 +82,7 @@ import fastForwardCircle from './fast-forward-circle.svg'
 import feather from './feather.svg'
 import filePlay from './file-play.svg'
 import filePlus from './file-plus.svg'
+import files from './files.svg'
 import fileTypeRaw from './filetype-raw.svg'
 import fullscreen from './fullscreen.svg'
 import gear from './gear.svg'
@@ -221,6 +222,7 @@ const icons = {
   feather,
   filePlay,
   filePlus,
+  files,
   fileTypeRaw,
   fullscreen,
   gear,

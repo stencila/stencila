@@ -247,7 +247,7 @@ export class UINodeCode extends LitElement {
     }),
     LanguageDescription.of({
       name: 'cypher',
-      alias: ['kuzu'],
+      alias: ['kuzu', 'docs'],
       load: async () => {
         return import('@codemirror/legacy-modes/mode/cypher').then(
           (mode) => new LanguageSupport(StreamLanguage.define(mode.cypher))

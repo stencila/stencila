@@ -20,6 +20,10 @@ export const programmingLanguages: Record<
     title: 'CSS',
     icon: 'bracesAsterisk',
   },
+  docs: {
+    title: 'Docs',
+    icon: 'files',
+  },
   jinja: {
     title: 'Jinja',
     icon: 'braces',
