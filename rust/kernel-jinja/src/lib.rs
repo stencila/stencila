@@ -270,6 +270,7 @@ impl Object for JinjaKernelContext {
             loop {
                 let response = receiver.blocking_recv()?;
                 if response.variable == name {
+                    tracing::trace!("Received response for variable `{name}`");
                     return Ok::<Option<Node>, Report>(response.value);
                 }
             }
