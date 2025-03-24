@@ -22,8 +22,9 @@ pub struct Excerpt {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// The `CreativeWork` that the except was taken from.
+    /// The `CreativeWork` that the excerpt was taken from.
     #[strip(metadata)]
+    #[dom(elem = "div")]
     pub source: Box<CreativeWorkType>,
 
     /// The excerpted content.
@@ -31,6 +32,7 @@ pub struct Excerpt {
     #[strip(content)]
     #[walk]
     #[patch(format = "all")]
+    #[dom(elem = "div")]
     pub content: Vec<Block>,
 
     /// A unique identifier for a node within a document
