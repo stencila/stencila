@@ -1,13 +1,27 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, ArrayValidator, Datatable, Primitive};
+use crate::{prelude::*, ArrayValidator, Datatable, Object, Primitive};
 
 impl Datatable {
-    /// Get the number of rows in the `Datatable`
+    /// Get the number of rows in the [`Datatable`]
     pub fn rows(&self) -> usize {
         self.columns
             .iter()
             .fold(0usize, |rows, column| rows.max(column.values.len()))
+    }
+
+    /// Transform a [`Datatable`] to a vector of [`Object`]s
+    pub fn to_values(&self) -> Vec<Object> {
+        (0..self.rows())
+            .map(|row| {
+                let pairs = self
+                    .columns
+                    .iter()
+                    .map(|column| (column.name.clone(), column.values[row].clone()))
+                    .collect();
+                Object(pairs)
+            })
+            .collect()
     }
 }
 
