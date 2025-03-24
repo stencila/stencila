@@ -19,7 +19,6 @@ use common::{
     },
     tracing,
 };
-use node_map;
 use schema::{Node, NodeId, NodePath};
 
 use crate::Document;

@@ -617,9 +617,7 @@ COPY (MATCH (p:Person) RETURN p) TO '{}';
 
         // Box: can read but not write or copy to or from
         let mut boxed = KuzuKernelInstance::r#box(Some(path));
-        let (.., messages) = boxed
-            .execute(&r#"MATCH (p:Person) RETURN p;"#.to_string())
-            .await?;
+        let (.., messages) = boxed.execute(r#"MATCH (p:Person) RETURN p;"#).await?;
         assert_eq!(messages, vec![]);
 
         let (.., messages) = boxed
@@ -686,9 +684,7 @@ COPY (MATCH (p:Person) RETURN p) TO '{}';
         // Replicate with execution bounds `Box`: can read but not write or copy to or from
 
         let mut boxed = main.replicate(ExecutionBounds::Box).await?;
-        let (.., messages) = boxed
-            .execute(&"MATCH (p:Person) RETURN p;".to_string())
-            .await?;
+        let (.., messages) = boxed.execute("MATCH (p:Person) RETURN p;").await?;
         assert_eq!(messages, vec![]);
 
         let (.., messages) = boxed

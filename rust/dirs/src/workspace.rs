@@ -40,11 +40,11 @@ pub async fn stencila_dir_create(path: &Path, options: CreateStencilaDirOptions)
     }
 
     if options.config_file {
-        stencila_config_file(&path, true).await?;
+        stencila_config_file(path, true).await?;
     }
 
     if options.docs_file {
-        stencila_docs_file(&path, true).await?;
+        stencila_docs_file(path, true).await?;
     }
 
     if options.gitignore_file {
@@ -52,11 +52,11 @@ pub async fn stencila_dir_create(path: &Path, options: CreateStencilaDirOptions)
     }
 
     if options.store_dir {
-        stencila_store_dir(&path, true).await?;
+        stencila_store_dir(path, true).await?;
     }
 
     if options.db_dir {
-        stencila_db_dir(&path, true).await?;
+        stencila_db_dir(path, true).await?;
     }
 
     Ok(())

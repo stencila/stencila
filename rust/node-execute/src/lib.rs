@@ -999,7 +999,7 @@ impl Executor {
     }
 
     /// Get the [`AuthorRole`] for a kernel instance with the current timestamp as `last_modified`
-    pub async fn node_execution_author_role(&self, instance: &String) -> Option<AuthorRole> {
+    pub async fn node_execution_author_role(&self, instance: &str) -> Option<AuthorRole> {
         if let Some(instance) = self.kernels().await.get_instance(instance).await {
             if let Ok(app) = instance.lock().await.info().await {
                 let mut role = AuthorRole::software(app, AuthorRoleName::Executor);

@@ -11,7 +11,6 @@ use std::{
 
 use derive_more::{Deref, DerefMut};
 
-use dirs::{get_app_dir, DirType};
 use codec_markdown::to_markdown;
 use codecs::{DecodeOptions, Format};
 use common::{
@@ -28,6 +27,7 @@ use common::{
     tokio::fs::{create_dir_all, read_to_string, remove_dir_all, write},
     tracing,
 };
+use dirs::{get_app_dir, DirType};
 use flate2::read::GzDecoder;
 use images::ensure_http_or_data_uri;
 use rust_embed::RustEmbed;

@@ -22,12 +22,12 @@ use kernel::{
 };
 use kernel_asciimath::AsciiMathKernel;
 use kernel_bash::BashKernel;
+use kernel_docs::DocsKernel;
 use kernel_graphviz::GraphvizKernel;
 use kernel_jinja::JinjaKernel;
 use kernel_kuzu::KuzuKernel;
 use kernel_mermaid::MermaidKernel;
 use kernel_nodejs::NodeJsKernel;
-use kernel_docs::DocsKernel;
 use kernel_python::PythonKernel;
 use kernel_quickjs::QuickJsKernel;
 use kernel_r::RKernel;

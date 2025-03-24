@@ -3,7 +3,6 @@ use std::{
     time::Duration,
 };
 
-use dirs::{get_app_dir, DirType};
 use cli_utils::table::{self, Attribute, Cell, Color, Table};
 use common::{
     clap::{self, Args},
@@ -14,6 +13,7 @@ use common::{
     tokio::fs::{read_to_string, write},
     tracing,
 };
+use dirs::{get_app_dir, DirType};
 
 use crate::{Plugin, PluginEnabled, PluginStatus};
 
