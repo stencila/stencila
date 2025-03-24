@@ -26,6 +26,8 @@ pub use from_kuzu::*;
 mod to_kuzu;
 pub use to_kuzu::*;
 
+// Re-exports for convenience of dependant crates
+pub use kernel;
 pub use kuzu;
 
 const NAME: &str = "kuzu";
@@ -68,7 +70,6 @@ impl Kernel for KuzuKernel {
     }
 }
 
-#[derive(Default)]
 pub struct KuzuKernelInstance {
     /// The unique id of the kernel instance
     id: String,
@@ -98,6 +99,20 @@ pub struct KuzuKernelInstance {
     /// is required for replicating the database.
     read_only: bool,
 
+    /// The default kind of query output.
+    ///
+    /// Determines how Kuzu query results are converted to Stencila nodes.
+    ///
+    /// Possible values are:
+    ///   - graph
+    ///   - datatable
+    ///   - excerpts
+    ///
+    /// Can be overridden using a `//out` comment e.g. `//out graph`.
+    /// If not defined, nor overridden, is determined by the types of
+    /// columns in the result.
+    output_kind: Option<String>,
+
     /// The database instance
     db: Option<Database>,
 }
@@ -121,6 +136,14 @@ impl KuzuKernelInstance {
         Self::init(ExecutionBounds::Box, true, path)
     }
 
+    /// Create a new instance with `Box` execution bounds and id
+    pub fn box_with(id: String, output_kind: &str) -> Self {
+        let mut instance = Self::init(ExecutionBounds::Box, true, None);
+        instance.id = id;
+        instance.output_kind = Some(output_kind.to_string());
+        instance
+    }
+
     /// Initialize a new instance
     fn init(bounds: ExecutionBounds, read_only: bool, path: Option<PathBuf>) -> Self {
         let id = generate_id(NAME);
@@ -134,10 +157,21 @@ impl KuzuKernelInstance {
             id,
             bounds,
             read_only,
+            output_kind: None,
             directory: None,
             path,
             db: None,
         }
+    }
+
+    /// Set/reset the database path
+    ///
+    /// This does not create a database instance but does ensure that
+    /// any existing one is dropped so that it will be created, to the correct
+    /// path, when next needed.
+    pub fn set_path(&mut self, path: PathBuf) {
+        self.path = Some(path);
+        self.db = None;
     }
 }
 
@@ -148,54 +182,15 @@ impl KernelInstance for KuzuKernelInstance {
     }
 
     async fn start(&mut self, directory: &Path) -> Result<()> {
+        tracing::trace!("Starting Kuzu kernel");
+
         self.directory = Some(directory.to_owned());
 
         Ok(())
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
-        tracing::trace!("Executing Kuzu statements");
-
-        static DB_REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"(?m)^\/\/\s*db\s+(?:(ro|rw)\s+)?(.*)$").expect("invalid regex")
-        });
-
-        let db = match &self.db {
-            Some(db) => db,
-            None => {
-                let path = match &self.path {
-                    Some(path) => path,
-                    None => {
-                        // Search for a "//db" line in the code specifying path, and optionally
-                        // read/write access, to database. Fallback to memory otherwise.
-                        let path = if let Some(captures) = DB_REGEX.captures(code) {
-                            if captures.get(1).map(|m| m.as_str()) == Some("ro") {
-                                self.read_only = true;
-                            }
-                            let relative_path = &captures[2];
-
-                            match &self.directory {
-                                Some(dir) => dir.join(relative_path),
-                                None => relative_path.into(),
-                            }
-                        } else {
-                            PathBuf::from(":memory:")
-                        };
-
-                        self.path = Some(path);
-                        self.path.as_ref().expect("just set")
-                    }
-                };
-
-                let config = SystemConfig::default().read_only(self.read_only);
-                let db = Database::new(path, config)?;
-
-                self.db = Some(db);
-                self.db.as_ref().expect("just set")
-            }
-        };
-
-        let connection = Connection::new(db)?;
+        tracing::trace!("Executing code in Kuzu kernel");
 
         // Render any Jinja templating
         let code = if code.contains("{%") || code.contains("{{") && code.contains("}}") {
@@ -212,6 +207,48 @@ impl KernelInstance for KuzuKernelInstance {
         } else {
             code.to_string()
         };
+
+        // Search for a "//db" line in the code specifying path, and optionally
+        // read/write access, to database.
+        static DB_REGEX: Lazy<Regex> = Lazy::new(|| {
+            Regex::new(r"(?m)^\/\/\s*db\s+(?:(ro|rw)\s+)?(.+)$").expect("invalid regex")
+        });
+        if let Some(captures) = DB_REGEX.captures(&code) {
+            if captures.get(1).map(|m| m.as_str()) == Some("ro") {
+                self.read_only = true;
+            }
+            let relative_path = &captures[2];
+
+            let path = match &self.directory {
+                Some(dir) => dir.join(relative_path),
+                None => relative_path.into(),
+            };
+
+            self.set_path(path);
+        }
+
+        // Get, or instantiate, database instance
+        let db = match &self.db {
+            Some(db) => db,
+            None => {
+                let path = self
+                    .path
+                    .clone()
+                    .unwrap_or_else(|| PathBuf::from(":memory:"));
+                let config = SystemConfig::default().read_only(self.read_only);
+                let db = Database::new(path, config)?;
+
+                self.db = Some(db);
+                self.db.as_ref().expect("just set")
+            }
+        };
+
+        let connection = Connection::new(db)?;
+
+        // Ensure any necessary extensions are loaded. Any errors are intentionally ignored.
+        if code.to_uppercase().contains("QUERY_FTS_INDEX") {
+            connection.query("LOAD EXTENSION FTS;").ok();
+        }
 
         // Return on the first error, otherwise treat the result of the last statement
         // as the output. Keep track of line numbers so that location or error can be
@@ -278,21 +315,51 @@ impl KernelInstance for KuzuKernelInstance {
             };
         }
 
-        let output = if output
-            .get_column_data_types()
-            .iter()
-            .all(|data_type| matches!(data_type, LogicalType::Node | LogicalType::Rel))
-        {
-            Node::ImageObject(cytoscape_from_query_result(output)?)
+        // Check if the default output kind has been overridden
+        static OUTPUT_REGEX: Lazy<Regex> =
+            Lazy::new(|| Regex::new(r"(?m)^\/\/\s*out\s+(\w+)$").expect("invalid regex"));
+        let output_kind = if let Some(captures) = OUTPUT_REGEX.captures(&code) {
+            Some(captures[1].to_string())
         } else {
-            Node::Datatable(datatable_from_query_result(output)?)
+            self.output_kind.clone()
         };
 
-        Ok((vec![output], Vec::new()))
+        // Determine output kind
+        let output_kind = match &output_kind {
+            Some(output_kind) => output_kind,
+            None => {
+                if output
+                    .get_column_data_types()
+                    .iter()
+                    .all(|data_type| matches!(data_type, LogicalType::Node | LogicalType::Rel))
+                {
+                    "graph"
+                } else {
+                    "datatable"
+                }
+            }
+        };
+
+        let outputs = match output_kind {
+            "excerpts" => vec![Node::Array(excerpts_from_query_result(output)?)],
+            "graph" => vec![Node::ImageObject(cytoscape_from_query_result(output)?)],
+            "datatable" => vec![Node::Datatable(datatable_from_query_result(output)?)],
+            _ => {
+                return Ok((
+                    Vec::new(),
+                    vec![ExecutionMessage::new(
+                        MessageLevel::Error,
+                        format!("Invalid output kind: {output_kind}"),
+                    )],
+                ));
+            }
+        };
+
+        Ok((outputs, Vec::new()))
     }
 
     async fn info(&mut self) -> Result<SoftwareApplication> {
-        tracing::trace!("Getting Kuzu runtime info");
+        tracing::trace!("Getting Kuzu kernel info");
 
         Ok(SoftwareApplication {
             name: "Kuzu".to_string(),
@@ -314,6 +381,8 @@ impl KernelInstance for KuzuKernelInstance {
     }
 
     async fn replicate(&mut self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
+        tracing::trace!("Replicating Kuzu kernel");
+
         if self.path.is_none() {
             bail!("Can not replicate a Kuzu kernel for an in-memory database")
         }

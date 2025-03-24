@@ -14,6 +14,41 @@ use kernel::{
     schema::*,
 };
 
+/// Create a Stencila [`Array`] of tuples of doc ids and node paths from a Kuzu [`QueryResult`]
+pub fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
+    let mut nodes = Vec::new();
+    for row in result {
+        for value in row {
+            let Value::Node(node_val) = value else {
+                bail!("Expected a Kuzu node");
+            };
+
+            let mut doc_id = None;
+            let mut node_path = None;
+            for (name, value) in node_val.get_properties() {
+                if name == "docId" {
+                    doc_id = Some(value.to_string());
+                }
+
+                if name == "nodePath" {
+                    node_path = Some(value.to_string());
+                }
+
+                if doc_id.is_some() && node_path.is_some() {
+                    break;
+                }
+            }
+            let (Some(doc_id), Some(node_path)) = (doc_id, node_path) else {
+                bail!("docId or nodePath fields missing")
+            };
+
+            nodes.push(Primitive::String([&doc_id, ":", &node_path].concat()))
+        }
+    }
+
+    Ok(Array(nodes))
+}
+
 /// Create a Stencila [`ImageObject`] containing a Cytoscape.js graph from a Kuzu [`QueryResult`]
 pub fn cytoscape_from_query_result(result: QueryResult) -> Result<ImageObject> {
     #[derive(Serialize)]
