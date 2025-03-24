@@ -16,7 +16,7 @@ const langs = [
   { name: "css", aliases: "css", include: "source.css", chunks: false },
   {
     name: "cypher",
-    aliases: "cypher|cql|kuzu",
+    aliases: "cypher|cql|kuzu|docs",
     include: "source.cypher",
     chunks: true,
   },
