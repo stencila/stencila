@@ -22,8 +22,10 @@ use kernel::{
 };
 use kernel_asciimath::AsciiMathKernel;
 use kernel_bash::BashKernel;
+use kernel_docs::DocsKernel;
 use kernel_graphviz::GraphvizKernel;
 use kernel_jinja::JinjaKernel;
+use kernel_kuzu::KuzuKernel;
 use kernel_mermaid::MermaidKernel;
 use kernel_nodejs::NodeJsKernel;
 use kernel_python::PythonKernel;
@@ -53,6 +55,9 @@ pub async fn list() -> Vec<Box<dyn Kernel>> {
         Box::<QuickJsKernel>::default() as Box<dyn Kernel>,
         Box::<NodeJsKernel>::default() as Box<dyn Kernel>,
         Box::<BashKernel>::default() as Box<dyn Kernel>,
+        // Database
+        Box::<KuzuKernel>::default() as Box<dyn Kernel>,
+        Box::<DocsKernel>::default() as Box<dyn Kernel>,
         // Diagrams
         Box::<MermaidKernel>::default() as Box<dyn Kernel>,
         Box::<GraphvizKernel>::default() as Box<dyn Kernel>,
@@ -264,7 +269,7 @@ impl Kernels {
             };
             for entry in instances.read().await.iter() {
                 // If the candidate instance is the same as the request instance then
-                // skip - because unnecessary because likely to cause deadlock in
+                // skip because unnecessary and likely to cause deadlock in
                 // next step.
                 if entry.id == request.instance {
                     continue;
@@ -374,22 +379,21 @@ impl Kernels {
             .map(|entry| entry.instance.clone())
     }
 
-    /// Get a kernel instance for a language
+    /// Get a kernel instance with matching kernel name, id, or supporting a language
     ///
-    /// The `language` argument can be the name of a programming language, or
-    /// the id of an existing kernel instance.
+    /// The `name` argument can be the name of a kernel, the id of an existing kernel
+    /// instance, or a programming language
     async fn get_instance_for(
         &mut self,
-        language: &str,
+        name: &str,
     ) -> Result<Option<Arc<Mutex<Box<dyn KernelInstance>>>>> {
-        let format = Format::from_name(language);
+        let format = Format::from_name(name);
 
         for entry in self.instances.read().await.iter() {
-            if entry.id == language {
-                return Ok(Some(entry.instance.clone()));
-            }
-
-            if entry.kernel.supports_language(&format) {
+            if entry.id == name
+                || entry.kernel.name() == name
+                || entry.kernel.supports_language(&format)
+            {
                 return Ok(Some(entry.instance.clone()));
             }
         }
@@ -466,7 +470,7 @@ impl Kernels {
     /// Get a variable from the kernels
     ///
     /// Currently just iterates over kernels until the variable is found (if at all).
-    pub async fn get(&mut self, name: &str) -> Result<Option<Node>> {
+    pub async fn get(&self, name: &str) -> Result<Option<Node>> {
         for entry in self.instances.read().await.iter() {
             let mut instance = entry.instance.lock().await;
             if let Some(value) = instance.get(name).await? {

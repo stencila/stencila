@@ -7,7 +7,7 @@ impl Chat {
     /// Custom implementation of [`PatchNode::apply`]
     pub fn apply_with(
         &mut self,
-        path: &mut PatchPath,
+        path: &mut NodePath,
         op: &PatchOp,
         context: &mut PatchContext,
     ) -> Result<bool> {
@@ -16,7 +16,7 @@ impl Chat {
             if matches!(op, PatchOp::Archive) {
                 // Add this chat to the root's archive
                 context.op_additional(
-                    PatchPath::from(NodeProperty::Archive),
+                    NodePath::from(NodeProperty::Archive),
                     PatchOp::Push(self.to_value()?),
                 );
             }
@@ -24,7 +24,7 @@ impl Chat {
             // Get the path and index for applying the additional op to remove this node
             let mut path = context.path();
             let index = match path.pop_back() {
-                Some(PatchSlot::Index(index)) => index,
+                Some(NodeSlot::Index(index)) => index,
                 slot => bail!("Expected index slot, got: {slot:?}"),
             };
             context.op_additional(path, PatchOp::Remove(vec![index]));
@@ -32,7 +32,7 @@ impl Chat {
             Ok(true)
         } else if matches!(
             path.front(),
-            Some(PatchSlot::Property(NodeProperty::Content))
+            Some(NodeSlot::Property(NodeProperty::Content))
         ) {
             // To allow for placeholder `::: chat` blocks with no content in Markdown formats,
             // only apply patches to the content of the chat if the patch is

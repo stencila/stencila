@@ -41,31 +41,31 @@ where
 #[serde(crate = "common::serde")]
 pub struct Diagnostic {
     /// The type of node that the diagnostic is for
-    node_type: NodeType,
+    pub node_type: NodeType,
 
     /// The id of the node that the diagnostic is for
-    node_id: NodeId,
+    pub node_id: NodeId,
 
     /// The severity level of the diagnostic
-    level: DiagnosticLevel,
+    pub level: DiagnosticLevel,
 
     /// The kind of diagnostic
-    kind: DiagnosticKind,
+    pub kind: DiagnosticKind,
 
     /// The error type, if any, of the diagnostic
-    error_type: Option<String>,
+    pub error_type: Option<String>,
 
     /// The diagnostic's message
-    message: String,
+    pub message: String,
 
     /// The format / programming language associated with the diagnostic
-    format: Option<Format>,
+    pub format: Option<Format>,
 
     /// The source code associated with the diagnostic
-    code: Option<String>,
+    pub code: Option<String>,
 
     /// The location of the diagnostic within the code
-    code_location: Option<CodeLocation>,
+    pub code_location: Option<CodeLocation>,
 }
 
 #[derive(Clone, Copy, Display, PartialEq, Eq, PartialOrd, Ord, Serialize)]

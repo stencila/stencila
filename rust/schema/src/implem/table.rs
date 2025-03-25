@@ -185,24 +185,39 @@ impl MarkdownCodec for Table {
             }
 
             // Rows
+            let divider_row = |context: &mut MarkdownEncodeContext| {
+                context.push_str("|");
+                for width in &column_widths {
+                    context
+                        .push_str(" ")
+                        .push_str(&"-".repeat(*width))
+                        .push_str(" |");
+                }
+                context.newline();
+            };
+            let empty_row = |context: &mut MarkdownEncodeContext| {
+                context.push_str("|");
+                for width in &column_widths {
+                    context.push_str(&" ".repeat(width + 2)).push_str("|");
+                }
+                context.newline();
+            };
             for (row_index, row) in self_rows.iter().enumerate() {
-                // If there is only one row, header row should be empty
-                if row_index == 0 && self_rows.len() == 1 {
-                    context.push_str("| ");
-                    for width in &column_widths {
-                        context.push_str(&" ".repeat(*width)).push_str(" |");
-                    }
+                // If this is the first and only row then add an empty header if not
+                // a header row and and empty body otherwise
+                let (empty_header, empty_body) = if row_index == 0 && self_rows.len() == 1 {
+                    let empty_header = !matches!(row.row_type, Some(TableRowType::HeaderRow));
+                    (empty_header, !empty_header)
+                } else {
+                    (false, false)
+                };
+
+                if empty_header {
+                    empty_row(context)
                 }
 
-                if (row_index == 0 && self_rows.len() == 1) || row_index == 1 {
-                    context.push_str("|");
-                    for width in &column_widths {
-                        context
-                            .push_str(" ")
-                            .push_str(&"-".repeat(*width))
-                            .push_str(" |");
-                    }
-                    context.newline();
+                if empty_header || row_index == 1 {
+                    divider_row(context)
                 }
 
                 context.enter_node(row.node_type(), row.node_id());
@@ -224,6 +239,11 @@ impl MarkdownCodec for Table {
                         .push_str("|");
                 }
                 context.newline().exit_node();
+
+                if empty_body {
+                    divider_row(context);
+                    empty_row(context);
+                }
             }
         }
 

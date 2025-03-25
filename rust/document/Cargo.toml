@@ -4,14 +4,15 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-app = { path = "../app" }
 cli-utils = { path = "../cli-utils" }
 codec-json = { path = "../codec-json" }
 codecs = { path = "../codecs" }
 common = { path = "../common" }
+dirs = { path = "../dirs" }
 format = { path = "../format" }
 kernels = { path = "../kernels" }
 json-patch = "1.2.0"
+node-db = { path = "../node-db" }
 node-execute = { path = "../node-execute" }
 node-find = { path = "../node-find" }
 node-map = { path = "../node-map" }

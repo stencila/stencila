@@ -7,7 +7,7 @@ impl InstructionInline {
     /// Custom implementation of [`PatchNode::apply`]
     pub fn apply_with(
         &mut self,
-        path: &mut PatchPath,
+        path: &mut NodePath,
         op: &PatchOp,
         context: &mut PatchContext,
     ) -> Result<bool> {

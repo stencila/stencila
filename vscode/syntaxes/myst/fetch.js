@@ -10,6 +10,10 @@ const https = require("https");
 
 const files = [
   [
+    `https://raw.githubusercontent.com/jupyter-book/vscode-mystmd/refs/heads/main/LICENSE`,
+    "LICENSE",
+  ],
+  [
     `https://raw.githubusercontent.com/jupyter-book/vscode-mystmd/refs/heads/main/syntaxes/myst.tmLanguage.json`,
     "myst.tmLanguage.json",
   ],

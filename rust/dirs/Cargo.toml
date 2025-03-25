@@ -1,5 +1,5 @@
 [package]
-name = "app"
+name = "dirs"
 version = "0.0.0"
 edition = "2021"
 

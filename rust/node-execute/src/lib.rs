@@ -17,7 +17,7 @@ use prompts::prompt::{DocumentContext, InstructionContext};
 use schema::{
     AuthorRole, AuthorRoleName, Block, CompilationDigest, CompilationMessage, Config,
     ExecutionBounds, ExecutionMode, ExecutionStatus, Inline, Link, List, ListItem, ListOrder, Node,
-    NodeId, NodeProperty, NodeType, Paragraph, Patch, PatchNode, PatchOp, PatchPath, PatchValue,
+    NodeId, NodePath, NodeProperty, NodeType, Paragraph, Patch, PatchNode, PatchOp, PatchValue,
     Timestamp, VisitorAsync, WalkControl, WalkNode,
 };
 
@@ -504,7 +504,8 @@ impl Executor {
         use Format::*;
         let declaration = match format {
             Some(JavaScript) => format!("var {name} = null;\n"),
-            Some(Python) => format!("{name} = None\n"),
+            // Add `Any` type hint so that linter does not complain
+            Some(Python) => format!("{name}: Any = None\n"),
             Some(R) => format!("{name} <- NULL\n"),
             _ => format!("{name} = 0;\n"),
         };
@@ -799,7 +800,7 @@ impl Executor {
 
             if let Some(code) = node_codes.get(node_id) {
                 ops.push((
-                    PatchPath::from(NodeProperty::Code),
+                    NodePath::from(NodeProperty::Code),
                     PatchOp::Set(code.to_value()?),
                 ));
             };
@@ -809,7 +810,7 @@ impl Executor {
                 None => PatchValue::None,
             };
             ops.push((
-                PatchPath::from(NodeProperty::CompilationMessages),
+                NodePath::from(NodeProperty::CompilationMessages),
                 PatchOp::Set(messages),
             ));
 
@@ -998,19 +999,13 @@ impl Executor {
         }
     }
 
-    /// Get the [`AuthorRole`] for the kernel instance if it is different from the current
-    pub async fn node_execution_instance_author(
-        &self,
-        instance: &String,
-        execution_instance: &Option<String>,
-    ) -> Option<AuthorRole> {
-        if execution_instance.as_ref() != Some(instance) {
-            if let Some(instance) = self.kernels().await.get_instance(instance).await {
-                if let Ok(app) = instance.lock().await.info().await {
-                    let mut role = AuthorRole::software(app, AuthorRoleName::Executor);
-                    role.last_modified = Some(Timestamp::now());
-                    return Some(role);
-                }
+    /// Get the [`AuthorRole`] for a kernel instance with the current timestamp as `last_modified`
+    pub async fn node_execution_author_role(&self, instance: &str) -> Option<AuthorRole> {
+        if let Some(instance) = self.kernels().await.get_instance(instance).await {
+            if let Ok(app) = instance.lock().await.info().await {
+                let mut role = AuthorRole::software(app, AuthorRoleName::Executor);
+                role.last_modified = Some(Timestamp::now());
+                return Some(role);
             }
         }
 
@@ -1052,7 +1047,7 @@ impl Executor {
 
         let ops = pairs
             .into_iter()
-            .map(|(property, op)| (PatchPath::from(property), op))
+            .map(|(property, op)| (NodePath::from(property), op))
             .collect();
 
         let patch = Patch {

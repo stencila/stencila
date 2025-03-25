@@ -11,7 +11,7 @@ properties:
       An array because a grant may have more than one funded item.
     type: array
     items:
-      $ref: Thing
+      $ref: ThingType
   sponsors:
     '@id': schema:sponsor
     description: A person or organization that supports a thing through a pledge, promise, or financial contribution.

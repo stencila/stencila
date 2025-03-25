@@ -1,0 +1,13 @@
+```kuzu exec
+CREATE NODE TABLE IF NOT EXISTS Person (name string primary key, age int);
+CREATE (:Person {name: 'Alice', age: 20})
+CREATE (:Person {name: 'Bob', age: 30})
+```
+
+::: for row in MATCH (person:Person) RETURN person
+
+# `row.person.name`{jinja exec}
+
+Age: `row.person.age`{jinja exec}
+
+:::

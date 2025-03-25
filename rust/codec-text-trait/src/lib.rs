@@ -68,7 +68,7 @@ where
         let mut losses = Losses::none();
 
         for (index, item) in self.iter().enumerate() {
-            if index != 0 {
+            if index != 0 && !text.ends_with(" ") {
                 text.push(' ');
             }
 

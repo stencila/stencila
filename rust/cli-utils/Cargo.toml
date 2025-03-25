@@ -8,6 +8,7 @@ comfy-table = "7.1.4"
 common = { path = "../common" }
 format = { path = "../format" }
 rpassword = "7.3"
+schema = { path = "../schema" }
 syntect = "5.2.0"
 url = { workspace = true }
 

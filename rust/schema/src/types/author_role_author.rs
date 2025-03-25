@@ -8,7 +8,7 @@ use super::software_application::SoftwareApplication;
 use super::thing::Thing;
 
 /// Union type for things that can be an author in `AuthorRole`.
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(untagged, crate = "common::serde")]
 pub enum AuthorRoleAuthor {
     #[default]

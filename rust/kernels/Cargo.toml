@@ -8,8 +8,10 @@ cli-utils = { path = "../cli-utils" }
 kernel = { path = "../kernel" }
 kernel-asciimath = { path = "../kernel-asciimath" }
 kernel-bash = { path = "../kernel-bash" }
+kernel-docs = { path = "../kernel-docs" }
 kernel-graphviz = { path = "../kernel-graphviz" }
 kernel-jinja = { path = "../kernel-jinja" }
+kernel-kuzu = { path = "../kernel-kuzu" }
 kernel-mermaid = { path = "../kernel-mermaid" }
 kernel-nodejs = { path = "../kernel-nodejs" }
 kernel-python = { path = "../kernel-python" }
@@ -18,6 +20,7 @@ kernel-r = { path = "../kernel-r" }
 kernel-rhai = { path = "../kernel-rhai", optional = true }
 kernel-style = { path = "../kernel-style" }
 kernel-tex = { path = "../kernel-tex" }
+node-diagnostics = { path = "../node-diagnostics" }
 plugins = { path = "../plugins" }
 
 [dev-dependencies]

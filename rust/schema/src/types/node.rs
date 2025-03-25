@@ -50,6 +50,7 @@ use super::duration_validator::DurationValidator;
 use super::emphasis::Emphasis;
 use super::enum_validator::EnumValidator;
 use super::enumeration::Enumeration;
+use super::excerpt::Excerpt;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
 use super::execution_message::ExecutionMessage;
@@ -135,7 +136,7 @@ use super::walkthrough::Walkthrough;
 use super::walkthrough_step::WalkthroughStep;
 
 /// Union type for all types in this schema, including primitives and entities
-#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, SmartDefault, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(untagged, crate = "common::serde")]
 pub enum Node {
     #[default]
@@ -244,6 +245,8 @@ pub enum Node {
     EnumValidator(EnumValidator),
 
     Enumeration(Enumeration),
+
+    Excerpt(Excerpt),
 
     ExecutionDependant(ExecutionDependant),
 

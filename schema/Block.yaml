@@ -69,6 +69,12 @@ anyOf:
         description: Generate `CodeChunk` nodes in block content.
         skip: false
 
+  - $ref: Excerpt
+    proptest:
+      min:
+        description: Do not generate `Excerpt` nodes in block content.
+        skip: true
+
   - $ref: Figure
     proptest:
       min:

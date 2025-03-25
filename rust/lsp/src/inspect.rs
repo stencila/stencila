@@ -6,14 +6,14 @@ use common::tracing;
 use schema::{
     Admonition, Annotation, Article, AudioObject, Block, Button, CallBlock, Chat, ChatMessage,
     ChatMessageGroup, Cite, CiteGroup, Claim, CodeBlock, CodeChunk, CodeExpression, CodeInline,
-    Date, DateTime, Duration, Emphasis, ExecutionStatus, Figure, File, ForBlock, Form, Heading,
-    IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline, InstructionBlock, InstructionInline,
-    LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject, Node, NodeId,
-    NodeProperty, NodeType, Note, Paragraph, Parameter, Prompt, PromptBlock, ProvenanceCount,
-    QuoteBlock, QuoteInline, RawBlock, Section, Strikeout, Strong, StyledBlock, StyledInline,
-    Subscript, SuggestionBlock, SuggestionInline, Superscript, Table, TableCell, TableRow, Text,
-    ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl, Walkthrough,
-    WalkthroughStep,
+    Date, DateTime, Duration, Emphasis, Excerpt, ExecutionStatus, Figure, File, ForBlock, Form,
+    Heading, IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline, InstructionBlock,
+    InstructionInline, LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject, Node,
+    NodeId, NodeProperty, NodeType, Note, Paragraph, Parameter, Prompt, PromptBlock,
+    ProvenanceCount, QuoteBlock, QuoteInline, RawBlock, Section, Strikeout, Strong, StyledBlock,
+    StyledInline, Subscript, SuggestionBlock, SuggestionInline, Superscript, Table, TableCell,
+    TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl,
+    Walkthrough, WalkthroughStep,
 };
 
 use crate::{
@@ -160,6 +160,7 @@ impl Visitor for Inspector<'_, '_> {
             Claim,
             CodeBlock,
             CodeChunk,
+            Excerpt,
             Figure,
             File,
             ForBlock,
@@ -774,6 +775,7 @@ default!(
     Admonition,
     Claim,
     CodeBlock,
+    Excerpt,
     File,
     Form,
     List,

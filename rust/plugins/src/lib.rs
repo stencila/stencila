@@ -17,7 +17,6 @@ use rand::{distr::Alphanumeric, rng, Rng};
 use semver::{Version, VersionReq};
 use which::which;
 
-use app::{get_app_dir, DirType};
 use cli_utils::Code;
 use common::{
     eyre::{bail, eyre, OptionExt, Report, Result},
@@ -34,6 +33,7 @@ use common::{
     },
     toml, tracing,
 };
+use dirs::{get_app_dir, DirType};
 
 use codec::{format::Format, Codec};
 use kernel::Kernel;

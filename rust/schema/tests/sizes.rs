@@ -33,6 +33,31 @@ macro_rules! sizes {
 #[allow(clippy::print_stderr)]
 fn sizes() {
     sizes!(
+        CreativeWorkType,
+        Article,
+        AudioObject,
+        Chat,
+        Claim,
+        Collection,
+        Comment,
+        Datatable,
+        Figure,
+        ImageObject,
+        MediaObject,
+        Periodical,
+        Prompt,
+        PublicationIssue,
+        PublicationVolume,
+        Review,
+        SoftwareApplication,
+        SoftwareSourceCode,
+        Table,
+        VideoObject
+    );
+
+    eprintln!("\n");
+
+    sizes!(
         Block,
         Admonition,
         CallBlock,
@@ -42,6 +67,7 @@ fn sizes() {
         Claim,
         CodeBlock,
         CodeChunk,
+        Excerpt,
         Figure,
         ForBlock,
         Form,

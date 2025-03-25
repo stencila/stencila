@@ -9,59 +9,190 @@ use cli_utils::{
     table::{self, Attribute, Cell, Color},
     AsFormat, Code, ToStdout,
 };
+use codecs::{EncodeOptions, LossesResponse};
 use common::{
     chrono::TimeDelta,
     chrono_humanize,
     clap::{self, Parser},
     eyre::{bail, Report, Result},
     futures::future::try_join_all,
+    itertools::Itertools,
     reqwest::Url,
-    tokio::fs::write,
+    tokio::fs::create_dir_all,
+    tracing,
+};
+use dirs::{
+    closest_stencila_dir, closest_workspace_dir, stencila_dir_create, CreateStencilaDirOptions,
+    STENCILA_DIR,
 };
 use format::Format;
+use node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
+use schema::{Article, Block, Node, NodeId, NodeType};
 
-use crate::{
-    config::config_file,
-    dirs::{closest_workspace_dir, STENCILA_DIR},
-    track::{tracking_file, DocumentRemote},
-};
+use crate::track::DocumentRemote;
 
 use super::{track::DocumentTrackingStatus, Document};
 
-/// Initialize document config and tracking
+/// Initialize a workspace
 #[derive(Debug, Parser)]
 pub struct Init {
-    /// The directory to start document tracking in
+    /// The workspace directory to initialize
     ///
     /// Defaults to the current directory.
     #[arg(default_value = ".")]
     dir: PathBuf,
 
-    /// Create a `.gitignore` file
+    /// Do not create a `.gitignore` file
     #[arg(long)]
-    gitignore: bool,
+    no_gitignore: bool,
 }
 
 impl Init {
+    #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         if !self.dir.exists() {
-            bail!(
-                "Workspace directory `{}` does not exist",
-                self.dir.display()
-            );
+            create_dir_all(&self.dir).await?;
         }
 
-        config_file(&self.dir, true).await?;
-        tracking_file(&self.dir, true).await?;
-
-        if self.gitignore {
-            write(self.dir.join(STENCILA_DIR).join(".gitignore"), "*\n").await?;
-        }
+        stencila_dir_create(
+            &self.dir.join(STENCILA_DIR),
+            CreateStencilaDirOptions {
+                gitignore_file: !self.no_gitignore,
+                ..Default::default()
+            },
+        )
+        .await?;
 
         eprintln!(
-            "🟢 Initialized document config and tracking in `{}`",
+            "🟢 Initialized document config and tracking for directory `{}`",
             self.dir.display()
         );
+
+        Ok(())
+    }
+}
+
+/// Rebuild a workspace database
+#[derive(Debug, Parser)]
+pub struct Rebuild {
+    /// The workspace directory to rebuild the database for
+    ///
+    /// Defaults to the current directory.
+    #[arg(default_value = ".")]
+    dir: PathBuf,
+}
+
+impl Rebuild {
+    #[tracing::instrument]
+    pub async fn run(self) -> Result<()> {
+        Document::tracking_rebuild(&self.dir).await
+    }
+}
+
+/// Query a workspace database
+#[derive(Debug, Parser)]
+pub struct Query {
+    /// The Cypher query
+    query: String,
+
+    /// The path of the file to output the result to
+    ///
+    /// If not supplied the output content is written to `stdout`.
+    output: Option<PathBuf>,
+
+    /// The format to output the result as
+    ///
+    /// Defaults to inferring the format from the file name extension
+    /// of the `output`. If no `output` is supplied, defaults to JSON.
+    /// See `stencila codecs list` for available formats.
+    #[arg(long, short)]
+    to: Option<Format>,
+
+    /// The directory from which the closest workspace should be found
+    ///
+    /// Defaults to the current directory. Use this option if wanting
+    /// to query a database outside of the current workspace, or if
+    /// not in a workspace.
+    #[arg(long, short, default_value = ".")]
+    dir: PathBuf,
+}
+
+impl Query {
+    #[tracing::instrument]
+    pub async fn run(self) -> Result<()> {
+        if !self.dir.exists() {
+            bail!("Directory `{}` does not exist", self.dir.display())
+        }
+
+        // Create a docs kernel and execute query
+        let Some(kernel) = kernels::get("docs").await else {
+            bail!("Unable to create docs kernel")
+        };
+        let mut kernel = kernel.create_instance(schema::ExecutionBounds::Box)?;
+        kernel.start(&self.dir).await?;
+        kernel.execute("//db workspace").await?;
+        let (nodes, messages) = kernel.execute(&self.query).await?;
+
+        // Display any messages as a diagnostic
+        for msg in messages {
+            Diagnostic {
+                node_type: NodeType::CodeChunk,
+                node_id: NodeId::null(),
+                level: DiagnosticLevel::from(&msg.level),
+                kind: DiagnosticKind::Execution,
+                error_type: msg.error_type.clone(),
+                message: msg.message.clone(),
+                format: None,
+                code: None,
+                code_location: msg.code_location.clone(),
+            }
+            .to_stderr_pretty("<code>", &self.query, &None)
+            .ok();
+        }
+
+        // Collapse outputs to a single node
+        let node = if nodes.is_empty() {
+            eprintln!("No matching nodes");
+            return Ok(());
+        } else if nodes.len() == 1 {
+            nodes[0].clone()
+        } else {
+            let blocks = nodes
+                .into_iter()
+                .flat_map(|node| TryInto::<Vec<Block>>::try_into(node).unwrap_or_default())
+                .collect_vec();
+            Node::Article(Article::new(blocks))
+        };
+
+        if let Some(output) = self.output {
+            // If output is defined then encode to file
+            codecs::to_path(
+                &node,
+                &output,
+                Some(EncodeOptions {
+                    format: self.to,
+                    losses: LossesResponse::Debug,
+                    ..Default::default()
+                }),
+            )
+            .await?;
+        } else if let (Node::Datatable(dt), None) = (&node, &self.r#to) {
+            // If node is datatable and no output format is defined, pretty print it
+            dt.to_stdout()
+        } else {
+            // Otherwise pretty print using output format, defaulting to Markdown
+            let format = self.r#to.unwrap_or(Format::Markdown);
+            let content = codecs::to_string(
+                &node,
+                Some(EncodeOptions {
+                    format: Some(format.clone()),
+                    losses: LossesResponse::Debug,
+                    ..Default::default()
+                }),
+            )
+            .await?;
+            Code::new(format, &content).to_stdout();
+        }
 
         Ok(())
     }
@@ -75,6 +206,7 @@ pub struct Config {
 }
 
 impl Config {
+    #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         let doc = Document::open(&self.file).await?;
 
@@ -101,6 +233,7 @@ pub struct Track {
 }
 
 impl Track {
+    #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         if let Some(url) = self.url {
             let already_tracked =
@@ -116,7 +249,7 @@ impl Track {
                 self.file.display()
             );
         } else {
-            let (already_tracked, ..) = Document::track_path(&self.file, None).await?;
+            let (_, already_tracked, ..) = Document::track_path(&self.file, None, None).await?;
             eprintln!(
                 "🟢 {} tracking `{}`",
                 if already_tracked {
@@ -143,6 +276,7 @@ pub struct Untrack {
 }
 
 impl Untrack {
+    #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         if let Some(url) = self.url {
             Document::untrack_remote(&self.file, &url).await?;
@@ -153,6 +287,45 @@ impl Untrack {
         }
 
         Ok(())
+    }
+}
+
+/// Add documents to the workspace database
+#[derive(Debug, Parser)]
+pub struct Add {
+    /// The files to add
+    files: Vec<PathBuf>,
+}
+
+impl Add {
+    #[tracing::instrument]
+    pub async fn run(self) -> Result<()> {
+        let Some(first_path) = self.files.first() else {
+            return Ok(());
+        };
+        let stencila_dir = closest_stencila_dir(first_path, false).await?;
+
+        Document::add_paths(&stencila_dir, &self.files).await
+    }
+}
+
+/// Remove documents from the workspace database
+#[derive(Debug, Parser)]
+#[clap(alias = "rm")]
+pub struct Remove {
+    /// The files to remove
+    files: Vec<PathBuf>,
+}
+
+impl Remove {
+    #[tracing::instrument]
+    pub async fn run(self) -> Result<()> {
+        let Some(first_path) = self.files.first() else {
+            return Ok(());
+        };
+        let stencila_dir = closest_stencila_dir(first_path, false).await?;
+
+        Document::remove_paths(&stencila_dir, &self.files).await
     }
 }
 
@@ -175,6 +348,7 @@ pub struct Move {
 }
 
 impl Move {
+    #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         if self.to.exists()
             && !self.force
@@ -184,37 +358,6 @@ impl Move {
         }
 
         Document::move_path(&self.from, &self.to).await
-    }
-}
-
-/// Remove a tracked document
-///
-/// Deletes the document file (if it still exists) and removes
-/// any tracking data from the `.stencila` directory.
-#[derive(Debug, Parser)]
-#[clap(alias = "rm")]
-pub struct Remove {
-    /// The path of the file to remove
-    file: PathBuf,
-
-    /// Do not ask for confirmation of removal
-    #[arg(long, short)]
-    force: bool,
-}
-
-impl Remove {
-    pub async fn run(self) -> Result<()> {
-        if self.file.exists()
-            && !self.force
-            && !confirm(&format!(
-                "Are you sure you want to remove {}?",
-                self.file.display()
-            ))?
-        {
-            return Ok(());
-        }
-
-        Document::remove_path(&self.file).await
     }
 }
 
@@ -230,6 +373,7 @@ pub struct Status {
 }
 
 impl Status {
+    #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
         let statuses = if self.files.is_empty() {
             // No paths provided, so get statuses from tracking dir
@@ -274,8 +418,9 @@ impl Status {
         table.set_header([
             "File\n↳ Remote",
             "Status",
-            "Modified\n↳ Pulled",
-            "Stored\n↳ Pushed",
+            "Modified\n",
+            "Stored\n↳ Pulled",
+            "Upserted\n↳ Pushed",
         ]);
 
         for (path, entry) in statuses {
@@ -299,19 +444,21 @@ impl Status {
                     String::new()
                 })
                 .fg(color),
-                // Do not show time if deleted
+                // Do not show modified time if deleted
                 Cell::new(if matches!(status, DocumentTrackingStatus::Deleted) {
                     String::new()
                 } else {
                     humanize_timestamp(modified_at)?
                 }),
                 Cell::new(humanize_timestamp(entry.stored_at)?),
+                Cell::new(humanize_timestamp(entry.upserted_at)?),
             ]);
 
             for (url, remote) in entry.remotes.iter().flatten() {
                 table.add_row([
                     Cell::new(format!("↳ {url}")),
-                    Cell::new("").fg(color),
+                    Cell::new(""),
+                    Cell::new(""),
                     Cell::new(format!("↳ {}", humanize_timestamp(remote.pulled_at)?))
                         .add_attribute(if remote.pulled_at.is_none() {
                             Attribute::Dim
@@ -338,7 +485,7 @@ fn humanize_timestamp(time: Option<u64>) -> Result<String> {
     use chrono_humanize::{Accuracy, HumanTime, Tense};
 
     let Some(time) = time else {
-        return Ok(String::from("never"));
+        return Ok(String::from("-"));
     };
 
     let seconds = SystemTime::now()

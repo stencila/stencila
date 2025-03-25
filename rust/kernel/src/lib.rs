@@ -111,6 +111,7 @@ pub enum KernelType {
     // Note that the order here influences how kernels are displayed
     // in the `stencila kernels list` command. So change with intent.
     Programming,
+    Database,
     Templating,
     Diagrams,
     Math,

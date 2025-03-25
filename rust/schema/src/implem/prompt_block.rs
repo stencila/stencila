@@ -6,13 +6,13 @@ impl PromptBlock {
     /// Custom implementation of [`PatchNode::apply`]
     pub fn apply_patch_op(
         &mut self,
-        path: &mut PatchPath,
+        path: &mut NodePath,
         op: &PatchOp,
         context: &mut PatchContext,
     ) -> Result<bool> {
         if context.format_is_lossy() {
             if let (
-                Some(PatchSlot::Property(NodeProperty::Target)),
+                Some(NodeSlot::Property(NodeProperty::Target)),
                 PatchOp::Set(PatchValue::None),
             ) = (path.front(), op)
             {
@@ -26,7 +26,7 @@ impl PromptBlock {
                     return Ok(true);
                 }
             } else if let (
-                Some(PatchSlot::Property(NodeProperty::Query)),
+                Some(NodeSlot::Property(NodeProperty::Query)),
                 PatchOp::Set(PatchValue::None),
             ) = (path.front(), op)
             {

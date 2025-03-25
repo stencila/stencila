@@ -1,0 +1,29 @@
+```python exec
+import pandas as pd
+import numpy as np
+
+cars = pd.DataFrame(
+    {
+        "name": [
+            "Mazda RX4",
+            "Honda Civic",
+            "Toyota Corolla",
+            "Ford Mustang",
+            "Chevrolet Camaro",
+            "Dodge Challenger",
+        ],
+        "cyl": [6, 4, 4, 8, 8, 8],
+        "mpg": [21.0, 30.4, 33.9, 15.8, 14.3, 13.2],
+    }
+)
+```
+
+::: for car in cars
+
+# {{ car["name"] }}
+
+Cylinders: {{ car["cyl"] }}
+
+MPG: {{ car["mpg"] }}
+
+:::

@@ -15,6 +15,8 @@ pub use code::*;
 mod confirm;
 pub use confirm::*;
 
+mod datatable;
+
 mod hint;
 pub use hint::*;
 

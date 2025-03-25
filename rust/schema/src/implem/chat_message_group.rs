@@ -5,14 +5,14 @@ impl ChatMessageGroup {
     /// in the group is selected
     pub fn apply_patch_op(
         &mut self,
-        path: &mut PatchPath,
+        path: &mut NodePath,
         op: &PatchOp,
         _context: &mut PatchContext,
     ) -> Result<bool> {
         if let (
-            Some(PatchSlot::Property(NodeProperty::Messages)),
-            Some(PatchSlot::Index(which)),
-            Some(PatchSlot::Property(NodeProperty::IsSelected)),
+            Some(NodeSlot::Property(NodeProperty::Messages)),
+            Some(NodeSlot::Index(which)),
+            Some(NodeSlot::Property(NodeProperty::IsSelected)),
             PatchOp::Set(value),
         ) = (path.front(), path.get(1), path.get(2), op)
         {

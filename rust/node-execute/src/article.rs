@@ -1,5 +1,5 @@
 use codec_markdown::decode_frontmatter;
-use schema::{diff, Article, NodeType, PatchSlot};
+use schema::{diff, Article, NodeSlot, NodeType};
 
 use crate::{interrupt_impl, prelude::*, HeadingInfo};
 
@@ -51,7 +51,7 @@ impl Executable for Article {
             Ok(mut patch) => {
                 patch.node_id = Some(node_id);
                 if !patch.ops.is_empty() {
-                    patch.prepend_paths(vec![PatchSlot::Property(NodeProperty::Headings)]);
+                    patch.prepend_paths(vec![NodeSlot::Property(NodeProperty::Headings)]);
                     executor.send_patch(patch);
                 }
             }

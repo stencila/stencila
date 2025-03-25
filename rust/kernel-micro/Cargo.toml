@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-app = { path = "../app" }
+dirs = { path = "../dirs" }
 directories = { workspace = true }
 kernel = { path = "../kernel" }
 which = { workspace = true }

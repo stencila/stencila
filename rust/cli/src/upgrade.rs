@@ -10,7 +10,6 @@ use std::{
 use flate2::read::GzDecoder;
 use zip::ZipArchive;
 
-use app::{get_app_dir, DirType};
 use common::{
     clap::{self, Parser},
     eyre::{bail, Report, Result},
@@ -27,6 +26,7 @@ use common::{
     },
     tracing,
 };
+use dirs::{get_app_dir, DirType};
 use version::STENCILA_VERSION;
 
 /// Upgrade the Stencila CLI to the latest version

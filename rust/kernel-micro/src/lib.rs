@@ -143,7 +143,7 @@ pub trait Microkernel: Sync + Send + Kernel {
 
         // Always write the script file, even if it already exists, to allow for changes
         // to the microkernel's script
-        let kernels_dir = app::get_app_dir(app::DirType::Kernels, true)?;
+        let kernels_dir: PathBuf = dirs::get_app_dir(dirs::DirType::Kernels, true)?;
         let (script_name, script) = self.microkernel_script();
         let script_file = kernels_dir.join(script_name);
         write(&script_file, script)?;

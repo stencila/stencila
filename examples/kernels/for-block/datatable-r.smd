@@ -1,0 +1,9 @@
+::: for car in head(mtcars) {r}
+
+# {{ car$name }}
+
+MPG: {{ car$mpg }}
+
+Cylinders: {{ car$cyl }}
+
+:::

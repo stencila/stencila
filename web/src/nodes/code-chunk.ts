@@ -65,7 +65,7 @@ export class CodeChunk extends CodeExecutable {
 
   override renderCard() {
     const { icon, title } = getTitleIcon(this.programmingLanguage) ?? {
-      title: 'Code Chunk',
+      title: this.programmingLanguage ?? 'Code Chunk',
       icon: 'code',
     }
 

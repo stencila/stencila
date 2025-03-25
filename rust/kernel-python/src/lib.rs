@@ -82,9 +82,10 @@ impl KernelLint for PythonKernel {
     ) -> Result<KernelLintingOutput> {
         tracing::trace!("Linting Python code");
 
-        // Write the code to a temporary file
+        // Write the code to a temporary file. Add necessary imports:
+        // - Any: needed for `ForBlock` variable declarations
         let mut temp_file = NamedTempFile::new()?;
-        write!(temp_file, "{}", code)?;
+        write!(temp_file, "from typing import Any\n\n{}", code)?;
         let temp_path = temp_file.path();
 
         let mut authors: Vec<AuthorRole> = Vec::new();

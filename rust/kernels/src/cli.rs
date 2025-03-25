@@ -13,10 +13,11 @@ use kernel::{
         tokio::fs::read_to_string,
     },
     format::Format,
-    schema::{ExecutionBounds, StringOrNumber},
+    schema::{ExecutionBounds, ExecutionMessage, Node, NodeId, NodeType, StringOrNumber},
     KernelAvailability, KernelLinting, KernelLintingOptions, KernelLintingOutput, KernelProvider,
     KernelSpecification, KernelType,
 };
+use node_diagnostics::{Diagnostic, DiagnosticKind, DiagnosticLevel};
 
 use crate::Kernels;
 
@@ -97,7 +98,7 @@ impl List {
             "Availability",
             "Languages",
             "Linting",
-            "Highest bounds",
+            "Bounds",
         ]);
 
         for kernel in list {
@@ -119,6 +120,7 @@ impl List {
                     KernelType::Diagrams => Cell::new("diagrams").fg(Color::DarkYellow),
                     KernelType::Math => Cell::new("math").fg(Color::Blue),
                     KernelType::Programming => Cell::new("programming").fg(Color::Green),
+                    KernelType::Database => Cell::new("database").fg(Color::DarkCyan),
                     KernelType::Styling => Cell::new("styling").fg(Color::Magenta),
                     KernelType::Templating => Cell::new("templating").fg(Color::Cyan),
                 },
@@ -277,16 +279,7 @@ impl Execute {
         let code = self.code.replace("\\n", "\n");
         let (outputs, messages) = instance.lock().await.execute(&code).await?;
 
-        // TODO: creates a `Map` output type that can be used to display sections with headers
-        // instead of the following printlns
-
-        println!("Outputs");
-        Code::new(Format::Yaml, &serde_yaml::to_string(&outputs)?).to_stdout();
-
-        println!("Messages");
-        Code::new(Format::Yaml, &serde_yaml::to_string(&messages)?).to_stdout();
-
-        Ok(())
+        display(NodeType::CodeChunk, self.code, messages, outputs)
     }
 }
 
@@ -314,17 +307,40 @@ impl Evaluate {
 
         let (output, messages) = instance.lock().await.evaluate(&self.code).await?;
 
-        // TODO: creates a `Map` output type that can be used to display sections with headers
-        // instead of the following printlns
-
-        println!("Output");
-        Code::new(Format::Yaml, &serde_yaml::to_string(&output)?).to_stdout();
-
-        println!("Messages");
-        Code::new(Format::Yaml, &serde_yaml::to_string(&messages)?).to_stdout();
-
-        Ok(())
+        display(NodeType::CodeExpression, self.code, messages, vec![output])
     }
+}
+
+fn display(
+    node_type: NodeType,
+    source: String,
+    messages: Vec<ExecutionMessage>,
+    outputs: Vec<Node>,
+) -> Result<()> {
+    for msg in messages {
+        Diagnostic {
+            node_type,
+            node_id: NodeId::null(),
+            level: DiagnosticLevel::from(&msg.level),
+            kind: DiagnosticKind::Execution,
+            error_type: msg.error_type.clone(),
+            message: msg.message.clone(),
+            format: None,
+            code: None,
+            code_location: msg.code_location.clone(),
+        }
+        .to_stderr_pretty("<code>", &source, &None)
+        .ok();
+    }
+
+    for output in outputs {
+        match output {
+            Node::Datatable(dt) => dt.to_stdout(),
+            _ => Code::new_from(Format::Yaml, &output)?.to_stdout(),
+        };
+    }
+
+    Ok(())
 }
 
 /// Lint code using the linting tool/s associated with a kernel

@@ -1,4 +1,5 @@
 import { apply, css } from '@twind/core'
+import { type Core as CytoscapeCore } from 'cytoscape'
 import { html, PropertyValues } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
 import { unsafeSVG } from 'lit/directives/unsafe-svg'
@@ -23,6 +24,7 @@ import { ExecutionMessage } from './execution-message'
 @withTwind()
 export class ImageObject extends Entity {
   static MEDIA_TYPES = {
+    cytoscape: 'application/vnd.cytoscape.v3+json',
     mermaid: 'text/vnd.mermaid',
     plotly: 'application/vnd.plotly.v1+json',
     vegaLite: 'application/vnd.vegalite.v5+json',
@@ -59,6 +61,11 @@ export class ImageObject extends Entity {
   private svg?: string
 
   /**
+   * The Cytoscape.js instance (if relevant)
+   */
+  private cytoscape?: CytoscapeCore
+
+  /**
    * Any error message generated while attempting to render the content
    */
   @state()
@@ -88,6 +95,21 @@ export class ImageObject extends Entity {
     }
   }
 
+  private onResize() {
+    // If this component is resized then resize the Cytoscape instance, if any
+    this.cytoscape?.resize()
+  }
+
+  override connectedCallback() {
+    super.connectedCallback()
+    window.addEventListener('resize', this.onResize)
+  }
+
+  override disconnectedCallback() {
+    window.removeEventListener('resize', this.onResize)
+    super.disconnectedCallback()
+  }
+
   override async updated(properties: PropertyValues) {
     super.updated(properties)
 
@@ -96,7 +118,9 @@ export class ImageObject extends Entity {
         return
       }
 
-      if (this.mediaType == ImageObject.MEDIA_TYPES.mermaid) {
+      if (this.mediaType == ImageObject.MEDIA_TYPES.cytoscape) {
+        await this.compileCytoscape()
+      } else if (this.mediaType == ImageObject.MEDIA_TYPES.mermaid) {
         await this.compileMermaid()
       } else if (this.mediaType == ImageObject.MEDIA_TYPES.plotly) {
         await this.compilePlotly()
@@ -131,6 +155,17 @@ export class ImageObject extends Entity {
         }
       }
     }
+  }
+
+  private async compileCytoscape() {
+    const { default: cytoscape } = await import('cytoscape')
+
+    const graph = JSON.parse(this.contentUrl)
+    graph.container = this.shadowRoot.querySelector(
+      'div#stencila-cytoscape-container'
+    ) as HTMLElement
+
+    this.cytoscape = cytoscape(graph)
   }
 
   private async compileMermaid() {
@@ -197,9 +232,6 @@ export class ImageObject extends Entity {
     container.remove()
   }
 
-  /**
-   * Recieve a plotly spec from and render in preview with plotly.js
-   */
   private async compilePlotly() {
     const Plotly = await import('plotly.js-dist-min')
     const spec = JSON.parse(this.contentUrl)
@@ -361,6 +393,10 @@ export class ImageObject extends Entity {
       return this.renderError()
     }
 
+    if (this.mediaType === ImageObject.MEDIA_TYPES.cytoscape) {
+      return this.renderCytoscape()
+    }
+
     if (this.mediaType === ImageObject.MEDIA_TYPES.plotly) {
       return this.renderPlotly()
     }
@@ -415,6 +451,21 @@ export class ImageObject extends Entity {
     return html`
       <div slot="content" class=${imgStyles}>
         ${this.imgSrc ? html`<img src=${this.imgSrc} />` : html`<slot></slot>`}
+      </div>
+    `
+  }
+
+  private renderCytoscape() {
+    const containerStyles = css`
+      & {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1;
+      }
+    `
+    return html`
+      <div slot="content" class="overflow-x-auto">
+        <div class=${containerStyles} id="stencila-cytoscape-container"></div>
       </div>
     `
   }

@@ -20,6 +20,10 @@ export const programmingLanguages: Record<
     title: 'CSS',
     icon: 'bracesAsterisk',
   },
+  docs: {
+    title: 'Docs',
+    icon: 'files',
+  },
   jinja: {
     title: 'Jinja',
     icon: 'braces',
@@ -43,6 +47,10 @@ export const programmingLanguages: Record<
   html: {
     title: 'HTML',
     icon: 'codeSlash',
+  },
+  kuzu: {
+    title: 'Kuzu',
+    icon: 'kuzu',
   },
   latex: {
     title: 'LaTeX',

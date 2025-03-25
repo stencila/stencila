@@ -18,13 +18,12 @@ use super::provenance_count::ProvenanceCount;
 use super::string::String;
 use super::string_or_number::StringOrNumber;
 use super::text::Text;
-use super::thing::Thing;
 use super::thing_type::ThingType;
 
 /// A review of an item, e.g of an `Article` or `SoftwareApplication`.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display("Review")]
@@ -51,7 +50,7 @@ pub struct Review {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct ReviewOptions {
     /// Alternate names (aliases) for the item.
@@ -244,7 +243,7 @@ pub struct ReviewOptions {
 
     /// The item that is being reviewed.
     #[serde(alias = "item-reviewed", alias = "item_reviewed")]
-    pub item_reviewed: Option<Thing>,
+    pub item_reviewed: Option<ThingType>,
 
     /// The part or facet of the item that is being reviewed.
     #[serde(alias = "review-aspect", alias = "review_aspect")]

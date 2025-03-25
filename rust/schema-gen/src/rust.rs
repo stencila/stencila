@@ -65,6 +65,7 @@ const BOX_PROPERTIES: &[&str] = &[
     "CodeExpression.output",
     "ConstantValidator.value",
     "Chat.model_parameters",
+    "Excerpt.source",
     "InstructionBlock.model_parameters",
     "InstructionInline.model_parameters",
     "ListItem.item",
@@ -259,6 +260,7 @@ impl TryFrom<&NodeId> for NodeType {{
             .collect::<HashSet<String>>()
             .iter()
             .sorted()
+            .filter(|&name| name != "type")
             .map(|name| {
                 let mut name = name.to_pascal_case();
                 if name.ends_with("ID") {
@@ -281,6 +283,55 @@ use common::{{serde::{{Serialize, Deserialize}}, strum::{{EnumString, Display}}}
 pub enum NodeProperty {{
 {node_properties},
 }}
+"#
+            ),
+        )
+        .await?;
+
+        //  Create a mapping between node type and node properties
+        let node_type_properties = self
+            .schemas
+            .iter()
+            .filter(|(.., schema)| {
+                !schema.r#abstract
+                    && schema.is_object()
+                    && !schema.properties.is_empty()
+                    && !schema.is_config()
+            })
+            .map(|(title, schema)| {
+                let properties = schema
+                    .properties
+                    .iter()
+                    .filter(|(name, ..)| *name != "type")
+                    .map(|(name, ..)| {
+                        let mut name = name.to_pascal_case();
+                        if name.ends_with("ID") {
+                            name.pop();
+                            name.push('d');
+                        }
+                        format!("NodeProperty::{name}")
+                    })
+                    .join(", ");
+
+                format!("NodeType::{title} => vec![{properties}]")
+            })
+            .join(",\n        ");
+        write(
+            PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                .join("../node-type/src/node_type_properties.rs"),
+            format!(
+                r#"{GENERATED_COMMENT}
+
+use crate::node_type::NodeType;
+use crate::node_property::NodeProperty;
+
+pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {{
+    match node_type {{
+        {node_type_properties},
+        _ => Vec::new()
+    }}
+}}
+
 "#
             ),
         )
@@ -390,6 +441,7 @@ pub enum NodeProperty {{
             "PartialEq",
             "Serialize",
             "Deserialize",
+            "ProbeNode",
             "StripNode",
             "WalkNode",
             "WriteNode",
@@ -1193,6 +1245,7 @@ impl {title} {{
             "PartialEq",
             "Serialize",
             "Deserialize",
+            "ProbeNode",
             "StripNode",
             "WalkNode",
             "WriteNode",

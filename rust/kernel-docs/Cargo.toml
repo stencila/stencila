@@ -1,0 +1,12 @@
+[package]
+name = "kernel-docs"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+dirs = { path = "../dirs"}
+kernel-kuzu = { path = "../kernel-kuzu"}
+lru = { workspace = true }
+
+[lints]
+workspace = true

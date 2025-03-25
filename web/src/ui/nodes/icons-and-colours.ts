@@ -34,7 +34,6 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   // Article level
   Article:          {                        ...nodeColours('gray')},
 
-
   // Primitive data types
   Boolean:          { icon: 'toggleOff',     ...nodeColours('slate')},
   Integer:          { icon: 'hash',          ...nodeColours('slate')},
@@ -89,7 +88,9 @@ const nodeTypeUIMap: Partial<Record<NodeType, NodeTypeUI>> = {
   InstructionBlock:   { icon: 'chatRightDots', ...nodeColours('violet'), title: 'Command' },
   InstructionMessage: { icon: 'chatRightText', ...nodeColours('violet')},
   SuggestionBlock:    { icon: 'chatSquareText',...nodeColours('indigo'),  title: 'Suggestion' },
+
   PromptBlock:        { icon: 'cardText',      ...nodeColours('purple'),  title: 'Prompt Preview'},
+  Excerpt:            { icon: 'quote',         ...nodeColours('fuchsia')},
 }
 
 /**

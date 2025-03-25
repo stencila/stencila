@@ -8,9 +8,13 @@ const fs = require("fs").promises;
 const path = require("path");
 const https = require("https");
 
-const tag = "v1.117.0-vsix";
+const tag = "v1.119.0-vsix";
 
 const files = [
+  [
+    `https://raw.githubusercontent.com/quarto-dev/quarto/refs/tags/${tag}/apps/vscode/LICENSE`,
+    "LICENSE",
+  ],
   [
     `https://raw.githubusercontent.com/quarto-dev/quarto/refs/tags/${tag}/apps/vscode/snippets/quarto.code-snippets`,
     "snippets.json",

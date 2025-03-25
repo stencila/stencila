@@ -3,7 +3,6 @@ use std::{
     sync::Arc,
 };
 
-use app::{get_app_dir, DirType};
 use common::{
     eyre::Result,
     serde_yaml,
@@ -12,39 +11,10 @@ use common::{
         sync::RwLock,
     },
 };
+use dirs::{closest_config_file, get_app_dir, DirType, CONFIG_FILE};
 use schema::{Article, Config, Node};
 
-use crate::{
-    dirs::{closest_stencila_dir, STENCILA_DIR},
-    Document,
-};
-
-const CONFIG_FILE: &str = "config.yaml";
-
-/// Get the path of the Stencila config file for a workspace directory
-pub async fn config_file(workspace_dir: &Path, ensure: bool) -> Result<PathBuf> {
-    let config_file = workspace_dir.join(STENCILA_DIR).join(CONFIG_FILE);
-
-    if ensure && !config_file.exists() {
-        write(&config_file, "\n").await?;
-    }
-
-    Ok(config_file)
-}
-
-/// Get the path of the closest Stencila config file for a path
-///
-/// Unless `ensure` is true, the returned path may not exist
-pub async fn closest_config_file(path: &Path, ensure: bool) -> Result<PathBuf> {
-    let stencila_dir = closest_stencila_dir(path, ensure).await?;
-    let config_file = stencila_dir.join(CONFIG_FILE);
-
-    if ensure && !config_file.exists() {
-        write(&config_file, "\n").await?;
-    }
-
-    Ok(config_file)
-}
+use crate::Document;
 
 /// Read in the closest config file
 ///

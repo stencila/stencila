@@ -13,7 +13,7 @@ use schema::{
     shortcuts::{ci, h3, p, t},
     Author, AuthorRole, AuthorRoleName, Block, Chat, ChatMessage, ChatMessageGroup,
     ChatMessageOptions, ExecutionBounds, InstructionMessage, InstructionType, MessagePart,
-    MessageRole, ModelParameters, Patch, PatchPath, SoftwareApplication,
+    MessageRole, ModelParameters, NodePath, Patch, SoftwareApplication,
 };
 
 use crate::{
@@ -53,7 +53,7 @@ impl Executable for Chat {
 
             self.prompt.target = Some(target.clone());
             ops.push((
-                PatchPath::from([NodeProperty::Prompt, NodeProperty::Target]),
+                NodePath::from([NodeProperty::Prompt, NodeProperty::Target]),
                 PatchOp::Set(PatchValue::String(target)),
             ));
         }
@@ -67,14 +67,14 @@ impl Executable for Chat {
             if self.model_parameters.execute_content.is_none() {
                 self.model_parameters.execute_content = config.execute_content;
                 ops.push((
-                    PatchPath::from([NodeProperty::ModelParameters, NodeProperty::ExecuteContent]),
+                    NodePath::from([NodeProperty::ModelParameters, NodeProperty::ExecuteContent]),
                     PatchOp::Set(PatchValue::Json(json!(config.execute_content))),
                 ));
             }
             if self.model_parameters.execution_bounds.is_none() {
                 self.model_parameters.execution_bounds = config.execution_bounds;
                 ops.push((
-                    PatchPath::from([NodeProperty::ModelParameters, NodeProperty::ExecutionBounds]),
+                    NodePath::from([NodeProperty::ModelParameters, NodeProperty::ExecutionBounds]),
                     PatchOp::Set(PatchValue::Json(json!(config.execution_bounds))),
                 ));
             }
@@ -82,7 +82,7 @@ impl Executable for Chat {
                 let num = config.maximum_retries.map(|num| num as u64);
                 self.model_parameters.maximum_retries = num;
                 ops.push((
-                    PatchPath::from([NodeProperty::ModelParameters, NodeProperty::MaximumRetries]),
+                    NodePath::from([NodeProperty::ModelParameters, NodeProperty::MaximumRetries]),
                     PatchOp::Set(PatchValue::Json(json!(num))),
                 ));
             }

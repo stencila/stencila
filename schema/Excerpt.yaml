@@ -1,0 +1,25 @@
+title: Excerpt
+"@id": stencila:Excerpt
+nick: exc
+extends: Entity
+description: An excerpt from a `CreativeWork`.
+required:
+  - source
+  - content
+properties:
+  source:
+    "@id": stencila:source
+    description: The `CreativeWork` that the excerpt was taken from.
+    $ref: CreativeWorkType
+    strip: [metadata]
+    dom:
+      elem: div
+  content:
+    "@id": stencila:content
+    description: The excerpted content.
+    type: array
+    items:
+      $ref: Block
+    strip: [content]
+    dom:
+      elem: div

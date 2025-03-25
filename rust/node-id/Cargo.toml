@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 common = { path = "../common" }
 derive_more = { workspace = true }
+rand = { workspace = true }
 
 [lints]
 workspace = true
