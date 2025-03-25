@@ -371,7 +371,8 @@ impl KernelInstance for KuzuKernelInstance {
                 // as a node. Because `QueryResult` is not clone-able it can
                 // either be assigned or output, but not both
                 static ASSIGN_REGEX: Lazy<Regex> = Lazy::new(|| {
-                    Regex::new(r"^\/\/\s+*@assign\s+(\w+)(?:[ ]+(\w+))?").expect("invalid regex")
+                    Regex::new(r"(?m)^\/\/\s+*@assign\s+(\w+)(?:[ ]+(\w+))?")
+                        .expect("invalid regex")
                 });
                 if let Some(captures) = ASSIGN_REGEX.captures(query) {
                     let name = &captures[1];
@@ -528,7 +529,7 @@ mod tests {
     use common_dev::pretty_assertions::assert_eq;
     use kernel::{
         common::{eyre::bail, tempfile::TempDir, tokio},
-        schema::{CodeLocation, MessageLevel},
+        schema::{Array, CodeLocation, MessageLevel, Primitive},
     };
 
     use super::*;
@@ -563,6 +564,29 @@ mod tests {
             assert_eq!(kernel.path, Some(path));
             assert_eq!(kernel.read_only, true);
         }
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn assign_comment() -> Result<()> {
+        let mut kernel = KuzuKernelInstance::main(false, None);
+        kernel.execute("// @assign a val\nRETURN 1").await?;
+        assert_eq!(kernel.get("a").await?, Some(Node::Integer(1)));
+
+        kernel
+            .execute("// previous\n// @assign b row\nRETURN 2.0")
+            .await?;
+        assert_eq!(
+            kernel.get("b").await?,
+            Some(Node::Array(Array(vec![Primitive::Number(2.0)])))
+        );
+
+        kernel
+            .execute("// @assign c\nRETURN 3;\n\n//@assign d val\nRETURN 4")
+            .await?;
+        assert!(matches!(kernel.get("c").await?, Some(Node::Datatable(..))));
+        assert_eq!(kernel.get("d").await?, Some(Node::Integer(4)));
 
         Ok(())
     }
