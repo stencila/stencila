@@ -237,41 +237,51 @@ impl KernelInstance for KuzuKernelInstance {
                 .ok_or_eyre("Variable channel not yet setup")?;
             let mut receiver = receiver.resubscribe();
 
-            // Send requests
-            for (name, ..) in &params {
-                match sender.send(KernelVariableRequest {
-                    variable: name.to_string(),
-                    instance: self.id.clone(),
-                }) {
-                    Err(error) => tracing::error!("While sending variable request: {error}"),
-                    Ok(..) => tracing::trace!("Sent request for variable `{name}`"),
+            // Get variable from this kernel, or make a request to get from elsewhere
+            let mut requests_sent = false;
+            for (name, value) in params.iter_mut() {
+                if let Some(node) = self.variables.get(name) {
+                    *value = Some(value_from_node(node)?);
+                } else {
+                    match sender.send(KernelVariableRequest {
+                        variable: name.to_string(),
+                        instance: self.id.clone(),
+                    }) {
+                        Err(error) => tracing::error!("While sending variable request: {error}"),
+                        Ok(..) => {
+                            tracing::trace!("Sent request for variable `{name}`");
+                            requests_sent = true;
+                        }
+                    }
                 }
             }
 
-            // Wait for responses
-            tracing::trace!("Waiting for response for params");
-            loop {
-                let response = receiver.recv().await?;
+            if requests_sent {
+                // Wait for responses
+                tracing::trace!("Waiting for response for params");
+                loop {
+                    let response = receiver.recv().await?;
 
-                let mut all_some = true;
-                for (name, value) in params.iter_mut() {
-                    if &response.variable == name && value.is_none() {
-                        *value = Some(match &response.value {
-                            Some(node) => value_from_node(node)?,
-                            None => Value::Null(LogicalType::Any),
-                        });
+                    let mut all_some = true;
+                    for (name, value) in params.iter_mut() {
+                        if &response.variable == name && value.is_none() {
+                            *value = Some(match &response.value {
+                                Some(node) => value_from_node(node)?,
+                                None => Value::Null(LogicalType::Any),
+                            });
+                        }
+
+                        if value.is_none() {
+                            all_some = false
+                        }
                     }
 
-                    if value.is_none() {
-                        all_some = false
+                    if all_some {
+                        break;
                     }
                 }
-
-                if all_some {
-                    break;
-                }
+                tracing::trace!("Got response for all params");
             }
-            tracing::trace!("Got response for all params");
         }
 
         // Search for a "// @db" line in the code specifying path, and optionally
