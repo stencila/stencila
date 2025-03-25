@@ -14,7 +14,7 @@ pub(crate) use crate::{Executable, Executor};
 /// Is a name a valid variable name?
 pub fn is_valid_variable_name(name: &str) -> bool {
     static VARIABLE_REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^[a-zA-Z_][\w_]+$").expect("invalid regex"));
+        Lazy::new(|| Regex::new(r"^[a-zA-Z_][\w_]*$").expect("invalid regex"));
     VARIABLE_REGEX.is_match(name)
 }
 

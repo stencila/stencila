@@ -224,7 +224,7 @@ impl KernelInstance for KuzuKernelInstance {
 
         // Request any parameters needed by the code
         static PARAM_REGEX: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r"\$([a-zA-Z][\w_]+)").expect("invalid regex"));
+            Lazy::new(|| Regex::new(r"\$([a-zA-Z_][\w_]*)").expect("invalid regex"));
         let mut params: Vec<(String, Option<Value>)> = PARAM_REGEX
             .captures(&code)
             .iter()
@@ -271,6 +271,7 @@ impl KernelInstance for KuzuKernelInstance {
                     break;
                 }
             }
+            tracing::trace!("Got response for all params");
         }
 
         // Search for a "// @db" line in the code specifying path, and optionally
