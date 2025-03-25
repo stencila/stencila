@@ -198,7 +198,13 @@ impl Executable for ForBlock {
                     .into_iter()
                     .map(|object| Node::Object(object))
                     .collect(),
-                _ => vec![],
+                _ => {
+                    messages.push(ExecutionMessage::new(
+                        MessageLevel::Warning,
+                        format!("Expression evaluated to a non-iterable type: {value}"),
+                    ));
+                    Vec::new()
+                }
             };
 
             // Clear any existing iterations while ensuring an array to push to later
