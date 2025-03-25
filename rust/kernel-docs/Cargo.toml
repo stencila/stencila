@@ -1,7 +1,7 @@
 [package]
 name = "kernel-docs"
 version = "0.0.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
 dirs = { path = "../dirs"}
