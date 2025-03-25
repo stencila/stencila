@@ -27,6 +27,9 @@
           "@id": "stencila:CodeLocation"
         },
         {
+          "@id": "stencila:Excerpt"
+        },
+        {
           "@id": "stencila:IncludeBlock"
         }
       ],

@@ -10,6 +10,7 @@ export type BlockType =
   | "Claim"
   | "CodeBlock"
   | "CodeChunk"
+  | "Excerpt"
   | "Figure"
   | "File"
   | "ForBlock"
@@ -43,6 +44,7 @@ export const BlockTypeList = [
   "Claim",
   "CodeBlock",
   "CodeChunk",
+  "Excerpt",
   "Figure",
   "File",
   "ForBlock",

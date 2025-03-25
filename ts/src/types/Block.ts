@@ -11,6 +11,7 @@ import { type ChatMessageGroup } from "./ChatMessageGroup.js";
 import { type Claim } from "./Claim.js";
 import { type CodeBlock } from "./CodeBlock.js";
 import { type CodeChunk } from "./CodeChunk.js";
+import { type Excerpt } from "./Excerpt.js";
 import { type Figure } from "./Figure.js";
 import { type File } from "./File.js";
 import { type ForBlock } from "./ForBlock.js";
@@ -47,6 +48,7 @@ export type Block =
   Claim |
   CodeBlock |
   CodeChunk |
+  Excerpt |
   Figure |
   File |
   ForBlock |
@@ -84,6 +86,7 @@ export function block(other: Block): Block {
     case "Claim":
     case "CodeBlock":
     case "CodeChunk":
+    case "Excerpt":
     case "Figure":
     case "File":
     case "ForBlock":

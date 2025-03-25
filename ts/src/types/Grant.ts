@@ -2,6 +2,7 @@
 
 import { PersonOrOrganization } from "./PersonOrOrganization.js";
 import { Thing } from "./Thing.js";
+import { ThingType } from "./ThingType.js";
 
 /**
  * A grant, typically financial or otherwise quantifiable, of resources.
@@ -13,7 +14,7 @@ export class Grant extends Thing {
   /**
    * Indicates an item funded or sponsored through a Grant.
    */
-  fundedItems?: Thing[];
+  fundedItems?: ThingType[];
 
   /**
    * A person or organization that supports a thing through a pledge, promise, or financial contribution.

@@ -1,7 +1,7 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { CreativeWork } from "./CreativeWork.js";
-import { Thing } from "./Thing.js";
+import { ThingType } from "./ThingType.js";
 
 /**
  * A review of an item, e.g of an `Article` or `SoftwareApplication`.
@@ -13,7 +13,7 @@ export class Review extends CreativeWork {
   /**
    * The item that is being reviewed.
    */
-  itemReviewed?: Thing;
+  itemReviewed?: ThingType;
 
   /**
    * The part or facet of the item that is being reviewed.

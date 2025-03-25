@@ -49,6 +49,7 @@ import { type DurationValidator } from "./DurationValidator.js";
 import { type Emphasis } from "./Emphasis.js";
 import { type EnumValidator } from "./EnumValidator.js";
 import { type Enumeration } from "./Enumeration.js";
+import { type Excerpt } from "./Excerpt.js";
 import { type ExecutionDependant } from "./ExecutionDependant.js";
 import { type ExecutionDependency } from "./ExecutionDependency.js";
 import { type ExecutionMessage } from "./ExecutionMessage.js";
@@ -187,6 +188,7 @@ export type Node =
   Emphasis |
   EnumValidator |
   Enumeration |
+  Excerpt |
   ExecutionDependant |
   ExecutionDependency |
   ExecutionMessage |
@@ -319,6 +321,7 @@ export function node(other: Node): Node {
     case "Emphasis":
     case "EnumValidator":
     case "Enumeration":
+    case "Excerpt":
     case "ExecutionDependant":
     case "ExecutionDependency":
     case "ExecutionMessage":

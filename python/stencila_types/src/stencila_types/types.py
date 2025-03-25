@@ -771,7 +771,7 @@ class Grant(Thing):
 
     type: Literal["Grant"] = "Grant"
 
-    funded_items: list[Thing] | None = None
+    funded_items: list[ThingType] | None = None
     """Indicates an item funded or sponsored through a Grant."""
 
     sponsors: list[Person | Organization] | None = None
@@ -1763,6 +1763,21 @@ class Enumeration(Thing):
 
 
 @dataclass(kw_only=True, repr=False)
+class Excerpt(Entity):
+    """
+    An excerpt from a `CreativeWork`.
+    """
+
+    type: Literal["Excerpt"] = "Excerpt"
+
+    source: CreativeWorkType
+    """The `CreativeWork` that the excerpt was taken from."""
+
+    content: list[Block]
+    """The excerpted content."""
+
+
+@dataclass(kw_only=True, repr=False)
 class ExecutionDependant(Entity):
     """
     A downstream execution dependant of a node.
@@ -2610,7 +2625,7 @@ class Review(CreativeWork):
 
     type: Literal["Review"] = "Review"
 
-    item_reviewed: Thing | None = None
+    item_reviewed: ThingType | None = None
     """The item that is being reviewed."""
 
     review_aspect: str | None = None
@@ -3089,6 +3104,7 @@ Block = Union[
     Claim,
     CodeBlock,
     CodeChunk,
+    Excerpt,
     Figure,
     File,
     ForBlock,
@@ -3296,6 +3312,7 @@ Node = Union[
     Emphasis,
     EnumValidator,
     Enumeration,
+    Excerpt,
     ExecutionDependant,
     ExecutionDependency,
     ExecutionMessage,
@@ -3501,6 +3518,7 @@ TYPES = [
     Emphasis,
     EnumValidator,
     Enumeration,
+    Excerpt,
     ExecutionDependant,
     ExecutionDependency,
     ExecutionMessage,

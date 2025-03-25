@@ -558,9 +558,6 @@
       "rdfs:comment": "The item that is being reviewed.",
       "schema:domainIncludes": {
         "@id": "schema:Review"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Thing"
       }
     },
     {

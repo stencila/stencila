@@ -141,6 +141,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.EnumValidator.prototype);
     case "Enumeration":
       return Object.setPrototypeOf(value, types.Enumeration.prototype);
+    case "Excerpt":
+      return Object.setPrototypeOf(value, types.Excerpt.prototype);
     case "Executable":
       return Object.setPrototypeOf(value, types.Executable.prototype);
     case "ExecutionDependant":

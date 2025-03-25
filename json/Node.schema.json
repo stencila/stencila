@@ -162,6 +162,9 @@
       "$ref": "Enumeration.schema.json"
     },
     {
+      "$ref": "Excerpt.schema.json"
+    },
+    {
       "$ref": "ExecutionDependant.schema.json"
     },
     {

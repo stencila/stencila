@@ -69,6 +69,7 @@
     "Entity": "stencila:Entity",
     "EnumValidator": "stencila:EnumValidator",
     "Enumeration": "schema:Enumeration",
+    "Excerpt": "stencila:Excerpt",
     "Executable": "stencila:Executable",
     "ExecutionBounds": "stencila:ExecutionBounds",
     "ExecutionDependant": "stencila:ExecutionDependant",

@@ -69,6 +69,7 @@ export * from "./Emphasis.js";
 export * from "./Entity.js";
 export * from "./EnumValidator.js";
 export * from "./Enumeration.js";
+export * from "./Excerpt.js";
 export * from "./Executable.js";
 export * from "./ExecutionBounds.js";
 export * from "./ExecutionDependant.js";

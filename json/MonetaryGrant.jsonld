@@ -133,9 +133,6 @@
       "rdfs:comment": "Indicates an item funded or sponsored through a Grant.",
       "schema:domainIncludes": {
         "@id": "schema:Grant"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Thing"
       }
     },
     {

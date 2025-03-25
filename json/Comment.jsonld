@@ -582,6 +582,9 @@
           "@id": "stencila:Cite"
         },
         {
+          "@id": "stencila:Excerpt"
+        },
+        {
           "@id": "stencila:Figure"
         },
         {

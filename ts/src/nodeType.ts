@@ -54,6 +54,7 @@ export type NodeType =
   | "Emphasis"
   | "EnumValidator"
   | "Enumeration"
+  | "Excerpt"
   | "ExecutionDependant"
   | "ExecutionDependency"
   | "ExecutionMessage"
@@ -187,6 +188,7 @@ export const NodeTypeList = [
   "Emphasis",
   "EnumValidator",
   "Enumeration",
+  "Excerpt",
   "ExecutionDependant",
   "ExecutionDependency",
   "ExecutionMessage",

@@ -607,7 +607,7 @@
         "item-reviewed",
         "item_reviewed"
       ],
-      "$ref": "Thing.schema.json"
+      "$ref": "ThingType.schema.json"
     },
     "reviewAspect": {
       "@id": "schema:reviewAspect",
