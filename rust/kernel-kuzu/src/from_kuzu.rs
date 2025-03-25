@@ -115,7 +115,7 @@ fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
     for row in result {
         for value in row {
             let Value::Node(node_val) = value else {
-                bail!("Expected a Kuzu node");
+                continue;
             };
 
             let mut doc_id = None;
@@ -134,7 +134,7 @@ fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
                 }
             }
             let (Some(doc_id), Some(node_path)) = (doc_id, node_path) else {
-                bail!("docId or nodePath fields missing")
+                continue;
             };
 
             nodes.push(Primitive::String([&doc_id, ":", &node_path].concat()))
