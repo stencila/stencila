@@ -1,6 +1,26 @@
 use kuzu::{LogicalType, Value};
 
-use kernel::schema::*;
+use kernel::{
+    common::eyre::{Result, bail},
+    schema::*,
+};
+
+/// Create a Kuzu [`Value`] from a Stencila [`Node`]
+pub fn value_from_node(node: &Node) -> Result<Value> {
+    Ok(match node {
+        Node::Null(node) => node.to_kuzu_value(),
+        Node::Boolean(node) => node.to_kuzu_value(),
+        Node::Integer(node) => node.to_kuzu_value(),
+        Node::UnsignedInteger(node) => node.to_kuzu_value(),
+        Node::Number(node) => node.to_kuzu_value(),
+        Node::String(node) => node.to_kuzu_value(),
+        Node::Date(node) => node.to_kuzu_value(),
+        Node::DateTime(node) => node.to_kuzu_value(),
+        Node::Timestamp(node) => node.to_kuzu_value(),
+        Node::Duration(node) => node.to_kuzu_value(),
+        _ => bail!("Unable to convert `{}` to Kuzu value", node),
+    })
+}
 
 /// A trait for converting Stencila nodes to Kuzu values
 pub trait ToKuzu {
@@ -9,6 +29,16 @@ pub trait ToKuzu {
 
     /// Convert to a Kuzu value
     fn to_kuzu_value(&self) -> Value;
+}
+
+impl ToKuzu for Null {
+    fn to_kuzu_type() -> LogicalType {
+        LogicalType::Any
+    }
+
+    fn to_kuzu_value(&self) -> Value {
+        Value::Null(LogicalType::Any)
+    }
 }
 
 impl ToKuzu for bool {

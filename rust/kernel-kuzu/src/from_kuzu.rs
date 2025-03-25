@@ -6,6 +6,7 @@ use kernel::{
     common::{
         self,
         eyre::{Result, bail},
+        indexmap::IndexMap,
         once_cell::sync::Lazy,
         regex::Regex,
         serde::Serialize,
@@ -13,6 +14,44 @@ use kernel::{
     },
     schema::*,
 };
+
+/// Create a Stencila [`Node`] from a Kuzu [`QueryResult`]
+pub fn node_from_query_result(mut result: QueryResult, shape: &str) -> Result<Node> {
+    match shape {
+        "val" | "row" => {
+            let Some(mut row) = result.next() else {
+                return Ok(Node::Null(Null));
+            };
+
+            if shape == "val" {
+                if row.is_empty() {
+                    return Ok(Node::Null(Null));
+                }
+                Ok(primitive_from_value(row.swap_remove(0)).into())
+            } else {
+                let values = row.into_iter().map(primitive_from_value).collect();
+                Ok(Node::Array(Array(values)))
+            }
+        }
+
+        "col" => {
+            let values = result
+                .map(|mut row| {
+                    if row.is_empty() {
+                        Primitive::Null(Null)
+                    } else {
+                        primitive_from_value(row.swap_remove(0))
+                    }
+                })
+                .collect();
+            Ok(Node::Array(Array(values)))
+        }
+
+        "all" => datatable_from_query_result(result).map(Node::Datatable),
+
+        _ => bail!("Unknown shape for assigning query result: {shape}"),
+    }
+}
 
 /// Create a Stencila [`Array`] of tuples of doc ids and node paths from a Kuzu [`QueryResult`]
 pub fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
@@ -215,6 +254,19 @@ pub fn validator_from_logical_type(logical_type: &LogicalType) -> Option<Validat
             Some(Validator::NumberValidator(NumberValidator::default()))
         }
         LogicalType::String => Some(Validator::StringValidator(StringValidator::default())),
+        LogicalType::List { child_type } => Some(Validator::ArrayValidator(ArrayValidator {
+            items_validator: validator_from_logical_type(&child_type).map(Box::new),
+            ..Default::default()
+        })),
+        LogicalType::Array {
+            child_type,
+            num_elements,
+        } => Some(Validator::ArrayValidator(ArrayValidator {
+            items_validator: validator_from_logical_type(&child_type).map(Box::new),
+            min_items: Some(*num_elements as i64),
+            max_items: Some(*num_elements as i64),
+            ..Default::default()
+        })),
         _ => None,
     }
 }
@@ -244,6 +296,34 @@ pub fn primitive_from_value(value: Value) -> Primitive {
         Value::UInt64(value) => Primitive::Integer(value as i64),
         Value::Float(value) => Primitive::Number(value as f64),
         Value::Double(value) => Primitive::Number(value),
+        Value::List(.., value) => {
+            let items = value.into_iter().map(primitive_from_value).collect();
+            Primitive::Array(Array(items))
+        }
+        Value::Node(value) => {
+            let mut props: IndexMap<String, Primitive> = value
+                .get_properties()
+                .iter()
+                .map(|(name, value)| (name.clone(), primitive_from_value(value.clone())))
+                .collect();
+            props.insert(
+                "_label".to_string(),
+                Primitive::String(value.get_label_name().clone()),
+            );
+            Primitive::Object(Object(props))
+        }
+        Value::Rel(value) => {
+            let mut props: IndexMap<String, Primitive> = value
+                .get_properties()
+                .iter()
+                .map(|(name, value)| (name.clone(), primitive_from_value(value.clone())))
+                .collect();
+            props.insert(
+                "_label".to_string(),
+                Primitive::String(value.get_label_name().clone()),
+            );
+            Primitive::Object(Object(props))
+        }
         _ => Primitive::String(value.to_string()),
     }
 }

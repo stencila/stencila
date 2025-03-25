@@ -1,4 +1,7 @@
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashMap,
+    path::{Path, PathBuf},
+};
 
 use kuzu::{Connection, Database, LogicalType, SystemConfig, Value};
 
@@ -80,7 +83,7 @@ pub struct KuzuKernelInstance {
     /// The path that the kernel is started in
     ///
     /// Used to capture the directory passed to `start()` to prefix any relative db path
-    /// later passed in a `//db` comment to `execute()``.
+    /// later passed in a `// @db` comment to `execute()``.
     directory: Option<PathBuf>,
 
     /// The path to the Kuzu database directory
@@ -115,6 +118,9 @@ pub struct KuzuKernelInstance {
 
     /// The database instance
     db: Option<Database>,
+
+    /// The variables assigned in this kernel
+    variables: HashMap<String, Node>,
 }
 
 impl KuzuKernelInstance {
@@ -161,6 +167,7 @@ impl KuzuKernelInstance {
             directory: None,
             path,
             db: None,
+            variables: HashMap::new(),
         }
     }
 
@@ -208,10 +215,10 @@ impl KernelInstance for KuzuKernelInstance {
             code.to_string()
         };
 
-        // Search for a "//db" line in the code specifying path, and optionally
+        // Search for a "// @db" line in the code specifying path, and optionally
         // read/write access, to database.
         static DB_REGEX: Lazy<Regex> = Lazy::new(|| {
-            Regex::new(r"(?m)^\/\/\s*db\s+(?:(ro|rw)\s+)?(.+)$").expect("invalid regex")
+            Regex::new(r"(?m)^\/\/\s*@db\s+(?:(ro|rw)\s+)?(.+)$").expect("invalid regex")
         });
         if let Some(captures) = DB_REGEX.captures(&code) {
             if captures.get(1).map(|m| m.as_str()) == Some("ro") {
@@ -274,14 +281,31 @@ impl KernelInstance for KuzuKernelInstance {
                     ));
                 }
 
-                match connection.query(query) {
-                    Ok(result) => output = Some(result),
+                // Execute query and store result
+                let result = match connection.query(query) {
+                    Ok(result) => result,
                     Err(error) => {
                         return Ok((
                             Vec::new(),
                             vec![execution_message_from_error(error, query, line_offset)],
                         ));
                     }
+                };
+
+                // If the query contains a `// @assign` comment then store the results
+                // as a node. Because `QueryResult` is not clone-able it can
+                // either be assigned or output, but not both
+                static ASSIGN_REGEX: Lazy<Regex> = Lazy::new(|| {
+                    Regex::new(r"^\/\/\s+*@assign\s+(\w+)(?:[ ]+(\w+))?")
+                        .expect("invalid regex")
+                });
+                if let Some(captures) = ASSIGN_REGEX.captures(query) {
+                    let name = &captures[1];
+                    let shape = captures.get(2).map(|shape| shape.as_str()).unwrap_or("all");
+                    let node = node_from_query_result(result, shape)?;
+                    self.variables.insert(name.to_string(), node);
+                } else {
+                    output = Some(result)
                 }
             }
             line_offset += if line_offset == 0 { 1 } else { 0 } + query.matches('\n').count();
@@ -317,7 +341,7 @@ impl KernelInstance for KuzuKernelInstance {
 
         // Check if the default output kind has been overridden
         static OUTPUT_REGEX: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r"(?m)^\/\/\s*out\s+(\w+)$").expect("invalid regex"));
+            Lazy::new(|| Regex::new(r"(?m)^\/\/\s*@out\s+(\w+)$").expect("invalid regex"));
         let output_kind = if let Some(captures) = OUTPUT_REGEX.captures(&code) {
             Some(captures[1].to_string())
         } else {
@@ -355,6 +379,16 @@ impl KernelInstance for KuzuKernelInstance {
         };
 
         Ok((outputs, Vec::new()))
+    }
+
+    async fn set(&mut self, name: &str, value: &Node) -> Result<()> {
+        self.variables.insert(name.to_string(), value.clone());
+
+        Ok(())
+    }
+
+    async fn get(&mut self, name: &str) -> Result<Option<Node>> {
+        Ok(self.variables.get(name).cloned())
     }
 
     async fn info(&mut self) -> Result<SoftwareApplication> {
@@ -439,7 +473,9 @@ mod tests {
             assert_eq!(kernel.path, None);
             assert_eq!(kernel.read_only, false);
 
-            let (.., messages) = kernel.execute(&format!("//db {}", path.display())).await?;
+            let (.., messages) = kernel
+                .execute(&format!("// @db {}", path.display()))
+                .await?;
             assert_eq!(messages, vec![]);
             assert_eq!(kernel.path, Some(path.clone()));
             assert_eq!(kernel.read_only, false);
@@ -451,7 +487,7 @@ mod tests {
             assert_eq!(kernel.read_only, false);
 
             let (.., messages) = kernel
-                .execute(&format!("\nRETURN 1;\n//db ro {}", path.display()))
+                .execute(&format!("\nRETURN 1;\n// @db ro {}", path.display()))
                 .await?;
             assert_eq!(messages, vec![]);
             assert_eq!(kernel.path, Some(path));
