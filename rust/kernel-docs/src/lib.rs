@@ -39,8 +39,8 @@ const NAME: &str = "docs";
 ///
 /// 2. special comments which allow access to in-memory, local, and remote databases
 ///
-///   - `//current` : the current document
-///   - `//workspace` : the current workspace (i.e. the closes `./stencila/db` directory)
+///   - `// @current` : the current document
+///   - `// @workspace` : the current workspace (i.e. the closes `./stencila/db` directory)
 ///   - in the future remote database with other collections of documents
 ///
 /// 3. returns nodes as `Excerpt`s (rather than as Cytoscape graph specs)
@@ -210,7 +210,7 @@ impl KernelInstance for DocsKernelInstance {
 
         // Check for db aliases and set db and store paths accordingly
         static DB_REGEX: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r"^\/\/\s*db\s+(workspace)\s*$").expect("invalid regex"));
+            Lazy::new(|| Regex::new(r"^\/\/\s*@(workspace)\s*$").expect("invalid regex"));
         let mut lines = Vec::new();
         for line in code.lines() {
             if let Some(captures) = DB_REGEX.captures(line) {
@@ -239,12 +239,32 @@ impl KernelInstance for DocsKernelInstance {
         // Execute the code
         let (mut outputs, messages) = self.kuzu.execute(&lines.join("\n")).await?;
 
-        // If the output is an array of excerpt paths then hydrate them into nodes
+        // If the output is an array of excerpt doc ids and node paths then hydrate them into nodes
         if let (1, Some(Node::Array(excerpts))) = (outputs.len(), outputs.first()) {
-            outputs = self.excerpts_from_array(excerpts).await?;
+            if let Some(Primitive::String(excerpt)) = excerpts.first() {
+                if excerpt.starts_with("doc_") && excerpt.contains(":") {
+                    outputs = self.excerpts_from_array(excerpts).await?;
+                }
+            }
         }
 
         Ok((outputs, messages))
+    }
+
+    async fn set(&mut self, name: &str, value: &Node) -> Result<()> {
+        self.kuzu.set(name, value).await
+    }
+
+    async fn get(&mut self, name: &str) -> Result<Option<Node>> {
+        self.kuzu.get(name).await
+    }
+
+    fn variable_channel(
+        &mut self,
+        requester: KernelVariableRequester,
+        responder: KernelVariableResponder,
+    ) {
+        self.kuzu.variable_channel(requester, responder)
     }
 
     async fn info(&mut self) -> Result<SoftwareApplication> {
@@ -254,14 +274,6 @@ impl KernelInstance for DocsKernelInstance {
             name: "Docs Kernel".to_string(),
             ..self.kuzu.info().await?
         })
-    }
-
-    fn variable_channel(
-        &mut self,
-        requester: KernelVariableRequester,
-        responder: KernelVariableResponder,
-    ) {
-        self.kuzu.variable_channel(requester, responder)
     }
 
     async fn replicate(&mut self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
