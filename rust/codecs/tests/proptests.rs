@@ -244,7 +244,7 @@ proptest! {
     #[test]
     fn article_cbor_zst(article: Article) {
         let article = Node::Article(article);
-        assert_eq!(roundtrip(Format::CborZst, &article, None, None).unwrap(), article);
+        assert_eq!(roundtrip(Format::CborZstd, &article, None, None).unwrap(), article);
     }
 
     /// Roundtrip test for JSON
@@ -252,6 +252,13 @@ proptest! {
     fn article_json(article: Article) {
         let article = Node::Article(article);
         assert_eq!(roundtrip(Format::Json, &article, None, None).unwrap(), article);
+    }
+
+    /// Roundtrip test for JSON with Zip compression
+    #[test]
+    fn article_json_zip(article: Article) {
+        let article = Node::Article(article);
+        assert_eq!(roundtrip(Format::JsonZip, &article, None, None).unwrap(), article);
     }
 
     /// Roundtrip test for JSON5

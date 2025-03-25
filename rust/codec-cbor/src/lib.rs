@@ -25,7 +25,7 @@ impl Codec for CborCodec {
     fn supports_from_format(&self, format: &Format) -> CodecSupport {
         match format {
             Format::Cbor => CodecSupport::NoLoss,
-            Format::CborZst => CodecSupport::NoLoss,
+            Format::CborZstd => CodecSupport::NoLoss,
             _ => CodecSupport::None,
         }
     }
@@ -33,7 +33,7 @@ impl Codec for CborCodec {
     fn supports_to_format(&self, format: &Format) -> CodecSupport {
         match format {
             Format::Cbor => CodecSupport::NoLoss,
-            Format::CborZst => CodecSupport::NoLoss,
+            Format::CborZstd => CodecSupport::NoLoss,
             _ => CodecSupport::None,
         }
     }
@@ -67,7 +67,7 @@ impl Codec for CborCodec {
         bytes: &[u8],
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo)> {
-        let bytes = if let Some(Format::CborZst) = options.and_then(|options| options.format) {
+        let bytes = if let Some(Format::CborZstd) = options.and_then(|options| options.format) {
             zstd::decode_all(bytes)?
         } else {
             bytes.to_vec()
@@ -85,7 +85,7 @@ impl Codec for CborCodec {
     ) -> Result<(Vec<u8>, EncodeInfo)> {
         let bytes = node.to_cbor()?;
 
-        let bytes = if let Some(Format::CborZst) = options.and_then(|options| options.format) {
+        let bytes = if let Some(Format::CborZstd) = options.and_then(|options| options.format) {
             zstd::encode_all(&bytes[..], 0)?
         } else {
             bytes

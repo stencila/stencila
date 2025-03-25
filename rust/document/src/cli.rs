@@ -236,7 +236,7 @@ impl Status {
             match Document::tracking_all(&current_dir()?).await? {
                 Some(statuses) => statuses,
                 None => {
-                    eprintln!("⚪️ Path is not in a folder being tracked by Stencila");
+                    eprintln!("✖️ Current folder is not being tracked by Stencila");
                     return Ok(());
                 }
             }

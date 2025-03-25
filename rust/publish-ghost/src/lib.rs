@@ -25,8 +25,7 @@ use document::{
     CommandWait, DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
 };
 
-const KEY_ENV_VAR: &str = "STENCILA_GHOST_KEY";
-const SECRET_NAME: &str = "GHOST_ADMIN_API_KEY";
+const API_KEY_NAME: &str = "GHOST_ADMIN_API_KEY";
 
 /// Publish to Ghost
 #[derive(Debug, Parser)]
@@ -42,9 +41,9 @@ pub struct Cli {
     /// Not required when pushing or pulling an existing post or page from
     /// Ghost but if supplied only document `identifiers` with this host
     /// will be used.
-    #[arg(long, env = "STENCILA_GHOST_DOMAIN", value_parser = parse_host)]
+    #[arg(long, env = "GHOST_DOMAIN", value_parser = parse_host)]
     #[arg(help_heading("Ghost Settings"), display_order(1))]
-    ghost: Option<Host>,
+    domain: Option<Host>,
 
     /// The Ghost Admin API key
     ///
@@ -54,25 +53,25 @@ pub struct Cli {
     ///
     /// You can also set the key as a secret so that it does not need to
     /// be entered here each time: `stencila secrets set GHOST_ADMIN_API_KEY`.
-    #[arg(long, env = KEY_ENV_VAR, value_parser = parse_key)]
+    #[arg(long, env = API_KEY_NAME, value_parser = parse_key)]
     #[arg(help_heading("Ghost Settings"), display_order(1))]
     key: Option<String>,
-
-    /// Create a page
-    ///
-    /// Does not apply when pushing to, or pulling from, and existing
-    /// Ghost resource.
-    #[arg(long, conflicts_with = "post", default_value_t = false)]
-    #[arg(help_heading("Ghost Settings"), display_order(1))]
-    page: bool,
 
     /// Create a post
     ///
     /// Does not apply when pushing to, or pulling from, and existing
     /// Ghost resource.
-    #[arg(long, conflicts_with = "page")]
+    #[arg(long, conflicts_with = "page", default_value_t = true)]
     #[arg(help_heading("Ghost Settings"), display_order(1))]
     post: bool,
+
+    /// Create a page
+    ///
+    /// Does not apply when pushing to, or pulling from, and existing
+    /// Ghost resource.
+    #[arg(long, conflicts_with = "post")]
+    #[arg(help_heading("Ghost Settings"), display_order(1))]
+    page: bool,
 
     /// Create or update Ghost post or page from a file
     #[arg(long, conflicts_with = "pull", default_value_t = true)]
@@ -181,7 +180,7 @@ impl Cli {
         doc.compile(CommandWait::Yes).await?;
 
         // Determine if the document has a Ghost URL
-        let doc_url = if let (Some(host), Some(id)) = (&self.ghost, &self.id) {
+        let doc_url = if let (Some(host), Some(id)) = (&self.domain, &self.id) {
             // Both host and id specified on CLI so use that
             Some(format!(
                 "https://{host}/ghost/api/admin/{}/{id}",
@@ -191,7 +190,7 @@ impl Cli {
             // Try to find Ghost URL in the document's remotes
             doc.remotes().await?.iter().find_map(|url| {
                 let url = url.to_string();
-                if let Some(host) = &self.ghost {
+                if let Some(host) = &self.domain {
                     // If a host is provided then return the first URL on that host
                     if url.starts_with(&format!("https://{host}/ghost/api/admin/")) {
                         return Some(url);
@@ -224,8 +223,8 @@ impl Cli {
     /// Create a post or page by POSTing it to the Ghost API
     #[tracing::instrument(skip(self, doc))]
     async fn create(&self, doc: Document) -> Result<()> {
-        let Some(host) = &self.ghost else {
-            bail!("File does not have an identifier for Ghost so the ---ghost option must be provided");
+        let Some(host) = &self.domain else {
+            bail!("Post or page is being created, so the --domain option, of GHOST_DOMAIN env var, must be provided");
         };
         let host = host.to_string();
         let base_url = format!("https://{host}/ghost/api/admin/");
@@ -377,7 +376,7 @@ impl Cli {
     /// This is used when creating and updating posts or pages.
     #[tracing::instrument]
     async fn post_image(&self, image_path: &Path) -> Result<Resource> {
-        let Some(ref host) = self.ghost else {
+        let Some(ref host) = self.domain else {
             bail!("Provide the hostname of the Ghost instance with --ghost");
         };
 
@@ -531,16 +530,18 @@ impl Cli {
                     if let Some(config) = &article.config {
                         if let Some(publish) = &config.publish {
                             if let Some(publisher) = &publish.ghost {
-                                if self.slug.is_none() {
-                                    slug = publisher.slug.clone();
-                                } else {
+                                if self.slug.is_some() {
                                     slug = self.slug.clone();
-                                }
-                                if !self.featured {
-                                    featured = publisher.featured;
                                 } else {
-                                    featured = Some(self.featured);
+                                    slug = publisher.slug.clone();
                                 }
+                                
+                                if self.featured {
+                                    featured = Some(self.featured);
+                                } else {
+                                    featured = publisher.featured;
+                                }
+
                                 if !self.publish && !self.draft && self.schedule.is_none() {
                                     if let Some(doc_schedule) = &publisher.schedule {
                                         status = Some(Status::Scheduled);
@@ -562,8 +563,12 @@ impl Cli {
                                         };
                                     }
                                 } else {
-                                    //Defaults to draft
-                                    status = Some(Status::Draft);
+                                    status = if self.publish {
+                                        Some(Status::Published)
+                                    } else {
+                                        Some(Status::Draft)
+                                    };
+
                                     if self.schedule.is_some() {
                                         if self.schedule <= Some(Utc::now()) {
                                             bail!(
@@ -575,10 +580,11 @@ impl Cli {
                                         schedule = self.schedule;
                                     }
                                 }
-                                if self.tags.is_none() {
-                                    tags = publisher.tags.clone();
+
+                                if self.tags.is_some() {
+                                    tags = self.tags.clone();
                                 } else {
-                                    tags = self.tags.clone()
+                                    tags = publisher.tags.clone();
                                 }
                             }
                         }
@@ -682,7 +688,7 @@ fn parse_key(arg: &str) -> Result<String> {
     }
 
     // If not, check if it's provided as an environment variable
-    if let Ok(env_key) = std::env::var(KEY_ENV_VAR) {
+    if let Ok(env_key) = std::env::var(API_KEY_NAME) {
         return validate_key(&env_key);
     }
 
@@ -731,7 +737,7 @@ fn generate_jwt(key: &Option<String>) -> Result<String> {
     // Use the key provided on CLI or in env, otherwise try to get secret from env or store
     let key = key
         .clone()
-        .or_else(|| secrets::env_or_get(SECRET_NAME).ok())
+        .or_else(|| secrets::env_or_get(API_KEY_NAME).ok())
         .ok_or_eyre("Ghost Admin API key not provided and not set as a secret")?;
 
     let Some((id, secret)) = key.split_once(':') else {
