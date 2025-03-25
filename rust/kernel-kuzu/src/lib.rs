@@ -6,10 +6,11 @@ use std::{
 use kuzu::{Connection, Database, LogicalType, SystemConfig, Value};
 
 use kernel::{
-    Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
+    Kernel, KernelInstance, KernelType, KernelVariableRequest, KernelVariableRequester,
+    KernelVariableResponder,
     common::{
         async_trait::async_trait,
-        eyre::{Result, bail},
+        eyre::{OptionExt, Result, bail},
         once_cell::sync::Lazy,
         regex::Regex,
         tracing,
@@ -121,6 +122,11 @@ pub struct KuzuKernelInstance {
 
     /// The variables assigned in this kernel
     variables: HashMap<String, Node>,
+
+    /// A channel for making variable requests to other kernels
+    ///
+    /// Needs to be `Mutex` because is used in an immutable method
+    variable_channel: Option<(KernelVariableRequester, KernelVariableResponder)>,
 }
 
 impl KuzuKernelInstance {
@@ -168,6 +174,7 @@ impl KuzuKernelInstance {
             path,
             db: None,
             variables: HashMap::new(),
+            variable_channel: None,
         }
     }
 
@@ -214,6 +221,57 @@ impl KernelInstance for KuzuKernelInstance {
         } else {
             code.to_string()
         };
+
+        // Request any parameters needed by the code
+        static PARAM_REGEX: Lazy<Regex> =
+            Lazy::new(|| Regex::new(r"\$([a-zA-Z][\w_]+)").expect("invalid regex"));
+        let mut params: Vec<(String, Option<Value>)> = PARAM_REGEX
+            .captures(&code)
+            .iter()
+            .map(|capture| (capture[1].to_string(), None))
+            .collect();
+        if !params.is_empty() {
+            let (sender, receiver) = self
+                .variable_channel
+                .as_ref()
+                .ok_or_eyre("Variable channel not yet setup")?;
+            let mut receiver = receiver.resubscribe();
+
+            // Send requests
+            for (name, ..) in &params {
+                match sender.send(KernelVariableRequest {
+                    variable: name.to_string(),
+                    instance: self.id.clone(),
+                }) {
+                    Err(error) => tracing::error!("While sending variable request: {error}"),
+                    Ok(..) => tracing::trace!("Sent request for variable `{name}`"),
+                }
+            }
+
+            // Wait for responses
+            tracing::trace!("Waiting for response for params");
+            loop {
+                let response = receiver.recv().await?;
+
+                let mut all_some = true;
+                for (name, value) in params.iter_mut() {
+                    if &response.variable == name && value.is_none() {
+                        *value = Some(match &response.value {
+                            Some(node) => value_from_node(node)?,
+                            None => Value::Null(LogicalType::Any),
+                        });
+                    }
+
+                    if value.is_none() {
+                        all_some = false
+                    }
+                }
+
+                if all_some {
+                    break;
+                }
+            }
+        }
 
         // Search for a "// @db" line in the code specifying path, and optionally
         // read/write access, to database.
@@ -282,7 +340,19 @@ impl KernelInstance for KuzuKernelInstance {
                 }
 
                 // Execute query and store result
-                let result = match connection.query(query) {
+                let result = if params.is_empty() {
+                    connection.query(query)
+                } else {
+                    let mut statement = connection.prepare(query)?;
+                    let params: Vec<(&str, Value)> = params
+                        .iter()
+                        .filter_map(|(name, value)| {
+                            value.as_ref().map(|value| (name.as_str(), value.clone()))
+                        })
+                        .collect();
+                    connection.execute(&mut statement, params)
+                };
+                let result = match result {
                     Ok(result) => result,
                     Err(error) => {
                         return Ok((
@@ -428,6 +498,8 @@ impl KernelInstance for KuzuKernelInstance {
         requester: KernelVariableRequester,
         responder: KernelVariableResponder,
     ) {
+        self.variable_channel = Some((requester.clone(), responder.resubscribe()));
+
         self.jinja.variable_channel(requester, responder)
     }
 
