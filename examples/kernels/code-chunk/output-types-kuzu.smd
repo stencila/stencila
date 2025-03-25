@@ -1,0 +1,41 @@
+```kuzu exec
+CREATE NODE TABLE IF NOT EXISTS Person (name string primary key, age int);
+CREATE (:Person {name: 'Alice', age: 20})
+CREATE (:Person {name: 'Bob', age: 30})
+CREATE (:Person {name: 'Carol', age: 40})
+```
+
+First value:
+
+```kuzu exec
+// @out val
+MATCH (p:Person) RETURN count(*)
+```
+
+First row:
+
+```kuzu exec
+// @out row
+MATCH (p:Person) RETURN p.name AS name, p.age AS age
+```
+
+First column:
+
+```kuzu exec
+// @out col
+MATCH (p:Person) RETURN p.name AS name, p.age AS age
+```
+
+Graph:
+
+```kuzu exec
+// @out graph
+MATCH (p:Person) RETURN p
+```
+
+Datatable:
+
+```kuzu exec
+// @out all
+MATCH (p:Person) RETURN p.name AS name, p.age AS age
+```

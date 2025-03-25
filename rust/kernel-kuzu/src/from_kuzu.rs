@@ -1,11 +1,11 @@
-use std::collections::BTreeSet;
+use std::{collections::BTreeSet, str::FromStr};
 
 use kuzu::{Error, LogicalType, NodeVal, QueryResult, RelVal, Value};
 
 use kernel::{
     common::{
         self,
-        eyre::{Result, bail},
+        eyre::{Report, Result, bail},
         indexmap::IndexMap,
         once_cell::sync::Lazy,
         regex::Regex,
@@ -15,15 +15,69 @@ use kernel::{
     schema::*,
 };
 
+/// The type of transform to ally when converting Kuzu query result to
+/// a Stencila [`Node`]
+#[derive(Clone, Copy)]
+pub enum QueryResultTransform {
+    /// Convert the value in the first column of the first row only
+    Value,
+    /// Convert the first row only
+    Row,
+    /// Convert the first column only
+    Column,
+    /// Convert the whole result into a datatable
+    Datatable,
+    /// Convert the result to a graph (data types other than nodes and relations are ignored)
+    Graph,
+    /// Convert the result into an array of document/node path tuples
+    Excerpts,
+}
+
+impl FromStr for QueryResultTransform {
+    type Err = Report;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        use QueryResultTransform::*;
+        Ok(match s.to_lowercase().as_str() {
+            "val" | "value" => Value,
+            "row" => Row,
+            "col" | "column" => Column,
+            "all" | "datatable" => Datatable,
+            "gph" | "graph" => Graph,
+            "exc" | "excerpts" => Excerpts,
+            _ => bail!("Unknown transform for query result: {s}"),
+        })
+    }
+}
+
 /// Create a Stencila [`Node`] from a Kuzu [`QueryResult`]
-pub fn node_from_query_result(mut result: QueryResult, shape: &str) -> Result<Node> {
-    match shape {
-        "val" | "row" => {
+pub fn node_from_query_result(
+    mut result: QueryResult,
+    transform: Option<QueryResultTransform>,
+) -> Result<Node> {
+    use QueryResultTransform::*;
+
+    // If no transform specified then default to graph if all nodes and relations,
+    // otherwise a datatable
+    let transform = transform.unwrap_or_else(|| {
+        if result
+            .get_column_data_types()
+            .iter()
+            .all(|data_type| matches!(data_type, LogicalType::Node | LogicalType::Rel))
+        {
+            Graph
+        } else {
+            Datatable
+        }
+    });
+
+    match transform {
+        Value | Row => {
             let Some(mut row) = result.next() else {
                 return Ok(Node::Null(Null));
             };
 
-            if shape == "val" {
+            if matches!(transform, Value) {
                 if row.is_empty() {
                     return Ok(Node::Null(Null));
                 }
@@ -34,7 +88,7 @@ pub fn node_from_query_result(mut result: QueryResult, shape: &str) -> Result<No
             }
         }
 
-        "col" => {
+        Column => {
             let values = result
                 .map(|mut row| {
                     if row.is_empty() {
@@ -47,14 +101,16 @@ pub fn node_from_query_result(mut result: QueryResult, shape: &str) -> Result<No
             Ok(Node::Array(Array(values)))
         }
 
-        "all" => datatable_from_query_result(result).map(Node::Datatable),
+        Datatable => datatable_from_query_result(result).map(Node::Datatable),
 
-        _ => bail!("Unknown shape for assigning query result: {shape}"),
+        Graph => cytoscape_from_query_result(result).map(Node::ImageObject),
+
+        Excerpts => excerpts_from_query_result(result).map(Node::Array),
     }
 }
 
 /// Create a Stencila [`Array`] of tuples of doc ids and node paths from a Kuzu [`QueryResult`]
-pub fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
+fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
     let mut nodes = Vec::new();
     for row in result {
         for value in row {
@@ -89,7 +145,7 @@ pub fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
 }
 
 /// Create a Stencila [`ImageObject`] containing a Cytoscape.js graph from a Kuzu [`QueryResult`]
-pub fn cytoscape_from_query_result(result: QueryResult) -> Result<ImageObject> {
+fn cytoscape_from_query_result(result: QueryResult) -> Result<ImageObject> {
     #[derive(Serialize)]
     #[serde(crate = "common::serde")]
     struct Element {
@@ -205,7 +261,7 @@ pub fn cytoscape_from_query_result(result: QueryResult) -> Result<ImageObject> {
 }
 
 /// Create a Stencila [`Datatable`] from a Kuzu [`QueryResult`]
-pub fn datatable_from_query_result(result: QueryResult) -> Result<Datatable> {
+fn datatable_from_query_result(result: QueryResult) -> Result<Datatable> {
     let mut columns: Vec<DatatableColumn> = result
         .get_column_names()
         .into_iter()
@@ -236,7 +292,7 @@ pub fn datatable_from_query_result(result: QueryResult) -> Result<Datatable> {
 }
 
 /// Get the Stencila [`Validator`] corresponding to a Kuzu [`LogicalType`]
-pub fn validator_from_logical_type(logical_type: &LogicalType) -> Option<Validator> {
+fn validator_from_logical_type(logical_type: &LogicalType) -> Option<Validator> {
     match logical_type {
         LogicalType::Bool => Some(Validator::BooleanValidator(BooleanValidator::default())),
         LogicalType::Int8
@@ -272,7 +328,7 @@ pub fn validator_from_logical_type(logical_type: &LogicalType) -> Option<Validat
 }
 
 /// Get the Stencila [`ArrayValidator`] corresponding to a Kuzu column type
-pub fn array_validator_from_logical_type(logical_type: &LogicalType) -> Option<ArrayValidator> {
+fn array_validator_from_logical_type(logical_type: &LogicalType) -> Option<ArrayValidator> {
     validator_from_logical_type(logical_type).map(|validator| ArrayValidator {
         items_validator: Some(Box::new(validator)),
         items_nullable: Some(true),

@@ -5,7 +5,7 @@ use std::{
 
 use dirs::{closest_stencila_dir, stencila_db_dir, stencila_store_dir};
 use kernel_kuzu::{
-    KuzuKernelInstance,
+    KuzuKernelInstance, QueryResultTransform,
     kernel::{
         Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
         common::{
@@ -96,7 +96,7 @@ impl DocsKernelInstance {
     /// Create a new instance
     fn new() -> Self {
         let id = generate_id(NAME);
-        let kuzu = KuzuKernelInstance::box_with(id.clone(), "excerpts");
+        let kuzu = KuzuKernelInstance::box_with(id.clone(), QueryResultTransform::Excerpts);
 
         let docs = Mutex::new(LruCache::new(
             NonZeroUsize::new(10).expect("valid non-zero"),

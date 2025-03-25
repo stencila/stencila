@@ -1,6 +1,7 @@
 use std::{
     collections::HashMap,
     path::{Path, PathBuf},
+    str::FromStr,
 };
 
 use kuzu::{Connection, Database, LogicalType, SystemConfig, Value};
@@ -103,19 +104,14 @@ pub struct KuzuKernelInstance {
     /// is required for replicating the database.
     read_only: bool,
 
-    /// The default kind of query output.
+    /// The default transform to apply to query results.
     ///
     /// Determines how Kuzu query results are converted to Stencila nodes.
     ///
-    /// Possible values are:
-    ///   - graph
-    ///   - datatable
-    ///   - excerpts
-    ///
-    /// Can be overridden using a `//out` comment e.g. `//out graph`.
+    /// Can be overridden using a `// @out` comment e.g. `// @out graph`.
     /// If not defined, nor overridden, is determined by the types of
     /// columns in the result.
-    output_kind: Option<String>,
+    transform: Option<QueryResultTransform>,
 
     /// The database instance
     db: Option<Database>,
@@ -124,8 +120,6 @@ pub struct KuzuKernelInstance {
     variables: HashMap<String, Node>,
 
     /// A channel for making variable requests to other kernels
-    ///
-    /// Needs to be `Mutex` because is used in an immutable method
     variable_channel: Option<(KernelVariableRequester, KernelVariableResponder)>,
 }
 
@@ -149,10 +143,10 @@ impl KuzuKernelInstance {
     }
 
     /// Create a new instance with `Box` execution bounds and id
-    pub fn box_with(id: String, output_kind: &str) -> Self {
+    pub fn box_with(id: String, transform: QueryResultTransform) -> Self {
         let mut instance = Self::init(ExecutionBounds::Box, true, None);
         instance.id = id;
-        instance.output_kind = Some(output_kind.to_string());
+        instance.transform = Some(transform);
         instance
     }
 
@@ -169,7 +163,7 @@ impl KuzuKernelInstance {
             id,
             bounds,
             read_only,
-            output_kind: None,
+            transform: None,
             directory: None,
             path,
             db: None,
@@ -381,8 +375,9 @@ impl KernelInstance for KuzuKernelInstance {
                 });
                 if let Some(captures) = ASSIGN_REGEX.captures(query) {
                     let name = &captures[1];
-                    let shape = captures.get(2).map(|shape| shape.as_str()).unwrap_or("all");
-                    let node = node_from_query_result(result, shape)?;
+                    let transform = captures.get(2).map(|shape| shape.as_str()).unwrap_or("all");
+                    let transform = QueryResultTransform::from_str(&transform)?;
+                    let node = node_from_query_result(result, Some(transform))?;
                     self.variables.insert(name.to_string(), node);
                 } else {
                     output = Some(result)
@@ -391,14 +386,17 @@ impl KernelInstance for KuzuKernelInstance {
             line_offset += if line_offset == 0 { 1 } else { 0 } + query.matches('\n').count();
         }
 
+        // Early return if no output
         let Some(output) = output else {
             return Ok(Default::default());
         };
 
+        // Early return if no columns in result
         if output.get_num_columns() == 0 {
             return Ok(Default::default());
         }
 
+        // Early return for `CREATE` statements
         if output.get_column_data_types() == vec![LogicalType::String]
             && output.get_column_names() == vec!["result"]
             && output.get_num_tuples() == 1
@@ -419,58 +417,29 @@ impl KernelInstance for KuzuKernelInstance {
             };
         }
 
-        // Check if the default output kind has been overridden
+        // Check if the default transform kind has been overridden
         static OUTPUT_REGEX: Lazy<Regex> =
             Lazy::new(|| Regex::new(r"(?m)^\/\/\s*@out\s+(\w+)$").expect("invalid regex"));
-        let output_kind = if let Some(captures) = OUTPUT_REGEX.captures(&code) {
-            Some(captures[1].to_string())
+        let transform = if let Some(captures) = OUTPUT_REGEX.captures(&code) {
+            Some(QueryResultTransform::from_str(&captures[1])?)
         } else {
-            self.output_kind.clone()
+            self.transform.clone()
         };
 
-        // Determine output kind if all columns are nodes or relationships, otherwise
-        // output will be datatable
-        let all_nodes_or_rels = output
-            .get_column_data_types()
-            .iter()
-            .all(|data_type| matches!(data_type, LogicalType::Node | LogicalType::Rel));
-        let output_kind = if all_nodes_or_rels {
-            match &output_kind {
-                Some(output_kind) => output_kind,
-                None => "graph",
-            }
-        } else {
-            "datatable"
-        };
-
-        let outputs = match output_kind {
-            "excerpts" => vec![Node::Array(excerpts_from_query_result(output)?)],
-            "graph" => vec![Node::ImageObject(cytoscape_from_query_result(output)?)],
-            "datatable" => vec![Node::Datatable(datatable_from_query_result(output)?)],
-            _ => {
-                return Ok((
-                    Vec::new(),
-                    vec![ExecutionMessage::new(
-                        MessageLevel::Error,
-                        format!("Invalid output kind: {output_kind}"),
-                    )],
-                ));
-            }
-        };
-
+        let outputs = vec![node_from_query_result(output, transform)?];
         Ok((outputs, Vec::new()))
     }
 
     async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)> {
-        // When evaluating an expression, force the output kind to be a datatable
+        // When evaluating an expression, force the transform to be a datatable
         // Do it this way to avoid adding to code.
-        let output_kind = self.output_kind.clone();
-        self.output_kind = Some("datatable".to_string());
+        let transform = self.transform.clone();
+        self.transform = Some(QueryResultTransform::Datatable);
 
         let (nodes, messages) = self.execute(code).await?;
 
-        // Reinstate default output kind
-        self.output_kind = output_kind;
+        // Reinstate default transform
+        self.transform = transform;
 
         Ok((
             nodes
