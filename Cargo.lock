@@ -963,7 +963,7 @@ dependencies = [
  "codec-dom-trait",
  "codec-text-trait",
  "lightningcss",
- "quick-xml 0.37.2",
+ "quick-xml 0.37.3",
 ]
 
 [[package]]
@@ -991,7 +991,7 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-html-trait",
- "quick-xml 0.37.2",
+ "quick-xml 0.37.3",
  "tl",
 ]
 
@@ -1040,7 +1040,7 @@ dependencies = [
  "codec",
  "codec-jats-trait",
  "common-dev",
- "quick-xml 0.37.2",
+ "quick-xml 0.37.3",
  "roxmltree",
 ]
 
@@ -5142,9 +5142,9 @@ dependencies = [
 
 [[package]]
 name = "quick-xml"
-version = "0.37.2"
+version = "0.37.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "165859e9e55f79d67b96c5d96f4e88b6f2695a1972849c15a6a3f5c59fc2c003"
+checksum = "bf763ab1c7a3aa408be466efc86efe35ed1bd3dd74173ed39d6b0d0a6f0ba148"
 dependencies = [
  "memchr",
 ]
