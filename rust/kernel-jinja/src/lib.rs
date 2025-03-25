@@ -1,5 +1,4 @@
 use std::{
-    fmt,
     sync::{Arc, Mutex},
     thread,
 };
@@ -209,12 +208,6 @@ pub struct JinjaKernelContext {
     ///
     /// Needs to be `Mutex` because is used in an immutable method
     variable_channel: Mutex<(KernelVariableRequester, KernelVariableResponder)>,
-}
-
-impl fmt::Display for JinjaKernelContext {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.write_str("<JinjaKernelContext>")
-    }
 }
 
 impl Object for JinjaKernelContext {
