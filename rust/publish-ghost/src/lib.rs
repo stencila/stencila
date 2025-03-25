@@ -535,7 +535,7 @@ impl Cli {
                                 } else {
                                     slug = publisher.slug.clone();
                                 }
-                                
+
                                 if self.featured {
                                     featured = Some(self.featured);
                                 } else {

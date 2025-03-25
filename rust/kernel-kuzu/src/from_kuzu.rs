@@ -311,14 +311,14 @@ fn validator_from_logical_type(logical_type: &LogicalType) -> Option<Validator> 
         }
         LogicalType::String => Some(Validator::StringValidator(StringValidator::default())),
         LogicalType::List { child_type } => Some(Validator::ArrayValidator(ArrayValidator {
-            items_validator: validator_from_logical_type(&child_type).map(Box::new),
+            items_validator: validator_from_logical_type(child_type).map(Box::new),
             ..Default::default()
         })),
         LogicalType::Array {
             child_type,
             num_elements,
         } => Some(Validator::ArrayValidator(ArrayValidator {
-            items_validator: validator_from_logical_type(&child_type).map(Box::new),
+            items_validator: validator_from_logical_type(child_type).map(Box::new),
             min_items: Some(*num_elements as i64),
             max_items: Some(*num_elements as i64),
             ..Default::default()

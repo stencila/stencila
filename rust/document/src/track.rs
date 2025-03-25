@@ -1,5 +1,5 @@
 use std::{
-    collections::BTreeMap,
+    collections::{btree_map::Entry, BTreeMap},
     env::current_dir,
     path::{Path, PathBuf},
     time::UNIX_EPOCH,
@@ -331,36 +331,39 @@ impl Document {
         let db_path = stencila_dir.join(DB_DIR);
         let relative_path = workspace_relative_path(&stencila_dir, path, true)?;
 
-        if entries.contains_key(&relative_path) {
-            // Update existing entry
-            let entry = entries.get_mut(&relative_path).expect("checked above");
-            let id = entry.id.clone();
-            let store_path = store_dir.join(entry.store_file());
+        match entries.entry(relative_path) {
+            Entry::Occupied(mut occupied_entry) => {
+                // Update existing entry
+                let entry = occupied_entry.get_mut();
+                let id = entry.id.clone();
+                let store_path = store_dir.join(entry.store_file());
 
-            entry.stored_at = stored_at;
-            entry.upserted_at = upserted_at;
+                entry.stored_at = stored_at;
+                entry.upserted_at = upserted_at;
 
-            write_entries(&stencila_dir, &entries).await?;
+                write_entries(&stencila_dir, &entries).await?;
 
-            Ok((id, true, store_path, db_path))
-        } else {
-            // Create a new entry
-            let id = new_id();
-            let format = Format::from_path(path);
+                Ok((id, true, store_path, db_path))
+            }
+            Entry::Vacant(vacant_entry) => {
+                // Create a new entry
+                let id = new_id();
+                let format = Format::from_path(path);
 
-            let entry = DocumentTracking {
-                id: id.clone(),
-                format,
-                stored_at,
-                upserted_at,
-                ..Default::default()
-            };
-            let store_path = store_dir.join(entry.store_file());
+                let entry = DocumentTracking {
+                    id: id.clone(),
+                    format,
+                    stored_at,
+                    upserted_at,
+                    ..Default::default()
+                };
+                let store_path = store_dir.join(entry.store_file());
 
-            entries.insert(relative_path, entry);
-            write_entries(&stencila_dir, &entries).await?;
+                vacant_entry.insert(entry);
+                write_entries(&stencila_dir, &entries).await?;
 
-            Ok((id, false, store_path, db_path))
+                Ok((id, false, store_path, db_path))
+            }
         }
     }
 
@@ -616,18 +619,18 @@ impl Document {
         }
 
         // If the `from` path is already being tracked then just change the relative path for the entry.
-        if let Some((tracking_dir, mut entries)) = read_tracking(from, false).await? {
+        if let Some((tracking_dir, mut entries)) = closest_entries(from, false).await? {
             let from_relative_path = workspace_relative_path(&tracking_dir, from, false)?;
             if let Some(entry) = entries.remove(&from_relative_path) {
                 let to_relative_path = workspace_relative_path(&tracking_dir, to, false)?;
                 entries.insert(to_relative_path, entry);
-                write_tracking(&tracking_dir, &entries).await?;
+                write_entries(&tracking_dir, &entries).await?;
                 return Ok(());
             }
         }
 
         // Otherwise, if `from` is not being tracked already, then just track `to`
-        Document::track_path(to, None).await?;
+        Document::track_path(to, None, None).await?;
 
         Ok(())
     }

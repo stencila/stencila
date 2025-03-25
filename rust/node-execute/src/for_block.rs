@@ -193,11 +193,7 @@ impl Executable for ForBlock {
                         Node::Array(Array(vec![Primitive::String(key.clone()), value.clone()]))
                     })
                     .collect(),
-                Node::Datatable(dt) => dt
-                    .to_values()
-                    .into_iter()
-                    .map(|object| Node::Object(object))
-                    .collect(),
+                Node::Datatable(dt) => dt.to_values().into_iter().map(Node::Object).collect(),
                 _ => {
                     messages.push(ExecutionMessage::new(
                         MessageLevel::Warning,

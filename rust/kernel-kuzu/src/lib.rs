@@ -377,7 +377,7 @@ impl KernelInstance for KuzuKernelInstance {
                 if let Some(captures) = ASSIGN_REGEX.captures(query) {
                     let name = &captures[1];
                     let transform = captures.get(2).map(|shape| shape.as_str()).unwrap_or("all");
-                    let transform = QueryResultTransform::from_str(&transform)?;
+                    let transform = QueryResultTransform::from_str(transform)?;
                     let node = node_from_query_result(result, Some(transform))?;
                     self.variables.insert(name.to_string(), node);
                 } else {
@@ -424,7 +424,7 @@ impl KernelInstance for KuzuKernelInstance {
         let transform = if let Some(captures) = OUTPUT_REGEX.captures(&code) {
             Some(QueryResultTransform::from_str(&captures[1])?)
         } else {
-            self.transform.clone()
+            self.transform
         };
 
         let outputs = vec![node_from_query_result(output, transform)?];
@@ -434,7 +434,7 @@ impl KernelInstance for KuzuKernelInstance {
     async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)> {
         // When evaluating an expression, force the transform to be a datatable
         // Do it this way to avoid adding to code.
-        let transform = self.transform.clone();
+        let transform = self.transform;
         self.transform = Some(QueryResultTransform::Datatable);
 
         let (nodes, messages) = self.execute(code).await?;
