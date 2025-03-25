@@ -4,7 +4,7 @@ use std::{
     thread,
 };
 
-use minijinja::{self, context, value::Object, Environment, Value};
+use minijinja::{context, value::Object, Environment, Error, Value};
 
 use kernel::{
     common::{
@@ -21,6 +21,10 @@ use kernel::{
     Kernel, KernelInstance, KernelType, KernelVariableRequest, KernelVariableRequester,
     KernelVariableResponder,
 };
+
+// Re-exports for dependants
+pub use kernel;
+pub use minijinja;
 
 const NAME: &str = "jinja";
 
@@ -92,23 +96,6 @@ impl JinjaKernelInstance {
             context: None,
         }
     }
-
-    /// Generate a stack trace from a minijinja error
-    fn stack_trace(error: minijinja::Error) -> Option<String> {
-        let mut error = &error as &dyn std::error::Error;
-
-        let mut stack_trace = String::new();
-        while let Some(source) = error.source() {
-            stack_trace.push_str(&format!("\n{:#}", source));
-            error = source;
-        }
-
-        if stack_trace.is_empty() {
-            None
-        } else {
-            Some(stack_trace)
-        }
-    }
 }
 
 #[async_trait]
@@ -127,20 +114,10 @@ impl KernelInstance for JinjaKernelInstance {
             None => context!(),
         };
 
-        let (rendered, messages) = match env.render_str(code, context) {
-            Ok(rendered) => (rendered, Vec::new()),
-            Err(error) => (
-                code.to_string(), // Note that if error, still returning original code string
-                vec![ExecutionMessage {
-                    level: MessageLevel::Exception,
-                    message: error.to_string(),
-                    stack_trace: Self::stack_trace(error),
-                    ..Default::default()
-                }],
-            ),
-        };
-
-        Ok((vec![Node::String(rendered)], messages))
+        Ok(match env.render_str(code, context) {
+            Ok(rendered) => (vec![Node::String(rendered)], Vec::new()),
+            Err(error) => (vec![], vec![error_to_execution_message(error)]),
+        })
     }
 
     async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)> {
@@ -149,17 +126,7 @@ impl KernelInstance for JinjaKernelInstance {
         let env = Environment::new();
         let expr = match env.compile_expression(code) {
             Ok(expr) => expr,
-            Err(error) => {
-                return Ok((
-                    Node::Null(Null),
-                    vec![ExecutionMessage {
-                        level: MessageLevel::Exception,
-                        message: error.to_string(),
-                        stack_trace: Self::stack_trace(error),
-                        ..Default::default()
-                    }],
-                ))
-            }
+            Err(error) => return Ok((Node::Null(Null), vec![error_to_execution_message(error)])),
         };
 
         let context = match self.context.as_ref() {
@@ -167,24 +134,14 @@ impl KernelInstance for JinjaKernelInstance {
             None => context!(),
         };
 
-        let (value, messages) = match expr.eval(context) {
+        Ok(match expr.eval(context) {
             Ok(value) => {
                 let value = serde_json::to_value(value).unwrap_or_default();
                 let node: Node = serde_json::from_value(value).unwrap_or_default();
                 (node, Vec::new())
             }
-            Err(error) => (
-                Node::Null(Null),
-                vec![ExecutionMessage {
-                    level: MessageLevel::Exception,
-                    message: error.to_string(),
-                    stack_trace: Self::stack_trace(error),
-                    ..Default::default()
-                }],
-            ),
-        };
-
-        Ok((value, messages))
+            Err(error) => (Node::Null(Null), vec![error_to_execution_message(error)]),
+        })
     }
 
     async fn info(&mut self) -> Result<SoftwareApplication> {
@@ -213,6 +170,30 @@ impl KernelInstance for JinjaKernelInstance {
 
     async fn replicate(&mut self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         Ok(Box::new(Self::new()))
+    }
+}
+
+/// Create an [`ExecutionMessage`] from a [`minijinja::Error`]
+pub fn error_to_execution_message(error: Error) -> ExecutionMessage {
+    let mut error = &error as &dyn std::error::Error;
+
+    let mut stack_trace = String::new();
+    while let Some(source) = error.source() {
+        stack_trace.push_str(&format!("\n{:#}", source));
+        error = source;
+    }
+
+    let stack_trace = if stack_trace.is_empty() {
+        None
+    } else {
+        Some(stack_trace)
+    };
+
+    ExecutionMessage {
+        level: MessageLevel::Exception,
+        message: error.to_string(),
+        stack_trace,
+        ..Default::default()
     }
 }
 
