@@ -17,8 +17,8 @@ use kernel::{
     format::Format,
     generate_id,
     schema::{
-        CodeLocation, ExecutionBounds, ExecutionMessage, MessageLevel, Node, SoftwareApplication,
-        SoftwareApplicationOptions, StringOrNumber,
+        CodeLocation, ExecutionBounds, ExecutionMessage, MessageLevel, Node, Null,
+        SoftwareApplication, SoftwareApplicationOptions, StringOrNumber,
     },
 };
 use kernel_jinja::JinjaKernelInstance;
@@ -296,8 +296,7 @@ impl KernelInstance for KuzuKernelInstance {
                 // as a node. Because `QueryResult` is not clone-able it can
                 // either be assigned or output, but not both
                 static ASSIGN_REGEX: Lazy<Regex> = Lazy::new(|| {
-                    Regex::new(r"^\/\/\s+*@assign\s+(\w+)(?:[ ]+(\w+))?")
-                        .expect("invalid regex")
+                    Regex::new(r"^\/\/\s+*@assign\s+(\w+)(?:[ ]+(\w+))?").expect("invalid regex")
                 });
                 if let Some(captures) = ASSIGN_REGEX.captures(query) {
                     let name = &captures[1];
@@ -379,6 +378,25 @@ impl KernelInstance for KuzuKernelInstance {
         };
 
         Ok((outputs, Vec::new()))
+    }
+
+    async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)> {
+        // When evaluating an expression, force the output kind to be a datatable
+        // Do it this way to avoid adding to code.
+        let output_kind = self.output_kind.clone();
+        self.output_kind = Some("datatable".to_string());
+
+        let (nodes, messages) = self.execute(code).await?;
+
+        // Reinstate default output kind
+        self.output_kind = output_kind;
+
+        Ok((
+            nodes
+                .first()
+                .map_or_else(|| Node::Null(Null), |node| node.clone()),
+            messages,
+        ))
     }
 
     async fn set(&mut self, name: &str, value: &Node) -> Result<()> {
