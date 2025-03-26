@@ -133,13 +133,25 @@ impl Query {
         let mut query = self.clone();
 
         let alias = method.to_singular();
-        let table = alias.to_pascal_case();
+        let table = match method {
+            "rows" => "TableRow".to_string(),
+            "cells" => "TableCell".to_string(),
+            _ => alias.to_pascal_case(),
+        };
 
         let node = ["(", &alias, ":", &table, ")"].concat();
 
         query.pattern = Some(match query.pattern {
-            // TODO determine the relation to use based on `node_table_used` and current table
-            Some(pattern) => [&pattern, "-[..]->", &node].concat(),
+            Some(pattern) => {
+                let prev_table = self.node_table_used.as_deref().unwrap_or_default();
+                let relation = match (prev_table, table.as_str()) {
+                    ("Table", "TableRow") => "[:rows]",
+                    ("TableRow", "TableCell") => "[:cells]",
+                    ("Table", "TableCell") => "[:rows]-[:cells]",
+                    _ => "[:content* acyclic]",
+                };
+                [&pattern, "-", relation, "->", &node].concat()
+            }
             None => node,
         });
 
