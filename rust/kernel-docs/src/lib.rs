@@ -5,12 +5,10 @@ use std::{
 
 use dirs::{closest_stencila_dir, stencila_db_dir, stencila_store_dir};
 use kernel_kuzu::{
-    KuzuKernelInstance, QueryResultTransform,
     kernel::{
-        Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
         common::{
             async_trait::async_trait,
-            eyre::{Result, bail},
+            eyre::{bail, Result},
             itertools::Itertools,
             once_cell::sync::Lazy,
             regex::Regex,
@@ -21,10 +19,12 @@ use kernel_kuzu::{
         format::Format,
         generate_id,
         schema::{
-            Array, Article, CreativeWorkType, Excerpt, ExecutionBounds, ExecutionMessage, Node,
-            Primitive, SoftwareApplication, duplicate,
+            duplicate, Array, Article, CreativeWorkType, Excerpt, ExecutionBounds,
+            ExecutionMessage, Node, Primitive, SoftwareApplication,
         },
+        Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
     },
+    KuzuKernelInstance, QueryResultTransform,
 };
 use lru::LruCache;
 
@@ -109,6 +109,29 @@ impl DocsKernelInstance {
             store: None,
             cache: docs,
         }
+    }
+
+    /// Create a new instance for the associated with a path
+    pub async fn new_workspace(path: &Path) -> Result<Self> {
+        let mut instance = Self::new();
+        instance.use_workspace(path).await?;
+        Ok(instance)
+    }
+
+    /// Use the workspace database associated with a path
+    ///
+    /// Finds the closest `.stencila` directory and uses its `.stencila/db`
+    /// and `.stencila/store` subdirectories.
+    async fn use_workspace(&mut self, path: &Path) -> Result<()> {
+        let stencila_dir = closest_stencila_dir(&path, false).await?;
+
+        let db_dir = stencila_db_dir(&stencila_dir, false).await?;
+        self.kuzu.set_path(db_dir);
+
+        let store_dir = stencila_store_dir(&stencila_dir, false).await?;
+        self.set_store(store_dir).await;
+
+        Ok(())
     }
 
     /// Set/reset the store path and clear the documents cache
@@ -217,15 +240,8 @@ impl KernelInstance for DocsKernelInstance {
                 let alias = &captures[1];
                 match alias {
                     "workspace" => {
-                        let current_dir =
-                            self.directory.clone().unwrap_or_else(|| PathBuf::from("."));
-                        let stencila_dir = closest_stencila_dir(&current_dir, false).await?;
-
-                        let db_dir = stencila_db_dir(&stencila_dir, false).await?;
-                        self.kuzu.set_path(db_dir);
-
-                        let store_dir = stencila_store_dir(&stencila_dir, false).await?;
-                        self.set_store(store_dir).await;
+                        let home_dir = self.directory.clone().unwrap_or_else(|| PathBuf::from("."));
+                        self.use_workspace(&home_dir).await?;
                     }
                     _ => unreachable!(),
                 }
