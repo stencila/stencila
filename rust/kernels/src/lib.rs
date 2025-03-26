@@ -260,7 +260,7 @@ impl Kernels {
         mut receiver: mpsc::UnboundedReceiver<KernelVariableRequest>,
         sender: broadcast::Sender<KernelVariableResponse>,
     ) {
-        tracing::debug!("Kernels variable request task started");
+        tracing::trace!("Kernels variable request task started");
 
         while let Some(request) = receiver.recv().await {
             tracing::trace!("Received request for variable `{}`", request.variable);
@@ -290,7 +290,7 @@ impl Kernels {
             }
         }
 
-        tracing::debug!("Kernels variable request task stopped");
+        tracing::trace!("Kernels variable request task stopped");
     }
 
     /// Create a kernel instance
