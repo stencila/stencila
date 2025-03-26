@@ -7,11 +7,9 @@ use std::{
 use kuzu::{Connection, Database, LogicalType, SystemConfig, Value};
 
 use kernel::{
-    Kernel, KernelInstance, KernelType, KernelVariableRequest, KernelVariableRequester,
-    KernelVariableResponder,
     common::{
         async_trait::async_trait,
-        eyre::{OptionExt, Result, bail},
+        eyre::{bail, OptionExt, Result},
         once_cell::sync::Lazy,
         regex::Regex,
         tracing,
@@ -22,6 +20,8 @@ use kernel::{
         CodeLocation, ExecutionBounds, ExecutionMessage, MessageLevel, Node, Null,
         SoftwareApplication, SoftwareApplicationOptions, StringOrNumber,
     },
+    Kernel, KernelInstance, KernelType, KernelVariableRequest, KernelVariableRequester,
+    KernelVariableResponder,
 };
 use kernel_jinja::JinjaKernelInstance;
 
@@ -301,11 +301,12 @@ impl KernelInstance for KuzuKernelInstance {
         let db = match &self.db {
             Some(db) => db,
             None => {
-                let path = self
-                    .path
-                    .clone()
-                    .unwrap_or_else(|| PathBuf::from(":memory:"));
-                let config = SystemConfig::default().read_only(self.read_only);
+                let (path, read_only) = match &self.path {
+                    Some(path) => (path.clone(), self.read_only),
+                    // In-memory databases can not be read only
+                    None => (PathBuf::from(":memory:"), false),
+                };
+                let config = SystemConfig::default().read_only(read_only);
                 let db = Database::new(path, config)?;
 
                 self.db = Some(db);
@@ -847,11 +848,9 @@ COPY (MATCH (p:Person) RETURN p) TO '{}';
         ] {
             match kernel.replicate(bounds).await {
                 Ok(..) => bail!("expected error"),
-                Err(error) => assert!(
-                    error
-                        .to_string()
-                        .starts_with("Can not replicate a Kuzu kernel for an in-memory database")
-                ),
+                Err(error) => assert!(error
+                    .to_string()
+                    .starts_with("Can not replicate a Kuzu kernel for an in-memory database")),
             }
         }
 
