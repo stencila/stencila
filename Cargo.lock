@@ -3221,6 +3221,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "kernel-context"
+version = "0.0.0"
+dependencies = [
+ "kernel-jinja",
+]
+
+[[package]]
 name = "kernel-docs"
 version = "0.0.0"
 dependencies = [
@@ -3353,6 +3360,7 @@ dependencies = [
  "kernel",
  "kernel-asciimath",
  "kernel-bash",
+ "kernel-context",
  "kernel-docs",
  "kernel-graphviz",
  "kernel-jinja",

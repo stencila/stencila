@@ -81,6 +81,7 @@
         "jsonld",
         "koenig",
         "kuzu",
+        "kwargs",
         "lezer",
         "llmd",
         "lucide",
