@@ -5,7 +5,7 @@ use kuzu::{Error, LogicalType, NodeVal, QueryResult, RelVal, Value};
 use kernel::{
     common::{
         self,
-        eyre::{Report, Result, bail},
+        eyre::{bail, Report, Result},
         indexmap::IndexMap,
         once_cell::sync::Lazy,
         regex::Regex,
@@ -110,11 +110,19 @@ pub fn node_from_query_result(
 }
 
 /// Create a Stencila [`Array`] of tuples of doc ids and node paths from a Kuzu [`QueryResult`]
+///
+/// This is permissive in that if the result contains values that are not nodes with
+/// `docId` and `nodePath` properties then it will convert to Stencila primitive nodes.
+/// This can arise when the transform type is specified as [`QueryResultTransform::Excerpts`]
+/// (e.g. by a `docs` kernels) but the user has made a query such as `MATCH (:Paragraph) RETURN count(*)`
 fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
     let mut nodes = Vec::new();
     for row in result {
         for value in row {
-            let Value::Node(node_val) = value else {
+            let Value::Node(node_val) = &value else {
+                // If the Kuzu value is not a node then just return the value
+                // converted to a primitive
+                nodes.push(primitive_from_value(value));
                 continue;
             };
 
@@ -134,6 +142,9 @@ fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
                 }
             }
             let (Some(doc_id), Some(node_path)) = (doc_id, node_path) else {
+                // As above, if the Kuzu node does not have docId and nodePath properties
+                // then convert to a primitive
+                nodes.push(primitive_from_value(value));
                 continue;
             };
 
