@@ -22,8 +22,8 @@ use kernel::{
 };
 use kernel_asciimath::AsciiMathKernel;
 use kernel_bash::BashKernel;
-use kernel_context::ContextKernel;
 use kernel_docs::DocsKernel;
+use kernel_docsql::DocsQLKernel;
 use kernel_graphviz::GraphvizKernel;
 use kernel_jinja::JinjaKernel;
 use kernel_kuzu::KuzuKernel;
@@ -59,7 +59,7 @@ pub async fn list() -> Vec<Box<dyn Kernel>> {
         // Database
         Box::<KuzuKernel>::default() as Box<dyn Kernel>,
         Box::<DocsKernel>::default() as Box<dyn Kernel>,
-        Box::<ContextKernel>::default() as Box<dyn Kernel>,
+        Box::<DocsQLKernel>::default() as Box<dyn Kernel>,
         // Diagrams
         Box::<MermaidKernel>::default() as Box<dyn Kernel>,
         Box::<GraphvizKernel>::default() as Box<dyn Kernel>,

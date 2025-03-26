@@ -23,18 +23,16 @@ use query::{add_to_env, Query};
 
 mod query;
 
-const NAME: &str = "context";
+const NAME: &str = "docsql";
 
-/// A kernel for accessing context
+/// A kernel for querying document context databases
 ///
-/// This kernel exposes a small domain specific language (DSL) for querying
-/// graph context databases. If a query returns context then the query builder
-/// prefixes that context with the Cypher query as thus serves as few shot
-/// examples for LLMs to perform their own queries on the context database.
+/// This kernel exposes a small domain specific language, "DocsQL", for querying
+/// graph databases of Stencila Schema document nodes.
 #[derive(Default)]
-pub struct ContextKernel;
+pub struct DocsQLKernel;
 
-impl Kernel for ContextKernel {
+impl Kernel for DocsQLKernel {
     fn name(&self) -> String {
         NAME.to_string()
     }

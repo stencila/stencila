@@ -3221,20 +3221,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "kernel-context"
-version = "0.0.0"
-dependencies = [
- "kernel-docs",
- "kernel-jinja",
-]
-
-[[package]]
 name = "kernel-docs"
 version = "0.0.0"
 dependencies = [
  "dirs 0.0.0",
  "kernel-kuzu",
  "lru",
+]
+
+[[package]]
+name = "kernel-docsql"
+version = "0.0.0"
+dependencies = [
+ "kernel-docs",
+ "kernel-jinja",
 ]
 
 [[package]]
@@ -3361,8 +3361,8 @@ dependencies = [
  "kernel",
  "kernel-asciimath",
  "kernel-bash",
- "kernel-context",
  "kernel-docs",
+ "kernel-docsql",
  "kernel-graphviz",
  "kernel-jinja",
  "kernel-kuzu",

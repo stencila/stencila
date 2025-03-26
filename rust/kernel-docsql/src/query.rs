@@ -378,7 +378,11 @@ impl Query {
         cypher
     }
 
-    /// Execute the query in a kernel
+    /// Execute the query in a kernel and optionally prepend results with a query
+    /// 
+    /// The intention for explanations is to provide LLMs with the generated Cypher
+    /// to act as few shot examples to generate their own Cypher queries for document
+    /// context databases.
     #[tracing::instrument(skip_all)]
     pub async fn execute(
         &self,
