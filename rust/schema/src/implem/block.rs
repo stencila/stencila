@@ -150,7 +150,12 @@ impl TryFrom<Node> for Block {
             Time,
             Timestamp,
             Underline,
-            VideoObject
+            VideoObject,
+            // Primitive inlines also wrapped into paragraphs
+            Boolean,
+            Integer,
+            UnsignedInteger,
+            Number
         );
 
         // Blocks are directly convertible
