@@ -1,15 +1,17 @@
 use std::sync::Arc;
 
+use kernel_docs::DocsKernelInstance;
 use kernel_jinja::{
     kernel::{
         common::{
-            inflector::Inflector, itertools::Itertools, once_cell::sync::Lazy, regex::Regex,
-            tracing,
+            eyre::Result, inflector::Inflector, itertools::Itertools, once_cell::sync::Lazy,
+            regex::Regex, tracing,
         },
         schema::{
-            shortcuts::{ci, p, t},
-            Node, Section,
+            shortcuts::{ci, t},
+            ExecutionMessage, Node, Paragraph,
         },
+        KernelInstance,
     },
     minijinja::{
         value::{from_args, DynObject, Kwargs, Object},
@@ -18,9 +20,9 @@ use kernel_jinja::{
 };
 
 #[derive(Debug, Default, Clone)]
-pub struct Query {
+pub(super) struct Query {
     /// The database to query
-    db: String,
+    pub db: String,
 
     /// The Cypher for the query
     cypher: Option<String>,
@@ -132,12 +134,20 @@ impl Query {
 
         let mut query = self.clone();
 
-        let alias = method.to_singular();
-        let table = match method {
+        let mut alias = method.to_singular();
+        let mut table = match method {
             "rows" => "TableRow".to_string(),
             "cells" => "TableCell".to_string(),
             _ => alias.to_pascal_case(),
         };
+
+        // Escape reserved words
+        if alias == "table" {
+            alias = ["`", &alias, "`"].concat();
+        }
+        if table == "Table" {
+            table = ["`", &table, "`"].concat();
+        }
 
         let node = ["(", &alias, ":", &table, ")"].concat();
 
@@ -155,24 +165,27 @@ impl Query {
             None => node,
         });
 
-        for property in kwargs.args() {
-            match property {
-                "and" => query.ands.push(kwargs.get(property)?),
-                "or" => query.ors.push(kwargs.get(property)?),
+        for arg in kwargs.args() {
+            match arg {
+                // Non-property arguments
+                "and" => query.ands.push(kwargs.get(arg)?),
+                "or" => query.ors.push(kwargs.get(arg)?),
                 _ => {
-                    let value: Value = kwargs.get(property)?;
+                    // Property argument: ensure camel cased
+                    let property = arg.to_camel_case();
+                    let value: Value = kwargs.get(arg)?;
 
                     let cypher = if let Some(op) = value.downcast_object_ref::<Operator>() {
-                        op.generate(&alias, property)
+                        op.generate(&alias, &property)
                     } else if let Some(call) = value.downcast_object_ref::<Call>() {
-                        call.generate(&alias, property)
+                        call.generate(&alias, &property)
                     } else {
                         let value = if let Some(string) = value.as_str() {
                             ["\"", &string.to_string(), "\""].concat()
                         } else {
                             value.to_string()
                         };
-                        [&alias, ".", property, " = ", &value].concat()
+                        [&alias, ".", arg, " = ", &value].concat()
                     };
                     query.ands.push(cypher)
                 }
@@ -208,14 +221,6 @@ impl Query {
     fn r#return(&self, what: String, distinct: Option<bool>) -> Result<Self, Error> {
         let mut query = self.clone();
 
-        static REGEX: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r"(\*)|(\w+\.\w+\s*,?\s*)+").expect("invalid regex"));
-        if !REGEX.is_match(&what) {
-            return Err(Error::new(
-                ErrorKind::InvalidOperation,
-                "first argument should be '*' or a comma separated list of 'name.property' e.g 'paragraph.text'",
-            ));
-        }
         query.r#return = Some(what);
         query.return_distinct = distinct;
         query.return_used = true;
@@ -373,44 +378,50 @@ impl Query {
         cypher
     }
 
-    /// Execute the query
-    pub fn execute(&self) -> Vec<Node> {
+    /// Execute the query in a kernel
+    #[tracing::instrument(skip_all)]
+    pub async fn execute(
+        &self,
+        kernel: &mut DocsKernelInstance,
+    ) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
         let cypher = self.generate();
+        tracing::trace!("Generated cypher: {cypher}");
 
-        tracing::debug!("Generated Cypher query: {cypher}");
+        let (mut outputs, messages) = kernel.execute(&cypher).await?;
 
-        let result: Vec<Node> = vec![];
+        // Return early if any messages
+        if !messages.is_empty() {
+            return Ok((Vec::new(), messages));
+        }
 
-        let content =
-            if !result.is_empty() && self.explain || result.is_empty() && self.explain_always {
-                let mut explain = if let Some(prefix) = &self.explain_prefix {
-                    vec![t(prefix)]
-                } else {
-                    Vec::new()
-                };
+        // Return early if no explanation needs
+        if outputs.is_empty() && !self.explain_always || !self.explain {
+            return Ok((outputs, Vec::new()));
+        }
 
-                explain.append(&mut vec![
-                    t("When executed on the "),
-                    ci(&self.db),
-                    t(" database the Cypher query "),
-                    ci(cypher.replace("\n", " ")),
-                    if result.is_empty() {
-                        t(" returned no results.")
-                    } else {
-                        t(" returned the following results.")
-                    },
-                ]);
-
-                if let Some(suffix) = &self.explain_suffix {
-                    explain.push(t(suffix));
-                }
-
-                vec![p(explain)]
+        // Create explanation and prepend to outputs
+        let mut explain = if let Some(prefix) = &self.explain_prefix {
+            vec![t(prefix)]
+        } else {
+            Vec::new()
+        };
+        explain.append(&mut vec![
+            t("When executed on the "),
+            ci(&self.db),
+            t(" database the Cypher query "),
+            ci(cypher.replace("\n", " ")),
+            if outputs.is_empty() {
+                t(" returned no results.")
             } else {
-                Vec::new()
-            };
+                t(" returned the following results.")
+            },
+        ]);
+        if let Some(suffix) = &self.explain_suffix {
+            explain.push(t(suffix));
+        }
+        outputs.insert(0, Node::Paragraph(Paragraph::new(explain)));
 
-        vec![Node::Section(Section::new(content))]
+        Ok((outputs, Vec::new()))
     }
 }
 
@@ -438,11 +449,11 @@ impl Object for Query {
                 let (condition,) = from_args(args)?;
                 self.or(condition)?
             }
-            "r#return" => {
+            "return" => {
                 let (r#return, distinct) = from_args(args)?;
                 self.r#return(r#return, distinct)?
             }
-            "order_by" => {
+            "order_by" | "orderBy" => {
                 let (order_by, order) = from_args(args)?;
                 self.order_by(order_by, order)?
             }
@@ -551,12 +562,19 @@ pub fn add_to_env(env: &mut Environment) {
     env.add_function("contains", |s: &str| {
         Call::make("contains", &[Value::from(s)])
     });
-    env.add_function("startsWith", |s: &str| {
+
+    fn starts_with(s: &str) -> Result<Value, Error> {
         Call::make("starts_with", &[Value::from(s)])
-    });
-    env.add_function("endsWith", |s: &str| {
+    }
+    env.add_function("starts_with", starts_with);
+    env.add_function("startsWith", starts_with);
+
+    fn ends_with(s: &str) -> Result<Value, Error> {
         Call::make("ends_with", &[Value::from(s)])
-    });
+    }
+    env.add_function("ends_with", ends_with);
+    env.add_function("endsWith", ends_with);
+
     env.add_function("matches", |s: &str| {
         Call::make("regexp_matches", &[Value::from(s)])
     });

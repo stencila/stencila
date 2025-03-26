@@ -1,9 +1,17 @@
-use std::sync::Arc;
+use std::{
+    path::{Path, PathBuf},
+    sync::Arc,
+};
 
+use kernel_docs::DocsKernelInstance;
 use kernel_jinja::{
     error_to_execution_message,
     kernel::{
-        common::{async_trait::async_trait, eyre::Result, serde_json, tracing},
+        common::{
+            async_trait::async_trait,
+            eyre::{bail, Result},
+            serde_json, tracing,
+        },
         format::Format,
         generate_id,
         schema::{ExecutionBounds, ExecutionMessage, Node, SoftwareApplication},
@@ -64,6 +72,18 @@ struct ContextKernelInstance {
 
     /// The Jinja context
     context: Arc<ContextKernelContext>,
+
+    /// The path that the kernel is started in
+    ///
+    /// Used to determine the closest `.stencila` directory when
+    /// instantiating the workspace context.
+    directory: PathBuf,
+
+    /// A [`DocsKernelInstance`] for the current workspace
+    ///
+    /// This is lazily instantiated because it can take a non-trivial
+    /// amount of time.
+    workspace: Option<DocsKernelInstance>,
 }
 
 impl ContextKernelInstance {
@@ -71,6 +91,19 @@ impl ContextKernelInstance {
         Self {
             id: generate_id(NAME),
             context: Arc::new(ContextKernelContext {}),
+            directory: PathBuf::from("."),
+            workspace: None,
+        }
+    }
+
+    // Get the workspace kernel, instantiating it if necessary
+    async fn workspace(&mut self) -> Result<&mut DocsKernelInstance> {
+        if self.workspace.is_some() {
+            Ok(self.workspace.as_mut().expect("checked above"))
+        } else {
+            let workspace = DocsKernelInstance::new_workspace(&self.directory).await?;
+            self.workspace = Some(workspace);
+            Ok(self.workspace.as_mut().expect("assigned above"))
         }
     }
 }
@@ -79,6 +112,14 @@ impl ContextKernelInstance {
 impl KernelInstance for ContextKernelInstance {
     fn id(&self) -> &str {
         &self.id
+    }
+
+    async fn start(&mut self, directory: &Path) -> Result<()> {
+        tracing::trace!("Starting context kernel");
+
+        self.directory = directory.to_path_buf();
+
+        Ok(())
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
@@ -93,20 +134,21 @@ impl KernelInstance for ContextKernelInstance {
         };
 
         let context = Value::from_dyn_object(self.context.clone());
-        let nodes = match expr.eval(context) {
+        match expr.eval(context) {
             Ok(value) => {
                 if let Some(query) = value.downcast_object::<Query>() {
-                    query.execute()
+                    match query.db.as_str() {
+                        "workspace" => query.execute(self.workspace().await?).await,
+                        _ => bail!("Unknown context database: {}", query.db),
+                    }
                 } else {
-                    let value = serde_json::to_value(value).unwrap_or_default();
-                    let node: Node = serde_json::from_value(value).unwrap_or_default();
-                    vec![node]
+                    let value = serde_json::to_value(value)?;
+                    let node: Node = serde_json::from_value(value)?;
+                    Ok((vec![node], Vec::new()))
                 }
             }
-            Err(error) => return Ok((Vec::new(), vec![error_to_execution_message(error)])),
-        };
-
-        Ok((nodes, Vec::new()))
+            Err(error) => Ok((Vec::new(), vec![error_to_execution_message(error)])),
+        }
     }
 
     async fn info(&mut self) -> Result<SoftwareApplication> {
