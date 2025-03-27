@@ -62,6 +62,7 @@ pub enum Format {
     // Database query languages
     Cypher,
     Sql,
+    DocsQL,
     // Diagramming languages
     Dot,
     Mermaid,
@@ -125,6 +126,7 @@ impl Format {
             Cypher => "Cypher",
             Debug => "Debug",
             Directory => "Directory",
+            DocsQL => "Stencila DocsQL",
             Docx => "Microsoft Word DOCX",
             Dom => "DOM HTML",
             Dot => "Graphviz DOT",
@@ -264,6 +266,7 @@ impl Format {
             "cypher" | "cyp" | "cql" => Cypher,
             "debug" => Debug,
             "directory" | "dir" => Directory,
+            "docsql" => DocsQL,
             "docx" => Docx,
             "dom" | "dom.html" => Dom,
             "dot" => Dot,
@@ -445,6 +448,7 @@ impl Display for Format {
             Cypher => "cypher",
             Debug => "debug",
             Directory => "directory",
+            DocsQL => "docsql",
             Docx => "docx",
             Dom => "dom.html",
             Dot => "dot",

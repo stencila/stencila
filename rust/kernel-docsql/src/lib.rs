@@ -47,7 +47,7 @@ impl Kernel for DocsQLKernel {
     }
 
     fn supports_languages(&self) -> Vec<Format> {
-        vec![]
+        vec![Format::DocsQL]
     }
 
     fn supported_bounds(&self) -> Vec<ExecutionBounds> {
