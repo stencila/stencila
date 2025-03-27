@@ -15,7 +15,10 @@ use kernel_jinja::{
         },
         format::Format,
         generate_id,
-        schema::{ExecutionBounds, ExecutionMessage, Node, SoftwareApplication},
+        schema::{
+            shortcuts::t, CodeBlock, ExecutionBounds, ExecutionMessage, Node, Paragraph,
+            SoftwareApplication,
+        },
         Kernel, KernelInstance, KernelType,
     },
     minijinja::{value::Object, Environment, UndefinedBehavior, Value},
@@ -128,11 +131,15 @@ impl KernelInstance for ContextKernelInstance {
         env.set_undefined_behavior(UndefinedBehavior::Strict);
         add_to_env(&mut env);
 
-        // Erase comment lines (but keep lines for line numbering)
+        // Erase comment lines (but keep lines for line numbering), checking for @explain
+        let mut explain = false;
         let code = code
             .lines()
             .map(|line| {
                 if line.trim_start().starts_with("#") {
+                    if line.contains("@explain") {
+                        explain = true;
+                    }
                     ""
                 } else {
                     line
@@ -145,22 +152,49 @@ impl KernelInstance for ContextKernelInstance {
             Err(error) => return Ok((Vec::new(), vec![error_to_execution_message(error)])),
         };
 
+        let mut explanation = None;
+
         let context = Value::from_dyn_object(self.context.clone());
-        match expr.eval(context) {
+        let (mut outputs, messages) = match expr.eval(context) {
             Ok(value) => {
                 if let Some(query) = value.downcast_object::<Query>() {
+                    let cypher = query.generate();
+                    if explain {
+                        explanation = Some(vec![
+                            Node::Paragraph(Paragraph::new(vec![t(
+                                format!("This DocsQL is equivalent to executing the following Cypher in the {} graph database", query.db),
+                            )])),
+                            Node::CodeBlock(CodeBlock {
+                                programming_language: Some("docs".into()),
+                                code: format!("// @{}\n{}", query.db, cypher).into(),
+                                ..Default::default()
+                            }),
+                        ]);
+                    }
                     match query.db.as_str() {
-                        "workspace" => query.execute(self.workspace().await?).await,
+                        "workspace" => {
+                            let kernel = self.workspace().await?;
+                            kernel.execute(&cypher).await?
+                        }
                         _ => bail!("Unknown context database: {}", query.db),
                     }
                 } else {
                     let value = serde_json::to_value(value)?;
                     let node: Node = serde_json::from_value(value)?;
-                    Ok((vec![node], Vec::new()))
+                    (vec![node], Vec::new())
                 }
             }
-            Err(error) => Ok((Vec::new(), vec![error_to_execution_message(error)])),
-        }
+            Err(error) => return Ok((Vec::new(), vec![error_to_execution_message(error)])),
+        };
+
+        let outputs = if let Some(mut explanation) = explanation {
+            explanation.append(&mut outputs);
+            explanation
+        } else {
+            outputs
+        };
+
+        Ok((outputs, messages))
     }
 
     async fn info(&mut self) -> Result<SoftwareApplication> {

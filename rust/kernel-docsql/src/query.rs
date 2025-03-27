@@ -7,10 +7,7 @@ use kernel_jinja::{
             eyre::Result, inflector::Inflector, itertools::Itertools, once_cell::sync::Lazy,
             regex::Regex, tracing,
         },
-        schema::{
-            shortcuts::{ci, t},
-            ExecutionMessage, MessageLevel, Node, Paragraph,
-        },
+        schema::{ExecutionMessage, MessageLevel, Node},
         KernelInstance,
     },
     minijinja::{
@@ -59,18 +56,6 @@ pub(super) struct Query {
 
     /// Whether any `UNION` clause has an `ALL` modifier
     union_all: bool,
-
-    /// Whether to explain the query
-    explain: bool,
-
-    /// Always explain the query, even for empty results
-    explain_always: bool,
-
-    /// A prefix to add to the explanation of the query
-    explain_prefix: Option<String>,
-
-    /// A suffix to add to the explanation of the query
-    explain_suffix: Option<String>,
 
     /// Whether the `return` method has been used
     return_used: bool,
@@ -306,32 +291,6 @@ impl Query {
         Ok(query)
     }
 
-    /// Explain the query when executing it
-    fn explain(
-        &self,
-        prefix: Option<String>,
-        suffix: Option<String>,
-        kwargs: Kwargs,
-    ) -> Result<Self, Error> {
-        let mut query = self.clone();
-        query.explain = true;
-        query.explain_prefix = prefix;
-        query.explain_suffix = suffix;
-
-        for arg in kwargs.args() {
-            if arg == "always" {
-                query.explain_always = kwargs.get(arg)?;
-            } else {
-                return Err(Error::new(
-                    ErrorKind::TooManyArguments,
-                    format!("unknown keyword argument `{arg}`"),
-                ));
-            }
-        }
-
-        Ok(query)
-    }
-
     /// Generate a Cypher query for the query
     pub fn generate(&self) -> String {
         if let Some(cypher) = &self.cypher {
@@ -414,44 +373,16 @@ impl Query {
         let cypher = self.generate();
         tracing::trace!("Generated cypher: {cypher}");
 
-        let (mut outputs, mut messages) = kernel.execute(&cypher).await?;
+        let (outputs, mut messages) = kernel.execute(&cypher).await?;
 
-        // Return early if any messages and add generated Cypher in a message
+        // If any messages and add generated Cypher in a message
         if !messages.is_empty() {
             messages.push(ExecutionMessage {
                 level: MessageLevel::Debug,
                 message: format!("Generated Cypher:\n{cypher}"),
                 ..Default::default()
             });
-            return Ok((Vec::new(), messages));
         }
-
-        // Return early if no explanation needed
-        if outputs.is_empty() && !self.explain_always || !self.explain {
-            return Ok((outputs, Vec::new()));
-        }
-
-        // Create explanation and prepend to outputs
-        let mut explain = if let Some(prefix) = &self.explain_prefix {
-            vec![t(prefix)]
-        } else {
-            Vec::new()
-        };
-        explain.append(&mut vec![
-            t("When executed on the "),
-            ci(&self.db),
-            t(" database the Cypher query "),
-            ci(cypher.replace("\n", " ")),
-            if outputs.is_empty() {
-                t(" returned no results.")
-            } else {
-                t(" returned the following results.")
-            },
-        ]);
-        if let Some(suffix) = &self.explain_suffix {
-            explain.push(t(suffix));
-        }
-        outputs.insert(0, Node::Paragraph(Paragraph::new(explain)));
 
         Ok((outputs, Vec::new()))
     }
@@ -500,10 +431,6 @@ impl Object for Query {
             "union" => {
                 let (union, all) = from_args(args)?;
                 self.union(union, all)?
-            }
-            "explain" => {
-                let (prefix, suffix, kwargs) = from_args(args)?;
-                self.explain(prefix, suffix, kwargs)?
             }
             _ => {
                 let (kwargs,) = from_args(args)?;
