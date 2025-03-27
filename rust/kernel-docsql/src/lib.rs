@@ -19,9 +19,10 @@ use kernel_jinja::{
             shortcuts::t, CodeBlock, ExecutionBounds, ExecutionMessage, Node, Paragraph,
             SoftwareApplication,
         },
-        Kernel, KernelInstance, KernelType,
+        Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
     },
-    minijinja::{value::Object, Environment, UndefinedBehavior, Value},
+    minijinja::{context, Environment, UndefinedBehavior, Value},
+    JinjaKernelContext,
 };
 use query::{add_to_env, Query};
 
@@ -72,8 +73,8 @@ struct ContextKernelInstance {
     /// The unique id of the kernel instance
     id: String,
 
-    /// The Jinja context
-    context: Arc<DocsQLKernelContext>,
+    /// The Jinja context used to request variables from other kernels
+    context: Option<Arc<JinjaKernelContext>>,
 
     /// The path that the kernel is started in
     ///
@@ -92,7 +93,7 @@ impl ContextKernelInstance {
     fn new() -> Self {
         Self {
             id: generate_id(NAME),
-            context: Arc::new(DocsQLKernelContext {}),
+            context: None,
             directory: PathBuf::from("."),
             workspace: None,
         }
@@ -152,9 +153,12 @@ impl KernelInstance for ContextKernelInstance {
             Err(error) => return Ok((Vec::new(), vec![error_to_execution_message(error)])),
         };
 
-        let mut explanation = None;
+        let context = match self.context.as_ref() {
+            Some(context) => Value::from_dyn_object(context.clone()),
+            None => context!(),
+        };
 
-        let context = Value::from_dyn_object(self.context.clone());
+        let mut explanation = None;
         let (mut outputs, messages) = match expr.eval(context) {
             Ok(value) => {
                 if let Some(query) = value.downcast_object::<Query>() {
@@ -197,6 +201,18 @@ impl KernelInstance for ContextKernelInstance {
         Ok((outputs, messages))
     }
 
+    fn variable_channel(
+        &mut self,
+        requester: KernelVariableRequester,
+        responder: KernelVariableResponder,
+    ) {
+        self.context = Some(Arc::new(JinjaKernelContext::new(
+            self.id().to_string(),
+            requester,
+            responder,
+        )));
+    }
+
     async fn info(&mut self) -> Result<SoftwareApplication> {
         tracing::trace!("Getting context kernel info");
 
@@ -210,9 +226,3 @@ impl KernelInstance for ContextKernelInstance {
         Ok(Box::new(Self::new()))
     }
 }
-
-/// A Jinja context for the [`DocsQLKernel`]
-#[derive(Debug)]
-struct DocsQLKernelContext {}
-
-impl Object for DocsQLKernelContext {}
