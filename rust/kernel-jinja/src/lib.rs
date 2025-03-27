@@ -14,8 +14,8 @@ use kernel::{
     format::Format,
     generate_id,
     schema::{
-        ExecutionBounds, ExecutionMessage, MessageLevel, Node, Null, SoftwareApplication,
-        SoftwareApplicationOptions,
+        CodeLocation, ExecutionBounds, ExecutionMessage, MessageLevel, Node, Null,
+        SoftwareApplication, SoftwareApplicationOptions,
     },
     Kernel, KernelInstance, KernelType, KernelVariableRequest, KernelVariableRequester,
     KernelVariableResponder,
@@ -174,14 +174,64 @@ impl KernelInstance for JinjaKernelInstance {
 
 /// Create an [`ExecutionMessage`] from a [`minijinja::Error`]
 pub fn error_to_execution_message(error: Error) -> ExecutionMessage {
-    let mut error = &error as &dyn std::error::Error;
+    let error_type = Some(error.kind().to_string());
+    let message = error
+        .detail()
+        .map_or_else(|| error.to_string(), String::from);
 
+    let code_location =
+        if let (Some(source), Some(range)) = (error.template_source(), error.range()) {
+            let mut line = 0;
+            let mut col = 0;
+            let mut start = None;
+            let mut end = None;
+
+            for (index, ch) in source.char_indices() {
+                if index == range.start {
+                    start = Some((line, col));
+                }
+                if index == range.end {
+                    end = Some((line, col));
+                    break;
+                }
+
+                if ch == '\n' {
+                    line += 1;
+                    col = 0;
+                } else {
+                    col += 1;
+                }
+            }
+            if end.is_none() && range.end == source.len() {
+                end = Some((line, col));
+            }
+
+            if start.is_some() {
+                Some(CodeLocation {
+                    start_line: start.map(|(line, ..)| line as u64),
+                    start_column: start.map(|(.., col)| col as u64),
+                    end_line: end.map(|(line, ..)| line as u64),
+                    end_column: end.map(|(.., col)| col as u64),
+                    ..Default::default()
+                })
+            } else {
+                None
+            }
+        } else if let Some(line) = error.line() {
+            Some(CodeLocation {
+                start_line: Some(line as u64),
+                ..Default::default()
+            })
+        } else {
+            None
+        };
+
+    let mut error = &error as &dyn std::error::Error;
     let mut stack_trace = String::new();
     while let Some(source) = error.source() {
         stack_trace.push_str(&format!("\n{:#}", source));
         error = source;
     }
-
     let stack_trace = if stack_trace.is_empty() {
         None
     } else {
@@ -190,7 +240,9 @@ pub fn error_to_execution_message(error: Error) -> ExecutionMessage {
 
     ExecutionMessage {
         level: MessageLevel::Exception,
-        message: error.to_string(),
+        error_type,
+        message,
+        code_location,
         stack_trace,
         ..Default::default()
     }
