@@ -262,6 +262,19 @@ pub struct JinjaKernelContext {
     variable_channel: Mutex<(KernelVariableRequester, KernelVariableResponder)>,
 }
 
+impl JinjaKernelContext {
+    pub fn new(
+        instance: String,
+        requester: KernelVariableRequester,
+        responder: KernelVariableResponder,
+    ) -> Self {
+        Self {
+            instance,
+            variable_channel: Mutex::new((requester, responder)),
+        }
+    }
+}
+
 impl Object for JinjaKernelContext {
     fn get_value(self: &Arc<Self>, name: &Value) -> Option<Value> {
         let Ok(mut guard) = self.variable_channel.lock() else {
@@ -312,7 +325,10 @@ impl Object for JinjaKernelContext {
             }
             Ok(Ok(node)) => match node {
                 Some(node) => Some(Value::from_serialize(&node)),
-                None => Some(Value::UNDEFINED),
+                // Return `None` here (rather than `Some(Value::UNDEFINED)` as we did
+                // previously) so that if the variable is not found with name, that filters and
+                // functions in the `Environment` will be search (rather than stopping here)
+                None => None,
             },
         }
     }
