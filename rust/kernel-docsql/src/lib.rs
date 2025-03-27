@@ -10,6 +10,7 @@ use kernel_jinja::{
         common::{
             async_trait::async_trait,
             eyre::{bail, Result},
+            itertools::Itertools,
             serde_json, tracing,
         },
         format::Format,
@@ -17,7 +18,7 @@ use kernel_jinja::{
         schema::{ExecutionBounds, ExecutionMessage, Node, SoftwareApplication},
         Kernel, KernelInstance, KernelType,
     },
-    minijinja::{value::Object, Environment, Value},
+    minijinja::{value::Object, Environment, UndefinedBehavior, Value},
 };
 use query::{add_to_env, Query};
 
@@ -69,7 +70,7 @@ struct ContextKernelInstance {
     id: String,
 
     /// The Jinja context
-    context: Arc<ContextKernelContext>,
+    context: Arc<DocsQLKernelContext>,
 
     /// The path that the kernel is started in
     ///
@@ -88,7 +89,7 @@ impl ContextKernelInstance {
     fn new() -> Self {
         Self {
             id: generate_id(NAME),
-            context: Arc::new(ContextKernelContext {}),
+            context: Arc::new(DocsQLKernelContext {}),
             directory: PathBuf::from("."),
             workspace: None,
         }
@@ -123,10 +124,23 @@ impl KernelInstance for ContextKernelInstance {
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
         tracing::trace!("Executing code in context kernel");
 
-        let mut env = Environment::new();
+        let mut env = Environment::empty();
+        env.set_undefined_behavior(UndefinedBehavior::Strict);
         add_to_env(&mut env);
 
-        let expr = match env.compile_expression(code) {
+        // Erase comment lines (but keep lines for line numbering)
+        let code = code
+            .lines()
+            .map(|line| {
+                if line.trim_start().starts_with("#") {
+                    ""
+                } else {
+                    line
+                }
+            })
+            .join("\n");
+
+        let expr = match env.compile_expression(&code) {
             Ok(expr) => expr,
             Err(error) => return Ok((Vec::new(), vec![error_to_execution_message(error)])),
         };
@@ -163,8 +177,8 @@ impl KernelInstance for ContextKernelInstance {
     }
 }
 
-/// A Jinja context for the [`ContextKernel`]
+/// A Jinja context for the [`DocsQLKernel`]
 #[derive(Debug)]
-pub struct ContextKernelContext {}
+struct DocsQLKernelContext {}
 
-impl Object for ContextKernelContext {}
+impl Object for DocsQLKernelContext {}

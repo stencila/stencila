@@ -9,7 +9,7 @@ use kernel_jinja::{
         },
         schema::{
             shortcuts::{ci, t},
-            ExecutionMessage, Node, Paragraph,
+            ExecutionMessage, MessageLevel, Node, Paragraph,
         },
         KernelInstance,
     },
@@ -166,14 +166,37 @@ impl Query {
         });
 
         for arg in kwargs.args() {
+            // Ensure all arguments are defined
+            let value: Value = kwargs.get(arg)?;
+            if value.is_undefined() {
+                return Err(Error::new(
+                    ErrorKind::UndefinedError,
+                    format!("value for argument `{arg}` is undefined"),
+                ));
+            }
+
             match arg {
-                // Non-property arguments
-                "and" => query.ands.push(kwargs.get(arg)?),
-                "or" => query.ors.push(kwargs.get(arg)?),
+                "and" | "or" => {
+                    // Non-property arguments: ensure string
+                    let condition = value
+                        .as_str()
+                        .ok_or_else(|| {
+                            Error::new(
+                                ErrorKind::InvalidOperation,
+                                format!("argument `{arg}` is should be a string"),
+                            )
+                        })?
+                        .to_string();
+
+                    match arg {
+                        "and" => query.ands.push(condition),
+                        "or" => query.ors.push(condition),
+                        _ => unreachable!(),
+                    }
+                }
                 _ => {
                     // Property argument: ensure camel cased
                     let property = arg.to_camel_case();
-                    let value: Value = kwargs.get(arg)?;
 
                     let cypher = if let Some(op) = value.downcast_object_ref::<Operator>() {
                         op.generate(&alias, &property)
@@ -379,7 +402,7 @@ impl Query {
     }
 
     /// Execute the query in a kernel and optionally prepend results with a query
-    /// 
+    ///
     /// The intention for explanations is to provide LLMs with the generated Cypher
     /// to act as few shot examples to generate their own Cypher queries for document
     /// context databases.
@@ -391,14 +414,19 @@ impl Query {
         let cypher = self.generate();
         tracing::trace!("Generated cypher: {cypher}");
 
-        let (mut outputs, messages) = kernel.execute(&cypher).await?;
+        let (mut outputs, mut messages) = kernel.execute(&cypher).await?;
 
-        // Return early if any messages
+        // Return early if any messages and add generated Cypher in a message
         if !messages.is_empty() {
+            messages.push(ExecutionMessage {
+                level: MessageLevel::Debug,
+                message: format!("Generated Cypher:\n{cypher}"),
+                ..Default::default()
+            });
             return Ok((Vec::new(), messages));
         }
 
-        // Return early if no explanation needs
+        // Return early if no explanation needed
         if outputs.is_empty() && !self.explain_always || !self.explain {
             return Ok((outputs, Vec::new()));
         }
