@@ -29,7 +29,7 @@ const langs = [
   { name: "html", aliases: "html", include: "text.html.basic", chunks: false },
   {
     name: "python",
-    aliases: "(py(?:thon)?)|docsql",
+    aliases: "python|py|docsql",
     include: "source.python",
     chunks: true,
   },
