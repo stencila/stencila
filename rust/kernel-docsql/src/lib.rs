@@ -3,7 +3,7 @@ use std::{
     sync::Arc,
 };
 
-use kernel_docs::DocsKernelInstance;
+use kernel_docsdb::DocsDBKernelInstance;
 use kernel_jinja::{
     error_to_execution_message,
     kernel::{
@@ -82,11 +82,11 @@ struct ContextKernelInstance {
     /// instantiating the workspace context.
     directory: PathBuf,
 
-    /// A [`DocsKernelInstance`] for the current workspace
+    /// A [`DocsDBKernelInstance`] for the current workspace
     ///
     /// This is lazily instantiated because it can take a non-trivial
     /// amount of time.
-    workspace: Option<DocsKernelInstance>,
+    workspace: Option<DocsDBKernelInstance>,
 }
 
 impl ContextKernelInstance {
@@ -100,11 +100,11 @@ impl ContextKernelInstance {
     }
 
     // Get the workspace kernel, instantiating it if necessary
-    async fn workspace(&mut self) -> Result<&mut DocsKernelInstance> {
+    async fn workspace(&mut self) -> Result<&mut DocsDBKernelInstance> {
         if self.workspace.is_some() {
             Ok(self.workspace.as_mut().expect("checked above"))
         } else {
-            let workspace = DocsKernelInstance::new_workspace(&self.directory).await?;
+            let workspace = DocsDBKernelInstance::new_workspace(&self.directory).await?;
             self.workspace = Some(workspace);
             Ok(self.workspace.as_mut().expect("assigned above"))
         }

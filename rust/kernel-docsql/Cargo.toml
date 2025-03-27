@@ -4,7 +4,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-kernel-docs = { path = "../kernel-docs" }
+kernel-docsdb = { path = "../kernel-docsdb" }
 kernel-jinja = { path = "../kernel-jinja" }
 
 [lints]

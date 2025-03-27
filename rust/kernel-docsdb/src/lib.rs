@@ -28,7 +28,7 @@ use kernel_kuzu::{
 };
 use lru::LruCache;
 
-const NAME: &str = "docs";
+const NAME: &str = "docsdb";
 
 /// A kernel for querying Stencila node databases
 ///
@@ -45,9 +45,9 @@ const NAME: &str = "docs";
 ///
 /// 3. returns nodes as `Excerpt`s (rather than as Cytoscape graph specs)
 #[derive(Default)]
-pub struct DocsKernel;
+pub struct DocsDBKernel;
 
-impl Kernel for DocsKernel {
+impl Kernel for DocsDBKernel {
     fn name(&self) -> String {
         NAME.to_string()
     }
@@ -69,11 +69,11 @@ impl Kernel for DocsKernel {
     }
 
     fn create_instance(&self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(DocsKernelInstance::new()))
+        Ok(Box::new(DocsDBKernelInstance::new()))
     }
 }
 
-pub struct DocsKernelInstance {
+pub struct DocsDBKernelInstance {
     /// The unique id of the kernel instance
     id: String,
 
@@ -92,7 +92,7 @@ pub struct DocsKernelInstance {
     cache: Mutex<LruCache<String, Node>>,
 }
 
-impl DocsKernelInstance {
+impl DocsDBKernelInstance {
     /// Create a new instance
     fn new() -> Self {
         let id = generate_id(NAME);
@@ -215,13 +215,13 @@ impl DocsKernelInstance {
 }
 
 #[async_trait]
-impl KernelInstance for DocsKernelInstance {
+impl KernelInstance for DocsDBKernelInstance {
     fn id(&self) -> &str {
         &self.id
     }
 
     async fn start(&mut self, directory: &Path) -> Result<()> {
-        tracing::trace!("Starting docs kernel");
+        tracing::trace!("Starting DocsDB kernel");
 
         self.directory = Some(directory.to_path_buf());
 
@@ -229,7 +229,7 @@ impl KernelInstance for DocsKernelInstance {
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
-        tracing::trace!("Executing query in docs kernel");
+        tracing::trace!("Executing query in DocsDB kernel");
 
         // Check for db aliases and set db and store paths accordingly
         static DB_REGEX: Lazy<Regex> =
@@ -284,16 +284,16 @@ impl KernelInstance for DocsKernelInstance {
     }
 
     async fn info(&mut self) -> Result<SoftwareApplication> {
-        tracing::trace!("Getting docs kernel info");
+        tracing::trace!("Getting DocsDB kernel info");
 
         Ok(SoftwareApplication {
-            name: "Docs Kernel".to_string(),
+            name: "DocsDB Kernel".to_string(),
             ..self.kuzu.info().await?
         })
     }
 
     async fn replicate(&mut self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
-        tracing::trace!("Replicating docs kernel");
+        tracing::trace!("Replicating DocsDB kernel");
 
         self.kuzu.replicate(bounds).await
     }

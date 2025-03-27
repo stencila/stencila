@@ -8,7 +8,7 @@ cli-utils = { path = "../cli-utils" }
 kernel = { path = "../kernel" }
 kernel-asciimath = { path = "../kernel-asciimath" }
 kernel-bash = { path = "../kernel-bash" }
-kernel-docs = { path = "../kernel-docs" }
+kernel-docsdb = { path = "../kernel-docsdb" }
 kernel-docsql = { path = "../kernel-docsql" }
 kernel-graphviz = { path = "../kernel-graphviz" }
 kernel-jinja = { path = "../kernel-jinja" }

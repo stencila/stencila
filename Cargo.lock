@@ -3221,7 +3221,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "kernel-docs"
+name = "kernel-docsdb"
 version = "0.0.0"
 dependencies = [
  "dirs 0.0.0",
@@ -3233,7 +3233,7 @@ dependencies = [
 name = "kernel-docsql"
 version = "0.0.0"
 dependencies = [
- "kernel-docs",
+ "kernel-docsdb",
  "kernel-jinja",
 ]
 
@@ -3361,7 +3361,7 @@ dependencies = [
  "kernel",
  "kernel-asciimath",
  "kernel-bash",
- "kernel-docs",
+ "kernel-docsdb",
  "kernel-docsql",
  "kernel-graphviz",
  "kernel-jinja",

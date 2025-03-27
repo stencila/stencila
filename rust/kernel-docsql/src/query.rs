@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use kernel_docs::DocsKernelInstance;
+use kernel_docsdb::DocsDBKernelInstance;
 use kernel_jinja::{
     kernel::{
         common::{
@@ -368,7 +368,7 @@ impl Query {
     #[tracing::instrument(skip_all)]
     pub async fn execute(
         &self,
-        kernel: &mut DocsKernelInstance,
+        kernel: &mut DocsDBKernelInstance,
     ) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
         let cypher = self.generate();
         tracing::trace!("Generated cypher: {cypher}");
