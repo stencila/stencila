@@ -307,7 +307,7 @@ export class UINodeCode extends LitElement {
     }),
     LanguageDescription.of({
       name: 'python',
-      alias: ['py'],
+      alias: ['py', 'docsql'],
       load: async () => {
         return import('@codemirror/lang-python').then((obj) => obj.python())
       },

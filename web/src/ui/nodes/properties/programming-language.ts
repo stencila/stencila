@@ -24,6 +24,10 @@ export const programmingLanguages: Record<
     title: 'Docs',
     icon: 'files',
   },
+  docsql: {
+    title: 'DocsQL',
+    icon: 'files',
+  },
   jinja: {
     title: 'Jinja',
     icon: 'braces',
