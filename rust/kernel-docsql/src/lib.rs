@@ -23,7 +23,7 @@ use kernel_jinja::{
     minijinja::{context, Environment, UndefinedBehavior, Value},
     JinjaKernelContext,
 };
-use query::{set_env_functions, NodeProxies, NodeProxy, Query};
+use query::{NodeProxies, NodeProxy, Query};
 
 mod query;
 
@@ -98,7 +98,7 @@ impl DocsQLKernelInstance {
         }
     }
 
-    // Get the workspace kernel, instantiating it if necessary
+    /// Get the workspace kernel, instantiating it if necessary
     async fn workspace(&mut self) -> Result<Arc<Mutex<DocsDBKernelInstance>>> {
         if let Some(workspace) = &self.workspace {
             Ok(workspace.clone())
@@ -131,15 +131,29 @@ impl KernelInstance for DocsQLKernelInstance {
 
         let mut env = Environment::empty();
         env.set_undefined_behavior(UndefinedBehavior::Strict);
-        set_env_functions(&mut env);
 
         let messages = Arc::new(SyncMutex::new(Vec::new()));
 
         if code.contains("workspace") {
-            let kernel = self.workspace().await?;
             env.add_global(
                 "workspace",
-                Value::from_object(Query::new(kernel, messages.clone())),
+                Value::from_object(Query::new(
+                    "workspace".into(),
+                    self.workspace().await?,
+                    messages.clone(),
+                )),
+            );
+        }
+
+        #[cfg(test)]
+        if code.contains("test") {
+            env.add_global(
+                "test",
+                Value::from_object(Query::new(
+                    "test".into(),
+                    Arc::new(Mutex::new(DocsDBKernelInstance::new())),
+                    messages.clone(),
+                )),
             );
         }
 
@@ -154,6 +168,8 @@ impl KernelInstance for DocsQLKernelInstance {
                 }
             })
             .join("\n");
+
+        let code = query::transform_filters(&code);
 
         let expr = match env.compile_expression(&code) {
             Ok(expr) => expr,
@@ -231,5 +247,111 @@ impl KernelInstance for DocsQLKernelInstance {
 
     async fn replicate(&mut self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         Ok(Box::new(Self::new()))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use kernel_jinja::kernel::{
+        common::{
+            eyre::{bail, Result},
+            tokio,
+        },
+        schema::CodeChunk,
+        KernelInstance,
+    };
+
+    use common_dev::pretty_assertions::assert_eq;
+
+    #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+    async fn generate_cypher() -> Result<()> {
+        let mut kernel = DocsQLKernelInstance::new();
+
+        macro_rules! expect {
+            ($code:literal, $cypher:literal) => {
+                let code = [$code, ".explain()"].concat();
+                match kernel.execute(&code).await?.0.first() {
+                    Some(Node::CodeChunk(CodeChunk { code, .. })) => {
+                        let code = code.lines().skip(1).join("\n");
+                        assert_eq!(code.as_str(), $cypher)
+                    }
+                    _ => bail!("Expected a code chunk"),
+                }
+            };
+        }
+
+        expect!(
+            "test",
+            "MATCH (node)
+RETURN *
+LIMIT 10"
+        );
+
+        expect!(
+            "test.tables()",
+            "MATCH (`table`:`Table`)
+RETURN `table`
+LIMIT 10"
+        );
+
+        expect!(
+            "test.cells().skip(3).limit(2)",
+            "MATCH (cell:TableCell)
+RETURN cell
+SKIP 3
+LIMIT 2"
+        );
+
+        expect!(
+            "test.cells(@position < 3)",
+            r#"MATCH (cell:TableCell)
+WHERE cell.position < 3
+RETURN cell
+LIMIT 10"#
+        );
+
+        expect!(
+            "test.cells(@text =~ 'a')",
+            r#"MATCH (cell:TableCell)
+WHERE regexp_matches(cell.text, "a")
+RETURN cell
+LIMIT 10"#
+        );
+
+        expect!(
+            "test.cells(@text !~ 'a')",
+            r#"MATCH (cell:TableCell)
+WHERE NOT regexp_matches(cell.text, "a")
+RETURN cell
+LIMIT 10"#
+        );
+
+        expect!(
+            "test.cells(@text ^= 'a')",
+            r#"MATCH (cell:TableCell)
+WHERE starts_with(cell.text, "a")
+RETURN cell
+LIMIT 10"#
+        );
+
+        expect!(
+            "test.cells(@text $= 'a')",
+            r#"MATCH (cell:TableCell)
+WHERE ends_with(cell.text, "a")
+RETURN cell
+LIMIT 10"#
+        );
+
+        expect!(
+            "test.cells(@text in 'a')",
+            r#"MATCH (cell:TableCell)
+WHERE contains("a", cell.text)
+RETURN cell
+LIMIT 10"#
+        );
+
+        Ok(())
     }
 }

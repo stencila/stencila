@@ -13,7 +13,7 @@ use kernel_jinja::{
             inflector::Inflector,
             itertools::Itertools,
             once_cell::sync::Lazy,
-            regex::Regex,
+            regex::{Captures, Regex},
             serde_json,
             tokio::{runtime, sync::Mutex, task},
             tracing,
@@ -25,9 +25,92 @@ use kernel_jinja::{
     },
     minijinja::{
         value::{from_args, DynObject, Enumerator, Kwargs, Object, ObjectRepr},
-        Environment, Error, ErrorKind, State, Value,
+        Error, ErrorKind, State, Value,
     },
 };
+
+/// Transform property filter arguments into valid MiniJinja keyword arguments
+///
+/// Uses single digit codes and spacing to ensure that the code stays the same length.
+pub(super) fn transform_filters(code: &str) -> String {
+    static FILTERS: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(r"@([a-zA-Z][\w_]*)\s*(==|\!=|<=|<|>=|>|=\~|\!\~|\^=|\$=|in)\s*")
+            .expect("invalid regex")
+    });
+
+    FILTERS
+        .replace_all(code, |captures: &Captures| {
+            let var = &captures[1];
+            let op = match &captures[2] {
+                "==" => "",
+                "!=" => "0",
+                "<" => "1",
+                "<=" => "2",
+                ">" => "3",
+                ">=" => "4",
+                "=~" => "5",
+                "!~" => "6",
+                "^=" => "7",
+                "$=" => "8",
+                "in" => "9",
+                echo => echo,
+            };
+
+            let spaces = captures[0].len().saturating_sub(var.len() + op.len() + 1);
+            let spaces = " ".repeat(spaces);
+
+            [var, op, &spaces, "="].concat()
+        })
+        .into()
+}
+
+/// Translate a filter into a Cypher `WHERE` clause
+fn apply_filter(alias: &str, property: &str, value: Value) -> String {
+    let mut chars = property.chars().collect_vec();
+
+    let last = *chars.last().expect("always has at least one char");
+    if last.is_numeric() {
+        chars.pop();
+    }
+    let property = chars.iter().join("").to_camel_case();
+
+    let col = [&alias, ".", &property].concat();
+
+    fn stringify(value: Value) -> String {
+        ["\"", &value.to_string(), "\""].concat()
+    }
+
+    match last {
+        '5' => ["regexp_matches(", &col, ", ", &stringify(value), ")"].concat(),
+        '6' => ["NOT regexp_matches(", &col, ", ", &stringify(value), ")"].concat(),
+        '7' => ["starts_with(", &col, ", ", &stringify(value), ")"].concat(),
+        '8' => ["ends_with(", &col, ", ", &stringify(value), ")"].concat(),
+        '9' => {
+            if value.as_str().is_some() {
+                ["contains(", &stringify(value), ", ", &col, ")"].concat()
+            } else {
+                [&col, "IN ", &value.to_string()].concat()
+            }
+        }
+        _ => {
+            let value_repr = if value.as_str().is_some() {
+                stringify(value)
+            } else {
+                value.to_string()
+            };
+
+            let op = match last {
+                '0' => "!=",
+                '1' => "<",
+                '2' => "<=",
+                '3' => ">",
+                '4' => ">=",
+                _ => "=",
+            };
+            [&col, " ", op, " ", &value_repr].concat()
+        }
+    }
+}
 
 #[derive(Debug, Clone)]
 pub(super) struct Query {
@@ -219,22 +302,8 @@ impl Query {
                     }
                 }
                 _ => {
-                    // Property argument: ensure camel cased
-                    let property = arg.to_camel_case();
-
-                    let cypher = if let Some(op) = value.downcast_object_ref::<Operator>() {
-                        op.generate(&alias, &property)
-                    } else if let Some(call) = value.downcast_object_ref::<Call>() {
-                        call.generate(&alias, &property)
-                    } else {
-                        let value = if let Some(string) = value.as_str() {
-                            ["\"", &string.to_string(), "\""].concat()
-                        } else {
-                            value.to_string()
-                        };
-                        [&alias, ".", arg, " = ", &value].concat()
-                    };
-                    query.ands.push(cypher)
+                    let filter = apply_filter(&alias, &arg, value);
+                    query.ands.push(filter)
                 }
             }
         }
@@ -868,102 +937,6 @@ impl Object for NodeProxies {
     }
 }
 
-#[derive(Debug)]
-struct Operator {
-    op: String,
-    arg: Value,
-}
-
-impl Operator {
-    pub fn make(op: &str, arg: Value) -> Result<Value, Error> {
-        Ok(Value::from_object(Self {
-            op: op.into(),
-            arg: arg.into(),
-        }))
-    }
-
-    /// Generate Cypher for the operator
-    fn generate(&self, alias: &str, property: &str) -> String {
-        let mut cypher = [alias, ".", property, " ", &self.op, " "].concat();
-        if let Some(str) = self.arg.as_str() {
-            cypher.push('"');
-            cypher.push_str(str);
-            cypher.push('"');
-        } else {
-            cypher.push_str(&self.arg.to_string());
-        }
-        cypher
-    }
-}
-
-impl Object for Operator {}
-
-#[derive(Debug)]
-struct Call {
-    name: String,
-    args: Vec<Value>,
-}
-
-impl Call {
-    pub fn make(name: &str, args: &[Value]) -> Result<Value, Error> {
-        Ok(Value::from_object(Self {
-            name: name.into(),
-            args: args.into(),
-        }))
-    }
-
-    /// Generate Cypher for the function call
-    fn generate(&self, alias: &str, property: &str) -> String {
-        let mut cypher = [&self.name, "(", alias, ".", property].concat();
-        for arg in &self.args {
-            cypher.push(',');
-            if let Some(str) = arg.as_str() {
-                cypher.push('"');
-                cypher.push_str(str);
-                cypher.push('"');
-            } else {
-                cypher.push_str(&arg.to_string());
-            }
-        }
-        cypher.push_str(")");
-        cypher
-    }
-}
-
-impl Object for Call {}
-
-pub fn set_env_functions(env: &mut Environment) {
-    // Operators
-    env.add_function("eq", |value: Value| Operator::make("=", value));
-    env.add_function("neq", |value: Value| Operator::make("<>", value));
-    env.add_function("lt", |value: Value| Operator::make("<", value));
-    env.add_function("lte", |value: Value| Operator::make("<=", value));
-    env.add_function("gt", |value: Value| Operator::make(">", value));
-    env.add_function("gte", |value: Value| Operator::make(">=", value));
-    env.add_function("in", |value: Value| Operator::make("IN", value));
-
-    // String functions
-    env.add_function("contains", |s: &str| {
-        Call::make("contains", &[Value::from(s)])
-    });
-
-    fn starts_with(s: &str) -> Result<Value, Error> {
-        Call::make("starts_with", &[Value::from(s)])
-    }
-    env.add_function("starts_with", starts_with);
-    env.add_function("startsWith", starts_with);
-
-    fn ends_with(s: &str) -> Result<Value, Error> {
-        Call::make("ends_with", &[Value::from(s)])
-    }
-    env.add_function("ends_with", ends_with);
-    env.add_function("endsWith", ends_with);
-
-    env.add_function("matches", |s: &str| {
-        Call::make("regexp_matches", &[Value::from(s)])
-    });
-}
-
 fn node_set_to_value(
     node_set: NodeSet,
     messages: &Arc<SyncMutex<Vec<ExecutionMessage>>>,
@@ -1004,5 +977,41 @@ fn lock_messages<'m>(
             tracing::error!("Unable to lock messages");
             None
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn transform() {
+        use super::transform_filters as t;
+
+        assert_eq!(t(""), "");
+        assert_eq!(t("@a"), "@a");
+
+        assert_eq!(t("@a == 1"), "a    =1");
+        assert_eq!(t("@a== 1"), "a   =1");
+        assert_eq!(t("@a ==1"), "a   =1");
+        assert_eq!(t("@a==1"), "a  =1");
+
+        assert_eq!(t("@a < 1"), "a1  =1");
+        assert_eq!(t("@a< 1"), "a1 =1");
+        assert_eq!(t("@a <1"), "a1 =1");
+        assert_eq!(t("@a<1"), "a1=1");
+
+        assert_eq!(t("@abc !~ 'regex'"), "abc6   ='regex'");
+        assert_eq!(t("@abc!~ 'regex'"), "abc6  ='regex'");
+        assert_eq!(t("@abc !~'regex'"), "abc6  ='regex'");
+        assert_eq!(t("@abc!~'regex'"), "abc6 ='regex'");
+
+        assert_eq!(t("@a < 1"), "a1  =1");
+        assert_eq!(t("@a <= 1"), "a2   =1");
+        assert_eq!(t("@a > 1"), "a3  =1");
+        assert_eq!(t("@a >= 1"), "a4   =1");
+        assert_eq!(t("@a =~ 1"), "a5   =1");
+        assert_eq!(t("@a !~ 1"), "a6   =1");
+        assert_eq!(t("@a ^= 1"), "a7   =1");
+        assert_eq!(t("@a $= 1"), "a8   =1");
+        assert_eq!(t("@a in 1"), "a9   =1");
     }
 }

@@ -3234,6 +3234,7 @@ name = "kernel-docsql"
 version = "0.0.0"
 dependencies = [
  "codec-text-trait",
+ "common-dev",
  "kernel-docsdb",
  "kernel-jinja",
 ]

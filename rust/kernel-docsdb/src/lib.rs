@@ -94,7 +94,7 @@ pub struct DocsDBKernelInstance {
 
 impl DocsDBKernelInstance {
     /// Create a new instance
-    fn new() -> Self {
+    pub fn new() -> Self {
         let id = generate_id(NAME);
         let kuzu = KuzuKernelInstance::box_with(id.clone(), QueryResultTransform::Excerpts);
 
