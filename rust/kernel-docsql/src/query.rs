@@ -443,36 +443,51 @@ impl Query {
             }
         }
 
-        let nodes = self.nodes();
+        let nodes = if first >= 0 && (last.is_none() || last.unwrap_or_default() >= 0) {
+            let mut query = if first > 0 {
+                self.skip(first as usize)
+            } else {
+                self.clone()
+            };
 
-        let first = if first < 0 {
-            let first = nodes.len() as i32 + first;
-            if first < 0 {
-                0usize
+            if let Some(last) = last {
+                query.limit = Some((last - first + 1) as usize);
+            }
+
+            query.nodes()
+        } else {
+            let nodes = self.nodes();
+
+            let first = if first < 0 {
+                let first = nodes.len() as i32 + first;
+                if first < 0 {
+                    0usize
+                } else {
+                    first as usize
+                }
             } else {
                 first as usize
-            }
-        } else {
-            first as usize
-        };
+            };
 
-        let last = last.unwrap_or_else(|| nodes.len() as i32);
-        let last = if last < 0 {
-            let last = nodes.len() as i32 + last;
-            if last < 0 {
-                0usize
+            let last = last.unwrap_or_else(|| nodes.len() as i32);
+            let last = if last < 0 {
+                let last = nodes.len() as i32 + last;
+                if last < 0 {
+                    0usize
+                } else {
+                    last as usize
+                }
             } else {
                 last as usize
-            }
-        } else {
-            last as usize
+            };
+
+            nodes
+                .into_iter()
+                .skip(first)
+                .take(last - first + 1)
+                .collect()
         };
 
-        let nodes = nodes
-            .into_iter()
-            .skip(first)
-            .take(last.saturating_sub(first) + 1)
-            .collect();
         Ok(Value::from_object(NodeProxies::new(
             nodes,
             self.messages.clone(),
