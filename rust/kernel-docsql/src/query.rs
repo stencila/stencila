@@ -535,8 +535,7 @@ impl Query {
 
     /// Execute and return a [`NodeProxy`] for last node in result
     fn last(&self) -> Result<Value, Error> {
-        let query = self.limit(1);
-        match query.nodes().into_iter().last() {
+        match self.nodes().into_iter().last() {
             Some(node) => Ok(Value::from_object(NodeProxy::new(
                 node,
                 self.messages.clone(),
