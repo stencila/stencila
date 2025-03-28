@@ -1,6 +1,6 @@
 use std::{
     path::{Path, PathBuf},
-    sync::Arc,
+    sync::{Arc, Mutex as SyncMutex},
 };
 
 use kernel_docsdb::DocsDBKernelInstance;
@@ -9,22 +9,21 @@ use kernel_jinja::{
     kernel::{
         common::{
             async_trait::async_trait,
-            eyre::{bail, Result},
+            eyre::{eyre, Result},
             itertools::Itertools,
-            serde_json, tracing,
+            serde_json,
+            tokio::sync::Mutex,
+            tracing,
         },
         format::Format,
         generate_id,
-        schema::{
-            shortcuts::t, CodeBlock, ExecutionBounds, ExecutionMessage, Node, Paragraph,
-            SoftwareApplication,
-        },
+        schema::{ExecutionBounds, ExecutionMessage, MessageLevel, Node, SoftwareApplication},
         Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
     },
     minijinja::{context, Environment, UndefinedBehavior, Value},
     JinjaKernelContext,
 };
-use query::{add_to_env, Query};
+use query::{set_env_functions, NodeProxies, NodeProxy, Query};
 
 mod query;
 
@@ -65,11 +64,11 @@ impl Kernel for DocsQLKernel {
     }
 
     fn create_instance(&self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(ContextKernelInstance::new()))
+        Ok(Box::new(DocsQLKernelInstance::new()))
     }
 }
 
-struct ContextKernelInstance {
+struct DocsQLKernelInstance {
     /// The unique id of the kernel instance
     id: String,
 
@@ -86,10 +85,10 @@ struct ContextKernelInstance {
     ///
     /// This is lazily instantiated because it can take a non-trivial
     /// amount of time.
-    workspace: Option<DocsDBKernelInstance>,
+    workspace: Option<Arc<Mutex<DocsDBKernelInstance>>>,
 }
 
-impl ContextKernelInstance {
+impl DocsQLKernelInstance {
     fn new() -> Self {
         Self {
             id: generate_id(NAME),
@@ -100,19 +99,21 @@ impl ContextKernelInstance {
     }
 
     // Get the workspace kernel, instantiating it if necessary
-    async fn workspace(&mut self) -> Result<&mut DocsDBKernelInstance> {
-        if self.workspace.is_some() {
-            Ok(self.workspace.as_mut().expect("checked above"))
+    async fn workspace(&mut self) -> Result<Arc<Mutex<DocsDBKernelInstance>>> {
+        if let Some(workspace) = &self.workspace {
+            Ok(workspace.clone())
         } else {
-            let workspace = DocsDBKernelInstance::new_workspace(&self.directory).await?;
-            self.workspace = Some(workspace);
-            Ok(self.workspace.as_mut().expect("assigned above"))
+            let workspace = Arc::new(Mutex::new(
+                DocsDBKernelInstance::new_workspace(&self.directory).await?,
+            ));
+            self.workspace = Some(workspace.clone());
+            Ok(workspace)
         }
     }
 }
 
 #[async_trait]
-impl KernelInstance for ContextKernelInstance {
+impl KernelInstance for DocsQLKernelInstance {
     fn id(&self) -> &str {
         &self.id
     }
@@ -130,17 +131,23 @@ impl KernelInstance for ContextKernelInstance {
 
         let mut env = Environment::empty();
         env.set_undefined_behavior(UndefinedBehavior::Strict);
-        add_to_env(&mut env);
+        set_env_functions(&mut env);
 
-        // Erase comment lines (but keep lines for line numbering), checking for @explain
-        let mut explain = false;
+        let messages = Arc::new(SyncMutex::new(Vec::new()));
+
+        if code.contains("workspace") {
+            let kernel = self.workspace().await?;
+            env.add_global(
+                "workspace",
+                Value::from_object(Query::new(kernel, messages.clone())),
+            );
+        }
+
+        // Erase comment lines (but keep lines for line numbering)
         let code = code
             .lines()
             .map(|line| {
                 if line.trim_start().starts_with("#") {
-                    if line.contains("@explain") {
-                        explain = true;
-                    }
                     ""
                 } else {
                     line
@@ -158,45 +165,45 @@ impl KernelInstance for ContextKernelInstance {
             None => context!(),
         };
 
-        let mut explanation = None;
-        let (mut outputs, messages) = match expr.eval(context) {
-            Ok(value) => {
-                if let Some(query) = value.downcast_object::<Query>() {
-                    let cypher = query.generate();
-                    if explain {
-                        explanation = Some(vec![
-                            Node::Paragraph(Paragraph::new(vec![t(
-                                format!("This DocsQL is equivalent to executing the following Cypher in the {} graph database", query.db),
-                            )])),
-                            Node::CodeBlock(CodeBlock {
-                                programming_language: Some("docs".into()),
-                                code: format!("// @{}\n{}", query.db, cypher).into(),
-                                ..Default::default()
-                            }),
-                        ]);
-                    }
-                    match query.db.as_str() {
-                        "workspace" => {
-                            let kernel = self.workspace().await?;
-                            kernel.execute(&cypher).await?
-                        }
-                        _ => bail!("Unknown context database: {}", query.db),
-                    }
-                } else {
-                    let value = serde_json::to_value(value)?;
-                    let node: Node = serde_json::from_value(value)?;
-                    (vec![node], Vec::new())
-                }
+        let value = match expr.eval(context) {
+            Ok(value) => value,
+            Err(error) => {
+                return Ok((Vec::new(), vec![error_to_execution_message(error)]));
             }
-            Err(error) => return Ok((Vec::new(), vec![error_to_execution_message(error)])),
         };
 
-        let outputs = if let Some(mut explanation) = explanation {
-            explanation.append(&mut outputs);
-            explanation
+        let outputs = if let Some(query) = value.downcast_object::<Query>() {
+            query.nodes()
+        } else if let Some(proxies) = value.downcast_object::<NodeProxies>() {
+            proxies.nodes()
+        } else if let Some(proxy) = value.downcast_object::<NodeProxy>() {
+            proxy.nodes()
+        } else if value.is_undefined() {
+            let messages = messages
+                .lock()
+                .map_err(|error| eyre!(error.to_string()))?
+                .to_owned();
+            let messages = if messages.is_empty() {
+                vec![ExecutionMessage::new(
+                    MessageLevel::Error,
+                    "Query evaluates to undefined value".into(),
+                )]
+            } else {
+                messages
+            };
+            return Ok((Vec::new(), messages));
         } else {
-            outputs
+            let value = serde_json::to_value(value)?;
+            let node: Node = serde_json::from_value(value)?;
+            vec![node]
         };
+
+        // Resist to temptation to collect these messages before `query.nodes()` is called
+        // above because that may add messages
+        let messages = messages
+            .lock()
+            .map_err(|error| eyre!(error.to_string()))?
+            .to_owned();
 
         Ok((outputs, messages))
     }

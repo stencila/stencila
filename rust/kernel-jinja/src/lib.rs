@@ -63,7 +63,7 @@ impl Kernel for JinjaKernel {
     }
 }
 
-#[derive(Default)]
+#[derive(Debug, Default)]
 pub struct JinjaKernelInstance {
     /// The unique id of the kernel instance
     id: String,

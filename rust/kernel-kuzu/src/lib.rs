@@ -75,6 +75,7 @@ impl Kernel for KuzuKernel {
     }
 }
 
+#[derive(Debug)]
 pub struct KuzuKernelInstance {
     /// The unique id of the kernel instance
     id: String,

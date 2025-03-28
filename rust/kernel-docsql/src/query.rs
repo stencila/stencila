@@ -1,25 +1,39 @@
-use std::sync::Arc;
+use std::{
+    ops::Deref,
+    str::FromStr,
+    sync::{Arc, Mutex as SyncMutex, MutexGuard as SyncMutexGuard},
+};
 
+use codec_text_trait::to_text;
 use kernel_docsdb::DocsDBKernelInstance;
 use kernel_jinja::{
     kernel::{
         common::{
-            eyre::Result, inflector::Inflector, itertools::Itertools, once_cell::sync::Lazy,
-            regex::Regex, tracing,
+            eyre::Result,
+            inflector::Inflector,
+            itertools::Itertools,
+            once_cell::sync::Lazy,
+            regex::Regex,
+            serde_json,
+            tokio::{runtime, sync::Mutex, task},
+            tracing,
         },
-        schema::{ExecutionMessage, MessageLevel, Node},
+        schema::{get, ExecutionMessage, MessageLevel, Node, NodePath, NodeProperty, NodeSet},
         KernelInstance,
     },
     minijinja::{
-        value::{from_args, DynObject, Kwargs, Object},
+        value::{from_args, DynObject, Enumerator, Kwargs, Object, ObjectRepr},
         Environment, Error, ErrorKind, State, Value,
     },
 };
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Clone)]
 pub(super) struct Query {
     /// The database to query
-    pub db: String,
+    db: Arc<Mutex<DocsDBKernelInstance>>,
+
+    /// Execution messages to be added to when executing the query
+    messages: Arc<SyncMutex<Vec<ExecutionMessage>>>,
 
     /// The Cypher for the query
     cypher: Option<String>,
@@ -69,10 +83,28 @@ pub(super) struct Query {
 
 impl Query {
     /// Create a new query on
-    pub fn new(db: &str) -> Query {
+    pub fn new(
+        db: Arc<Mutex<DocsDBKernelInstance>>,
+        messages: Arc<SyncMutex<Vec<ExecutionMessage>>>,
+    ) -> Self {
         Self {
-            db: db.to_string(),
-            ..Default::default()
+            db,
+            messages,
+            cypher: None,
+            pattern: None,
+            ands: Vec::new(),
+            ors: Vec::new(),
+            r#return: None,
+            return_distinct: None,
+            order_by: None,
+            order_by_order: None,
+            skip: None,
+            limit: None,
+            union: None,
+            union_all: false,
+            return_used: false,
+            match_used: false,
+            node_table_used: None,
         }
     }
 
@@ -360,31 +392,121 @@ impl Query {
         cypher
     }
 
-    /// Execute the query in a kernel and optionally prepend results with a query
-    ///
-    /// The intention for explanations is to provide LLMs with the generated Cypher
-    /// to act as few shot examples to generate their own Cypher queries for document
-    /// context databases.
-    #[tracing::instrument(skip_all)]
-    pub async fn execute(
-        &self,
-        kernel: &mut DocsDBKernelInstance,
-    ) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
+    /// Execute the query in the kernel
+    pub fn nodes(&self) -> Vec<Node> {
         let cypher = self.generate();
-        tracing::trace!("Generated cypher: {cypher}");
 
-        let (outputs, mut messages) = kernel.execute(&cypher).await?;
+        let db = self.db.clone();
+        let cypher_clone = cypher.clone();
+        let (outputs, mut messages) = match task::block_in_place(move || {
+            runtime::Handle::current()
+                .block_on(async move { db.lock().await.execute(&cypher_clone).await })
+        }) {
+            Ok(result) => result,
+            Err(error) => (
+                Vec::new(),
+                vec![ExecutionMessage {
+                    level: MessageLevel::Exception,
+                    message: error.to_string(),
+                    ..Default::default()
+                }],
+            ),
+        };
 
-        // If any messages and add generated Cypher in a message
         if !messages.is_empty() {
-            messages.push(ExecutionMessage {
-                level: MessageLevel::Debug,
-                message: format!("Generated Cypher:\n{cypher}"),
-                ..Default::default()
-            });
+            if let Some(first) = messages.first_mut() {
+                let trace = first.stack_trace.get_or_insert_default();
+                trace.push_str("While executing Cypher:\n\n");
+                trace.push_str(&cypher);
+            }
+            if let Some(mut msgs) = lock_messages(&self.messages) {
+                msgs.append(&mut messages)
+            };
         }
 
-        Ok((outputs, Vec::new()))
+        outputs
+    }
+
+    /// Execute and return a [`NodeProxies`] for all nodes
+    fn all(&self) -> Value {
+        Value::from_object(NodeProxies::new(self.nodes(), self.messages.clone()))
+    }
+
+    /// Execute and return a [`NodeProxies`] for all nodes
+    fn slice(&self, first: i32, last: Option<i32>) -> Result<Value, Error> {
+        if let Some(last) = last {
+            if last < first {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    "Second argument should be greater than or equal to first",
+                ));
+            }
+        }
+
+        let nodes = self.nodes();
+
+        let first = if first < 0 {
+            let first = nodes.len() as i32 + first;
+            if first < 0 {
+                0usize
+            } else {
+                first as usize
+            }
+        } else {
+            first as usize
+        };
+
+        let last = last.unwrap_or_else(|| nodes.len() as i32);
+        let last = if last < 0 {
+            let last = nodes.len() as i32 + last;
+            if last < 0 {
+                0usize
+            } else {
+                last as usize
+            }
+        } else {
+            last as usize
+        };
+
+        let nodes = nodes
+            .into_iter()
+            .skip(first)
+            .take(last.saturating_sub(first) + 1)
+            .collect();
+        Ok(Value::from_object(NodeProxies::new(
+            nodes,
+            self.messages.clone(),
+        )))
+    }
+
+    /// Execute with `LIMIT 1` and return a [`NodeProxy`] for first node in result
+    fn first(&self) -> Result<Value, Error> {
+        let query = self.limit(1);
+        match query.nodes().into_iter().next() {
+            Some(node) => Ok(Value::from_object(NodeProxy::new(
+                node,
+                self.messages.clone(),
+            ))),
+            None => Err(Error::new(
+                ErrorKind::InvalidOperation,
+                "Empty result set so cannot get first node",
+            )),
+        }
+    }
+
+    /// Execute and return a [`NodeProxy`] for last node in result
+    fn last(&self) -> Result<Value, Error> {
+        let query = self.limit(1);
+        match query.nodes().into_iter().last() {
+            Some(node) => Ok(Value::from_object(NodeProxy::new(
+                node,
+                self.messages.clone(),
+            ))),
+            None => Err(Error::new(
+                ErrorKind::InvalidOperation,
+                "Empty result set so cannot get last node",
+            )),
+        }
     }
 }
 
@@ -396,6 +518,7 @@ impl Object for Query {
         args: &[Value],
     ) -> Result<Value, Error> {
         let query = match name {
+            // Core Cypher query building methods
             "cypher" => {
                 let (cypher,) = from_args(args)?;
                 self.cypher(cypher)?
@@ -432,12 +555,273 @@ impl Object for Query {
                 let (union, all) = from_args(args)?;
                 self.union(union, all)?
             }
+            // Methods that execute the query and return `NodeProxies`
+            "all" | "one" | "first" | "last" => {
+                if !args.is_empty() {
+                    return Err(Error::new(
+                        ErrorKind::TooManyArguments,
+                        format!("Method `{name}` takes no arguments."),
+                    ));
+                }
+                let result = match name {
+                    "all" => self.all(),
+                    "one" | "first" => self.first()?,
+                    "last" => self.last()?,
+                    _ => unreachable!(),
+                };
+                return Ok(result);
+            }
+            "slice" => {
+                let (first, last) = from_args(args)?;
+                return self.slice(first, last);
+            }
+            // Fallback to node adding a MATCH pattern for a node table
             _ => {
                 let (kwargs,) = from_args(args)?;
                 self.table(name, kwargs)?
             }
         };
         Ok(Value::from_object(query))
+    }
+
+    fn get_value(self: &Arc<Self>, key: &Value) -> Option<Value> {
+        if let Some(property) = key.as_str() {
+            if let Some(mut msgs) = lock_messages(&self.messages) {
+                msgs.push(ExecutionMessage::new(
+                    MessageLevel::Error,
+                    format!("A query does not have property `{property}`"),
+                ))
+            };
+        }
+
+        let Some(mut key) = key.as_i64() else {
+            return None;
+        };
+
+        // If no LIMIT has been applied then do so
+        let mut query = if self.limit.is_none() {
+            self.limit(1)
+        } else {
+            self.deref().clone()
+        };
+
+        // If to SKIP has been applied then do so (if possible, if key >= 0)
+        if key > 0 && query.skip.is_none() {
+            query.skip = Some(key as usize);
+            key = 0;
+        }
+
+        let mut nodes = self.nodes();
+
+        let index = if key < 0 {
+            nodes.len() as i64 - key - 1
+        } else {
+            key
+        };
+
+        if index < 0 || index >= nodes.len() as i64 {
+            return None;
+        }
+
+        let node = nodes.swap_remove(index as usize);
+        Some(Value::from_object(NodeProxy::new(
+            node,
+            self.messages.clone(),
+        )))
+    }
+}
+
+/// A proxy for a [`Node`] to allow it to be accessed as a minijinja [`Value`]
+///
+/// This has several advantage over simply converting all nodes to values
+/// via `serde_json`:
+///
+/// 1. We can provide getters for derived properties such as `text`
+///
+/// 2. We can create an error message if a non-existent property is accessed
+///
+/// 3. We can chain proxies together and convert to a minijinja value only
+///    when appropriate e.g. for primitives
+#[derive(Debug, Clone)]
+pub(super) struct NodeProxy {
+    /// The node being proxied
+    node: Node,
+
+    /// Execution messages to be added to when accessing the node
+    messages: Arc<SyncMutex<Vec<ExecutionMessage>>>,
+}
+
+impl NodeProxy {
+    pub fn new(node: Node, messages: Arc<SyncMutex<Vec<ExecutionMessage>>>) -> Self {
+        Self { node, messages }
+    }
+
+    pub fn nodes(&self) -> Vec<Node> {
+        vec![self.node.clone()]
+    }
+}
+
+impl Object for NodeProxy {
+    fn repr(self: &Arc<Self>) -> ObjectRepr {
+        ObjectRepr::Map
+    }
+
+    fn get_value(self: &Arc<Self>, key: &Value) -> Option<Value> {
+        if key.is_integer() {
+            if let Some(mut msgs) = lock_messages(&self.messages) {
+                msgs.push(ExecutionMessage::new(
+                    MessageLevel::Error,
+                    "Cannot index a single node".into(),
+                ))
+            };
+            return Some(Value::UNDEFINED);
+        };
+
+        let Some(property) = key.as_str() else {
+            return None;
+        };
+
+        if property == "type" {
+            return Some(Value::from(self.node.node_type().to_string()));
+        }
+
+        let Ok(property) = NodeProperty::from_str(property) else {
+            if let Some(mut msgs) = lock_messages(&self.messages) {
+                msgs.push(ExecutionMessage::new(
+                    MessageLevel::Error,
+                    format!("Invalid node property `{property}`"),
+                ))
+            };
+            return Some(Value::UNDEFINED);
+        };
+
+        let Ok(property) = get(&self.node, NodePath::from(property)) else {
+            if let Some(mut msgs) = lock_messages(&self.messages) {
+                msgs.push(ExecutionMessage::new(
+                    MessageLevel::Error,
+                    format!(
+                        "`{property}` is not a property of node type `{}`",
+                        self.node.node_type()
+                    ),
+                ))
+            };
+            return Some(Value::UNDEFINED);
+        };
+
+        match node_set_to_value(property, &self.messages) {
+            Ok(value) => Some(value),
+            Err(error) => {
+                tracing::error!("While converting node to minijinja value: {error}");
+                None
+            }
+        }
+    }
+
+    fn call_method(
+        self: &Arc<Self>,
+        _state: &State,
+        method: &str,
+        args: &[Value],
+    ) -> Result<Value, Error> {
+        if method == "text" {
+            if !args.is_empty() {
+                Err(Error::new(
+                    ErrorKind::TooManyArguments,
+                    "Method `text` takes no arguments.",
+                ))
+            } else {
+                Ok(Value::from(to_text(&self.node)))
+            }
+        } else {
+            Err(Error::new(
+                ErrorKind::UnknownMethod,
+                format!("Method `{method}` takes no arguments."),
+            ))
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub(super) struct NodeProxies {
+    /// The nodes being proxied
+    nodes: Vec<Node>,
+
+    /// Execution messages to be added to when accessing the nodes
+    messages: Arc<SyncMutex<Vec<ExecutionMessage>>>,
+}
+
+impl NodeProxies {
+    pub fn new(nodes: Vec<Node>, messages: Arc<SyncMutex<Vec<ExecutionMessage>>>) -> Self {
+        Self { nodes, messages }
+    }
+
+    pub fn nodes(&self) -> Vec<Node> {
+        self.nodes.clone()
+    }
+}
+
+impl Object for NodeProxies {
+    fn repr(self: &Arc<Self>) -> ObjectRepr {
+        ObjectRepr::Seq
+    }
+
+    fn enumerate(self: &Arc<Self>) -> Enumerator {
+        Enumerator::Seq(self.nodes.len())
+    }
+
+    fn get_value(self: &Arc<Self>, key: &Value) -> Option<Value> {
+        if let Some(property) = key.as_str() {
+            if let Some(mut msgs) = lock_messages(&self.messages) {
+                msgs.push(ExecutionMessage::new(
+                    MessageLevel::Error,
+                    format!("`{property}` is not a property of a node list"),
+                ))
+            };
+            return Some(Value::UNDEFINED);
+        };
+
+        let Some(key) = key.as_i64() else {
+            return None;
+        };
+
+        let index = if key < 0 {
+            self.nodes.len() as i64 - key - 1
+        } else {
+            key
+        };
+
+        if index < 0 || index >= self.nodes.len() as i64 {
+            return None;
+        }
+
+        let node = self.nodes[index as usize].clone();
+        Some(Value::from_object(NodeProxy::new(
+            node,
+            self.messages.clone(),
+        )))
+    }
+
+    fn call_method(
+        self: &Arc<Self>,
+        _state: &State,
+        method: &str,
+        args: &[Value],
+    ) -> Result<Value, Error> {
+        if method == "text" {
+            if !args.is_empty() {
+                Err(Error::new(
+                    ErrorKind::TooManyArguments,
+                    "Method `text` takes no arguments.",
+                ))
+            } else {
+                Ok(Value::from(to_text(&self.nodes)))
+            }
+        } else {
+            Err(Error::new(
+                ErrorKind::UnknownMethod,
+                format!("Method `{method}` takes no arguments."),
+            ))
+        }
     }
 }
 
@@ -505,9 +889,7 @@ impl Call {
 
 impl Object for Call {}
 
-pub fn add_to_env(env: &mut Environment) {
-    env.add_global("workspace", Value::from_object(Query::new("workspace")));
-
+pub fn set_env_functions(env: &mut Environment) {
     // Operators
     env.add_function("eq", |value: Value| Operator::make("=", value));
     env.add_function("neq", |value: Value| Operator::make("<>", value));
@@ -537,4 +919,47 @@ pub fn add_to_env(env: &mut Environment) {
     env.add_function("matches", |s: &str| {
         Call::make("regexp_matches", &[Value::from(s)])
     });
+}
+
+fn node_set_to_value(
+    node_set: NodeSet,
+    messages: &Arc<SyncMutex<Vec<ExecutionMessage>>>,
+) -> Result<Value> {
+    match node_set {
+        NodeSet::One(node) => node_to_value(node, messages),
+        NodeSet::Many(nodes) => Ok(Value::from_object(NodeProxies::new(
+            nodes,
+            messages.clone(),
+        ))),
+    }
+}
+
+fn node_to_value(node: Node, messages: &Arc<SyncMutex<Vec<ExecutionMessage>>>) -> Result<Value> {
+    match node {
+        Node::Null(..) => Ok(Value::from(())),
+        Node::Boolean(node) => Ok(Value::from(node)),
+        Node::Integer(node) => Ok(Value::from(node)),
+        Node::UnsignedInteger(node) => Ok(Value::from(node)),
+        Node::Number(node) => Ok(Value::from(node)),
+        Node::String(node) => Ok(Value::from(node)),
+        Node::Array(..) | Node::Object(..) => node_to_value_via_serde(node),
+        _ => Ok(Value::from_object(NodeProxy::new(node, messages.clone()))),
+    }
+}
+
+fn node_to_value_via_serde(node: Node) -> Result<Value> {
+    let value = serde_json::to_value(node)?;
+    Ok(serde_json::from_value(value)?)
+}
+
+fn lock_messages<'m>(
+    messages: &'m SyncMutex<Vec<ExecutionMessage>>,
+) -> Option<SyncMutexGuard<'m, Vec<ExecutionMessage>>> {
+    match messages.lock() {
+        Ok(messages) => Some(messages),
+        Err(..) => {
+            tracing::error!("Unable to lock messages");
+            None
+        }
+    }
 }

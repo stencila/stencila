@@ -17,7 +17,7 @@ use kernel::{
 
 /// The type of transform to ally when converting Kuzu query result to
 /// a Stencila [`Node`]
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum QueryResultTransform {
     /// Convert the value in the first column of the first row only
     Value,
