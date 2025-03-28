@@ -20,8 +20,8 @@ export const programmingLanguages: Record<
     title: 'CSS',
     icon: 'bracesAsterisk',
   },
-  docs: {
-    title: 'Docs',
+  docsdb: {
+    title: 'DocsDB',
     icon: 'files',
   },
   docsql: {
