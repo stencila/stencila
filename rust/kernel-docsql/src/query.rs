@@ -18,7 +18,9 @@ use kernel_jinja::{
             tokio::{runtime, sync::Mutex, task},
             tracing,
         },
-        schema::{get, ExecutionMessage, MessageLevel, Node, NodePath, NodeProperty, NodeSet},
+        schema::{
+            get, CodeChunk, ExecutionMessage, MessageLevel, Node, NodePath, NodeProperty, NodeSet,
+        },
         KernelInstance,
     },
     minijinja::{
@@ -29,6 +31,9 @@ use kernel_jinja::{
 
 #[derive(Debug, Clone)]
 pub(super) struct Query {
+    /// The name of the database
+    db_name: String,
+
     /// The database to query
     db: Arc<Mutex<DocsDBKernelInstance>>,
 
@@ -84,10 +89,12 @@ pub(super) struct Query {
 impl Query {
     /// Create a new query on
     pub fn new(
+        db_name: String,
         db: Arc<Mutex<DocsDBKernelInstance>>,
         messages: Arc<SyncMutex<Vec<ExecutionMessage>>>,
     ) -> Self {
         Self {
+            db_name,
             db,
             messages,
             cypher: None,
@@ -255,9 +262,8 @@ impl Query {
 
     /// Apply a `RETURN` clause to query
     ///
-    /// The default is `RETURN DISTINCT *` or `RETURN DISTINCT <table>` where <table>
-    /// was the last table used in the method chain. This makes sense for most queries
-    /// but this method allows the user to override that if desired.
+    /// The default is `RETURN <table>` where <table> was the last table used in the method chain.
+    /// This makes sense for most queries but this method allows the user to override that if desired.
     fn r#return(&self, what: String, distinct: Option<bool>) -> Result<Self, Error> {
         let mut query = self.clone();
 
@@ -353,7 +359,7 @@ impl Query {
         }
 
         cypher.push_str("\nRETURN ");
-        if self.return_distinct.unwrap_or(true) {
+        if self.return_distinct.unwrap_or_default() {
             cypher.push_str("DISTINCT ");
         }
         let r#return = self.r#return.as_deref().unwrap_or("*");
@@ -390,6 +396,24 @@ impl Query {
         }
 
         cypher
+    }
+
+    /// Return the generated Cypher as an executable `CodeChunk`
+    ///
+    /// Mainly intended for debugging.
+    fn explain(&self) -> Value {
+        let cypher = self.generate();
+
+        let code = ["// @", &self.db_name, "\n", &cypher].concat();
+
+        let node = Node::CodeChunk(CodeChunk {
+            code: code.into(),
+            programming_language: Some("docsdb".into()),
+            is_echoed: Some(true), // To make visible
+            ..Default::default()
+        });
+
+        Value::from_object(NodeProxy::new(node, self.messages.clone()))
     }
 
     /// Execute the query in the kernel
@@ -570,7 +594,9 @@ impl Object for Query {
                 let (union, all) = from_args(args)?;
                 self.union(union, all)?
             }
-            // Methods that execute the query and return `NodeProxies`
+            // Return the generated Cypher
+            "explain" => return Ok(self.explain()),
+            // Methods that execute the query and return node proxies
             "all" | "one" | "first" | "last" => {
                 if !args.is_empty() {
                     return Err(Error::new(
