@@ -638,28 +638,31 @@ impl Object for Query {
             return None;
         };
 
-        // If no LIMIT has been applied then do so
-        let mut query = if self.limit.is_none() {
+        let mut query = if key > 0 {
             self.limit(1)
         } else {
             self.deref().clone()
         };
 
-        // If to SKIP has been applied then do so (if possible, if key >= 0)
         if key > 0 && query.skip.is_none() {
             query.skip = Some(key as usize);
             key = 0;
         }
 
-        let mut nodes = self.nodes();
+        let mut nodes = query.nodes();
 
         let index = if key < 0 {
-            nodes.len() as i64 - key - 1
+            let first = nodes.len() as i64 + key;
+            if first < 0 {
+                0usize
+            } else {
+                first as usize
+            }
         } else {
-            key
+            key as usize
         };
 
-        if index < 0 || index >= nodes.len() as i64 {
+        if index >= nodes.len() {
             return None;
         }
 
