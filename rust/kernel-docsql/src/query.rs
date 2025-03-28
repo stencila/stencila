@@ -34,7 +34,7 @@ use kernel_jinja::{
 /// Uses single digit codes and spacing to ensure that the code stays the same length.
 pub(super) fn transform_filters(code: &str) -> String {
     static FILTERS: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"@([a-zA-Z][\w_]*)\s*(==|\!=|<=|<|>=|>|=\~|\!\~|\^=|\$=|in)\s*")
+        Regex::new(r"@([a-zA-Z][\w_]*)\s*(==|\!=|<=|<|>=|>|=\~|\!\~|\^=|\$=|in|=)\s*")
             .expect("invalid regex")
     });
 
@@ -42,7 +42,7 @@ pub(super) fn transform_filters(code: &str) -> String {
         .replace_all(code, |captures: &Captures| {
             let var = &captures[1];
             let op = match &captures[2] {
-                "==" => "",
+                "=" | "==" => "",
                 "!=" => "0",
                 "<" => "1",
                 "<=" => "2",
@@ -988,6 +988,11 @@ mod tests {
 
         assert_eq!(t(""), "");
         assert_eq!(t("@a"), "@a");
+
+        assert_eq!(t("@a = 1"), "a   =1");
+        assert_eq!(t("@a= 1"), "a  =1");
+        assert_eq!(t("@a =1"), "a  =1");
+        assert_eq!(t("@a=1"), "a =1");
 
         assert_eq!(t("@a == 1"), "a    =1");
         assert_eq!(t("@a== 1"), "a   =1");
