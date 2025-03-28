@@ -32,7 +32,7 @@ pub use node_walk_derive::WalkNode;
 pub use crate::deserialize::*;
 pub use crate::patch::{Patch, PatchContext, PatchNode, PatchOp, PatchValue};
 pub use crate::path::{NodePath, NodeSlot};
-pub use crate::probe::ProbeNode;
+pub use crate::probe::{NodeSet, ProbeNode};
 pub use crate::walk::{Visitor, VisitorAsync, VisitorMut, WalkNode};
 pub use crate::{Author, AuthorType, Node, ProvenanceCount};
 

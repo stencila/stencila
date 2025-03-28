@@ -19,8 +19,7 @@ use kernel_kuzu::{
         format::Format,
         generate_id,
         schema::{
-            duplicate, Array, Article, CreativeWorkType, Excerpt, ExecutionBounds,
-            ExecutionMessage, Node, Primitive, SoftwareApplication,
+            get, Array, Article, CreativeWorkType, Excerpt, ExecutionBounds, ExecutionMessage, Node, NodeSet, Primitive, SoftwareApplication
         },
         Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
     },
@@ -73,6 +72,7 @@ impl Kernel for DocsDBKernel {
     }
 }
 
+#[derive(Debug)]
 pub struct DocsDBKernelInstance {
     /// The unique id of the kernel instance
     id: String,
@@ -164,7 +164,7 @@ impl DocsDBKernelInstance {
                     Some(doc) => {
                         // TODO: add a cite_as function to cite doc
                         let source = CreativeWorkType::Article(Article::default());
-                        let excerpt = duplicate(doc, node_path);
+                        let excerpt = get(doc, node_path);
 
                         (source, excerpt)
                     }
@@ -175,7 +175,7 @@ impl DocsDBKernelInstance {
 
                         // TODO: add a cite_as function to cite doc
                         let source = CreativeWorkType::Article(Article::default());
-                        let excerpt = duplicate(&doc, node_path);
+                        let excerpt = get(&doc, node_path);
 
                         docs.put(doc_id.to_string(), doc);
 
@@ -187,6 +187,17 @@ impl DocsDBKernelInstance {
             let Ok(node) = excerpt else {
                 tracing::warn!("Unable to find node path in `{doc_id}`");
                 continue;
+            };
+
+            let node = match node {
+                NodeSet::One(node) => node,
+                NodeSet::Many(nodes) => {
+                    tracing::warn!("Unexpected `NodeSet::Many`");
+                    match nodes.into_iter().next() {
+                        Some(node) => node,
+                        None => continue
+                    }
+                }
             };
 
             let content = if node.node_type().is_block() {

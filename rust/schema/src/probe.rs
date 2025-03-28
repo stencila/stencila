@@ -2,8 +2,8 @@ use common::eyre::{bail, Result};
 
 use crate::{Array, Node, NodePath, NodeSlot, Null, Object};
 
-/// Duplicate a node at a path within another node
-pub fn duplicate<T: ProbeNode>(node: &T, mut path: NodePath) -> Result<Node> {
+/// Get the node, or nodes at a path within another node
+pub fn get<T: ProbeNode>(node: &T, mut path: NodePath) -> Result<NodeSet> {
     node.duplicate(&mut path)
 }
 
@@ -15,26 +15,31 @@ pub fn duplicate<T: ProbeNode>(node: &T, mut path: NodePath) -> Result<Node> {
 pub trait ProbeNode: Clone {
     /// Create a duplicate of the node at the path
     #[allow(unused_variables)]
-    fn duplicate(&self, path: &mut NodePath) -> Result<Node>;
+    fn duplicate(&self, path: &mut NodePath) -> Result<NodeSet>;
+}
+
+pub enum NodeSet {
+    One(Node),
+    Many(Vec<Node>),
 }
 
 impl ProbeNode for Null {
-    fn duplicate(&self, path: &mut NodePath) -> Result<Node> {
+    fn duplicate(&self, path: &mut NodePath) -> Result<NodeSet> {
         if !path.is_empty() {
             bail!("Node path should be empty")
         }
-        Ok(Node::Null(self.clone()))
+        Ok(NodeSet::One(Node::Null(self.clone())))
     }
 }
 
 macro_rules! atom {
     ($type:ty, $node:ident) => {
         impl ProbeNode for $type {
-            fn duplicate(&self, path: &mut NodePath) -> Result<Node> {
+            fn duplicate(&self, path: &mut NodePath) -> Result<NodeSet> {
                 if !path.is_empty() {
                     bail!("Node path should be empty")
                 }
-                Ok(Node::$node(*self))
+                Ok(NodeSet::One(Node::$node(*self)))
             }
         }
     };
@@ -45,18 +50,18 @@ atom!(u64, UnsignedInteger);
 atom!(f64, Number);
 
 impl ProbeNode for String {
-    fn duplicate(&self, path: &mut NodePath) -> Result<Node> {
+    fn duplicate(&self, path: &mut NodePath) -> Result<NodeSet> {
         if !path.is_empty() {
             bail!("Node path should be empty for `String`")
         }
-        Ok(Node::String(self.clone()))
+        Ok(NodeSet::One(Node::String(self.clone())))
     }
 }
 
 impl ProbeNode for Object {
-    fn duplicate(&self, path: &mut NodePath) -> Result<Node> {
+    fn duplicate(&self, path: &mut NodePath) -> Result<NodeSet> {
         if path.is_empty() {
-            Ok(Node::Object(self.clone()))
+            Ok(NodeSet::One(Node::Object(self.clone())))
         } else {
             bail!("Probing with `Object` nodes not yet supported")
         }
@@ -64,9 +69,9 @@ impl ProbeNode for Object {
 }
 
 impl ProbeNode for Array {
-    fn duplicate(&self, path: &mut NodePath) -> Result<Node> {
+    fn duplicate(&self, path: &mut NodePath) -> Result<NodeSet> {
         if path.is_empty() {
-            Ok(Node::Array(self.clone()))
+            Ok(NodeSet::One(Node::Array(self.clone())))
         } else {
             self.0.duplicate(path)
         }
@@ -77,7 +82,7 @@ impl<T> ProbeNode for Box<T>
 where
     T: ProbeNode,
 {
-    fn duplicate(&self, path: &mut NodePath) -> Result<Node> {
+    fn duplicate(&self, path: &mut NodePath) -> Result<NodeSet> {
         self.as_ref().duplicate(path)
     }
 }
@@ -86,10 +91,10 @@ impl<T> ProbeNode for Option<T>
 where
     T: ProbeNode,
 {
-    fn duplicate(&self, path: &mut NodePath) -> Result<Node> {
+    fn duplicate(&self, path: &mut NodePath) -> Result<NodeSet> {
         match self {
             Some(node) => node.duplicate(path),
-            None => Ok(Node::Null(crate::Null)),
+            None => Ok(NodeSet::One(Node::Null(crate::Null))),
         }
     }
 }
@@ -98,7 +103,18 @@ impl<T> ProbeNode for Vec<T>
 where
     T: ProbeNode + Clone,
 {
-    fn duplicate(&self, path: &mut NodePath) -> Result<Node> {
+    fn duplicate(&self, path: &mut NodePath) -> Result<NodeSet> {
+        if path.is_empty() {
+            let nodes = self
+                .iter()
+                .filter_map(|item| match item.duplicate(&mut NodePath::new()) {
+                    Ok(NodeSet::One(node)) => Some(node),
+                    _ => None,
+                })
+                .collect();
+            return Ok(NodeSet::Many(nodes));
+        }
+
         let Some(NodeSlot::Index(index)) = path.pop_front() else {
             bail!("Node path should have index at front for `Vec`")
         };
