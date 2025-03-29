@@ -125,12 +125,11 @@ impl Query {
         }
 
         // Create a docs kernel and execute query
-        let Some(kernel) = kernels::get("docs").await else {
-            bail!("Unable to create docs kernel")
+        let Some(kernel) = kernels::get("docsql").await else {
+            bail!("Unable to create DocsQL kernel")
         };
         let mut kernel = kernel.create_instance(schema::ExecutionBounds::Box)?;
         kernel.start(&self.dir).await?;
-        kernel.execute("// @workspace").await?;
         let (nodes, messages) = kernel.execute(&self.query).await?;
 
         // Display any messages as a diagnostic
