@@ -275,7 +275,7 @@ export class UINodeCode extends LitElement {
     }),
     LanguageDescription.of({
       name: 'javascript',
-      alias: ['js', 'nodejs'],
+      alias: ['js', 'quickjs', 'nodejs', 'docsql'],
       load: async () => {
         return import('@codemirror/lang-javascript').then((obj) =>
           obj.javascript()
@@ -307,7 +307,7 @@ export class UINodeCode extends LitElement {
     }),
     LanguageDescription.of({
       name: 'python',
-      alias: ['py', 'docsql'],
+      alias: ['py'],
       load: async () => {
         return import('@codemirror/lang-python').then((obj) => obj.python())
       },

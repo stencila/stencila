@@ -22,14 +22,14 @@ const langs = [
   },
   {
     name: "javascript",
-    aliases: "js|javascript|quickjs|nodejs",
+    aliases: "js|javascript|quickjs|nodejs|docsql",
     include: "source.js",
     chunks: true,
   },
   { name: "html", aliases: "html", include: "text.html.basic", chunks: false },
   {
     name: "python",
-    aliases: "python|py|docsql",
+    aliases: "python|py",
     include: "source.python",
     chunks: true,
   },

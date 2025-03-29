@@ -157,17 +157,10 @@ impl KernelInstance for DocsQLKernelInstance {
             );
         }
 
-        // Erase comment lines (but keep lines for line numbering)
-        let code = code
-            .lines()
-            .map(|line| {
-                if line.trim_start().starts_with("#") {
-                    ""
-                } else {
-                    line
-                }
-            })
-            .join("\n");
+        let code = strip_comments(&code);
+        if code.trim().is_empty() {
+            return Ok(Default::default());
+        }
 
         let code = query::transform_filters(&code);
 
@@ -250,6 +243,22 @@ impl KernelInstance for DocsQLKernelInstance {
     }
 }
 
+/// Strips comments after any `//`
+/// 
+/// Note that this will may result in blank lines which is
+/// intentional for maintaining line numbers
+fn strip_comments(code: &str) -> String {
+    code.lines()
+        .map(|line| {
+            if let Some(pos) = line.find("//") {
+                &line[..pos]
+            } else {
+                line
+            }
+        })
+        .join("\n")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -264,6 +273,16 @@ mod tests {
     };
 
     use common_dev::pretty_assertions::assert_eq;
+
+    #[test]
+    fn strip_comments() {
+        use super::strip_comments as s;
+
+        assert_eq!(s(""), "");
+        assert_eq!(s("// comment\nA"), "\nA");
+        assert_eq!(s("A\n// comment\nB"), "A\n\nB");
+        assert_eq!(s("A // comment\nB//comment"), "A \nB");
+    }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn generate_cypher() -> Result<()> {
