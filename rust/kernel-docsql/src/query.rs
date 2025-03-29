@@ -73,7 +73,7 @@ fn apply_filter(alias: &str, property: &str, value: Value) -> String {
         chars.pop();
     }
 
-    let col = || [&alias, ".", &chars.iter().join("").to_camel_case()].concat();
+    let col = || [alias, ".", &chars.iter().join("").to_camel_case()].concat();
 
     let val_str = || ["'", &value.to_string(), "'"].concat();
 
@@ -316,7 +316,7 @@ impl Query {
                     }
                 }
                 _ => {
-                    let filter = apply_filter(&alias, &arg, value);
+                    let filter = apply_filter(&alias, arg, value);
                     query.ands.push(filter)
                 }
             }
@@ -402,7 +402,7 @@ impl Query {
         let Some(other) = other.downcast_ref::<Query>() else {
             return Err(Error::new(
                 ErrorKind::InvalidOperation,
-                format!("first argument should be another query"),
+                "first argument should be another query".to_string(),
             ));
         };
 
@@ -593,7 +593,7 @@ impl Query {
                 first as usize
             };
 
-            let last = last.unwrap_or_else(|| nodes.len() as i32);
+            let last = last.unwrap_or(nodes.len() as i32);
             let last = if last < 0 {
                 let last = nodes.len() as i32 + last;
                 if last < 0 {
@@ -766,7 +766,7 @@ impl Object for Query {
             return None;
         }
 
-        let node = nodes.swap_remove(index as usize);
+        let node = nodes.swap_remove(index);
         Some(Value::from_object(NodeProxy::new(
             node,
             self.messages.clone(),
@@ -999,9 +999,9 @@ fn node_to_value_via_serde(node: Node) -> Result<Value> {
     Ok(serde_json::from_value(value)?)
 }
 
-fn lock_messages<'m>(
-    messages: &'m SyncMutex<Vec<ExecutionMessage>>,
-) -> Option<SyncMutexGuard<'m, Vec<ExecutionMessage>>> {
+fn lock_messages(
+    messages: &SyncMutex<Vec<ExecutionMessage>>,
+) -> Option<SyncMutexGuard<'_, Vec<ExecutionMessage>>> {
     match messages.lock() {
         Ok(messages) => Some(messages),
         Err(..) => {

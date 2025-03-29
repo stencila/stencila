@@ -217,13 +217,11 @@ pub fn error_to_execution_message(error: Error) -> ExecutionMessage {
             } else {
                 None
             }
-        } else if let Some(line) = error.line() {
-            Some(CodeLocation {
+        } else {
+            error.line().map(|line| CodeLocation {
                 start_line: Some(line as u64),
                 ..Default::default()
             })
-        } else {
-            None
         };
 
     let mut error = &error as &dyn std::error::Error;
@@ -323,13 +321,7 @@ impl Object for JinjaKernelContext {
                 tracing::error!("While receiving variable request: {error}");
                 None
             }
-            Ok(Ok(node)) => match node {
-                Some(node) => Some(Value::from_serialize(&node)),
-                // Return `None` here (rather than `Some(Value::UNDEFINED)` as we did
-                // previously) so that if the variable is not found with name, that filters and
-                // functions in the `Environment` will be search (rather than stopping here)
-                None => None,
-            },
+            Ok(Ok(node)) => node.map(|node| Value::from_serialize(&node)),
         }
     }
 }

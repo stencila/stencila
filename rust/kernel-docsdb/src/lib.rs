@@ -19,7 +19,8 @@ use kernel_kuzu::{
         format::Format,
         generate_id,
         schema::{
-            get, Array, Article, CreativeWorkType, Excerpt, ExecutionBounds, ExecutionMessage, Node, NodeSet, Primitive, SoftwareApplication
+            get, Array, Article, CreativeWorkType, Excerpt, ExecutionBounds, ExecutionMessage,
+            Node, NodeSet, Primitive, SoftwareApplication,
         },
         Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
     },
@@ -92,6 +93,12 @@ pub struct DocsDBKernelInstance {
     cache: Mutex<LruCache<String, Node>>,
 }
 
+impl Default for DocsDBKernelInstance {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl DocsDBKernelInstance {
     /// Create a new instance
     pub fn new() -> Self {
@@ -123,7 +130,7 @@ impl DocsDBKernelInstance {
     /// Finds the closest `.stencila` directory and uses its `.stencila/db`
     /// and `.stencila/store` subdirectories.
     async fn use_workspace(&mut self, path: &Path) -> Result<()> {
-        let stencila_dir = closest_stencila_dir(&path, false).await?;
+        let stencila_dir = closest_stencila_dir(path, false).await?;
 
         let db_dir = stencila_db_dir(&stencila_dir, false).await?;
         self.kuzu.set_path(db_dir);
@@ -195,7 +202,7 @@ impl DocsDBKernelInstance {
                     tracing::warn!("Unexpected `NodeSet::Many`");
                     match nodes.into_iter().next() {
                         Some(node) => node,
-                        None => continue
+                        None => continue,
                     }
                 }
             };

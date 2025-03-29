@@ -157,7 +157,7 @@ impl KernelInstance for DocsQLKernelInstance {
             );
         }
 
-        let code = strip_comments(&code);
+        let code = strip_comments(code);
         if code.trim().is_empty() {
             return Ok(Default::default());
         }
@@ -244,7 +244,7 @@ impl KernelInstance for DocsQLKernelInstance {
 }
 
 /// Strips comments after any `//`
-/// 
+///
 /// Note that this will may result in blank lines which is
 /// intentional for maintaining line numbers
 fn strip_comments(code: &str) -> String {

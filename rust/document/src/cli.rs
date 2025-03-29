@@ -158,7 +158,7 @@ impl Query {
         } else {
             let blocks = nodes
                 .into_iter()
-                .map(|node| TryInto::<Block>::try_into(node))
+                .map(TryInto::<Block>::try_into)
                 .try_collect()?;
             Node::Article(Article::new(blocks))
         };
