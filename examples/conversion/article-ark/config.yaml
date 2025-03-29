@@ -21,18 +21,22 @@ smd:
     strip-types:
       # TODO: check why this needs to be stripped
       - Figure
+      # Not supported in Markdown
+      - InstructionInline
 
 myst:
   encode:
     strip-types:
-      # As for Markdown
+      # As for SMD
       - Figure
+      - InstructionInline
 
 qmd:
   encode:
     strip-types:
-      # As for Markdown
+      # As for SMD
       - Figure
+      - InstructionInline
   decode:
     skip: true
 

@@ -6,8 +6,6 @@ category: edits
 description: An instruction to edit some inline content.
 patch:
   applyWith: "InstructionInline::apply_with"
-markdown:
-  derive: false
 proptest: {}
 core:
   - content

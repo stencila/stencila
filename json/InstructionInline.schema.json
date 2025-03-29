@@ -12,9 +12,6 @@
   "patch": {
     "applyWith": "InstructionInline::apply_with"
   },
-  "markdown": {
-    "derive": false
-  },
   "proptest": {},
   "required": [
     "type",

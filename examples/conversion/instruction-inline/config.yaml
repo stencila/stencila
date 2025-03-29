@@ -1,7 +1,27 @@
 compact.jats.xml:
-  decode:
+  encode:
+    skip: true
+
+jats.xml:
+  encode:
+    skip: true
+
+smd:
+  encode:
+    skip: true
+
+llmd:
+  encode:
+    skip: true
+
+myst:
+  encode:
+    skip: true
+
+qmd:
+  encode:
     skip: true
 
 pandoc:
-  decode:
+  encode:
     skip: true

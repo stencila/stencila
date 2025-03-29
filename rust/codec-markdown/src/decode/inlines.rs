@@ -3,9 +3,9 @@ use std::{collections::HashMap, ops::Range};
 use codec_text_trait::to_text;
 use markdown::{mdast, unist::Position};
 use winnow::{
-    ascii::{multispace0, multispace1, space0},
+    ascii::{multispace0, space0},
     combinator::{alt, delimited, not, opt, peek, preceded, repeat, separated, terminated},
-    stream::{LocatingSlice as Located, Stream},
+    stream::LocatingSlice as Located,
     token::{take, take_until, take_while},
     ModalResult, Parser,
 };
@@ -16,25 +16,21 @@ use codec::{
     schema::{
         AudioObject, BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeInline, Cord,
         DateTimeValidator, DateValidator, DurationValidator, Emphasis, EnumValidator, ImageObject,
-        Inline, InstructionInline, InstructionMessage, IntegerValidator, Link, MathInline, Node,
-        NodeType, Note, NoteType, NumberValidator, Parameter, ParameterOptions, PromptBlock,
-        QuoteInline, Strikeout, StringValidator, Strong, StyledInline, Subscript, SuggestionInline,
-        Superscript, Text, TimeValidator, TimestampValidator, Underline, Validator, VideoObject,
+        Inline, IntegerValidator, Link, MathInline, Node, NodeType, Note, NoteType,
+        NumberValidator, Parameter, ParameterOptions, QuoteInline, Strikeout, StringValidator,
+        Strong, StyledInline, Subscript, Superscript, Text, TimeValidator, TimestampValidator,
+        Underline, Validator, VideoObject,
     },
 };
 
 use super::{
     shared::{
-        attrs, attrs_list, instruction_type, name, node_to_option_date, node_to_option_datetime,
+        attrs, attrs_list, name, node_to_option_date, node_to_option_datetime,
         node_to_option_duration, node_to_option_i64, node_to_option_number, node_to_option_time,
-        node_to_option_timestamp, node_to_string, prompt, take_until_unbalanced,
+        node_to_option_timestamp, node_to_string, take_until_unbalanced,
     },
     Context,
 };
-
-const EDIT_START: &str = "[[";
-const EDIT_WITH: &str = ">>";
-const EDIT_END: &str = "]]";
 
 pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Vec<Inline> {
     // Collate all the inline nodes
@@ -66,82 +62,17 @@ pub(super) fn mds_to_inlines(mds: Vec<mdast::Node>, context: &mut Context) -> Ve
 
     // Iterate over the inlines and their spans, adding mapping entries and coalescing where needed
     let mut inlines = Vec::with_capacity(nodes.len());
-    let mut boundaries = Vec::new();
     for (inline, span) in nodes {
         if let Inline::Text(text) = &inline {
             // Note: currently, mainly for performance reasons, we do not add mapping entries
             // for `Inline::Text` nodes.
-            if text.value.as_str() == EDIT_END {
-                // A `]]` terminator so associate inlines since last boundary with the previous
-                // `InstructionInline`, etc and map end
-                if let Some(boundary) = boundaries.pop() {
-                    // End the mapping for the previous inline
-                    context.map_end(span.end);
-
-                    let children = inlines.drain(boundary..).collect();
-                    match inlines.last_mut() {
-                        Some(
-                            Inline::InstructionInline(InstructionInline {
-                                content: Some(content),
-                                ..
-                            })
-                            | Inline::SuggestionInline(SuggestionInline { content, .. }),
-                        ) => {
-                            *content = children;
-                        }
-
-                        _ => {
-                            // This should not happen, but if it does push the terminator
-                            inlines.push(inline);
-                        }
-                    }
-
-                    // If the inline before this one was an instruction then associate the two.
-                    // Also extend the range of the mapping for the instruction to the end of
-                    // the suggestion.
-                    if matches!(
-                        inlines.iter().rev().nth(1),
-                        Some(Inline::InstructionInline(..))
-                    ) {
-                        let (node_id, suggestion) = match inlines.pop() {
-                            Some(Inline::SuggestionInline(inline)) => (inline.node_id(), inline),
-                            _ => unreachable!(),
-                        };
-                        if let Some(Inline::InstructionInline(instruct)) = inlines.last_mut() {
-                            // Associate the suggestion with the instruction
-                            match instruct.suggestions.as_mut() {
-                                Some(suggestions) => suggestions.push(suggestion),
-                                None => instruct.suggestions = Some(vec![suggestion]),
-                            };
-
-                            // Extend the instruction to the end of the suggestion
-                            context.map_extend(instruct.node_id(), node_id);
-                        }
-                    }
-                } else {
-                    // A `]]` fragment that is not a terminator, so just push
-                    inlines.push(inline);
-                }
-            } else if let Some(Inline::Text(previous_text)) = inlines.last_mut() {
+            if let Some(Inline::Text(previous_text)) = inlines.last_mut() {
                 // The previous inline was text so merge the two
                 previous_text.value.push_str(&text.value);
             } else {
                 // Just a plain text node so just map and push
                 inlines.push(inline);
             }
-        } else if matches!(
-            inline,
-            Inline::InstructionInline(InstructionInline {
-                content: Some(..),
-                ..
-            }) | Inline::SuggestionInline(..)
-        ) {
-            // An inline that registers a boundary
-            if let Some(node_id) = inline.node_id() {
-                context.map_start(span.start, inline.node_type(), node_id)
-            }
-            inlines.push(inline);
-            boundaries.push(inlines.len());
         } else {
             // Some other inline that does not need a boundary
             context.map_span(span, inline.node_type(), inline.node_id());
@@ -286,9 +217,6 @@ pub(super) fn inlines(input: &str) -> Vec<(Inline, Range<usize>)> {
             superscript,
             underline,
             html,
-            // Nested in another alt to avoid going over max size of tuple
-            alt((instruction_inline, suggestion_inline)),
-            alt((edit_with, edit_end)),
             string,
             character,
         ))
@@ -891,72 +819,6 @@ fn html_tag(input: &mut Located<&str>) -> ModalResult<Inline> {
     .parse_next(input)
 }
 
-/// Parse a string into a `InstructionInline` node
-fn instruction_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
-    (
-        delimited("[[", instruction_type, multispace0),
-        (opt(terminated(prompt, multispace1)), take_until_edit),
-    )
-        .map(|(instruction_type, (prompt, (text, term)))| {
-            let prompt = prompt
-                .map(|prompt| PromptBlock {
-                    target: Some(prompt.into()),
-                    ..Default::default()
-                })
-                .unwrap_or_default();
-
-            let message = (!text.is_empty())
-                .then(|| InstructionMessage::from(text.trim()))
-                .unwrap_or_default();
-
-            Inline::InstructionInline(InstructionInline {
-                instruction_type,
-                prompt,
-                message,
-                content: (term == EDIT_WITH).then_some(Vec::new()),
-                ..Default::default()
-            })
-        })
-        .parse_next(input)
-}
-
-/// Take characters until `EDIT_WITH` or `EDIT_END`
-fn take_until_edit<'s>(input: &mut Located<&'s str>) -> ModalResult<(&'s str, &'static str)> {
-    let mut last = ' ';
-    for (index, char) in input.char_indices() {
-        if (last == '>' && char == '>') || last == ']' && char == ']' {
-            let res = input.next_slice(index - 1);
-            input.next_token().map(|_| input.next_token());
-            return Ok((res, if char == '>' { EDIT_WITH } else { EDIT_END }));
-        }
-
-        last = char;
-    }
-    Ok((input.next_slice(input.len()), EDIT_END))
-}
-
-/// Parse a string into a `SuggestionInline` node
-fn suggestion_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
-    (EDIT_START, "suggest", ' ')
-        .map(|_| Inline::SuggestionInline(SuggestionInline::default()))
-        .parse_next(input)
-}
-
-/// Parse a `>>` word indicating the replacement content
-fn edit_with(input: &mut Located<&str>) -> ModalResult<Inline> {
-    EDIT_WITH
-        .map(|_| Inline::Text(Text::from(EDIT_WITH)))
-        .parse_next(input)
-}
-
-/// Parse double closing square brackets `]]` indicating the end of content
-/// for an edit node
-fn edit_end(input: &mut Located<&str>) -> ModalResult<Inline> {
-    EDIT_END
-        .map(|_| Inline::Text(Text::from(EDIT_END)))
-        .parse_next(input)
-}
-
 /// Accumulate characters into a `Text` node
 ///
 /// Will greedily take as many characters as possible, excluding those that appear at the
@@ -1073,24 +935,5 @@ mod tests {
         let inlines = inlines("before <u>underlined</u> after");
         assert_eq!(inlines.len(), 3);
         assert!(matches!(inlines[1].0, Inline::Underline(..)));
-    }
-
-    #[test]
-    fn test_instruction_inline() {
-        instruction_inline(&mut Located::new("[[create something]]")).unwrap();
-
-        let ins = inlines("before [[create something]] after");
-        assert_eq!(ins.len(), 3);
-        assert_eq!(ins[0].0, Inline::Text(Text::from("before ")));
-        assert!(matches!(ins[1].0, Inline::InstructionInline(..)));
-        assert_eq!(ins[2].0, Inline::Text(Text::from(" after")));
-
-        let ins = inlines("before [[edit something >> this]] after");
-        assert_eq!(ins.len(), 5);
-        assert_eq!(ins[0].0, Inline::Text(Text::from("before ")));
-        assert!(matches!(ins[1].0, Inline::InstructionInline(..)));
-        assert_eq!(ins[2].0, Inline::Text(Text::from(" this")));
-        assert_eq!(ins[3].0, Inline::Text(Text::from("]]")));
-        assert_eq!(ins[4].0, Inline::Text(Text::from(" after")));
     }
 }

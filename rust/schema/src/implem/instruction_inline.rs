@@ -1,4 +1,3 @@
-use codec_info::{lost_exec_options, lost_options};
 use common::tracing;
 
 use crate::{patch, prelude::*, InstructionInline, SuggestionStatus};
@@ -39,58 +38,5 @@ impl InstructionInline {
         }
 
         Ok(false)
-    }
-}
-
-impl MarkdownCodec for InstructionInline {
-    fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if context.render || matches!(context.format, Format::Llmd) {
-            // Encode content only
-            if let Some(content) = &self.content {
-                content.to_markdown(context);
-            }
-
-            return;
-        }
-
-        context
-            .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id, execution_mode))
-            .merge_losses(lost_exec_options!(self))
-            .push_str("[[")
-            .push_prop_str(
-                NodeProperty::InstructionType,
-                self.instruction_type.to_string().to_lowercase().as_str(),
-            )
-            .push_str(" ");
-
-        if let Some(prompt) = &self.prompt.target {
-            context
-                .push_str("@")
-                .push_prop_str(NodeProperty::Prompt, prompt)
-                .push_str(" ");
-        }
-
-        context.push_prop_fn(NodeProperty::Message, |context| {
-            self.message.to_markdown(context)
-        });
-
-        if let Some(content) = &self.content {
-            context
-                .push_str(">>")
-                .push_prop_fn(NodeProperty::Content, |context| {
-                    content.to_markdown(context)
-                });
-        }
-
-        context.push_str("]]");
-
-        if let Some(suggestions) = &self.suggestions {
-            context.push_prop_fn(NodeProperty::Suggestions, |context| {
-                suggestions.to_markdown(context)
-            });
-        }
-
-        context.exit_node();
     }
 }
