@@ -25,10 +25,9 @@ use codec::{
 
 use super::{
     shared::{
-        attrs, attrs_list, instruction_type, name, node_to_from_str, node_to_option_date,
-        node_to_option_datetime, node_to_option_duration, node_to_option_i64,
-        node_to_option_number, node_to_option_time, node_to_option_timestamp, node_to_string,
-        prompt, take_until_unbalanced,
+        attrs, attrs_list, instruction_type, name, node_to_option_date, node_to_option_datetime,
+        node_to_option_duration, node_to_option_i64, node_to_option_number, node_to_option_time,
+        node_to_option_timestamp, node_to_string, prompt, take_until_unbalanced,
     },
     Context,
 };
@@ -404,7 +403,7 @@ fn code_attrs(input: &mut Located<&str>) -> ModalResult<Inline> {
 
 /// Parse double brace surrounded text into a `CodeExpression`.
 ///
-/// This supports the Jinja an Jupyter "Python Markdown" extension syntax for
+/// This supports the Jinja and Jupyter "Python Markdown" extension syntax for
 /// interpolated variables / expressions: `{{ x }}`
 ///
 /// Does not support the single curly brace syntax (as in Python, Rust and JSX) i.e. `{ x }`
@@ -414,21 +413,13 @@ fn code_attrs(input: &mut Located<&str>) -> ModalResult<Inline> {
 /// at least some Markdown parsers seem to parse that as TeX math (even though there
 /// is no closing brace).
 ///
-/// The language of the code expression can be added in a curly brace suffix.
-/// e.g. `{{ 2 * 2 }}{r}` is equivalent to `\`r 2 * 2\``{r exec} in Markdown or to
-/// `\`r 2 * 2\` in R Markdown.
+/// The language for double brace expressions is always Jinja.
 fn double_braces(input: &mut Located<&str>) -> ModalResult<Inline> {
-    (delimited("{{", take_until(0.., "}}"), "}}"), opt(attrs))
-        .map(|(code, options)| {
-            let mut options: IndexMap<&str, _> = options.unwrap_or_default().into_iter().collect();
-
+    (delimited("{{", take_until(0.., "}}"), "}}"))
+        .map(|code: &str| {
             Inline::CodeExpression(CodeExpression {
                 code: code.trim().into(),
-                programming_language: options.first().map(|(lang, ..)| lang.to_string()),
-                execution_mode: options
-                    .swap_remove("auto")
-                    .flatten()
-                    .and_then(node_to_from_str),
+                programming_language: Some("jinja".to_string()),
                 ..Default::default()
             })
         })

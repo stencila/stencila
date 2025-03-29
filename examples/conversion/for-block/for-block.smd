@@ -2,7 +2,7 @@ A simple for loop
 
 ::: for item in [1,2,3]
 
-This paragraph will be repeated with a different value for {{ item }}
+This paragraph will be repeated with a different value for `item`{exec}
 
 :::
 
@@ -20,7 +20,7 @@ Nested for loops
 
 ::::: for inner in outer
 
-This paragraph will be repeated for each inner item {{ inner }}
+This paragraph will be repeated for each inner item `inner`{exec}
 
 :::::
 

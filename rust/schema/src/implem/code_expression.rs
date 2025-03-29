@@ -39,10 +39,7 @@ impl MarkdownCodec for CodeExpression {
             context
                 .push_prop_str(NodeProperty::Code, &self.code)
                 .push_str("`");
-        } else if self.programming_language.is_none()
-            && self.execution_mode.is_none()
-            && self.execution_bounds.is_none()
-        {
+        } else if matches!(self.programming_language.as_deref(), Some("jinja")) {
             context
                 .push_str("{{ ")
                 .push_prop_str(NodeProperty::Code, &self.code)
