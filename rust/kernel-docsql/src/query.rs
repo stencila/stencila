@@ -34,7 +34,7 @@ use kernel_jinja::{
 /// Uses single digit codes and spacing to ensure that the code stays the same length.
 pub(super) fn transform_filters(code: &str) -> String {
     static FILTERS: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"@([a-zA-Z][\w_]*)\s*(==|\!=|<=|<|>=|>|=\~|\!\~|\^=|\$=|in|=)\s*")
+        Regex::new(r"@([a-zA-Z][\w_]*)\s*(==|\!=|<=|<|>=|>|=\~|\~=|\!\~|\^=|\$=|in|=)\s*")
             .expect("invalid regex")
     });
 
@@ -48,7 +48,7 @@ pub(super) fn transform_filters(code: &str) -> String {
                 "<=" => "2",
                 ">" => "3",
                 ">=" => "4",
-                "=~" => "5",
+                "~=" | "=~" => "5",
                 "!~" => "6",
                 "^=" => "7",
                 "$=" => "8",
@@ -72,33 +72,32 @@ fn apply_filter(alias: &str, property: &str, value: Value) -> String {
     if last.is_numeric() {
         chars.pop();
     }
-    let property = chars.iter().join("").to_camel_case();
 
-    let col = [&alias, ".", &property].concat();
+    let col = || [&alias, ".", &chars.iter().join("").to_camel_case()].concat();
 
-    fn stringify(value: Value) -> String {
-        ["\"", &value.to_string(), "\""].concat()
-    }
+    let val_str = || ["'", &value.to_string(), "'"].concat();
+
+    let val_lit = || {
+        if value.as_str().is_some() {
+            val_str()
+        } else {
+            value.to_string()
+        }
+    };
 
     match last {
-        '5' => ["regexp_matches(", &col, ", ", &stringify(value), ")"].concat(),
-        '6' => ["NOT regexp_matches(", &col, ", ", &stringify(value), ")"].concat(),
-        '7' => ["starts_with(", &col, ", ", &stringify(value), ")"].concat(),
-        '8' => ["ends_with(", &col, ", ", &stringify(value), ")"].concat(),
+        '5' => ["regexp_matches(", &col(), ", ", &val_str(), ")"].concat(),
+        '6' => ["NOT regexp_matches(", &col(), ", ", &val_str(), ")"].concat(),
+        '7' => ["starts_with(", &col(), ", ", &val_str(), ")"].concat(),
+        '8' => ["ends_with(", &col(), ", ", &val_str(), ")"].concat(),
         '9' => {
             if value.as_str().is_some() {
-                ["contains(", &stringify(value), ", ", &col, ")"].concat()
+                ["contains(", &val_str(), ", ", &col(), ")"].concat()
             } else {
-                [&col, "IN ", &value.to_string()].concat()
+                [&col(), "IN ", &val_lit()].concat()
             }
         }
         _ => {
-            let value_repr = if value.as_str().is_some() {
-                stringify(value)
-            } else {
-                value.to_string()
-            };
-
             let op = match last {
                 '0' => "!=",
                 '1' => "<",
@@ -107,7 +106,7 @@ fn apply_filter(alias: &str, property: &str, value: Value) -> String {
                 '4' => ">=",
                 _ => "=",
             };
-            [&col, " ", op, " ", &value_repr].concat()
+            [&col(), " ", op, " ", &val_lit()].concat()
         }
     }
 }
