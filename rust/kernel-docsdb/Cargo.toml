@@ -1,5 +1,5 @@
 [package]
-name = "kernel-docs"
+name = "kernel-docsdb"
 version = "0.0.0"
 edition = "2021"
 

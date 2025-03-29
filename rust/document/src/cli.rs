@@ -130,7 +130,7 @@ impl Query {
         };
         let mut kernel = kernel.create_instance(schema::ExecutionBounds::Box)?;
         kernel.start(&self.dir).await?;
-        kernel.execute("//db workspace").await?;
+        kernel.execute("// @workspace").await?;
         let (nodes, messages) = kernel.execute(&self.query).await?;
 
         // Display any messages as a diagnostic
@@ -150,7 +150,6 @@ impl Query {
             .ok();
         }
 
-        // Collapse outputs to a single node
         let node = if nodes.is_empty() {
             eprintln!("No matching nodes");
             return Ok(());
@@ -159,8 +158,8 @@ impl Query {
         } else {
             let blocks = nodes
                 .into_iter()
-                .flat_map(|node| TryInto::<Vec<Block>>::try_into(node).unwrap_or_default())
-                .collect_vec();
+                .map(TryInto::<Block>::try_into)
+                .try_collect()?;
             Node::Article(Article::new(blocks))
         };
 

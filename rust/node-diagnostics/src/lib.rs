@@ -166,7 +166,11 @@ impl Diagnostic {
         }
         details.push_str(&self.node_type.to_string());
         details.push(' ');
-        details.push_str(&kind.to_string());
+        details.push_str(
+            &self
+                .error_type
+                .unwrap_or_else(|| kind.to_string().to_lowercase()),
+        );
         details.push(' ');
 
         // Decide if using the document's source or the message's source

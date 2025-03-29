@@ -5,12 +5,10 @@ use std::{
 
 use dirs::{closest_stencila_dir, stencila_db_dir, stencila_store_dir};
 use kernel_kuzu::{
-    KuzuKernelInstance, QueryResultTransform,
     kernel::{
-        Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
         common::{
             async_trait::async_trait,
-            eyre::{Result, bail},
+            eyre::{bail, Result},
             itertools::Itertools,
             once_cell::sync::Lazy,
             regex::Regex,
@@ -21,14 +19,16 @@ use kernel_kuzu::{
         format::Format,
         generate_id,
         schema::{
-            Array, Article, CreativeWorkType, Excerpt, ExecutionBounds, ExecutionMessage, Node,
-            Primitive, SoftwareApplication, duplicate,
+            get, Array, Article, CreativeWorkType, Excerpt, ExecutionBounds, ExecutionMessage,
+            Node, NodeSet, Primitive, SoftwareApplication,
         },
+        Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
     },
+    KuzuKernelInstance, QueryResultTransform,
 };
 use lru::LruCache;
 
-const NAME: &str = "docs";
+const NAME: &str = "docsdb";
 
 /// A kernel for querying Stencila node databases
 ///
@@ -45,9 +45,9 @@ const NAME: &str = "docs";
 ///
 /// 3. returns nodes as `Excerpt`s (rather than as Cytoscape graph specs)
 #[derive(Default)]
-pub struct DocsKernel;
+pub struct DocsDBKernel;
 
-impl Kernel for DocsKernel {
+impl Kernel for DocsDBKernel {
     fn name(&self) -> String {
         NAME.to_string()
     }
@@ -69,11 +69,12 @@ impl Kernel for DocsKernel {
     }
 
     fn create_instance(&self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(DocsKernelInstance::new()))
+        Ok(Box::new(DocsDBKernelInstance::new()))
     }
 }
 
-pub struct DocsKernelInstance {
+#[derive(Debug)]
+pub struct DocsDBKernelInstance {
     /// The unique id of the kernel instance
     id: String,
 
@@ -92,9 +93,15 @@ pub struct DocsKernelInstance {
     cache: Mutex<LruCache<String, Node>>,
 }
 
-impl DocsKernelInstance {
+impl Default for DocsDBKernelInstance {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl DocsDBKernelInstance {
     /// Create a new instance
-    fn new() -> Self {
+    pub fn new() -> Self {
         let id = generate_id(NAME);
         let kuzu = KuzuKernelInstance::box_with(id.clone(), QueryResultTransform::Excerpts);
 
@@ -109,6 +116,29 @@ impl DocsKernelInstance {
             store: None,
             cache: docs,
         }
+    }
+
+    /// Create a new instance for the associated with a path
+    pub async fn new_workspace(path: &Path) -> Result<Self> {
+        let mut instance = Self::new();
+        instance.use_workspace(path).await?;
+        Ok(instance)
+    }
+
+    /// Use the workspace database associated with a path
+    ///
+    /// Finds the closest `.stencila` directory and uses its `.stencila/db`
+    /// and `.stencila/store` subdirectories.
+    async fn use_workspace(&mut self, path: &Path) -> Result<()> {
+        let stencila_dir = closest_stencila_dir(path, false).await?;
+
+        let db_dir = stencila_db_dir(&stencila_dir, false).await?;
+        self.kuzu.set_path(db_dir);
+
+        let store_dir = stencila_store_dir(&stencila_dir, false).await?;
+        self.set_store(store_dir).await;
+
+        Ok(())
     }
 
     /// Set/reset the store path and clear the documents cache
@@ -141,7 +171,7 @@ impl DocsKernelInstance {
                     Some(doc) => {
                         // TODO: add a cite_as function to cite doc
                         let source = CreativeWorkType::Article(Article::default());
-                        let excerpt = duplicate(doc, node_path);
+                        let excerpt = get(doc, node_path);
 
                         (source, excerpt)
                     }
@@ -152,7 +182,7 @@ impl DocsKernelInstance {
 
                         // TODO: add a cite_as function to cite doc
                         let source = CreativeWorkType::Article(Article::default());
-                        let excerpt = duplicate(&doc, node_path);
+                        let excerpt = get(&doc, node_path);
 
                         docs.put(doc_id.to_string(), doc);
 
@@ -164,6 +194,17 @@ impl DocsKernelInstance {
             let Ok(node) = excerpt else {
                 tracing::warn!("Unable to find node path in `{doc_id}`");
                 continue;
+            };
+
+            let node = match node {
+                NodeSet::One(node) => node,
+                NodeSet::Many(nodes) => {
+                    tracing::warn!("Unexpected `NodeSet::Many`");
+                    match nodes.into_iter().next() {
+                        Some(node) => node,
+                        None => continue,
+                    }
+                }
             };
 
             let content = if node.node_type().is_block() {
@@ -192,13 +233,13 @@ impl DocsKernelInstance {
 }
 
 #[async_trait]
-impl KernelInstance for DocsKernelInstance {
+impl KernelInstance for DocsDBKernelInstance {
     fn id(&self) -> &str {
         &self.id
     }
 
     async fn start(&mut self, directory: &Path) -> Result<()> {
-        tracing::trace!("Starting docs kernel");
+        tracing::trace!("Starting DocsDB kernel");
 
         self.directory = Some(directory.to_path_buf());
 
@@ -206,7 +247,7 @@ impl KernelInstance for DocsKernelInstance {
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
-        tracing::trace!("Executing query in docs kernel");
+        tracing::trace!("Executing query in DocsDB kernel");
 
         // Check for db aliases and set db and store paths accordingly
         static DB_REGEX: Lazy<Regex> =
@@ -217,15 +258,8 @@ impl KernelInstance for DocsKernelInstance {
                 let alias = &captures[1];
                 match alias {
                     "workspace" => {
-                        let current_dir =
-                            self.directory.clone().unwrap_or_else(|| PathBuf::from("."));
-                        let stencila_dir = closest_stencila_dir(&current_dir, false).await?;
-
-                        let db_dir = stencila_db_dir(&stencila_dir, false).await?;
-                        self.kuzu.set_path(db_dir);
-
-                        let store_dir = stencila_store_dir(&stencila_dir, false).await?;
-                        self.set_store(store_dir).await;
+                        let home_dir = self.directory.clone().unwrap_or_else(|| PathBuf::from("."));
+                        self.use_workspace(&home_dir).await?;
                     }
                     _ => unreachable!(),
                 }
@@ -268,16 +302,16 @@ impl KernelInstance for DocsKernelInstance {
     }
 
     async fn info(&mut self) -> Result<SoftwareApplication> {
-        tracing::trace!("Getting docs kernel info");
+        tracing::trace!("Getting DocsDB kernel info");
 
         Ok(SoftwareApplication {
-            name: "Docs Kernel".to_string(),
+            name: "DocsDB Kernel".to_string(),
             ..self.kuzu.info().await?
         })
     }
 
     async fn replicate(&mut self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
-        tracing::trace!("Replicating docs kernel");
+        tracing::trace!("Replicating DocsDB kernel");
 
         self.kuzu.replicate(bounds).await
     }

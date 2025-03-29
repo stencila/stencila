@@ -134,6 +134,7 @@ pub struct CodeChunk {
     #[serde(alias = "output")]
     #[serde(default)]
     #[strip(output)]
+    #[walk]
     #[patch(format = "ipynb")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub outputs: Option<Vec<Node>>,

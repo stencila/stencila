@@ -38,7 +38,8 @@ impl Executable for CodeChunk {
         if info.changed.no() {
             tracing::trace!("Skipping compiling CodeChunk {node_id}");
 
-            return WalkControl::Break;
+            // Continue walk to compile any outputs
+            return WalkControl::Continue;
         }
 
         let mut execution_required =
@@ -89,6 +90,7 @@ impl Executable for CodeChunk {
             }
         }
 
+        // Continue walk to compile any outputs
         WalkControl::Continue
     }
 
@@ -112,8 +114,8 @@ impl Executable for CodeChunk {
             executor.patch(&node_id, [set(NodeProperty::ExecutionStatus, status)]);
         }
 
-        // Break the walk since none of the child nodes are executed
-        WalkControl::Break
+        // Continue walk to prepare any outputs
+        WalkControl::Continue
     }
 
     #[tracing::instrument(skip_all)]
@@ -142,7 +144,8 @@ impl Executable for CodeChunk {
             // Exit the code chunk context
             executor.document_context.code_chunks.exit();
 
-            return WalkControl::Break;
+            // Continue walk to execute any outputs
+            return WalkControl::Continue;
         }
 
         tracing::debug!("Executing CodeChunk {node_id}");
@@ -207,7 +210,8 @@ impl Executable for CodeChunk {
             let duration = execution_duration(&started, &ended);
             let count = self.options.execution_count.unwrap_or_default() + 1;
 
-            // Set properties that may be using in rendering
+            // Set properties that may be used in rendering or will be executed
+            // as walk continues
             self.outputs = outputs.clone();
             self.options.execution_messages = messages.clone();
 
@@ -254,7 +258,8 @@ impl Executable for CodeChunk {
         // Exit the code chunk context
         executor.document_context.code_chunks.exit();
 
-        WalkControl::Break
+        // Continue walk to execute any outputs
+        WalkControl::Continue
     }
 
     #[tracing::instrument(skip_all)]

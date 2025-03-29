@@ -16,20 +16,20 @@ const langs = [
   { name: "css", aliases: "css", include: "source.css", chunks: false },
   {
     name: "cypher",
-    aliases: "cypher|cql|kuzu|docs",
+    aliases: "cypher|cql|kuzu|docsdb",
     include: "source.cypher",
     chunks: true,
   },
   {
     name: "javascript",
-    aliases: "js|javascript|quickjs|nodejs",
+    aliases: "js|javascript|quickjs|nodejs|docsql",
     include: "source.js",
     chunks: true,
   },
   { name: "html", aliases: "html", include: "text.html.basic", chunks: false },
   {
     name: "python",
-    aliases: "py(?:thon)?",
+    aliases: "python|py",
     include: "source.python",
     chunks: true,
   },

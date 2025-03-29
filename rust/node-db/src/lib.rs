@@ -1,12 +1,12 @@
 use common::{
-    eyre::{Context, Report, Result, eyre},
+    eyre::{eyre, Context, Report, Result},
     itertools::Itertools,
     tempfile::NamedTempFile,
     tracing,
 };
 use kernel_kuzu::{
-    ToKuzu,
     kuzu::{Connection, Database, LogicalType, PreparedStatement, SystemConfig, Value},
+    ToKuzu,
 };
 use schema::{Node, NodeId, NodePath, NodeProperty, NodeSlot, NodeType, Visitor};
 use std::{

@@ -22,7 +22,8 @@ use kernel::{
 };
 use kernel_asciimath::AsciiMathKernel;
 use kernel_bash::BashKernel;
-use kernel_docs::DocsKernel;
+use kernel_docsdb::DocsDBKernel;
+use kernel_docsql::DocsQLKernel;
 use kernel_graphviz::GraphvizKernel;
 use kernel_jinja::JinjaKernel;
 use kernel_kuzu::KuzuKernel;
@@ -57,7 +58,8 @@ pub async fn list() -> Vec<Box<dyn Kernel>> {
         Box::<BashKernel>::default() as Box<dyn Kernel>,
         // Database
         Box::<KuzuKernel>::default() as Box<dyn Kernel>,
-        Box::<DocsKernel>::default() as Box<dyn Kernel>,
+        Box::<DocsDBKernel>::default() as Box<dyn Kernel>,
+        Box::<DocsQLKernel>::default() as Box<dyn Kernel>,
         // Diagrams
         Box::<MermaidKernel>::default() as Box<dyn Kernel>,
         Box::<GraphvizKernel>::default() as Box<dyn Kernel>,
@@ -258,7 +260,7 @@ impl Kernels {
         mut receiver: mpsc::UnboundedReceiver<KernelVariableRequest>,
         sender: broadcast::Sender<KernelVariableResponse>,
     ) {
-        tracing::debug!("Kernels variable request task started");
+        tracing::trace!("Kernels variable request task started");
 
         while let Some(request) = receiver.recv().await {
             tracing::trace!("Received request for variable `{}`", request.variable);
@@ -288,7 +290,7 @@ impl Kernels {
             }
         }
 
-        tracing::debug!("Kernels variable request task stopped");
+        tracing::trace!("Kernels variable request task stopped");
     }
 
     /// Create a kernel instance
@@ -582,8 +584,11 @@ mod tests {
         let (node, messages, ..) = kernels.execute("{{foo + 4}}", Some("jinja")).await?;
         assert_eq!(messages.len(), 1);
         assert_eq!(messages[0].level, MessageLevel::Exception);
-        assert_eq!(messages[0].message, "invalid operation: tried to use + operator on unsupported types undefined and number (in <string>:1)");
-        assert_eq!(node, vec![Node::String("{{foo + 4}}".to_string())]);
+        assert_eq!(
+            messages[0].message,
+            "tried to use + operator on unsupported types undefined and number"
+        );
+        assert_eq!(node, vec![]);
 
         Ok(())
     }

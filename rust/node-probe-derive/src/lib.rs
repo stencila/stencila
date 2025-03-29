@@ -78,7 +78,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     {
         quote! {
             if path.is_empty() {
-                return Ok(Node::#struct_name(self.clone()));
+                return Ok(NodeSet::One(Node::#struct_name(self.clone())));
             }
         }
     } else {
@@ -97,7 +97,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
     quote! {
         impl ProbeNode for #struct_name {
-            fn duplicate(&self, path: &mut NodePath) -> Result<Node> {
+            fn duplicate(&self, path: &mut NodePath) -> Result<NodeSet> {
                 #empty_path
 
                 let Some(NodeSlot::Property(property)) = path.pop_front() else {
@@ -131,15 +131,15 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     if variants.is_empty() {
         quote! {
             impl ProbeNode for #enum_name {
-                fn duplicate(&self, path: &mut NodePath) -> Result<Node> {
-                    Ok(Node::String(self.to_string()))
+                fn duplicate(&self, path: &mut NodePath) -> Result<NodeSet> {
+                    Ok(NodeSet::One(Node::String(self.to_string())))
                 }
             }
         }
     } else {
         quote! {
             impl ProbeNode for #enum_name {
-                fn duplicate(&self, path: &mut NodePath) -> Result<Node> {
+                fn duplicate(&self, path: &mut NodePath) -> Result<NodeSet> {
                     match self {
                         #variants
                     }

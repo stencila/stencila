@@ -1,7 +1,7 @@
 use kuzu::{LogicalType, Value};
 
 use kernel::{
-    common::eyre::{Result, bail},
+    common::eyre::{bail, Result},
     schema::*,
 };
 
