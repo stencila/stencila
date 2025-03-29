@@ -95,6 +95,7 @@ properties:
     type: array
     items:
       $ref: Node
+    walk: true
     strip: [output]
     patch:
       # Outputs are support by Jupyter Notebooks

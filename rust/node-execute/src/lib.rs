@@ -1092,6 +1092,8 @@ impl VisitorAsync for Executor {
             Article(node) => self.visit_executable(node).await,
             Prompt(node) => self.visit_executable(node).await,
             Chat(node) => self.visit_executable(node).await,
+            // Visit executable nodes in outputs of code chunks
+            CodeChunk(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
         })
     }
