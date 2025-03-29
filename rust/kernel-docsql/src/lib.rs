@@ -334,7 +334,7 @@ LIMIT 10"#
         expect!(
             "test.cells(@text =~ 'a')",
             r#"MATCH (cell:TableCell)
-WHERE regexp_matches(cell.text, "a")
+WHERE regexp_matches(cell.text, 'a')
 RETURN cell
 LIMIT 10"#
         );
@@ -342,7 +342,7 @@ LIMIT 10"#
         expect!(
             "test.cells(@text !~ 'a')",
             r#"MATCH (cell:TableCell)
-WHERE NOT regexp_matches(cell.text, "a")
+WHERE NOT regexp_matches(cell.text, 'a')
 RETURN cell
 LIMIT 10"#
         );
@@ -350,7 +350,7 @@ LIMIT 10"#
         expect!(
             "test.cells(@text ^= 'a')",
             r#"MATCH (cell:TableCell)
-WHERE starts_with(cell.text, "a")
+WHERE starts_with(cell.text, 'a')
 RETURN cell
 LIMIT 10"#
         );
@@ -358,7 +358,7 @@ LIMIT 10"#
         expect!(
             "test.cells(@text $= 'a')",
             r#"MATCH (cell:TableCell)
-WHERE ends_with(cell.text, "a")
+WHERE ends_with(cell.text, 'a')
 RETURN cell
 LIMIT 10"#
         );
@@ -366,8 +366,30 @@ LIMIT 10"#
         expect!(
             "test.cells(@text in 'a')",
             r#"MATCH (cell:TableCell)
-WHERE contains("a", cell.text)
+WHERE contains('a', cell.text)
 RETURN cell
+LIMIT 10"#
+        );
+
+        expect!(
+            "test.paragraphs(search = 'keyword')",
+            r#"CALL QUERY_FTS_INDEX('Paragraph', 'fts', 'keyword')
+RETURN node
+LIMIT 10"#
+        );
+
+        expect!(
+            "test.paragraphs(searchAll = 'keyword1 keyword2')",
+            r#"CALL QUERY_FTS_INDEX('Paragraph', 'fts', 'keyword1 keyword2', conjunctive := true)
+RETURN node
+LIMIT 10"#
+        );
+
+        expect!(
+            "test.paragraphs(@text ^= 'Word', search = 'keyword')",
+            r#"CALL QUERY_FTS_INDEX('Paragraph', 'fts', 'keyword')
+WHERE starts_with(node.text, 'Word')
+RETURN node
 LIMIT 10"#
         );
 

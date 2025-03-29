@@ -125,7 +125,10 @@ pub(super) struct Query {
     /// The Cypher for the query
     cypher: Option<String>,
 
-    /// The pattern for the query
+    /// Any `CALL` for the query
+    call: Option<String>,
+
+    /// Any `MATCH` pattern for the query
     pattern: Option<String>,
 
     /// Condition that should be `AND`ed in the `WHERE` clause
@@ -180,6 +183,7 @@ impl Query {
             db,
             messages,
             cypher: None,
+            call: None,
             pattern: None,
             ands: Vec::new(),
             ors: Vec::new(),
@@ -282,9 +286,9 @@ impl Query {
             }
 
             match arg {
-                "and" | "or" => {
-                    // Non-property arguments: ensure string
-                    let condition = value
+                "search" | "searchAll" | "and" | "or" => {
+                    // Non-filter arguments: should be string
+                    let value = value
                         .as_str()
                         .ok_or_else(|| {
                             Error::new(
@@ -295,8 +299,19 @@ impl Query {
                         .to_string();
 
                     match arg {
-                        "and" => query.ands.push(condition),
-                        "or" => query.ors.push(condition),
+                        "search" | "searchAll" => {
+                            let table = table.replace("`", "");
+                            let option = if arg == "searchAll" {
+                                ", conjunctive := true"
+                            } else {
+                                ""
+                            };
+                            query.call = Some(format!(
+                                "CALL QUERY_FTS_INDEX('{table}', 'fts', '{value}'{option})",
+                            ));
+                        }
+                        "and" => query.ands.push(value),
+                        "or" => query.ors.push(value),
                         _ => unreachable!(),
                     }
                 }
@@ -403,10 +418,12 @@ impl Query {
             return cypher.clone();
         }
 
-        let mut cypher = String::from("MATCH ");
-
-        let pattern = self.pattern.as_deref().unwrap_or("(node)");
-        cypher.push_str(pattern);
+        let mut cypher = if let Some(call) = &self.call {
+            call.to_string()
+        } else {
+            let pattern = self.pattern.as_deref().unwrap_or("(node)");
+            format!("MATCH {pattern}")
+        };
 
         if !(self.ands.is_empty() && self.ors.is_empty()) {
             cypher.push_str("\nWHERE ");
@@ -426,12 +443,27 @@ impl Query {
             );
         }
 
-        cypher.push_str("\nRETURN ");
-        if self.return_distinct.unwrap_or_default() {
-            cypher.push_str("DISTINCT ");
+        if self.call.is_some() {
+            if let Some(table) = &self.node_table_used {
+                let mut alias = table.to_camel_case();
+                if alias == "table" {
+                    alias = "table".to_string();
+                } else if alias == "tableCell" {
+                    alias = "cell".to_string();
+                } else if alias == "tableRow" {
+                    alias = "row".to_string();
+                }
+                cypher = cypher.replace(&[&alias, "."].concat(), "node.");
+            }
+            cypher.push_str("\nRETURN node");
+        } else {
+            cypher.push_str("\nRETURN ");
+            if self.return_distinct.unwrap_or_default() {
+                cypher.push_str("DISTINCT ");
+            }
+            let r#return = self.r#return.as_deref().unwrap_or("*");
+            cypher.push_str(r#return);
         }
-        let r#return = self.r#return.as_deref().unwrap_or("*");
-        cypher.push_str(r#return);
 
         if let Some(order_by) = &self.order_by {
             cypher.push_str("\nORDER BY ");
