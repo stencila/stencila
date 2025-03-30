@@ -53,3 +53,34 @@ Abc"),
 Abc"
     );
 }
+
+#[rustfmt::skip]
+#[test]
+fn square_brackets() {
+    assert_snapshot!(
+        preprocess("[[ workspace.figures() ]]"),
+        @"```docsql exec
+ workspace.figures() 
+```"
+    );
+
+    assert_snapshot!(
+        preprocess("[[
+workspace.figures()
+]]"),
+        @"```docsql exec
+
+workspace.figures()
+
+```"
+    );
+
+    assert_snapshot!(
+        preprocess("[[ workspace
+.figures()]]"),
+        @"```docsql exec
+ workspace
+.figures()
+```"
+    );
+}

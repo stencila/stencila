@@ -62,7 +62,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
     for md in mds.into_iter() {
         let mut is_handled = false;
 
-        // Get children. position and starting text of the paragraph (if the block is one) for checks below
+        // Get children, position and starting text of the paragraph (if the block is one) for checks below
         let mut para = None;
         if let mdast::Node::Paragraph(mdast::Paragraph { children, position }) = &md {
             if let Some(mdast::Node::Text(mdast::Text { value, .. })) = children.first() {

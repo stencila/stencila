@@ -191,3 +191,20 @@ $$
 
     Ok(())
 }
+
+
+#[tokio::test]
+async fn unbalanced_brackets() -> Result<()> {
+    assert_snapshot!(messages(r#"
+[[
+
+]]]
+
+[[
+"#).await?, @r###"
+    3 Number of closing square brackets differs from opening square brackets on line 2 (3 != 2)
+    5 Unpaired opening square brackets
+    "###);
+
+    Ok(())
+}
