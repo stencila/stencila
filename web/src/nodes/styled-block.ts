@@ -32,7 +32,7 @@ export class StyledBlock extends Styled {
 
   override renderCard() {
     const hasRoot = this.hasRoot()
-  
+
     return html`
       <stencila-ui-block-on-demand
         type="StyledBlock"

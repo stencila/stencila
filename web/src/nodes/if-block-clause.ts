@@ -129,8 +129,7 @@ export class IfBlockClause extends CodeExecutable {
     }
 
     const readOnly =
-      ['Running', 'Pending'].includes(this.executionStatus) ||
-      !this.hasRoot()
+      ['Running', 'Pending'].includes(this.executionStatus) || !this.hasRoot()
 
     const expanded = this.isActive || this.isExpanded
 
