@@ -1,5 +1,5 @@
 import { provide } from '@lit/context'
-import { css, html } from 'lit'
+import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
@@ -8,7 +8,6 @@ import {
   documentHeadingsContext,
 } from '../ui/document/context'
 
-import '../ui/nodes/properties/authors-provenance'
 import '../ui/nodes/properties/reference'
 import '../ui/document/article-headings'
 
@@ -82,13 +81,6 @@ export class Article extends Entity {
    */
   private renderAsRoot() {
     return html`
-      <stencila-ui-authors-provenance>
-        <slot name="authors" slot="author"></slot>
-        <slot name="provenance" slot="provenance"></slot>
-      </stencila-ui-authors-provenance>
-
-      <slot name="config"></slot>
-
       <stencila-ui-article-headings>
         <slot name="headings"></slot>
       </stencila-ui-article-headings>

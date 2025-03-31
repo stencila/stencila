@@ -172,10 +172,15 @@ export class DocumentMenu extends LitElement {
         <sl-menu-label>
           <div class="flex items-center gap-2">Document</div>
         </sl-menu-label>
+        ${
+          /*
+        TODO: Consider reinstating this
         <sl-menu-item type="checkbox" data-event="toggle-author-provenance">
           <stencila-ui-icon name="feather" slot="prefix"></stencila-ui-icon>
           <span class="text-sm">Show authors and provenance</span>
         </sl-menu-item>
+        */ ''
+        }
         <sl-menu-item type="checkbox" data-event="toggle-authorship-highlight">
           <stencila-ui-icon name="highlights" slot="prefix"></stencila-ui-icon>
           <span class="text-sm">Show authorship highlighting</span>
