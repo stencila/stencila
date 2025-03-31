@@ -15,7 +15,7 @@ import { HEADING_VISIBILITY_EVENT, HeadingVisibilityEvent } from './heading'
 
 @customElement('stencila-article')
 @withTwind()
-export class StencilaArticle extends LitElement {
+export class Article extends LitElement {
   /**
    * Context provider for the visibility of the article's headings
    *
