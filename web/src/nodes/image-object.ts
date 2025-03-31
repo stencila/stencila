@@ -151,7 +151,12 @@ export class ImageObject extends Entity {
         if (response.ok) {
           this.error = undefined
         } else {
-          this.error = `Error fetching image: ${await response.text()}`
+          const src = this.contentUrl
+          if (src.length > 40) {
+            return src.slice(0, 40) + '\u2026'
+          }
+          const message = await response.text()
+          this.error = `Error fetching image '${src}': ${message}`
         }
       }
     }
