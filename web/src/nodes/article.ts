@@ -8,7 +8,6 @@ import {
   documentHeadingsContext,
 } from '../ui/document/context'
 
-import '../ui/nodes/properties/reference'
 import '../ui/document/article-headings'
 
 import { Entity } from './entity'
@@ -69,17 +68,6 @@ export class Article extends Entity {
   }
 
   override render() {
-    if (this.isRoot()) {
-      return this.renderAsRoot()
-    } else {
-      return this.renderAsReference()
-    }
-  }
-
-  /**
-   * Render the `Article` as the root node
-   */
-  private renderAsRoot() {
     return html`
       <stencila-ui-article-headings>
         <slot name="headings"></slot>
@@ -87,17 +75,5 @@ export class Article extends Entity {
 
       <slot name="content"></slot>
     `
-  }
-
-  /**
-   * Render the `Article` as a reference
-   */
-  private renderAsReference() {
-    return html`<stencila-ui-node-reference
-      date=${this.datePublished}
-      .identifiers=${this.identifiers}
-      ><span slot="authors"><slot name="authors"></slot></span
-      ><slot name="title" slot="title"></slot
-    ></stencila-ui-node-reference>`
   }
 }
