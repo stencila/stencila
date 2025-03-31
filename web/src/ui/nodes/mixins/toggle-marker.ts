@@ -107,8 +107,9 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
         return true
       }
 
-      // Expand certain nodes types in certain chat messages
+      // Expand certain nodes types in certain contexts
       if (
+        this.type == 'Excerpt' ||
         ChatMessage.shouldExpand(this, this.type) ||
         SuggestionBlock.shouldExpand(this, this.type)
       ) {
