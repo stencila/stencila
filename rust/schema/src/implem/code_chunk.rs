@@ -372,6 +372,11 @@ impl MarkdownCodec for CodeChunk {
                     }
                 })
                 .push_str("```\n\n");
+        } else if matches!(self.programming_language.as_deref(), Some("docsql")) {
+            context
+                .push_str("[[")
+                .push_prop_str(NodeProperty::Code, &self.code)
+                .push_str("]]\n");
         } else {
             let wrapped =
                 if self.label_type.is_some() || self.label.is_some() || self.caption.is_some() {
