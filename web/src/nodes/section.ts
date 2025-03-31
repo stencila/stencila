@@ -67,14 +67,12 @@ export class Section extends Entity {
    * Render a normal section
    */
   private renderSection() {
-    const hasDocRoot = this.hasDocumentRootNode()
-
     return html`
       <stencila-ui-block-on-demand
         type="Section"
         node-id=${this.id}
         depth=${this.depth}
-        ?no-root=${!hasDocRoot}
+        ?has-root=${this.hasRoot()}
       >
         <div slot="body">
           <stencila-ui-node-authors type="Section">

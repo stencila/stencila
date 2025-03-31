@@ -117,14 +117,12 @@ export class IncludeBlock extends Executable {
   }
 
   override renderCard() {
-    const hasDocRoot = this.hasDocumentRootNode()
-
     return html`
       <stencila-ui-block-on-demand
         type="IncludeBlock"
         node-id=${this.id}
         depth=${this.depth}
-        ?no-root=${!hasDocRoot}
+        ?has-root=${this.hasRoot()}
       >
         <div slot="header-right">
           <stencila-ui-node-execution-commands

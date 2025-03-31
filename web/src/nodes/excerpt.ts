@@ -38,16 +38,14 @@ export class Excerpt extends Entity {
   }
 
   override renderCard() {
-    const hasDocRoot = this.hasDocumentRootNode()
-
     return html`
       <stencila-ui-block-on-demand
         type="Excerpt"
         node-id=${this.id}
         depth=${this.depth}
-        ?no-root=${!hasDocRoot}
+        ?has-root=${this.hasRoot()}
       >
-        <div slot="body">
+        <div slot="body" class="p-3">
           <slot name="source"></slot>
         </div>
         <div slot="content">${this.renderContent()}</div>

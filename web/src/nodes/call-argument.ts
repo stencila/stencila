@@ -57,7 +57,7 @@ export class CallArgument extends Parameter {
           no-gutters
           class="flex items-center flex-grow max-w-[50%]"
           container-classes="inline-block w-full rounded-sm border border-[${borderColour}] overflow-hidden text-ellipsis"
-          ?read-only=${!this.hasDocumentRootNode()}
+          ?read-only=${!this.hasRoot()}
         >
           <slot name="execution-messages" slot="messages"></slot>
         </stencila-ui-node-code>

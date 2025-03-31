@@ -17,7 +17,7 @@ import { UIBaseCard } from './base-card'
 @withTwind()
 export class UIBlockInFlow extends UIBaseCard {
   override render() {
-    const hasBorder = this.depth > 0 || !this.noDocRoot
+    const hasBorder = this.depth > 0 || !this.hasRoot
 
     const cardStyles = apply([
       'group',

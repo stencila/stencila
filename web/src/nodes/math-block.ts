@@ -27,14 +27,14 @@ export class MathBlock extends Math {
   }
 
   override renderCard() {
-    const hasDocRoot = this.hasDocumentRootNode()
+    const hasRoot = this.hasRoot()
 
     return html`
       <stencila-ui-block-on-demand
         type="MathBlock"
         node-id=${this.id}
         depth=${this.depth}
-        ?no-root=${!hasDocRoot}
+        ?has-root=${hasRoot}
       >
         <div slot="body">
           <stencila-ui-node-authors type="MathBlock">
@@ -50,7 +50,7 @@ export class MathBlock extends Math {
             node-id=${this.id}
             .code-authorship=${this.codeAuthorship}
             language=${this.mathLanguage ?? 'tex'}
-            ?read-only=${!hasDocRoot}
+            ?read-only=${!hasRoot}
           >
             <slot name="compilation-messages" slot="messages"></slot>
           </stencila-ui-node-code>

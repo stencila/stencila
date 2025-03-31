@@ -81,14 +81,12 @@ export class Admonition extends Entity {
   }
 
   override renderCard() {
-    const hasDocRoot = this.hasDocumentRootNode()
-
     return html`
       <stencila-ui-block-on-demand
         type="Admonition"
         node-id=${this.id}
         depth=${this.depth}
-        ?no-root=${!hasDocRoot}
+        ?has-root=${this.hasRoot()}
       >
         <div slot="body">
           <stencila-ui-node-authors type="Admonition">

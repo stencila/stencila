@@ -83,7 +83,7 @@ export class WalkthroughStep extends Entity {
     )
 
     return html`
-      ${this.hasDocumentRootNode() ? this.renderStepActions() : ''}
+      ${this.hasRoot() ? this.renderStepActions() : ''}
       <div class=${contentStyle}>
         <slot name="content"></slot>
       </div>

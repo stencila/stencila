@@ -31,14 +31,15 @@ export class StyledBlock extends Styled {
   }
 
   override renderCard() {
-    const hasDocRoot = this.hasDocumentRootNode()
+    const hasRoot = this.hasRoot()
+  
     return html`
       <stencila-ui-block-on-demand
         type="StyledBlock"
         node-id=${this.id}
         depth=${this.depth}
         .canAnimate=${false}
-        ?no-root=${!hasDocRoot}
+        ?has-root=${hasRoot}
       >
         <div slot="body">
           <stencila-ui-node-authors type="StyledBlock">
@@ -54,7 +55,7 @@ export class StyledBlock extends Styled {
             node-id=${this.id}
             .code-authorship=${this.codeAuthorship}
             language=${this.styleLanguage}
-            ?read-only=${!this.hasDocumentRootNode()}
+            ?read-only=${!hasRoot}
           >
             <slot name="compilation-messages" slot="messages"></slot>
           </stencila-ui-node-code>

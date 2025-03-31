@@ -158,13 +158,20 @@ export abstract class Entity extends LitElement {
   }
 
   /**
+   * Whether the entity is the current [root] node
+   */
+  protected isRoot() {
+    return this.root
+  }
+
+  /**
    * Whether the entity is the current [root], or has a parent [root] node
    *
    * Used to alter the rendering behavior of node cards for "freestanding"
    * nodes (e.g. those embedded in a Ghost page).
    */
-  protected hasDocumentRootNode() {
-    return this.hasAttribute('root') || this.closestGlobally('[root]') !== null
+  protected hasRoot() {
+    return this.isRoot() || this.closestGlobally('[root]') !== null
   }
 
   /**

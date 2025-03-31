@@ -102,7 +102,7 @@ export class UIBaseCard extends UIBaseClass {
     ])
 
     const canClose =
-      ((this.depth > 0 || this.noDocRoot) &&
+      ((this.depth > 0 || !this.hasRoot) &&
         !(
           ChatMessage.shouldExpand(this, this.type) ||
           SuggestionBlock.shouldExpand(this, this.type)

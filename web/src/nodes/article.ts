@@ -1,6 +1,6 @@
 import { provide } from '@lit/context'
-import { LitElement, css, html } from 'lit'
-import { customElement } from 'lit/decorators'
+import { css, html } from 'lit'
+import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 import {
@@ -9,13 +9,21 @@ import {
 } from '../ui/document/context'
 
 import '../ui/nodes/properties/authors-provenance'
+import '../ui/nodes/properties/reference'
 import '../ui/document/article-headings'
 
+import { Entity } from './entity'
 import { HEADING_VISIBILITY_EVENT, HeadingVisibilityEvent } from './heading'
 
 @customElement('stencila-article')
 @withTwind()
-export class Article extends LitElement {
+export class Article extends Entity {
+  @property({ attribute: 'date-published' })
+  datePublished?: string
+
+  @property({ type: Array })
+  identifiers?: unknown[]
+
   /**
    * Context provider for the visibility of the article's headings
    *
@@ -43,53 +51,41 @@ export class Article extends LitElement {
 
   override connectedCallback(): void {
     super.connectedCallback()
-    this.addEventListener(
-      HEADING_VISIBILITY_EVENT,
-      this.handleHeadingVisibility.bind(this)
-    )
+    if (this.isRoot()) {
+      this.addEventListener(
+        HEADING_VISIBILITY_EVENT,
+        this.handleHeadingVisibility.bind(this)
+      )
+    }
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback()
-    this.removeEventListener(
-      HEADING_VISIBILITY_EVENT,
-      this.handleHeadingVisibility.bind(this)
-    )
+    if (this.isRoot()) {
+      this.removeEventListener(
+        HEADING_VISIBILITY_EVENT,
+        this.handleHeadingVisibility.bind(this)
+      )
+    }
+  }
+
+  override render() {
+    if (this.isRoot()) {
+      return this.renderAsRoot()
+    } else {
+      return this.renderAsReference()
+    }
   }
 
   /**
-   * Provide some formatting rules for the authors and provenance elements
+   * Render the `Article` as the root node
    */
-  static override styles = css`
-    [slot='authors'] > slot::slotted(*) {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem; // gap-3
-    }
-
-    [slot='provenance'] > slot::slotted(*) {
-      display: flex;
-      flex-direction: row;
-      gap: 0.75rem; // gap-3
-    }
-  `
-
-  override render() {
+  private renderAsRoot() {
     return html`
-      <aside class="min-w-80 max-w-[80ch] mx-auto">
-        <stencila-ui-authors-provenance>
-          <div class="flex flex-col gap-y-4">
-            <div slot="authors">
-              <label class="block text-sm mb-4">Contributors</label>
-              <slot name="authors"></slot>
-            </div>
-            <div slot="provenance">
-              <label class="block text-sm mb-4">Provenance</label>
-              <slot name="provenance"></slot>
-            </div>
-          </div>
-        </stencila-ui-authors-provenance>
-      </aside>
+      <stencila-ui-authors-provenance>
+        <slot name="authors" slot="author"></slot>
+        <slot name="provenance" slot="provenance"></slot>
+      </stencila-ui-authors-provenance>
 
       <slot name="config"></slot>
 
@@ -99,5 +95,17 @@ export class Article extends LitElement {
 
       <slot name="content"></slot>
     `
+  }
+
+  /**
+   * Render the `Article` as a reference
+   */
+  private renderAsReference() {
+    return html`<stencila-ui-node-reference
+      date=${this.datePublished}
+      .identifiers=${this.identifiers}
+      ><span slot="authors"><slot name="authors"></slot></span
+      ><slot name="title" slot="title"></slot
+    ></stencila-ui-node-reference>`
   }
 }
