@@ -119,7 +119,7 @@ impl KernelInstance for DocsQLKernelInstance {
     }
 
     async fn start(&mut self, directory: &Path) -> Result<()> {
-        tracing::trace!("Starting context kernel");
+        tracing::trace!("Starting DocsQL kernel");
 
         self.directory = directory.to_path_buf();
 
@@ -127,7 +127,7 @@ impl KernelInstance for DocsQLKernelInstance {
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
-        tracing::trace!("Executing code in context kernel");
+        tracing::trace!("Executing code in DocsQL kernel");
 
         let mut env = Environment::empty();
         env.set_undefined_behavior(UndefinedBehavior::Strict);
@@ -230,10 +230,10 @@ impl KernelInstance for DocsQLKernelInstance {
     }
 
     async fn info(&mut self) -> Result<SoftwareApplication> {
-        tracing::trace!("Getting context kernel info");
+        tracing::trace!("Getting DocSQL kernel info");
 
         Ok(SoftwareApplication {
-            name: "Context Kernel".to_string(),
+            name: "DocSQL Kernel".to_string(),
             ..Default::default()
         })
     }
