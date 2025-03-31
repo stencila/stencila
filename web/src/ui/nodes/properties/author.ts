@@ -127,13 +127,13 @@ export class UINodeAuthor extends LitElement {
                   : ''}</span
               >
               <span
-                class="block text-xs w-[90%] leading-5 overflow-hidden whitespace-nowrap text-ellipsis inline-block"
+                class="text-xs w-[90%] leading-5 overflow-hidden whitespace-nowrap text-ellipsis inline-block"
               >
                 ${this.renderName()}
               </span>
               ${this.details
                 ? html`<span
-                    class=${`block text-2xs w-[90%] leading-none overflow-hidden whitespace-nowrap text-ellipsis inline-block`}
+                    class=${`text-2xs w-[90%] leading-none overflow-hidden whitespace-nowrap text-ellipsis inline-block`}
                   >
                     ${this.details}
                   </span>`
