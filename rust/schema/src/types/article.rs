@@ -92,6 +92,7 @@ pub struct Article {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(with = "Date::to_dom_attr")]
     pub date_created: Option<Date>,
 
     /// Date/time that work was received.
@@ -99,6 +100,7 @@ pub struct Article {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(with = "Date::to_dom_attr")]
     pub date_received: Option<Date>,
 
     /// Date/time of acceptance.
@@ -106,6 +108,7 @@ pub struct Article {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(with = "Date::to_dom_attr")]
     pub date_accepted: Option<Date>,
 
     /// Date/time of most recent modification.
@@ -113,6 +116,7 @@ pub struct Article {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(with = "Date::to_dom_attr")]
     pub date_modified: Option<Date>,
 
     /// Date of first publication.
@@ -120,6 +124,7 @@ pub struct Article {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[dom(with = "Date::to_dom_attr")]
     pub date_published: Option<Date>,
 
     /// Genre of the creative work, broadcast channel or group.

@@ -116,6 +116,8 @@ properties:
     strip: [metadata]
     serde:
       deserializeWith: option_string_or_object
+    dom:
+      with: Date::to_dom_attr
   dateReceived:
     '@id': schema:dateReceived
     description: Date/time that work was received.
@@ -123,6 +125,8 @@ properties:
     strip: [metadata]
     serde:
       deserializeWith: option_string_or_object
+    dom:
+      with: Date::to_dom_attr
   dateAccepted:
     '@id': stencila:dateAccepted
     description: Date/time of acceptance.
@@ -133,6 +137,8 @@ properties:
     strip: [metadata]
     serde:
       deserializeWith: option_string_or_object
+    dom:
+      with: Date::to_dom_attr
   dateModified:
     '@id': schema:dateModified
     description: Date/time of most recent modification.
@@ -140,6 +146,8 @@ properties:
     strip: [metadata]
     serde:
       deserializeWith: option_string_or_object
+    dom:
+      with: Date::to_dom_attr
   datePublished:
     '@id': schema:datePublished
     aliases:
@@ -151,6 +159,8 @@ properties:
     strip: [metadata]
     serde:
       deserializeWith: option_string_or_object
+    dom:
+      with: Date::to_dom_attr
   funders:
     '@id': schema:funder
     description: People or organizations that funded the `CreativeWork`.

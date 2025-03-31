@@ -1,10 +1,7 @@
 use std::str::FromStr;
 
 use common::{
-    chrono::{self, Datelike},
-    eyre::{Report, Result},
-    once_cell::sync::Lazy,
-    regex::Regex,
+    chrono::{self, Datelike}, eyre::{Report, Result}, inflector::Inflector, once_cell::sync::Lazy, regex::Regex
 };
 
 use crate::{prelude::*, Date};
@@ -17,6 +14,11 @@ impl Date {
             elem("date", [("iso-8601-date", &self.value)], &self.value),
             Losses::none(),
         )
+    }
+
+    /// Encode a date as a DOM HTML attribute
+    pub fn to_dom_attr(name: &str, date: &Self, context: &mut DomEncodeContext) {
+        context.push_attr(&name.to_kebab_case(), &date.value.to_string());
     }
 }
 

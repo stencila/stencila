@@ -303,6 +303,9 @@
       "serde": {
         "deserializeWith": "option_string_or_object"
       },
+      "dom": {
+        "with": "Date::to_dom_attr"
+      },
       "$ref": "Date.schema.json"
     },
     "dateReceived": {
@@ -317,6 +320,9 @@
       ],
       "serde": {
         "deserializeWith": "option_string_or_object"
+      },
+      "dom": {
+        "with": "Date::to_dom_attr"
       },
       "$ref": "Date.schema.json"
     },
@@ -334,6 +340,9 @@
       "serde": {
         "deserializeWith": "option_string_or_object"
       },
+      "dom": {
+        "with": "Date::to_dom_attr"
+      },
       "$ref": "Date.schema.json"
     },
     "dateModified": {
@@ -348,6 +357,9 @@
       ],
       "serde": {
         "deserializeWith": "option_string_or_object"
+      },
+      "dom": {
+        "with": "Date::to_dom_attr"
       },
       "$ref": "Date.schema.json"
     },
@@ -364,6 +376,9 @@
       ],
       "serde": {
         "deserializeWith": "option_string_or_object"
+      },
+      "dom": {
+        "with": "Date::to_dom_attr"
       },
       "$ref": "Date.schema.json"
     },
