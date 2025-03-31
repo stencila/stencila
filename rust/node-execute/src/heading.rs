@@ -1,4 +1,4 @@
-use schema::Heading;
+use schema::{Heading, NodeType};
 
 use crate::{prelude::*, HeadingInfo};
 
@@ -8,14 +8,21 @@ impl Executable for Heading {
         // If necessary, collapse previous headings into their parents
         HeadingInfo::collapse(self.level, &mut executor.headings);
 
-        // Record this heading
-        let info = HeadingInfo {
-            level: self.level,
-            node_id: self.node_id(),
-            content: self.content.clone(),
-            children: Vec::new(),
-        };
-        executor.headings.push(info);
+        // Record this heading if appropriate
+        if !executor.walk_ancestors.iter().any(|node_type| {
+            matches!(
+                node_type,
+                NodeType::Figure | NodeType::Table | NodeType::CodeChunk
+            )
+        }) {
+            let info = HeadingInfo {
+                level: self.level,
+                node_id: self.node_id(),
+                content: self.content.clone(),
+                children: Vec::new(),
+            };
+            executor.headings.push(info);
+        }
 
         // Continue walk over content
         WalkControl::Continue

@@ -181,6 +181,11 @@ pub struct Executor {
     /// to pending.
     execution_status: ExecutionStatus,
 
+    /// A list of the ancestors node types in the current walk
+    ///
+    /// Use to skip headings within figures, tables and code chunk captions.
+    walk_ancestors: Vec<NodeType>,
+
     /// The document context for prompts
     document_context: DocumentContext,
 
@@ -198,9 +203,6 @@ pub struct Executor {
 
     /// The count of `MathBlock`s
     equation_count: u32,
-
-    /// The id of the last [`Block`] visited
-    last_block: Option<NodeId>,
 
     /// The last programming language used
     programming_language: Option<String>,
@@ -395,13 +397,13 @@ impl Executor {
             node_ids: None,
             phase: Phase::Prepare,
             execution_status: ExecutionStatus::Pending,
+            walk_ancestors: Default::default(),
             document_context: DocumentContext::default(),
             instruction_context: None,
             headings: Vec::new(),
             table_count: 0,
             figure_count: 0,
             equation_count: 0,
-            last_block: None,
             programming_language: None,
             linting_context: Vec::new(),
             force_all: false,
@@ -483,7 +485,7 @@ impl Executor {
         self.figure_count = 0;
         self.equation_count = 0;
         self.linting_context.clear();
-        self.last_block = None;
+        self.walk_ancestors.clear();
         root.walk_async(self).await?;
 
         Ok(())
@@ -846,14 +848,14 @@ impl Executor {
         self.document_context = DocumentContext::default();
 
         self.phase = Phase::Prepare;
-        self.last_block = None;
+        self.walk_ancestors.clear();
         root.walk_async(self).await
     }
 
     /// Run [`Phase::Execute`]
     async fn execute(&mut self, root: &mut Node) -> Result<()> {
         self.phase = Phase::Execute;
-        self.last_block = None;
+        self.walk_ancestors.clear();
         root.walk_async(self).await?;
 
         Ok(())
@@ -862,7 +864,7 @@ impl Executor {
     /// Run [`Phase::Interrupt`]
     async fn interrupt(&mut self, root: &mut Node) -> Result<()> {
         self.phase = Phase::Interrupt;
-        self.last_block = None;
+        self.walk_ancestors.clear();
         root.walk_async(self).await
     }
 
@@ -1113,8 +1115,6 @@ impl VisitorAsync for Executor {
     }
 
     async fn visit_block(&mut self, block: &mut Block) -> Result<WalkControl> {
-        let current_block = block.node_id();
-
         use Block::*;
         let walk_control = match block {
             CallBlock(node) => self.visit_executable(node).await,
@@ -1137,8 +1137,6 @@ impl VisitorAsync for Executor {
             _ => WalkControl::Continue,
         };
 
-        self.last_block = current_block;
-
         Ok(walk_control)
     }
 
@@ -1152,5 +1150,14 @@ impl VisitorAsync for Executor {
             StyledInline(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
         })
+    }
+
+    fn enter_struct(&mut self, node_type: NodeType, _node_id: NodeId) -> WalkControl {
+        self.walk_ancestors.push(node_type);
+        WalkControl::Continue
+    }
+
+    fn exit_struct(&mut self) {
+        self.walk_ancestors.pop();
     }
 }
