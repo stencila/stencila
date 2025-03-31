@@ -108,6 +108,20 @@ pub struct Query {
     #[arg(long, short)]
     to: Option<Format>,
 
+    /// Use compact form of encoding if possible
+    ///
+    /// Use this flag to produce the compact forms of encoding (e.g. no indentation)
+    /// which are supported by some formats (e.g. JSON, HTML).
+    #[arg(long, short, conflicts_with = "pretty")]
+    compact: bool,
+
+    /// Use a "pretty" form of encoding if possible
+    ///
+    /// Use this flag to produce pretty forms of encoding (e.g. indentation)
+    /// which are supported by some formats (e.g. JSON, HTML).
+    #[arg(long, short, conflicts_with = "compact")]
+    pretty: bool,
+
     /// The directory from which the closest workspace should be found
     ///
     /// Defaults to the current directory. Use this option if wanting
@@ -178,12 +192,17 @@ impl Query {
             // If node is datatable and no output format is defined, pretty print it
             dt.to_stdout()
         } else {
-            // Otherwise pretty print using output format, defaulting to Markdown
+            // Otherwise print using output format, defaulting to Markdown
             let format = self.r#to.unwrap_or(Format::Markdown);
+            let compact = self
+                .compact
+                .then_some(true)
+                .or(self.pretty.then_some(false));
             let content = codecs::to_string(
                 &node,
                 Some(EncodeOptions {
                     format: Some(format.clone()),
+                    compact,
                     losses: LossesResponse::Debug,
                     ..Default::default()
                 }),
