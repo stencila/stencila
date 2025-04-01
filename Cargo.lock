@@ -3227,6 +3227,7 @@ dependencies = [
  "dirs 0.0.0",
  "kernel-kuzu",
  "lru",
+ "node-db",
 ]
 
 [[package]]
