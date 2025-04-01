@@ -1,7 +1,9 @@
+import { NodeType } from '@stencila/types'
 import { html } from 'lit'
 import { customElement } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
+import { closestGlobally } from '../utilities/closestGlobally'
 
 import { Entity } from './entity'
 
@@ -17,6 +19,14 @@ import '../ui/nodes/properties/provenance'
 @customElement('stencila-excerpt')
 @withTwind()
 export class Excerpt extends Entity {
+  public static shouldExpand(card: HTMLElement, nodeType: NodeType): boolean {
+    return (
+      nodeType == 'Excerpt' ||
+      (['CodeChunk'].includes(nodeType) &&
+        closestGlobally(card, 'stencila-excerpt') !== null)
+    )
+  }
+
   override render() {
     if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return this.renderContent()

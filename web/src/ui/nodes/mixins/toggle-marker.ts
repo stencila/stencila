@@ -5,6 +5,7 @@ import { html } from 'lit'
 import { state, property } from 'lit/decorators'
 
 import { ChatMessage } from '../../../nodes/chat-message'
+import { Excerpt } from '../../../nodes/excerpt'
 import { SuggestionBlock } from '../../../nodes/suggestion-block'
 import { getModeParam } from '../../../utilities/getModeParam'
 import { DocumentContext, documentContext } from '../../document/context'
@@ -109,7 +110,7 @@ export const ToggleMarkerMixin = <T extends Constructor<UIBaseCard>>(
 
       // Expand certain nodes types in certain contexts
       if (
-        this.type == 'Excerpt' ||
+        Excerpt.shouldExpand(this, this.type) ||
         ChatMessage.shouldExpand(this, this.type) ||
         SuggestionBlock.shouldExpand(this, this.type)
       ) {
