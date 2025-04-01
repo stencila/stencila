@@ -13,7 +13,8 @@ use std::{
     collections::HashMap,
     fs::{remove_dir_all, write},
     io::Write,
-    path::{Path, PathBuf},
+    path::Path,
+    sync::Arc,
 };
 
 #[rustfmt::skip]
@@ -63,7 +64,7 @@ pub trait DatabaseNode {
 /// property which involves a relationship (e.g. `content`, `authors`)
 pub struct NodeDatabase {
     /// The instance of the Kuzu database
-    database: Database,
+    database: Arc<Database>,
 
     /// Prepared statements for deleting a document and all its root node
     delete_doc_statement: Option<PreparedStatement>,
@@ -86,25 +87,13 @@ impl NodeDatabase {
     /// Note that `path` should be a directory (not a file) and will be created if it
     /// does not yet exist.
     pub fn new(path: &Path) -> Result<Self> {
-        let database = Database::new(path, SystemConfig::default())?;
+        let database = Arc::new(Database::new(path, SystemConfig::default())?);
 
         let initialized = path.join("stencila.txt");
         if !initialized.exists() {
             let initialize = || {
-                let connection = Connection::new(&database)?;
-                let schema = include_str!("schema.kuzu");
-                for statement in schema.split(";") {
-                    let statement = statement.trim();
-                    if statement.starts_with("//") || statement.is_empty() {
-                        continue;
-                    }
-                    connection
-                        .query(statement)
-                        .wrap_err_with(|| eyre!("Failed to execute: {statement}"))?;
-                }
-
+                Self::init(&database)?;
                 write(initialized, "")?;
-
                 Ok::<(), Report>(())
             };
             if let Err(error) = initialize() {
@@ -125,9 +114,48 @@ impl NodeDatabase {
         })
     }
 
-    /// Create a new in-memory node database
+    /// Create a new in-memory Kuzu database
     pub fn in_memory() -> Result<Self> {
-        NodeDatabase::new(&PathBuf::from(":memory:"))
+        let database = Arc::new(Database::new(":memory:", SystemConfig::default())?);
+
+        Self::init(&database)?;
+
+        Ok(Self {
+            database,
+            delete_doc_statement: None,
+            create_node_statements: HashMap::new(),
+            create_rel_statements: HashMap::new(),
+        })
+    }
+
+    /// Create a new node database on an existing Kuzu database
+    pub fn attached(database: Arc<Database>) -> Result<Self> {
+        Self::init(&database)?;
+
+        Ok(Self {
+            database,
+            delete_doc_statement: None,
+            create_node_statements: HashMap::new(),
+            create_rel_statements: HashMap::new(),
+        })
+    }
+
+    /// Initialized a database
+    fn init(database: &Database) -> Result<()> {
+        let connection = Connection::new(database)?;
+
+        let schema = include_str!("schema.kuzu");
+        for statement in schema.split(";") {
+            let statement = statement.trim();
+            if statement.starts_with("//") || statement.is_empty() {
+                continue;
+            }
+            connection
+                .query(statement)
+                .wrap_err_with(|| eyre!("Failed to execute: {statement}"))?;
+        }
+
+        Ok(())
     }
 
     /// Insert a document into the database
