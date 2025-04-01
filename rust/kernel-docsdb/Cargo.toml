@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 dirs = { path = "../dirs"}
 kernel-kuzu = { path = "../kernel-kuzu"}
+node-db = { path = "../node-db"}
 lru = { workspace = true }
 
 [lints]

@@ -11,7 +11,7 @@ use kernel::{
         once_cell::sync::Lazy,
         tokio::{
             self,
-            sync::{broadcast, mpsc, Mutex, RwLock},
+            sync::{broadcast, mpsc, watch, Mutex, RwLock},
         },
         tracing,
     },
@@ -22,8 +22,8 @@ use kernel::{
 };
 use kernel_asciimath::AsciiMathKernel;
 use kernel_bash::BashKernel;
-use kernel_docsdb::DocsDBKernel;
-use kernel_docsql::DocsQLKernel;
+use kernel_docsdb::{DocsDBKernel, DocsDBKernelInstance};
+use kernel_docsql::{DocsQLKernel, DocsQLKernelInstance};
 use kernel_graphviz::GraphvizKernel;
 use kernel_jinja::JinjaKernel;
 use kernel_kuzu::KuzuKernel;
@@ -200,6 +200,12 @@ pub struct Kernels {
 
     /// A sender for responses to kernels for variables
     variable_response_sender: broadcast::Sender<KernelVariableResponse>,
+
+    /// A receiver for the root of the document
+    ///
+    /// Passed on to certain kernel instances so that they can update
+    /// when the document updates.
+    root_receiver: Option<watch::Receiver<Node>>,
 }
 
 impl fmt::Debug for Kernels {
@@ -210,7 +216,11 @@ impl fmt::Debug for Kernels {
 
 impl Kernels {
     /// Create a new set of kernels
-    pub fn new(bounds: ExecutionBounds, home: &Path) -> Self {
+    pub fn new(
+        bounds: ExecutionBounds,
+        home: &Path,
+        root_receiver: Option<watch::Receiver<Node>>,
+    ) -> Self {
         let instances = KernelInstances::default();
 
         let (variable_request_sender, variable_request_receiver) = mpsc::unbounded_channel();
@@ -245,13 +255,14 @@ impl Kernels {
             instances,
             variable_request_sender,
             variable_response_sender,
+            root_receiver,
         }
     }
 
     /// Create a new set of kernels in the current working directory
     pub fn new_here(bounds: ExecutionBounds) -> Self {
         let path = std::env::current_dir().expect("should always be a current dir");
-        Self::new(bounds, &path)
+        Self::new(bounds, &path, None)
     }
 
     /// A task to handle requests from kernels for variables in other contexts
@@ -311,7 +322,19 @@ impl Kernels {
             None => default(),
         };
 
-        let mut instance = kernel.create_instance(self.bounds)?;
+        let mut instance = if kernel.name() == "docsql" {
+            Box::new(DocsQLKernelInstance::new(
+                Some(self.home.clone()),
+                self.root_receiver.clone(),
+            )?) as Box<dyn KernelInstance>
+        } else if kernel.name() == "docsdb" {
+            Box::new(DocsDBKernelInstance::new(
+                Some(self.home.clone()),
+                self.root_receiver.clone(),
+            )?) as Box<dyn KernelInstance>
+        } else {
+            kernel.create_instance(self.bounds)?
+        };
         let id = instance.id().to_string();
         if kernel.supports_variable_requests() {
             instance.variable_channel(
@@ -542,7 +565,7 @@ impl Kernels {
         }
 
         // Perform the replication
-        let mut kernels = Self::new(bounds, &self.home);
+        let mut kernels = Self::new(bounds, &self.home, self.root_receiver.clone());
         for entry in self.instances.read().await.iter() {
             let kernel = entry.kernel.clone();
             let instance = entry.instance.lock().await.replicate(bounds).await?;

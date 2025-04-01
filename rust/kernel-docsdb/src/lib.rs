@@ -1,6 +1,7 @@
 use std::{
     num::NonZeroUsize,
     path::{Path, PathBuf},
+    sync::Arc,
 };
 
 use dirs::{closest_stencila_dir, stencila_db_dir, stencila_store_dir};
@@ -13,20 +14,25 @@ use kernel_kuzu::{
             once_cell::sync::Lazy,
             regex::Regex,
             serde_json,
-            tokio::{fs::read_to_string, sync::Mutex},
+            tokio::{
+                self,
+                fs::read_to_string,
+                sync::{watch, Mutex},
+            },
             tracing,
         },
         format::Format,
         generate_id,
         schema::{
-            get, Array, Article, CreativeWorkType, Excerpt, ExecutionBounds, ExecutionMessage,
-            Node, NodeSet, Primitive, SoftwareApplication,
+            get, Array, Excerpt, ExecutionBounds, ExecutionMessage, Node, NodeId, NodeSet,
+            Primitive, Reference, SoftwareApplication,
         },
         Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
     },
     KuzuKernelInstance, QueryResultTransform,
 };
 use lru::LruCache;
+use node_db::NodeDatabase;
 
 const NAME: &str = "docsdb";
 
@@ -69,8 +75,14 @@ impl Kernel for DocsDBKernel {
     }
 
     fn create_instance(&self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(DocsDBKernelInstance::new()))
+        Ok(Box::new(DocsDBKernelInstance::new(None, None)?))
     }
+}
+
+#[derive(Debug)]
+enum DocsDB {
+    Workspace,
+    Document,
 }
 
 #[derive(Debug)]
@@ -78,81 +90,123 @@ pub struct DocsDBKernelInstance {
     /// The unique id of the kernel instance
     id: String,
 
-    /// The Kuzu kernel instance used to query the database
-    kuzu: KuzuKernelInstance,
+    /// Which database is active
+    which_db: DocsDB,
 
     /// The path that the kernel is started in
     ///
     /// Used to determine the closest `.stencila` directory if necessary.
     directory: Option<PathBuf>,
 
+    /// The Kuzu kernel instance used to query the workspace database
+    workspace_db: KuzuKernelInstance,
+
     /// The document storage directory associated with the database
     store: Option<PathBuf>,
 
-    /// A document LRU cache to avoid repeated deserialization of the same document
-    cache: Mutex<LruCache<String, Node>>,
-}
+    /// A document LRU cache to avoid repeated deserialization of documents
+    cache: Option<Mutex<LruCache<String, Node>>>,
 
-impl Default for DocsDBKernelInstance {
-    fn default() -> Self {
-        Self::new()
-    }
+    /// The Kuzu kernel instance used to query the document database
+    document_db: KuzuKernelInstance,
+
+    /// The document that nodes will be retrieved from
+    document: Option<Arc<Mutex<Node>>>,
 }
 
 impl DocsDBKernelInstance {
     /// Create a new instance
-    pub fn new() -> Self {
+    pub fn new(
+        directory: Option<PathBuf>,
+        doc_receiver: Option<watch::Receiver<Node>>,
+    ) -> Result<Self> {
         let id = generate_id(NAME);
-        let kuzu = KuzuKernelInstance::box_with(id.clone(), QueryResultTransform::Excerpts);
+        let workspace_db = KuzuKernelInstance::box_with(id.clone(), QueryResultTransform::Excerpts);
+        let document_db = KuzuKernelInstance::box_with(id.clone(), QueryResultTransform::Excerpts);
 
-        let docs = Mutex::new(LruCache::new(
-            NonZeroUsize::new(10).expect("valid non-zero"),
-        ));
+        let document = if let Some(mut receiver) = doc_receiver {
+            let document = Arc::new(Mutex::new(receiver.borrow().clone()));
 
-        Self {
-            kuzu,
+            {
+                let document = document.clone();
+                tokio::task::spawn(async move {
+                    while receiver.changed().await.is_ok() {
+                        let node = receiver.borrow_and_update().clone();
+                        *document.lock().await = node;
+                    }
+                });
+            }
+
+            Some(document)
+        } else {
+            None
+        };
+
+        Ok(Self {
             id,
-            directory: None,
+            which_db: DocsDB::Workspace,
+            directory,
+            workspace_db,
             store: None,
-            cache: docs,
-        }
+            cache: None,
+            document_db,
+            document,
+        })
     }
 
-    /// Create a new instance for the associated with a path
-    pub async fn new_workspace(path: &Path) -> Result<Self> {
-        let mut instance = Self::new();
-        instance.use_workspace(path).await?;
+    /// Create a new instance for the current document
+    pub fn new_document(receiver: watch::Receiver<Node>) -> Result<Self> {
+        let mut instance = Self::new(None, Some(receiver))?;
+        instance.use_document()?;
         Ok(instance)
+    }
+
+    /// Create a new instance for the workspace associated with a path
+    pub async fn new_workspace(path: &Path) -> Result<Self> {
+        let mut instance = Self::new(Some(path.into()), None)?;
+        instance.use_workspace().await?;
+        Ok(instance)
+    }
+
+    /// Use the document database if available
+    fn use_document(&mut self) -> Result<()> {
+        if self.document.is_none() {
+            bail!("No document associated with this kernel")
+        }
+
+        self.which_db = DocsDB::Document;
+
+        Ok(())
     }
 
     /// Use the workspace database associated with a path
     ///
     /// Finds the closest `.stencila` directory and uses its `.stencila/db`
     /// and `.stencila/store` subdirectories.
-    async fn use_workspace(&mut self, path: &Path) -> Result<()> {
-        let stencila_dir = closest_stencila_dir(path, false).await?;
+    async fn use_workspace(&mut self) -> Result<()> {
+        let home_dir = self.directory.clone().unwrap_or_else(|| PathBuf::from("."));
+        let stencila_dir = closest_stencila_dir(&home_dir, false).await?;
 
         let db_dir = stencila_db_dir(&stencila_dir, false).await?;
-        self.kuzu.set_path(db_dir);
+        self.workspace_db.set_path(db_dir);
 
         let store_dir = stencila_store_dir(&stencila_dir, false).await?;
-        self.set_store(store_dir).await;
+        self.store = Some(store_dir);
+        if let Some(cache) = self.cache.as_mut() {
+            cache.lock().await.clear();
+        } else {
+            self.cache = Some(Mutex::new(LruCache::new(
+                NonZeroUsize::new(10).expect("valid non-zero"),
+            )));
+        }
+
+        self.which_db = DocsDB::Workspace;
 
         Ok(())
     }
 
-    /// Set/reset the store path and clear the documents cache
-    async fn set_store(&mut self, path: PathBuf) {
-        self.store = Some(path);
-        self.cache.lock().await.clear();
-    }
-
     /// Create Stencila [`Excerpt`]s from an [`Array`] of doc ids and node paths
     async fn excerpts_from_array(&self, array: &Array) -> Result<Vec<Node>> {
-        let Some(store) = &self.store else {
-            bail!("Expected store to be available");
-        };
-
         let mut excerpts = Vec::new();
         for item in &array.0 {
             let Primitive::String(pair) = item else {
@@ -165,29 +219,49 @@ impl DocsDBKernelInstance {
 
             let node_path = node_path.parse()?;
 
-            let (source, excerpt) = {
-                let mut docs = self.cache.lock().await;
-                match docs.get(doc_id) {
-                    Some(doc) => {
-                        // TODO: add a cite_as function to cite doc
-                        let source = CreativeWorkType::Article(Article::default());
-                        let excerpt = get(doc, node_path);
+            let (source, excerpt) = match self.which_db {
+                DocsDB::Workspace => {
+                    let (Some(store), Some(cache)) = (&self.store, &self.cache) else {
+                        bail!("Store and cache expected for workspace use")
+                    };
 
-                        (source, excerpt)
+                    let mut cache = cache.lock().await;
+                    match cache.get(doc_id) {
+                        Some(doc) => {
+                            let source = Reference::from(doc);
+                            let excerpt = get(doc, node_path);
+
+                            (source, excerpt)
+                        }
+                        None => {
+                            let path = store.join(format!("{doc_id}.json"));
+                            let json = read_to_string(path).await?;
+                            let doc = serde_json::from_str(&json)?;
+
+                            let source = Reference::from(&doc);
+                            let excerpt = get(&doc, node_path);
+
+                            cache.put(doc_id.to_string(), doc);
+
+                            (source, excerpt)
+                        }
                     }
-                    None => {
-                        let path = store.join(format!("{doc_id}.json"));
-                        let json = read_to_string(path).await?;
-                        let doc = serde_json::from_str(&json)?;
+                }
+                DocsDB::Document => {
+                    let Some(doc) = &self.document else {
+                        bail!("Document expected")
+                    };
 
-                        // TODO: add a cite_as function to cite doc
-                        let source = CreativeWorkType::Article(Article::default());
-                        let excerpt = get(&doc, node_path);
+                    let doc = &*doc.lock().await;
 
-                        docs.put(doc_id.to_string(), doc);
-
-                        (source, excerpt)
+                    let mut source = Reference::from(doc);
+                    if source.title.is_none() {
+                        source.title = Some("Current document".into());
                     }
+
+                    let excerpt = get(doc, node_path);
+
+                    (source, excerpt)
                 }
             };
 
@@ -223,7 +297,7 @@ impl DocsDBKernelInstance {
                 }
             };
 
-            let excerpt = Node::Excerpt(Excerpt::new(Box::new(source), content));
+            let excerpt = Node::Excerpt(Excerpt::new(source, content));
 
             excerpts.push(excerpt)
         }
@@ -243,7 +317,7 @@ impl KernelInstance for DocsDBKernelInstance {
 
         self.directory = Some(directory.to_path_buf());
 
-        self.kuzu.start(directory).await
+        self.workspace_db.start(directory).await
     }
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
@@ -251,16 +325,14 @@ impl KernelInstance for DocsDBKernelInstance {
 
         // Check for db aliases and set db and store paths accordingly
         static DB_REGEX: Lazy<Regex> =
-            Lazy::new(|| Regex::new(r"^\/\/\s*@(workspace)\s*$").expect("invalid regex"));
+            Lazy::new(|| Regex::new(r"^\/\/\s*@(document|workspace)\s*$").expect("invalid regex"));
         let mut lines = Vec::new();
         for line in code.lines() {
             if let Some(captures) = DB_REGEX.captures(line) {
                 let alias = &captures[1];
                 match alias {
-                    "workspace" => {
-                        let home_dir = self.directory.clone().unwrap_or_else(|| PathBuf::from("."));
-                        self.use_workspace(&home_dir).await?;
-                    }
+                    "document" => self.use_document()?,
+                    "workspace" => self.use_workspace().await?,
                     _ => unreachable!(),
                 }
                 // Add comment line back to retain correct line numbering for any errors
@@ -270,8 +342,23 @@ impl KernelInstance for DocsDBKernelInstance {
             }
         }
 
+        let kuzu_kernel = match self.which_db {
+            DocsDB::Workspace => &mut self.workspace_db,
+            DocsDB::Document => {
+                if let Some(node) = &self.document {
+                    // Update the database with the document
+                    let node = node.lock().await;
+                    let database = self.document_db.database()?;
+                    let mut db = NodeDatabase::attached(database)?;
+                    let doc_id = NodeId::new(&[b'd', b'o', b'c'], &[0]);
+                    db.upsert(&doc_id, &node)?;
+                }
+                &mut self.document_db
+            }
+        };
+
         // Execute the code
-        let (mut outputs, messages) = self.kuzu.execute(&lines.join("\n")).await?;
+        let (mut outputs, messages) = kuzu_kernel.execute(&lines.join("\n")).await?;
 
         // If the output is an array of excerpt doc ids and node paths then hydrate them into nodes
         if let (1, Some(Node::Array(excerpts))) = (outputs.len(), outputs.first()) {
@@ -286,11 +373,11 @@ impl KernelInstance for DocsDBKernelInstance {
     }
 
     async fn set(&mut self, name: &str, value: &Node) -> Result<()> {
-        self.kuzu.set(name, value).await
+        self.workspace_db.set(name, value).await
     }
 
     async fn get(&mut self, name: &str) -> Result<Option<Node>> {
-        self.kuzu.get(name).await
+        self.workspace_db.get(name).await
     }
 
     fn variable_channel(
@@ -298,7 +385,7 @@ impl KernelInstance for DocsDBKernelInstance {
         requester: KernelVariableRequester,
         responder: KernelVariableResponder,
     ) {
-        self.kuzu.variable_channel(requester, responder)
+        self.workspace_db.variable_channel(requester, responder)
     }
 
     async fn info(&mut self) -> Result<SoftwareApplication> {
@@ -306,13 +393,13 @@ impl KernelInstance for DocsDBKernelInstance {
 
         Ok(SoftwareApplication {
             name: "DocsDB Kernel".to_string(),
-            ..self.kuzu.info().await?
+            ..self.workspace_db.info().await?
         })
     }
 
     async fn replicate(&mut self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         tracing::trace!("Replicating DocsDB kernel");
 
-        self.kuzu.replicate(bounds).await
+        self.workspace_db.replicate(bounds).await
     }
 }

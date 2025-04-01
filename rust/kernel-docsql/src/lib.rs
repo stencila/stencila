@@ -12,7 +12,7 @@ use kernel_jinja::{
             eyre::{eyre, Result},
             itertools::Itertools,
             serde_json,
-            tokio::sync::Mutex,
+            tokio::sync::{watch, Mutex},
             tracing,
         },
         format::Format,
@@ -64,11 +64,11 @@ impl Kernel for DocsQLKernel {
     }
 
     fn create_instance(&self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(DocsQLKernelInstance::new()))
+        Ok(Box::new(DocsQLKernelInstance::new(None, None)?))
     }
 }
 
-struct DocsQLKernelInstance {
+pub struct DocsQLKernelInstance {
     /// The unique id of the kernel instance
     id: String,
 
@@ -81,6 +81,9 @@ struct DocsQLKernelInstance {
     /// instantiating the workspace context.
     directory: PathBuf,
 
+    /// A [`DocsDBKernelInstance`] for the current document
+    document: Option<Arc<Mutex<DocsDBKernelInstance>>>,
+
     /// A [`DocsDBKernelInstance`] for the current workspace
     ///
     /// This is lazily instantiated because it can take a non-trivial
@@ -89,13 +92,26 @@ struct DocsQLKernelInstance {
 }
 
 impl DocsQLKernelInstance {
-    fn new() -> Self {
-        Self {
+    pub fn new(
+        directory: Option<PathBuf>,
+        doc_receiver: Option<watch::Receiver<Node>>,
+    ) -> Result<Self> {
+        let directory = directory.unwrap_or_else(|| PathBuf::from("."));
+
+        let document = match doc_receiver {
+            Some(doc_receiver) => Some(Arc::new(Mutex::new(DocsDBKernelInstance::new_document(
+                doc_receiver,
+            )?))),
+            None => None,
+        };
+
+        Ok(Self {
             id: generate_id(NAME),
             context: None,
-            directory: PathBuf::from("."),
+            directory,
+            document,
             workspace: None,
-        }
+        })
     }
 
     /// Get the workspace kernel, instantiating it if necessary
@@ -134,6 +150,17 @@ impl KernelInstance for DocsQLKernelInstance {
 
         let messages = Arc::new(SyncMutex::new(Vec::new()));
 
+        if let Some(document) = &self.document {
+            env.add_global(
+                "document",
+                Value::from_object(Query::new(
+                    "document".into(),
+                    document.clone(),
+                    messages.clone(),
+                )),
+            );
+        }
+
         if code.contains("workspace") {
             env.add_global(
                 "workspace",
@@ -151,7 +178,7 @@ impl KernelInstance for DocsQLKernelInstance {
                 "test",
                 Value::from_object(Query::new(
                     "test".into(),
-                    Arc::new(Mutex::new(DocsDBKernelInstance::new())),
+                    Arc::new(Mutex::new(DocsDBKernelInstance::new(None, None)?)),
                     messages.clone(),
                 )),
             );
@@ -239,7 +266,7 @@ impl KernelInstance for DocsQLKernelInstance {
     }
 
     async fn replicate(&mut self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(Self::new()))
+        Ok(Box::new(Self::new(None, None)?))
     }
 }
 
@@ -286,7 +313,7 @@ mod tests {
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
     async fn generate_cypher() -> Result<()> {
-        let mut kernel = DocsQLKernelInstance::new();
+        let mut kernel = DocsQLKernelInstance::new(None, None)?;
 
         macro_rules! expect {
             ($code:literal, $cypher:literal) => {

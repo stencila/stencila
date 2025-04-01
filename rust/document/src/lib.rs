@@ -320,9 +320,6 @@ impl Document {
     /// starts the corresponding background tasks.
     #[tracing::instrument]
     pub fn init(home: PathBuf, path: Option<PathBuf>, node_type: Option<NodeType>) -> Result<Self> {
-        // Create the document's kernels with the same home directory
-        let kernels = Arc::new(RwLock::new(Kernels::new(ExecutionBounds::Main, &home)));
-
         // Create the default root node type, if there is no sidecar file
         // The default node type itself defaults to none, because that is used in the
         // merge function to signal that root should be written over.
@@ -345,6 +342,10 @@ impl Document {
         let (patch_sender, patch_receiver) = mpsc::unbounded_channel();
         let (command_sender, command_receiver) = mpsc::channel(256);
         let (command_status_sender, command_status_receiver) = broadcast::channel(256);
+
+        // Create the document's kernels with the same home directory
+        let kernels = Kernels::new(ExecutionBounds::Main, &home, Some(watch_receiver.clone()));
+        let kernels = Arc::new(RwLock::new(kernels));
 
         // Start the update task
         {
