@@ -192,7 +192,6 @@ $$
     Ok(())
 }
 
-
 #[tokio::test]
 async fn unbalanced_brackets() -> Result<()> {
     assert_snapshot!(messages(r#"

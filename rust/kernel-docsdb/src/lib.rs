@@ -350,7 +350,7 @@ impl KernelInstance for DocsDBKernelInstance {
                     let node = node.lock().await;
                     let database = self.document_db.database()?;
                     let mut db = NodeDatabase::attached(database)?;
-                    let doc_id = NodeId::new(&[b'd', b'o', b'c'], &[0]);
+                    let doc_id = NodeId::new(b"doc", &[0]);
                     db.upsert(&doc_id, &node)?;
                 }
                 &mut self.document_db

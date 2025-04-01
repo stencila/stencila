@@ -1,7 +1,11 @@
 use std::str::FromStr;
 
 use common::{
-    chrono::{self, Datelike}, eyre::{Report, Result}, inflector::Inflector, once_cell::sync::Lazy, regex::Regex
+    chrono::{self, Datelike},
+    eyre::{Report, Result},
+    inflector::Inflector,
+    once_cell::sync::Lazy,
+    regex::Regex,
 };
 
 use crate::{prelude::*, Date};

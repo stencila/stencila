@@ -738,9 +738,7 @@ impl Object for Query {
             };
         }
 
-        let Some(mut key) = key.as_i64() else {
-            return None;
-        };
+        let mut key = key.as_i64()?;
 
         let mut query = if key > 0 {
             self.limit(1)
@@ -824,9 +822,7 @@ impl Object for NodeProxy {
             return Some(Value::UNDEFINED);
         };
 
-        let Some(property) = key.as_str() else {
-            return None;
-        };
+        let property = key.as_str()?;
 
         if property == "type" {
             return Some(Value::from(self.node.node_type().to_string()));
@@ -927,9 +923,7 @@ impl Object for NodeProxies {
             return Some(Value::UNDEFINED);
         };
 
-        let Some(key) = key.as_i64() else {
-            return None;
-        };
+        let key = key.as_i64()?;
 
         let index = if key < 0 {
             self.nodes.len() as i64 - key - 1

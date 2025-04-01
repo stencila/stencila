@@ -15,7 +15,7 @@ impl From<&Article> for Reference {
     fn from(article: &Article) -> Self {
         Self {
             doi: article.doi(),
-            title: article.title.as_ref().map(|title| to_text(title)),
+            title: article.title.as_ref().map(to_text),
             date: article
                 .date_published
                 .as_ref()

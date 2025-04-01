@@ -23,7 +23,7 @@ impl Person {
         if name.is_empty() {
             name = "Anonymous".to_string();
         }
-        
+
         name
     }
 
