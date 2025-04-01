@@ -28,7 +28,9 @@ export class Reference extends Entity {
   override render() {
     return html`<div class="font-sans text-xs">
       ${this.authors.join(', ')}${this.date ? html` (${this.date})` : ''}
-      ${this.$title ? html`<span class="font-semibold"> ${this.$title}</span>` : ''}
+      ${this.$title
+        ? html`<span class="font-semibold"> ${this.$title}</span>`
+        : ''}
       <span class="italic"
         >${this.doi
           ? html`<a href=${this.doi} target="_blank">${this.doi}</a>`
