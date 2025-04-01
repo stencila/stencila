@@ -18,4 +18,14 @@ impl AuthorRoleAuthor {
             AuthorRoleAuthor::Thing(thing) => thing.node_id(),
         }
     }
+
+    /// Get the name of an [`AuthorRoleAuthor`]
+    pub fn name(&self) -> String {
+        match self {
+            AuthorRoleAuthor::Person(person) => person.name(),
+            AuthorRoleAuthor::Organization(org) => org.name(),
+            AuthorRoleAuthor::SoftwareApplication(software) => software.name(),
+            AuthorRoleAuthor::Thing(role) => role.name(),
+        }
+    }
 }

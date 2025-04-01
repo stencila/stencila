@@ -1770,8 +1770,8 @@ class Excerpt(Entity):
 
     type: Literal["Excerpt"] = "Excerpt"
 
-    source: CreativeWorkType
-    """The `CreativeWork` that the excerpt was taken from."""
+    source: Reference
+    """A `Reference` to the `CreativeWork` that the excerpt was taken from."""
 
     content: list[Block]
     """The excerpted content."""
@@ -2618,6 +2618,27 @@ class RawBlock(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
+class Reference(Entity):
+    """
+    A reference to a creative work, including books, movies, photographs, software programs, etc.
+    """
+
+    type: Literal["Reference"] = "Reference"
+
+    doi: str | None = None
+    """The Digital Object Identifier for the work."""
+
+    title: str | None = None
+    """The title of the work."""
+
+    date: Date | None = None
+    """Date of first publication."""
+
+    authors: list[str] | None = None
+    """The authors of the work."""
+
+
+@dataclass(kw_only=True, repr=False)
 class Review(CreativeWork):
     """
     A review of an item, e.g of an `Article` or `SoftwareApplication`.
@@ -3120,6 +3141,7 @@ Block = Union[
     PromptBlock,
     QuoteBlock,
     RawBlock,
+    Reference,
     Section,
     StyledBlock,
     SuggestionBlock,
@@ -3359,6 +3381,7 @@ Node = Union[
     QuoteBlock,
     QuoteInline,
     RawBlock,
+    Reference,
     Review,
     Section,
     SoftwareApplication,
@@ -3560,6 +3583,7 @@ TYPES = [
     QuoteBlock,
     QuoteInline,
     RawBlock,
+    Reference,
     Review,
     Section,
     SoftwareApplication,

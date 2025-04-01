@@ -346,6 +346,9 @@
           "@id": "stencila:RawBlock"
         },
         {
+          "@id": "stencila:Reference"
+        },
+        {
           "@id": "stencila:Section"
         },
         {

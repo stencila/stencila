@@ -1546,6 +1546,31 @@ impl DatabaseNode for RawBlock {
     }
 }
 
+impl DatabaseNode for Reference {
+    fn node_type(&self) -> NodeType {
+        NodeType::Reference
+    }
+
+    fn node_id(&self) -> NodeId {
+        Reference::node_id(self)
+    }
+    
+    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
+        vec![
+            (NodeProperty::Doi, String::to_kuzu_type(), self.doi.to_kuzu_value()),
+            (NodeProperty::Title, String::to_kuzu_type(), self.title.to_kuzu_value()),
+            (NodeProperty::Date, Date::to_kuzu_type(), self.date.to_kuzu_value()),
+            (NodeProperty::Authors, Vec::<String>::to_kuzu_type(), self.authors.to_kuzu_value())
+        ]
+    }
+
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+        vec![
+            
+        ]
+    }
+}
+
 impl DatabaseNode for Review {
     fn node_type(&self) -> NodeType {
         NodeType::Review
@@ -2145,6 +2170,7 @@ impl DatabaseNode for Node {
             Node::QuoteBlock(node) => node.node_type(),
             Node::QuoteInline(node) => node.node_type(),
             Node::RawBlock(node) => node.node_type(),
+            Node::Reference(node) => node.node_type(),
             Node::Review(node) => node.node_type(),
             Node::Section(node) => node.node_type(),
             Node::SoftwareApplication(node) => node.node_type(),
@@ -2221,6 +2247,7 @@ impl DatabaseNode for Node {
             Node::QuoteBlock(node) => node.node_id(),
             Node::QuoteInline(node) => node.node_id(),
             Node::RawBlock(node) => node.node_id(),
+            Node::Reference(node) => node.node_id(),
             Node::Review(node) => node.node_id(),
             Node::Section(node) => node.node_id(),
             Node::SoftwareApplication(node) => node.node_id(),
@@ -2297,6 +2324,7 @@ impl DatabaseNode for Node {
             Node::QuoteBlock(node) => node.node_table(),
             Node::QuoteInline(node) => node.node_table(),
             Node::RawBlock(node) => node.node_table(),
+            Node::Reference(node) => node.node_table(),
             Node::Review(node) => node.node_table(),
             Node::Section(node) => node.node_table(),
             Node::SoftwareApplication(node) => node.node_table(),
@@ -2373,6 +2401,7 @@ impl DatabaseNode for Node {
             Node::QuoteBlock(node) => node.rel_tables(),
             Node::QuoteInline(node) => node.rel_tables(),
             Node::RawBlock(node) => node.rel_tables(),
+            Node::Reference(node) => node.rel_tables(),
             Node::Review(node) => node.rel_tables(),
             Node::Section(node) => node.rel_tables(),
             Node::SoftwareApplication(node) => node.rel_tables(),
@@ -2418,6 +2447,7 @@ impl DatabaseNode for Block {
             Block::Paragraph(node) => node.node_type(),
             Block::QuoteBlock(node) => node.node_type(),
             Block::RawBlock(node) => node.node_type(),
+            Block::Reference(node) => node.node_type(),
             Block::Section(node) => node.node_type(),
             Block::StyledBlock(node) => node.node_type(),
             Block::Table(node) => node.node_type(),
@@ -2446,6 +2476,7 @@ impl DatabaseNode for Block {
             Block::Paragraph(node) => node.node_id(),
             Block::QuoteBlock(node) => node.node_id(),
             Block::RawBlock(node) => node.node_id(),
+            Block::Reference(node) => node.node_id(),
             Block::Section(node) => node.node_id(),
             Block::StyledBlock(node) => node.node_id(),
             Block::Table(node) => node.node_id(),
@@ -2474,6 +2505,7 @@ impl DatabaseNode for Block {
             Block::Paragraph(node) => node.node_table(),
             Block::QuoteBlock(node) => node.node_table(),
             Block::RawBlock(node) => node.node_table(),
+            Block::Reference(node) => node.node_table(),
             Block::Section(node) => node.node_table(),
             Block::StyledBlock(node) => node.node_table(),
             Block::Table(node) => node.node_table(),
@@ -2502,6 +2534,7 @@ impl DatabaseNode for Block {
             Block::Paragraph(node) => node.rel_tables(),
             Block::QuoteBlock(node) => node.rel_tables(),
             Block::RawBlock(node) => node.rel_tables(),
+            Block::Reference(node) => node.rel_tables(),
             Block::Section(node) => node.rel_tables(),
             Block::StyledBlock(node) => node.rel_tables(),
             Block::Table(node) => node.rel_tables(),

@@ -1,0 +1,39 @@
+title: Reference
+"@id": stencila:Reference
+extends: Entity
+category: works
+description: A reference to a creative work, including books, movies, photographs, software programs, etc.
+core:
+  - doi
+  - title
+  - date
+  - authors
+properties:
+  doi:
+    "@id": stencila:doi
+    description: The Digital Object Identifier for the work.
+    type: string
+  title:
+    "@id": schema:headline
+    description: The title of the work.
+    aliases:
+      - headline
+    type: string
+    dom:
+      attr: _title
+  date:
+    "@id": schema:date
+    description: Date of first publication.
+    $ref: Date
+    serde:
+      deserializeWith: option_string_or_object
+    dom:
+      with: Date::to_dom_attr
+  authors:
+    "@id": schema:author
+    description: The authors of the work.
+    type: array
+    items:
+      type: string
+    serde:
+      deserializeWith: option_one_or_many

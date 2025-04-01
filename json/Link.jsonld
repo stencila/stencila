@@ -161,6 +161,9 @@
         },
         {
           "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Reference"
         }
       ],
       "schema:rangeIncludes": {

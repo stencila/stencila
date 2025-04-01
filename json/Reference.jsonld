@@ -1,0 +1,124 @@
+{
+  "@id": "https://stencila.org/Reference",
+  "name": "Reference",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Reference",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Reference",
+      "rdfs:comment": "A reference to a creative work, including books, movies, photographs, software programs, etc.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:doi",
+      "@type": "rdfs:Property",
+      "rdfs:label": "doi",
+      "rdfs:comment": "The Digital Object Identifier for the work.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Reference"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:headline",
+      "@type": "rdfs:Property",
+      "rdfs:label": "title",
+      "rdfs:comment": "The title of the work.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:date",
+      "@type": "rdfs:Property",
+      "rdfs:label": "date",
+      "rdfs:comment": "Date of first publication.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Reference"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Date"
+      }
+    },
+    {
+      "@id": "schema:author",
+      "@type": "rdfs:Property",
+      "rdfs:label": "authors",
+      "rdfs:comment": "The authors of the work.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "schema:ItemList"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:CodeExecutable"
+        },
+        {
+          "@id": "stencila:CodeStatic"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:InstructionMessage"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:Paragraph"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Reference"
+        },
+        {
+          "@id": "stencila:Section"
+        },
+        {
+          "@id": "stencila:Styled"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

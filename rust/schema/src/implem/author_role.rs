@@ -72,6 +72,11 @@ impl AuthorRole {
     pub fn now(&mut self) {
         self.last_modified = Some(Timestamp::now());
     }
+
+    /// Get the name of the author of an [`AuthorRole`]
+    pub fn name(&self) -> String {
+        self.author.name()
+    }
 }
 
 impl DomCodec for AuthorRole {
@@ -93,32 +98,10 @@ impl DomCodec for AuthorRole {
         }
 
         let (node_type, name) = match &self.author {
-            AuthorRoleAuthor::Person(person) => {
-                let mut name = person
-                    .given_names
-                    .iter()
-                    .flatten()
-                    .chain(person.family_names.iter().flatten())
-                    .join(" ");
-                if name.is_empty() {
-                    if let Some(opt_name) = &person.options.name {
-                        name = opt_name.clone();
-                    }
-                }
-                if name.is_empty() {
-                    name = "Anonymous".to_string();
-                }
-
-                (person.node_type(), name)
-            }
-            AuthorRoleAuthor::Organization(org) => {
-                (org.node_type(), org.name.clone().unwrap_or_default())
-            }
-            AuthorRoleAuthor::SoftwareApplication(app) => (app.node_type(), app.name.clone()),
-            AuthorRoleAuthor::Thing(thing) => (
-                thing.node_type(),
-                thing.options.name.clone().unwrap_or_default(),
-            ),
+            AuthorRoleAuthor::Person(person) => (person.node_type(), person.name()),
+            AuthorRoleAuthor::Organization(org) => (org.node_type(), org.name()),
+            AuthorRoleAuthor::SoftwareApplication(app) => (app.node_type(), app.name()),
+            AuthorRoleAuthor::Thing(thing) => (thing.node_type(), thing.name()),
         };
         context
             .push_attr("type", &node_type.to_string())

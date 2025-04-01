@@ -9,8 +9,8 @@ required:
 properties:
   source:
     "@id": stencila:source
-    description: The `CreativeWork` that the excerpt was taken from.
-    $ref: CreativeWorkType
+    description: A `Reference` to the `CreativeWork` that the excerpt was taken from.
+    $ref: Reference
     strip: [metadata]
     dom:
       elem: div
@@ -20,6 +20,9 @@ properties:
     type: array
     items:
       $ref: Block
+    # Do not walk over the content of excerpts to avoid treating
+    # nodes with it as part of the current document.
+    walk: false
     strip: [content]
     dom:
       elem: div

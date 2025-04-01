@@ -101,6 +101,7 @@ use super::publication_volume::PublicationVolume;
 use super::quote_block::QuoteBlock;
 use super::quote_inline::QuoteInline;
 use super::raw_block::RawBlock;
+use super::reference::Reference;
 use super::review::Review;
 use super::section::Section;
 use super::software_application::SoftwareApplication;
@@ -339,6 +340,8 @@ pub enum Node {
     QuoteInline(QuoteInline),
 
     RawBlock(RawBlock),
+
+    Reference(Reference),
 
     Review(Review),
 

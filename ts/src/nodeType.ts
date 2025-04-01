@@ -101,6 +101,7 @@ export type NodeType =
   | "QuoteBlock"
   | "QuoteInline"
   | "RawBlock"
+  | "Reference"
   | "Review"
   | "Section"
   | "SoftwareApplication"
@@ -235,6 +236,7 @@ export const NodeTypeList = [
   "QuoteBlock",
   "QuoteInline",
   "RawBlock",
+  "Reference",
   "Review",
   "Section",
   "SoftwareApplication",

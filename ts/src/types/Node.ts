@@ -98,6 +98,7 @@ import { type PublicationVolume } from "./PublicationVolume.js";
 import { type QuoteBlock } from "./QuoteBlock.js";
 import { type QuoteInline } from "./QuoteInline.js";
 import { type RawBlock } from "./RawBlock.js";
+import { type Reference } from "./Reference.js";
 import { type Review } from "./Review.js";
 import { type Section } from "./Section.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
@@ -235,6 +236,7 @@ export type Node =
   QuoteBlock |
   QuoteInline |
   RawBlock |
+  Reference |
   Review |
   Section |
   SoftwareApplication |
@@ -368,6 +370,7 @@ export function node(other: Node): Node {
     case "QuoteBlock":
     case "QuoteInline":
     case "RawBlock":
+    case "Reference":
     case "Review":
     case "Section":
     case "SoftwareApplication":

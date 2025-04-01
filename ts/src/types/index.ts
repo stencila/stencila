@@ -150,6 +150,7 @@ export * from "./PublicationVolume.js";
 export * from "./QuoteBlock.js";
 export * from "./QuoteInline.js";
 export * from "./RawBlock.js";
+export * from "./Reference.js";
 export * from "./RelativePosition.js";
 export * from "./Review.js";
 export * from "./Role.js";

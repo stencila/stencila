@@ -2,58 +2,61 @@
 
 use crate::prelude::*;
 
-use super::block::Block;
-use super::reference::Reference;
+use super::date::Date;
 use super::string::String;
 
-/// An excerpt from a `CreativeWork`.
+/// A reference to a creative work, including books, movies, photographs, software programs, etc.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display("Excerpt")]
-pub struct Excerpt {
+#[display("Reference")]
+pub struct Reference {
     /// The type of this item.
-    pub r#type: MustBe!("Excerpt"),
+    pub r#type: MustBe!("Reference"),
 
     /// The identifier for this item.
     #[strip(metadata)]
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// A `Reference` to the `CreativeWork` that the excerpt was taken from.
-    #[strip(metadata)]
-    #[dom(elem = "div")]
-    pub source: Reference,
+    /// The Digital Object Identifier for the work.
+    pub doi: Option<String>,
 
-    /// The excerpted content.
-    #[serde(deserialize_with = "one_or_many")]
-    #[strip(content)]
-    #[patch(format = "all")]
-    #[dom(elem = "div")]
-    pub content: Vec<Block>,
+    /// The title of the work.
+    #[serde(alias = "headline")]
+    #[dom(attr = "_title")]
+    pub title: Option<String>,
+
+    /// Date of first publication.
+    #[serde(default, deserialize_with = "option_string_or_object")]
+    #[dom(with = "Date::to_dom_attr")]
+    pub date: Option<Date>,
+
+    /// The authors of the work.
+    #[serde(alias = "author")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub authors: Option<Vec<String>>,
 
     /// A unique identifier for a node within a document
     #[serde(skip)]
     pub uid: NodeUid
 }
 
-impl Excerpt {
-    const NICK: [u8; 3] = [101, 120, 99];
+impl Reference {
+    const NICK: [u8; 3] = [114, 101, 102];
     
     pub fn node_type(&self) -> NodeType {
-        NodeType::Excerpt
+        NodeType::Reference
     }
 
     pub fn node_id(&self) -> NodeId {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(source: Reference, content: Vec<Block>) -> Self {
+    pub fn new() -> Self {
         Self {
-            source,
-            content,
             ..Default::default()
         }
     }

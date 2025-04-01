@@ -26,6 +26,7 @@ export type BlockType =
   | "PromptBlock"
   | "QuoteBlock"
   | "RawBlock"
+  | "Reference"
   | "Section"
   | "StyledBlock"
   | "SuggestionBlock"
@@ -60,6 +61,7 @@ export const BlockTypeList = [
   "PromptBlock",
   "QuoteBlock",
   "RawBlock",
+  "Reference",
   "Section",
   "StyledBlock",
   "SuggestionBlock",

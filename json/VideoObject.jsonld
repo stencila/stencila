@@ -187,6 +187,9 @@
           "@id": "stencila:RawBlock"
         },
         {
+          "@id": "stencila:Reference"
+        },
+        {
           "@id": "stencila:Section"
         },
         {
@@ -528,6 +531,9 @@
         },
         {
           "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Reference"
         }
       ],
       "schema:rangeIncludes": {

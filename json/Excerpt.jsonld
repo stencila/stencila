@@ -21,7 +21,7 @@
       "@id": "stencila:source",
       "@type": "rdfs:Property",
       "rdfs:label": "source",
-      "rdfs:comment": "The `CreativeWork` that the excerpt was taken from.",
+      "rdfs:comment": "A `Reference` to the `CreativeWork` that the excerpt was taken from.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:CodeLocation"
@@ -32,7 +32,10 @@
         {
           "@id": "stencila:IncludeBlock"
         }
-      ]
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Reference"
+      }
     },
     {
       "@id": "stencila:content",

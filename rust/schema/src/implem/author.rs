@@ -53,12 +53,20 @@ impl Author {
         }
     }
 
-    /**
-     * Create an [`AuthorRole`] from an author
-     *
-     * Note that this will intentionally change the `role_name` of any existing [`AuthorRole`].
-     * Use `into_author_role_same` when this is not desired.
-     */
+    /// Get the name of an [`Author`]
+    pub fn name(&self) -> String {
+        match self {
+            Author::Person(person) => person.name(),
+            Author::Organization(org) => org.name(),
+            Author::SoftwareApplication(software) => software.name(),
+            Author::AuthorRole(role) => role.name(),
+        }
+    }
+
+    /// Create an [`AuthorRole`] from an author
+    ///
+    /// Note that this will intentionally change the `role_name` of any existing [`AuthorRole`].
+    /// Use `into_author_role_same` when this is not desired.
     pub fn into_author_role(self, role_name: AuthorRoleName) -> AuthorRole {
         match self {
             Author::Person(person) => AuthorRole::person(person, role_name),
@@ -68,9 +76,7 @@ impl Author {
         }
     }
 
-    /**
-     * Create an [`AuthorRole`] from an author, leaving an existing [`AuthorRole`] unchanged
-     */
+    /// Create an [`AuthorRole`] from an author, leaving an existing [`AuthorRole`] unchanged
     pub fn into_author_role_same(self, role_name: AuthorRoleName) -> AuthorRole {
         match self {
             Author::Person(person) => AuthorRole::person(person, role_name),

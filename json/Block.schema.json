@@ -220,6 +220,15 @@
     {
       "proptest": {
         "min": {
+          "description": "Do not generate `Reference` nodes in block content.",
+          "skip": true
+        }
+      },
+      "$ref": "Reference.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
           "description": "Do not generate `Section` nodes in block content.",
           "skip": true
         },

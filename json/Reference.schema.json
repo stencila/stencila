@@ -1,0 +1,82 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Reference.schema.json",
+  "@id": "stencila:Reference",
+  "title": "Reference",
+  "extends": [
+    "Entity"
+  ],
+  "category": "works",
+  "description": "A reference to a creative work, including books, movies, photographs, software programs, etc.",
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id",
+    "doi",
+    "title",
+    "date",
+    "authors"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "doi": {
+      "@id": "stencila:doi",
+      "description": "The Digital Object Identifier for the work.",
+      "type": "string"
+    },
+    "title": {
+      "@id": "schema:headline",
+      "description": "The title of the work.",
+      "aliases": [
+        "headline"
+      ],
+      "dom": {
+        "attr": "_title"
+      },
+      "type": "string"
+    },
+    "date": {
+      "@id": "schema:date",
+      "description": "Date of first publication.",
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
+      "dom": {
+        "with": "Date::to_dom_attr"
+      },
+      "$ref": "Date.schema.json"
+    },
+    "authors": {
+      "@id": "schema:author",
+      "description": "The authors of the work.",
+      "aliases": [
+        "author"
+      ],
+      "serde": {
+        "deserializeWith": "option_one_or_many"
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

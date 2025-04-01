@@ -37,14 +37,14 @@
     },
     "source": {
       "@id": "stencila:source",
-      "description": "The `CreativeWork` that the excerpt was taken from.",
+      "description": "A `Reference` to the `CreativeWork` that the excerpt was taken from.",
       "strip": [
         "metadata"
       ],
       "dom": {
         "elem": "div"
       },
-      "$ref": "CreativeWorkType.schema.json"
+      "$ref": "Reference.schema.json"
     },
     "content": {
       "@id": "stencila:content",
@@ -52,6 +52,7 @@
       "strip": [
         "content"
       ],
+      "walk": false,
       "dom": {
         "elem": "div"
       },

@@ -5,7 +5,29 @@ use common::{once_cell::sync::Lazy, regex::Regex};
 use crate::{prelude::*, Person, PersonOptions};
 
 impl Person {
-    /// Generate a string representation of a `Person`
+    /// Get the name of a [`Person`]
+    pub fn name(&self) -> String {
+        let mut name = self
+            .given_names
+            .iter()
+            .flatten()
+            .chain(self.family_names.iter().flatten())
+            .join(" ");
+
+        if name.is_empty() {
+            if let Some(opt_name) = &self.options.name {
+                name = opt_name.clone();
+            }
+        }
+
+        if name.is_empty() {
+            name = "Anonymous".to_string();
+        }
+        
+        name
+    }
+
+    /// Generate a string representation of a [`Person`]
     pub fn as_string(&self) -> String {
         let mut string = String::new();
 

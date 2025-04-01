@@ -303,6 +303,9 @@
       "$ref": "RawBlock.schema.json"
     },
     {
+      "$ref": "Reference.schema.json"
+    },
+    {
       "$ref": "Review.schema.json"
     },
     {
