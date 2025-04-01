@@ -248,6 +248,10 @@ impl Query {
         let mut table = match method {
             "rows" => "TableRow".to_string(),
             "cells" => "TableCell".to_string(),
+            "items" => "ListItem".to_string(),
+            "audios" => "AudioObject".to_string(),
+            "images" => "ImageObject".to_string(),
+            "videos" => "VideoObject".to_string(),
             _ => alias.to_pascal_case(),
         };
 
