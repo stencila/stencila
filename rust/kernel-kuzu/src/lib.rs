@@ -2,6 +2,7 @@ use std::{
     collections::HashMap,
     path::{Path, PathBuf},
     str::FromStr,
+    sync::Arc,
 };
 
 use kuzu::{Connection, Database, LogicalType, SystemConfig, Value};
@@ -115,7 +116,7 @@ pub struct KuzuKernelInstance {
     transform: Option<QueryResultTransform>,
 
     /// The database instance
-    db: Option<Database>,
+    database: Option<Arc<Database>>,
 
     /// The variables assigned in this kernel
     variables: HashMap<String, Node>,
@@ -167,7 +168,7 @@ impl KuzuKernelInstance {
             transform: None,
             directory: None,
             path,
-            db: None,
+            database: None,
             variables: HashMap::new(),
             variable_channel: None,
         }
@@ -180,7 +181,26 @@ impl KuzuKernelInstance {
     /// path, when next needed.
     pub fn set_path(&mut self, path: PathBuf) {
         self.path = Some(path);
-        self.db = None;
+        self.database = None;
+    }
+
+    /// Get, or instantiate, the Kuzu database instance
+    pub fn database(&mut self) -> Result<Arc<Database>> {
+        Ok(match &self.database {
+            Some(database) => database.clone(),
+            None => {
+                let (path, read_only) = match &self.path {
+                    Some(path) => (path.clone(), self.read_only),
+                    // In-memory databases can not be read only
+                    None => (PathBuf::from(":memory:"), false),
+                };
+                let config = SystemConfig::default().read_only(read_only);
+
+                let database = Arc::new(Database::new(path, config)?);
+                self.database = Some(database.clone());
+                database
+            }
+        })
     }
 }
 
@@ -298,24 +318,8 @@ impl KernelInstance for KuzuKernelInstance {
             self.set_path(path);
         }
 
-        // Get, or instantiate, database instance
-        let db = match &self.db {
-            Some(db) => db,
-            None => {
-                let (path, read_only) = match &self.path {
-                    Some(path) => (path.clone(), self.read_only),
-                    // In-memory databases can not be read only
-                    None => (PathBuf::from(":memory:"), false),
-                };
-                let config = SystemConfig::default().read_only(read_only);
-                let db = Database::new(path, config)?;
-
-                self.db = Some(db);
-                self.db.as_ref().expect("just set")
-            }
-        };
-
-        let connection = Connection::new(db)?;
+        let database = self.database()?;
+        let connection = Connection::new(&database)?;
 
         // Ensure any necessary extensions are loaded. Any errors are intentionally ignored.
         if code.to_uppercase().contains("QUERY_FTS_INDEX") {
