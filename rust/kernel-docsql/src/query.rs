@@ -252,6 +252,17 @@ impl Query {
             "audios" => "AudioObject".to_string(),
             "images" => "ImageObject".to_string(),
             "videos" => "VideoObject".to_string(),
+            "abstracts" | "introductions" | "methods" | "results" | "discussions" => {
+                let section_type = match method {
+                    "methods" => "Methods".to_string(),
+                    "results" => "Results".to_string(),
+                    _ => method.to_singular().to_title_case(),
+                };
+                query
+                    .ands
+                    .push(format!("{alias}.sectionType = '{section_type}'"));
+                "Section".to_string()
+            }
             _ => alias.to_pascal_case(),
         };
 

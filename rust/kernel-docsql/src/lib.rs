@@ -399,6 +399,46 @@ LIMIT 10"#
         );
 
         expect!(
+            "test.abstracts()",
+            r#"MATCH (abstract:Section)
+WHERE abstract.sectionType = 'Abstract'
+RETURN abstract
+LIMIT 10"#
+        );
+
+        expect!(
+            "test.introductions()",
+            r#"MATCH (introduction:Section)
+WHERE introduction.sectionType = 'Introduction'
+RETURN introduction
+LIMIT 10"#
+        );
+
+        expect!(
+            "test.methods()",
+            r#"MATCH (method:Section)
+WHERE method.sectionType = 'Methods'
+RETURN method
+LIMIT 10"#
+        );
+
+        expect!(
+            "test.results()",
+            r#"MATCH (result:Section)
+WHERE result.sectionType = 'Results'
+RETURN result
+LIMIT 10"#
+        );
+
+        expect!(
+            "test.discussions()",
+            r#"MATCH (discussion:Section)
+WHERE discussion.sectionType = 'Discussion'
+RETURN discussion
+LIMIT 10"#
+        );
+
+        expect!(
             "test.paragraphs(search = 'keyword')",
             r#"CALL QUERY_FTS_INDEX('Paragraph', 'fts', 'keyword')
 RETURN node
