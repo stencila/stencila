@@ -50,7 +50,7 @@ pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {
         NodeType::Emphasis => vec![NodeProperty::Id, NodeProperty::Content],
         NodeType::EnumValidator => vec![NodeProperty::Id, NodeProperty::Values],
         NodeType::Enumeration => vec![NodeProperty::Id, NodeProperty::AlternateNames, NodeProperty::Description, NodeProperty::Identifiers, NodeProperty::Images, NodeProperty::Name, NodeProperty::Url],
-        NodeType::Excerpt => vec![NodeProperty::Id, NodeProperty::Source, NodeProperty::Content],
+        NodeType::Excerpt => vec![NodeProperty::Id, NodeProperty::Source, NodeProperty::NodePath, NodeProperty::NodeAncestors, NodeProperty::NodeType, NodeProperty::Content],
         NodeType::ExecutionDependant => vec![NodeProperty::Id, NodeProperty::DependantRelation, NodeProperty::DependantNode, NodeProperty::CodeLocation],
         NodeType::ExecutionDependency => vec![NodeProperty::Id, NodeProperty::DependencyRelation, NodeProperty::DependencyNode, NodeProperty::CodeLocation],
         NodeType::ExecutionMessage => vec![NodeProperty::Id, NodeProperty::Level, NodeProperty::Message, NodeProperty::ErrorType, NodeProperty::CodeLocation, NodeProperty::StackTrace],

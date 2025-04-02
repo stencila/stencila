@@ -353,6 +353,7 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );",
                 node_table_props

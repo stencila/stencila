@@ -27,6 +27,21 @@ pub struct Excerpt {
     #[dom(elem = "div")]
     pub source: Reference,
 
+    /// A `Reference` to the `CreativeWork` that the excerpt was taken from.
+    #[serde(alias = "node-path", alias = "node_path")]
+    #[strip(metadata)]
+    pub node_path: String,
+
+    /// The route to the node that was excerpted including the .
+    #[serde(alias = "node-ancestors", alias = "node_ancestors")]
+    #[strip(metadata)]
+    pub node_ancestors: String,
+
+    /// The type of the node that was excerpted.
+    #[serde(alias = "node-type", alias = "node_type")]
+    #[strip(metadata)]
+    pub node_type: String,
+
     /// The excerpted content.
     #[serde(deserialize_with = "one_or_many")]
     #[strip(content)]
@@ -50,11 +65,4 @@ impl Excerpt {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(source: Reference, content: Vec<Block>) -> Self {
-        Self {
-            source,
-            content,
-            ..Default::default()
-        }
-    }
 }

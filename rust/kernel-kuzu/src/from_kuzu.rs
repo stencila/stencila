@@ -128,6 +128,7 @@ fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
 
             let mut doc_id = None;
             let mut node_path = None;
+            let mut node_ancestors = None;
             for (name, value) in node_val.get_properties() {
                 if name == "docId" {
                     doc_id = Some(value.to_string());
@@ -137,18 +138,37 @@ fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
                     node_path = Some(value.to_string());
                 }
 
-                if doc_id.is_some() && node_path.is_some() {
+                if name == "nodeAncestors" {
+                    node_ancestors = Some(value.to_string());
+                }
+
+                if doc_id.is_some() && node_path.is_some() && node_ancestors.is_some() {
                     break;
                 }
             }
-            let (Some(doc_id), Some(node_path)) = (doc_id, node_path) else {
-                // As above, if the Kuzu node does not have docId and nodePath properties
+            let (Some(doc_id), Some(node_path), Some(node_ancestors)) =
+                (doc_id, node_path, node_ancestors)
+            else {
+                // As above, if the Kuzu node does not have docId, nodePath & nodeLane properties
                 // then convert to a primitive
                 nodes.push(primitive_from_value(value));
                 continue;
             };
 
-            nodes.push(Primitive::String([&doc_id, ":", &node_path].concat()))
+            let node_type = node_val.get_label_name();
+
+            nodes.push(Primitive::String(
+                [
+                    &doc_id,
+                    ":",
+                    &node_path,
+                    ":",
+                    &node_ancestors,
+                    ":",
+                    &node_type,
+                ]
+                .concat(),
+            ))
         }
     }
 

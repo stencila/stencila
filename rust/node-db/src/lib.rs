@@ -1,3 +1,14 @@
+use std::{
+    collections::HashMap,
+    fmt::Display,
+    fs::{remove_dir_all, write},
+    io::Write,
+    path::Path,
+    sync::Arc,
+};
+
+use derive_more::{Deref, DerefMut};
+
 use common::{
     eyre::{eyre, Context, Report, Result},
     itertools::Itertools,
@@ -9,13 +20,7 @@ use kernel_kuzu::{
     ToKuzu,
 };
 use schema::{Node, NodeId, NodePath, NodeProperty, NodeSlot, NodeType, Visitor};
-use std::{
-    collections::HashMap,
-    fs::{remove_dir_all, write},
-    io::Write,
-    path::Path,
-    sync::Arc,
-};
+
 
 #[rustfmt::skip]
 mod node_types;
@@ -26,6 +31,25 @@ mod walker;
 
 use fts_indices::FTS_INDICES;
 use walker::DatabaseWalker;
+
+#[derive(Clone, Default, Deref, DerefMut)]
+struct NodeAncestors(Vec<String>);
+
+impl Display for NodeAncestors {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", self.join("/"))
+    }
+}
+
+impl ToKuzu for NodeAncestors {
+    fn to_kuzu_type() -> LogicalType {
+        LogicalType::String
+    }
+
+    fn to_kuzu_value(&self) -> Value {
+        Value::String(self.to_string())
+    }
+}
 
 /// A trait for representing Stencila Schema nodes in a [`NodeDatabase`]
 ///
@@ -246,7 +270,7 @@ impl NodeDatabase {
         doc_id: &NodeId,
         node_type: NodeType,
         properties: Vec<(NodeProperty, LogicalType)>,
-        entries: Vec<(NodePath, NodeId, Vec<Value>)>,
+        entries: Vec<(NodePath, NodeAncestors, NodeId, Vec<Value>)>,
     ) -> Result<()> {
         let connection = Connection::new(&self.database)?;
 
@@ -259,6 +283,7 @@ impl NodeDatabase {
             "docId".to_string(),
             "nodeId".to_string(),
             "nodePath".to_string(),
+            "nodeAncestors".to_string(),
             "position".to_string(),
         ]);
 
@@ -285,7 +310,7 @@ impl NodeDatabase {
             };
 
             // Execute prepared statement for each entry
-            for (node_path, node_id, mut values) in entries {
+            for (node_path, node_ancestors, node_id, mut values) in entries {
                 // The trailing underscore on parameter names is necessary for parameters like 'order'
                 // to prevent clashes with keywords
                 let names = properties
@@ -302,6 +327,7 @@ impl NodeDatabase {
                     doc_id.to_kuzu_value(),
                     node_id.to_kuzu_value(),
                     node_path.to_kuzu_value(),
+                    node_ancestors.to_kuzu_value(),
                     position,
                 ]);
 
@@ -314,7 +340,7 @@ impl NodeDatabase {
         } else {
             let mut csv = NamedTempFile::new()?;
             writeln!(&mut csv, "{}", properties.join(","))?;
-            for (node_path, node_id, values) in entries {
+            for (node_path, node_ancestors, node_id, values) in entries {
                 for value in values {
                     let field = escape_csv_field(value.to_string());
                     write!(&mut csv, "{field},")?;
@@ -324,7 +350,10 @@ impl NodeDatabase {
                     Some(NodeSlot::Index(index)) => (index + 1).to_string(),
                     _ => String::new(),
                 };
-                writeln!(&mut csv, "{doc_id},{node_id},{node_path},{position}")?;
+                writeln!(
+                    &mut csv,
+                    "{doc_id},{node_id},{node_path},{node_ancestors},{position}"
+                )?;
             }
 
             let filename = csv.path().to_string_lossy();

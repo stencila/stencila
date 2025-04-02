@@ -6,6 +6,7 @@ CREATE NODE TABLE IF NOT EXISTS `Admonition` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -13,6 +14,7 @@ CREATE NODE TABLE IF NOT EXISTS `Annotation` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -40,6 +42,7 @@ CREATE NODE TABLE IF NOT EXISTS `Article` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -64,6 +67,7 @@ CREATE NODE TABLE IF NOT EXISTS `AudioObject` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -74,6 +78,7 @@ CREATE NODE TABLE IF NOT EXISTS `AuthorRole` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -86,6 +91,7 @@ CREATE NODE TABLE IF NOT EXISTS `Brand` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -99,6 +105,7 @@ CREATE NODE TABLE IF NOT EXISTS `Cite` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -106,6 +113,7 @@ CREATE NODE TABLE IF NOT EXISTS `CiteGroup` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -126,6 +134,7 @@ CREATE NODE TABLE IF NOT EXISTS `Claim` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -135,6 +144,7 @@ CREATE NODE TABLE IF NOT EXISTS `CodeBlock` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -159,6 +169,7 @@ CREATE NODE TABLE IF NOT EXISTS `CodeChunk` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -176,6 +187,7 @@ CREATE NODE TABLE IF NOT EXISTS `CodeExpression` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -185,6 +197,7 @@ CREATE NODE TABLE IF NOT EXISTS `CodeInline` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -203,6 +216,7 @@ CREATE NODE TABLE IF NOT EXISTS `Collection` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -222,6 +236,7 @@ CREATE NODE TABLE IF NOT EXISTS `Comment` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -236,6 +251,7 @@ CREATE NODE TABLE IF NOT EXISTS `ContactPoint` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -254,6 +270,7 @@ CREATE NODE TABLE IF NOT EXISTS `CreativeWork` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -266,6 +283,7 @@ CREATE NODE TABLE IF NOT EXISTS `DefinedTerm` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -275,6 +293,7 @@ CREATE NODE TABLE IF NOT EXISTS `Directory` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -282,6 +301,7 @@ CREATE NODE TABLE IF NOT EXISTS `Emphasis` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -303,6 +323,7 @@ CREATE NODE TABLE IF NOT EXISTS `Figure` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -316,6 +337,7 @@ CREATE NODE TABLE IF NOT EXISTS `File` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -334,6 +356,7 @@ CREATE NODE TABLE IF NOT EXISTS `ForBlock` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -342,6 +365,7 @@ CREATE NODE TABLE IF NOT EXISTS `Function` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -353,6 +377,7 @@ CREATE NODE TABLE IF NOT EXISTS `Grant` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -361,6 +386,7 @@ CREATE NODE TABLE IF NOT EXISTS `Heading` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -374,6 +400,7 @@ CREATE NODE TABLE IF NOT EXISTS `IfBlock` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -392,6 +419,7 @@ CREATE NODE TABLE IF NOT EXISTS `IfBlockClause` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -415,6 +443,7 @@ CREATE NODE TABLE IF NOT EXISTS `ImageObject` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -431,6 +460,7 @@ CREATE NODE TABLE IF NOT EXISTS `IncludeBlock` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -441,6 +471,7 @@ CREATE NODE TABLE IF NOT EXISTS `Link` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -449,6 +480,7 @@ CREATE NODE TABLE IF NOT EXISTS `List` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -461,6 +493,7 @@ CREATE NODE TABLE IF NOT EXISTS `ListItem` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -472,6 +505,7 @@ CREATE NODE TABLE IF NOT EXISTS `MathBlock` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -481,6 +515,7 @@ CREATE NODE TABLE IF NOT EXISTS `MathInline` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -504,6 +539,7 @@ CREATE NODE TABLE IF NOT EXISTS `MediaObject` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -516,6 +552,7 @@ CREATE NODE TABLE IF NOT EXISTS `MonetaryGrant` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -524,6 +561,7 @@ CREATE NODE TABLE IF NOT EXISTS `Note` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -536,6 +574,7 @@ CREATE NODE TABLE IF NOT EXISTS `Organization` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -544,6 +583,7 @@ CREATE NODE TABLE IF NOT EXISTS `Paragraph` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -560,6 +600,7 @@ CREATE NODE TABLE IF NOT EXISTS `Parameter` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -581,6 +622,7 @@ CREATE NODE TABLE IF NOT EXISTS `Periodical` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -599,6 +641,7 @@ CREATE NODE TABLE IF NOT EXISTS `Person` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -619,6 +662,7 @@ CREATE NODE TABLE IF NOT EXISTS `PostalAddress` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -631,6 +675,7 @@ CREATE NODE TABLE IF NOT EXISTS `Product` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -643,6 +688,7 @@ CREATE NODE TABLE IF NOT EXISTS `PropertyValue` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -662,6 +708,7 @@ CREATE NODE TABLE IF NOT EXISTS `PublicationIssue` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -681,6 +728,7 @@ CREATE NODE TABLE IF NOT EXISTS `PublicationVolume` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -688,6 +736,7 @@ CREATE NODE TABLE IF NOT EXISTS `QuoteBlock` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -695,6 +744,7 @@ CREATE NODE TABLE IF NOT EXISTS `QuoteInline` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -705,6 +755,7 @@ CREATE NODE TABLE IF NOT EXISTS `RawBlock` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -716,6 +767,7 @@ CREATE NODE TABLE IF NOT EXISTS `Reference` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -735,6 +787,7 @@ CREATE NODE TABLE IF NOT EXISTS `Review` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -743,6 +796,7 @@ CREATE NODE TABLE IF NOT EXISTS `Section` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -763,6 +817,7 @@ CREATE NODE TABLE IF NOT EXISTS `SoftwareApplication` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -785,6 +840,7 @@ CREATE NODE TABLE IF NOT EXISTS `SoftwareSourceCode` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -792,6 +848,7 @@ CREATE NODE TABLE IF NOT EXISTS `Strikeout` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -799,6 +856,7 @@ CREATE NODE TABLE IF NOT EXISTS `Strong` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -810,6 +868,7 @@ CREATE NODE TABLE IF NOT EXISTS `StyledBlock` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -821,6 +880,7 @@ CREATE NODE TABLE IF NOT EXISTS `StyledInline` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -828,6 +888,7 @@ CREATE NODE TABLE IF NOT EXISTS `Subscript` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -835,6 +896,7 @@ CREATE NODE TABLE IF NOT EXISTS `Superscript` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -856,6 +918,7 @@ CREATE NODE TABLE IF NOT EXISTS `Table` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -871,6 +934,7 @@ CREATE NODE TABLE IF NOT EXISTS `TableCell` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -879,6 +943,7 @@ CREATE NODE TABLE IF NOT EXISTS `TableRow` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -886,6 +951,7 @@ CREATE NODE TABLE IF NOT EXISTS `ThematicBreak` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -897,6 +963,7 @@ CREATE NODE TABLE IF NOT EXISTS `Thing` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -904,6 +971,7 @@ CREATE NODE TABLE IF NOT EXISTS `Underline` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -911,6 +979,7 @@ CREATE NODE TABLE IF NOT EXISTS `Unknown` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -923,6 +992,7 @@ CREATE NODE TABLE IF NOT EXISTS `Variable` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 
@@ -947,6 +1017,7 @@ CREATE NODE TABLE IF NOT EXISTS `VideoObject` (
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
+  `nodeAncestors` STRING,
   `position` UINT32
 );
 

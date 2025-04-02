@@ -213,11 +213,13 @@ impl DocsDBKernelInstance {
                 bail!("Expected string")
             };
 
-            let Some((doc_id, node_path)) = pair.split(":").collect_tuple() else {
+            let Some((doc_id, node_path_str, node_ancestors, node_type)) =
+                pair.split(":").collect_tuple()
+            else {
                 bail!("Expected : separator")
             };
 
-            let node_path = node_path.parse()?;
+            let node_path = node_path_str.parse()?;
 
             let (source, excerpt) = match self.which_db {
                 DocsDB::Workspace => {
@@ -297,7 +299,14 @@ impl DocsDBKernelInstance {
                 }
             };
 
-            let excerpt = Node::Excerpt(Excerpt::new(source, content));
+            let excerpt = Node::Excerpt(Excerpt {
+                source,
+                node_path: node_path_str.to_string(),
+                node_ancestors: node_ancestors.to_string(),
+                node_type: node_type.to_string(),
+                content,
+                ..Default::default()
+            });
 
             excerpts.push(excerpt)
         }

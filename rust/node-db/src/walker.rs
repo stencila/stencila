@@ -6,7 +6,7 @@ use schema::{
     NodeType, TableCell, TableRow, Visitor, WalkControl,
 };
 
-use super::DatabaseNode;
+use super::{DatabaseNode, NodeAncestors};
 
 /// A visitor which collects entries for node and relation tables from a node
 ///
@@ -20,12 +20,15 @@ pub struct DatabaseWalker {
     /// The current path in the walk
     node_path: NodePath,
 
+    /// The current ancestors in the walk
+    node_ancestors: NodeAncestors,
+
     /// Entries for the database node tables
     pub node_tables: HashMap<
         NodeType,
         (
             Vec<(NodeProperty, LogicalType)>,
-            Vec<(NodePath, NodeId, Vec<Value>)>,
+            Vec<(NodePath, NodeAncestors, NodeId, Vec<Value>)>,
         ),
     >,
 
@@ -61,6 +64,7 @@ impl DatabaseWalker {
             .1
             .push((
                 self.node_path.clone(),
+                self.node_ancestors.clone(),
                 node_id.clone(),
                 node_table.into_iter().map(|(.., value)| value).collect(),
             ));
@@ -87,6 +91,17 @@ impl DatabaseWalker {
 }
 
 impl Visitor for DatabaseWalker {
+    fn enter_struct(&mut self, node_type: NodeType, _node_id: NodeId) -> WalkControl {
+        if !matches!(node_type, NodeType::Section) {
+            self.node_ancestors.push(node_type.to_string());
+        }
+        WalkControl::Continue
+    }
+
+    fn exit_struct(&mut self) {
+        self.node_ancestors.pop();
+    }
+
     fn enter_property(&mut self, property: NodeProperty) -> WalkControl {
         self.node_path.push_back(NodeSlot::Property(property));
         WalkControl::Continue
@@ -110,6 +125,17 @@ impl Visitor for DatabaseWalker {
     }
 
     fn visit_block(&mut self, node: &Block) -> WalkControl {
+        // Special handling for section as ancestor. See `enter_struct` method
+        // for the default.
+        if let Block::Section(section) = node {
+            let ancestor = section
+                .section_type
+                .as_ref()
+                .map(|section_type| section_type.to_string())
+                .unwrap_or_else(|| "Section".to_string());
+            self.node_ancestors.push(ancestor);
+        }
+
         self.visit_database_node(node)
     }
 

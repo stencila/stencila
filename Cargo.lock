@@ -4061,6 +4061,7 @@ version = "0.0.0"
 dependencies = [
  "codec-text-trait",
  "common",
+ "derive_more",
  "kernel-kuzu",
  "schema",
 ]

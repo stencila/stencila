@@ -134,7 +134,7 @@ export class UIBaseCard extends UIBaseClass {
                 >${headerTitle}</span
               >
             </div>
-            <div class="relative z-[3]">
+            <div class="relative z-[3] flex items-center">
               <slot name="header-right"></slot>
             </div>
             ${this.canCollapse ? this.renderCollapse() : null}

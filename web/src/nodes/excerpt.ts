@@ -1,6 +1,6 @@
 import { NodeType } from '@stencila/types'
 import { html } from 'lit'
-import { customElement } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 import { closestGlobally } from '../utilities/closestGlobally'
@@ -19,6 +19,15 @@ import '../ui/nodes/properties/provenance'
 @customElement('stencila-excerpt')
 @withTwind()
 export class Excerpt extends Entity {
+  @property({ attribute: 'node-path' })
+  nodePath: string
+
+  @property({ attribute: 'node-ancestors' })
+  nodeAncestors: string
+
+  @property({ attribute: 'node-type' })
+  nodeType_: NodeType
+
   public static shouldExpand(card: HTMLElement, nodeType: NodeType): boolean {
     return (
       nodeType == 'Excerpt' ||
@@ -55,8 +64,14 @@ export class Excerpt extends Entity {
         depth=${this.depth}
         ?has-root=${this.hasRoot()}
       >
+        <div slot="header-right" class="font-semibold text-sm">
+          ${this.nodeType_}
+        </div>
         <div slot="body" class="p-3">
           <slot name="source"></slot>
+          <div class="text-2xs font-sans font-semibold mt-2">
+            ${this.nodeAncestors.replace(/\//g, ' > ')}
+          </div>
         </div>
         <div slot="content">${this.renderContent()}</div>
       </stencila-ui-block-on-demand>
