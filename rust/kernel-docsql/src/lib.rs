@@ -391,9 +391,17 @@ LIMIT 10"#
         );
 
         expect!(
-            "test.cells(@text in 'a')",
+            "test.cells(@text in ['a', 'b'])",
             r#"MATCH (cell:TableCell)
-WHERE contains('a', cell.text)
+WHERE list_contains(["a", "b"], cell.text)
+RETURN cell
+LIMIT 10"#
+        );
+
+        expect!(
+            "test.cells(@text has 'a')",
+            r#"MATCH (cell:TableCell)
+WHERE list_contains(cell.text, 'a')
 RETURN cell
 LIMIT 10"#
         );

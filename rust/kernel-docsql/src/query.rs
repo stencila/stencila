@@ -34,7 +34,7 @@ use kernel_jinja::{
 /// Uses single digit codes and spacing to ensure that the code stays the same length.
 pub(super) fn transform_filters(code: &str) -> String {
     static FILTERS: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"@([a-zA-Z][\w_]*)\s*(==|\!=|<=|<|>=|>|=\~|\~=|\!\~|\^=|\$=|in|=)\s*")
+        Regex::new(r"@([a-zA-Z][\w_]*)\s*(==|\!=|<=|<|>=|>|=\~|\~=|\!\~|\^=|\$=|in|has|=)\s*")
             .expect("invalid regex")
     });
 
@@ -53,6 +53,7 @@ pub(super) fn transform_filters(code: &str) -> String {
                 "^=" => "7",
                 "$=" => "8",
                 "in" => "9",
+                "has" => "_",
                 echo => echo,
             };
 
@@ -69,7 +70,7 @@ fn apply_filter(alias: &str, property: &str, value: Value) -> String {
     let mut chars = property.chars().collect_vec();
 
     let last = *chars.last().expect("always has at least one char");
-    if last.is_numeric() {
+    if last.is_numeric() || last == '_' {
         chars.pop();
     }
 
@@ -90,13 +91,8 @@ fn apply_filter(alias: &str, property: &str, value: Value) -> String {
         '6' => ["NOT regexp_matches(", &col(), ", ", &val_str(), ")"].concat(),
         '7' => ["starts_with(", &col(), ", ", &val_str(), ")"].concat(),
         '8' => ["ends_with(", &col(), ", ", &val_str(), ")"].concat(),
-        '9' => {
-            if value.as_str().is_some() {
-                ["contains(", &val_str(), ", ", &col(), ")"].concat()
-            } else {
-                [&col(), "IN ", &val_lit()].concat()
-            }
-        }
+        '9' => ["list_contains(", &val_lit(), ", ", &col(), ")"].concat(),
+        '_' => ["list_contains(", &col(), ", ", &val_lit(), ")"].concat(),
         _ => {
             let op = match last {
                 '0' => "!=",
@@ -1058,5 +1054,6 @@ mod tests {
         assert_eq!(t("@a ^= 1"), "a7   =1");
         assert_eq!(t("@a $= 1"), "a8   =1");
         assert_eq!(t("@a in 1"), "a9   =1");
+        assert_eq!(t("@a has 1"), "a_    =1");
     }
 }
