@@ -2440,7 +2440,7 @@ content:
       value:
         string: ) have not been explored.
   - type: Figure
-    label: Figure 1.
+    label: '1'
     caption:
     - type: Heading
       level: 1
@@ -2710,7 +2710,7 @@ content:
         value:
           string: ) are driven primarily by the consecutive and highly coordinated elongation of ovaries, anther filaments, and styles within each pseudowhorl.
     - type: Figure
-      label: Figure 2.
+      label: '2'
       caption:
       - type: Heading
         level: 2
@@ -2915,7 +2915,7 @@ content:
         value:
           string: ). Thus, daily rhythms in anthesis and the formation of pseudowhorls persisted in the absence of environmental cues, suggesting regulation by the circadian clock.
     - type: Figure
-      label: Figure 3.
+      label: '3'
       caption:
       - type: Heading
         level: 2
@@ -3007,7 +3007,7 @@ content:
         value:
           string: ) suggests that different regulatory pathways control growth of these organs. However, the rhythmic initiation of growth of all three types of organs in constant darkness suggests a general role for the circadian clock in the control of anthesis.
     - type: Figure
-      label: Figure 4.
+      label: '4'
       caption:
       - type: Heading
         level: 2
@@ -3148,7 +3148,7 @@ content:
         value:
           string: ). This rapid shift in the phase of anthesis suggests re-entrainment of the circadian clock may occur quickly in sunflower capitula.
     - type: Figure
-      label: Figure 5.
+      label: '5'
       caption:
       - type: Heading
         level: 2
@@ -3217,7 +3217,7 @@ content:
         value:
           string: ). The large difference in maturation patterns depending upon whether lights were turned off at ZT 14 or at ZT 16 demonstrates a time-of-day dependent response to dark cues, a further indication of circadian clock regulation of this process.
     - type: Figure
-      label: Figure 6.
+      label: '6'
       caption:
       - type: Heading
         level: 2
@@ -3341,7 +3341,7 @@ content:
         value:
           string: ). Thus, the 6-hour dark period during the subjective day had no effect on the timing of anthesis, further suggesting circadian clock gating of responses to darkness.
     - type: Figure
-      label: Figure 7.
+      label: '7'
       caption:
       - type: Heading
         level: 2

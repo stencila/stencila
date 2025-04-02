@@ -4263,7 +4263,7 @@
         },
         {
           "@type": "stencila:Figure",
-          "stencila:label": "Figure 1.",
+          "stencila:label": "1",
           "caption": [
             {
               "@type": "stencila:Heading",
@@ -4810,7 +4810,7 @@
             },
             {
               "@type": "stencila:Figure",
-              "stencila:label": "Figure 2.",
+              "stencila:label": "2",
               "caption": [
                 {
                   "@type": "stencila:Heading",
@@ -5231,7 +5231,7 @@
             },
             {
               "@type": "stencila:Figure",
-              "stencila:label": "Figure 3.",
+              "stencila:label": "3",
               "caption": [
                 {
                   "@type": "stencila:Heading",
@@ -5425,7 +5425,7 @@
             },
             {
               "@type": "stencila:Figure",
-              "stencila:label": "Figure 4.",
+              "stencila:label": "4",
               "caption": [
                 {
                   "@type": "stencila:Heading",
@@ -5716,7 +5716,7 @@
             },
             {
               "@type": "stencila:Figure",
-              "stencila:label": "Figure 5.",
+              "stencila:label": "5",
               "caption": [
                 {
                   "@type": "stencila:Heading",
@@ -5860,7 +5860,7 @@
             },
             {
               "@type": "stencila:Figure",
-              "stencila:label": "Figure 6.",
+              "stencila:label": "6",
               "caption": [
                 {
                   "@type": "stencila:Heading",
@@ -6119,7 +6119,7 @@
             },
             {
               "@type": "stencila:Figure",
-              "stencila:label": "Figure 7.",
+              "stencila:label": "7",
               "caption": [
                 {
                   "@type": "stencila:Heading",

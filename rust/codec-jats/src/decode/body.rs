@@ -237,6 +237,11 @@ fn decode_fig(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block 
         .children()
         .find(|child| child.tag_name().name() == "label")
         .and_then(|node| node.text())
+        .map(|label| {
+            label
+                .trim_start_matches("Figure ")
+                .trim_end_matches(['.', ':', ' '])
+        })
         .map(String::from);
 
     let caption = node
@@ -435,6 +440,11 @@ fn decode_table_wrap(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
         .children()
         .find(|child| child.tag_name().name() == "label")
         .and_then(|node| node.text())
+        .map(|label| {
+            label
+                .trim_start_matches("Table ")
+                .trim_end_matches(['.', ':', ' '])
+        })
         .map(String::from);
 
     let caption = node

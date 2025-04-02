@@ -5900,7 +5900,7 @@ expression: article
             },
             {
               "type": "Figure",
-              "label": "Figure 1.",
+              "label": "1",
               "caption": [
                 {
                   "type": "Heading",
@@ -6864,7 +6864,7 @@ expression: article
             },
             {
               "type": "Figure",
-              "label": "Figure 2.",
+              "label": "2",
               "caption": [
                 {
                   "type": "Heading",
@@ -7261,7 +7261,7 @@ expression: article
             },
             {
               "type": "Figure",
-              "label": "Figure 2—figure supplement 1.",
+              "label": "2—figure supplement 1",
               "caption": [
                 {
                   "type": "Heading",
@@ -7590,7 +7590,7 @@ expression: article
             },
             {
               "type": "Figure",
-              "label": "Figure 2—figure supplement 2.",
+              "label": "2—figure supplement 2",
               "caption": [
                 {
                   "type": "Heading",
@@ -8004,7 +8004,7 @@ expression: article
             },
             {
               "type": "Figure",
-              "label": "Figure 2—figure supplement 3.",
+              "label": "2—figure supplement 3",
               "caption": [
                 {
                   "type": "Heading",
@@ -8431,7 +8431,7 @@ expression: article
             },
             {
               "type": "Figure",
-              "label": "Figure 3.",
+              "label": "3",
               "caption": [
                 {
                   "type": "Heading",
@@ -8930,7 +8930,7 @@ expression: article
             },
             {
               "type": "Figure",
-              "label": "Figure 3—figure supplement 1.",
+              "label": "3—figure supplement 1",
               "caption": [
                 {
                   "type": "Heading",
@@ -9531,7 +9531,7 @@ expression: article
             },
             {
               "type": "Figure",
-              "label": "Figure 4.",
+              "label": "4",
               "caption": [
                 {
                   "type": "Heading",
@@ -10013,7 +10013,7 @@ expression: article
             },
             {
               "type": "Figure",
-              "label": "Figure 5.",
+              "label": "5",
               "caption": [
                 {
                   "type": "Heading",
@@ -10410,7 +10410,7 @@ expression: article
             },
             {
               "type": "Figure",
-              "label": "Figure 5—figure supplement 1.",
+              "label": "5—figure supplement 1",
               "caption": [
                 {
                   "type": "Heading",
@@ -10737,7 +10737,7 @@ expression: article
             },
             {
               "type": "Table",
-              "label": "Table 1.",
+              "label": "1",
               "caption": [
                 {
                   "type": "Heading",
@@ -14161,7 +14161,7 @@ expression: article
             },
             {
               "type": "Figure",
-              "label": "Figure 6.",
+              "label": "6",
               "caption": [
                 {
                   "type": "Heading",
@@ -14456,7 +14456,7 @@ expression: article
             },
             {
               "type": "Figure",
-              "label": "Figure 6—figure supplement 1.",
+              "label": "6—figure supplement 1",
               "caption": [
                 {
                   "type": "Heading",
@@ -14564,7 +14564,7 @@ expression: article
             },
             {
               "type": "Figure",
-              "label": "Figure 6—figure supplement 2.",
+              "label": "6—figure supplement 2",
               "caption": [
                 {
                   "type": "Heading",
@@ -14774,7 +14774,7 @@ expression: article
             },
             {
               "type": "Figure",
-              "label": "Figure 6—figure supplement 3.",
+              "label": "6—figure supplement 3",
               "caption": [
                 {
                   "type": "Heading",
@@ -15094,7 +15094,7 @@ expression: article
             },
             {
               "type": "Figure",
-              "label": "Figure 7.",
+              "label": "7",
               "caption": [
                 {
                   "type": "Heading",
@@ -15389,7 +15389,7 @@ expression: article
             },
             {
               "type": "Figure",
-              "label": "Figure 7—figure supplement 1.",
+              "label": "7—figure supplement 1",
               "caption": [
                 {
                   "type": "Heading",
@@ -16196,7 +16196,7 @@ expression: article
             },
             {
               "type": "Figure",
-              "label": "Figure 8.",
+              "label": "8",
               "caption": [
                 {
                   "type": "Heading",
@@ -16448,7 +16448,7 @@ expression: article
             },
             {
               "type": "Figure",
-              "label": "Figure 9.",
+              "label": "9",
               "caption": [
                 {
                   "type": "Heading",
@@ -16559,7 +16559,7 @@ expression: article
         },
         {
           "type": "Figure",
-          "label": "Figure 10.",
+          "label": "10",
           "caption": [
             {
               "type": "Heading",

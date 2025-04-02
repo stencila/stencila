@@ -3055,7 +3055,7 @@
         },
         {
           type: "Figure",
-          label: "Figure 1.",
+          label: "1",
           caption: [
             {
               type: "Heading",
@@ -3480,7 +3480,7 @@
             },
             {
               type: "Figure",
-              label: "Figure 2.",
+              label: "2",
               caption: [
                 {
                   type: "Heading",
@@ -3803,7 +3803,7 @@
             },
             {
               type: "Figure",
-              label: "Figure 3.",
+              label: "3",
               caption: [
                 {
                   type: "Heading",
@@ -3955,7 +3955,7 @@
             },
             {
               type: "Figure",
-              label: "Figure 4.",
+              label: "4",
               caption: [
                 {
                   type: "Heading",
@@ -4180,7 +4180,7 @@
             },
             {
               type: "Figure",
-              label: "Figure 5.",
+              label: "5",
               caption: [
                 {
                   type: "Heading",
@@ -4292,7 +4292,7 @@
             },
             {
               type: "Figure",
-              label: "Figure 6.",
+              label: "6",
               caption: [
                 {
                   type: "Heading",
@@ -4493,7 +4493,7 @@
             },
             {
               type: "Figure",
-              label: "Figure 7.",
+              label: "7",
               caption: [
                 {
                   type: "Heading",
