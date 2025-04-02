@@ -165,7 +165,7 @@ fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
                     ":",
                     &node_ancestors,
                     ":",
-                    &node_type,
+                    node_type,
                 ]
                 .concat(),
             ))
