@@ -46,7 +46,7 @@ properties:
     patch:
       formats: [md, smd, myst, ipynb, qmd]
     jats:
-      attr: content-type
+      attr: sec-type
     proptest:
       min:
         description: No type.

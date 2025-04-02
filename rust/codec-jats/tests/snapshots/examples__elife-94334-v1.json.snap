@@ -5551,7 +5551,8 @@ expression: article
             }
           ]
         }
-      ]
+      ],
+      "sectionType": "Introduction"
     },
     {
       "type": "Section",
@@ -16504,7 +16505,8 @@ expression: article
             }
           ]
         }
-      ]
+      ],
+      "sectionType": "Results"
     },
     {
       "type": "Section",
@@ -17449,7 +17451,8 @@ expression: article
             }
           ]
         }
-      ]
+      ],
+      "sectionType": "Discussion"
     },
     {
       "type": "Section",
@@ -18268,7 +18271,8 @@ expression: article
             }
           ]
         }
-      ]
+      ],
+      "sectionType": "Methods"
     }
   ],
   "identifiers": [

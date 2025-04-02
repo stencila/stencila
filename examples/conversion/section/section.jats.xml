@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes" ?>
 <article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <body>
-    <sec>
+    <sec sec-type="Introduction">
       <title level="1">Introduction</title>
       <p>Sections will usually start with a header.</p>
     </sec>
@@ -19,16 +19,16 @@
         </sec>
       </sec>
     </sec>
-    <sec content-type="Header">
+    <sec sec-type="Header">
       <p>This is the header</p>
     </sec>
-    <sec content-type="Introduction">
+    <sec sec-type="Introduction">
       <p>This is the introduction</p>
     </sec>
-    <sec content-type="Discussion">
+    <sec sec-type="Discussion">
       <p>This is the discussion</p>
     </sec>
-    <sec content-type="Footer">
+    <sec sec-type="Footer">
       <p>This is the footer</p>
     </sec>
   </body>

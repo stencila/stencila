@@ -13,6 +13,7 @@ content:
     - type: Text
       value:
         string: Sections will usually start with a header.
+  sectionType: Introduction
 - type: Section
   content:
   - type: Heading

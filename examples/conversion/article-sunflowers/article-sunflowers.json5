@@ -3211,7 +3211,8 @@
             }
           ]
         }
-      ]
+      ],
+      sectionType: "Introduction"
     },
     {
       type: "Section",
@@ -4681,7 +4682,8 @@
             }
           ]
         }
-      ]
+      ],
+      sectionType: "Results"
     },
     {
       type: "Section",
@@ -5291,7 +5293,8 @@
             }
           ]
         }
-      ]
+      ],
+      sectionType: "Discussion"
     },
     {
       type: "Section",
@@ -5583,7 +5586,8 @@
             }
           ]
         }
-      ]
+      ],
+      sectionType: "Methods"
     }
   ],
   identifiers: [

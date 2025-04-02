@@ -4459,7 +4459,8 @@
             }
           ]
         }
-      ]
+      ],
+      "stencila:sectionType": "Introduction"
     },
     {
       "@type": "stencila:Section",
@@ -6365,7 +6366,8 @@
             }
           ]
         }
-      ]
+      ],
+      "stencila:sectionType": "Results"
     },
     {
       "@type": "stencila:Section",
@@ -7155,7 +7157,8 @@
             }
           ]
         }
-      ]
+      ],
+      "stencila:sectionType": "Discussion"
     },
     {
       "@type": "stencila:Section",
@@ -7519,7 +7522,8 @@
             }
           ]
         }
-      ]
+      ],
+      "stencila:sectionType": "Methods"
     }
   ],
   "identifier": [

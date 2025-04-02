@@ -48,7 +48,7 @@ pub struct Section {
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(SectionType::arbitrary())"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(SectionType::arbitrary())"#))]
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(SectionType::arbitrary())"#))]
-    #[jats(attr = "content-type")]
+    #[jats(attr = "sec-type")]
     pub section_type: Option<SectionType>,
 
     /// The authors of the section.

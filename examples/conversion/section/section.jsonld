@@ -31,7 +31,8 @@
             }
           ]
         }
-      ]
+      ],
+      "stencila:sectionType": "Introduction"
     },
     {
       "@type": "stencila:Section",

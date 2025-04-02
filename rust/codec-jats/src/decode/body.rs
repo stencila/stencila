@@ -9,8 +9,8 @@ use codec::{
         ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord, Date, DateTime,
         Duration, ExecutionMode, Figure, Heading, ImageObject, ImageObjectOptions, Inline, Link,
         List, ListItem, ListOrder, MathBlock, MediaObject, MediaObjectOptions, Note, NoteType,
-        Parameter, Section, StyledInline, Table, TableCell, TableRow, TableRowType, ThematicBreak,
-        Time, Timestamp, VideoObject, VideoObjectOptions,
+        Parameter, Section, SectionType, StyledInline, Table, TableCell, TableRow, TableRowType,
+        ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
     },
     Losses,
 };
@@ -133,14 +133,36 @@ fn decode_disp_quote(path: &str, node: &Node, losses: &mut Losses, depth: u8) ->
 
 /// Decode a `<sec>` to a [`Block::Section`]
 fn decode_sec(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
-    let typ = node
-        .attribute("content-type")
-        .and_then(|typ| typ.parse().ok());
+    fn parse_section_type(section_type: &str) -> Option<SectionType> {
+        section_type
+            .parse()
+            .ok()
+            .or_else(|| match section_type.to_lowercase().as_str() {
+                "intro" => Some(SectionType::Introduction),
+                section_type => {
+                    if section_type.contains("methods") {
+                        Some(SectionType::Methods)
+                    } else {
+                        None
+                    }
+                }
+            })
+    }
 
-    record_attrs_lost(path, node, ["content-type"], losses);
+    let section_type = node
+        .attribute("sec-type")
+        .and_then(parse_section_type)
+        .or_else(|| {
+            node.children()
+                .find(|child| child.tag_name().name() == "title")
+                .and_then(|node| node.text())
+                .and_then(parse_section_type)
+        });
+
+    record_attrs_lost(path, node, ["sec-type"], losses);
 
     Block::Section(Section {
-        section_type: typ,
+        section_type,
         content: decode_blocks(path, node.children(), losses, depth),
         ..Default::default()
     })

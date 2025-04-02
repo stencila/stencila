@@ -4,6 +4,7 @@
   "content": [
     {
       "type": "Section",
+      "sectionType": "Introduction",
       "content": [
         {
           "type": "Heading",

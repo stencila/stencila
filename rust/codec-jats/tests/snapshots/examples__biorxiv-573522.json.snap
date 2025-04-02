@@ -1,7 +1,6 @@
 ---
 source: rust/codec-jats/tests/examples.rs
 expression: article
-snapshot_kind: text
 ---
 {
   "type": "Article",
@@ -3190,7 +3189,8 @@ snapshot_kind: text
             }
           ]
         }
-      ]
+      ],
+      "sectionType": "Introduction"
     },
     {
       "type": "Section",
@@ -3727,7 +3727,8 @@ snapshot_kind: text
             }
           ]
         }
-      ]
+      ],
+      "sectionType": "Methods"
     },
     {
       "type": "Section",
@@ -5728,7 +5729,8 @@ snapshot_kind: text
             }
           ]
         }
-      ]
+      ],
+      "sectionType": "Results"
     },
     {
       "type": "Section",
@@ -6273,7 +6275,8 @@ snapshot_kind: text
             }
           ]
         }
-      ]
+      ],
+      "sectionType": "Discussion"
     },
     {
       "type": "Section",
