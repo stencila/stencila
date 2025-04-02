@@ -390,29 +390,6 @@ impl DatabaseNode for CodeExpression {
     }
 }
 
-impl DatabaseNode for CodeInline {
-    fn node_type(&self) -> NodeType {
-        NodeType::CodeInline
-    }
-
-    fn node_id(&self) -> NodeId {
-        CodeInline::node_id(self)
-    }
-    
-    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
-        vec![
-            (NodeProperty::Code, String::to_kuzu_type(), self.code.to_kuzu_value()),
-            (NodeProperty::ProgrammingLanguage, String::to_kuzu_type(), self.programming_language.to_kuzu_value())
-        ]
-    }
-
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
-        vec![
-            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
-        ]
-    }
-}
-
 impl DatabaseNode for Collection {
     fn node_type(&self) -> NodeType {
         NodeType::Collection
@@ -603,28 +580,6 @@ impl DatabaseNode for Directory {
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
             
-        ]
-    }
-}
-
-impl DatabaseNode for Emphasis {
-    fn node_type(&self) -> NodeType {
-        NodeType::Emphasis
-    }
-
-    fn node_id(&self) -> NodeId {
-        Emphasis::node_id(self)
-    }
-    
-    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
-        vec![
-            
-        ]
-    }
-
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
-        vec![
-            (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
 }
@@ -1717,50 +1672,6 @@ impl DatabaseNode for SoftwareSourceCode {
     }
 }
 
-impl DatabaseNode for Strikeout {
-    fn node_type(&self) -> NodeType {
-        NodeType::Strikeout
-    }
-
-    fn node_id(&self) -> NodeId {
-        Strikeout::node_id(self)
-    }
-    
-    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
-        vec![
-            
-        ]
-    }
-
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
-        vec![
-            (NodeProperty::Content, relations(self.content.iter()))
-        ]
-    }
-}
-
-impl DatabaseNode for Strong {
-    fn node_type(&self) -> NodeType {
-        NodeType::Strong
-    }
-
-    fn node_id(&self) -> NodeId {
-        Strong::node_id(self)
-    }
-    
-    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
-        vec![
-            
-        ]
-    }
-
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
-        vec![
-            (NodeProperty::Content, relations(self.content.iter()))
-        ]
-    }
-}
-
 impl DatabaseNode for StyledBlock {
     fn node_type(&self) -> NodeType {
         NodeType::StyledBlock
@@ -1808,50 +1719,6 @@ impl DatabaseNode for StyledInline {
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
-            (NodeProperty::Content, relations(self.content.iter()))
-        ]
-    }
-}
-
-impl DatabaseNode for Subscript {
-    fn node_type(&self) -> NodeType {
-        NodeType::Subscript
-    }
-
-    fn node_id(&self) -> NodeId {
-        Subscript::node_id(self)
-    }
-    
-    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
-        vec![
-            
-        ]
-    }
-
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
-        vec![
-            (NodeProperty::Content, relations(self.content.iter()))
-        ]
-    }
-}
-
-impl DatabaseNode for Superscript {
-    fn node_type(&self) -> NodeType {
-        NodeType::Superscript
-    }
-
-    fn node_id(&self) -> NodeId {
-        Superscript::node_id(self)
-    }
-    
-    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
-        vec![
-            
-        ]
-    }
-
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
-        vec![
             (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
@@ -1999,28 +1866,6 @@ impl DatabaseNode for Thing {
     }
 }
 
-impl DatabaseNode for Underline {
-    fn node_type(&self) -> NodeType {
-        NodeType::Underline
-    }
-
-    fn node_id(&self) -> NodeId {
-        Underline::node_id(self)
-    }
-    
-    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
-        vec![
-            
-        ]
-    }
-
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
-        vec![
-            (NodeProperty::Content, relations(self.content.iter()))
-        ]
-    }
-}
-
 impl DatabaseNode for Unknown {
     fn node_type(&self) -> NodeType {
         NodeType::Unknown
@@ -2131,14 +1976,12 @@ impl DatabaseNode for Node {
             Node::CodeBlock(node) => node.node_type(),
             Node::CodeChunk(node) => node.node_type(),
             Node::CodeExpression(node) => node.node_type(),
-            Node::CodeInline(node) => node.node_type(),
             Node::Collection(node) => node.node_type(),
             Node::Comment(node) => node.node_type(),
             Node::ContactPoint(node) => node.node_type(),
             Node::CreativeWork(node) => node.node_type(),
             Node::DefinedTerm(node) => node.node_type(),
             Node::Directory(node) => node.node_type(),
-            Node::Emphasis(node) => node.node_type(),
             Node::Figure(node) => node.node_type(),
             Node::File(node) => node.node_type(),
             Node::ForBlock(node) => node.node_type(),
@@ -2175,18 +2018,13 @@ impl DatabaseNode for Node {
             Node::Section(node) => node.node_type(),
             Node::SoftwareApplication(node) => node.node_type(),
             Node::SoftwareSourceCode(node) => node.node_type(),
-            Node::Strikeout(node) => node.node_type(),
-            Node::Strong(node) => node.node_type(),
             Node::StyledBlock(node) => node.node_type(),
             Node::StyledInline(node) => node.node_type(),
-            Node::Subscript(node) => node.node_type(),
-            Node::Superscript(node) => node.node_type(),
             Node::Table(node) => node.node_type(),
             Node::TableCell(node) => node.node_type(),
             Node::TableRow(node) => node.node_type(),
             Node::ThematicBreak(node) => node.node_type(),
             Node::Thing(node) => node.node_type(),
-            Node::Underline(node) => node.node_type(),
             Node::Unknown(node) => node.node_type(),
             Node::Variable(node) => node.node_type(),
             Node::VideoObject(node) => node.node_type(),
@@ -2208,14 +2046,12 @@ impl DatabaseNode for Node {
             Node::CodeBlock(node) => node.node_id(),
             Node::CodeChunk(node) => node.node_id(),
             Node::CodeExpression(node) => node.node_id(),
-            Node::CodeInline(node) => node.node_id(),
             Node::Collection(node) => node.node_id(),
             Node::Comment(node) => node.node_id(),
             Node::ContactPoint(node) => node.node_id(),
             Node::CreativeWork(node) => node.node_id(),
             Node::DefinedTerm(node) => node.node_id(),
             Node::Directory(node) => node.node_id(),
-            Node::Emphasis(node) => node.node_id(),
             Node::Figure(node) => node.node_id(),
             Node::File(node) => node.node_id(),
             Node::ForBlock(node) => node.node_id(),
@@ -2252,18 +2088,13 @@ impl DatabaseNode for Node {
             Node::Section(node) => node.node_id(),
             Node::SoftwareApplication(node) => node.node_id(),
             Node::SoftwareSourceCode(node) => node.node_id(),
-            Node::Strikeout(node) => node.node_id(),
-            Node::Strong(node) => node.node_id(),
             Node::StyledBlock(node) => node.node_id(),
             Node::StyledInline(node) => node.node_id(),
-            Node::Subscript(node) => node.node_id(),
-            Node::Superscript(node) => node.node_id(),
             Node::Table(node) => node.node_id(),
             Node::TableCell(node) => node.node_id(),
             Node::TableRow(node) => node.node_id(),
             Node::ThematicBreak(node) => node.node_id(),
             Node::Thing(node) => node.node_id(),
-            Node::Underline(node) => node.node_id(),
             Node::Unknown(node) => node.node_id(),
             Node::Variable(node) => node.node_id(),
             Node::VideoObject(node) => node.node_id(),
@@ -2285,14 +2116,12 @@ impl DatabaseNode for Node {
             Node::CodeBlock(node) => node.node_table(),
             Node::CodeChunk(node) => node.node_table(),
             Node::CodeExpression(node) => node.node_table(),
-            Node::CodeInline(node) => node.node_table(),
             Node::Collection(node) => node.node_table(),
             Node::Comment(node) => node.node_table(),
             Node::ContactPoint(node) => node.node_table(),
             Node::CreativeWork(node) => node.node_table(),
             Node::DefinedTerm(node) => node.node_table(),
             Node::Directory(node) => node.node_table(),
-            Node::Emphasis(node) => node.node_table(),
             Node::Figure(node) => node.node_table(),
             Node::File(node) => node.node_table(),
             Node::ForBlock(node) => node.node_table(),
@@ -2329,18 +2158,13 @@ impl DatabaseNode for Node {
             Node::Section(node) => node.node_table(),
             Node::SoftwareApplication(node) => node.node_table(),
             Node::SoftwareSourceCode(node) => node.node_table(),
-            Node::Strikeout(node) => node.node_table(),
-            Node::Strong(node) => node.node_table(),
             Node::StyledBlock(node) => node.node_table(),
             Node::StyledInline(node) => node.node_table(),
-            Node::Subscript(node) => node.node_table(),
-            Node::Superscript(node) => node.node_table(),
             Node::Table(node) => node.node_table(),
             Node::TableCell(node) => node.node_table(),
             Node::TableRow(node) => node.node_table(),
             Node::ThematicBreak(node) => node.node_table(),
             Node::Thing(node) => node.node_table(),
-            Node::Underline(node) => node.node_table(),
             Node::Unknown(node) => node.node_table(),
             Node::Variable(node) => node.node_table(),
             Node::VideoObject(node) => node.node_table(),
@@ -2362,14 +2186,12 @@ impl DatabaseNode for Node {
             Node::CodeBlock(node) => node.rel_tables(),
             Node::CodeChunk(node) => node.rel_tables(),
             Node::CodeExpression(node) => node.rel_tables(),
-            Node::CodeInline(node) => node.rel_tables(),
             Node::Collection(node) => node.rel_tables(),
             Node::Comment(node) => node.rel_tables(),
             Node::ContactPoint(node) => node.rel_tables(),
             Node::CreativeWork(node) => node.rel_tables(),
             Node::DefinedTerm(node) => node.rel_tables(),
             Node::Directory(node) => node.rel_tables(),
-            Node::Emphasis(node) => node.rel_tables(),
             Node::Figure(node) => node.rel_tables(),
             Node::File(node) => node.rel_tables(),
             Node::ForBlock(node) => node.rel_tables(),
@@ -2406,18 +2228,13 @@ impl DatabaseNode for Node {
             Node::Section(node) => node.rel_tables(),
             Node::SoftwareApplication(node) => node.rel_tables(),
             Node::SoftwareSourceCode(node) => node.rel_tables(),
-            Node::Strikeout(node) => node.rel_tables(),
-            Node::Strong(node) => node.rel_tables(),
             Node::StyledBlock(node) => node.rel_tables(),
             Node::StyledInline(node) => node.rel_tables(),
-            Node::Subscript(node) => node.rel_tables(),
-            Node::Superscript(node) => node.rel_tables(),
             Node::Table(node) => node.rel_tables(),
             Node::TableCell(node) => node.rel_tables(),
             Node::TableRow(node) => node.rel_tables(),
             Node::ThematicBreak(node) => node.rel_tables(),
             Node::Thing(node) => node.rel_tables(),
-            Node::Underline(node) => node.rel_tables(),
             Node::Unknown(node) => node.rel_tables(),
             Node::Variable(node) => node.rel_tables(),
             Node::VideoObject(node) => node.rel_tables(),
@@ -2554,8 +2371,6 @@ impl DatabaseNode for Inline {
             Inline::Cite(node) => node.node_type(),
             Inline::CiteGroup(node) => node.node_type(),
             Inline::CodeExpression(node) => node.node_type(),
-            Inline::CodeInline(node) => node.node_type(),
-            Inline::Emphasis(node) => node.node_type(),
             Inline::ImageObject(node) => node.node_type(),
             Inline::Link(node) => node.node_type(),
             Inline::MathInline(node) => node.node_type(),
@@ -2564,11 +2379,6 @@ impl DatabaseNode for Inline {
             Inline::Parameter(node) => node.node_type(),
             Inline::QuoteInline(node) => node.node_type(),
             Inline::StyledInline(node) => node.node_type(),
-            Inline::Strikeout(node) => node.node_type(),
-            Inline::Strong(node) => node.node_type(),
-            Inline::Subscript(node) => node.node_type(),
-            Inline::Superscript(node) => node.node_type(),
-            Inline::Underline(node) => node.node_type(),
             Inline::VideoObject(node) => node.node_type(),
             _ => NodeType::Unknown
         }
@@ -2581,8 +2391,6 @@ impl DatabaseNode for Inline {
             Inline::Cite(node) => node.node_id(),
             Inline::CiteGroup(node) => node.node_id(),
             Inline::CodeExpression(node) => node.node_id(),
-            Inline::CodeInline(node) => node.node_id(),
-            Inline::Emphasis(node) => node.node_id(),
             Inline::ImageObject(node) => node.node_id(),
             Inline::Link(node) => node.node_id(),
             Inline::MathInline(node) => node.node_id(),
@@ -2591,11 +2399,6 @@ impl DatabaseNode for Inline {
             Inline::Parameter(node) => node.node_id(),
             Inline::QuoteInline(node) => node.node_id(),
             Inline::StyledInline(node) => node.node_id(),
-            Inline::Strikeout(node) => node.node_id(),
-            Inline::Strong(node) => node.node_id(),
-            Inline::Subscript(node) => node.node_id(),
-            Inline::Superscript(node) => node.node_id(),
-            Inline::Underline(node) => node.node_id(),
             Inline::VideoObject(node) => node.node_id(),
             _ => NodeId::null()
         }
@@ -2608,8 +2411,6 @@ impl DatabaseNode for Inline {
             Inline::Cite(node) => node.node_table(),
             Inline::CiteGroup(node) => node.node_table(),
             Inline::CodeExpression(node) => node.node_table(),
-            Inline::CodeInline(node) => node.node_table(),
-            Inline::Emphasis(node) => node.node_table(),
             Inline::ImageObject(node) => node.node_table(),
             Inline::Link(node) => node.node_table(),
             Inline::MathInline(node) => node.node_table(),
@@ -2618,11 +2419,6 @@ impl DatabaseNode for Inline {
             Inline::Parameter(node) => node.node_table(),
             Inline::QuoteInline(node) => node.node_table(),
             Inline::StyledInline(node) => node.node_table(),
-            Inline::Strikeout(node) => node.node_table(),
-            Inline::Strong(node) => node.node_table(),
-            Inline::Subscript(node) => node.node_table(),
-            Inline::Superscript(node) => node.node_table(),
-            Inline::Underline(node) => node.node_table(),
             Inline::VideoObject(node) => node.node_table(),
             _ => Vec::new()
         }
@@ -2635,8 +2431,6 @@ impl DatabaseNode for Inline {
             Inline::Cite(node) => node.rel_tables(),
             Inline::CiteGroup(node) => node.rel_tables(),
             Inline::CodeExpression(node) => node.rel_tables(),
-            Inline::CodeInline(node) => node.rel_tables(),
-            Inline::Emphasis(node) => node.rel_tables(),
             Inline::ImageObject(node) => node.rel_tables(),
             Inline::Link(node) => node.rel_tables(),
             Inline::MathInline(node) => node.rel_tables(),
@@ -2645,11 +2439,6 @@ impl DatabaseNode for Inline {
             Inline::Parameter(node) => node.rel_tables(),
             Inline::QuoteInline(node) => node.rel_tables(),
             Inline::StyledInline(node) => node.rel_tables(),
-            Inline::Strikeout(node) => node.rel_tables(),
-            Inline::Strong(node) => node.rel_tables(),
-            Inline::Subscript(node) => node.rel_tables(),
-            Inline::Superscript(node) => node.rel_tables(),
-            Inline::Underline(node) => node.rel_tables(),
             Inline::VideoObject(node) => node.rel_tables(),
             _ => Vec::new()
         }
