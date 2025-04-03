@@ -1039,6 +1039,7 @@ version = "0.0.0"
 dependencies = [
  "codec",
  "codec-jats-trait",
+ "codec-text-trait",
  "common-dev",
  "quick-xml 0.37.2",
  "roxmltree",

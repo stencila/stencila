@@ -1,11 +1,11 @@
+use codec_text_trait::to_text;
 use roxmltree::Node;
 
 use codec::{
-    common::itertools::Itertools,
     schema::{
-        Article, Author, Block, CreativeWorkType, Date, IntegerOrString, Organization,
+        Article, Author, Block, CreativeWorkType, Date, Heading, IntegerOrString, Organization,
         OrganizationOptions, Person, PersonOptions, PersonOrOrganization, Primitive, PropertyValue,
-        PropertyValueOrString, PublicationVolume, Section, SectionType, StringOrNumber, ThingType,
+        PropertyValueOrString, PublicationVolume, StringOrNumber, ThingType,
     },
     Losses,
 };
@@ -56,19 +56,21 @@ fn decode_article_meta(path: &str, node: &Node, article: &mut Article, losses: &
     }
 }
 
-/// Decode an `<abstract>` element by adding it as a [`Section`] to the start of the [`Article`]
+/// Decode an `<abstract>` element
 fn decode_abstract(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     record_attrs_lost(path, node, [], losses);
 
-    let content = decode_blocks(path, node.children(), losses, 0);
+    let content = decode_blocks(path, node.children(), losses, 0)
+        .into_iter()
+        .filter(|block| match block {
+            Block::Heading(Heading { content, .. }) => {
+                to_text(content).to_lowercase() != "abstract"
+            }
+            _ => true,
+        })
+        .collect();
 
-    let section = Block::Section(Section {
-        section_type: Some(SectionType::Abstract),
-        content,
-        ..Default::default()
-    });
-
-    article.content.insert(0, section);
+    article.r#abstract = Some(content);
 }
 
 /// Decode an `<article-categories>` element
@@ -166,24 +168,7 @@ fn decode_article_version(path: &str, node: &Node, article: &mut Article, losses
 fn decode_pub_date(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     record_attrs_lost(path, node, [], losses);
 
-    let mut day = None;
-    let mut month = None;
-    let mut year = None;
-
-    for child in node.children() {
-        if let Some(value) = child.text() {
-            match child.tag_name().name() {
-                "day" => day = Some(value),
-                "month" => month = Some(value),
-                "year" => year = Some(value),
-                _ => {}
-            }
-        }
-    }
-
-    let date = year.iter().chain(month.iter()).chain(day.iter()).join("-");
-
-    article.date_published = (!date.is_empty()).then(|| Date::new(date))
+    article.date_published = date_element_to_date(node)
 }
 
 /// Decode a `<history>` element
@@ -204,6 +189,15 @@ fn decode_date(path: &str, node: &Node, article: &mut Article, losses: &mut Loss
     let date_type = node.attribute("date-type");
     record_attrs_lost(path, node, ["date-type"], losses);
 
+    if date_type == Some("accepted") {
+        article.date_accepted = date_element_to_date(node);
+    } else if date_type == Some("received") {
+        article.date_received = date_element_to_date(node);
+    }
+}
+
+/// Decode a `<pub-date>` or `<date>` element to a `Date`
+fn date_element_to_date(node: &Node) -> Option<Date> {
     let mut day = None;
     let mut month = None;
     let mut year = None;
@@ -219,13 +213,21 @@ fn decode_date(path: &str, node: &Node, article: &mut Article, losses: &mut Loss
         }
     }
 
-    let date = year.iter().chain(month.iter()).chain(day.iter()).join("-");
+    let mut date = year.map(String::from)?;
 
-    if date_type == Some("accepted") {
-        article.date_accepted = (!date.is_empty()).then(|| Date::new(date.clone()));
-    } else if date_type == Some("received") {
-        article.date_received = (!date.is_empty()).then(|| Date::new(date.clone()));
+    if let Some(month) = month {
+        date.push('-');
+        date.push_str(month);
+    } else {
+        return Some(Date::new(date));
     }
+
+    if let Some(day) = day {
+        date.push('-');
+        date.push_str(day);
+    }
+
+    Some(Date::new(date))
 }
 
 /// Decode a `<volume>` element

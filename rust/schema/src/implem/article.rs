@@ -1,7 +1,4 @@
-use crate::{
-    prelude::*, Article, Block, Primitive, PropertyValue, PropertyValueOrString, Section,
-    SectionType,
-};
+use crate::{prelude::*, Article, Primitive, PropertyValue, PropertyValueOrString};
 
 impl Article {
     /// Get the DOI of an article (if any)
@@ -52,27 +49,21 @@ impl Article {
 
         let mut losses = Losses::none();
 
-        // Extract sections from content that belong in <front> or <back>
-        // and not in <body>
         let mut front = String::new();
-        let mut body = String::new();
-        let back = String::new();
-        for block in &self.content {
-            if let Block::Section(Section {
-                section_type: Some(SectionType::Abstract),
-                content,
-                ..
-            }) = block
-            {
-                let (abstract_jats, abstract_losses) = content.to_jats();
-                front.push_str(&elem_no_attrs("abstract", abstract_jats));
-                losses.merge(abstract_losses);
-            } else {
-                let (block_jats, block_losses) = block.to_jats();
-                body.push_str(&block_jats);
-                losses.merge(block_losses);
-            }
+        if let Some(content) = &self.r#abstract {
+            let (abstract_jats, abstract_losses) = content.to_jats();
+            front.push_str(&elem_no_attrs("abstract", abstract_jats));
+            losses.merge(abstract_losses);
         }
+
+        let mut body = String::new();
+        for block in &self.content {
+            let (block_jats, block_losses) = block.to_jats();
+            body.push_str(&block_jats);
+            losses.merge(block_losses);
+        }
+
+        let back = String::new();
 
         let mut content = String::new();
         if !front.is_empty() {
