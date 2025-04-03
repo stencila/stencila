@@ -1,16 +1,11 @@
 use std::{
-    collections::HashMap,
-    fmt::Display,
-    fs::{remove_dir_all, write},
-    io::Write,
-    path::Path,
-    sync::Arc,
+    collections::HashMap, fmt::Display, fs::remove_dir_all, io::Write, path::Path, sync::Arc,
 };
 
 use derive_more::{Deref, DerefMut};
 
 use common::{
-    eyre::{eyre, Context, Report, Result},
+    eyre::{eyre, Context, Result},
     itertools::Itertools,
     tempfile::NamedTempFile,
     tracing,
@@ -113,21 +108,13 @@ impl NodeDatabase {
     pub fn new(path: &Path) -> Result<Self> {
         let database = Arc::new(Database::new(path, SystemConfig::default())?);
 
-        let initialized = path.join("stencila.txt");
-        if !initialized.exists() {
-            let initialize = || {
-                Self::init(&database)?;
-                write(initialized, "")?;
-                Ok::<(), Report>(())
-            };
-            if let Err(error) = initialize() {
-                // If there is any error in creating the database then remove it so that
-                // it is not in a corrupted/partial state
-                drop(database);
-                remove_dir_all(path)?;
+        if let Err(error) = Self::init(&database) {
+            // If there is any error in creating the database then remove it so that
+            // it is not in a corrupted/partial state
+            drop(database);
+            remove_dir_all(path)?;
 
-                return Err(error);
-            }
+            return Err(error);
         }
 
         Ok(Self {
@@ -167,6 +154,11 @@ impl NodeDatabase {
     /// Initialized a database
     fn init(database: &Database) -> Result<()> {
         let connection = Connection::new(database)?;
+
+        let tables = connection.query("CALL show_tables() RETURN name")?;
+        if tables.get_num_tuples() > 0 {
+            return Ok(());
+        }
 
         let schema = include_str!("schema.kuzu");
         for statement in schema.split(";") {
