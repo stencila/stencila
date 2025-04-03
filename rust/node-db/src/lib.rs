@@ -8,10 +8,12 @@ use std::{
 };
 
 use derive_more::{Deref, DerefMut};
+use time::format_description::{self, BorrowedFormatItem};
 
 use common::{
     eyre::{eyre, Context, Result},
     itertools::Itertools,
+    once_cell::sync::Lazy,
     tempfile::NamedTempFile,
     tracing,
 };
@@ -101,7 +103,7 @@ pub struct NodeDatabase {
 }
 
 // The number of entries, above which `COPY FROM` CSV file should be used
-const USE_CSV_COUNT: usize = 100;
+const USE_CSV_COUNT: usize = 1;
 
 const EXPECT_JUST_INSERTED: &str = "should exist, just inserted";
 
@@ -284,6 +286,14 @@ impl NodeDatabase {
             "position".to_string(),
         ]);
 
+        // It is necessary to specify the format for timestamps in CSV files because `to_string`
+        // adds offset seconds which the Kuzu CSV parser does not like
+        static TIMESTAMP_FORMAT: Lazy<Vec<BorrowedFormatItem>> = Lazy::new(|| {
+            format_description::parse(
+                "[year]-[month]-[day] [hour]:[minute]:[second].[subsecond digits:6][offset_hour sign:mandatory]:[offset_minute]",
+            ).expect("invalid format")
+        });
+
         if entries.len() < USE_CSV_COUNT {
             // Get, or prepare, `CREATE` statement
             let statement = match self.create_node_statements.get_mut(&node_type) {
@@ -340,6 +350,11 @@ impl NodeDatabase {
             writeln!(&mut buffer, "{}", properties.join(","))?;
             for (node_path, node_ancestors, node_id, values) in entries {
                 for value in values {
+                    let value = if let Value::Timestamp(value) = value {
+                        value.format(&TIMESTAMP_FORMAT)?
+                    } else {
+                        value.to_string()
+                    };
                     let field = escape_csv_field(value.to_string());
                     write!(&mut buffer, "{field},")?;
                 }
@@ -357,7 +372,7 @@ impl NodeDatabase {
 
             let filename = csv.path().to_string_lossy();
             connection.query(&format!(
-                "COPY `{node_type}` FROM '{filename}' (HEADER=true, file_format='csv', auto_detect=false);"
+                "COPY `{node_type}` FROM '{filename}' (header=true, file_format='csv', auto_detect=false);"
             )).wrap_err_with(|| eyre!("Error copying into `{node_type}` from CSV with `{}`", properties.join(", ")))?;
         }
 
@@ -415,6 +430,7 @@ impl NodeDatabase {
         } else {
             let csv = NamedTempFile::new()?;
             let mut buffer = BufWriter::new(&csv);
+            writeln!(&mut buffer, "from,to")?;
             for (from_node_id, to_nodes) in entries {
                 for node_id in to_nodes {
                     writeln!(&mut buffer, "{from_node_id},{node_id}")?;
@@ -424,7 +440,7 @@ impl NodeDatabase {
 
             let filename = csv.path().to_string_lossy();
             connection.query(&format!(
-                "COPY `{relation}` FROM '{filename}' (from='{from_node_type}',to='{to_node_type}', file_format='csv', auto_detect=false);"
+                "COPY `{relation}` FROM '{filename}' (from='{from_node_type}', to='{to_node_type}', header=true, file_format='csv', auto_detect=false);"
             ))?;
         }
 

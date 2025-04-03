@@ -9,6 +9,7 @@ common = { path = "../common" }
 derive_more = { workspace = true }
 kernel-kuzu = { path = "../kernel-kuzu" }
 schema = { path = "../schema" }
+time = { workspace = true }
 
 [lints]
 workspace = true
