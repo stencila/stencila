@@ -59,10 +59,14 @@ impl Schemas {
             "TableCell.content",
             // Exclude list item position as it is provided by the position calculated from the node path
             "ListItem.position",
+            // Exclude authors and references
+            "authors",
+            "references",
         ];
 
         let skip_types = [
             // Object types for which tables are not created
+            "Brand",
             "Button",
             "CallArgument",
             "CallBlock",
@@ -73,8 +77,10 @@ impl Schemas {
             "CodeLocation",
             "CompilationDigest",
             "CompilationMessage",
+            "ContactPoint",
             "Datatable",
             "DatatableColumn",
+            "DefinedTerm",
             "Emphasis",
             "Enumeration",
             "Excerpt",
@@ -83,13 +89,20 @@ impl Schemas {
             "ExecutionMessage",
             "ExecutionTag",
             "Form",
+            "Grant",
             "InstructionBlock",
             "InstructionInline",
             "InstructionMessage",
             "ModelParameters",
+            "MonetaryGrant",
+            "PostalAddress",
+            "Product",
             "Prompt",
             "PromptBlock",
+            "PropertyValue",
             "ProvenanceCount",
+            "SoftwareApplication",
+            "SoftwareSourceCode",
             "Strikeout",
             "Strong",
             "Subscript",
@@ -97,8 +110,25 @@ impl Schemas {
             "SuggestionInline",
             "Superscript",
             "Underline",
+            "Unknown",
             "Walkthrough",
             "WalkthroughStep",
+            // Types for which tables are not currently create but probably
+            // will be for relations between creative works etc
+            "Author",
+            "AuthorRole",
+            "Cite",
+            "CiteGroup",
+            "Collection",
+            "Comment",
+            "CreativeWork",
+            "Organization",
+            "Periodical",
+            "Person",
+            "PublicationIssue",
+            "PublicationVolume",
+            "Reference",
+            "Review",
             // Types that have equivalent Kuzu data types
             "Null",
             "Boolean",
@@ -531,6 +561,10 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
                     (!skip_types.contains(&variant)).then_some(variant)
                 })
                 .collect_vec();
+
+            if variants.is_empty() {
+                continue;
+            }
 
             let node_type = variants
                 .iter()
