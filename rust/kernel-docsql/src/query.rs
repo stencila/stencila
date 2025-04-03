@@ -5,7 +5,7 @@ use std::{
 };
 
 use codec_text_trait::to_text;
-use kernel_docsdb::DocsDBKernelInstance;
+use kernel_docsdb::{DocsDBKernelInstance, QueryResultTransform};
 use kernel_jinja::{
     kernel::{
         common::{
@@ -157,6 +157,9 @@ pub(super) struct Query {
     /// Whether any `UNION` clause has an `ALL` modifier
     union_all: bool,
 
+    /// The output type of the query
+    out: Option<QueryResultTransform>,
+
     /// Whether the `return` method has been used
     return_used: bool,
 
@@ -191,6 +194,7 @@ impl Query {
             limit: None,
             union: None,
             union_all: false,
+            out: None,
             return_used: false,
             match_used: false,
             node_table_used: None,
@@ -368,6 +372,65 @@ impl Query {
         Ok(query)
     }
 
+    /// Select columns to output in a datatable
+    fn select(&self, args: &[Value], kwargs: Kwargs) -> Result<Self, Error> {
+        let mut query = self.clone();
+
+        let alias = query
+            .node_table_used
+            .as_ref()
+            .map(|table| table.to_singular().to_lowercase())
+            .unwrap_or_else(|| "node".to_string());
+
+        let mut returns = Vec::new();
+
+        for arg in args {
+            let Some(arg) = arg.as_str() else {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    "arguments should be strings",
+                ));
+            };
+
+            let mut column = if !arg.contains(".") {
+                [&alias, ".`", arg, "`"].concat()
+            } else {
+                arg.into()
+            };
+
+            if !(arg.contains(['.', '*']) || arg.to_uppercase().contains(" AS ")) {
+                column.push_str(" AS `");
+                column.push_str(arg);
+                column.push_str("`");
+            }
+
+            returns.push(column);
+        }
+
+        for arg in kwargs.args() {
+            let Ok(label) = kwargs.get::<&str>(arg) else {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    "keywords arguments should be string labels",
+                ));
+            };
+
+            returns.push([&alias, ".", arg, " AS `", label, "`"].concat());
+        }
+
+        let returns = if returns.is_empty() {
+            [&alias, ".*"].concat()
+        } else {
+            returns.join(", ")
+        };
+
+        query.out = Some(QueryResultTransform::Datatable);
+        query.r#return = Some(returns);
+        query.return_used = true;
+
+        Ok(query)
+    }
+
     /// Apply an `ORDER BY` clause to query
     fn order_by(&self, order_by: String, order: Option<String>) -> Result<Self, Error> {
         let mut query = self.clone();
@@ -423,17 +486,40 @@ impl Query {
         Ok(query)
     }
 
+    /// Specify the output type for the query
+    fn out(&self, out: &str) -> Result<Self, Error> {
+        let mut query = self.clone();
+
+        query.out = match out.parse() {
+            Ok(value) => Some(value),
+            Err(..) => {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    format!("Invalid output type: {out}"),
+                ))
+            }
+        };
+
+        Ok(query)
+    }
+
     /// Generate a Cypher query for the query
     pub fn generate(&self) -> String {
         if let Some(cypher) = &self.cypher {
             return cypher.clone();
         }
 
-        let mut cypher = if let Some(call) = &self.call {
-            call.to_string()
+        let mut cypher = if let Some(out) = &self.out {
+            ["// @out ", &out.to_string(), "\n"].concat()
         } else {
-            let pattern = self.pattern.as_deref().unwrap_or("(node)");
-            format!("MATCH {pattern}")
+            String::new()
+        };
+
+        if let Some(call) = &self.call {
+            cypher.push_str(call);
+        } else {
+            cypher.push_str("MATCH ");
+            cypher.push_str(self.pattern.as_deref().unwrap_or("(node)"));
         };
 
         if !(self.ands.is_empty() && self.ors.is_empty()) {
@@ -688,6 +774,10 @@ impl Object for Query {
                 let (r#return, distinct) = from_args(args)?;
                 self.r#return(r#return, distinct)?
             }
+            "select" => {
+                let (args, kwargs): (&[Value], Kwargs) = from_args(args)?;
+                self.select(args, kwargs)?
+            }
             "order_by" | "orderBy" => {
                 let (order_by, order) = from_args(args)?;
                 self.order_by(order_by, order)?
@@ -703,6 +793,11 @@ impl Object for Query {
             "union" => {
                 let (union, all) = from_args(args)?;
                 self.union(union, all)?
+            }
+            // Specify output type
+            "out" => {
+                let (out,): (&str,) = from_args(args)?;
+                self.out(out)?
             }
             // Return the generated Cypher
             "explain" => return Ok(self.explain()),

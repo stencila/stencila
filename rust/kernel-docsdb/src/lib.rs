@@ -29,10 +29,12 @@ use kernel_kuzu::{
         },
         Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
     },
-    KuzuKernelInstance, QueryResultTransform,
+    KuzuKernelInstance,
 };
 use lru::LruCache;
 use node_db::NodeDatabase;
+
+pub use kernel_kuzu::QueryResultTransform;
 
 const NAME: &str = "docsdb";
 

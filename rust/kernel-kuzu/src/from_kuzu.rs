@@ -11,13 +11,15 @@ use kernel::{
         regex::Regex,
         serde::Serialize,
         serde_json::{self, json},
+        strum::Display,
     },
     schema::*,
 };
 
 /// The type of transform to ally when converting Kuzu query result to
 /// a Stencila [`Node`]
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Display)]
+#[strum(serialize_all = "lowercase")]
 pub enum QueryResultTransform {
     /// Convert the value in the first column of the first row only
     Value,
@@ -44,7 +46,7 @@ impl FromStr for QueryResultTransform {
             "col" | "column" => Column,
             "all" | "datatable" => Datatable,
             "gph" | "graph" => Graph,
-            "exc" | "excerpts" => Excerpts,
+            "exc" | "excerpt" | "excerpts" => Excerpts,
             _ => bail!("Unknown transform for query result: {s}"),
         })
     }
