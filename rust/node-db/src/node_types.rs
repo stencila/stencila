@@ -93,6 +93,7 @@ impl DatabaseNode for Article {
             (NodeProperty::ExecutionDuration, Duration::to_kuzu_type(), self.options.execution_duration.to_kuzu_value()),
             (NodeProperty::Pagination, String::to_kuzu_type(), self.options.pagination.to_kuzu_value()),
             (NodeProperty::Frontmatter, String::to_kuzu_type(), self.frontmatter.to_kuzu_value()),
+            (NodeProperty::Title, String::to_kuzu_type(), to_text(&self.title).to_kuzu_value()),
             (NodeProperty::Abstract, String::to_kuzu_type(), to_text(&self.r#abstract).to_kuzu_value())
         ]
     }

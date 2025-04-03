@@ -151,12 +151,15 @@ impl Schemas {
         // representation of the node, or one of its properties, to be used in FTS and semantic search,
         // or in the case of `TableCell` just to use string functions like `contains` or pattern matching
         let text_properties = HashMap::from([
-            ("Article", ("abstract", "r#abstract")),
-            ("Table", ("caption", "caption")),
-            ("Figure", ("caption", "caption")),
-            ("CodeChunk", ("caption", "caption")),
-            ("Paragraph", ("text", "")),
-            ("TableCell", ("text", "")),
+            (
+                "Article",
+                vec![("title", "title"), ("abstract", "r#abstract")],
+            ),
+            ("Table", vec![("caption", "caption")]),
+            ("Figure", vec![("caption", "caption")]),
+            ("CodeChunk", vec![("caption", "caption")]),
+            ("Paragraph", vec![("text", "")]),
+            ("TableCell", vec![("text", "")]),
         ]);
 
         write(
@@ -164,7 +167,7 @@ impl Schemas {
             r#"// Generated file, do not edit. See the Rust `schema-gen` crate.
 
 pub const FTS_INDICES: &[(&str, &[&str])] = &[
-    ("Article",        &["abstract", "description"]),
+    ("Article",        &["title", "abstract", "description"]),
     ("Table",          &["caption"]),
     ("Figure",         &["caption"]),
     ("CodeChunk",      &["caption", "code"]),
@@ -352,8 +355,10 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
                 .iter()
                 .map(|(name, data_type, ..)| format!("\n  `{name}` {data_type},"))
                 .join("");
-            if let Some((name, ..)) = text_properties.get(&title.as_str()) {
-                node_table_props.push_str(&format!("\n  `{name}` STRING,"));
+            if let Some(props) = text_properties.get(&title.as_str()) {
+                for (name, ..) in props {
+                    node_table_props.push_str(&format!("\n  `{name}` STRING,"));
+                }
             }
             node_tables.push(format!(
                 "CREATE NODE TABLE IF NOT EXISTS `{title}` ({}
@@ -399,17 +404,19 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
                     format!("(NodeProperty::{property}, {rust_type}::to_kuzu_type(), self.{field}.to_kuzu_value())")
                 })
                 .collect_vec();
-            if let Some((name, field)) = text_properties.get(&title.as_str()) {
-                let property = name.to_pascal_case();
-                let field = if field.is_empty() {
-                    "self".to_string()
-                } else {
-                    format!("&self.{field}")
-                };
+            if let Some(props) = text_properties.get(&title.as_str()) {
+                for (name, field) in props {
+                    let property = name.to_pascal_case();
+                    let field = if field.is_empty() {
+                        "self".to_string()
+                    } else {
+                        format!("&self.{field}")
+                    };
 
-                implem_node_table.push(format!(
-                    "(NodeProperty::{property}, String::to_kuzu_type(), to_text({field}).to_kuzu_value())"
-                ));
+                    implem_node_table.push(format!(
+                        "(NodeProperty::{property}, String::to_kuzu_type(), to_text({field}).to_kuzu_value())"
+                    ));
+                }
             }
             let implem_node_table = implem_node_table.join(",\n            ");
 
