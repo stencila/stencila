@@ -56,7 +56,7 @@ impl FromStr for QueryResultTransform {
 pub fn node_from_query_result(
     mut result: QueryResult,
     transform: Option<QueryResultTransform>,
-) -> Result<Node> {
+) -> Result<Option<Node>> {
     use QueryResultTransform::*;
 
     // If no transform specified then default to graph if all nodes and relations,
@@ -76,17 +76,17 @@ pub fn node_from_query_result(
     match transform {
         Value | Row => {
             let Some(mut row) = result.next() else {
-                return Ok(Node::Null(Null));
+                return Ok(None);
             };
 
             if matches!(transform, Value) {
                 if row.is_empty() {
-                    return Ok(Node::Null(Null));
+                    return Ok(None);
                 }
-                Ok(primitive_from_value(row.swap_remove(0)).into())
+                Ok(Some(primitive_from_value(row.swap_remove(0)).into()))
             } else {
                 let values = row.into_iter().map(primitive_from_value).collect();
-                Ok(Node::Array(Array(values)))
+                Ok(Some(Node::Array(Array(values))))
             }
         }
 
@@ -100,14 +100,20 @@ pub fn node_from_query_result(
                     }
                 })
                 .collect();
-            Ok(Node::Array(Array(values)))
+            Ok(Some(Node::Array(Array(values))))
         }
 
-        Datatable => datatable_from_query_result(result).map(Node::Datatable),
+        Datatable => datatable_from_query_result(result).map(|dt| Some(Node::Datatable(dt))),
 
-        Graph => cytoscape_from_query_result(result).map(Node::ImageObject),
+        Graph => cytoscape_from_query_result(result).map(|image| Some(Node::ImageObject(image))),
 
-        Excerpts => excerpts_from_query_result(result).map(Node::Array),
+        Excerpts => excerpts_from_query_result(result).map(|array| {
+            if array.is_empty() {
+                None
+            } else {
+                Some(Node::Array(array))
+            }
+        }),
     }
 }
 

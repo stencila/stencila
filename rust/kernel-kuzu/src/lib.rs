@@ -384,7 +384,8 @@ impl KernelInstance for KuzuKernelInstance {
                     let name = &captures[1];
                     let transform = captures.get(2).map(|shape| shape.as_str()).unwrap_or("all");
                     let transform = QueryResultTransform::from_str(transform)?;
-                    let node = node_from_query_result(result, Some(transform))?;
+                    let node = node_from_query_result(result, Some(transform))?
+                        .unwrap_or_else(|| Node::Null(Null));
                     self.variables.insert(name.to_string(), node);
                 } else {
                     output = Some(result)
@@ -433,7 +434,9 @@ impl KernelInstance for KuzuKernelInstance {
             self.transform
         };
 
-        let outputs = vec![node_from_query_result(output, transform)?];
+        let node = node_from_query_result(output, transform)?;
+        let outputs = node.map(|node| vec![node]).unwrap_or_default();
+
         Ok((outputs, Vec::new()))
     }
 
