@@ -23,9 +23,10 @@ use kernel_jinja::{
     minijinja::{context, Environment, UndefinedBehavior, Value},
     JinjaKernelContext,
 };
-use query::{NodeProxies, NodeProxy, Query};
 
 mod query;
+
+use query::{add_document_functions, add_functions, NodeProxies, NodeProxy, Query};
 
 const NAME: &str = "docsql";
 
@@ -147,18 +148,20 @@ impl KernelInstance for DocsQLKernelInstance {
 
         let mut env = Environment::empty();
         env.set_undefined_behavior(UndefinedBehavior::Strict);
+        add_functions(&mut env);
 
         let messages = Arc::new(SyncMutex::new(Vec::new()));
 
         if let Some(document) = &self.document {
-            env.add_global(
-                "document",
-                Value::from_object(Query::new(
-                    "document".into(),
-                    document.clone(),
-                    messages.clone(),
-                )),
-            );
+            let document = Arc::new(Query::new(
+                "document".into(),
+                document.clone(),
+                messages.clone(),
+            ));
+
+            add_document_functions(&mut env, document.clone());
+
+            env.add_global("document", Value::from_dyn_object(document));
         }
 
         if code.contains("workspace") {

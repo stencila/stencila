@@ -25,7 +25,7 @@ use kernel_jinja::{
     },
     minijinja::{
         value::{from_args, DynObject, Enumerator, Kwargs, Object, ObjectRepr},
-        Error, ErrorKind, State, Value,
+        Environment, Error, ErrorKind, State, Value,
     },
 };
 
@@ -151,8 +151,8 @@ pub(super) struct Query {
     /// Any `LIMIT` clause
     limit: Option<usize>,
 
-    /// Any `UNION` clause
-    union: Option<Box<Query>>,
+    /// Any `UNION` clauses
+    union: Vec<Query>,
 
     /// Whether any `UNION` clause has an `ALL` modifier
     union_all: bool,
@@ -192,7 +192,7 @@ impl Query {
             order_by_order: None,
             skip: None,
             limit: None,
-            union: None,
+            union: Vec::new(),
             union_all: false,
             out: None,
             return_used: false,
@@ -248,6 +248,7 @@ impl Query {
         let mut table = match method {
             "rows" => "TableRow".to_string(),
             "cells" => "TableCell".to_string(),
+            "equations" => "MathBlock".to_string(),
             "items" => "ListItem".to_string(),
             "audios" => "AudioObject".to_string(),
             "images" => "ImageObject".to_string(),
@@ -379,7 +380,7 @@ impl Query {
         let alias = query
             .node_table_used
             .as_ref()
-            .map(|table| table.to_singular().to_lowercase())
+            .map(|table| table.to_singular().to_camel_case())
             .unwrap_or_else(|| "node".to_string());
 
         let mut returns = Vec::new();
@@ -435,13 +436,23 @@ impl Query {
     fn order_by(&self, order_by: String, order: Option<String>) -> Result<Self, Error> {
         let mut query = self.clone();
 
-        static REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"\w+\.\w+").expect("invalid regex"));
-        if !REGEX.is_match(&order_by) {
-            return Err(Error::new(
-                ErrorKind::InvalidOperation,
-                "first argument should have form 'name.property' e.g 'article.datePublished'",
-            ));
-        }
+        let order_by = if !order_by.contains(".") {
+            let Some(alias) = query
+                .node_table_used
+                .as_ref()
+                .map(|table| table.to_singular().to_lowercase())
+            else {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    "first argument should have form 'name.property' e.g 'article.datePublished'",
+                ));
+            };
+
+            [&alias, ".", &order_by].concat()
+        } else {
+            order_by
+        };
+
         query.order_by = Some(order_by);
 
         if let Some(order) = order {
@@ -481,7 +492,7 @@ impl Query {
         };
 
         let mut query = self.clone();
-        query.union = Some(Box::new(other.clone()));
+        query.union.push(other.clone());
         query.union_all = all.unwrap_or_default();
         Ok(query)
     }
@@ -583,7 +594,7 @@ impl Query {
             cypher.push_str("\nLIMIT 10");
         }
 
-        if let Some(other) = &self.union {
+        for other in &self.union {
             cypher.push_str("\nUNION");
             if self.union_all {
                 cypher.push_str(" ALL");
@@ -876,6 +887,113 @@ impl Object for Query {
             self.messages.clone(),
         )))
     }
+}
+
+/// Query the current document for a type with a label
+#[derive(Debug)]
+struct QueryLabelled {
+    table: String,
+    document: Arc<Query>,
+}
+
+impl QueryLabelled {
+    fn new(table: &str, document: Arc<Query>) -> Self {
+        Self {
+            table: table.into(),
+            document,
+        }
+    }
+}
+
+impl Object for QueryLabelled {
+    fn call(self: &Arc<Self>, _state: &State<'_, '_>, args: &[Value]) -> Result<Value, Error> {
+        let (which,): (Value,) = from_args(args)?;
+
+        let label = if let Some(label) = which.as_str() {
+            label.to_string()
+        } else if let Some(num) = which.as_i64() {
+            num.to_string()
+        } else {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                "argument should be string or integer",
+            ));
+        };
+
+        let filters = Kwargs::from_iter([("label", Value::from(label.clone()))]);
+        let node = match self.document.table(&self.table, filters)?.first().ok() {
+            Some(node) => Some(node),
+            None => {
+                if self.table == "figures" || self.table == "tables" {
+                    let label_type = match self.table.as_str() {
+                        "figures" => "FigureLabel",
+                        "tables" => "TableLabel",
+                        _ => unreachable!(),
+                    };
+                    let filters = Kwargs::from_iter([
+                        ("labelType", Value::from(label_type)),
+                        ("label", Value::from(label.clone())),
+                    ]);
+                    self.document.table("codeChunks", filters)?.first().ok()
+                } else {
+                    None
+                }
+            }
+        };
+
+        node.ok_or_else(|| {
+            Error::new(
+                ErrorKind::InvalidOperation,
+                format!(
+                    "unable to find {} with label {}",
+                    &self.table[..(self.table.len() - 1)],
+                    label
+                ),
+            )
+        })
+    }
+}
+
+/// A document shortcut functions to the environment
+pub(super) fn add_document_functions(env: &mut Environment, document: Arc<Query>) {
+    env.add_global(
+        "figure",
+        Value::from_object(QueryLabelled::new("figures", document.clone())),
+    );
+    env.add_global(
+        "table",
+        Value::from_object(QueryLabelled::new("tables", document.clone())),
+    );
+    env.add_global(
+        "equation",
+        Value::from_object(QueryLabelled::new("equations", document.clone())),
+    );
+}
+
+/// Function to combine nodes from several queries
+fn combine(args: &[Value]) -> Result<Value, Error> {
+    let mut nodes = Vec::new();
+    for value in args {
+        if let Some(query) = value.downcast_object::<Query>() {
+            nodes.append(&mut query.nodes());
+        } else if let Some(proxies) = value.downcast_object::<NodeProxies>() {
+            nodes.append(&mut proxies.nodes());
+        } else if let Some(proxy) = value.downcast_object::<NodeProxy>() {
+            nodes.append(&mut proxy.nodes());
+        } else {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                "all arguments should be queries or nodes resulting from queries",
+            ));
+        }
+    }
+
+    Ok(Value::from_object(NodeProxies::new(nodes, Arc::default())))
+}
+
+/// Add global functions to the environment
+pub(super) fn add_functions(env: &mut Environment) {
+    env.add_function("combine", combine);
 }
 
 /// A proxy for a [`Node`] to allow it to be accessed as a minijinja [`Value`]
