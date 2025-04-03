@@ -47,6 +47,7 @@ pub struct VideoObject {
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
+    #[walk]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "h1")]
@@ -138,6 +139,7 @@ pub struct VideoObjectOptions {
     /// A a short description that summarizes a `CreativeWork`.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
+    #[walk]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "section")]
     pub r#abstract: Option<Vec<Block>>,

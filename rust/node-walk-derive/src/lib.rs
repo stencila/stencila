@@ -112,7 +112,13 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             let Some(field_name) = field.ident else {
                 return;
             };
-            let property = Ident::new(&field_name.to_string().to_pascal_case(), Span::call_site());
+
+            let property = if field_name == "r#abstract" {
+                "Abstract".to_string()
+            } else {
+                field_name.to_string().to_pascal_case()
+            };
+            let property = Ident::new(&property, Span::call_site());
 
             fields.extend(quote! {
                 if visitor.enter_property(NodeProperty::#property).is_break() {

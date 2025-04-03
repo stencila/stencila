@@ -157,6 +157,7 @@ pub struct FigureOptions {
     /// A a short description that summarizes a `CreativeWork`.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
+    #[walk]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub r#abstract: Option<Vec<Block>>,
 
@@ -294,6 +295,7 @@ pub struct FigureOptions {
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
+    #[walk]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub title: Option<Vec<Inline>>,

@@ -11,6 +11,9 @@
   "required": [
     "type",
     "source",
+    "nodePath",
+    "nodeAncestors",
+    "nodeType",
     "content"
   ],
   "core": [
@@ -45,6 +48,42 @@
         "elem": "div"
       },
       "$ref": "Reference.schema.json"
+    },
+    "nodePath": {
+      "@id": "stencila:nodePath",
+      "description": "A `Reference` to the `CreativeWork` that the excerpt was taken from.",
+      "aliases": [
+        "node-path",
+        "node_path"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "string"
+    },
+    "nodeAncestors": {
+      "@id": "stencila:nodeAncestors",
+      "description": "The route to the node that was excerpted including the .",
+      "aliases": [
+        "node-ancestors",
+        "node_ancestors"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "string"
+    },
+    "nodeType": {
+      "@id": "stencila:nodeType",
+      "description": "The type of the node that was excerpted.",
+      "aliases": [
+        "node-type",
+        "node_type"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "string"
     },
     "content": {
       "@id": "stencila:content",

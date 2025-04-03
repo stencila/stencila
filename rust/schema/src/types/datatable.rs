@@ -98,6 +98,7 @@ pub struct DatatableOptions {
     /// A a short description that summarizes a `CreativeWork`.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
+    #[walk]
     pub r#abstract: Option<Vec<Block>>,
 
     /// The authors of the `CreativeWork`.
@@ -226,6 +227,7 @@ pub struct DatatableOptions {
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
+    #[walk]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub title: Option<Vec<Inline>>,
 

@@ -145,6 +145,7 @@
       "strip": [
         "metadata"
       ],
+      "walk": true,
       "dom": {
         "elem": "section"
       },
@@ -593,6 +594,7 @@
           "qmd"
         ]
       },
+      "walk": true,
       "dom": {
         "elem": "h1"
       },

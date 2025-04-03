@@ -1773,6 +1773,15 @@ class Excerpt(Entity):
     source: Reference
     """A `Reference` to the `CreativeWork` that the excerpt was taken from."""
 
+    node_path: str
+    """A `Reference` to the `CreativeWork` that the excerpt was taken from."""
+
+    node_ancestors: str
+    """The route to the node that was excerpted including the ."""
+
+    node_type: str
+    """The type of the node that was excerpted."""
+
     content: list[Block]
     """The excerpted content."""
 

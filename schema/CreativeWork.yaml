@@ -27,6 +27,7 @@ properties:
     items:
       $ref: Block
     strip: [metadata]
+    walk: true
     dom:
       elem: section
   authors:
@@ -290,6 +291,7 @@ properties:
     items:
       $ref: Inline
     strip: [metadata]
+    walk: true
     patch:
       formats: [md, smd, myst, ipynb, qmd]
     dom:

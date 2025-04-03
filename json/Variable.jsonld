@@ -107,9 +107,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "nodeType",
       "rdfs:comment": "The Stencila node type of the variable e.g. `Number`, `DateTime`, `Datatable`.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Variable"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Excerpt"
+        },
+        {
+          "@id": "stencila:Variable"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }

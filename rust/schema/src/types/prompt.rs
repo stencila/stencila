@@ -64,6 +64,7 @@ pub struct Prompt {
     #[serde(alias = "headline")]
     #[serde(deserialize_with = "one_or_many")]
     #[strip(metadata)]
+    #[walk]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[dom(elem = "h1")]
     pub title: Vec<Inline>,
@@ -155,6 +156,7 @@ pub struct PromptOptions {
     /// A a short description that summarizes a `CreativeWork`.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
+    #[walk]
     #[dom(elem = "section")]
     pub r#abstract: Option<Vec<Block>>,
 

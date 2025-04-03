@@ -56,6 +56,7 @@ pub struct Chat {
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
+    #[walk]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,
@@ -151,6 +152,7 @@ pub struct ChatOptions {
     /// A a short description that summarizes a `CreativeWork`.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
+    #[walk]
     #[dom(elem = "section")]
     pub r#abstract: Option<Vec<Block>>,
 

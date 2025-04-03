@@ -38,6 +38,47 @@
       }
     },
     {
+      "@id": "stencila:nodePath",
+      "@type": "rdfs:Property",
+      "rdfs:label": "nodePath",
+      "rdfs:comment": "A `Reference` to the `CreativeWork` that the excerpt was taken from.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Excerpt"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:nodeAncestors",
+      "@type": "rdfs:Property",
+      "rdfs:label": "nodeAncestors",
+      "rdfs:comment": "The route to the node that was excerpted including the .",
+      "schema:domainIncludes": {
+        "@id": "stencila:Excerpt"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:nodeType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "nodeType",
+      "rdfs:comment": "The type of the node that was excerpted.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Excerpt"
+        },
+        {
+          "@id": "stencila:Variable"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
