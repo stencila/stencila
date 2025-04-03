@@ -1,5 +1,10 @@
 use std::{
-    collections::HashMap, fmt::Display, fs::remove_dir_all, io::Write, path::Path, sync::Arc,
+    collections::HashMap,
+    fmt::Display,
+    fs::remove_dir_all,
+    io::{BufWriter, Write},
+    path::Path,
+    sync::Arc,
 };
 
 use derive_more::{Deref, DerefMut};
@@ -330,12 +335,13 @@ impl NodeDatabase {
                     .wrap_err_with(|| eyre!("Unable to create node entry for `{node_type}`"))?;
             }
         } else {
-            let mut csv = NamedTempFile::new()?;
-            writeln!(&mut csv, "{}", properties.join(","))?;
+            let csv = NamedTempFile::new()?;
+            let mut buffer = BufWriter::new(&csv);
+            writeln!(&mut buffer, "{}", properties.join(","))?;
             for (node_path, node_ancestors, node_id, values) in entries {
                 for value in values {
                     let field = escape_csv_field(value.to_string());
-                    write!(&mut csv, "{field},")?;
+                    write!(&mut buffer, "{field},")?;
                 }
 
                 let position = match node_path.back() {
@@ -343,10 +349,11 @@ impl NodeDatabase {
                     _ => String::new(),
                 };
                 writeln!(
-                    &mut csv,
+                    &mut buffer,
                     "{doc_id},{node_id},{node_path},{node_ancestors},{position}"
                 )?;
             }
+            buffer.flush()?;
 
             let filename = csv.path().to_string_lossy();
             connection.query(&format!(
@@ -406,12 +413,14 @@ impl NodeDatabase {
                 }
             }
         } else {
-            let mut csv = NamedTempFile::new()?;
+            let csv = NamedTempFile::new()?;
+            let mut buffer = BufWriter::new(&csv);
             for (from_node_id, to_nodes) in entries {
                 for node_id in to_nodes {
-                    writeln!(&mut csv, "{from_node_id},{node_id}")?;
+                    writeln!(&mut buffer, "{from_node_id},{node_id}")?;
                 }
             }
+            buffer.flush()?;
 
             let filename = csv.path().to_string_lossy();
             connection.query(&format!(
