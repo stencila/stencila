@@ -55,18 +55,27 @@ async fn closest_entries(
         return Ok(None);
     }
 
-    let json = read_to_string(&docs_file).await?;
-    let entries = serde_json::from_str(&json)?;
+    let entries = read_entries(&stencila_dir).await?;
 
     Ok(Some((stencila_dir, entries)))
 }
 
+/// Read document tracking entries from the `docs.json` file in a `.stencila` directory
+async fn read_entries(stencila_dir: &Path) -> Result<DocumentTrackingEntries> {
+    let docs_file = stencila_dir.join(DOCS_FILE);
+
+    let json = read_to_string(&docs_file).await?;
+    let entries = serde_json::from_str(&json)?;
+
+    Ok(entries)
+}
+
 /// Write document tracking entries to the `docs.json` file in a `.stencila` directory
 async fn write_entries(stencila_dir: &Path, entries: &DocumentTrackingEntries) -> Result<()> {
-    let tracking_file = stencila_dir.join(DOCS_FILE);
+    let docs_file = stencila_dir.join(DOCS_FILE);
 
     let json = serde_json::to_string_pretty(entries)?;
-    write(&tracking_file, json).await?;
+    write(&docs_file, json).await?;
 
     Ok(())
 }
@@ -130,6 +139,10 @@ impl Default for DocumentTracking {
 impl DocumentTracking {
     pub fn store_file(&self) -> String {
         format!("{}.json", self.id)
+    }
+
+    pub fn store_path(&self, stencila_dir: &Path) -> PathBuf {
+        stencila_dir.join(STORE_DIR).join(self.store_file())
     }
 
     pub fn status(
@@ -478,17 +491,17 @@ impl Document {
 
         let mut db = NodeDatabase::new(&db_path)?;
 
-        // Remove any storage file and db nodes for document
+        // Remove any db nodes for document
+        let entries = read_entries(stencila_dir).await?;
         for path in paths {
-            let (doc_id, _, store_path, _) = Document::track_path(path, None, None).await?;
+            let relative_path = workspace_relative_path(stencila_dir, path, false)?;
 
-            // Remove storage file
-            if store_path.exists() {
-                remove_file(&store_path).await?;
-            }
+            let Some(entry) = entries.get(&relative_path) else {
+                continue;
+            };
 
             // Delete database nodes
-            db.delete(&doc_id)?;
+            db.delete(&entry.id)?;
         }
 
         // Update database indices
