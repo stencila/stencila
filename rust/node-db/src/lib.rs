@@ -247,14 +247,16 @@ impl NodeDatabase {
 
         // Create entries for each of the node types collected
         for (node_type, (properties, rows)) in walker.node_tables {
-            if !matches!(node_type, NodeType::Unknown) {
+            if !rows.is_empty() && !matches!(node_type, NodeType::Unknown) {
                 self.create_node_entries(doc_id, node_type, properties, rows)?;
             }
         }
 
         // Create entries for each of the relations collected
         for ((from_node_type, node_property, to_node_type), rows) in walker.rel_tables {
-            self.create_rel_entries(from_node_type, node_property, to_node_type, rows)?;
+            if !rows.is_empty() {
+                self.create_rel_entries(from_node_type, node_property, to_node_type, rows)?;
+            }
         }
 
         Ok(())
