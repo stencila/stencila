@@ -113,7 +113,10 @@ pub struct DocsDBKernelInstance {
     document_db: KuzuKernelInstance,
 
     /// The document that nodes will be retrieved from
-    document: Option<Arc<Mutex<Node>>>,
+    ///
+    /// The boolean indicates whether the current value has been
+    /// synced with the in-memory database
+    document: Option<Arc<Mutex<(Node, bool)>>>,
 }
 
 impl DocsDBKernelInstance {
@@ -127,14 +130,15 @@ impl DocsDBKernelInstance {
         let document_db = KuzuKernelInstance::box_with(id.clone(), QueryResultTransform::Excerpts);
 
         let document = if let Some(mut receiver) = doc_receiver {
-            let document = Arc::new(Mutex::new(receiver.borrow().clone()));
+            let node = receiver.borrow().clone();
+            let document = Arc::new(Mutex::new((node, false)));
 
             {
                 let document = document.clone();
                 tokio::task::spawn(async move {
                     while receiver.changed().await.is_ok() {
                         let node = receiver.borrow_and_update().clone();
-                        *document.lock().await = node;
+                        *document.lock().await = (node, false);
                     }
                 });
             }
@@ -256,12 +260,12 @@ impl DocsDBKernelInstance {
                         bail!("Document expected")
                     };
 
-                    let doc = &*doc.lock().await;
+                    let (doc, ..) = &*doc.lock().await;
 
-                    let mut source = Reference::from(doc);
-                    if source.title.is_none() {
-                        source.title = Some("Current document".into());
-                    }
+                    let source = Reference {
+                        title: Some("Current document".into()),
+                        ..Default::default()
+                    };
 
                     let excerpt = get(doc, node_path);
 
@@ -357,12 +361,16 @@ impl KernelInstance for DocsDBKernelInstance {
             DocsDB::Workspace => &mut self.workspace_db,
             DocsDB::Document => {
                 if let Some(node) = &self.document {
-                    // Update the database with the document
-                    let node = node.lock().await;
-                    let database = self.document_db.database()?;
-                    let mut db = NodeDatabase::attached(database)?;
-                    let doc_id = NodeId::new(b"doc", &[0]);
-                    db.upsert(&doc_id, &node)?;
+                    let (node, synced) = &mut *node.lock().await;
+
+                    // Update the database with the document if not done so yet
+                    if !*synced {
+                        let database = self.document_db.database()?;
+                        let mut db = NodeDatabase::attached(database)?;
+                        let doc_id = NodeId::new(b"doc", &[0]);
+                        db.upsert(&doc_id, &node)?;
+                        *synced = true;
+                    }
                 }
                 &mut self.document_db
             }
