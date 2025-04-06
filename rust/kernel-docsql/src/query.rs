@@ -20,6 +20,7 @@ use kernel_jinja::{
         },
         schema::{
             get, CodeChunk, ExecutionMessage, MessageLevel, Node, NodePath, NodeProperty, NodeSet,
+            SectionType,
         },
         KernelInstance,
     },
@@ -890,17 +891,17 @@ impl Object for Query {
 }
 
 /// Query the current document for a type with a label
-/// 
+///
 /// Allows for a label filter to be provided without the keyword. e.g.
-/// 
+///
 ///   figure(1)
-/// 
+///
 /// is equivalent to
-/// 
+///
 ///   document.figures(label = '1')
-/// 
+///
 /// Other filters can be used as well e.g.
-/// 
+///
 ///   figures(@caption ^= 'Plot of')
 #[derive(Debug)]
 struct QueryLabelled {
@@ -968,8 +969,48 @@ impl Object for QueryLabelled {
             Error::new(
                 ErrorKind::InvalidOperation,
                 format!(
-                    "unable to find matching {}",
+                    "unable to find matching {} in current document",
                     &self.table[..(self.table.len() - 1)],
+                ),
+            )
+        })
+    }
+}
+
+/// Query the current document for a section of a particular type
+#[derive(Debug)]
+struct QuerySectionType {
+    section_type: SectionType,
+    document: Arc<Query>,
+}
+
+impl QuerySectionType {
+    fn new(section_type: SectionType, document: Arc<Query>) -> Self {
+        Self {
+            section_type,
+            document,
+        }
+    }
+}
+
+impl Object for QuerySectionType {
+    fn call(self: &Arc<Self>, _state: &State<'_, '_>, args: &[Value]) -> Result<Value, Error> {
+        let (filters,): (Kwargs,) = from_args(args)?;
+
+        let filters = kwargs_insert(
+            filters,
+            "sectionType",
+            Value::from(self.section_type.to_string()),
+        );
+        let node = self.document.table("sections", filters)?.first().ok();
+
+        node.ok_or_else(|| {
+            Error::new(
+                ErrorKind::InvalidOperation,
+                format!(
+                    "unable to find {}{} section in current document",
+                    if !args.is_empty() { "matching " } else { "" },
+                    &self.section_type,
                 ),
             )
         })
@@ -989,6 +1030,35 @@ pub(super) fn add_document_functions(env: &mut Environment, document: Arc<Query>
     env.add_global(
         "equation",
         Value::from_object(QueryLabelled::new("equations", document.clone())),
+    );
+
+    env.add_global(
+        "introduction",
+        Value::from_object(QuerySectionType::new(
+            SectionType::Introduction,
+            document.clone(),
+        )),
+    );
+    env.add_global(
+        "methods",
+        Value::from_object(QuerySectionType::new(
+            SectionType::Methods,
+            document.clone(),
+        )),
+    );
+    env.add_global(
+        "results",
+        Value::from_object(QuerySectionType::new(
+            SectionType::Results,
+            document.clone(),
+        )),
+    );
+    env.add_global(
+        "discussion",
+        Value::from_object(QuerySectionType::new(
+            SectionType::Discussion,
+            document.clone(),
+        )),
     );
 }
 
