@@ -890,6 +890,18 @@ impl Object for Query {
 }
 
 /// Query the current document for a type with a label
+/// 
+/// Allows for a label filter to be provided without the keyword. e.g.
+/// 
+///   figure(1)
+/// 
+/// is equivalent to
+/// 
+///   document.figures(label = '1')
+/// 
+/// Other filters can be used as well e.g.
+/// 
+///   figures(@caption ^= 'Plot of')
 #[derive(Debug)]
 struct QueryLabelled {
     table: String,
@@ -907,33 +919,44 @@ impl QueryLabelled {
 
 impl Object for QueryLabelled {
     fn call(self: &Arc<Self>, _state: &State<'_, '_>, args: &[Value]) -> Result<Value, Error> {
-        let (which,): (Value,) = from_args(args)?;
+        let (which, filters): (Option<Value>, Kwargs) = from_args(args)?;
 
-        let label = if let Some(label) = which.as_str() {
-            label.to_string()
-        } else if let Some(num) = which.as_i64() {
-            num.to_string()
+        let filters = if let Some(which) = which {
+            let label = if let Some(label) = which.as_str() {
+                label.to_string()
+            } else if let Some(num) = which.as_i64() {
+                num.to_string()
+            } else {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    format!(
+                        "argument should be string or integer {} label",
+                        &self.table[..(self.table.len() - 1)]
+                    ),
+                ));
+            };
+
+            kwargs_insert(filters, "label", Value::from(label.clone()))
         } else {
-            return Err(Error::new(
-                ErrorKind::InvalidOperation,
-                "argument should be string or integer",
-            ));
+            filters
         };
 
-        let filters = Kwargs::from_iter([("label", Value::from(label.clone()))]);
-        let node = match self.document.table(&self.table, filters)?.first().ok() {
+        let node = match self
+            .document
+            .table(&self.table, filters.clone())?
+            .first()
+            .ok()
+        {
             Some(node) => Some(node),
             None => {
+                // If matching table or figure not found then looking for matching code chunk with
                 if self.table == "figures" || self.table == "tables" {
                     let label_type = match self.table.as_str() {
                         "figures" => "FigureLabel",
                         "tables" => "TableLabel",
                         _ => unreachable!(),
                     };
-                    let filters = Kwargs::from_iter([
-                        ("labelType", Value::from(label_type)),
-                        ("label", Value::from(label.clone())),
-                    ]);
+                    let filters = kwargs_insert(filters, "labelType", Value::from(label_type));
                     self.document.table("codeChunks", filters)?.first().ok()
                 } else {
                     None
@@ -945,9 +968,8 @@ impl Object for QueryLabelled {
             Error::new(
                 ErrorKind::InvalidOperation,
                 format!(
-                    "unable to find {} with label {}",
+                    "unable to find matching {}",
                     &self.table[..(self.table.len() - 1)],
-                    label
                 ),
             )
         })
@@ -1227,6 +1249,16 @@ fn lock_messages(
             None
         }
     }
+}
+
+/// Insert a key/value pair into some minijinja [`Kwargs`]
+fn kwargs_insert(kwargs: Kwargs, key: &str, value: Value) -> Kwargs {
+    Kwargs::from_iter(
+        kwargs
+            .args()
+            .map(|key| (key, kwargs.get(key).expect("")))
+            .chain([(key, value)]),
+    )
 }
 
 #[cfg(test)]
