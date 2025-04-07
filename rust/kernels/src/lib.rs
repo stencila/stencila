@@ -331,6 +331,7 @@ impl Kernels {
             Box::new(DocsDBKernelInstance::new(
                 Some(self.home.clone()),
                 self.root_receiver.clone(),
+                None,
             )?) as Box<dyn KernelInstance>
         } else {
             kernel.create_instance(self.bounds)?
@@ -507,8 +508,14 @@ impl Kernels {
     }
 
     /// Set a variable in the first kernel instance
-    pub async fn set(&mut self, name: &str, value: &Node) -> Result<()> {
-        let instance = self.get_instance_programming().await?;
+    pub async fn set(&mut self, name: &str, value: &Node, language: Option<&str>) -> Result<()> {
+        let instance = match language {
+            Some(language) => match self.get_instance_for(language).await? {
+                Some(instance) => instance,
+                None => self.create_instance(Some(language)).await?,
+            },
+            None => self.get_instance_programming().await?,
+        };
 
         let mut instance = instance.lock().await;
         instance.set(name, value).await
@@ -516,10 +523,12 @@ impl Kernels {
 
     /// Remove a variable from the kernels
     pub async fn remove(&mut self, name: &str) -> Result<()> {
-        let instance = self.get_instance_programming().await?;
+        for entry in self.instances.read().await.iter() {
+            let mut instance = entry.instance.lock().await;
+            instance.remove(name).await?
+        }
 
-        let mut instance = instance.lock().await;
-        instance.remove(name).await
+        Ok(())
     }
 
     /// Determine if the kernels can

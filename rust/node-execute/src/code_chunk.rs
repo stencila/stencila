@@ -180,9 +180,23 @@ impl Executable for CodeChunk {
             };
 
             let (outputs, messages, instance) = if let Some(kernels) = kernels {
+                let kernels = &mut *kernels.write().await;
+
+                // If appropriate set the `currentPosition` variable
+                if matches!(lang.as_deref(), Some("docsql" | "docsdb")) {
+                    if let Err(error) = kernels
+                        .set(
+                            "currentPosition",
+                            &Node::UnsignedInteger(executor.walk_position),
+                            lang.as_deref(),
+                        )
+                        .await
+                    {
+                        tracing::error!("Unable to set `currentPosition`: {error}")
+                    };
+                }
+
                 kernels
-                    .write()
-                    .await
                     .execute(&self.code, lang.as_deref())
                     .await
                     .unwrap_or_else(|error| {

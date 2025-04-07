@@ -123,12 +123,12 @@ impl Executable for ForBlock {
                 }
             }
 
+            // Get the programming language, falling back to using the executor's current language
+            let lang = executor.programming_language(&self.programming_language);
+
             let value = if let Some(value) = value {
                 value
             } else {
-                // Get the programming language, falling back to using the executor's current language
-                let lang = executor.programming_language(&self.programming_language);
-
                 // Evaluate code in kernels to get the iterable
                 let (output, mut code_messages, _instance) = executor
                     .kernels
@@ -231,7 +231,13 @@ impl Executable for ForBlock {
                 );
 
                 // Set the loop's variable
-                if let Err(error) = executor.kernels.write().await.set(variable, node).await {
+                if let Err(error) = executor
+                    .kernels
+                    .write()
+                    .await
+                    .set(variable, node, lang.as_deref())
+                    .await
+                {
                     messages.push(error_to_execution_message(
                         "While setting iteration variable",
                         error,
