@@ -1,4 +1,5 @@
 use std::{
+    collections::HashMap,
     sync::{Arc, Mutex},
     thread,
 };
@@ -8,7 +9,7 @@ use minijinja::{context, value::Object, Environment, Error, Value};
 use kernel::{
     common::{
         async_trait::async_trait,
-        eyre::{Report, Result},
+        eyre::{eyre, Report, Result},
         serde_json, tokio, tracing,
     },
     format::Format,
@@ -156,6 +157,32 @@ impl KernelInstance for JinjaKernelInstance {
         })
     }
 
+    async fn get(&mut self, name: &str) -> Result<Option<Node>> {
+        if let Some(context) = &self.context {
+            if let Some(node) = context.get_variable(name)? {
+                return Ok(Some(node));
+            }
+        }
+
+        Ok(None)
+    }
+
+    async fn set(&mut self, name: &str, value: &Node) -> Result<()> {
+        if let Some(context) = &self.context {
+            context.set_variable(name, value)?;
+        }
+
+        Ok(())
+    }
+
+    async fn remove(&mut self, name: &str) -> Result<()> {
+        if let Some(context) = &self.context {
+            context.remove_variable(name)?;
+        }
+
+        Ok(())
+    }
+
     fn variable_channel(
         &mut self,
         requester: KernelVariableRequester,
@@ -163,6 +190,7 @@ impl KernelInstance for JinjaKernelInstance {
     ) {
         self.context = Some(Arc::new(JinjaKernelContext {
             instance: self.id().to_string(),
+            variables: Mutex::default(),
             variable_channel: Mutex::new((requester, responder)),
         }));
     }
@@ -254,7 +282,10 @@ pub struct JinjaKernelContext {
     /// Required to make requests for variables from other contexts
     instance: String,
 
-    /// A channel for making variable requests
+    /// Variables defined in this context
+    variables: Mutex<HashMap<String, Node>>,
+
+    /// A channel for making requests for variables not defined in this context
     ///
     /// Needs to be `Mutex` because is used in an immutable method
     variable_channel: Mutex<(KernelVariableRequester, KernelVariableResponder)>,
@@ -268,13 +299,47 @@ impl JinjaKernelContext {
     ) -> Self {
         Self {
             instance,
+            variables: Mutex::default(),
             variable_channel: Mutex::new((requester, responder)),
         }
+    }
+
+    pub fn get_variable(&self, name: &str) -> Result<Option<Node>> {
+        Ok(self
+            .variables
+            .lock()
+            .map_err(|_| eyre!("unable to lock variables"))?
+            .get(name)
+            .cloned())
+    }
+
+    pub fn set_variable(&self, name: &str, value: &Node) -> Result<()> {
+        self.variables
+            .lock()
+            .map_err(|_| eyre!("unable to lock variables"))?
+            .insert(name.into(), value.clone());
+
+        Ok(())
+    }
+
+    pub fn remove_variable(&self, name: &str) -> Result<()> {
+        self.variables
+            .lock()
+            .map_err(|_| eyre!("unable to lock variables"))?
+            .remove(name);
+
+        Ok(())
     }
 }
 
 impl Object for JinjaKernelContext {
     fn get_value(self: &Arc<Self>, name: &Value) -> Option<Value> {
+        let name = name.to_string();
+
+        if let Some(node) = self.get_variable(&name).ok().flatten() {
+            return Some(Value::from_serialize(&node));
+        }
+
         let Ok(mut guard) = self.variable_channel.lock() else {
             return None;
         };
@@ -284,7 +349,7 @@ impl Object for JinjaKernelContext {
 
         // Send the request
         match sender.send(KernelVariableRequest {
-            variable: name.to_string(),
+            variable: name.clone(),
             instance: self.instance.clone(),
         }) {
             Err(error) => {
