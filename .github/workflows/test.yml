@@ -42,8 +42,6 @@ jobs:
         with:
           filters: |
             main:
-              - 'node/**' 
-              - 'python/**'
               - 'rust/**'
             ts:
               - 'ts/**'
@@ -55,7 +53,7 @@ jobs:
               - 'package.json'
 
   main:
-    runs-on: ubuntu-latest-8core
+    runs-on: ubuntu-latest-16core
 
     needs: changes
     if: needs.changes.outputs.main == 'true'
