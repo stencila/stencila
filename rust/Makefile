@@ -33,10 +33,9 @@ lint:
 	ruff check --no-cache kernel-python/src/kernel.py
 	pyright kernel-python/src/kernel.py
 
-# Setup before running tests
+# Setup required before running tests
 test-setup:
-	# Optimistically install language packages optionally used for tests
-	- pip -q install numpy pandas matplotlib
+	uv sync --directory kernel-python
 
 # Run tests
 test: test-setup	
