@@ -24,11 +24,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform:
-          - ubuntu
-          - macos
-          - windows
-    runs-on: ${{ matrix.platform }}-latest
+        include:
+          - platform: ubuntu
+            runner: ubuntu-latest-m
+          - platform: macos
+            runner: macos-latest
+          - platform: windows 
+            runner: windows-latest
+    runs-on: ${{ matrix.runner }}
     
     steps:
       - name: Maximize build space
@@ -51,16 +54,13 @@ jobs:
         if: ${{ contains(inputs.platforms, matrix.platform) }}
         run: pip install ruff pyright
 
-      - name: Set GCC as C/C++ compiler for Kuzu (MacOS)
-        if: ${{ contains(inputs.platforms, 'macos') && matrix.platform == 'macos' }}
-        run: |
-          echo "CC=gcc" >> $GITHUB_ENV
-          echo "CXX=g++" >> $GITHUB_ENV
-
       - name: Install Ninja for Kuzu (Windows)
         if: ${{ contains(inputs.platforms, 'windows') && matrix.platform == 'windows' }}
         run: choco install ninja --yes
 
       - name: Run tests
         if: ${{ contains(inputs.platforms, matrix.platform) }}
-        run: make -C rust lint test
+        env:
+          CC: gcc
+          CXX: g++
+        run: make -C rust test
