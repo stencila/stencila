@@ -21,7 +21,7 @@ use kernel_kuzu::{
     kuzu::{Connection, Database, LogicalType, PreparedStatement, SystemConfig, Value},
     ToKuzu,
 };
-use schema::{Node, NodeId, NodePath, NodeProperty, NodeSlot, NodeType, Visitor};
+use schema::{Node, NodeId, NodePath, NodeProperty, NodeType, Visitor};
 
 
 #[rustfmt::skip]
@@ -271,7 +271,7 @@ impl NodeDatabase {
         doc_id: &NodeId,
         node_type: NodeType,
         properties: Vec<(NodeProperty, LogicalType)>,
-        entries: Vec<(NodePath, NodeAncestors, NodeId, Vec<Value>)>,
+        entries: Vec<(usize, NodePath, NodeAncestors, NodeId, Vec<Value>)>,
     ) -> Result<()> {
         let connection = Connection::new(&self.database)?;
 
@@ -319,7 +319,7 @@ impl NodeDatabase {
             };
 
             // Execute prepared statement for each entry
-            for (node_path, node_ancestors, node_id, mut values) in entries {
+            for (position, node_path, node_ancestors, node_id, mut values) in entries {
                 // The trailing underscore on parameter names is necessary for parameters like 'order'
                 // to prevent clashes with keywords
                 let names = properties
@@ -328,16 +328,12 @@ impl NodeDatabase {
                     .collect_vec();
                 let names = names.iter().map(|name| name.as_str());
 
-                let position = match node_path.back() {
-                    Some(NodeSlot::Index(index)) => Value::UInt32((index + 1) as u32),
-                    _ => Value::Null(LogicalType::UInt32),
-                };
                 values.append(&mut vec![
                     doc_id.to_kuzu_value(),
                     node_id.to_kuzu_value(),
                     node_path.to_kuzu_value(),
                     node_ancestors.to_kuzu_value(),
-                    position,
+                    position.to_kuzu_value(),
                 ]);
 
                 let params = names.zip(values.into_iter()).collect_vec();
@@ -350,7 +346,7 @@ impl NodeDatabase {
             let csv = NamedTempFile::new()?;
             let mut buffer = BufWriter::new(&csv);
             writeln!(&mut buffer, "{}", properties.join(","))?;
-            for (node_path, node_ancestors, node_id, values) in entries {
+            for (position, node_path, node_ancestors, node_id, values) in entries {
                 for value in values {
                     let value = if let Value::Timestamp(value) = value {
                         value.format(&TIMESTAMP_FORMAT)?
@@ -361,10 +357,6 @@ impl NodeDatabase {
                     write!(&mut buffer, "{field},")?;
                 }
 
-                let position = match node_path.back() {
-                    Some(NodeSlot::Index(index)) => (index + 1).to_string(),
-                    _ => String::new(),
-                };
                 writeln!(
                     &mut buffer,
                     "{doc_id},{node_id},{node_path},{node_ancestors},{position}"

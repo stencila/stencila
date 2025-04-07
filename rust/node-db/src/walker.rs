@@ -17,6 +17,9 @@ use super::{DatabaseNode, NodeAncestors};
 #[derive(Default)]
 #[allow(clippy::type_complexity)]
 pub struct DatabaseWalker {
+    /// The position (relative index of block of inline node) in the walk
+    position: usize,
+
     /// The current path in the walk
     node_path: NodePath,
 
@@ -28,7 +31,7 @@ pub struct DatabaseWalker {
         NodeType,
         (
             Vec<(NodeProperty, LogicalType)>,
-            Vec<(NodePath, NodeAncestors, NodeId, Vec<Value>)>,
+            Vec<(usize, NodePath, NodeAncestors, NodeId, Vec<Value>)>,
         ),
     >,
 
@@ -63,6 +66,7 @@ impl DatabaseWalker {
             })
             .1
             .push((
+                self.position,
                 self.node_path.clone(),
                 self.node_ancestors.clone(),
                 node_id.clone(),
@@ -125,6 +129,8 @@ impl Visitor for DatabaseWalker {
     }
 
     fn visit_block(&mut self, node: &Block) -> WalkControl {
+        self.position += 1;
+
         // Special handling for section as ancestor. See `enter_struct` method
         // for the default.
         if let Block::Section(section) = node {
@@ -159,6 +165,8 @@ impl Visitor for DatabaseWalker {
     }
 
     fn visit_inline(&mut self, node: &Inline) -> WalkControl {
+        self.position += 1;
+
         self.visit_database_node(node)
     }
 }
