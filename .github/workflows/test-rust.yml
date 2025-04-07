@@ -28,7 +28,7 @@ jobs:
           - platform: ubuntu
             runner: ubuntu-latest-16core
           - platform: macos
-            runner: macos-14
+            runner: macos-15
           - platform: windows 
             runner: windows-latest
     runs-on: ${{ matrix.runner }}
