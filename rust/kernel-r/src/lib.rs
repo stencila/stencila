@@ -992,6 +992,8 @@ class(toRd)
     }
 
     /// Regression test for then need to reset the random seed when forking kernel (otherwise get same numbers)
+    /// Skip on Windows because Fork not supported there
+    #[cfg(not(target_os = "windows"))]
     #[test_log::test(tokio::test)]
     async fn forking_randoms() -> Result<()> {
         let Some(mut instance) = start_instance::<RKernel>().await? else {
@@ -1059,6 +1061,8 @@ Sys.sleep(100)",
     /// Custom test for boxed kernel
     ///
     /// Currently just a few tests covering the main categories of restriction.
+    /// Skip on Windows because Box not supported there
+    #[cfg(not(target_os = "windows"))]
     #[tokio::test]
     async fn boxed() -> Result<()> {
         let Some(mut instance) = start_instance_with::<RKernel>(ExecutionBounds::Box).await? else {
