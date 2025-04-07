@@ -246,56 +246,68 @@ impl KernelInstance for KuzuKernelInstance {
             .map(|capture| (capture[1].to_string(), None))
             .collect();
         if !params.is_empty() {
-            let (sender, receiver) = self
-                .variable_channel
-                .as_ref()
-                .ok_or_eyre("Variable channel not yet setup")?;
-            let mut receiver = receiver.resubscribe();
-
-            // Get variable from this kernel, or make a request to get from elsewhere
-            let mut requests_sent = false;
+            // Try to get each parameter from variables first
             for (name, value) in params.iter_mut() {
                 if let Some(node) = self.variables.get(name) {
                     *value = Some(value_from_node(node)?);
-                } else {
-                    match sender.send(KernelVariableRequest {
-                        variable: name.to_string(),
-                        instance: self.id.clone(),
-                    }) {
-                        Err(error) => tracing::error!("While sending variable request: {error}"),
-                        Ok(..) => {
-                            tracing::trace!("Sent request for variable `{name}`");
-                            requests_sent = true;
-                        }
-                    }
                 }
             }
 
-            if requests_sent {
-                // Wait for responses
-                tracing::trace!("Waiting for response for params");
-                loop {
-                    let response = receiver.recv().await?;
+            // Fallback to requesting from other kernels
+            if params.iter().any(|(.., value)| value.is_none()) {
+                let (sender, receiver) = self
+                    .variable_channel
+                    .as_ref()
+                    .ok_or_eyre("Variable channel not yet setup")?;
+                let mut receiver = receiver.resubscribe();
 
-                    let mut all_some = true;
-                    for (name, value) in params.iter_mut() {
-                        if &response.variable == name && value.is_none() {
-                            *value = Some(match &response.value {
-                                Some(node) => value_from_node(node)?,
-                                None => Value::Null(LogicalType::Any),
-                            });
+                // Get variable from this kernel, or make a request to get from elsewhere
+                let mut requests_sent = false;
+                for (name, value) in params.iter_mut() {
+                    if let Some(node) = self.variables.get(name) {
+                        *value = Some(value_from_node(node)?);
+                    } else {
+                        match sender.send(KernelVariableRequest {
+                            variable: name.to_string(),
+                            instance: self.id.clone(),
+                        }) {
+                            Err(error) => {
+                                tracing::error!("While sending variable request: {error}")
+                            }
+                            Ok(..) => {
+                                tracing::trace!("Sent request for variable `{name}`");
+                                requests_sent = true;
+                            }
                         }
-
-                        if value.is_none() {
-                            all_some = false
-                        }
-                    }
-
-                    if all_some {
-                        break;
                     }
                 }
-                tracing::trace!("Got response for all params");
+
+                if requests_sent {
+                    // Wait for responses
+                    tracing::trace!("Waiting for response for params");
+                    loop {
+                        let response = receiver.recv().await?;
+
+                        let mut all_some = true;
+                        for (name, value) in params.iter_mut() {
+                            if &response.variable == name && value.is_none() {
+                                *value = Some(match &response.value {
+                                    Some(node) => value_from_node(node)?,
+                                    None => Value::Null(LogicalType::Any),
+                                });
+                            }
+
+                            if value.is_none() {
+                                all_some = false
+                            }
+                        }
+
+                        if all_some {
+                            break;
+                        }
+                    }
+                    tracing::trace!("Got response for all params");
+                }
             }
         }
 
