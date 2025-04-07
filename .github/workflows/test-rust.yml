@@ -28,16 +28,12 @@ jobs:
           - platform: ubuntu
             runner: ubuntu-latest-m
           - platform: macos
-            runner: macos-latest
+            runner: macos-14
           - platform: windows 
             runner: windows-latest
     runs-on: ${{ matrix.runner }}
     
     steps:
-      - name: Maximize build space
-        uses: easimon/maximize-build-space@c28619d8999a147d5e09c1199f84ff6af6ad5794
-        if: ${{ contains(inputs.platforms, 'ubuntu') && matrix.platform == 'ubuntu' }}
-
       - uses: actions/checkout@v4
         if: ${{ contains(inputs.platforms, matrix.platform) }}
           
@@ -60,7 +56,4 @@ jobs:
 
       - name: Run tests
         if: ${{ contains(inputs.platforms, matrix.platform) }}
-        env:
-          CC: gcc
-          CXX: g++
         run: make -C rust test
