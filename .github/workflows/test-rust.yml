@@ -33,6 +33,7 @@ jobs:
     steps:
       - name: Maximize build space
         uses: easimon/maximize-build-space@c28619d8999a147d5e09c1199f84ff6af6ad5794
+        if: ${{ contains(inputs.platforms, 'ubuntu') && matrix.platform == 'ubuntu' }}
 
       - uses: actions/checkout@v4
         if: ${{ contains(inputs.platforms, matrix.platform) }}
