@@ -92,7 +92,7 @@ impl Rebuild {
 /// Query a workspace database
 #[derive(Debug, Parser)]
 pub struct Query {
-    /// The Cypher query
+    /// The DocsQL query
     query: String,
 
     /// The path of the file to output the result to
