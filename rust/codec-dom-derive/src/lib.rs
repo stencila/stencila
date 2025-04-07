@@ -1,16 +1,12 @@
 //! Provides the `DomCodec` derive macro for structs and enums in Stencila Schema
 
 use darling::{self, FromDeriveInput, FromField};
-
-use common::{
-    inflector::Inflector,
-    proc_macro2::TokenStream,
-    quote::quote,
-    syn::{
-        parse_macro_input, parse_str, Data, DataEnum, DeriveInput, Fields, Ident, Path,
-        PathSegment, Type,
-    },
+use syn::{
+    self, parse_macro_input, parse_str, Data, DataEnum, DeriveInput, Fields, Ident, Path,
+    PathSegment, Type,
 };
+
+use common::{inflector::Inflector, proc_macro2::TokenStream, quote::quote};
 
 #[derive(FromDeriveInput)]
 #[darling(attributes(dom))]

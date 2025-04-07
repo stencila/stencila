@@ -36,7 +36,6 @@ pub use similar;
 pub use smart_default;
 pub use smol_str;
 pub use strum;
-pub use syn;
 pub use tar;
 pub use tempfile;
 pub use tokio;

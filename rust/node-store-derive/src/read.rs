@@ -1,7 +1,8 @@
+use syn::{parse_macro_input, Attribute, Data, DataEnum, DataStruct, DeriveInput, Fields};
+
 use common::{
     proc_macro2::TokenStream,
     quote::{format_ident, quote},
-    syn::{parse_macro_input, Attribute, Data, DataEnum, DataStruct, DeriveInput, Fields},
 };
 
 /// Derive the `ReadNode` trait

@@ -1,12 +1,12 @@
 //! Provides a `WalkNode` derive macro for structs and enums in Stencila Schema
 
 use darling::{self, FromDeriveInput, FromField};
+use syn::{self, parse_macro_input, Attribute, Data, DataEnum, DeriveInput, Fields, Ident};
 
 use common::{
     inflector::Inflector,
     proc_macro2::{Span, TokenStream},
     quote::quote,
-    syn::{parse_macro_input, Attribute, Data, DataEnum, DeriveInput, Fields, Ident},
 };
 
 #[derive(FromDeriveInput)]

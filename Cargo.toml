@@ -18,6 +18,7 @@ panic = "abort"
 [workspace.dependencies]
 base64 = "0.22.1"
 cached = { version = "0.55.1", features = ["async"] }
+darling = "0.20.11"
 derive_more = { version = "2.0.1", features = ["display", "deref", "deref_mut", "into_iterator"] }
 directories = "6.0.0"
 flate2 = "1.1.0"
@@ -30,6 +31,7 @@ rand = "0.9.0"
 serde = { version = "1.0.219", features = ["derive", "rc"] }
 semver = { version = "1.0.26", features = ["serde"] }
 smart-default = "0.7.1"
+syn = "2.0.100"
 test-log = { version = "0.2.17", default-features = false, features = ["trace"] }
 time = "0.3.39"
 url = { version = "2.5.4", features = ["serde"] }

@@ -3,13 +3,9 @@
 use std::collections::HashMap;
 
 use darling::{self, FromDeriveInput, FromField};
+use syn::{self, parse_macro_input, Data, DataEnum, DeriveInput, Fields, Ident, PathSegment, Type};
 
-use common::{
-    itertools::Itertools,
-    proc_macro2::TokenStream,
-    quote::quote,
-    syn::{parse_macro_input, Data, DataEnum, DeriveInput, Fields, Ident, PathSegment, Type},
-};
+use common::{itertools::Itertools, proc_macro2::TokenStream, quote::quote};
 
 #[derive(FromDeriveInput)]
 #[darling(attributes(jats))]

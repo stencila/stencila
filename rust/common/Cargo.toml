@@ -31,7 +31,6 @@ similar = { version = "2.7.0", features = ["serde", "unicode"] }
 smart-default = { workspace = true }
 smol_str = "0.2.1"
 strum = { version = "0.27.1", features = ["derive"] }
-syn = "2.0.100"
 tar = "0.4.44"
 tempfile = "3.19.1"
 tokio = { version = "1.44.1", features = ["full", "tracing"] }
