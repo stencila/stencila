@@ -20,7 +20,7 @@ use kernel_jinja::{
         },
         schema::{
             get, CodeChunk, ExecutionMessage, MessageLevel, Node, NodePath, NodeProperty, NodeSet,
-            SectionType,
+            NodeType, SectionType,
         },
         KernelInstance,
     },
@@ -34,13 +34,20 @@ use kernel_jinja::{
 ///
 /// Uses single digit codes and spacing to ensure that the code stays the same length.
 pub(super) fn transform_filters(code: &str) -> String {
+    static POSITION: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"@(above|below)").expect("invalid regex"));
+
+    let code = POSITION.replace_all(code, |captures: &Captures| {
+        ["pos_=", if &captures[1] == "above" { "0" } else { "1" }].concat()
+    });
+
     static FILTERS: Lazy<Regex> = Lazy::new(|| {
         Regex::new(r"@([a-zA-Z][\w_]*)\s*(==|\!=|<=|<|>=|>|=\~|\~=|\!\~|\^=|\$=|in|has|=)\s*")
             .expect("invalid regex")
     });
 
     FILTERS
-        .replace_all(code, |captures: &Captures| {
+        .replace_all(&code, |captures: &Captures| {
             let var = &captures[1];
             let op = match &captures[2] {
                 "=" | "==" => "",
@@ -68,6 +75,13 @@ pub(super) fn transform_filters(code: &str) -> String {
 
 /// Translate a filter into a Cypher `WHERE` clause
 fn apply_filter(alias: &str, property: &str, value: Value) -> String {
+    if property == "pos_" {
+        if let Some(dir) = value.as_i64() {
+            let op = if dir == 0 { "<" } else { ">" };
+            return [alias, ".position", op, "$currentPosition"].concat();
+        }
+    }
+
     let mut chars = property.chars().collect_vec();
 
     let last = *chars.last().expect("always has at least one char");
@@ -403,7 +417,7 @@ impl Query {
             if !(arg.contains(['.', '*']) || arg.to_uppercase().contains(" AS ")) {
                 column.push_str(" AS `");
                 column.push_str(arg);
-                column.push_str("`");
+                column.push('`');
             }
 
             returns.push(column);
@@ -1017,49 +1031,75 @@ impl Object for QuerySectionType {
     }
 }
 
+/// Query the current document for a node matching filters
+#[derive(Debug)]
+struct QueryNodeType {
+    node_type: NodeType,
+    document: Arc<Query>,
+}
+
+impl QueryNodeType {
+    fn new(node_type: NodeType, document: Arc<Query>) -> Self {
+        Self {
+            node_type,
+            document,
+        }
+    }
+}
+
+impl Object for QueryNodeType {
+    fn call(self: &Arc<Self>, _state: &State<'_, '_>, args: &[Value]) -> Result<Value, Error> {
+        let method = self.node_type.to_string().to_camel_case();
+        let (filters,): (Kwargs,) = from_args(args)?;
+        let node = self.document.table(&method, filters)?.first().ok();
+
+        node.ok_or_else(|| {
+            Error::new(
+                ErrorKind::InvalidOperation,
+                format!(
+                    "unable to find matching {} in current document",
+                    &self.node_type.to_string().to_sentence_case(),
+                ),
+            )
+        })
+    }
+}
+
 /// A document shortcut functions to the environment
 pub(super) fn add_document_functions(env: &mut Environment, document: Arc<Query>) {
-    env.add_global(
-        "figure",
-        Value::from_object(QueryLabelled::new("figures", document.clone())),
-    );
-    env.add_global(
-        "table",
-        Value::from_object(QueryLabelled::new("tables", document.clone())),
-    );
-    env.add_global(
-        "equation",
-        Value::from_object(QueryLabelled::new("equations", document.clone())),
-    );
+    for name in ["figure", "table", "equation"] {
+        env.add_global(
+            name,
+            Value::from_object(QueryLabelled::new(&[name, "s"].concat(), document.clone())),
+        );
+    }
 
-    env.add_global(
-        "introduction",
-        Value::from_object(QuerySectionType::new(
-            SectionType::Introduction,
-            document.clone(),
-        )),
-    );
-    env.add_global(
-        "methods",
-        Value::from_object(QuerySectionType::new(
-            SectionType::Methods,
-            document.clone(),
-        )),
-    );
-    env.add_global(
-        "results",
-        Value::from_object(QuerySectionType::new(
-            SectionType::Results,
-            document.clone(),
-        )),
-    );
-    env.add_global(
-        "discussion",
-        Value::from_object(QuerySectionType::new(
-            SectionType::Discussion,
-            document.clone(),
-        )),
-    );
+    for (name, section_type) in [
+        ("introduction", SectionType::Introduction),
+        ("methods", SectionType::Methods),
+        ("results", SectionType::Results),
+        ("discussion", SectionType::Discussion),
+    ] {
+        env.add_global(
+            name,
+            Value::from_object(QuerySectionType::new(section_type, document.clone())),
+        );
+    }
+
+    for (name, node_type) in [
+        ("claim", NodeType::Claim),
+        ("codeBlock", NodeType::CodeBlock),
+        ("codeChunk", NodeType::CodeChunk),
+        ("list", NodeType::List),
+        ("mathBlock", NodeType::MathBlock),
+        ("paragraph", NodeType::Paragraph),
+        ("section", NodeType::Section),
+    ] {
+        env.add_global(
+            name,
+            Value::from_object(QueryNodeType::new(node_type, document.clone())),
+        );
+    }
 }
 
 /// Function to combine nodes from several queries
