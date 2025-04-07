@@ -99,15 +99,18 @@ impl DocsQLKernelInstance {
     ) -> Result<Self> {
         let directory = directory.unwrap_or_else(|| PathBuf::from("."));
 
+        let id = generate_id(NAME);
+
         let document = match doc_receiver {
             Some(doc_receiver) => Some(Arc::new(Mutex::new(DocsDBKernelInstance::new_document(
+                &id,
                 doc_receiver,
             )?))),
             None => None,
         };
 
         Ok(Self {
-            id: generate_id(NAME),
+            id,
             context: None,
             directory,
             document,
@@ -121,7 +124,7 @@ impl DocsQLKernelInstance {
             Ok(workspace.clone())
         } else {
             let workspace = Arc::new(Mutex::new(
-                DocsDBKernelInstance::new_workspace(&self.directory).await?,
+                DocsDBKernelInstance::new_workspace(&self.id, &self.directory).await?,
             ));
             self.workspace = Some(workspace.clone());
             Ok(workspace)
@@ -181,7 +184,7 @@ impl KernelInstance for DocsQLKernelInstance {
                 "test",
                 Value::from_object(Query::new(
                     "test".into(),
-                    Arc::new(Mutex::new(DocsDBKernelInstance::new(None, None)?)),
+                    Arc::new(Mutex::new(DocsDBKernelInstance::new(None, None, None)?)),
                     messages.clone(),
                 )),
             );
@@ -245,6 +248,60 @@ impl KernelInstance for DocsQLKernelInstance {
             .to_owned();
 
         Ok((outputs, messages))
+    }
+
+    async fn get(&mut self, name: &str) -> Result<Option<Node>> {
+        if let Some(document) = &self.document {
+            if let Some(node) = document.lock().await.get(name).await? {
+                return Ok(Some(node));
+            }
+        }
+
+        if let Some(workspace) = &self.workspace {
+            if let Some(node) = workspace.lock().await.get(name).await? {
+                return Ok(Some(node));
+            }
+        }
+
+        if let Some(context) = &self.context {
+            if let Some(node) = context.get_variable(name)? {
+                return Ok(Some(node));
+            }
+        };
+
+        Ok(None)
+    }
+
+    async fn set(&mut self, name: &str, value: &Node) -> Result<()> {
+        if let Some(document) = &self.document {
+            document.lock().await.set(name, value).await?;
+        }
+
+        if let Some(workspace) = &self.workspace {
+            workspace.lock().await.set(name, value).await?;
+        }
+
+        if let Some(context) = &self.context {
+            context.set_variable(name, value)?;
+        }
+
+        Ok(())
+    }
+
+    async fn remove(&mut self, name: &str) -> Result<()> {
+        if let Some(document) = &self.document {
+            document.lock().await.remove(name).await?;
+        }
+
+        if let Some(workspace) = &self.workspace {
+            workspace.lock().await.remove(name).await?;
+        }
+
+        if let Some(context) = &self.context {
+            context.remove_variable(name)?;
+        }
+
+        Ok(())
     }
 
     fn variable_channel(

@@ -77,7 +77,7 @@ impl Kernel for DocsDBKernel {
     }
 
     fn create_instance(&self, _bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
-        Ok(Box::new(DocsDBKernelInstance::new(None, None)?))
+        Ok(Box::new(DocsDBKernelInstance::new(None, None, None)?))
     }
 }
 
@@ -124,8 +124,9 @@ impl DocsDBKernelInstance {
     pub fn new(
         directory: Option<PathBuf>,
         doc_receiver: Option<watch::Receiver<Node>>,
+        id: Option<String>,
     ) -> Result<Self> {
-        let id = generate_id(NAME);
+        let id = id.unwrap_or_else(|| generate_id(NAME));
         let workspace_db = KuzuKernelInstance::box_with(id.clone(), QueryResultTransform::Excerpts);
         let document_db = KuzuKernelInstance::box_with(id.clone(), QueryResultTransform::Excerpts);
 
@@ -161,15 +162,15 @@ impl DocsDBKernelInstance {
     }
 
     /// Create a new instance for the current document
-    pub fn new_document(receiver: watch::Receiver<Node>) -> Result<Self> {
-        let mut instance = Self::new(None, Some(receiver))?;
+    pub fn new_document(id: &str, receiver: watch::Receiver<Node>) -> Result<Self> {
+        let mut instance = Self::new(None, Some(receiver), Some(id.into()))?;
         instance.use_document()?;
         Ok(instance)
     }
 
     /// Create a new instance for the workspace associated with a path
-    pub async fn new_workspace(path: &Path) -> Result<Self> {
-        let mut instance = Self::new(Some(path.into()), None)?;
+    pub async fn new_workspace(id: &str, path: &Path) -> Result<Self> {
+        let mut instance = Self::new(Some(path.into()), None, Some(id.into()))?;
         instance.use_workspace().await?;
         Ok(instance)
     }
@@ -368,7 +369,7 @@ impl KernelInstance for DocsDBKernelInstance {
                         let database = self.document_db.database()?;
                         let mut db = NodeDatabase::attached(database)?;
                         let doc_id = NodeId::new(b"doc", &[0]);
-                        db.upsert(&doc_id, &node)?;
+                        db.upsert(&doc_id, node)?;
                         *synced = true;
                     }
                 }
@@ -391,12 +392,26 @@ impl KernelInstance for DocsDBKernelInstance {
         Ok((outputs, messages))
     }
 
-    async fn set(&mut self, name: &str, value: &Node) -> Result<()> {
-        self.workspace_db.set(name, value).await
+    async fn get(&mut self, name: &str) -> Result<Option<Node>> {
+        if let Some(var) = self.workspace_db.get(name).await? {
+            return Ok(Some(var));
+        }
+
+        if let Some(var) = self.document_db.get(name).await? {
+            return Ok(Some(var));
+        }
+
+        Ok(None)
     }
 
-    async fn get(&mut self, name: &str) -> Result<Option<Node>> {
-        self.workspace_db.get(name).await
+    async fn set(&mut self, name: &str, value: &Node) -> Result<()> {
+        self.workspace_db.set(name, value).await?;
+        self.document_db.set(name, value).await
+    }
+
+    async fn remove(&mut self, name: &str) -> Result<()> {
+        self.workspace_db.remove(name).await?;
+        self.document_db.remove(name).await
     }
 
     fn variable_channel(
@@ -404,7 +419,9 @@ impl KernelInstance for DocsDBKernelInstance {
         requester: KernelVariableRequester,
         responder: KernelVariableResponder,
     ) {
-        self.workspace_db.variable_channel(requester, responder)
+        self.workspace_db
+            .variable_channel(requester.clone(), responder.resubscribe());
+        self.document_db.variable_channel(requester, responder)
     }
 
     async fn info(&mut self) -> Result<SoftwareApplication> {
@@ -419,6 +436,7 @@ impl KernelInstance for DocsDBKernelInstance {
     async fn replicate(&mut self, bounds: ExecutionBounds) -> Result<Box<dyn KernelInstance>> {
         tracing::trace!("Replicating DocsDB kernel");
 
-        self.workspace_db.replicate(bounds).await
+        self.workspace_db.replicate(bounds).await?;
+        self.document_db.replicate(bounds).await
     }
 }
