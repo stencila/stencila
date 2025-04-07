@@ -31,6 +31,9 @@ jobs:
     runs-on: ${{ matrix.platform }}-latest
     
     steps:
+      - name: Maximize build space
+        uses: easimon/maximize-build-space@c28619d8999a147d5e09c1199f84ff6af6ad5794
+
       - uses: actions/checkout@v4
         if: ${{ contains(inputs.platforms, matrix.platform) }}
           
@@ -46,7 +49,17 @@ jobs:
       - name: Install Python dependencies
         if: ${{ contains(inputs.platforms, matrix.platform) }}
         run: pip install ruff pyright
-        
+
+      - name: Set GCC as C/C++ compiler for Kuzu (MacOS)
+        if: ${{ contains(inputs.platforms, 'macos') && matrix.platform == 'macos' }}
+        run: |
+          echo "CC=gcc" >> $GITHUB_ENV
+          echo "CXX=g++" >> $GITHUB_ENV
+
+      - name: Install Ninja for Kuzu (Windows)
+        if: ${{ contains(inputs.platforms, 'windows') && matrix.platform == 'windows' }}
+        run: choco install ninja --yes
+
       - name: Run tests
         if: ${{ contains(inputs.platforms, matrix.platform) }}
         run: make -C rust lint test
