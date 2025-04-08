@@ -1132,6 +1132,7 @@ pub(super) fn add_document_functions(env: &mut Environment, document: Arc<Query>
         ("claim", NodeType::Claim),
         ("codeBlock", NodeType::CodeBlock),
         ("codeChunk", NodeType::CodeChunk),
+        ("image", NodeType::ImageObject),
         ("list", NodeType::List),
         ("mathBlock", NodeType::MathBlock),
         ("paragraph", NodeType::Paragraph),
