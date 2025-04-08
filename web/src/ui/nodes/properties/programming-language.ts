@@ -116,6 +116,10 @@ export const programmingLanguages: Record<
     title: 'TeX',
     icon: 'tex',
   },
+  yaml: {
+    title: 'YAML',
+    icon: 'braces',
+  },
 }
 
 type ProgrammingLanguage = keyof typeof programmingLanguages

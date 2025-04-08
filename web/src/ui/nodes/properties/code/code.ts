@@ -331,6 +331,13 @@ export class UINodeCode extends LitElement {
         return import('@codemirror/lang-xml').then((obj) => obj.xml())
       },
     }),
+    LanguageDescription.of({
+      name: 'yaml',
+      alias: ['yml'],
+      load: async () => {
+        return import('@codemirror/lang-yaml').then((obj) => obj.yaml())
+      },
+    }),
   ]
 
   /**
