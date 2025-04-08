@@ -912,11 +912,11 @@ impl Object for Query {
 ///
 /// is equivalent to
 ///
-///   document.figures(label = '1')
+///   document.figures(@label == '1')
 ///
 /// Other filters can be used as well e.g.
 ///
-///   figures(@caption ^= 'Plot of')
+///   figure(@caption ^= 'Plot of')
 #[derive(Debug)]
 struct QueryLabelled {
     table: String,
@@ -978,6 +978,59 @@ impl Object for QueryLabelled {
                 }
             }
         };
+
+        Ok(node.unwrap_or_else(|| Value::from(())))
+    }
+}
+
+/// Query the current document for a variable
+///
+/// Allows for a label filter to be provided without the keyword. e.g.
+///
+///   variable('a')
+///
+/// is equivalent to
+///
+///   document.variables(@name == '1')
+///
+/// Other filters can be used as well e.g.
+///
+///   variable(@nodeType == 'Integer')
+#[derive(Debug)]
+struct QueryVariable {
+    document: Arc<Query>,
+}
+
+impl QueryVariable {
+    fn new(document: Arc<Query>) -> Self {
+        Self { document }
+    }
+}
+
+impl Object for QueryVariable {
+    fn call(self: &Arc<Self>, _state: &State<'_, '_>, args: &[Value]) -> Result<Value, Error> {
+        let (name, filters): (Option<Value>, Kwargs) = from_args(args)?;
+
+        let filters = if let Some(which) = name {
+            let name = if let Some(name) = which.as_str() {
+                name.to_string()
+            } else {
+                return Err(Error::new(
+                    ErrorKind::InvalidOperation,
+                    "argument should be string name for variable",
+                ));
+            };
+
+            kwargs_insert(filters, "name", Value::from(name.clone()))
+        } else {
+            filters
+        };
+
+        let node = self
+            .document
+            .table("variables", filters.clone())?
+            .first()
+            .ok();
 
         Ok(node.unwrap_or_else(|| Value::from(())))
     }
@@ -1048,6 +1101,11 @@ pub(super) fn add_document_functions(env: &mut Environment, document: Arc<Query>
             Value::from_object(QueryLabelled::new(&[name, "s"].concat(), document.clone())),
         );
     }
+
+    env.add_global(
+        "variable",
+        Value::from_object(QueryVariable::new(document.clone())),
+    );
 
     for (name, section_type) in [
         ("introduction", SectionType::Introduction),
