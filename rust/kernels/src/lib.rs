@@ -343,7 +343,7 @@ impl Kernels {
                 }
             }
 
-            if let Err(..) = sender.send(variables) {
+            if sender.send(variables).is_err() {
                 tracing::debug!("Error sending variable list response");
             }
         }
