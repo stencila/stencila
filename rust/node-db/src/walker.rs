@@ -92,6 +92,18 @@ impl DatabaseWalker {
 
         WalkControl::Continue
     }
+
+    /// Visit several [`DatabaseNode`]s
+    /// 
+    /// Note that this does not walk each node it just visits each.
+    pub(crate) fn visit_database_nodes<T>(&mut self, nodes: &[T])
+    where
+        T: DatabaseNode,
+    {
+        for node in nodes {
+            self.visit_database_node(node);
+        }
+    }
 }
 
 impl Visitor for DatabaseWalker {

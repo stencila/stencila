@@ -21,7 +21,7 @@ use kernel_kuzu::{
     kuzu::{Connection, Database, LogicalType, PreparedStatement, SystemConfig, Value},
     ToKuzu,
 };
-use schema::{Node, NodeId, NodePath, NodeProperty, NodeType, Visitor};
+use schema::{Node, NodeId, NodePath, NodeProperty, NodeType, Visitor, WalkNode};
 
 
 #[rustfmt::skip]
@@ -184,9 +184,20 @@ impl NodeDatabase {
     /// Insert a document into the database
     #[tracing::instrument(skip(self, node))]
     pub fn insert(&mut self, doc_id: &NodeId, node: &Node) -> Result<()> {
-        self.create_node(doc_id, node)?;
+        self.create_node(doc_id, node)
+    }
 
-        Ok(())
+    /// Insert nodes associated with a document into the database
+    ///
+    /// For inserting nodes such as `Variable`s which are not part of the
+    /// root document but that are associated with it. Note that
+    /// the individual nodes in the list are not walked over.
+    #[tracing::instrument(skip(self, nodes))]
+    pub fn insert_associated<T>(&mut self, doc_id: &NodeId, nodes: &[T]) -> Result<()>
+    where
+        T: DatabaseNode + WalkNode,
+    {
+        self.create_nodes(doc_id, nodes)
     }
 
     /// Upsert a document into the database
@@ -219,6 +230,15 @@ impl NodeDatabase {
         };
 
         connection.execute(delete_doc, vec![("doc_id", doc_id.to_kuzu_value())])?;
+
+        Ok(())
+    }
+
+    /// Delete all nodes from a table
+    #[tracing::instrument(skip(self))]
+    pub fn delete_all(&mut self, table: &str) -> Result<()> {
+        let connection = Connection::new(&self.database)?;
+        connection.query(&format!("MATCH (node:{table}) DETACH DELETE node"))?;
 
         Ok(())
     }
@@ -256,6 +276,29 @@ impl NodeDatabase {
         for ((from_node_type, node_property, to_node_type), rows) in walker.rel_tables {
             if !rows.is_empty() {
                 self.create_rel_entries(from_node_type, node_property, to_node_type, rows)?;
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Create several nodes in the database
+    ///
+    /// Unlike `create_node` this does not walk over each or create
+    /// relationships between them and other nodes.
+    #[tracing::instrument(skip(self, nodes))]
+    fn create_nodes<T>(&mut self, doc_id: &NodeId, nodes: &[T]) -> Result<()>
+    where
+        T: DatabaseNode + WalkNode,
+    {
+        // Visit each node
+        let mut walker = DatabaseWalker::default();
+        walker.visit_database_nodes(nodes);
+
+        // Create entries for each of the node types collected
+        for (node_type, (properties, rows)) in walker.node_tables {
+            if !rows.is_empty() && !matches!(node_type, NodeType::Unknown) {
+                self.create_node_entries(doc_id, node_type, properties, rows)?;
             }
         }
 
