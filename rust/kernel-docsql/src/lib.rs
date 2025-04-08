@@ -5,12 +5,14 @@ use std::{
 
 use kernel_docsdb::DocsDBKernelInstance;
 use kernel_jinja::{
-    error_to_execution_message,
+    self,
     kernel::{
         common::{
             async_trait::async_trait,
             eyre::{eyre, Result},
             itertools::Itertools,
+            once_cell::sync::Lazy,
+            regex::Regex,
             serde_json,
             tokio::sync::{watch, Mutex},
             tracing,
@@ -195,52 +197,94 @@ impl KernelInstance for DocsQLKernelInstance {
             return Ok(Default::default());
         }
 
-        let code = query::transform_filters(&code);
+        let mut outputs = Vec::new();
+        let mut line_offset = 0;
+        for statement in code.split(";") {
+            let lines = statement.lines().count();
 
-        let expr = match env.compile_expression(&code) {
-            Ok(expr) => expr,
-            Err(error) => return Ok((Vec::new(), vec![error_to_execution_message(error)])),
-        };
-
-        let context = match self.context.as_ref() {
-            Some(context) => Value::from_dyn_object(context.clone()),
-            None => context!(),
-        };
-
-        let value = match expr.eval(context) {
-            Ok(value) => value,
-            Err(error) => {
-                return Ok((Vec::new(), vec![error_to_execution_message(error)]));
+            if statement.trim().is_empty() {
+                line_offset += lines;
+                continue;
             }
-        };
 
-        let outputs = if let Some(query) = value.downcast_object::<Query>() {
-            query.nodes()
-        } else if let Some(proxies) = value.downcast_object::<NodeProxies>() {
-            proxies.nodes()
-        } else if let Some(proxy) = value.downcast_object::<NodeProxy>() {
-            proxy.nodes()
-        } else if value.is_undefined() {
-            let messages = messages
-                .lock()
-                .map_err(|error| eyre!(error.to_string()))?
-                .to_owned();
-            let messages = if messages.is_empty() {
-                vec![ExecutionMessage::new(
-                    MessageLevel::Error,
-                    "Query evaluates to undefined value".into(),
-                )]
-            } else {
-                messages
+            static ASSIGN: Lazy<Regex> = Lazy::new(|| {
+                Regex::new(r"^\s*let\s+([a-zA-Z][\w_]*)\s*=\s*(.+)").expect("invalid regex")
+            });
+
+            let (name, expr) = match ASSIGN.captures(statement) {
+                Some(captures) => {
+                    let name = captures[1].to_string();
+                    let expr = statement
+                        .replacen("let", "   ", 1)
+                        .replacen(&name, &" ".repeat(name.len()), 1)
+                        .replacen("=", " ", 1);
+                    (Some(name), expr)
+                }
+                None => (None, statement.to_string()),
             };
-            return Ok((Vec::new(), messages));
-        } else {
-            let value = serde_json::to_value(value)?;
-            let node: Node = serde_json::from_value(value)?;
-            vec![node]
-        };
 
-        // Resist to temptation to collect these messages before `query.nodes()` is called
+            let expr = query::transform_filters(&expr);
+            let expr = match env.compile_expression(&expr) {
+                Ok(expr) => expr,
+                Err(error) => {
+                    return Ok((
+                        Vec::new(),
+                        vec![error_to_execution_message(error, line_offset)],
+                    ))
+                }
+            };
+
+            let context = match self.context.as_ref() {
+                Some(context) => Value::from_dyn_object(context.clone()),
+                None => context!(),
+            };
+
+            let value = match expr.eval(context) {
+                Ok(value) => value,
+                Err(error) => {
+                    return Ok((
+                        Vec::new(),
+                        vec![error_to_execution_message(error, line_offset)],
+                    ));
+                }
+            };
+
+            line_offset += lines;
+
+            let mut nodes = if let Some(query) = value.downcast_object::<Query>() {
+                query.nodes()
+            } else if let Some(proxies) = value.downcast_object::<NodeProxies>() {
+                proxies.nodes()
+            } else if let Some(proxy) = value.downcast_object::<NodeProxy>() {
+                proxy.nodes()
+            } else if value.is_undefined() {
+                let messages = messages
+                    .lock()
+                    .map_err(|error| eyre!(error.to_string()))?
+                    .to_owned();
+                let messages = if messages.is_empty() {
+                    vec![ExecutionMessage::new(
+                        MessageLevel::Error,
+                        "Expression evaluates to undefined value".into(),
+                    )]
+                } else {
+                    messages
+                };
+                return Ok((Vec::new(), messages));
+            } else {
+                let value = serde_json::to_value(value)?;
+                let node: Node = serde_json::from_value(value)?;
+                vec![node]
+            };
+
+            if let (Some(name), Some(node)) = (name, nodes.first()) {
+                self.set(&name, node).await?;
+            } else {
+                outputs.append(&mut nodes)
+            }
+        }
+
+        // Resist the temptation to collect these messages before `query.nodes()` is called
         // above because that may add messages
         let messages = messages
             .lock()
@@ -344,6 +388,25 @@ fn strip_comments(code: &str) -> String {
             }
         })
         .join("\n")
+}
+
+/// Convert and error into an execution message with appropriate line and column offsets
+fn error_to_execution_message(
+    error: kernel_jinja::minijinja::Error,
+    line_offset: usize,
+) -> ExecutionMessage {
+    let mut message = kernel_jinja::error_to_execution_message(error);
+
+    if let Some(location) = message.code_location.as_mut() {
+        if let Some(start_line) = location.start_line.as_mut() {
+            *start_line += line_offset as u64;
+        }
+        if let Some(end_line) = location.end_line.as_mut() {
+            *end_line += line_offset as u64;
+        }
+    }
+
+    message
 }
 
 #[cfg(test)]

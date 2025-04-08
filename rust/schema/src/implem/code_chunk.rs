@@ -372,7 +372,10 @@ impl MarkdownCodec for CodeChunk {
                     }
                 })
                 .push_str("```\n\n");
-        } else if matches!(self.programming_language.as_deref(), Some("docsql")) {
+        } else if matches!(self.programming_language.as_deref(), Some("docsql"))
+            && !self.code.contains(['\n', ';'])
+            && !self.code.contains("let ")
+        {
             context
                 .push_str("[[")
                 .push_prop_str(NodeProperty::Code, &self.code)
