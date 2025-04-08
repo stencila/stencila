@@ -118,6 +118,7 @@
         "quickjs",
         "rdfs",
         "regexes",
+        "replacen",
         "requireds",
         "reqwest",
         "rfind",
