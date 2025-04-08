@@ -110,7 +110,7 @@ fn apply_filter(alias: &str, property: &str, value: Value) -> String {
         '_' => ["list_contains(", &col(), ", ", &val_lit(), ")"].concat(),
         _ => {
             let op = match last {
-                '0' => "!=",
+                '0' => "<>",
                 '1' => "<",
                 '2' => "<=",
                 '3' => ">",
@@ -1375,6 +1375,7 @@ mod tests {
         assert_eq!(t("@abc !~'regex'"), "abc6  ='regex'");
         assert_eq!(t("@abc!~'regex'"), "abc6 ='regex'");
 
+        assert_eq!(t("@a != 1"), "a0   =1");
         assert_eq!(t("@a < 1"), "a1  =1");
         assert_eq!(t("@a <= 1"), "a2   =1");
         assert_eq!(t("@a > 1"), "a3  =1");
