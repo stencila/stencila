@@ -3,6 +3,7 @@ import { html } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
+import { nodeUi } from '../ui/nodes/icons-and-colours'
 import { closestGlobally } from '../utilities/closestGlobally'
 
 import { Entity } from './entity'
@@ -64,13 +65,17 @@ export class Excerpt extends Entity {
         depth=${this.depth}
         ?has-root=${this.hasRoot()}
       >
-        <div slot="header-right" class="font-semibold text-sm">
-          ${this.nodeType_}
+        <div slot="header-right" class="flex items-center gap-1">
+          <stencila-ui-icon
+            name=${nodeUi(this.nodeType_).icon}
+            class="text-sm"
+          ></stencila-ui-icon>
+          <span class="font-semibold text-sm">${this.nodeType_}</span>
         </div>
         <div slot="body" class="p-3">
           <slot name="source"></slot>
-          <div class="text-2xs font-sans font-semibold mt-2">
-            ${this.nodeAncestors.replace(/\//g, ' > ')}
+          <div class="text-2xs font-sans mt-2">
+            ${this.nodeAncestors.replace(/\//g, ' > ')} > ${this.nodeType_}
           </div>
         </div>
         <div slot="content">${this.renderContent()}</div>
