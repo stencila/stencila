@@ -1,6 +1,6 @@
-use std::{collections::BTreeSet, str::FromStr};
+use std::{collections::BTreeSet, error::Error, str::FromStr};
 
-use kuzu::{Error, LogicalType, NodeVal, QueryResult, RelVal, Value};
+use kuzu::{LogicalType, NodeVal, QueryResult, RelVal, Value};
 
 use kernel::{
     common::{
@@ -135,11 +135,16 @@ fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
             };
 
             let mut doc_id = None;
+            let mut node_id = None;
             let mut node_path = None;
             let mut node_ancestors = None;
             for (name, value) in node_val.get_properties() {
                 if name == "docId" {
                     doc_id = Some(value.to_string());
+                }
+
+                if name == "nodeId" {
+                    node_id = Some(value.to_string());
                 }
 
                 if name == "nodePath" {
@@ -150,12 +155,16 @@ fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
                     node_ancestors = Some(value.to_string());
                 }
 
-                if doc_id.is_some() && node_path.is_some() && node_ancestors.is_some() {
+                if doc_id.is_some()
+                    && node_id.is_some()
+                    && node_path.is_some()
+                    && node_ancestors.is_some()
+                {
                     break;
                 }
             }
-            let (Some(doc_id), Some(node_path), Some(node_ancestors)) =
-                (doc_id, node_path, node_ancestors)
+            let (Some(doc_id), Some(node_id), Some(node_path), Some(node_ancestors)) =
+                (doc_id, node_id, node_path, node_ancestors)
             else {
                 // As above, if the Kuzu node does not have docId, nodePath & nodeLane properties
                 // then convert to a primitive
@@ -168,6 +177,8 @@ fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
             nodes.push(Primitive::String(
                 [
                     &doc_id,
+                    ":",
+                    &node_id,
                     ":",
                     &node_path,
                     ":",
@@ -425,11 +436,11 @@ pub fn primitive_from_value(value: Value) -> Primitive {
 
 /// Create a Stencila [`ExecutionMessage`] from a Kuzu [`Error`]
 pub fn execution_message_from_error(
-    error: Error,
+    error: kuzu::Error,
     query: &str,
     line_offset: usize,
 ) -> ExecutionMessage {
-    let error = error
+    let message = error
         .to_string()
         .replace("Query execution failed:", "")
         .replace("Binder exception:", "")
@@ -441,7 +452,7 @@ pub fn execution_message_from_error(
     });
 
     let mut code_location = None;
-    let message = if let Some(rest) = error.strip_prefix("Parser exception:") {
+    let message = if let Some(rest) = message.strip_prefix("Parser exception:") {
         match PARSER_EXC_REGEX.captures(rest) {
             Some(captures) => {
                 let leading_lines = query
@@ -469,13 +480,20 @@ pub fn execution_message_from_error(
             None => ["Syntax error: ", rest].concat(),
         }
     } else {
-        error
+        message
+    };
+
+    let stack_trace = if let Some(error) = error.source() {
+        Some(error.to_string())
+    } else {
+        None
     };
 
     ExecutionMessage {
         level: MessageLevel::Error,
         message,
         code_location,
+        stack_trace,
         ..Default::default()
     }
 }
