@@ -3,6 +3,8 @@ title: Excerpt
 nick: exc
 extends: Entity
 description: An excerpt from a `CreativeWork`.
+markdown:
+  derive: false
 required:
   - source
   - nodePath

@@ -26,6 +26,7 @@ mod datatable_columns;
 mod date;
 mod date_time;
 mod duration;
+mod excerpt;
 mod execution_message;
 mod execution_mode;
 mod execution_status;

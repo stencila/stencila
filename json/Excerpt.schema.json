@@ -8,6 +8,9 @@
     "Entity"
   ],
   "description": "An excerpt from a `CreativeWork`.",
+  "markdown": {
+    "derive": false
+  },
   "required": [
     "type",
     "source",
