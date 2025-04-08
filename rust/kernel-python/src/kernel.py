@@ -237,21 +237,21 @@ warnings.showwarning = log_warning
 
 @dataclass
 class NativeHint:
-    """A helper class for building up a native hint"""
+    """A helper class for build up a Markdown native hint"""
 
-    parts: list[str] = field(default_factory=list)
+    blocks: list[str] = field(default_factory=list)
 
-    def push_head(self, part: str) -> None:
-        self.parts.append(part + "\n")
+    def push_para(self, content: str) -> None:
+        self.blocks.append(content)
 
-    def push_data(self, part: str) -> None:
+    def push_code(self, code: str) -> None:
         """Note that the string here might have newlines in it"""
-        if len(part) > 1000:
-            part = part[:1000] + "..."
-        self.parts.append(part)
+        if len(code) > 1000:
+            code = code[:1000] + "..."
+        self.blocks.append("```\n" + code + "\n```")
 
     def to_string(self) -> str:
-        return "\n".join(self.parts)
+        return "\n\n".join(self.blocks)
 
 
 # Custom serialization and hints for numpy
@@ -400,12 +400,12 @@ try:
 
     def get_native_pandas_hint(value: pd.DataFrame) -> str:
         nh = NativeHint()
-        nh.push_head("The dtypes of the Dataframe are:")
-        nh.push_data(repr(value.dtypes))
-        nh.push_head("\nThe first few rows of the Dataframe are:")
-        nh.push_data(repr(value.head(3)))
-        nh.push_head("\nThe `describe` method of the Dataframe returns:")
-        nh.push_data(repr(value.describe()))
+        nh.push_para("The `dtypes` of the `DataFrame` are:")
+        nh.push_code(repr(value.dtypes))
+        nh.push_para("The first few rows of the `DataFrame` are:")
+        nh.push_code(repr(value.head(3)))
+        nh.push_para("The `describe` method of the `DataFrame` returns:")
+        nh.push_code(repr(value.describe()))
 
         return nh.to_string()
 
@@ -799,23 +799,23 @@ def get_native_callable_hint(value: Callable) -> str:
     try:
         # get_type_hints is a bit unreliable, but we'll try it.
         th = get_type_hints(value)
-        nh.push_head("The function is described by `get_types_hints` as:")
-        nh.push_data(str(th))
+        nh.push_para("The function is described by `get_types_hints` as:")
+        nh.push_code(str(th))
     except Exception:
         pass
 
     doc = value.__doc__
     if doc:
-        nh.push_head("The docstring of the function is:")
-        nh.push_data(doc)
+        nh.push_para("The docstring of the function is:")
+        nh.push_code(doc)
 
     return nh.to_string()
 
 
 def get_native_dict_hint(value: dict) -> str:
     nh = NativeHint()
-    nh.push_head("The keys of the dict are:")
-    nh.push_data(", ".join(value.keys()))
+    nh.push_para("The keys of the `dict` are:")
+    nh.push_code(", ".join(value.keys()))
     return nh.to_string()
 
 
@@ -829,8 +829,8 @@ def determine_native_hint(value: Any) -> str:
 
     # Default (which works fine with many types)
     nh = NativeHint()
-    nh.push_head("The `repr` of the variable is:")
-    nh.push_data(repr(value))
+    nh.push_para("The `repr` of the variable is:")
+    nh.push_code(repr(value))
     return nh.to_string()
 
 
@@ -897,7 +897,7 @@ def box() -> None:
     # Patch builtins.open to deny write access (which is also io.open in Python 3)
     builtins_open = builtins.open
 
-    def readonly_open(file, mode="r", *args, **kwargs): #noqa
+    def readonly_open(file, mode="r", *args, **kwargs):  # noqa
         # Prevent any mode that implies writing
         if any(m in mode for m in ("w", "a", "+", "x")):
             readonly_permission_error()
@@ -908,7 +908,7 @@ def box() -> None:
     # Patch os.open to deny write access
     os_open = os.open
 
-    def readonly_os_open(file, flags, *args, **kwargs): #noqa
+    def readonly_os_open(file, flags, *args, **kwargs):  # noqa
         if flags & os.O_WRONLY or flags & os.O_RDWR:
             readonly_permission_error()
         return os_open(file, flags, *args, **kwargs)
@@ -916,7 +916,7 @@ def box() -> None:
     os.open = readonly_os_open
 
     # Restrict filesystem writes
-    def readonly_permission_error(*args, **kwargs): #noqa
+    def readonly_permission_error(*args, **kwargs):  # noqa
         raise PermissionError(
             "Write access to filesystem is restricted in boxed kernel"
         )
@@ -942,7 +942,7 @@ def box() -> None:
     os.utime = readonly_permission_error
 
     # Restrict process management
-    def process_permission_error(*args, **kwargs): #noqa
+    def process_permission_error(*args, **kwargs):  # noqa
         raise PermissionError("Process management is restricted in boxed kernel")
 
     # Creating processes
@@ -992,7 +992,7 @@ def box() -> None:
     os.setsid = process_permission_error
 
     # Restrict network access
-    def network_permission_error(*args, **kwargs): #noqa
+    def network_permission_error(*args, **kwargs):  # noqa
         raise PermissionError("Network access is restricted in boxed kernel")
 
     socket.socket = network_permission_error

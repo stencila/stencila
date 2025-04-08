@@ -1212,20 +1212,25 @@ df1 = pd.DataFrame({
                 native_hint: Some(
                     r#"The dtypes of the Dataframe are:
 
+```
 c1       bool
 c2      int64
 c3    float64
 c4     object
 dtype: object
+```
 
 The first few rows of the Dataframe are:
 
+```
       c1  c2    c3 c4
 0   True   1  1.23  A
 1  False   2  4.56  B
+```
 
 The `describe` method of the Dataframe returns:
 
+```
              c2        c3
 count  2.000000  2.000000
 mean   1.500000  2.895000
@@ -1234,7 +1239,8 @@ min    1.000000  1.230000
 25%    1.250000  2.062500
 50%    1.500000  2.895000
 75%    1.750000  3.727500
-max    2.000000  4.560000"#
+max    2.000000  4.560000
+```"#
                         .to_string()
                 ),
                 programming_language: Some("Python".to_string()),
