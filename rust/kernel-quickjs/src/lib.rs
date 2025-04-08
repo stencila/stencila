@@ -99,6 +99,75 @@ pub struct QuickJsKernelInstance {
     signal_sender: mpsc::Sender<KernelSignal>,
 }
 
+/// Global variables that should not be included in variables list
+const GLOBALS: &[&str] = &[
+    "AggregateError",
+    "Array",
+    "ArrayBuffer",
+    "Atomics",
+    "BigInt",
+    "BigInt64Array",
+    "BigUint64Array",
+    "Boolean",
+    "console",
+    "DataView",
+    "Date",
+    "decodeURI",
+    "decodeURIComponent",
+    "encodeURI",
+    "encodeURIComponent",
+    "Error",
+    "escape",
+    "eval",
+    "EvalError",
+    "FinalizationRegistry",
+    "Float16Array",
+    "Float32Array",
+    "Float64Array",
+    "Function",
+    "globalThis",
+    "Infinity",
+    "Int16Array",
+    "Int32Array",
+    "Int8Array",
+    "InternalError",
+    "isFinite",
+    "isNaN",
+    "Iterator",
+    "JSON",
+    "Map",
+    "Math",
+    "null",
+    "Number",
+    "Object",
+    "parseFloat",
+    "parseInt",
+    "performance",
+    "Promise",
+    "Proxy",
+    "queueMicrotask",
+    "RangeError",
+    "ReferenceError",
+    "Reflect",
+    "RegExp",
+    "Set",
+    "SharedArrayBuffer",
+    "String",
+    "Symbol",
+    "SyntaxError",
+    "TypeError",
+    "Uint16Array",
+    "Uint32Array",
+    "Uint8Array",
+    "Uint8ClampedArray",
+    "undefined",
+    "unescape",
+    "URIError",
+    "WeakMap",
+    "WeakRef",
+    "WeakSet",
+];
+
 #[async_trait]
 impl KernelInstance for QuickJsKernelInstance {
     fn id(&self) -> &str {
@@ -199,6 +268,10 @@ impl KernelInstance for QuickJsKernelInstance {
                         let Ok(name) = name.to_string() else {
                             return None;
                         };
+
+                        if GLOBALS.contains(&name.as_str()) {
+                            return None;
+                        }
 
                         let programming_language = Some("JavaScript".to_string());
                         let native_type = Some(
