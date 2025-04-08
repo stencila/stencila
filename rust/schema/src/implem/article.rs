@@ -35,13 +35,11 @@ impl Article {
                 _ => None,
             });
 
-        if let Some(doi) = &doi {
-            if !doi.starts_with(URL_PREFIX) {
-                return Some([URL_PREFIX, doi].concat());
-            }
+        if let Some(doi) = doi.as_ref().and_then(|doi| doi.strip_prefix(URL_PREFIX)) {
+            Some(doi.into())
+        } else {
+            doi
         }
-
-        doi
     }
 
     pub fn to_jats_special(&self) -> (String, Losses) {

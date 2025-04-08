@@ -34,7 +34,9 @@ export class Reference extends Entity {
         ? html`<span class="font-semibold"> ${this.$title}</span>`
         : ''}
       ${this.doi
-        ? html` <a href=${this.doi} target="_blank">${this.doi}</a>`
+        ? html` <a href="https://doi.org/${this.doi}" target="_blank"
+            >${this.doi}</a
+          >`
         : ''}
     </div>`
   }
