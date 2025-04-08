@@ -33,7 +33,7 @@ semver = { version = "1.0.26", features = ["serde"] }
 smart-default = "0.7.1"
 syn = "2.0.100"
 test-log = { version = "0.2.17", default-features = false, features = ["trace"] }
-time = "0.3.39"
+time = { version = "0.3.39", features = ["formatting"] }
 url = { version = "2.5.4", features = ["serde"] }
 which = "7.0.2"
 zip = "2.3.0"
