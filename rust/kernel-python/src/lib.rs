@@ -1210,7 +1210,7 @@ df1 = pd.DataFrame({
                     ]
                 ))),
                 native_hint: Some(
-                    r#"The dtypes of the Dataframe are:
+                    r#"The `dtypes` of the `DataFrame` are:
 
 ```
 c1       bool
@@ -1220,7 +1220,7 @@ c4     object
 dtype: object
 ```
 
-The first few rows of the Dataframe are:
+The first few rows of the `DataFrame` are:
 
 ```
       c1  c2    c3 c4
@@ -1228,7 +1228,7 @@ The first few rows of the Dataframe are:
 1  False   2  4.56  B
 ```
 
-The `describe` method of the Dataframe returns:
+The `describe` method of the `DataFrame` returns:
 
 ```
              c2        c3
