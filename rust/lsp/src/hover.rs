@@ -76,7 +76,7 @@ fn code_chunk(node: CodeChunk, uri: &Url, node_id: &NodeId) -> Option<String> {
         return None;
     };
 
-    let mut context = MarkdownEncodeContext::new(Some(Format::Markdown), Some(true));
+    let mut context = MarkdownEncodeContext::new(Some(Format::Smd), Some(true));
     for (index, output) in outputs.iter().enumerate() {
         if index > 0 {
             context.push_str("\n\n---\n\n");
@@ -138,7 +138,7 @@ fn code_chunk(node: CodeChunk, uri: &Url, node_id: &NodeId) -> Option<String> {
 fn code_expression(node: CodeExpression) -> Option<String> {
     let output = node.output?;
 
-    let mut context = MarkdownEncodeContext::new(Some(Format::Markdown), Some(true));
+    let mut context = MarkdownEncodeContext::new(Some(Format::Smd), Some(true));
     output.to_markdown(&mut context);
     Some(context.content)
 }
