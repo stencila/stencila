@@ -979,15 +979,7 @@ impl Object for QueryLabelled {
             }
         };
 
-        node.ok_or_else(|| {
-            Error::new(
-                ErrorKind::InvalidOperation,
-                format!(
-                    "unable to find matching {} in current document",
-                    &self.table[..(self.table.len() - 1)],
-                ),
-            )
-        })
+        Ok(node.unwrap_or_else(|| Value::from(())))
     }
 }
 
@@ -1018,16 +1010,7 @@ impl Object for QuerySectionType {
         );
         let node = self.document.table("sections", filters)?.first().ok();
 
-        node.ok_or_else(|| {
-            Error::new(
-                ErrorKind::InvalidOperation,
-                format!(
-                    "unable to find {}{} section in current document",
-                    if !args.is_empty() { "matching " } else { "" },
-                    &self.section_type,
-                ),
-            )
-        })
+        Ok(node.unwrap_or_else(|| Value::from(())))
     }
 }
 
@@ -1053,15 +1036,7 @@ impl Object for QueryNodeType {
         let (filters,): (Kwargs,) = from_args(args)?;
         let node = self.document.table(&method, filters)?.first().ok();
 
-        node.ok_or_else(|| {
-            Error::new(
-                ErrorKind::InvalidOperation,
-                format!(
-                    "unable to find matching {} in current document",
-                    &self.node_type.to_string().to_sentence_case(),
-                ),
-            )
-        })
+        Ok(node.unwrap_or_else(|| Value::from(())))
     }
 }
 
