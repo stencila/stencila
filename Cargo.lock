@@ -3230,6 +3230,7 @@ dependencies = [
 name = "kernel-docsdb"
 version = "0.0.0"
 dependencies = [
+ "codec-markdown",
  "dirs 0.0.0",
  "kernel-kuzu",
  "lru",

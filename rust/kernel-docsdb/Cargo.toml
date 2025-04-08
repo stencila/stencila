@@ -4,6 +4,7 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
+codec-markdown = { path = "../codec-markdown" }
 dirs = { path = "../dirs"}
 kernel-kuzu = { path = "../kernel-kuzu"}
 node-db = { path = "../node-db"}

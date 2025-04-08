@@ -22,7 +22,9 @@ use kernel::{
 };
 use kernel_asciimath::AsciiMathKernel;
 use kernel_bash::BashKernel;
-use kernel_docsdb::{DocsDBKernel, DocsDBKernelInstance};
+use kernel_docsdb::{
+    DocsDBKernel, DocsDBKernelInstance, DocsDBVariableListReceiver, DocsDBVariableListSender,
+};
 use kernel_docsql::{DocsQLKernel, DocsQLKernelInstance};
 use kernel_graphviz::GraphvizKernel;
 use kernel_jinja::JinjaKernel;
@@ -201,6 +203,9 @@ pub struct Kernels {
     /// A sender for responses to kernels for variables
     variable_response_sender: broadcast::Sender<KernelVariableResponse>,
 
+    /// A sender of requests for a list of all variables in kernels
+    variables_list_sender: DocsDBVariableListSender,
+
     /// A receiver for the root of the document
     ///
     /// Passed on to certain kernel instances so that they can update
@@ -225,17 +230,26 @@ impl Kernels {
 
         let (variable_request_sender, variable_request_receiver) = mpsc::unbounded_channel();
         let (variable_response_sender, ..) = broadcast::channel(32);
+        {
+            let instances = instances.clone();
+            let variable_response_sender = variable_response_sender.clone();
+            tokio::spawn(async move {
+                Self::variable_requests_task(
+                    instances,
+                    variable_request_receiver,
+                    variable_response_sender,
+                )
+                .await
+            });
+        }
 
-        let instances_clone = instances.clone();
-        let variable_response_sender_clone = variable_response_sender.clone();
-        tokio::spawn(async move {
-            Self::variable_requests_task(
-                instances_clone,
-                variable_request_receiver,
-                variable_response_sender_clone,
-            )
-            .await
-        });
+        let (variable_list_sender, variable_list_receiver) = mpsc::channel(32);
+        {
+            let instances = instances.clone();
+            tokio::spawn(async move {
+                Self::variable_list_task(instances, variable_list_receiver).await
+            });
+        }
 
         let home = if home.to_string_lossy() == "" {
             match env::current_dir() {
@@ -256,6 +270,7 @@ impl Kernels {
             variable_request_sender,
             variable_response_sender,
             root_receiver,
+            variables_list_sender: variable_list_sender,
         }
     }
 
@@ -304,6 +319,38 @@ impl Kernels {
         tracing::trace!("Kernels variable request task stopped");
     }
 
+    /// A task to handle requests for list of all variables
+    async fn variable_list_task(
+        instances: KernelInstances,
+        mut receiver: DocsDBVariableListReceiver,
+    ) {
+        tracing::trace!("Kernels variable list task started");
+
+        while let Some((instance, sender)) = receiver.recv().await {
+            let mut variables = Vec::new();
+            for entry in instances.read().await.iter() {
+                if entry.id == instance {
+                    continue;
+                }
+
+                let mut instance = entry.instance.lock().await;
+                match instance.list().await {
+                    Ok(mut list) => variables.append(&mut list),
+                    Err(error) => tracing::error!(
+                        "Error getting variable list from kernel `{}`: {error}",
+                        entry.id
+                    ),
+                }
+            }
+
+            if let Err(..) = sender.send(variables) {
+                tracing::debug!("Error sending variable list response");
+            }
+        }
+
+        tracing::trace!("Kernels variable list task stopped");
+    }
+
     /// Create a kernel instance
     ///
     /// The `language` argument can be the name of a kernel or a programming language.
@@ -322,17 +369,27 @@ impl Kernels {
             None => default(),
         };
 
-        let mut instance = if kernel.name() == "docsql" {
-            Box::new(DocsQLKernelInstance::new(
-                Some(self.home.clone()),
-                self.root_receiver.clone(),
-            )?) as Box<dyn KernelInstance>
-        } else if kernel.name() == "docsdb" {
-            Box::new(DocsDBKernelInstance::new(
-                Some(self.home.clone()),
-                self.root_receiver.clone(),
-                None,
-            )?) as Box<dyn KernelInstance>
+        let kernel_name = kernel.name();
+        let mut instance = if matches!(kernel_name.as_str(), "docsql" | "docsdb") {
+            let channels = match &self.root_receiver {
+                Some(root_receiver) => {
+                    Some((root_receiver.clone(), self.variables_list_sender.clone()))
+                }
+                None => None,
+            };
+
+            if kernel_name == "docsql" {
+                Box::new(DocsQLKernelInstance::new(
+                    Some(self.home.clone()),
+                    channels,
+                )?) as Box<dyn KernelInstance>
+            } else {
+                Box::new(DocsDBKernelInstance::new(
+                    Some(self.home.clone()),
+                    channels,
+                    None,
+                )?) as Box<dyn KernelInstance>
+            }
         } else {
             kernel.create_instance(self.bounds)?
         };

@@ -1,6 +1,7 @@
 use std::{
     num::NonZeroUsize,
     path::{Path, PathBuf},
+    str::FromStr,
     sync::Arc,
 };
 
@@ -13,11 +14,11 @@ use kernel_kuzu::{
             itertools::Itertools,
             once_cell::sync::Lazy,
             regex::Regex,
-            serde_json,
+            serde_json, serde_yaml,
             tokio::{
                 self,
                 fs::read_to_string,
-                sync::{watch, Mutex},
+                sync::{mpsc, oneshot, watch, Mutex},
             },
             tracing,
         },
@@ -25,7 +26,7 @@ use kernel_kuzu::{
         generate_id,
         schema::{
             get, Array, Excerpt, ExecutionBounds, ExecutionMessage, Node, NodeId, NodeSet,
-            Primitive, Reference, SoftwareApplication,
+            NodeType, Primitive, Reference, SoftwareApplication, Variable,
         },
         Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
     },
@@ -87,6 +88,14 @@ enum DocsDB {
     Document,
 }
 
+pub type DocsDBRootReceiver = watch::Receiver<Node>;
+
+// Channel for requesting a list of variables from kernels
+pub type DocsDBVariableListReceiver = mpsc::Receiver<(String, oneshot::Sender<Vec<Variable>>)>;
+pub type DocsDBVariableListSender = mpsc::Sender<(String, oneshot::Sender<Vec<Variable>>)>;
+
+pub type DocsDBChannels = (DocsDBRootReceiver, DocsDBVariableListSender);
+
 #[derive(Debug)]
 pub struct DocsDBKernelInstance {
     /// The unique id of the kernel instance
@@ -117,37 +126,44 @@ pub struct DocsDBKernelInstance {
     /// The boolean indicates whether the current value has been
     /// synced with the in-memory database
     document: Option<Arc<Mutex<(Node, bool)>>>,
+
+    /// A channel sender to request a list of variables from kernels
+    variables_requester: Option<DocsDBVariableListSender>,
+
+    /// The most recently fetched list of variables
+    variables: Option<Vec<Variable>>,
 }
 
 impl DocsDBKernelInstance {
     /// Create a new instance
     pub fn new(
         directory: Option<PathBuf>,
-        doc_receiver: Option<watch::Receiver<Node>>,
+        channels: Option<DocsDBChannels>,
         id: Option<String>,
     ) -> Result<Self> {
         let id = id.unwrap_or_else(|| generate_id(NAME));
         let workspace_db = KuzuKernelInstance::box_with(id.clone(), QueryResultTransform::Excerpts);
         let document_db = KuzuKernelInstance::box_with(id.clone(), QueryResultTransform::Excerpts);
 
-        let document = if let Some(mut receiver) = doc_receiver {
-            let node = receiver.borrow().clone();
-            let document = Arc::new(Mutex::new((node, false)));
+        let (document, variables_requester) =
+            if let Some((mut root_receiver, variables_requester)) = channels {
+                let node = root_receiver.borrow().clone();
+                let document = Arc::new(Mutex::new((node, false)));
 
-            {
-                let document = document.clone();
-                tokio::task::spawn(async move {
-                    while receiver.changed().await.is_ok() {
-                        let node = receiver.borrow_and_update().clone();
-                        *document.lock().await = (node, false);
-                    }
-                });
-            }
+                {
+                    let document = document.clone();
+                    tokio::task::spawn(async move {
+                        while root_receiver.changed().await.is_ok() {
+                            let node = root_receiver.borrow_and_update().clone();
+                            *document.lock().await = (node, false);
+                        }
+                    });
+                }
 
-            Some(document)
-        } else {
-            None
-        };
+                (Some(document), Some(variables_requester))
+            } else {
+                (None, None)
+            };
 
         Ok(Self {
             id,
@@ -158,12 +174,14 @@ impl DocsDBKernelInstance {
             cache: None,
             document_db,
             document,
+            variables_requester,
+            variables: None,
         })
     }
 
     /// Create a new instance for the current document
-    pub fn new_document(id: &str, receiver: watch::Receiver<Node>) -> Result<Self> {
-        let mut instance = Self::new(None, Some(receiver), Some(id.into()))?;
+    pub fn new_document(id: &str, channels: DocsDBChannels) -> Result<Self> {
+        let mut instance = Self::new(None, Some(channels), Some(id.into()))?;
         instance.use_document()?;
         Ok(instance)
     }
@@ -220,11 +238,17 @@ impl DocsDBKernelInstance {
                 bail!("Expected string")
             };
 
-            let Some((doc_id, node_path_str, node_ancestors, node_type)) =
+            let Some((doc_id, node_id, node_path_str, node_ancestors, node_type)) =
                 pair.split(":").collect_tuple()
             else {
                 bail!("Expected : separator")
             };
+
+            if node_type == "Variable" {
+                let excerpt = self.excerpt_from_variable(node_id).await?;
+                excerpts.push(excerpt);
+                continue;
+            }
 
             let node_path = node_path_str.parse()?;
 
@@ -320,6 +344,76 @@ impl DocsDBKernelInstance {
 
         Ok(excerpts)
     }
+
+    /// Create a Stencila [`Excerpt`] for a [`Variable`]
+    async fn excerpt_from_variable(&self, node_id: &str) -> Result<Node> {
+        let Some(variables) = &self.variables else {
+            bail!("Variables expected")
+        };
+
+        let node_id = NodeId::from_str(node_id)?;
+
+        let mut variable = None;
+        for var in variables {
+            if var.node_id() == node_id {
+                variable = Some(var);
+                break;
+            }
+        }
+
+        let Some(variable) = variable else {
+            bail!("Variable not found");
+        };
+
+        let mut title = String::new();
+        if let Some(lang) = &variable.programming_language {
+            title += lang;
+            title += " variable ";
+        } else {
+            title += "Variable ";
+        }
+        title += &variable.name;
+
+        let source = Reference {
+            title: Some(title),
+            ..Default::default()
+        };
+
+        let mut md = format!("Variable `{}`", variable.name);
+
+        if let Some(type_) = variable
+            .native_type
+            .as_ref()
+            .or(variable.node_type.as_ref())
+        {
+            md.push_str(&format!(" is a `{type_}`"));
+        }
+
+        if let Some(lang) = &variable.programming_language {
+            md.push_str(" defined in ");
+            md.push_str(lang);
+        }
+
+        md.push_str(". ");
+
+        if let Some(native_hint) = variable.native_hint.as_ref() {
+            md.push_str(native_hint);
+        } else if let Some(hint) = variable.hint.as_ref() {
+            let yaml = serde_yaml::to_string(hint)?;
+            md.push_str(&format!(" A summary:\n\n```yaml\n{yaml}\n```"));
+        };
+
+        let content = codec_markdown::decode(&md, None)?.0.try_into()?;
+
+        Ok(Node::Excerpt(Excerpt {
+            source,
+            node_path: String::new(),
+            node_ancestors: "Document".to_string(),
+            node_type: NodeType::Variable.to_string(),
+            content,
+            ..Default::default()
+        }))
+    }
 }
 
 #[async_trait]
@@ -361,18 +455,39 @@ impl KernelInstance for DocsDBKernelInstance {
         let kuzu_kernel = match self.which_db {
             DocsDB::Workspace => &mut self.workspace_db,
             DocsDB::Document => {
+                let doc_id = NodeId::new(b"doc", &[b'0']);
+
+                // Update the database with the document root node, if out of sync
                 if let Some(node) = &self.document {
                     let (node, synced) = &mut *node.lock().await;
 
-                    // Update the database with the document if not done so yet
                     if !*synced {
                         let database = self.document_db.database()?;
                         let mut db = NodeDatabase::attached(database)?;
-                        let doc_id = NodeId::new(b"doc", &[0]);
                         db.upsert(&doc_id, node)?;
                         *synced = true;
                     }
                 }
+
+                // If the query potentially involves variables, update the variables list
+                if let (Some(requester), true) = (
+                    &self.variables_requester,
+                    code.to_lowercase().contains("variable"),
+                ) {
+                    let (response_sender, response_receiver) = oneshot::channel();
+                    requester
+                        .send((self.id.to_string(), response_sender))
+                        .await?;
+
+                    if let Ok(variables) = response_receiver.await {
+                        let database = self.document_db.database()?;
+                        let mut db = NodeDatabase::attached(database)?;
+                        db.delete_all("Variable")?;
+                        db.insert_associated(&doc_id, &variables)?;
+                        self.variables = Some(variables);
+                    }
+                }
+
                 &mut self.document_db
             }
         };

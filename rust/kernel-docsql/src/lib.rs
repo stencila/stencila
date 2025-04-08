@@ -3,7 +3,7 @@ use std::{
     sync::{Arc, Mutex as SyncMutex},
 };
 
-use kernel_docsdb::DocsDBKernelInstance;
+use kernel_docsdb::{DocsDBChannels, DocsDBKernelInstance};
 use kernel_jinja::{
     self,
     kernel::{
@@ -14,7 +14,7 @@ use kernel_jinja::{
             once_cell::sync::Lazy,
             regex::Regex,
             serde_json,
-            tokio::sync::{watch, Mutex},
+            tokio::sync::Mutex,
             tracing,
         },
         format::Format,
@@ -95,18 +95,14 @@ pub struct DocsQLKernelInstance {
 }
 
 impl DocsQLKernelInstance {
-    pub fn new(
-        directory: Option<PathBuf>,
-        doc_receiver: Option<watch::Receiver<Node>>,
-    ) -> Result<Self> {
+    pub fn new(directory: Option<PathBuf>, channels: Option<DocsDBChannels>) -> Result<Self> {
         let directory = directory.unwrap_or_else(|| PathBuf::from("."));
 
         let id = generate_id(NAME);
 
-        let document = match doc_receiver {
-            Some(doc_receiver) => Some(Arc::new(Mutex::new(DocsDBKernelInstance::new_document(
-                &id,
-                doc_receiver,
+        let document = match channels {
+            Some(channels) => Some(Arc::new(Mutex::new(DocsDBKernelInstance::new_document(
+                &id, channels,
             )?))),
             None => None,
         };
@@ -477,6 +473,14 @@ LIMIT 2"
             "test.cells(@position < 3)",
             r#"MATCH (cell:TableCell)
 WHERE cell.position < 3
+RETURN cell
+LIMIT 10"#
+        );
+
+        expect!(
+            "test.cells(@text != 'a')",
+            r#"MATCH (cell:TableCell)
+WHERE cell.text <> 'a'
 RETURN cell
 LIMIT 10"#
         );
