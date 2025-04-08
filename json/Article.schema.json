@@ -175,7 +175,7 @@
     },
     "abstract": {
       "@id": "schema:abstract",
-      "description": "A a short description that summarizes a `CreativeWork`.",
+      "description": "A short description that summarizes a `CreativeWork`.",
       "strip": [
         "metadata"
       ],

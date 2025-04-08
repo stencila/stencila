@@ -149,7 +149,7 @@ pub struct ChatOptions {
     #[strip(metadata)]
     pub about: Option<Vec<ThingType>>,
 
-    /// A a short description that summarizes a `CreativeWork`.
+    /// A short description that summarizes a `CreativeWork`.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     #[walk]

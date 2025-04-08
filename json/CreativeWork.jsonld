@@ -139,7 +139,7 @@
       "@id": "schema:abstract",
       "@type": "rdfs:Property",
       "rdfs:label": "abstract",
-      "rdfs:comment": "A a short description that summarizes a `CreativeWork`.",
+      "rdfs:comment": "A short description that summarizes a `CreativeWork`.",
       "schema:domainIncludes": {
         "@id": "schema:CreativeWork"
       },

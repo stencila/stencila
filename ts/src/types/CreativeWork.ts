@@ -29,7 +29,7 @@ export class CreativeWork extends Thing {
   about?: ThingType[];
 
   /**
-   * A a short description that summarizes a `CreativeWork`.
+   * A short description that summarizes a `CreativeWork`.
    */
   abstract?: Block[];
 

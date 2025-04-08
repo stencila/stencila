@@ -574,7 +574,7 @@ class CreativeWork(Thing):
     """The subject matter of the content."""
 
     abstract: list[Block] | None = None
-    """A a short description that summarizes a `CreativeWork`."""
+    """A short description that summarizes a `CreativeWork`."""
 
     authors: list[Author] | None = None
     """The authors of the `CreativeWork`."""
