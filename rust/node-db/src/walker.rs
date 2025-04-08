@@ -94,7 +94,7 @@ impl DatabaseWalker {
     }
 
     /// Visit several [`DatabaseNode`]s
-    /// 
+    ///
     /// Note that this does not walk each node it just visits each.
     pub(crate) fn visit_database_nodes<T>(&mut self, nodes: &[T])
     where

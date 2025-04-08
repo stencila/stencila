@@ -483,11 +483,7 @@ pub fn execution_message_from_error(
         message
     };
 
-    let stack_trace = if let Some(error) = error.source() {
-        Some(error.to_string())
-    } else {
-        None
-    };
+    let stack_trace = error.source().map(|error| error.to_string());
 
     ExecutionMessage {
         level: MessageLevel::Error,

@@ -455,7 +455,7 @@ impl KernelInstance for DocsDBKernelInstance {
         let kuzu_kernel = match self.which_db {
             DocsDB::Workspace => &mut self.workspace_db,
             DocsDB::Document => {
-                let doc_id = NodeId::new(b"doc", &[b'0']);
+                let doc_id = NodeId::new(b"doc", b"0");
 
                 // Update the database with the document root node, if out of sync
                 if let Some(node) = &self.document {
