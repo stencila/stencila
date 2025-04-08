@@ -75,13 +75,6 @@ pub(super) fn transform_filters(code: &str) -> String {
 
 /// Translate a filter into a Cypher `WHERE` clause
 fn apply_filter(alias: &str, property: &str, value: Value) -> String {
-    if property == "pos_" {
-        if let Some(dir) = value.as_i64() {
-            let op = if dir == 0 { "<" } else { ">" };
-            return [alias, ".position", op, "$currentPosition"].concat();
-        }
-    }
-
     let mut chars = property.chars().collect_vec();
 
     let last = *chars.last().expect("always has at least one char");
@@ -347,8 +340,24 @@ impl Query {
                     }
                 }
                 _ => {
-                    let filter = apply_filter(&alias, arg, value);
-                    query.ands.push(filter)
+                    if arg == "pos_" {
+                        if let Some(dir) = value.as_i64() {
+                            let op = if dir == 0 { "<" } else { ">" };
+                            query
+                                .ands
+                                .push([&alias, ".position", op, "$currentPosition"].concat());
+
+                            // Ordering by position is important, particularly for `@above` filter
+                            // where the ordering needs to be descending
+                            query.order_by = Some([&alias, ".position"].concat());
+                            if dir == 0 {
+                                query.order_by_order = Some("DESC".to_string());
+                            }
+                        }
+                    } else {
+                        let filter = apply_filter(&alias, arg, value);
+                        query.ands.push(filter)
+                    }
                 }
             }
         }
