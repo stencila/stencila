@@ -166,6 +166,7 @@ repository:
 
   code-chunk:
     patterns:
+      - include: "#code-chunk.docsql-single-line"
       - include: "#code-chunk.unknown-lang"
       - include: "#code-chunk.no-lang"
 
@@ -202,6 +203,17 @@ repository:
       "1": { name: markup.heading } # backticks
     patterns:
       - include: LANG_INCLUDE
+
+  code-chunk.docsql-single-line:
+    name: meta.stencila.code-chunk.docsql-single-line
+    begin: \[\[
+    beginCaptures:
+      '0': {name: punctuation.definition}
+    end: \]\]
+    endCaptures:
+      '0': {name: punctuation.definition}
+    patterns:
+      - include: source.docsql
 
   code-chunk.unknown-lang:
     name: meta.stencila.code-chunk.unknown-lang

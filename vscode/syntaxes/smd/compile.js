@@ -21,8 +21,14 @@ const langs = [
     chunks: true,
   },
   {
+    name: "docsql",
+    aliases: "docsql",
+    include: "source.docsql",
+    chunks: true,
+  },
+  {
     name: "javascript",
-    aliases: "js|javascript|quickjs|nodejs|docsql",
+    aliases: "js|javascript|quickjs|nodejs",
     include: "source.js",
     chunks: true,
   },

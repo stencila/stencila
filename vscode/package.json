@@ -980,6 +980,17 @@
         }
       },
       {
+        "id": "docsql",
+        "aliases": [
+          "Documents Query Language",
+          "docsql"
+        ],
+        "extensions": [
+          ".docsql"
+        ],
+        "configuration": "./syntaxes/docsql/configuration.json"
+      },
+      {
         "id": "cypher",
         "aliases": [
           "Cypher Query Language",
@@ -1033,6 +1044,7 @@
           "source.js": "javascript",
           "meta.embedded.language.css": "css",
           "meta.embedded.language.cypher": "cypher",
+          "meta.embedded.language.docsql": "docsql",
           "meta.embedded.language.javascript": "javascript",
           "meta.embedded.language.html": "html",
           "meta.embedded.language.python": "python",
@@ -1042,6 +1054,11 @@
           "meta.embedded.language.xml": "xml",
           "meta.embedded.block.frontmatter": "yaml"
         }
+      },
+      {
+        "language": "docsql",
+        "scopeName": "source.docsql",
+        "path": "./syntaxes/docsql/tmGrammar.json"
       },
       {
         "language": "cypher",
@@ -1241,7 +1258,8 @@
     "fetch:myst": "node syntaxes/myst/fetch.js",
     "fetch:qmd": "node syntaxes/qmd/fetch.js",
     "compile:smd": "node syntaxes/smd/compile.js",
-    "compile:syntaxes": "npm run compile:smd",
+    "compile:docsql": "node syntaxes/docsql/compile.js",
+    "compile:syntaxes": "npm run compile:smd && npm run compile:docsql",
     "compile:ts": "node esbuild.mjs",
     "compile": "npm run compile:web && npm run compile:syntaxes && npm run compile:ts",
     "watch": "tsc -watch -p ./",
