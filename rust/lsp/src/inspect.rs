@@ -480,11 +480,12 @@ impl Inspect for CodeChunk {
             }
             detail.push_str(caption);
         }
-        let detail = if detail.is_empty() {
-            None
-        } else {
-            Some(detail)
-        };
+        if detail.is_empty() {
+            if let Some(lang) = &self.programming_language {
+                detail.push_str(lang);
+            }
+        }
+        let detail = (!detail.is_empty()).then_some(detail);
 
         let node_id = self.node_id();
 
@@ -526,6 +527,12 @@ impl Inspect for CodeExpression {
     fn inspect(&self, inspector: &mut Inspector) {
         let node_id = self.node_id();
 
+        let detail = match &self.programming_language {
+            Some(lang) => [lang, " ", &self.code].concat(),
+            None => self.code.to_string(),
+        };
+        let detail = (!detail.is_empty()).then_some(detail);
+
         let code_range = inspector
             .poshmap
             .node_property_to_range16(&node_id, NodeProperty::Code)
@@ -546,7 +553,14 @@ impl Inspect for CodeExpression {
 
         let provenance = self.provenance.clone();
 
-        inspector.enter_node(self.node_type(), node_id, None, None, execution, provenance);
+        inspector.enter_node(
+            self.node_type(),
+            node_id,
+            None,
+            detail,
+            execution,
+            provenance,
+        );
         inspector.visit(self);
         inspector.exit_node();
     }
