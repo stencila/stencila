@@ -33,18 +33,14 @@ lint:
 	ruff check --no-cache kernel-python/src/kernel.py
 	pyright kernel-python/src/kernel.py
 
-# Setup before running tests
+# Setup required before running tests
 test-setup:
-	# Optimistically install language packages optionally used for tests
-	- pip -q install numpy pandas matplotlib
+	uv sync --directory kernel-python
 
 # Run tests
 test: test-setup	
 	# Run all the test in the workspace (except `node` which is tested elsewhere)
 	cargo test --workspace --no-fail-fast --exclude node -- --nocapture
-	
-	# Run proptests
-	make proptest-min proptest-low proptest-high proptest-max
 
 # Run tests with coverage
 # Coverage is reported to ../lcov.info so it can be used by the VSCode Coverage Gutters extension

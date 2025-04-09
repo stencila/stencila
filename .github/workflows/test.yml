@@ -42,8 +42,6 @@ jobs:
         with:
           filters: |
             main:
-              - 'node/**' 
-              - 'python/**'
               - 'rust/**'
             ts:
               - 'ts/**'
@@ -55,7 +53,7 @@ jobs:
               - 'package.json'
 
   main:
-    runs-on: ubuntu-latest-8core
+    runs-on: ubuntu-latest-16core
 
     needs: changes
     if: needs.changes.outputs.main == 'true'
@@ -98,6 +96,9 @@ jobs:
 
       - name: Setup Python dev dependencies
         run: pip install pdm ruff pyright
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
 
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
@@ -219,12 +220,12 @@ jobs:
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-      
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
+          cache: "npm"
 
       - name: Install dependencies
         run: make -C web install

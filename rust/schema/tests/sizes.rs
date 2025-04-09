@@ -23,7 +23,7 @@ macro_rules! sizes {
             sizes.sort_by(|a, b| b.1.cmp(&a.1));
 
             for (name, size) in sizes {
-                println!("{:<20} {:>6}", name, size);
+                eprintln!("{:<20} {:>6}", name, size);
             }
         }
     };
