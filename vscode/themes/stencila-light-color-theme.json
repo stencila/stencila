@@ -97,7 +97,7 @@
         "keyword.control.from",
         "keyword.control.import",
         "keyword.control.preamble.latex",
-        "keyword.control.stencila"
+        "keyword.control"
       ],
       "settings": {
         "foreground": "#7957D5",
@@ -120,10 +120,18 @@
     },
     {
       "scope": [
-        "variable.parameter.stencila"
+        "variable.parameter"
       ],
       "settings": {
         "foreground": "#9e25ef"
+      }
+    },
+    {
+      "scope": [
+        "variable.other"
+      ],
+      "settings": {
+        "foreground": "#258def"
       }
     },
     {
