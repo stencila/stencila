@@ -22,7 +22,7 @@ repository:
   keywords:
     patterns:
       - name: keyword.control.docsql
-        match: \b(let|has|in)\b
+        match: \b(let)\b
 
   strings:
     patterns:
@@ -52,7 +52,7 @@ repository:
   operators:
     patterns:
       - name: keyword.operator.docsql
-        match: (==|!=|>=|<=|>|<|=|~=|\^=|\+=|-=|\*=|/=|%=|\+|-|\*|/|%)
+        match: (==|!=|>=|<=|>|<|=|~=|\^=|\+=|-=|\*=|/=|%=|\+|-|\*|/|%|has|in)
 
   function-calls:
     patterns:
