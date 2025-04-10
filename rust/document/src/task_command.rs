@@ -10,8 +10,9 @@ use common::{
 use format::Format;
 use node_execute::{compile, execute, interrupt, lint, ExecuteOptions};
 use schema::{
-    transforms::blocks_to_inlines, Article, Block, ChatMessage, ChatMessageOptions, File, Node,
-    NodeId, NodePath, NodeProperty, Patch, PatchNode, PatchOp,
+    transforms::blocks_to_inlines, Article, Block, ChatMessage, ChatMessageOptions, CodeChunk,
+    CodeExpression, File, Inline, Node, NodeId, NodePath, NodeProperty, Paragraph, Patch,
+    PatchNode, PatchOp,
 };
 
 use crate::{
@@ -340,6 +341,8 @@ async fn chat_patch(chat_id: &NodeId, text: String, files: Option<Vec<File>>) ->
         bail!("Error or unexpected node type when decoding")
     };
 
+    let content = unwrap_docsql(content);
+
     let chat_message = Block::ChatMessage(ChatMessage {
         content,
         options: Box::new(ChatMessageOptions {
@@ -357,4 +360,59 @@ async fn chat_patch(chat_id: &NodeId, text: String, files: Option<Vec<File>>) ->
         )],
         ..Default::default()
     })
+}
+
+/// Unwrap DocsQL [`CodeExpression`] inlines into a [`CodeChunk`] so that
+/// it may have multiple [`Excerpt`] outputs
+///
+/// Applied so that users can write single line messages with double brace enclosed DocsQL
+/// queries within them.
+fn unwrap_docsql(blocks: Vec<Block>) -> Vec<Block> {
+    let mut expanded = Vec::with_capacity(blocks.len());
+
+    for block in blocks {
+        if let Block::Paragraph(Paragraph { content, .. }) = block {
+            let mut inlines = Vec::with_capacity(content.len());
+            for inline in content {
+                if let Inline::CodeExpression(
+                    CodeExpression {
+                        programming_language: Some(lang),
+                        code,
+                        ..
+                    },
+                    ..,
+                ) = &inline
+                {
+                    if lang == "docsql" {
+                        if !inlines.is_empty() {
+                            expanded.push(Block::Paragraph(Paragraph {
+                                content: inlines.drain(..).collect(),
+                                ..Default::default()
+                            }));
+                        }
+
+                        expanded.push(Block::CodeChunk(CodeChunk {
+                            programming_language: Some(lang.clone()),
+                            code: code.clone(),
+                            ..Default::default()
+                        }));
+                    } else {
+                        inlines.push(inline)
+                    }
+                } else {
+                    inlines.push(inline);
+                }
+            }
+            if !inlines.is_empty() {
+                expanded.push(Block::Paragraph(Paragraph {
+                    content: inlines,
+                    ..Default::default()
+                }));
+            }
+        } else {
+            expanded.push(block)
+        }
+    }
+
+    expanded
 }
