@@ -1,5 +1,5 @@
 use codec_cbor::r#trait::CborCodec;
-use codec_markdown::to_markdown_with;
+use codec_markdown::to_markdown_flavor;
 use codecs::Format;
 use common::{
     futures::stream::{FuturesUnordered, StreamExt},
@@ -153,7 +153,7 @@ impl Executable for InstructionBlock {
         executor.instruction_context = None;
 
         // Render the `PromptBlock` into a system prompt
-        let system_prompt = to_markdown_with(&self.prompt.content, Format::Markdown, true);
+        let system_prompt = to_markdown_flavor(&self.prompt.content, Format::Markdown);
 
         // Create an author role for the prompt
         let prompter = AuthorRole {

@@ -53,32 +53,26 @@ impl MarkdownCodec for PromptBlock {
             return;
         }
 
-        if context.render {
-            // Encode content only
-            if let Some(content) = &self.content {
-                content.to_markdown(context);
-            }
-
-            return;
-        }
-
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id))
             .merge_losses(lost_exec_options!(self));
 
         if matches!(context.format, Format::Myst) {
-            context.myst_directive(
-                '`',
-                "prompt",
-                |context| {
-                    if let Some(target) = &self.target {
-                        context.space().push_prop_str(NodeProperty::Target, target);
-                    }
-                },
-                |_| {},
-                |_| {},
-            );
+            context
+                .myst_directive(
+                    '`',
+                    "prompt",
+                    |context| {
+                        if let Some(target) = &self.target {
+                            context.space().push_prop_str(NodeProperty::Target, target);
+                        }
+                    },
+                    |_| {},
+                    |_| {},
+                )
+                .exit_node()
+                .newline();
         } else {
             context.push_colons().push_str(" prompt");
 
@@ -113,8 +107,8 @@ impl MarkdownCodec for PromptBlock {
             if let Some(query) = &self.query {
                 context.space().push_prop_str(NodeProperty::Query, query);
             }
-        }
 
-        context.newline().exit_node().newline();
+            context.newline().exit_node().newline();
+        }
     }
 }

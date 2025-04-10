@@ -203,75 +203,86 @@ impl MarkdownCodec for CodeChunk {
         if matches!(context.format, Format::Myst) {
             let is_mermaid = self.programming_language.as_deref() == Some("mermaid");
 
-            context.myst_directive(
-                '`',
-                if is_mermaid { "mermaid" } else { "code-cell" },
-                |context| {
-                    if let (false, Some(lang)) = (is_mermaid, &self.programming_language) {
-                        context
-                            .push_str(" ")
-                            .push_prop_str(NodeProperty::ProgrammingLanguage, lang);
-                    }
-                },
-                |context| {
-                    if let Some(mode) = &self.execution_mode {
-                        if !matches!(mode, ExecutionMode::Need) {
+            context
+                .myst_directive(
+                    '`',
+                    if is_mermaid { "mermaid" } else { "code-cell" },
+                    |context| {
+                        if let (false, Some(lang)) = (is_mermaid, &self.programming_language) {
+                            context
+                                .push_str(" ")
+                                .push_prop_str(NodeProperty::ProgrammingLanguage, lang);
+                        }
+                    },
+                    |context| {
+                        if let Some(mode) = &self.execution_mode {
+                            if !matches!(mode, ExecutionMode::Need) {
+                                context.myst_directive_option(
+                                    NodeProperty::ExecutionMode,
+                                    Some("mode"),
+                                    &mode.to_string().to_lowercase(),
+                                );
+                            }
+                        }
+
+                        if let Some(bounds) = &self.execution_bounds {
+                            if !matches!(bounds, ExecutionBounds::Main) {
+                                context.myst_directive_option(
+                                    NodeProperty::ExecutionBounds,
+                                    Some("bounds"),
+                                    &bounds.to_string().to_lowercase(),
+                                );
+                            }
+                        }
+
+                        if matches!(self.is_echoed, Some(true)) {
                             context.myst_directive_option(
-                                NodeProperty::ExecutionMode,
-                                Some("mode"),
-                                &mode.to_string().to_lowercase(),
+                                NodeProperty::IsEchoed,
+                                Some("echo"),
+                                "true",
                             );
                         }
-                    }
 
-                    if let Some(bounds) = &self.execution_bounds {
-                        if !matches!(bounds, ExecutionBounds::Main) {
+                        if matches!(self.is_hidden, Some(true)) {
                             context.myst_directive_option(
-                                NodeProperty::ExecutionBounds,
-                                Some("bounds"),
-                                &bounds.to_string().to_lowercase(),
+                                NodeProperty::IsHidden,
+                                Some("hide"),
+                                "true",
                             );
                         }
-                    }
 
-                    if matches!(self.is_echoed, Some(true)) {
-                        context.myst_directive_option(NodeProperty::IsEchoed, Some("echo"), "true");
-                    }
-
-                    if matches!(self.is_hidden, Some(true)) {
-                        context.myst_directive_option(NodeProperty::IsHidden, Some("hide"), "true");
-                    }
-
-                    if let Some(label_type) = &self.label_type {
-                        context.myst_directive_option(
-                            NodeProperty::LabelType,
-                            Some("type"),
-                            match label_type {
-                                LabelType::FigureLabel => "figure",
-                                LabelType::TableLabel => "table",
-                            },
-                        );
-                    }
-
-                    if let Some(label) = &self.label {
-                        context.myst_directive_option(NodeProperty::Label, None, label);
-                    }
-
-                    if let Some(caption) = &self.caption {
-                        // Note: caption must be a single line
-                        let caption = to_markdown(caption).replace('\n', " ");
-                        context.myst_directive_option(NodeProperty::Caption, None, &caption);
-                    }
-                },
-                |context| {
-                    context.push_prop_fn(NodeProperty::Code, |context| {
-                        self.code.to_markdown(context);
-                        if !self.code.ends_with('\n') {
-                            context.newline();
+                        if let Some(label_type) = &self.label_type {
+                            context.myst_directive_option(
+                                NodeProperty::LabelType,
+                                Some("type"),
+                                match label_type {
+                                    LabelType::FigureLabel => "figure",
+                                    LabelType::TableLabel => "table",
+                                },
+                            );
                         }
-                    });
-                },
-            );
+
+                        if let Some(label) = &self.label {
+                            context.myst_directive_option(NodeProperty::Label, None, label);
+                        }
+
+                        if let Some(caption) = &self.caption {
+                            // Note: caption must be a single line
+                            let caption = to_markdown(caption).replace('\n', " ");
+                            context.myst_directive_option(NodeProperty::Caption, None, &caption);
+                        }
+                    },
+                    |context| {
+                        context.push_prop_fn(NodeProperty::Code, |context| {
+                            self.code.to_markdown(context);
+                            if !self.code.ends_with('\n') {
+                                context.newline();
+                            }
+                        });
+                    },
+                )
+                .exit_node()
+                .newline();
         } else if matches!(context.format, Format::Qmd) {
             let lang = self.programming_language.clone().unwrap_or_default();
 
@@ -321,7 +332,9 @@ impl MarkdownCodec for CodeChunk {
                         context.newline();
                     }
                 })
-                .push_str("```\n\n");
+                .push_str("```\n\n")
+                .exit_node()
+                .newline();
         } else {
             let wrapped =
                 if self.label_type.is_some() || self.label.is_some() || self.caption.is_some() {
@@ -433,7 +446,7 @@ impl MarkdownCodec for CodeChunk {
                     .unwrap_or(true)
             {
                 // Encode outputs as separate paragraphs (ensuring blank line after each)
-                context.newline();
+                context.push_str("\n=>\n\n");
                 for output in self.outputs.iter().flatten() {
                     output.to_markdown(context);
                     if !context.content.ends_with("\n\n") {
@@ -441,8 +454,8 @@ impl MarkdownCodec for CodeChunk {
                     }
                 }
             }
-        }
 
-        context.exit_node().newline();
+            context.exit_node().newline();
+        }
     }
 }

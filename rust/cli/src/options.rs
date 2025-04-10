@@ -67,10 +67,6 @@ pub struct EncodeOptions {
     #[arg(long, conflicts_with = "standalone")]
     not_standalone: bool,
 
-    /// For executable nodes, only encode outputs, not source properties
-    #[arg(long, short)]
-    render: bool,
-
     /// Use compact form of encoding if possible
     ///
     /// Use this flag to produce the compact forms of encoding (e.g. no indentation)
@@ -120,8 +116,6 @@ impl EncodeOptions {
             .then_some(true)
             .or(self.not_standalone.then_some(false));
 
-        let render = self.render.then_some(true);
-
         let from_path = input.map(PathBuf::from);
 
         codecs::EncodeOptions {
@@ -129,7 +123,6 @@ impl EncodeOptions {
             format,
             compact,
             standalone,
-            render,
             from_path,
             strip_scopes: strip_options.strip_scopes,
             strip_types: strip_options.strip_types,

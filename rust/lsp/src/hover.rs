@@ -10,7 +10,6 @@ use async_lsp::{
 };
 
 use codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
-use codecs::Format;
 use common::tokio::sync::RwLock;
 use document::Document;
 use schema::{CodeChunk, CodeExpression, Node, NodeId};
@@ -76,7 +75,7 @@ fn code_chunk(node: CodeChunk, uri: &Url, node_id: &NodeId) -> Option<String> {
         return None;
     };
 
-    let mut context = MarkdownEncodeContext::new(Some(Format::Smd), Some(true));
+    let mut context = MarkdownEncodeContext::default();
     for (index, output) in outputs.iter().enumerate() {
         if index > 0 {
             context.push_str("\n\n---\n\n");
@@ -138,7 +137,7 @@ fn code_chunk(node: CodeChunk, uri: &Url, node_id: &NodeId) -> Option<String> {
 fn code_expression(node: CodeExpression) -> Option<String> {
     let output = node.output?;
 
-    let mut context = MarkdownEncodeContext::new(Some(Format::Smd), Some(true));
+    let mut context = MarkdownEncodeContext::default();
     output.to_markdown(&mut context);
     Some(context.content)
 }

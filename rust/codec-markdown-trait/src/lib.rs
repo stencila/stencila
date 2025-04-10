@@ -23,14 +23,14 @@ where
     context.content.trim().to_string()
 }
 
-/// Encode a node that implements `MarkdownCodec` to Markdown with options
+/// Encode a node that implements `MarkdownCodec` to a Markdown flavor
 ///
 /// A convenience function to save the caller from having to create a context etc.
-pub fn to_markdown_with<T>(node: &T, format: Format, render: bool) -> String
+pub fn to_markdown_flavor<T>(node: &T, format: Format) -> String
 where
     T: MarkdownCodec,
 {
-    let mut context = MarkdownEncodeContext::new(Some(format), Some(render));
+    let mut context = MarkdownEncodeContext::new(Some(format));
     node.to_markdown(&mut context);
     context.content.trim().to_string()
 }
@@ -39,9 +39,6 @@ where
 pub struct MarkdownEncodeContext {
     /// The format to render to
     pub format: Format,
-
-    /// The render option of `codec::EncodeOptions`
-    pub render: bool,
 
     /// The encoded Markdown content
     pub content: String,
@@ -72,10 +69,9 @@ pub struct MarkdownEncodeContext {
 }
 
 impl MarkdownEncodeContext {
-    pub fn new(format: Option<Format>, render: Option<bool>) -> Self {
+    pub fn new(format: Option<Format>) -> Self {
         Self {
             format: format.unwrap_or(Format::Smd), // Default to Stencila Markdown
-            render: render.unwrap_or_default(),
             ..Default::default()
         }
     }
@@ -318,9 +314,8 @@ impl MarkdownEncodeContext {
                 .to_string()
                 .repeat(3 + self.depth * if fence == '`' { 1 } else { 2 }),
         );
-        self.content.push('\n');
 
-        self
+        self.newline()
     }
 
     /// Push a property represented as a MyST directive option

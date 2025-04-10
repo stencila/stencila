@@ -6,7 +6,7 @@ use codec::{
     Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
 };
 
-pub use codec_markdown_trait::{to_markdown, to_markdown_with};
+pub use codec_markdown_trait::{to_markdown, to_markdown_flavor};
 
 mod decode;
 pub use decode::decode;

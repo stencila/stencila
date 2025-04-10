@@ -10,7 +10,6 @@ This is a claim
 
 :::
 
-
 ```
 This is a code block
 ```
@@ -35,7 +34,6 @@ This is an if block
 
 ```{include} this/is/an/include
 ```
-
 
 - This is a list
 

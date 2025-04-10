@@ -5,7 +5,7 @@ use codec_markdown_trait::{MarkdownCodec as _, MarkdownEncodeContext};
 pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {
     let options = options.unwrap_or_default();
 
-    let mut context = MarkdownEncodeContext::new(options.format, options.render);
+    let mut context = MarkdownEncodeContext::new(options.format);
 
     node.to_markdown(&mut context);
     if context.content.ends_with("\n\n") {

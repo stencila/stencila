@@ -43,7 +43,7 @@ impl DomCodec for StyledBlock {
 
 impl MarkdownCodec for StyledBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if context.render || matches!(context.format, Format::Llmd) {
+        if matches!(context.format, Format::Llmd) {
             // Only encode content
             self.content.to_markdown(context);
 
@@ -62,21 +62,24 @@ impl MarkdownCodec for StyledBlock {
             ));
 
         if matches!(context.format, Format::Myst) {
-            context.myst_directive(
-                ':',
-                "style",
-                |context| {
-                    context
-                        .push_str(" ")
-                        .push_prop_str(NodeProperty::Code, &self.code);
-                },
-                |_| {},
-                |context| {
-                    context.push_prop_fn(NodeProperty::Content, |context| {
-                        self.content.to_markdown(context)
-                    });
-                },
-            );
+            context
+                .myst_directive(
+                    ':',
+                    "style",
+                    |context| {
+                        context
+                            .push_str(" ")
+                            .push_prop_str(NodeProperty::Code, &self.code);
+                    },
+                    |_| {},
+                    |context| {
+                        context.push_prop_fn(NodeProperty::Content, |context| {
+                            self.content.to_markdown(context)
+                        });
+                    },
+                )
+                .exit_node()
+                .newline();
         } else {
             context
                 .push_colons()
@@ -89,9 +92,9 @@ impl MarkdownCodec for StyledBlock {
                 })
                 .decrease_depth()
                 .push_colons()
+                .newline()
+                .exit_node()
                 .newline();
         }
-
-        context.exit_node().newline();
     }
 }

@@ -4,3 +4,8 @@ compact.jats.xml:
       # TODO: Implement encoding and decoding `IncludeBlock`
       - IncludeBlock
 
+qmd:
+  decode:
+    strip-types:
+      # Not supported in QMD
+      - IncludeBlock

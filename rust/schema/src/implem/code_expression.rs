@@ -4,15 +4,6 @@ use crate::{prelude::*, CodeExpression};
 
 impl MarkdownCodec for CodeExpression {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if context.render || matches!(context.format, Format::Llmd) {
-            // Encode output only
-            if let Some(output) = &self.output {
-                output.to_markdown(context);
-            }
-
-            return;
-        }
-
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, output))
@@ -75,6 +66,12 @@ impl MarkdownCodec for CodeExpression {
             }
 
             context.push_str("}");
+        }
+
+        if let (Format::Llmd, Some(output)) = (&context.format, &self.output) {
+            context
+                .push_str(" => ")
+                .push_prop_fn(NodeProperty::Output, |context| output.to_markdown(context));
         }
 
         context.exit_node();

@@ -22,53 +22,49 @@ impl LatexCodec for IncludeBlock {
 
 impl MarkdownCodec for IncludeBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if context.render || matches!(context.format, Format::Llmd) {
-            // Encode content only
-            if let Some(content) = &self.content {
-                content.to_markdown(context);
-            }
-
-            return;
-        }
-
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id))
             .merge_losses(lost_exec_options!(self));
 
         if matches!(context.format, Format::Myst) {
-            context.myst_directive(
-                '`',
-                "include",
-                |context| {
-                    context
-                        .push_str(" ")
-                        .push_prop_str(NodeProperty::Source, &self.source);
-                },
-                |context| {
-                    if let Some(mode) = self.execution_mode.as_ref() {
-                        context.myst_directive_option(
-                            NodeProperty::ExecutionMode,
-                            Some("mode"),
-                            &mode.to_string().to_lowercase(),
-                        );
-                    }
+            // For MyST, encode as an include directive
+            context
+                .myst_directive(
+                    '`',
+                    "include",
+                    |context| {
+                        context
+                            .push_str(" ")
+                            .push_prop_str(NodeProperty::Source, &self.source);
+                    },
+                    |context| {
+                        if let Some(mode) = self.execution_mode.as_ref() {
+                            context.myst_directive_option(
+                                NodeProperty::ExecutionMode,
+                                Some("mode"),
+                                &mode.to_string().to_lowercase(),
+                            );
+                        }
 
-                    if let Some(format) = self.media_type.as_ref() {
-                        context.myst_directive_option(
-                            NodeProperty::MediaType,
-                            Some("format"),
-                            format,
-                        );
-                    }
+                        if let Some(format) = self.media_type.as_ref() {
+                            context.myst_directive_option(
+                                NodeProperty::MediaType,
+                                Some("format"),
+                                format,
+                            );
+                        }
 
-                    if let Some(select) = self.select.as_ref() {
-                        context.myst_directive_option(NodeProperty::Select, None, select);
-                    }
-                },
-                |_| {},
-            );
-        } else {
+                        if let Some(select) = self.select.as_ref() {
+                            context.myst_directive_option(NodeProperty::Select, None, select);
+                        }
+                    },
+                    |_| {},
+                )
+                .exit_node()
+                .newline();
+        } else if matches!(context.format, Format::Smd | Format::Llmd) {
+            // For SMD, encode as an include block
             context
                 .push_colons()
                 .push_str(" include ")
@@ -103,8 +99,27 @@ impl MarkdownCodec for IncludeBlock {
 
                 context.push_str("}");
             }
-        }
 
-        context.newline().exit_node().newline();
+            if let (Format::Llmd, Some(content)) = (&context.format, &self.content) {
+                // For LLmd, add content resulting from the call (if any)
+                context
+                    .push_str("\n\n=>\n\n")
+                    .push_prop_fn(NodeProperty::Content, |context| {
+                        content.to_markdown(context)
+                    })
+                    .exit_node();
+            } else {
+                // Otherwise finalize encoding
+                context.newline().exit_node().newline();
+            }
+        } else {
+            // For Markdown, QMD etc, which do not support include blocks, only encode content (if any)
+            if let Some(content) = &self.content {
+                context.push_prop_fn(NodeProperty::Content, |context| {
+                    content.to_markdown(context)
+                });
+            }
+            context.exit_node();
+        }
     }
 }

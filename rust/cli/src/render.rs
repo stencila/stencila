@@ -75,7 +75,7 @@ impl Cli {
             doc.save().await?;
         }
 
-        let mut encode_options = encode_options.build(
+        let encode_options = encode_options.build(
             Some(input.as_ref()),
             output.as_deref(),
             to.clone(),
@@ -84,7 +84,6 @@ impl Cli {
             LossesResponse::Debug,
             passthrough_args.clone(),
         );
-        encode_options.render = Some(true);
 
         if let Some(dest) = &output {
             doc.export(dest, Some(encode_options)).await?;

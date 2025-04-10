@@ -49,30 +49,35 @@ impl MarkdownCodec for Figure {
             .merge_losses(lost_options!(self, id, authors, provenance));
 
         if matches!(context.format, Format::Myst) {
-            context.myst_directive(
-                ':',
-                "figure",
-                |context| {
-                    let inlines = blocks_to_inlines(self.content.clone());
-                    let mut urls = inlines.iter().filter_map(|inline| match inline {
-                        Inline::ImageObject(ImageObject { content_url, .. }) => Some(content_url),
-                        _ => None,
-                    });
-                    if let Some(url) = urls.next() {
-                        context.push_str(" ").push_str(url);
-                    }
-                },
-                |context| {
-                    if let Some(label) = &self.label {
-                        context.myst_directive_option(NodeProperty::Label, None, label);
-                    }
-                },
-                |context| {
-                    if let Some(caption) = &self.caption {
-                        caption.to_markdown(context);
-                    }
-                },
-            );
+            context
+                .myst_directive(
+                    ':',
+                    "figure",
+                    |context| {
+                        let inlines = blocks_to_inlines(self.content.clone());
+                        let mut urls = inlines.iter().filter_map(|inline| match inline {
+                            Inline::ImageObject(ImageObject { content_url, .. }) => {
+                                Some(content_url)
+                            }
+                            _ => None,
+                        });
+                        if let Some(url) = urls.next() {
+                            context.push_str(" ").push_str(url);
+                        }
+                    },
+                    |context| {
+                        if let Some(label) = &self.label {
+                            context.myst_directive_option(NodeProperty::Label, None, label);
+                        }
+                    },
+                    |context| {
+                        if let Some(caption) = &self.caption {
+                            caption.to_markdown(context);
+                        }
+                    },
+                )
+                .exit_node()
+                .newline();
         } else {
             context.push_colons().push_str(" figure");
 
@@ -97,9 +102,9 @@ impl MarkdownCodec for Figure {
                 })
                 .decrease_depth()
                 .push_colons()
+                .newline()
+                .exit_node()
                 .newline();
         }
-
-        context.exit_node().newline();
     }
 }

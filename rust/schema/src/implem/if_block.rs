@@ -58,7 +58,7 @@ impl LatexCodec for IfBlock {
 
 impl MarkdownCodec for IfBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if context.render || matches!(context.format, Format::Llmd) {
+        if matches!(context.format, Format::Llmd) {
             // Encode content of the first active clause only
             for clause in &self.clauses {
                 if clause.is_active == Some(true) {

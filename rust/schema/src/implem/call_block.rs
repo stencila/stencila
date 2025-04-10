@@ -23,15 +23,6 @@ impl LatexCodec for CallBlock {
 
 impl MarkdownCodec for CallBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if context.render || matches!(context.format, Format::Llmd) {
-            // Encode content only
-            if let Some(content) = &self.content {
-                content.to_markdown(context);
-            }
-
-            return;
-        }
-
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, content))
@@ -83,6 +74,16 @@ impl MarkdownCodec for CallBlock {
             context.push_str("}");
         }
 
-        context.newline().exit_node().newline();
+        context.newline();
+
+        if let (Format::Llmd, Some(content)) = (&context.format, &self.content) {
+            context
+                .push_str("\n=>\n\n")
+                .push_prop_fn(NodeProperty::Content, |context| {
+                    content.to_markdown(context)
+                });
+        }
+
+        context.exit_node().newline();
     }
 }

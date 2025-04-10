@@ -19,31 +19,34 @@ impl MarkdownCodec for SuggestionBlock {
             .merge_losses(lost_options!(self, id));
 
         if matches!(context.format, Format::Myst) {
-            context.myst_directive(
-                ':',
-                "suggest",
-                |context| {
-                    if let Some(feedback) = &self.feedback {
-                        context
-                            .push_str(" ")
-                            .push_prop_str(NodeProperty::Feedback, feedback);
-                    }
-                },
-                |context| {
-                    if let Some(status) = &self.suggestion_status {
-                        context.myst_directive_option(
-                            NodeProperty::SuggestionStatus,
-                            Some("status"),
-                            status.to_keyword(),
-                        );
-                    }
-                },
-                |context| {
-                    context.push_prop_fn(NodeProperty::Content, |context| {
-                        self.content.to_markdown(context)
-                    });
-                },
-            );
+            context
+                .myst_directive(
+                    ':',
+                    "suggest",
+                    |context| {
+                        if let Some(feedback) = &self.feedback {
+                            context
+                                .push_str(" ")
+                                .push_prop_str(NodeProperty::Feedback, feedback);
+                        }
+                    },
+                    |context| {
+                        if let Some(status) = &self.suggestion_status {
+                            context.myst_directive_option(
+                                NodeProperty::SuggestionStatus,
+                                Some("status"),
+                                status.to_keyword(),
+                            );
+                        }
+                    },
+                    |context| {
+                        context.push_prop_fn(NodeProperty::Content, |context| {
+                            self.content.to_markdown(context)
+                        });
+                    },
+                )
+                .exit_node()
+                .newline();
         } else {
             context.push_colons().push_str(" suggest");
 
@@ -78,8 +81,8 @@ impl MarkdownCodec for SuggestionBlock {
                     context.push_colons().newline();
                 }
             }
-        }
 
-        context.exit_node().newline();
+            context.exit_node().newline();
+        }
     }
 }

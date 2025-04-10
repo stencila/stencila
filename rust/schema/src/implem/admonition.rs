@@ -42,6 +42,7 @@ impl MarkdownCodec for Admonition {
                         });
                     },
                 )
+                .exit_node()
                 .newline();
         } else if matches!(context.format, Format::Qmd) {
             let name = match &self.admonition_type {
@@ -80,7 +81,7 @@ impl MarkdownCodec for Admonition {
                 context.content.pop();
             }
 
-            context.push_str(":::\n\n");
+            context.push_str(":::\n").exit_node().newline();
         } else {
             context
                 .push_str("> [!")
@@ -115,8 +116,8 @@ impl MarkdownCodec for Admonition {
                 context.content.pop();
                 context.content.push('\n');
             }
-        }
 
-        context.exit_node();
+            context.exit_node();
+        }
     }
 }

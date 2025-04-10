@@ -146,107 +146,6 @@ impl MarkdownCodec for Table {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, authors, provenance));
 
-        // Encode the rows of the table
-        fn encode_rows(self_rows: &[TableRow], context: &mut MarkdownEncodeContext) {
-            // Do a first iteration over rows and cells to generate the Markdown
-            // for each cell and determine column widths
-            let mut column_widths: Vec<usize> = Vec::new();
-            let mut rows: Vec<Vec<String>> = Vec::new();
-            for row in self_rows {
-                let mut cells: Vec<String> = Vec::new();
-                for (column, cell) in row.cells.iter().enumerate() {
-                    let mut cell_context = MarkdownEncodeContext::default();
-                    cell.content.to_markdown(&mut cell_context);
-
-                    // Trim, replace inner newlines with <br> (because content is blocks, but in
-                    // Markdown tables must be a single line), & ensure cell has no carriage returns or pipes
-                    // which will break table
-                    let cell_md = cell_context
-                        .content
-                        .trim()
-                        .replace('\n', "<br><br>")
-                        .replace('\r', " ")
-                        .replace('|', "\\|");
-
-                    let width = cell_md.chars().count();
-                    match column_widths.get_mut(column) {
-                        Some(column_width) => {
-                            if width > *column_width {
-                                *column_width = width
-                            }
-                        }
-                        None => column_widths.push(3.max(width)),
-                    }
-
-                    cells.push(cell_md);
-                    context.merge_losses(cell_context.losses);
-                }
-                rows.push(cells);
-            }
-
-            // Rows
-            let divider_row = |context: &mut MarkdownEncodeContext| {
-                context.push_str("|");
-                for width in &column_widths {
-                    context
-                        .push_str(" ")
-                        .push_str(&"-".repeat(*width))
-                        .push_str(" |");
-                }
-                context.newline();
-            };
-            let empty_row = |context: &mut MarkdownEncodeContext| {
-                context.push_str("|");
-                for width in &column_widths {
-                    context.push_str(&" ".repeat(width + 2)).push_str("|");
-                }
-                context.newline();
-            };
-            for (row_index, row) in self_rows.iter().enumerate() {
-                // If this is the first and only row then add an empty header if not
-                // a header row and and empty body otherwise
-                let (empty_header, empty_body) = if row_index == 0 && self_rows.len() == 1 {
-                    let empty_header = !matches!(row.row_type, Some(TableRowType::HeaderRow));
-                    (empty_header, !empty_header)
-                } else {
-                    (false, false)
-                };
-
-                if empty_header {
-                    empty_row(context)
-                }
-
-                if empty_header || row_index == 1 {
-                    divider_row(context)
-                }
-
-                context.enter_node(row.node_type(), row.node_id());
-
-                let cells = &rows[row_index];
-                for (cell_index, cell) in row.cells.iter().enumerate() {
-                    if cell_index == 0 {
-                        context.push_str("|");
-                    }
-
-                    context
-                        .enter_node(cell.node_type(), cell.node_id())
-                        .push_str(&format!(
-                            " {md:width$} ",
-                            md = cells[cell_index],
-                            width = column_widths[cell_index]
-                        ))
-                        .exit_node()
-                        .push_str("|");
-                }
-                context.newline().exit_node();
-
-                if empty_body {
-                    divider_row(context);
-                    empty_row(context);
-                }
-            }
-        }
-
         if matches!(context.format, Format::Myst) {
             if self.label.is_some() || self.caption.is_some() {
                 context.myst_directive(
@@ -267,13 +166,15 @@ impl MarkdownCodec for Table {
                         }
                     },
                     |context| {
-                        encode_rows(&self.rows, context);
+                        encode_rows_to_markdown(&self.rows, context);
                         context.newline();
                     },
                 );
             } else {
-                encode_rows(&self.rows, context);
+                encode_rows_to_markdown(&self.rows, context);
             }
+
+            context.exit_node().newline();
         } else {
             let wrapped = if (self.label.is_some() && !self.label_automatically.unwrap_or(true))
                 || self.caption.is_some()
@@ -304,7 +205,7 @@ impl MarkdownCodec for Table {
                     .decrease_depth();
             }
 
-            encode_rows(&self.rows, context);
+            encode_rows_to_markdown(&self.rows, context);
 
             if let Some(notes) = &self.notes {
                 context
@@ -320,8 +221,109 @@ impl MarkdownCodec for Table {
                 }
                 context.push_colons().newline();
             }
+
+            context.exit_node().newline();
+        }
+    }
+}
+
+// Encode the rows of the table to Markdown
+fn encode_rows_to_markdown(self_rows: &[TableRow], context: &mut MarkdownEncodeContext) {
+    // Do a first iteration over rows and cells to generate the Markdown
+    // for each cell and determine column widths
+    let mut column_widths: Vec<usize> = Vec::new();
+    let mut rows: Vec<Vec<String>> = Vec::new();
+    for row in self_rows {
+        let mut cells: Vec<String> = Vec::new();
+        for (column, cell) in row.cells.iter().enumerate() {
+            let mut cell_context = MarkdownEncodeContext::default();
+            cell.content.to_markdown(&mut cell_context);
+
+            // Trim, replace inner newlines with <br> (because content is blocks, but in
+            // Markdown tables must be a single line), & ensure cell has no carriage returns or pipes
+            // which will break table
+            let cell_md = cell_context
+                .content
+                .trim()
+                .replace('\n', "<br><br>")
+                .replace('\r', " ")
+                .replace('|', "\\|");
+
+            let width = cell_md.chars().count();
+            match column_widths.get_mut(column) {
+                Some(column_width) => {
+                    if width > *column_width {
+                        *column_width = width
+                    }
+                }
+                None => column_widths.push(3.max(width)),
+            }
+
+            cells.push(cell_md);
+            context.merge_losses(cell_context.losses);
+        }
+        rows.push(cells);
+    }
+
+    // Rows
+    let divider_row = |context: &mut MarkdownEncodeContext| {
+        context.push_str("|");
+        for width in &column_widths {
+            context
+                .push_str(" ")
+                .push_str(&"-".repeat(*width))
+                .push_str(" |");
+        }
+        context.newline();
+    };
+    let empty_row = |context: &mut MarkdownEncodeContext| {
+        context.push_str("|");
+        for width in &column_widths {
+            context.push_str(&" ".repeat(width + 2)).push_str("|");
+        }
+        context.newline();
+    };
+    for (row_index, row) in self_rows.iter().enumerate() {
+        // If this is the first and only row then add an empty header if not
+        // a header row and and empty body otherwise
+        let (empty_header, empty_body) = if row_index == 0 && self_rows.len() == 1 {
+            let empty_header = !matches!(row.row_type, Some(TableRowType::HeaderRow));
+            (empty_header, !empty_header)
+        } else {
+            (false, false)
+        };
+
+        if empty_header {
+            empty_row(context)
         }
 
-        context.exit_node().newline();
+        if empty_header || row_index == 1 {
+            divider_row(context)
+        }
+
+        context.enter_node(row.node_type(), row.node_id());
+
+        let cells = &rows[row_index];
+        for (cell_index, cell) in row.cells.iter().enumerate() {
+            if cell_index == 0 {
+                context.push_str("|");
+            }
+
+            context
+                .enter_node(cell.node_type(), cell.node_id())
+                .push_str(&format!(
+                    " {md:width$} ",
+                    md = cells[cell_index],
+                    width = column_widths[cell_index]
+                ))
+                .exit_node()
+                .push_str("|");
+        }
+        context.newline().exit_node();
+
+        if empty_body {
+            divider_row(context);
+            empty_row(context);
+        }
     }
 }

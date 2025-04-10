@@ -437,7 +437,7 @@ impl PatchNode for InstructionBlock {
 
 impl MarkdownCodec for InstructionBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if context.render || matches!(context.format, Format::Llmd) {
+        if matches!(context.format, Format::Llmd) {
             // Encode content only
             if let Some(content) = &self.content {
                 content.to_markdown(context);
@@ -513,8 +513,8 @@ impl MarkdownCodec for InstructionBlock {
                         }
                     },
                 )
-                .newline()
-                .exit_node();
+                .exit_node()
+                .newline();
 
             return;
         }
