@@ -195,56 +195,6 @@ impl MarkdownCodec for CodeChunk {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         let backticks = context.enclosing_backticks(&self.code);
 
-        if context.render || matches!(context.format, Format::Llmd) {
-            // Encode label and caption (ensuring blank line after)
-            if let Some(label_type) = &self.label_type {
-                context.push_str(match label_type {
-                    LabelType::FigureLabel => "Figure ",
-                    LabelType::TableLabel => "Table ",
-                });
-            }
-            if let Some(label) = &self.label {
-                context.push_str(label).push_str(": ");
-            }
-            if let Some(caption) = &self.caption {
-                caption.to_markdown(context)
-            }
-            if !context.content.ends_with("\n\n") {
-                context.push_str("\n\n");
-            }
-
-            // If encoding to LLMd, encode the code (with lang and `exec` keyword)
-            // but not with execution mode etc)
-            if matches!(context.format, Format::Llmd) {
-                context.push_str(&backticks);
-
-                if let Some(lang) = &self.programming_language {
-                    context.push_str(lang).push_str(" ");
-                }
-
-                context.push_str("exec").newline().push_str(&self.code);
-
-                if !self.code.ends_with('\n') {
-                    context.newline();
-                }
-
-                context.push_str(&backticks).push_str("\n\n");
-            }
-
-            // Encode outputs as separate paragraphs (ensuring blank line after each)
-            // (unless hidden)
-            if !matches!(self.is_hidden, Some(true)) {
-                for output in self.outputs.iter().flatten() {
-                    output.to_markdown(context);
-                    if !context.content.ends_with("\n\n") {
-                        context.push_str("\n\n");
-                    }
-                }
-            }
-
-            return;
-        }
-
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id, outputs))
@@ -372,14 +322,6 @@ impl MarkdownCodec for CodeChunk {
                     }
                 })
                 .push_str("```\n\n");
-        } else if matches!(self.programming_language.as_deref(), Some("docsql"))
-            && !self.code.contains(['\n', ';'])
-            && !self.code.contains("let ")
-        {
-            context
-                .push_str("{{")
-                .push_prop_str(NodeProperty::Code, &self.code)
-                .push_str("}}\n");
         } else {
             let wrapped =
                 if self.label_type.is_some() || self.label.is_some() || self.caption.is_some() {
@@ -417,58 +359,87 @@ impl MarkdownCodec for CodeChunk {
                     .decrease_depth();
             }
 
-            context.push_str(&backticks);
-
-            if let Some(lang) = &self.programming_language {
+            if !wrapped
+                && matches!(self.programming_language.as_deref(), Some("docsql"))
+                && !self.code.contains(['\n', ';'])
+                && !self.code.contains("let ")
+            {
                 context
-                    .push_prop_str(NodeProperty::ProgrammingLanguage, lang)
-                    .push_str(" ");
-            }
+                    .push_str("{{")
+                    .push_prop_str(NodeProperty::Code, &self.code)
+                    .push_str("}}\n");
+            } else {
+                context.push_str(&backticks);
 
-            context.push_str("exec");
-
-            if let Some(mode) = &self.execution_mode {
-                if !matches!(mode, ExecutionMode::Need) {
-                    context.push_str(" ").push_prop_str(
-                        NodeProperty::ExecutionMode,
-                        &mode.to_string().to_lowercase(),
-                    );
+                if let Some(lang) = &self.programming_language {
+                    context
+                        .push_prop_str(NodeProperty::ProgrammingLanguage, lang)
+                        .push_str(" ");
                 }
-            }
 
-            if let Some(bounds) = &self.execution_bounds {
-                if !matches!(bounds, ExecutionBounds::Main) {
-                    context.push_str(" ").push_prop_str(
-                        NodeProperty::ExecutionBounds,
-                        &bounds.to_string().to_lowercase(),
-                    );
+                context.push_str("exec");
+
+                if let Some(mode) = &self.execution_mode {
+                    if !matches!(mode, ExecutionMode::Need) {
+                        context.push_str(" ").push_prop_str(
+                            NodeProperty::ExecutionMode,
+                            &mode.to_string().to_lowercase(),
+                        );
+                    }
                 }
-            }
 
-            if matches!(self.is_echoed, Some(true)) {
+                if let Some(bounds) = &self.execution_bounds {
+                    if !matches!(bounds, ExecutionBounds::Main) {
+                        context.push_str(" ").push_prop_str(
+                            NodeProperty::ExecutionBounds,
+                            &bounds.to_string().to_lowercase(),
+                        );
+                    }
+                }
+
+                if matches!(self.is_echoed, Some(true)) {
+                    context
+                        .push_str(" ")
+                        .push_prop_str(NodeProperty::IsEchoed, "echo");
+                }
+
+                if matches!(self.is_hidden, Some(true)) {
+                    context
+                        .push_str(" ")
+                        .push_prop_str(NodeProperty::IsHidden, "hide");
+                }
+
                 context
-                    .push_str(" ")
-                    .push_prop_str(NodeProperty::IsEchoed, "echo");
+                    .newline()
+                    .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context));
+
+                if !self.code.ends_with('\n') {
+                    context.newline();
+                }
+
+                context.push_str(&backticks).newline();
             }
-
-            if matches!(self.is_hidden, Some(true)) {
-                context
-                    .push_str(" ")
-                    .push_prop_str(NodeProperty::IsHidden, "hide");
-            }
-
-            context
-                .newline()
-                .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context));
-
-            if !self.code.ends_with('\n') {
-                context.newline();
-            }
-
-            context.push_str(&backticks).newline();
 
             if wrapped {
                 context.newline().push_colons().newline();
+            }
+
+            if matches!(context.format, Format::Llmd)
+                && !self.is_hidden.unwrap_or_default()
+                && !self
+                    .outputs
+                    .as_ref()
+                    .map(|outputs| outputs.is_empty())
+                    .unwrap_or(true)
+            {
+                // Encode outputs as separate paragraphs (ensuring blank line after each)
+                context.newline();
+                for output in self.outputs.iter().flatten() {
+                    output.to_markdown(context);
+                    if !context.content.ends_with("\n\n") {
+                        context.push_str("\n\n");
+                    }
+                }
             }
         }
 

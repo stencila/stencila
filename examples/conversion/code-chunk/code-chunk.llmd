@@ -13,30 +13,40 @@ a = 3
 
 With language and execution mode:
 
-```js exec
+```js exec always
 // Javascript
 ```
 
 With label:
 
-1A: 
+::: chunk 1A
 
 ```exec
 # Chunk 1A
 ```
 
+:::
+
 Code figure with caption:
 
-Figure 1: Y against X.
+::: figure 1
+
+Y against X.
 
 ```r exec
 plot(y~x)
 ```
 
+:::
+
 Code table with caption:
 
-Table 1: Some cars.
+::: table 1
+
+Some cars.
 
 ```r exec
 head(mtcars)
 ```
+
+:::
