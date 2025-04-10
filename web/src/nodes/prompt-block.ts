@@ -391,7 +391,7 @@ export class PromptBlock extends Executable {
 
   private renderShowHideContent() {
     return html`<sl-tooltip
-      content=${this.showContent ? 'Hide content' : 'Show content'}
+      content=${this.showContent ? 'Hide prompt content' : 'Show prompt content'}
     >
       <stencila-ui-icon-button
         class="text-base"
