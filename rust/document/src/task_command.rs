@@ -386,7 +386,7 @@ fn unwrap_docsql(blocks: Vec<Block>) -> Vec<Block> {
                     if lang == "docsql" {
                         if !inlines.is_empty() {
                             expanded.push(Block::Paragraph(Paragraph {
-                                content: inlines.drain(..).collect(),
+                                content: std::mem::take(&mut inlines),
                                 ..Default::default()
                             }));
                         }
