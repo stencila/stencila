@@ -14,12 +14,12 @@ use codec::{
     common::{indexmap::IndexMap, itertools::Itertools, tracing},
     format::Format,
     schema::{
-        AudioObject, BooleanValidator, Button, Cite, CiteGroup, CodeExpression, CodeInline, Cord,
-        DateTimeValidator, DateValidator, DurationValidator, Emphasis, EnumValidator, ImageObject,
-        Inline, IntegerValidator, Link, MathInline, Node, NodeType, Note, NoteType,
-        NumberValidator, Parameter, ParameterOptions, QuoteInline, Strikeout, StringValidator,
-        Strong, StyledInline, Subscript, Superscript, Text, TimeValidator, TimestampValidator,
-        Underline, Validator, VideoObject,
+        AudioObject, BooleanValidator, Button, CitationMode, Cite, CiteGroup, CodeExpression,
+        CodeInline, Cord, DateTimeValidator, DateValidator, DurationValidator, Emphasis,
+        EnumValidator, ImageObject, Inline, IntegerValidator, Link, MathInline, Node, NodeType,
+        Note, NoteType, NumberValidator, Parameter, ParameterOptions, QuoteInline, Strikeout,
+        StringValidator, Strong, StyledInline, Subscript, Superscript, Text, TimeValidator,
+        TimestampValidator, Underline, Validator, VideoObject,
     },
 };
 
@@ -386,14 +386,18 @@ fn math(input: &mut Located<&str>) -> ModalResult<Inline> {
 ///   - [ ] citation_intent
 fn cite(input: &mut Located<&str>) -> ModalResult<Inline> {
     // TODO: Parse more properties of citations
-    preceded('@', take_while(1.., |chr: char| chr.is_alphanumeric()))
-        .map(|target: &str| {
-            Inline::Cite(Cite {
-                target: target.into(),
-                ..Default::default()
-            })
+    preceded(
+        '@',
+        take_while(1.., |chr: char| chr == '_' || chr.is_alphanumeric()),
+    )
+    .map(|target: &str| {
+        Inline::Cite(Cite {
+            target: target.into(),
+            citation_mode: CitationMode::Narrative,
+            ..Default::default()
         })
-        .parse_next(input)
+    })
+    .parse_next(input)
 }
 
 /// Parse a string into a `CiteGroup` node or parenthetical `Cite` node.
@@ -401,14 +405,17 @@ fn cite(input: &mut Located<&str>) -> ModalResult<Inline> {
 /// If there is only one citation within square brackets then a parenthetical `Cite` node is
 /// returned. Otherwise, the `Cite` nodes are grouped into into a `CiteGroup`.
 fn cite_group(input: &mut Located<&str>) -> ModalResult<Inline> {
-    let cite =
-        preceded('@', take_while(1.., |chr: char| chr.is_alphanumeric())).map(|res: &str| {
-            let target = res.into();
-            Inline::Cite(Cite {
-                target,
-                ..Default::default()
-            })
-        });
+    let cite = preceded(
+        '@',
+        take_while(1.., |chr: char| chr == '_' || chr.is_alphanumeric()),
+    )
+    .map(|res: &str| {
+        let target = res.into();
+        Inline::Cite(Cite {
+            target,
+            ..Default::default()
+        })
+    });
 
     delimited(
         '[',
@@ -877,6 +884,52 @@ mod tests {
     use common_dev::pretty_assertions::assert_eq;
 
     use super::*;
+
+    #[test]
+    fn test_cite() {
+        assert_eq!(
+            cite(&mut Located::new("@someref")).unwrap(),
+            Inline::Cite(Cite {
+                target: "someref".into(),
+                citation_mode: CitationMode::Narrative,
+                ..Default::default()
+            })
+        );
+
+        assert_eq!(
+            cite(&mut Located::new("@exc_a3ser4dkdljUsB1W")).unwrap(),
+            Inline::Cite(Cite {
+                target: "exc_a3ser4dkdljUsB1W".into(),
+                citation_mode: CitationMode::Narrative,
+                ..Default::default()
+            })
+        );
+
+        assert_eq!(
+            cite_group(&mut Located::new("[@a; @b; @c ; @d]")).unwrap(),
+            Inline::CiteGroup(CiteGroup {
+                items: vec![
+                    Cite {
+                        target: "a".into(),
+                        ..Default::default()
+                    },
+                    Cite {
+                        target: "b".into(),
+                        ..Default::default()
+                    },
+                    Cite {
+                        target: "c".into(),
+                        ..Default::default()
+                    },
+                    Cite {
+                        target: "d".into(),
+                        ..Default::default()
+                    }
+                ],
+                ..Default::default()
+            })
+        );
+    }
 
     #[test]
     fn test_code_attrs() {
