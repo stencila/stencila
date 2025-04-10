@@ -42,6 +42,9 @@
       "aliases": [
         "item"
       ],
+      "dom": {
+        "elem": "div"
+      },
       "type": "array",
       "items": {
         "$ref": "Cite.schema.json"

@@ -24,3 +24,5 @@ properties:
     description: One or more `Cite`s to be referenced in the same surrounding text.
     items:
       $ref: Cite
+    dom:
+      elem: div
