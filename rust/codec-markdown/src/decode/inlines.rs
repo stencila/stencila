@@ -341,13 +341,13 @@ fn code_attrs(input: &mut Located<&str>) -> ModalResult<Inline> {
 /// at least some Markdown parsers seem to parse that as TeX math (even though there
 /// is no closing brace).
 ///
-/// The language for double brace expressions is always Jinja.
+/// The language for double brace expressions is always DocsQL (an extension of Jinja).
 fn double_braces(input: &mut Located<&str>) -> ModalResult<Inline> {
     (delimited("{{", take_until(0.., "}}"), "}}"))
         .map(|code: &str| {
             Inline::CodeExpression(CodeExpression {
                 code: code.trim().into(),
-                programming_language: Some("jinja".to_string()),
+                programming_language: Some("docsql".to_string()),
                 ..Default::default()
             })
         })

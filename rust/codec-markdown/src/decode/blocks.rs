@@ -19,11 +19,11 @@ use codec::{
     schema::{
         shortcuts, Admonition, AdmonitionType, Author, Block, CallArgument, CallBlock, Chat,
         ChatMessage, ChatMessageGroup, ChatMessageOptions, Claim, CodeBlock, CodeChunk,
-        ExecutionBounds, ExecutionMode, Figure, ForBlock, Heading, IfBlock, IfBlockClause,
-        IncludeBlock, Inline, InstructionBlock, InstructionMessage, LabelType, List, ListItem,
-        ListOrder, MathBlock, Node, Paragraph, PromptBlock, QuoteBlock, RawBlock, Section,
-        SoftwareApplication, StyledBlock, SuggestionBlock, SuggestionStatus, Table, TableCell,
-        TableRow, TableRowType, Text, ThematicBreak, Walkthrough, WalkthroughStep,
+        CodeExpression, ExecutionBounds, ExecutionMode, Figure, ForBlock, Heading, IfBlock,
+        IfBlockClause, IncludeBlock, Inline, InstructionBlock, InstructionMessage, LabelType, List,
+        ListItem, ListOrder, MathBlock, Node, Paragraph, PromptBlock, QuoteBlock, RawBlock,
+        Section, SoftwareApplication, StyledBlock, SuggestionBlock, SuggestionStatus, Table,
+        TableCell, TableRow, TableRowType, Text, ThematicBreak, Walkthrough, WalkthroughStep,
     },
 };
 
@@ -1387,10 +1387,33 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
             position,
         ),
 
-        mdast::Node::Paragraph(mdast::Paragraph { children, position }) => (
-            Block::Paragraph(Paragraph::new(mds_to_inlines(children, context))),
-            position,
-        ),
+        mdast::Node::Paragraph(mdast::Paragraph { children, position }) => {
+            let inlines = mds_to_inlines(children, context);
+
+            let block = if let (
+                1,
+                Some(Inline::CodeExpression(CodeExpression {
+                    programming_language: Some(lang),
+                    code,
+                    ..
+                })),
+            ) = (inlines.len(), inlines.first())
+            {
+                if lang == "docsql" {
+                    Block::CodeChunk(CodeChunk {
+                        programming_language: Some(lang.to_string()),
+                        code: code.clone(),
+                        ..Default::default()
+                    })
+                } else {
+                    Block::Paragraph(Paragraph::new(inlines))
+                }
+            } else {
+                Block::Paragraph(Paragraph::new(inlines))
+            };
+
+            (block, position)
+        }
 
         mdast::Node::Table(mdast::Table {
             children,

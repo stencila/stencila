@@ -159,7 +159,6 @@ pub fn preprocess(input: &str) -> String {
     let mut empty_line_needed = false;
     let mut html_tag = None;
     let mut in_math_block = false;
-    let mut in_docsql_block = false;
     for line in input.lines() {
         // Wrap certain top level HTML tags in `RawBlock`s
         if line.starts_with("<") && line.ends_with(">") {
@@ -197,7 +196,7 @@ pub fn preprocess(input: &str) -> String {
             output.push('\n');
         }
 
-        let in_special = in_math_block || in_docsql_block || html_tag.is_some();
+        let in_special = in_math_block || html_tag.is_some();
 
         if !in_special && line.starts_with(":::") {
             // Ensure that there is an empty line before this line but
@@ -226,16 +225,6 @@ pub fn preprocess(input: &str) -> String {
         } else if in_math_block && trimmed == r"\]" {
             in_math_block = false;
             "$$".to_string()
-        } else if let (false, Some(rest)) = (in_special, trimmed.strip_prefix("[[")) {
-            if let Some(code) = rest.strip_suffix("]]") {
-                ["```docsql exec\n", code, "\n```"].concat()
-            } else {
-                in_docsql_block = true;
-                ["```docsql exec\n", rest].concat()
-            }
-        } else if let (true, Some(rest)) = (in_docsql_block, trimmed.strip_suffix("]]")) {
-            in_docsql_block = false;
-            [rest, "\n```"].concat()
         } else if !in_special {
             line.replace(r"\(", r"$").replace(r"\)", r"$")
         } else {

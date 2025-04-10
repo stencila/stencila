@@ -377,9 +377,9 @@ impl MarkdownCodec for CodeChunk {
             && !self.code.contains("let ")
         {
             context
-                .push_str("[[")
+                .push_str("{{")
                 .push_prop_str(NodeProperty::Code, &self.code)
-                .push_str("]]\n");
+                .push_str("}}\n");
         } else {
             let wrapped =
                 if self.label_type.is_some() || self.label.is_some() || self.caption.is_some() {

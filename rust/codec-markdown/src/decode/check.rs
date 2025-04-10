@@ -9,49 +9,33 @@ pub fn check(md: &str, _format: &Format) -> Messages {
     let mut colon_fences = Vec::new();
     let mut backtick_fences = Vec::new();
     let mut dollar_fences = Vec::new();
-    let mut bracket_fences = Vec::new();
     for (index, line) in md.lines().enumerate() {
         // Count the number of successive leading colons, backticks, or dollars
         let mut colons = 0;
         let mut backticks = 0;
         let mut dollars = 0;
-        let mut opening_brackets = 0;
-        let mut closing_brackets = 0;
         let mut trailing_chars = false;
         for char in line.chars() {
             if char == ':' {
-                if backticks == 0 && dollars == 0 && opening_brackets == 0 && closing_brackets == 0
-                {
+                if backticks == 0 && dollars == 0 {
                     colons += 1;
                 } else {
                     break;
                 }
             } else if char == '`' {
-                if colons == 0 && dollars == 0 && opening_brackets == 0 && closing_brackets == 0 {
+                if colons == 0 && dollars == 0 {
                     backticks += 1;
                 } else {
                     break;
                 }
             } else if char == '$' {
-                if colons == 0 && backticks == 0 && opening_brackets == 0 && closing_brackets == 0 {
+                if colons == 0 && backticks == 0 {
                     dollars += 1;
                 } else {
                     break;
                 }
-            } else if char == '[' {
-                if colons == 0 && backticks == 0 && dollars == 0 && closing_brackets == 0 {
-                    opening_brackets += 1;
-                } else {
-                    break;
-                }
-            } else if char == ']' {
-                if colons == 0 && backticks == 0 && dollars == 0 && opening_brackets == 0 {
-                    closing_brackets += 1;
-                } else {
-                    break;
-                }
             } else if char != ' ' && char != '\t' {
-                if colons >= 3 || backticks >= 3 || opening_brackets >= 2 {
+                if colons >= 3 || backticks >= 3 {
                     trailing_chars = true;
                 }
                 break;
@@ -72,10 +56,6 @@ pub fn check(md: &str, _format: &Format) -> Messages {
             OpeningBackticks(u32),
             #[strum(to_string = "closing backtick fence")]
             ClosingBackticks(u32),
-            #[strum(to_string = "opening square brackets")]
-            OpeningBrackets(u32),
-            #[strum(to_string = "closing square brackets")]
-            ClosingBrackets(u32),
             #[strum(to_string = "dollar fence")]
             Dollars(u32),
         }
@@ -115,10 +95,6 @@ pub fn check(md: &str, _format: &Format) -> Messages {
             } else {
                 Fence::ClosingBackticks(backticks)
             }
-        } else if opening_brackets >= 2 && !line.trim_end().ends_with("]]") {
-            Fence::OpeningBrackets(opening_brackets)
-        } else if closing_brackets >= 2 {
-            Fence::ClosingBrackets(closing_brackets)
         } else if dollars >= 2 {
             Fence::Dollars(dollars)
         } else {
@@ -203,24 +179,6 @@ pub fn check(md: &str, _format: &Format) -> Messages {
                     }
                 }
             }
-            Fence::OpeningBrackets(..) => bracket_fences.push((index, fence)),
-            Fence::ClosingBrackets(closing_brackets) => {
-                match bracket_fences.last() {
-                    Some(&(opening_line, Fence::OpeningBrackets(opening_brackets))) => {
-                        if closing_brackets != opening_brackets {
-                            messages.push(warning(index,
-                                format!(
-                                    "Number of closing square brackets differs from opening square brackets on line {opening_line} ({closing_brackets} != {opening_brackets})",
-                                    opening_line = opening_line + 1
-                            )));
-                        }
-                        // Pop off the last opening fence
-                        bracket_fences.pop();
-                    }
-                    Some(..) => {}
-                    None => messages.push(error(index, "Unpaired opening square brackets")),
-                }
-            }
             Fence::Dollars(dollars) => {
                 match dollar_fences.last() {
                     Some(&(opening_line, Fence::Dollars(opening_dollars))) => {
@@ -247,10 +205,6 @@ pub fn check(md: &str, _format: &Format) -> Messages {
     }
 
     for (line, fence) in backtick_fences {
-        messages.push(error(line, format!("Unpaired {fence}")))
-    }
-
-    for (line, fence) in bracket_fences {
         messages.push(error(line, format!("Unpaired {fence}")))
     }
 
