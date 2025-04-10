@@ -1,6 +1,6 @@
 import { NodeType } from '@stencila/types'
 import { html } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
+import { customElement, property, state } from 'lit/decorators.js'
 
 import { withTwind } from '../twind'
 import { nodeUi } from '../ui/nodes/icons-and-colours'
@@ -29,6 +29,14 @@ export class Excerpt extends Entity {
   @property({ attribute: 'node-type' })
   nodeType_: NodeType
 
+  /**
+   * Toggle show/hide content
+   *
+   * Defaults to false, and then is toggled off/on by user.
+   */
+  @state()
+  private showContent?: boolean = false
+
   public static shouldExpand(card: HTMLElement, nodeType: NodeType): boolean {
     return (
       nodeType == 'Excerpt' ||
@@ -38,7 +46,7 @@ export class Excerpt extends Entity {
   }
 
   override render() {
-    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
+    if (this.isWithin('StyledBlock')) {
       return this.renderContent()
     }
 
@@ -64,6 +72,7 @@ export class Excerpt extends Entity {
         node-id=${this.id}
         depth=${this.depth}
         ?has-root=${this.hasRoot()}
+        no-content-padding
       >
         <div slot="header-right" class="flex items-center gap-1">
           <stencila-ui-icon
@@ -74,12 +83,49 @@ export class Excerpt extends Entity {
         </div>
         <div slot="body" class="p-3">
           <slot name="source"></slot>
-          <div class="text-2xs font-sans mt-2">
-            ${this.nodeAncestors.replace(/\//g, ' > ')} > ${this.nodeType_}
+          <div class="flex items-center justify-between mt-2">
+            ${this.renderAncestors()} ${this.renderShowHideContent()}
           </div>
         </div>
-        <div slot="content">${this.renderContent()}</div>
+
+        <div
+          slot="content"
+          class="px-3 transition-[padding-top,padding-bottom] duration-500 ease-in-out ${this
+            .showContent
+            ? 'py-3'
+            : 'py-0'}"
+        >
+          <stencila-ui-collapsible-animation
+            class=${this.showContent ? 'opened' : ''}
+          >
+            ${this.renderContent()}
+          </stencila-ui-collapsible-animation>
+        </div>
       </stencila-ui-block-on-demand>
     `
+  }
+
+  private renderAncestors() {
+    return html`<div class="text-xs font-sans">
+      ${this.nodeAncestors.replace(/\//g, ' > ')} > ${this.nodeType_}
+    </div>`
+  }
+
+  private renderShowHideContent() {
+    return html`<sl-tooltip
+      content=${this.showContent
+        ? 'Hide excerpt content'
+        : 'Show excerpt content'}
+    >
+      <stencila-ui-icon-button
+        class="text-sm"
+        name=${this.showContent ? 'eyeSlash' : 'eye'}
+        @click=${(e: Event) => {
+          // Stop the click behavior of the card header parent element
+          e.stopImmediatePropagation()
+          this.showContent = !this.showContent
+        }}
+      ></stencila-ui-icon-button>
+    </sl-tooltip>`
   }
 }
