@@ -63,7 +63,7 @@ impl MarkdownCodec for IncludeBlock {
                 )
                 .exit_node()
                 .newline();
-        } else if matches!(context.format, Format::Smd | Format::Llmd) {
+        } else if matches!(context.format, Format::Smd) {
             // For SMD, encode as an include block
             context
                 .push_colons()
@@ -100,24 +100,15 @@ impl MarkdownCodec for IncludeBlock {
                 context.push_str("}");
             }
 
-            if let (Format::Llmd, Some(content)) = (&context.format, &self.content) {
-                // For LLmd, add content resulting from the call (if any)
-                context
-                    .push_str("\n\n=>\n\n")
-                    .push_prop_fn(NodeProperty::Content, |context| {
-                        content.to_markdown(context)
-                    })
-                    .exit_node();
-            } else {
-                // Otherwise finalize encoding
-                context.newline().exit_node().newline();
-            }
+            context.newline().exit_node().newline();
         } else {
-            // For Markdown, QMD etc, which do not support include blocks, only encode content (if any)
+            // For Markdown, QMD, LLMd etc, which do not support include blocks, only encode content (if any)
             if let Some(content) = &self.content {
-                context.push_prop_fn(NodeProperty::Content, |context| {
-                    content.to_markdown(context)
-                });
+                if !content.is_empty() {
+                    context.push_prop_fn(NodeProperty::Content, |context| {
+                        content.to_markdown(context)
+                    });
+                }
             }
             context.exit_node();
         }
