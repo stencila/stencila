@@ -86,6 +86,14 @@ impl MarkdownEncodeContext {
         self.node_stack.is_empty()
     }
 
+    /// Is the parent of the node currently being encoded a particular type?
+    pub fn parent_is(&self, node_type: NodeType) -> bool {
+        match self.node_stack.last() {
+            Some((parent, ..)) => parent == &node_type,
+            None => false,
+        }
+    }
+
     /// Enter a node
     ///
     /// Pushes the node id and start position onto the stack.

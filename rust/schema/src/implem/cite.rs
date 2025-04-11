@@ -31,11 +31,14 @@ impl Cite {
 
 impl MarkdownCodec for Cite {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        let brackets = matches!(self.citation_mode, CitationMode::Parenthetical)
+            && !context.parent_is(NodeType::CiteGroup);
+
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id));
 
-        if matches!(self.citation_mode, CitationMode::Parenthetical) {
+        if brackets {
             context.push_str("[");
         }
 
@@ -51,7 +54,7 @@ impl MarkdownCodec for Cite {
             context.push_str(suffix);
         }
 
-        if matches!(self.citation_mode, CitationMode::Parenthetical) {
+        if brackets {
             context.push_str("]");
         }
 
