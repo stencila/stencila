@@ -5,9 +5,6 @@
   "title": "Inline",
   "category": "prose",
   "description": "Union type for valid inline content.",
-  "markdown": {
-    "derive": false
-  },
   "proptest": {},
   "anyOf": [
     {
