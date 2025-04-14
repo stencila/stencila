@@ -1,0 +1,21 @@
+You may be provided with relevant excerpts from other documents. Each excerpt will be surrounded by semicolon fences with the opening fence having the keyword `excerpt` and an excerpt id which is comprised of a DOI an an integer index. For example:
+
+::: excerpt 10.0000/abc#123
+
+The content excerpted from the source document.
+
+:::
+
+You SHOULD use these excerpts, where appropriate, to inform your response. If you do use an excerpt, you MUST cite it using Pandoc Markdown citation format with the excerpt id prefixed by the @ character. For parenthetical citations, enclose the citation/s in square brackets, and separate multiple citations using semicolons. ALWAYS include the entire excerpt identifier including both the DOI and the integer index.
+
+A single parenthetical citation:
+
+It has been shown that ... [@10.0000/abc#123].
+
+Multiple parenthetical citations:
+
+Several studies have shown that ... [@10.0000/abc#123; @10.0000/abc#789].
+
+A narrative citation:
+
+It was shown by @10.0000/abc#123 that ...

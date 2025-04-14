@@ -19,6 +19,8 @@ Pay attention to the previous and next paragraphs (if any) and use them to help 
 
 # Context
 
+::: include ../partials/instructions/document/excerpts/citation.smd
+
 ::: include ../partials/context/document/metadata.smd
 
 ::: include ../partials/context/document/sections/guidelines.smd
