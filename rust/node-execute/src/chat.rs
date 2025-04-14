@@ -220,6 +220,25 @@ impl Executable for Chat {
             executor.patch(&node_id, [push(NodeProperty::Content, message)])
         }
 
+        // Execute the **content** of user messages before converting to instruction messages
+        for msg in self.content.iter_mut() {
+            if let Block::ChatMessage(
+                msg @ ChatMessage {
+                    role: MessageRole::User,
+                    ..
+                },
+            ) = msg
+            {
+                if let Err(error) = executor
+                    .fork_for_all()
+                    .compile_prepare_execute(&mut msg.content)
+                    .await
+                {
+                    tracing::error!("While executing user message: {error}");
+                }
+            }
+        }
+
         // Append the existing messages in this chat
         instruction_messages.append(
             &mut self
@@ -364,13 +383,12 @@ impl Executable for Chat {
                     if let Err(error) = authorship(&mut content, authors.clone()) {
                         tracing::error!("While applying authorship to content: {error}");
                     }
-
-                    // Apply execution bounds
-                    apply_execution_bounds(&mut content, execution_bounds);
-
                     // Execute the content. Note that this is spawned as an async task so that
                     // the message can be updated with the unexecuted content first.
                     if execute_content {
+                        // Apply execution bounds
+                        apply_execution_bounds(&mut content, execution_bounds);
+
                         let mut fork = executor.fork_for_all();
                         let mut content = content.clone();
                         let message_id = message_id.clone();
@@ -379,7 +397,7 @@ impl Executable for Chat {
                             loop {
                                 // Format, fix & lint the content before executing
                                 if let Err(error) =
-                                    fork.compile_lint(&mut content, true, true).await
+                                    fork.compile_link_lint(&mut content, true, true).await
                                 {
                                     tracing::error!("While linting content: {error}");
                                 };
@@ -572,17 +590,26 @@ impl Executable for Chat {
         let count = self.options.execution_count.unwrap_or_default() + 1;
 
         // Patch the chat's execution details
-        executor.patch(
-            &node_id,
-            [
-                set(NodeProperty::ExecutionStatus, status),
-                set(NodeProperty::ExecutionRequired, required),
-                set(NodeProperty::ExecutionMessages, messages),
-                set(NodeProperty::ExecutionDuration, duration),
-                set(NodeProperty::ExecutionEnded, ended),
-                set(NodeProperty::ExecutionCount, count),
-            ],
-        );
+        // Note: this requests a compile of the document. This is needed for things like
+        // linking `Cite`s to `Excerpt`s because they are not in the same message so this
+        // can not be done on individual messages.
+        let ops = [
+            set(NodeProperty::ExecutionStatus, status),
+            set(NodeProperty::ExecutionRequired, required),
+            set(NodeProperty::ExecutionMessages, messages),
+            set(NodeProperty::ExecutionDuration, duration),
+            set(NodeProperty::ExecutionEnded, ended),
+            set(NodeProperty::ExecutionCount, count),
+        ]
+        .into_iter()
+        .map(|(property, op)| (NodePath::from(property), op))
+        .collect();
+        executor.send_patch(Patch {
+            node_id: Some(node_id),
+            ops,
+            compile: true,
+            ..Default::default()
+        });
 
         // Break walk because the chat has been updated
         WalkControl::Break
@@ -600,6 +627,7 @@ impl Executable for Chat {
     }
 }
 
+/// Convert a [`ChatMessage`] to an [`InstructionMessage`]
 fn msg_to_instr_msg(msg: &ChatMessage) -> Option<InstructionMessage> {
     // Begin parts with content of message converted to Markdown
     let mut parts: Vec<MessagePart> = blocks_to_message_part(&msg.content)

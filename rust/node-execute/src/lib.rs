@@ -18,7 +18,7 @@ use schema::{
     AuthorRole, AuthorRoleName, Block, CompilationDigest, CompilationMessage, Config,
     ExecutionBounds, ExecutionMode, ExecutionStatus, Inline, Link, List, ListItem, ListOrder, Node,
     NodeId, NodePath, NodeProperty, NodeType, Paragraph, Patch, PatchNode, PatchOp, PatchValue,
-    Timestamp, VisitorAsync, WalkControl, WalkNode,
+    Reference, Timestamp, VisitorAsync, WalkControl, WalkNode,
 };
 
 type NodeIds = Vec<NodeId>;
@@ -28,9 +28,12 @@ mod prelude;
 mod article;
 mod call_block;
 mod chat;
+mod cite;
+mod cite_group;
 mod code_chunk;
 mod code_expression;
 mod code_utils;
+mod excerpt;
 mod figure;
 mod for_block;
 mod heading;
@@ -63,7 +66,8 @@ pub async fn compile(
     let mut root = root.read().await.clone();
     let mut executor = Executor::new(home, kernels, patch_sender);
     executor.config = Some(config);
-    executor.compile(&mut root).await
+    executor.compile(&mut root).await?;
+    executor.link(&mut root).await
 }
 
 /// Walk over a root node and lint it and child nodes
@@ -80,6 +84,7 @@ pub async fn lint(
     let mut executor = Executor::new(home, kernels, patch_sender);
     executor.config = Some(config);
     executor.compile(&mut root).await?;
+    executor.link(&mut root).await?;
     executor.lint(&mut root, format, fix).await
 }
 
@@ -124,6 +129,11 @@ pub async fn interrupt(
 trait Executable {
     /// Compile the node
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Link the node
+    async fn link(&mut self, executor: &mut Executor) -> WalkControl {
         WalkControl::Continue
     }
 
@@ -208,6 +218,18 @@ pub struct Executor {
 
     /// The count of `MathBlock`s
     equation_count: u32,
+
+    /// References that may be the `target` of citations
+    targets: HashMap<String, Reference>,
+
+    /// References within the document
+    ///
+    /// Usually, only references in `Cite` nodes will be listed in the references
+    /// section of the document.
+    ///
+    /// This is an [`IndexMap`] so that, if desired, references can be listed in
+    /// order of appearance in the document.
+    references: Vec<Reference>,
 
     /// The last programming language used
     programming_language: Option<String>,
@@ -383,6 +405,7 @@ pub struct ExecuteOptions {
 #[derive(Clone)]
 enum Phase {
     Compile,
+    Link,
     Prepare,
     Execute,
     Interrupt,
@@ -410,6 +433,8 @@ impl Executor {
             table_count: 0,
             figure_count: 0,
             equation_count: 0,
+            targets: Default::default(),
+            references: Default::default(),
             programming_language: None,
             linting_context: Vec::new(),
             force_all: false,
@@ -485,15 +510,41 @@ impl Executor {
     }
 
     /// Run [`Phase::Compile`]
-    async fn compile(&mut self, root: &mut Node) -> Result<()> {
+    async fn compile<N: WalkNode + PatchNode + Debug>(&mut self, root: &mut N) -> Result<()> {
         self.phase = Phase::Compile;
         self.table_count = 0;
         self.figure_count = 0;
         self.equation_count = 0;
+        self.targets.clear();
         self.linting_context.clear();
         self.walk_position = 0;
         self.walk_ancestors.clear();
         root.walk_async(self).await?;
+
+        Ok(())
+    }
+
+    /// Run [`Phase::Link`]
+    async fn link<N: WalkNode + PatchNode + Debug>(&mut self, root: &mut N) -> Result<()> {
+        self.phase = Phase::Link;
+        self.references.clear();
+        self.walk_position = 0;
+        self.walk_ancestors.clear();
+        root.walk_async(self).await?;
+
+        Ok(())
+    }
+
+    /// Run [`Phase::Compile`] and [`Phase::Link`] on a node and lint any code within it
+    async fn compile_link_lint<N: WalkNode + PatchNode + Debug>(
+        &mut self,
+        node: &mut N,
+        format: bool,
+        fix: bool,
+    ) -> Result<()> {
+        self.compile(node).await?;
+        self.link(node).await?;
+        self.lint(node, format, fix).await?;
 
         Ok(())
     }
@@ -878,21 +929,6 @@ impl Executor {
         root.walk_async(self).await
     }
 
-    /// Run the compile phase on content and lint any code within it
-    async fn compile_lint<N: WalkNode + PatchNode + Debug>(
-        &mut self,
-        node: &mut N,
-        format: bool,
-        fix: bool,
-    ) -> Result<()> {
-        self.phase = Phase::Compile;
-        node.walk_async(self).await?;
-
-        self.lint(node, format, fix).await?;
-
-        Ok(())
-    }
-
     /// Run the prepare and execute phases on content
     async fn prepare_execute<W: WalkNode>(&mut self, node: &mut W) -> Result<()> {
         for phase in [Phase::Prepare, Phase::Execute] {
@@ -1090,6 +1126,7 @@ impl Executor {
     async fn visit_executable<E: Executable>(&mut self, node: &mut E) -> WalkControl {
         match self.phase {
             Phase::Compile => node.compile(self).await,
+            Phase::Link => node.link(self).await,
             Phase::Prepare => node.prepare(self).await,
             Phase::Execute => node.execute(self).await,
             Phase::Interrupt => node.interrupt(self).await,
@@ -1104,8 +1141,9 @@ impl VisitorAsync for Executor {
             Article(node) => self.visit_executable(node).await,
             Prompt(node) => self.visit_executable(node).await,
             Chat(node) => self.visit_executable(node).await,
-            // Visit executable nodes in outputs of code chunks
+            // Visit nodes in outputs of code chunks
             CodeChunk(node) => self.visit_executable(node).await,
+            Excerpt(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
         })
     }
@@ -1157,6 +1195,8 @@ impl VisitorAsync for Executor {
 
         use Inline::*;
         Ok(match inline {
+            Cite(node) => self.visit_executable(node).await,
+            CiteGroup(node) => self.visit_executable(node).await,
             CodeExpression(node) => self.visit_executable(node).await,
             InstructionInline(node) => self.visit_executable(node).await,
             MathInline(node) => self.visit_executable(node).await,
