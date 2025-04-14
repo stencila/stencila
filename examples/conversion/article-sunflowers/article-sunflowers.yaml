@@ -55,11 +55,7 @@ keywords:
 - floral organs
 - external coincidence model
 references:
-- type: PublicationVolume
-  id: R package “circular”
-  isPartOf:
-    type: Periodical
-    id: Circular Statistics (version 0.4-94)
+- type: Reference
   authors:
   - type: Person
     familyNames:
@@ -71,16 +67,12 @@ references:
     - Lund
     givenNames:
     - U.
-- type: PublicationVolume
-  id: Gongylolepis martiana, an Asteraceae pollinated by bats in the Amazon
-  isPartOf:
-    type: Periodical
-    id: Plant Biol
-  volumeNumber: 23
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1111/plb.13283
+  date:
+    type: Date
+    value: '2022'
+  title: R package “circular”
+- type: Reference
+  doi: 10.1111/plb.13283
   authors:
   - type: Person
     familyNames:
@@ -107,18 +99,20 @@ references:
     - Rech
     givenNames:
     - AR
+  date:
+    type: Date
+    value: '2021'
+  title: Gongylolepis martiana, an Asteraceae pollinated by bats in the Amazon
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Plant Biol
+    volumeNumber: 23
   pageStart: 728
   pageEnd: 734
-- type: PublicationVolume
-  id: Circadian regulation of sunflower heliotropism, floral orientation, and pollinator visits
-  isPartOf:
-    type: Periodical
-    id: Science
-  volumeNumber: 353
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1126/science.aaf9793
+- type: Reference
+  doi: 10.1126/science.aaf9793
   authors:
   - type: Person
     familyNames:
@@ -150,14 +144,19 @@ references:
     - Harmer
     givenNames:
     - SL
+  date:
+    type: Date
+    value: '2016'
+  title: Circadian regulation of sunflower heliotropism, floral orientation, and pollinator visits
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Science
+    volumeNumber: 353
   pageStart: 587
   pageEnd: 590
-- type: PublicationVolume
-  id: Light control of elongation of filament in sunflower (Helianthus annuus L
-  isPartOf:
-    type: Periodical
-    id: Photochem Photobiol
-  volumeNumber: 52
+- type: Reference
   authors:
   - type: Person
     familyNames:
@@ -179,18 +178,20 @@ references:
     - Pugliesi
     givenNames:
     - C.
+  date:
+    type: Date
+    value: '1990'
+  title: Light control of elongation of filament in sunflower (Helianthus annuus L
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Photochem Photobiol
+    volumeNumber: 52
   pageStart: 229
   pageEnd: 231
-- type: PublicationVolume
-  id: 'Time is honey: circadian clocks of bees and flowers and how their interactions may influence ecological communities'
-  isPartOf:
-    type: Periodical
-    id: Philos Trans R Soc B Biol Sci
-  volumeNumber: 372
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1098/rstb.2016.0256
+- type: Reference
+  doi: 10.1098/rstb.2016.0256
   authors:
   - type: Person
     familyNames:
@@ -212,17 +213,19 @@ references:
     - Green
     givenNames:
     - R.
-  pageStart: 20160256
-- type: PublicationVolume
-  id: The Circadian Clock in Lepidoptera
+  date:
+    type: Date
+    value: '2017'
+  title: 'Time is honey: circadian clocks of bees and flowers and how their interactions may influence ecological communities'
   isPartOf:
-    type: Periodical
-    id: Front Physiol
-  volumeNumber: 12
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.3389/fphys.2021.776826
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Philos Trans R Soc B Biol Sci
+    volumeNumber: 372
+  pageStart: 20160256
+- type: Reference
+  doi: 10.3389/fphys.2021.776826
   authors:
   - type: Person
     familyNames:
@@ -244,13 +247,18 @@ references:
     - Sandrelli
     givenNames:
     - F.
-  pageStart: 776826
-- type: PublicationVolume
-  id: Pollination ecology of Bidens pilosa L. (Asteraceae)
+  date:
+    type: Date
+    value: '2021'
+  title: The Circadian Clock in Lepidoptera
   isPartOf:
-    type: Periodical
-    id: Taiwania
-  volumeNumber: 63
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Front Physiol
+    volumeNumber: 12
+  pageStart: 776826
+- type: Reference
   authors:
   - type: Person
     familyNames:
@@ -262,50 +270,59 @@ references:
     - Raju
     givenNames:
     - AJS
+  date:
+    type: Date
+    value: '2018'
+  title: Pollination ecology of Bidens pilosa L. (Asteraceae)
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Taiwania
+    volumeNumber: 63
   pageStart: 89
   pageEnd: 100
-- type: PublicationVolume
-  id: Endogene Tagesrhythmik und Photoperiodismus bei Kalanchoë blössfedliana
-  isPartOf:
-    type: Periodical
-    id: Planta
-  volumeNumber: 42
+- type: Reference
   authors:
   - type: Person
     familyNames:
     - Bünsow
     givenNames:
     - R.
+  date:
+    type: Date
+    value: '1953'
+  title: Endogene Tagesrhythmik und Photoperiodismus bei Kalanchoë blössfedliana
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Planta
+    volumeNumber: 42
   pageStart: 220
   pageEnd: 252
-- type: PublicationVolume
-  id: The Hormonal Regulation of Flower Development
-  isPartOf:
-    type: Periodical
-    id: J Plant Growth Regul
-  volumeNumber: 30
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1007/s00344-010-9180-x
+- type: Reference
+  doi: 10.1007/s00344-010-9180-x
   authors:
   - type: Person
     familyNames:
     - Chandler
     givenNames:
     - JW
+  date:
+    type: Date
+    value: '2011'
+  title: The Hormonal Regulation of Flower Development
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: J Plant Growth Regul
+    volumeNumber: 30
   pageStart: 242
   pageEnd: 254
-- type: PublicationVolume
-  id: Flower orientation influences floral temperature, pollinator visits and plant fitness
-  isPartOf:
-    type: Periodical
-    id: New Phytol
-  volumeNumber: 232
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1111/nph.17627
+- type: Reference
+  doi: 10.1111/nph.17627
   authors:
   - type: Person
     familyNames:
@@ -357,18 +374,20 @@ references:
     - Harmer
     givenNames:
     - SL
+  date:
+    type: Date
+    value: '2021'
+  title: Flower orientation influences floral temperature, pollinator visits and plant fitness
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: New Phytol
+    volumeNumber: 232
   pageStart: 868
   pageEnd: 879
-- type: PublicationVolume
-  id: The foraging activity of honey bees Apis mellifera and non-Apis bees on hybrid sunflowers (Helianthus annuus) and its influence on cross-pollination and seed set
-  isPartOf:
-    type: Periodical
-    id: J Apic Res
-  volumeNumber: 39
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1080/00218839.2000.11101019
+- type: Reference
+  doi: 10.1080/00218839.2000.11101019
   authors:
   - type: Person
     familyNames:
@@ -380,18 +399,20 @@ references:
     - Watkins
     givenNames:
     - JC
+  date:
+    type: Date
+    value: '2000'
+  title: The foraging activity of honey bees Apis mellifera and non-Apis bees on hybrid sunflowers (Helianthus annuus) and its influence on cross-pollination and seed set
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: J Apic Res
+    volumeNumber: 39
   pageStart: 37
   pageEnd: 45
-- type: PublicationVolume
-  id: Plant circadian clocks increase photosynthesis, growth, survival, and competitive advantage
-  isPartOf:
-    type: Periodical
-    id: Science
-  volumeNumber: 309
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1126/science.1115581
+- type: Reference
+  doi: 10.1126/science.1115581
   authors:
   - type: Person
     familyNames:
@@ -438,18 +459,20 @@ references:
     - Webb
     givenNames:
     - A a R.
+  date:
+    type: Date
+    value: '2005'
+  title: Plant circadian clocks increase photosynthesis, growth, survival, and competitive advantage
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Science
+    volumeNumber: 309
   pageStart: 630
   pageEnd: 633
-- type: PublicationVolume
-  id: Concordance of the circadian clock with the environment is necessary to maximize fitness in natural populations
-  isPartOf:
-    type: Periodical
-    id: Evolution
-  volumeNumber: 62
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1111/j.1558-5646.2008.00324.x
+- type: Reference
+  doi: 10.1111/j.1558-5646.2008.00324.x
   authors:
   - type: Person
     familyNames:
@@ -466,13 +489,19 @@ references:
     - Holzapfel
     givenNames:
     - CM
+  date:
+    type: Date
+    value: '2008'
+  title: Concordance of the circadian clock with the environment is necessary to maximize fitness in natural populations
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Evolution
+    volumeNumber: 62
   pageStart: 979
   pageEnd: 83
-- type: PublicationVolume
-  id: Classification of Compositae
-  isPartOf:
-    type: Periodical
-    id: Systematics, Evolution and Biogeography of the Compositae
+- type: Reference
   authors:
   - type: Person
     familyNames:
@@ -494,18 +523,14 @@ references:
     - Robinson
     givenNames:
     - H.
+  date:
+    type: Date
+    value: '2009'
+  title: Classification of Compositae
   pageStart: 171
   pageEnd: 189
-- type: PublicationVolume
-  id: Integrating circadian dynamics with physiological processes in plants
-  isPartOf:
-    type: Periodical
-    id: Nat Rev Genet
-  volumeNumber: 16
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1038/nrg3976
+- type: Reference
+  doi: 10.1038/nrg3976
   authors:
   - type: Person
     familyNames:
@@ -517,18 +542,20 @@ references:
     - McClung
     givenNames:
     - CR
+  date:
+    type: Date
+    value: '2015'
+  title: Integrating circadian dynamics with physiological processes in plants
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Nat Rev Genet
+    volumeNumber: 16
   pageStart: 598
   pageEnd: 610
-- type: PublicationVolume
-  id: The pollination biology of Pseudostifftia kingii H.Rob. (Asteraceae), a rare endemic Brazilian species with uniflorous capitula
-  isPartOf:
-    type: Periodical
-    id: Braz J Bot
-  volumeNumber: 36
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1007/s40415-013-0023-4
+- type: Reference
+  doi: 10.1007/s40415-013-0023-4
   authors:
   - type: Person
     familyNames:
@@ -555,18 +582,20 @@ references:
     - Kevan
     givenNames:
     - PG
+  date:
+    type: Date
+    value: '2013'
+  title: The pollination biology of Pseudostifftia kingii H.Rob. (Asteraceae), a rare endemic Brazilian species with uniflorous capitula
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Braz J Bot
+    volumeNumber: 36
   pageStart: 247
   pageEnd: 254
-- type: PublicationVolume
-  id: Circadian clocks and the measurement of daylength in seasonal reproduction
-  isPartOf:
-    type: Periodical
-    id: Mol Cell Endocrinol
-  volumeNumber: 349
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1016/j.mce.2011.06.040
+- type: Reference
+  doi: 10.1016/j.mce.2011.06.040
   authors:
   - type: Person
     familyNames:
@@ -578,18 +607,20 @@ references:
     - Yoshimura
     givenNames:
     - T.
+  date:
+    type: Date
+    value: '2012'
+  title: Circadian clocks and the measurement of daylength in seasonal reproduction
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Mol Cell Endocrinol
+    volumeNumber: 349
   pageStart: 76
   pageEnd: 81
-- type: PublicationVolume
-  id: 'Photoperiodic control of flowering: not only by coincidence'
-  isPartOf:
-    type: Periodical
-    id: Trends Plant Sci
-  volumeNumber: 11
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1016/j.tplants.2006.09.004
+- type: Reference
+  doi: 10.1016/j.tplants.2006.09.004
   authors:
   - type: Person
     familyNames:
@@ -601,18 +632,20 @@ references:
     - Kay
     givenNames:
     - SA
+  date:
+    type: Date
+    value: '2006'
+  title: 'Photoperiodic control of flowering: not only by coincidence'
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Trends Plant Sci
+    volumeNumber: 11
   pageStart: 550
   pageEnd: 558
-- type: PublicationVolume
-  id: Circadian clock during plant development
-  isPartOf:
-    type: Periodical
-    id: J Plant Res
-  volumeNumber: 131
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1007/s10265-017-0991-8
+- type: Reference
+  doi: 10.1007/s10265-017-0991-8
   authors:
   - type: Person
     familyNames:
@@ -629,18 +662,20 @@ references:
     - Endo
     givenNames:
     - M.
+  date:
+    type: Date
+    value: '2018'
+  title: Circadian clock during plant development
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: J Plant Res
+    volumeNumber: 131
   pageStart: 59
   pageEnd: 66
-- type: PublicationVolume
-  id: Phytochrome mediates the external light signal to repress FT orthologs in photoperiodic flowering of rice
-  isPartOf:
-    type: Periodical
-    id: Genes Dev
-  volumeNumber: 16
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1101/gad.999202
+- type: Reference
+  doi: 10.1101/gad.999202
   authors:
   - type: Person
     familyNames:
@@ -672,31 +707,33 @@ references:
     - Shimamoto
     givenNames:
     - K.
+  date:
+    type: Date
+    value: '2002'
+  title: Phytochrome mediates the external light signal to repress FT orthologs in photoperiodic flowering of rice
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Genes Dev
+    volumeNumber: 16
   pageStart: 2006
   pageEnd: 2020
-- type: PublicationVolume
-  id: Evolution of Compositae Flowers
-  isPartOf:
-    type: Periodical
-    id: Systematics, Evolution and Biogeography of the Compositae
+- type: Reference
   authors:
   - type: Person
     familyNames:
     - Jeffrey
     givenNames:
     - C.
+  date:
+    type: Date
+    value: '2009'
+  title: Evolution of Compositae Flowers
   pageStart: 131
   pageEnd: 138
-- type: PublicationVolume
-  id: Habitat-Specific Clock Variation and Its Consequence on Reproductive Fitness
-  isPartOf:
-    type: Periodical
-    id: J Biol Rhythms
-  volumeNumber: 35
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1177/0748730419896486
+- type: Reference
+  doi: 10.1177/0748730419896486
   authors:
   - type: Person
     familyNames:
@@ -763,17 +800,20 @@ references:
     - Lee
     givenNames:
     - K.
+  date:
+    type: Date
+    value: '2020'
+  title: Habitat-Specific Clock Variation and Its Consequence on Reproductive Fitness
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: J Biol Rhythms
+    volumeNumber: 35
   pageStart: 134
   pageEnd: 144
-- type: PublicationVolume
-  id: 'The Clock Keeps on Ticking: Emerging Roles for Circadian Regulation in the Control of Fungal Physiology and Pathogenesis'
-  isPartOf:
-    type: Periodical
-    id: Fungal Physiology and Immunopathogenesis, Current Topics in Microbiology and Immunology
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1007/82_2018_143
+- type: Reference
+  doi: 10.1007/82_2018_143
   authors:
   - type: Person
     familyNames:
@@ -785,18 +825,14 @@ references:
     - Canessa
     givenNames:
     - P.
+  date:
+    type: Date
+    value: '2018'
+  title: 'The Clock Keeps on Ticking: Emerging Roles for Circadian Regulation in the Control of Fungal Physiology and Pathogenesis'
   pageStart: 121
   pageEnd: 156
-- type: PublicationVolume
-  id: 'Developmental morphology and anatomy of the reproductive structures in sunflower (Helianthus annuus): a unified temporal scale'
-  isPartOf:
-    type: Periodical
-    id: Botany
-  volumeNumber: 93
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1139/cjb-2014-0245
+- type: Reference
+  doi: 10.1139/cjb-2014-0245
   authors:
   - type: Person
     familyNames:
@@ -808,18 +844,20 @@ references:
     - Hernández
     givenNames:
     - LF
+  date:
+    type: Date
+    value: '2015'
+  title: 'Developmental morphology and anatomy of the reproductive structures in sunflower (Helianthus annuus): a unified temporal scale'
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Botany
+    volumeNumber: 93
   pageStart: 307
   pageEnd: 316
-- type: PublicationVolume
-  id: Histological development of the sunflower fruit pericarp as affected by pre- and early post-anthesis canopy shading
-  isPartOf:
-    type: Periodical
-    id: Field Crops Res
-  volumeNumber: 103
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1016/j.fcr.2007.06.005
+- type: Reference
+  doi: 10.1016/j.fcr.2007.06.005
   authors:
   - type: Person
     familyNames:
@@ -836,17 +874,20 @@ references:
     - Hernández
     givenNames:
     - LF
+  date:
+    type: Date
+    value: '2007'
+  title: Histological development of the sunflower fruit pericarp as affected by pre- and early post-anthesis canopy shading
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Field Crops Res
+    volumeNumber: 103
   pageStart: 229
   pageEnd: 238
-- type: PublicationVolume
-  id: Hormonal influence on photocontrol of the protandry in the genus Helianthus
-  isPartOf:
-    type: Periodical
-    id: J Exp Bot
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1093/jxb/51.349.1403
+- type: Reference
+  doi: 10.1093/jxb/51.349.1403
   authors:
   - type: Person
     familyNames:
@@ -873,16 +914,12 @@ references:
     - Pugliesi
     givenNames:
     - C.
-- type: PublicationVolume
-  id: A fully resolved backbone phylogeny reveals numerous dispersals and explosive diversifications throughout the history of Asteraceae
-  isPartOf:
-    type: Periodical
-    id: Proc Natl Acad Sci
-  volumeNumber: 116
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1073/pnas.1903871116
+  date:
+    type: Date
+    value: '2000'
+  title: Hormonal influence on photocontrol of the protandry in the genus Helianthus
+- type: Reference
+  doi: 10.1073/pnas.1903871116
   authors:
   - type: Person
     familyNames:
@@ -914,18 +951,20 @@ references:
     - Funk
     givenNames:
     - VA
+  date:
+    type: Date
+    value: '2019'
+  title: A fully resolved backbone phylogeny reveals numerous dispersals and explosive diversifications throughout the history of Asteraceae
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Proc Natl Acad Sci
+    volumeNumber: 116
   pageStart: 14083
   pageEnd: 14088
-- type: PublicationVolume
-  id: Photoperiodic sensitivity of inflorescence initiation and development in sunflower
-  isPartOf:
-    type: Periodical
-    id: Field Crops Res
-  volumeNumber: 4
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1016/0378-4290(81)90065-4
+- type: Reference
+  doi: 10.1016/0378-4290(81)90065-4
   authors:
   - type: Person
     familyNames:
@@ -937,51 +976,57 @@ references:
     - Palmer
     givenNames:
     - JH
+  date:
+    type: Date
+    value: '1981'
+  title: Photoperiodic sensitivity of inflorescence initiation and development in sunflower
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Field Crops Res
+    volumeNumber: 4
   pageStart: 155
   pageEnd: 164
-- type: PublicationVolume
-  id: Comprehensive Insight into Gibberellin- and Jasmonate-Mediated Stamen Development
-  isPartOf:
-    type: Periodical
-    id: Genes
-  volumeNumber: 10
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.3390/genes10100811
+- type: Reference
+  doi: 10.3390/genes10100811
   authors:
   - type: Person
     familyNames:
     - Marciniak
     givenNames:
     - Przedniczek
-  pageStart: 811
-- type: PublicationVolume
-  id: The Plant Circadian Oscillator
+  date:
+    type: Date
+    value: '2019'
+  title: Comprehensive Insight into Gibberellin- and Jasmonate-Mediated Stamen Development
   isPartOf:
-    type: Periodical
-    id: Biol Basel
-  volumeNumber: 8
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.3390/biology8010014
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Genes
+    volumeNumber: 10
+  pageStart: 811
+- type: Reference
+  doi: 10.3390/biology8010014
   authors:
   - type: Person
     familyNames:
     - McClung
     givenNames:
     - CR
-- type: PublicationVolume
-  id: Network Discovery Pipeline Elucidates Conserved Time-of-Day–Specific cis-Regulatory Modules
+  date:
+    type: Date
+    value: '2019'
+  title: The Plant Circadian Oscillator
   isPartOf:
-    type: Periodical
-    id: PLoS Genet
-  volumeNumber: 4
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1371/journal.pgen.0040014
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Biol Basel
+    volumeNumber: 8
+- type: Reference
+  doi: 10.1371/journal.pgen.0040014
   authors:
   - type: Person
     familyNames:
@@ -1058,17 +1103,19 @@ references:
     - Chory
     givenNames:
     - J.
-  pageStart: e14
-- type: PublicationVolume
-  id: Enhanced Fitness Conferred by Naturally Occurring Variation in the Circadian Clock
+  date:
+    type: Date
+    value: '2008'
+  title: Network Discovery Pipeline Elucidates Conserved Time-of-Day–Specific cis-Regulatory Modules
   isPartOf:
-    type: Periodical
-    id: Science
-  volumeNumber: 302
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1126/science.1082971
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: PLoS Genet
+    volumeNumber: 4
+  pageStart: e14
+- type: Reference
+  doi: 10.1126/science.1082971
   authors:
   - type: Person
     familyNames:
@@ -1115,18 +1162,20 @@ references:
     - McClung
     givenNames:
     - CR
+  date:
+    type: Date
+    value: '2003'
+  title: Enhanced Fitness Conferred by Naturally Occurring Variation in the Circadian Clock
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Science
+    volumeNumber: 302
   pageStart: 1049
   pageEnd: 1053
-- type: PublicationVolume
-  id: Circadian Clock Mutation Disrupts Estrous Cyclicity and Maintenance of Pregnancy
-  isPartOf:
-    type: Periodical
-    id: Curr Biol
-  volumeNumber: 14
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1016/j.cub.2004.07.055
+- type: Reference
+  doi: 10.1016/j.cub.2004.07.055
   authors:
   - type: Person
     familyNames:
@@ -1158,18 +1207,20 @@ references:
     - Takahashi
     givenNames:
     - JS
+  date:
+    type: Date
+    value: '2004'
+  title: Circadian Clock Mutation Disrupts Estrous Cyclicity and Maintenance of Pregnancy
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Curr Biol
+    volumeNumber: 14
   pageStart: 1367
   pageEnd: 1373
-- type: PublicationVolume
-  id: 'Circadian Interactomics: How Research Into Protein-Protein Interactions Beyond the Core Clock Has Influenced the Model of Circadian Timekeeping'
-  isPartOf:
-    type: Periodical
-    id: J Biol Rhythms
-  volumeNumber: 36
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1177/07487304211014622
+- type: Reference
+  doi: 10.1177/07487304211014622
   authors:
   - type: Person
     familyNames:
@@ -1181,18 +1232,20 @@ references:
     - Hurley
     givenNames:
     - JM
+  date:
+    type: Date
+    value: '2021'
+  title: 'Circadian Interactomics: How Research Into Protein-Protein Interactions Beyond the Core Clock Has Influenced the Model of Circadian Timekeeping'
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: J Biol Rhythms
+    volumeNumber: 36
   pageStart: 315
   pageEnd: 328
-- type: PublicationVolume
-  id: Circadian Clock in Arabidopsis thaliana Determines Flower Opening Time Early in the Morning and Dominantly Closes Early in the Afternoon
-  isPartOf:
-    type: Periodical
-    id: Plant Cell Physiol
-  volumeNumber: 62
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1093/pcp/pcab048
+- type: Reference
+  doi: 10.1093/pcp/pcab048
   authors:
   - type: Person
     familyNames:
@@ -1244,14 +1297,19 @@ references:
     - Kutsuna
     givenNames:
     - S.
+  date:
+    type: Date
+    value: '2021'
+  title: Circadian Clock in Arabidopsis thaliana Determines Flower Opening Time Early in the Morning and Dominantly Closes Early in the Afternoon
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Plant Cell Physiol
+    volumeNumber: 62
   pageStart: 883
   pageEnd: 893
-- type: PublicationVolume
-  id: The Roles of Phenology and Reward Structure in the Pollination Biology of Wild Sunflower (Helianthus annuus L., Asteraceae)
-  isPartOf:
-    type: Periodical
-    id: Isr J Bot
-  volumeNumber: 39
+- type: Reference
   authors:
   - type: Person
     familyNames:
@@ -1263,18 +1321,20 @@ references:
     - Simpson
     givenNames:
     - BB
+  date:
+    type: Date
+    value: '1990'
+  title: The Roles of Phenology and Reward Structure in the Pollination Biology of Wild Sunflower (Helianthus annuus L., Asteraceae)
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Isr J Bot
+    volumeNumber: 39
   pageStart: 197
   pageEnd: 216
-- type: PublicationVolume
-  id: Resonating circadian clocks enhance fitness in cyanobacteria
-  isPartOf:
-    type: Periodical
-    id: Proc Natl Acad Sci U A
-  volumeNumber: 95
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1073/pnas.95.15.8660
+- type: Reference
+  doi: 10.1073/pnas.95.15.8660
   authors:
   - type: Person
     familyNames:
@@ -1301,18 +1361,20 @@ references:
     - Johnson
     givenNames:
     - CH
+  date:
+    type: Date
+    value: '1998'
+  title: Resonating circadian clocks enhance fitness in cyanobacteria
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Proc Natl Acad Sci U A
+    volumeNumber: 95
   pageStart: 8660
   pageEnd: 4
-- type: PublicationVolume
-  id: The generative area as the site of floret initiation in the sunflower capitulum and its integration to predict floret number
-  isPartOf:
-    type: Periodical
-    id: Field Crops Res
-  volumeNumber: 11
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1016/0378-4290(85)90088-7
+- type: Reference
+  doi: 10.1016/0378-4290(85)90088-7
   authors:
   - type: Person
     familyNames:
@@ -1324,32 +1386,31 @@ references:
     - Steer
     givenNames:
     - BT
+  date:
+    type: Date
+    value: '1985'
+  title: The generative area as the site of floret initiation in the sunflower capitulum and its integration to predict floret number
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Field Crops Res
+    volumeNumber: 11
   pageStart: 1
   pageEnd: 12
-- type: PublicationVolume
-  isPartOf:
-    type: Periodical
-    id: Systematics, Evolution, and Biogeography of Compositae, Madroño
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.3120/0024-9637-56.3.209
+- type: Reference
+  doi: 10.3120/0024-9637-56.3.209
   authors:
   - type: Person
     familyNames:
     - Patterson
     givenNames:
     - B.
-- type: PublicationVolume
-  id: The Entrainment of Circadian Oscillations by Light and Their Role as Photoperiodic Clocks
-  isPartOf:
-    type: Periodical
-    id: Am Nat
-  volumeNumber: 98
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1086/282327
+  date:
+    type: Date
+    value: '2009'
+- type: Reference
+  doi: 10.1086/282327
   authors:
   - type: Person
     familyNames:
@@ -1361,26 +1422,33 @@ references:
     - Minis
     givenNames:
     - DH
+  date:
+    type: Date
+    value: '1964'
+  title: The Entrainment of Circadian Oscillations by Light and Their Role as Photoperiodic Clocks
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Am Nat
+    volumeNumber: 98
   pageStart: 261
   pageEnd: 294
-- type: PublicationVolume
-  id: Observations on Morphological Characters and Flowering Processes in the Sunflower (Helianthus annuus L
+- type: Reference
+  date:
+    type: Date
+    value: '1940'
+  title: Observations on Morphological Characters and Flowering Processes in the Sunflower (Helianthus annuus L
   isPartOf:
-    type: Periodical
-    id: Sci Agric
-  volumeNumber: 21
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Sci Agric
+    volumeNumber: 21
   pageStart: 167
   pageEnd: 179
-- type: PublicationVolume
-  id: Temperature effect on entrainment, phase shifting, and amplitude of circadian clocks and its molecular bases
-  isPartOf:
-    type: Periodical
-    id: Chronobiol Int
-  volumeNumber: 19
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1081/CBI-120014569
+- type: Reference
+  doi: 10.1081/CBI-120014569
   authors:
   - type: Person
     familyNames:
@@ -1392,18 +1460,20 @@ references:
     - Ruoff
     givenNames:
     - P.
+  date:
+    type: Date
+    value: '2002'
+  title: Temperature effect on entrainment, phase shifting, and amplitude of circadian clocks and its molecular bases
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Chronobiol Int
+    volumeNumber: 19
   pageStart: 807
   pageEnd: 864
-- type: PublicationVolume
-  id: 'The segmentation clock: inherited trait or universal design principle?'
-  isPartOf:
-    type: Periodical
-    id: Curr Opin Genet Dev
-  volumeNumber: 22
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1016/j.gde.2012.10.003
+- type: Reference
+  doi: 10.1016/j.gde.2012.10.003
   authors:
   - type: Person
     familyNames:
@@ -1415,18 +1485,20 @@ references:
     - Oates
     givenNames:
     - AC
+  date:
+    type: Date
+    value: '2012'
+  title: 'The segmentation clock: inherited trait or universal design principle?'
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Curr Opin Genet Dev
+    volumeNumber: 22
   pageStart: 600
   pageEnd: 606
-- type: PublicationVolume
-  id: 'Demasking biological oscillators: properties and principles of entrainment exemplified by the Neurospora circadian clock'
-  isPartOf:
-    type: Periodical
-    id: Proc Natl Acad Sci U S A
-  volumeNumber: 102
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1073/pnas.0501884102
+- type: Reference
+  doi: 10.1073/pnas.0501884102
   authors:
   - type: Person
     familyNames:
@@ -1443,18 +1515,20 @@ references:
     - Merrow
     givenNames:
     - M.
+  date:
+    type: Date
+    value: '2005'
+  title: 'Demasking biological oscillators: properties and principles of entrainment exemplified by the Neurospora circadian clock'
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Proc Natl Acad Sci U S A
+    volumeNumber: 102
   pageStart: 7742
   pageEnd: 7
-- type: PublicationVolume
-  id: Circadian rhythm as a therapeutic target
-  isPartOf:
-    type: Periodical
-    id: Nat Rev Drug Discov
-  volumeNumber: 20
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1038/s41573-020-00109-w
+- type: Reference
+  doi: 10.1038/s41573-020-00109-w
   authors:
   - type: Person
     familyNames:
@@ -1471,18 +1545,20 @@ references:
     - Eltzschig
     givenNames:
     - HK
+  date:
+    type: Date
+    value: '2021'
+  title: Circadian rhythm as a therapeutic target
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Nat Rev Drug Discov
+    volumeNumber: 20
   pageStart: 287
   pageEnd: 307
-- type: PublicationVolume
-  id: Circadian Nature of a Rhythm Expressed by an Invertaseless Strain of Neurospora crassa
-  isPartOf:
-    type: Periodical
-    id: Plant Physiol
-  volumeNumber: 41
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1104/pp.41.8.1343
+- type: Reference
+  doi: 10.1104/pp.41.8.1343
   authors:
   - type: Person
     familyNames:
@@ -1499,14 +1575,19 @@ references:
     - Woodward
     givenNames:
     - DO
+  date:
+    type: Date
+    value: '1966'
+  title: Circadian Nature of a Rhythm Expressed by an Invertaseless Strain of Neurospora crassa
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Plant Physiol
+    volumeNumber: 41
   pageStart: 1343
   pageEnd: 1349
-- type: PublicationVolume
-  id: 'NIH Image to ImageJ: 25 years of image analysis'
-  isPartOf:
-    type: Periodical
-    id: Nat Methods
-  volumeNumber: 9
+- type: Reference
   authors:
   - type: Person
     familyNames:
@@ -1523,35 +1604,34 @@ references:
     - Eliceiri
     givenNames:
     - KW
+  date:
+    type: Date
+    value: '2012'
+  title: 'NIH Image to ImageJ: 25 years of image analysis'
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Nat Methods
+    volumeNumber: 9
   pageStart: 671
   pageEnd: 5
-- type: PublicationVolume
-  id: Anatomy and Morphology of Sunflower
-  isPartOf:
-    type: Periodical
-    id: Agronomy Monographs
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.2134/agronmonogr35.c3
+- type: Reference
+  doi: 10.2134/agronmonogr35.c3
   authors:
   - type: Person
     familyNames:
     - Seiler
     givenNames:
     - GJ
+  date:
+    type: Date
+    value: '2015'
+  title: Anatomy and Morphology of Sunflower
   pageStart: 67
   pageEnd: 111
-- type: PublicationVolume
-  id: Natural selection against a circadian clock gene mutation in mice
-  isPartOf:
-    type: Periodical
-    id: Proc Natl Acad Sci
-  volumeNumber: 113
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1073/pnas.1516442113
+- type: Reference
+  doi: 10.1073/pnas.1516442113
   authors:
   - type: Person
     familyNames:
@@ -1578,18 +1658,20 @@ references:
     - Hau
     givenNames:
     - M.
+  date:
+    type: Date
+    value: '2016'
+  title: Natural selection against a circadian clock gene mutation in mice
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Proc Natl Acad Sci
+    volumeNumber: 113
   pageStart: 686
   pageEnd: 691
-- type: PublicationVolume
-  id: Three psychophilous Asteraceae species with distinct reproductive mechanisms in southeastern Brazil
-  isPartOf:
-    type: Periodical
-    id: N Z J Bot
-  volumeNumber: 54
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1080/0028825X.2016.1236735
+- type: Reference
+  doi: 10.1080/0028825X.2016.1236735
   authors:
   - type: Person
     familyNames:
@@ -1616,18 +1698,20 @@ references:
     - Vieira
     givenNames:
     - M.
+  date:
+    type: Date
+    value: '2016'
+  title: Three psychophilous Asteraceae species with distinct reproductive mechanisms in southeastern Brazil
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: N Z J Bot
+    volumeNumber: 54
   pageStart: 498
   pageEnd: 510
-- type: PublicationVolume
-  id: Foraging Strategy of Honeybee Colonies in a Temperate Deciduous Forest
-  isPartOf:
-    type: Periodical
-    id: Ecology
-  volumeNumber: 63
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.2307/1940121
+- type: Reference
+  doi: 10.2307/1940121
   authors:
   - type: Person
     familyNames:
@@ -1639,17 +1723,19 @@ references:
     - Seeley
     givenNames:
     - TD
-  pageStart: 1790
-- type: PublicationVolume
-  id: Light inputs shape the Arabidopsis circadian system
+  date:
+    type: Date
+    value: '1982'
+  title: Foraging Strategy of Honeybee Colonies in a Temperate Deciduous Forest
   isPartOf:
-    type: Periodical
-    id: Plant J
-  volumeNumber: 66
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1111/j.1365-313X.2011.04505.x
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Ecology
+    volumeNumber: 63
+  pageStart: 1790
+- type: Reference
+  doi: 10.1111/j.1365-313X.2011.04505.x
   authors:
   - type: Person
     familyNames:
@@ -1681,18 +1767,20 @@ references:
     - Millar
     givenNames:
     - AJ
+  date:
+    type: Date
+    value: '2011'
+  title: Light inputs shape the Arabidopsis circadian system
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Plant J
+    volumeNumber: 66
   pageStart: 480
   pageEnd: 491
-- type: PublicationVolume
-  id: Welcome to the Tidyverse
-  isPartOf:
-    type: Periodical
-    id: J Open Source Softw
-  volumeNumber: 4
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.21105/joss.01686
+- type: Reference
+  doi: 10.21105/joss.01686
   authors:
   - type: Person
     familyNames:
@@ -1814,17 +1902,19 @@ references:
     - Yutani
     givenNames:
     - H.
-  pageStart: 1686
-- type: PublicationVolume
-  id: The dynamic nature and regulation of the root clock
+  date:
+    type: Date
+    value: '2019'
+  title: Welcome to the Tidyverse
   isPartOf:
-    type: Periodical
-    id: Development
-  volumeNumber: 147
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1242/dev.181446
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: J Open Source Softw
+    volumeNumber: 4
+  pageStart: 1686
+- type: Reference
+  doi: 10.1242/dev.181446
   authors:
   - type: Person
     familyNames:
@@ -1841,17 +1931,19 @@ references:
     - Beeckman
     givenNames:
     - T.
-  pageStart: dev181446
-- type: PublicationVolume
-  id: 'Living by the calendar: how plants know when to flower'
+  date:
+    type: Date
+    value: '2020'
+  title: The dynamic nature and regulation of the root clock
   isPartOf:
-    type: Periodical
-    id: Nat Rev Mol Cell Biol
-  volumeNumber: 4
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1038/nrm1077
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Development
+    volumeNumber: 147
+  pageStart: dev181446
+- type: Reference
+  doi: 10.1038/nrm1077
   authors:
   - type: Person
     familyNames:
@@ -1863,18 +1955,20 @@ references:
     - Kay
     givenNames:
     - SA
+  date:
+    type: Date
+    value: '2003'
+  title: 'Living by the calendar: how plants know when to flower'
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Nat Rev Mol Cell Biol
+    volumeNumber: 4
   pageStart: 265
   pageEnd: 276
-- type: PublicationVolume
-  id: Silencing Nicotiana attenuata LHY and ZTL alters circadian rhythms in flowers
-  isPartOf:
-    type: Periodical
-    id: New Phytol
-  volumeNumber: 209
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1111/nph.13681
+- type: Reference
+  doi: 10.1111/nph.13681
   authors:
   - type: Person
     familyNames:
@@ -1906,18 +2000,20 @@ references:
     - Kim
     givenNames:
     - S-G.
+  date:
+    type: Date
+    value: '2016'
+  title: Silencing Nicotiana attenuata LHY and ZTL alters circadian rhythms in flowers
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: New Phytol
+    volumeNumber: 209
   pageStart: 1058
   pageEnd: 1066
-- type: PublicationVolume
-  id: Fitness consequences of altering floral circadian oscillations for Nicotiana attenuata
-  isPartOf:
-    type: Periodical
-    id: J Integr Plant Biol
-  volumeNumber: 59
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1111/jipb.12511
+- type: Reference
+  doi: 10.1111/jipb.12511
   authors:
   - type: Person
     familyNames:
@@ -1949,18 +2045,20 @@ references:
     - Baldwin
     givenNames:
     - IT
+  date:
+    type: Date
+    value: '2017'
+  title: Fitness consequences of altering floral circadian oscillations for Nicotiana attenuata
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: J Integr Plant Biol
+    volumeNumber: 59
   pageStart: 180
   pageEnd: 189
-- type: PublicationVolume
-  id: Phyllotactic patterning of gerbera flower heads
-  isPartOf:
-    type: Periodical
-    id: Proc Natl Acad Sci
-  volumeNumber: 118
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1073/pnas.2016304118
+- type: Reference
+  doi: 10.1073/pnas.2016304118
   authors:
   - type: Person
     familyNames:
@@ -2002,17 +2100,19 @@ references:
     - Prusinkiewicz
     givenNames:
     - P.
-  pageStart: e2016304118
-- type: PublicationVolume
-  id: Strengths and limitations of period estimation methods for circadian data
+  date:
+    type: Date
+    value: '2021'
+  title: Phyllotactic patterning of gerbera flower heads
   isPartOf:
-    type: Periodical
-    id: PLoS ONE
-  volumeNumber: 9
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/doi
-    value: 10.1371/journal.pone.0096462
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: Proc Natl Acad Sci
+    volumeNumber: 118
+  pageStart: e2016304118
+- type: Reference
+  doi: 10.1371/journal.pone.0096462
   authors:
   - type: Person
     familyNames:
@@ -2039,6 +2139,16 @@ references:
     - Millar
     givenNames:
     - AJ
+  date:
+    type: Date
+    value: '2014'
+  title: Strengths and limitations of period estimation methods for circadian data
+  isPartOf:
+    type: PublicationVolume
+    isPartOf:
+      type: Periodical
+      name: PLoS ONE
+    volumeNumber: 9
   pageStart: e96462
 title:
 - type: Text

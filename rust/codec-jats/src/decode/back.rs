@@ -1,10 +1,10 @@
 use roxmltree::Node;
 
 use codec::{
+    common::itertools::Itertools,
     schema::{
-        Article, Author, CreativeWorkType, CreativeWorkTypeOrText, IntegerOrString, Periodical,
-        Person, Primitive, PropertyValue, PropertyValueOrString, PublicationVolume,
-        PublicationVolumeOptions,
+        Article, Author, CreativeWorkType, Date, IntegerOrString, Periodical, Person,
+        PublicationVolume, Reference,
     },
     Losses,
 };
@@ -25,7 +25,7 @@ pub(super) fn decode_back(path: &str, node: &Node, article: &mut Article, losses
 
 /// Decode an `<ref-list>` element
 fn decode_ref_list(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
-    let references: Vec<CreativeWorkTypeOrText> = node
+    let references = node
         .children()
         .filter(|child| child.tag_name().name() == "ref")
         .flat_map(|child| {
@@ -40,25 +40,24 @@ fn decode_ref_list(path: &str, node: &Node, article: &mut Article, losses: &mut 
                         .contains("citation")
                 })
                 .map(|grandchild| decode_citation(child_path, &grandchild, losses))
-                .collect::<Vec<CreativeWorkTypeOrText>>()
+                .collect_vec()
         })
-        .collect();
+        .collect_vec();
 
     record_attrs_lost(path, node, [], losses);
 
-    let references = (!references.is_empty()).then_some(references);
-
-    article.references = references;
+    article.references = (!references.is_empty()).then_some(references);
 }
 
 /// Decode any node that contains `<citation>` element
-fn decode_citation(path: &str, node: &Node, losses: &mut Losses) -> CreativeWorkTypeOrText {
+fn decode_citation(path: &str, node: &Node, losses: &mut Losses) -> Reference {
     record_attrs_lost(path, node, [], losses);
 
+    let mut doi = None;
     let mut authors = Vec::new();
-    let mut identifiers = Vec::new();
+    let mut date = None;
     let mut title = None;
-    let mut publisher = None;
+    let mut source = None;
     let mut volume_number = None;
     let mut page_start = None;
     let mut page_end = None;
@@ -74,79 +73,71 @@ fn decode_citation(path: &str, node: &Node, losses: &mut Losses) -> CreativeWork
                     authors.push(decode_person(path, &grandchild, losses))
                 }
             }
+        } else if child_tag == "year" {
+            date = child.text().map(|year| Date::new(year.to_string()));
         } else if child_tag.to_string().contains("title") {
-            title = child.text().map(str::to_string)
+            title = child.text().map(String::from)
         } else if child_tag == "source" {
-            publisher = child.text().map(str::to_string);
+            source = child.text().map(String::from);
         } else if child_tag == "volume" {
             if let Some(value) = child.text() {
-                if let Ok(num) = value.parse::<i64>() {
-                    volume_number = Some(IntegerOrString::Integer(num))
+                volume_number = if let Ok(num) = value.parse::<i64>() {
+                    Some(IntegerOrString::Integer(num))
                 } else {
-                    volume_number = Some(IntegerOrString::String(value.into()))
+                    Some(IntegerOrString::String(value.into()))
                 }
             }
         } else if child_tag == "fpage" {
             if let Some(value) = child.text() {
-                if let Ok(num) = value.parse::<i64>() {
-                    page_start = Some(IntegerOrString::Integer(num))
+                page_start = if let Ok(num) = value.parse::<i64>() {
+                    Some(IntegerOrString::Integer(num))
                 } else {
-                    page_start = Some(IntegerOrString::String(value.into()))
-                }
+                    Some(IntegerOrString::String(value.into()))
+                };
             }
         } else if child_tag == "lpage" {
             if let Some(value) = child.text() {
-                if let Ok(num) = value.parse::<i64>() {
-                    page_end = Some(IntegerOrString::Integer(num))
+                page_end = if let Ok(num) = value.parse::<i64>() {
+                    Some(IntegerOrString::Integer(num))
                 } else {
-                    page_end = Some(IntegerOrString::String(value.into()))
-                }
+                    Some(IntegerOrString::String(value.into()))
+                };
             }
         } else if child_tag == "pub-id" {
-            if let Some(value) = child.text() {
-                let child_type = child.attribute("pub-id-type");
-                if child_type == Some("doi") {
-                    identifiers.push(PropertyValueOrString::PropertyValue(PropertyValue {
-                        property_id: Some("https://registry.identifiers.org/registry/doi".into()),
-                        value: Primitive::String(value.into()),
-                        ..Default::default()
-                    }))
-                } else if child_type == Some("pmid") {
-                    identifiers.push(PropertyValueOrString::PropertyValue(PropertyValue {
-                        property_id: Some(
-                            "https://registry.identifiers.org/registry/pubmed".into(),
-                        ),
-                        value: Primitive::String(value.into()),
-                        ..Default::default()
-                    }))
-                }
+            let id_type = child.attribute("pub-id-type");
+            if id_type == Some("doi") {
+                doi = child.text().map(String::from);
             }
-        } else if child_tag == "year" {
-            //TODO
         }
     }
 
     let authors = (!authors.is_empty()).then_some(authors);
-    let identifiers = (!identifiers.is_empty()).then_some(identifiers);
 
-    CreativeWorkTypeOrText::CreativeWorkType(CreativeWorkType::PublicationVolume(
-        PublicationVolume {
-            volume_number,
-            id: title,
-            is_part_of: Some(Box::new(CreativeWorkType::Periodical(Periodical {
-                id: publisher,
+    let is_part_of = if source.is_some() && volume_number.is_some() {
+        Some(Box::new(CreativeWorkType::PublicationVolume(
+            PublicationVolume {
+                volume_number,
+                is_part_of: Some(Box::new(CreativeWorkType::Periodical(Periodical {
+                    name: source,
+                    ..Default::default()
+                }))),
                 ..Default::default()
-            }))),
-            options: Box::new(PublicationVolumeOptions {
-                identifiers,
-                authors,
-                page_start,
-                page_end,
-                ..Default::default()
-            }),
-            ..Default::default()
-        },
-    ))
+            },
+        )))
+    } else {
+        None
+    };
+
+    Reference {
+        doi,
+        authors,
+        date,
+        title,
+        is_part_of,
+        page_start,
+        page_end,
+        ..Default::default()
+    }
 }
 
 /// Decode an `<name> and <string-name>`

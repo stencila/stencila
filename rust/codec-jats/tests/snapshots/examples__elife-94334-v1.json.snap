@@ -169,25 +169,8 @@ expression: article
   ],
   "references": [
     {
-      "type": "PublicationVolume",
-      "id": "Two distinct pathways for inhibiting pds1 ubiquitination in response to DNA damage",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "The Journal of Biological Chemistry"
-      },
-      "volumeNumber": 278,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1074/jbc.M306783200"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "12947083"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1074/jbc.M306783200",
       "authors": [
         {
           "type": "Person",
@@ -226,29 +209,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2003"
+      },
+      "title": "Two distinct pathways for inhibiting pds1 ubiquitination in response to DNA damage",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "The Journal of Biological Chemistry"
+        },
+        "volumeNumber": 278
+      },
       "pageStart": 45027,
       "pageEnd": 45033
     },
     {
-      "type": "PublicationVolume",
-      "id": "Rad51-mediated double-strand break repair and mismatch correction of divergent substrates",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Nature"
-      },
-      "volumeNumber": 544,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1038/nature22046"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "28405019"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1038/nature22046",
       "authors": [
         {
           "type": "Person",
@@ -287,24 +266,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2017"
+      },
+      "title": "Rad51-mediated double-strand break repair and mismatch correction of divergent substrates",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature"
+        },
+        "volumeNumber": 544
+      },
       "pageStart": 377,
       "pageEnd": 380
     },
     {
-      "type": "PublicationVolume",
-      "id": "The checkpoint protein Rad24 of ",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Molecular and Cellular Biology"
-      },
-      "volumeNumber": 23,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1128/MCB.23.18.6585-6596.2003"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1128/MCB.23.18.6585-6596.2003",
       "authors": [
         {
           "type": "Person",
@@ -325,29 +305,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2003"
+      },
+      "title": "The checkpoint protein Rad24 of ",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Molecular and Cellular Biology"
+        },
+        "volumeNumber": 23
+      },
       "pageStart": 6585,
       "pageEnd": 6596
     },
     {
-      "type": "PublicationVolume",
-      "id": "A mechanism for coupling exit from mitosis to partitioning of the nucleus",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Cell"
-      },
-      "volumeNumber": 102,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1016/s0092-8674(00)00007-6"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "10929710"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1016/s0092-8674(00)00007-6",
       "authors": [
         {
           "type": "Person",
@@ -377,29 +353,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2000"
+      },
+      "title": "A mechanism for coupling exit from mitosis to partitioning of the nucleus",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cell"
+        },
+        "volumeNumber": 102
+      },
       "pageStart": 21,
       "pageEnd": 31
     },
     {
-      "type": "PublicationVolume",
-      "id": "Dephosphorylation of gamma H2A by Glc7/protein phosphatase 1 promotes recovery from inhibition of DNA replication",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Molecular and Cellular Biology"
-      },
-      "volumeNumber": 30,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1128/MCB.01000-09"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "19884341"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1128/MCB.01000-09",
       "authors": [
         {
           "type": "Person",
@@ -447,29 +419,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "title": "Dephosphorylation of gamma H2A by Glc7/protein phosphatase 1 promotes recovery from inhibition of DNA replication",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Molecular and Cellular Biology"
+        },
+        "volumeNumber": 30
+      },
       "pageStart": 131,
       "pageEnd": 145
     },
     {
-      "type": "PublicationVolume",
-      "id": "Mechanism of Dun1 activation by Rad53 phosphorylation in ",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "The Journal of Biological Chemistry"
-      },
-      "volumeNumber": 282,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1074/jbc.M609322200"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "17114794"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1074/jbc.M609322200",
       "authors": [
         {
           "type": "Person",
@@ -499,29 +467,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2007"
+      },
+      "title": "Mechanism of Dun1 activation by Rad53 phosphorylation in ",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "The Journal of Biological Chemistry"
+        },
+        "volumeNumber": 282
+      },
       "pageStart": 986,
       "pageEnd": 995
     },
     {
-      "type": "PublicationVolume",
-      "id": "Hyperactivation of the yeast DNA damage checkpoint by TEL1 and DDC2 overexpression",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "The EMBO Journal"
-      },
-      "volumeNumber": 20,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1093/emboj/20.22.6485"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "11707419"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1093/emboj/20.22.6485",
       "authors": [
         {
           "type": "Person",
@@ -578,29 +542,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2001"
+      },
+      "title": "Hyperactivation of the yeast DNA damage checkpoint by TEL1 and DDC2 overexpression",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "The EMBO Journal"
+        },
+        "volumeNumber": 20
+      },
       "pageStart": 6485,
       "pageEnd": 6498
     },
     {
-      "type": "PublicationVolume",
-      "id": "RAD9 and RAD24 define two additive, interacting branches of the DNA damage checkpoint pathway in budding yeast normally required for Rad53 modification and activation",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "The EMBO Journal"
-      },
-      "volumeNumber": 17,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1093/emboj/17.9.2687"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "9564050"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1093/emboj/17.9.2687",
       "authors": [
         {
           "type": "Person",
@@ -630,29 +590,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "1998"
+      },
+      "title": "RAD9 and RAD24 define two additive, interacting branches of the DNA damage checkpoint pathway in budding yeast normally required for Rad53 modification and activation",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "The EMBO Journal"
+        },
+        "volumeNumber": 17
+      },
       "pageStart": 2687,
       "pageEnd": 2698
     },
     {
-      "type": "PublicationVolume",
-      "id": "Kinetic framework of spindle assembly checkpoint signalling",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Nature Cell Biology"
-      },
-      "volumeNumber": 15,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1038/ncb2842"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "24096243"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1038/ncb2842",
       "authors": [
         {
           "type": "Person",
@@ -673,29 +629,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2013"
+      },
+      "title": "Kinetic framework of spindle assembly checkpoint signalling",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Cell Biology"
+        },
+        "volumeNumber": 15
+      },
       "pageStart": 1370,
       "pageEnd": 1377
     },
     {
-      "type": "PublicationVolume",
-      "id": "The yeast DNA damage checkpoint proteins control a cytoplasmic response to DNA damage",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "PNAS"
-      },
-      "volumeNumber": 104,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1073/pnas.0609636104"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "17586685"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1073/pnas.0609636104",
       "authors": [
         {
           "type": "Person",
@@ -743,29 +695,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2007"
+      },
+      "title": "The yeast DNA damage checkpoint proteins control a cytoplasmic response to DNA damage",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "PNAS"
+        },
+        "volumeNumber": 104
+      },
       "pageStart": 11358,
       "pageEnd": 11363
     },
     {
-      "type": "PublicationVolume",
-      "id": "Mad2 prolongs DNA damage checkpoint arrest caused by a double-strand break via a centromere-dependent mechanism",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Current Biology"
-      },
-      "volumeNumber": 20,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1016/j.cub.2009.12.033"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "20096585"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1016/j.cub.2009.12.033",
       "authors": [
         {
           "type": "Person",
@@ -813,29 +761,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "title": "Mad2 prolongs DNA damage checkpoint arrest caused by a double-strand break via a centromere-dependent mechanism",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Current Biology"
+        },
+        "volumeNumber": 20
+      },
       "pageStart": 328,
       "pageEnd": 332
     },
     {
-      "type": "PublicationVolume",
-      "id": "The processing of double-strand breaks and binding of single-strand-binding proteins RPA and Rad51 modulate the formation of ATR-kinase foci in yeast",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Journal of Cell Science"
-      },
-      "volumeNumber": 120,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1242/jcs.018366"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "18003698"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1242/jcs.018366",
       "authors": [
         {
           "type": "Person",
@@ -874,29 +818,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2007"
+      },
+      "title": "The processing of double-strand breaks and binding of single-strand-binding proteins RPA and Rad51 modulate the formation of ATR-kinase foci in yeast",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Journal of Cell Science"
+        },
+        "volumeNumber": 120
+      },
       "pageStart": 4209,
       "pageEnd": 4220
     },
     {
-      "type": "PublicationVolume",
-      "id": "The FHA domain is a modular phosphopeptide recognition motif",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Molecular Cell"
-      },
-      "volumeNumber": 4,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1016/s1097-2765(00)80340-8"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "10518219"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1016/s1097-2765(00)80340-8",
       "authors": [
         {
           "type": "Person",
@@ -935,29 +875,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "1999"
+      },
+      "title": "The FHA domain is a modular phosphopeptide recognition motif",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Molecular Cell"
+        },
+        "volumeNumber": 4
+      },
       "pageStart": 387,
       "pageEnd": 394
     },
     {
-      "type": "PublicationVolume",
-      "id": "The ",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Molecular and Cellular Biology"
-      },
-      "volumeNumber": 32,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1128/MCB.00566-12"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "23007155"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1128/MCB.00566-12",
       "authors": [
         {
           "type": "Person",
@@ -1005,29 +941,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2012"
+      },
+      "title": "The ",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Molecular and Cellular Biology"
+        },
+        "volumeNumber": 32
+      },
       "pageStart": 4727,
       "pageEnd": 4740
     },
     {
-      "type": "PublicationVolume",
-      "id": "Biochemical characterization of DNA damage checkpoint complexes: clamp loader and clamp complexes with specificity for 5’ recessed DNA",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "PLOS Biology"
-      },
-      "volumeNumber": 1,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1371/journal.pbio.0000033"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "14624239"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1371/journal.pbio.0000033",
       "authors": [
         {
           "type": "Person",
@@ -1047,28 +979,24 @@ expression: article
             "B"
           ]
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2003"
+      },
+      "title": "Biochemical characterization of DNA damage checkpoint complexes: clamp loader and clamp complexes with specificity for 5’ recessed DNA",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "PLOS Biology"
+        },
+        "volumeNumber": 1
+      }
     },
     {
-      "type": "PublicationVolume",
-      "id": "MEC1-dependent phosphorylation of Rad9p in response to DNA damage",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Molecular Cell"
-      },
-      "volumeNumber": 2,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1016/s1097-2765(00)80128-8"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "9734355"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1016/s1097-2765(00)80128-8",
       "authors": [
         {
           "type": "Person",
@@ -1080,29 +1008,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "1998"
+      },
+      "title": "MEC1-dependent phosphorylation of Rad9p in response to DNA damage",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Molecular Cell"
+        },
+        "volumeNumber": 2
+      },
       "pageStart": 183,
       "pageEnd": 189
     },
     {
-      "type": "PublicationVolume",
-      "id": "Characterization of the activation domain of the Rad53 checkpoint kinase",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Cell Cycle"
-      },
-      "volumeNumber": 7,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.4161/cc.7.4.5323"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "18287812"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.4161/cc.7.4.5323",
       "authors": [
         {
           "type": "Person",
@@ -1150,29 +1074,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2008"
+      },
+      "title": "Characterization of the activation domain of the Rad53 checkpoint kinase",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cell Cycle"
+        },
+        "volumeNumber": 7
+      },
       "pageStart": 493,
       "pageEnd": 499
     },
     {
-      "type": "PublicationVolume",
-      "id": "Overlapping roles of the spindle assembly and DNA damage checkpoints in the cell-cycle response to altered chromosomes in ",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Genetics"
-      },
-      "volumeNumber": 161,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1093/genetics/161.2.521"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "12072451"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1093/genetics/161.2.521",
       "authors": [
         {
           "type": "Person",
@@ -1193,29 +1113,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2002"
+      },
+      "title": "Overlapping roles of the spindle assembly and DNA damage checkpoints in the cell-cycle response to altered chromosomes in ",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Genetics"
+        },
+        "volumeNumber": 161
+      },
       "pageStart": 521,
       "pageEnd": 534
     },
     {
-      "type": "PublicationVolume",
-      "id": "Control of mitotic exit in budding yeast. In vitro regulation of Tem1 GTPase by Bub2 and Bfa1",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "The Journal of Biological Chemistry"
-      },
-      "volumeNumber": 277,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1074/jbc.M202540200"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "12048186"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1074/jbc.M202540200",
       "authors": [
         {
           "type": "Person",
@@ -1281,29 +1197,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2002"
+      },
+      "title": "Control of mitotic exit in budding yeast. In vitro regulation of Tem1 GTPase by Bub2 and Bfa1",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "The Journal of Biological Chemistry"
+        },
+        "volumeNumber": 277
+      },
       "pageStart": 28439,
       "pageEnd": 28445
     },
     {
-      "type": "PublicationVolume",
-      "id": "Regulation of the Bub2/Bfa1 GAP complex by Cdc5 and cell cycle checkpoints",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Cell"
-      },
-      "volumeNumber": 107,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1016/s0092-8674(01)00580-3"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "11733064"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1016/s0092-8674(01)00580-3",
       "authors": [
         {
           "type": "Person",
@@ -1360,29 +1272,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2001"
+      },
+      "title": "Regulation of the Bub2/Bfa1 GAP complex by Cdc5 and cell cycle checkpoints",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cell"
+        },
+        "volumeNumber": 107
+      },
       "pageStart": 655,
       "pageEnd": 665
     },
     {
-      "type": "PublicationVolume",
-      "id": "Heterochromatin is refractory to gamma-H2AX modification in yeast and mammals",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "The Journal of Cell Biology"
-      },
-      "volumeNumber": 178,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1083/jcb.200612031"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "17635934"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1083/jcb.200612031",
       "authors": [
         {
           "type": "Person",
@@ -1430,29 +1338,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2007"
+      },
+      "title": "Heterochromatin is refractory to gamma-H2AX modification in yeast and mammals",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "The Journal of Cell Biology"
+        },
+        "volumeNumber": 178
+      },
       "pageStart": 209,
       "pageEnd": 218
     },
     {
-      "type": "PublicationVolume",
-      "id": "DNA damage activates the SAC in an ATM/ATR-dependent manner, independently of the kinetochore",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "PLOS Genetics"
-      },
-      "volumeNumber": 4,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1371/journal.pgen.1000015"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "18454191"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1371/journal.pgen.1000015",
       "authors": [
         {
           "type": "Person",
@@ -1472,28 +1376,24 @@ expression: article
             "DJ"
           ]
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2008"
+      },
+      "title": "DNA damage activates the SAC in an ATM/ATR-dependent manner, independently of the kinetochore",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "PLOS Genetics"
+        },
+        "volumeNumber": 4
+      }
     },
     {
-      "type": "PublicationVolume",
-      "id": "DNA damage kinase signaling: checkpoint and repair at 30 years",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "The EMBO Journal"
-      },
-      "volumeNumber": 38,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.15252/embj.2019101801"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "31393028"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.15252/embj.2019101801",
       "authors": [
         {
           "type": "Person",
@@ -1522,28 +1422,24 @@ expression: article
             "MB"
           ]
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": "DNA damage kinase signaling: checkpoint and repair at 30 years",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "The EMBO Journal"
+        },
+        "volumeNumber": 38
+      }
     },
     {
-      "type": "PublicationVolume",
-      "id": "Histone methyltransferase Dot1 and Rad9 inhibit single-stranded DNA accumulation at DSBs and uncapped telomeres",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "The EMBO Journal"
-      },
-      "volumeNumber": 27,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1038/emboj.2008.81"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "18418382"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1038/emboj.2008.81",
       "authors": [
         {
           "type": "Person",
@@ -1627,29 +1523,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2008"
+      },
+      "title": "Histone methyltransferase Dot1 and Rad9 inhibit single-stranded DNA accumulation at DSBs and uncapped telomeres",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "The EMBO Journal"
+        },
+        "volumeNumber": 27
+      },
       "pageStart": 1502,
       "pageEnd": 1512
     },
     {
-      "type": "PublicationVolume",
-      "id": "Saccharomyces Ku70, mre11/rad50 and RPA proteins regulate adaptation to G2/M arrest after DNA damage",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Cell"
-      },
-      "volumeNumber": 94,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1016/s0092-8674(00)81482-8"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "9708741"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1016/s0092-8674(00)81482-8",
       "authors": [
         {
           "type": "Person",
@@ -1706,29 +1598,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "1998"
+      },
+      "title": "Saccharomyces Ku70, mre11/rad50 and RPA proteins regulate adaptation to G2/M arrest after DNA damage",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cell"
+        },
+        "volumeNumber": 94
+      },
       "pageStart": 399,
       "pageEnd": 409
     },
     {
-      "type": "PublicationVolume",
-      "id": "Dynamics of yeast histone H2A and H2B phosphorylation in response to a double-strand break",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Nature Structural & Molecular Biology"
-      },
-      "volumeNumber": 21,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1038/nsmb.2737"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "24336221"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1038/nsmb.2737",
       "authors": [
         {
           "type": "Person",
@@ -1767,29 +1655,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2014"
+      },
+      "title": "Dynamics of yeast histone H2A and H2B phosphorylation in response to a double-strand break",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Structural & Molecular Biology"
+        },
+        "volumeNumber": 21
+      },
       "pageStart": 103,
       "pageEnd": 109
     },
     {
-      "type": "PublicationVolume",
-      "id": "PP2C phosphatases Ptc2 and Ptc3 are required for DNA checkpoint inactivation after a double-strand break",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Molecular Cell"
-      },
-      "volumeNumber": 11,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1016/s1097-2765(03)00058-3"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "12667463"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1016/s1097-2765(03)00058-3",
       "authors": [
         {
           "type": "Person",
@@ -1855,29 +1739,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2003"
+      },
+      "title": "PP2C phosphatases Ptc2 and Ptc3 are required for DNA checkpoint inactivation after a double-strand break",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Molecular Cell"
+        },
+        "volumeNumber": 11
+      },
       "pageStart": 827,
       "pageEnd": 835
     },
     {
-      "type": "PublicationVolume",
-      "id": "Mre11 nuclease activity and Ctp1 regulate Chk1 activation by Rad3ATR and Tel1ATM checkpoint kinases at double-strand breaks",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Molecular and Cellular Biology"
-      },
-      "volumeNumber": 31,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1128/MCB.00994-10"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "21098122"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1128/MCB.00994-10",
       "authors": [
         {
           "type": "Person",
@@ -1916,29 +1796,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2011"
+      },
+      "title": "Mre11 nuclease activity and Ctp1 regulate Chk1 activation by Rad3ATR and Tel1ATM checkpoint kinases at double-strand breaks",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Molecular and Cellular Biology"
+        },
+        "volumeNumber": 31
+      },
       "pageStart": 573,
       "pageEnd": 583
     },
     {
-      "type": "PublicationVolume",
-      "id": "Replication protein A directs loading of the DNA damage checkpoint clamp to 5’-DNA junctions",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "The Journal of Biological Chemistry"
-      },
-      "volumeNumber": 281,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1074/jbc.M605176200"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "16864589"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1074/jbc.M605176200",
       "authors": [
         {
           "type": "Person",
@@ -1977,29 +1853,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2006"
+      },
+      "title": "Replication protein A directs loading of the DNA damage checkpoint clamp to 5’-DNA junctions",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "The Journal of Biological Chemistry"
+        },
+        "volumeNumber": 281
+      },
       "pageStart": 27855,
       "pageEnd": 27861
     },
     {
-      "type": "PublicationVolume",
-      "id": "Dual role for ",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "EMBO Reports"
-      },
-      "volumeNumber": 8,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1038/sj.embor.7400911"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "17347674"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1038/sj.embor.7400911",
       "authors": [
         {
           "type": "Person",
@@ -2038,29 +1910,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2007"
+      },
+      "title": "Dual role for ",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "EMBO Reports"
+        },
+        "volumeNumber": 8
+      },
       "pageStart": 380,
       "pageEnd": 387
     },
     {
-      "type": "PublicationVolume",
-      "id": "DNA damage-induced metaphase I arrest is mediated by the spindle assembly checkpoint and maternal age",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Nature Communications"
-      },
-      "volumeNumber": 6,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1038/ncomms9706"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "26522734"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1038/ncomms9706",
       "authors": [
         {
           "type": "Person",
@@ -2125,28 +1993,24 @@ expression: article
             "J"
           ]
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2015"
+      },
+      "title": "DNA damage-induced metaphase I arrest is mediated by the spindle assembly checkpoint and maternal age",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Communications"
+        },
+        "volumeNumber": 6
+      }
     },
     {
-      "type": "PublicationVolume",
-      "id": "RPA-coated single-stranded DNA as a platform for post-translational modifications in the DNA damage response",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Cell Research"
-      },
-      "volumeNumber": 25,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1038/cr.2014.147"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "25403473"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1038/cr.2014.147",
       "authors": [
         {
           "type": "Person",
@@ -2167,29 +2031,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2015"
+      },
+      "title": "RPA-coated single-stranded DNA as a platform for post-translational modifications in the DNA damage response",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cell Research"
+        },
+        "volumeNumber": 25
+      },
       "pageStart": 9,
       "pageEnd": 23
     },
     {
-      "type": "PublicationVolume",
-      "id": "Regulation of mitotic exit by cell cycle checkpoints: lessons from ",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Genes"
-      },
-      "volumeNumber": 11,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.3390/genes11020195"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "32059558"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.3390/genes11020195",
       "authors": [
         {
           "type": "Person",
@@ -2209,28 +2069,24 @@ expression: article
             "F"
           ]
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": "Regulation of mitotic exit by cell cycle checkpoints: lessons from ",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Genes"
+        },
+        "volumeNumber": 11
+      }
     },
     {
-      "type": "PublicationVolume",
-      "id": "Principles and dynamics of spindle assembly checkpoint signalling",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Nature Reviews. Molecular Cell Biology"
-      },
-      "volumeNumber": 24,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1038/s41580-023-00593-z"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "36964313"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1038/s41580-023-00593-z",
       "authors": [
         {
           "type": "Person",
@@ -2251,29 +2107,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2023"
+      },
+      "title": "Principles and dynamics of spindle assembly checkpoint signalling",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Reviews. Molecular Cell Biology"
+        },
+        "volumeNumber": 24
+      },
       "pageStart": 543,
       "pageEnd": 559
     },
     {
-      "type": "PublicationVolume",
-      "id": "Sources of DNA double-strand breaks and models of recombinational DNA repair",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Cold Spring Harbor Perspectives in Biology"
-      },
-      "volumeNumber": 6,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1101/cshperspect.a016428"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "25104768"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1101/cshperspect.a016428",
       "authors": [
         {
           "type": "Person",
@@ -2293,28 +2145,24 @@ expression: article
             "JE"
           ]
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2014"
+      },
+      "title": "Sources of DNA double-strand breaks and models of recombinational DNA repair",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cold Spring Harbor Perspectives in Biology"
+        },
+        "volumeNumber": 6
+      }
     },
     {
-      "type": "PublicationVolume",
-      "id": "Two checkpoint complexes are independently recruited to sites of DNA damage in vivo",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Genes & Development"
-      },
-      "volumeNumber": 15,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1101/gad.903501"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "11691833"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1101/gad.903501",
       "authors": [
         {
           "type": "Person",
@@ -2344,24 +2192,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2001"
+      },
+      "title": "Two checkpoint complexes are independently recruited to sites of DNA damage in vivo",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Genes & Development"
+        },
+        "volumeNumber": 15
+      },
       "pageStart": 2809,
       "pageEnd": 2821
     },
     {
-      "type": "PublicationVolume",
-      "id": "Mec1ATR Autophosphorylation and Ddc2ATRIP Phosphorylation Regulates DNA Damage Checkpoint Signaling",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Cell Reports"
-      },
-      "volumeNumber": 28,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1016/j.celrep.2019.06.068"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1016/j.celrep.2019.06.068",
       "authors": [
         {
           "type": "Person",
@@ -2427,29 +2276,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2019"
+      },
+      "title": "Mec1ATR Autophosphorylation and Ddc2ATRIP Phosphorylation Regulates DNA Damage Checkpoint Signaling",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cell Reports"
+        },
+        "volumeNumber": 28
+      },
       "pageStart": 1090,
       "pageEnd": 1102
     },
     {
-      "type": "PublicationVolume",
-      "id": "Detection of ",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Autophagy"
-      },
-      "volumeNumber": 10,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.4161/auto.27707"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "24430166"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.4161/auto.27707",
       "authors": [
         {
           "type": "Person",
@@ -2488,29 +2333,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2014"
+      },
+      "title": "Detection of ",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Autophagy"
+        },
+        "volumeNumber": 10
+      },
       "pageStart": 514,
       "pageEnd": 517
     },
     {
-      "type": "PublicationVolume",
-      "id": "Cell cycle and genetic requirements of two pathways of nonhomologous end-joining repair of double-strand breaks in ",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Molecular and Cellular Biology"
-      },
-      "volumeNumber": 16,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1128/MCB.16.5.2164"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "8628283"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1128/MCB.16.5.2164",
       "authors": [
         {
           "type": "Person",
@@ -2531,29 +2372,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "1996"
+      },
+      "title": "Cell cycle and genetic requirements of two pathways of nonhomologous end-joining repair of double-strand breaks in ",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Molecular and Cellular Biology"
+        },
+        "volumeNumber": 16
+      },
       "pageStart": 2164,
       "pageEnd": 2173
     },
     {
-      "type": "PublicationVolume",
-      "id": "An expanded tool kit for the auxin-inducible degron system in budding yeast",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Yeast"
-      },
-      "volumeNumber": 30,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1002/yea.2967"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "23836714"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1002/yea.2967",
       "authors": [
         {
           "type": "Person",
@@ -2574,29 +2411,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2013"
+      },
+      "title": "An expanded tool kit for the auxin-inducible degron system in budding yeast",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Yeast"
+        },
+        "volumeNumber": 30
+      },
       "pageStart": 341,
       "pageEnd": 351
     },
     {
-      "type": "PublicationVolume",
-      "id": "The molecular biology of spindle assembly checkpoint signaling dynamics",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Current Biology"
-      },
-      "volumeNumber": 25,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1016/j.cub.2015.08.051"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "26485365"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1016/j.cub.2015.08.051",
       "authors": [
         {
           "type": "Person",
@@ -2608,29 +2441,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2015"
+      },
+      "title": "The molecular biology of spindle assembly checkpoint signaling dynamics",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Current Biology"
+        },
+        "volumeNumber": 25
+      },
       "pageStart": "R1002",
       "pageEnd": "R1018"
     },
     {
-      "type": "PublicationVolume",
-      "id": "The unstructured C-terminal tail of the 9-1-1 clamp subunit Ddc1 activates Mec1/ATR via two distinct mechanisms",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Molecular Cell"
-      },
-      "volumeNumber": 36,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1016/j.molcel.2009.10.014"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "20005839"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1016/j.molcel.2009.10.014",
       "authors": [
         {
           "type": "Person",
@@ -2651,29 +2480,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2009"
+      },
+      "title": "The unstructured C-terminal tail of the 9-1-1 clamp subunit Ddc1 activates Mec1/ATR via two distinct mechanisms",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Molecular Cell"
+        },
+        "volumeNumber": 36
+      },
       "pageStart": 743,
       "pageEnd": 753
     },
     {
-      "type": "PublicationVolume",
-      "id": "An auxin-based degron system for the rapid depletion of proteins in nonplant cells",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Nature Methods"
-      },
-      "volumeNumber": 6,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1038/nmeth.1401"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "19915560"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1038/nmeth.1401",
       "authors": [
         {
           "type": "Person",
@@ -2721,29 +2546,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2009"
+      },
+      "title": "An auxin-based degron system for the rapid depletion of proteins in nonplant cells",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Methods"
+        },
+        "volumeNumber": 6
+      },
       "pageStart": 917,
       "pageEnd": 922
     },
     {
-      "type": "PublicationVolume",
-      "id": "Pph3-Psy2 is a phosphatase complex required for Rad53 dephosphorylation and replication fork restart during recovery from DNA damage",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "PNAS"
-      },
-      "volumeNumber": 104,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1073/pnas.0703252104"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "17517611"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1073/pnas.0703252104",
       "authors": [
         {
           "type": "Person",
@@ -2809,24 +2630,24 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2007"
+      },
+      "title": "Pph3-Psy2 is a phosphatase complex required for Rad53 dephosphorylation and replication fork restart during recovery from DNA damage",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "PNAS"
+        },
+        "volumeNumber": 104
+      },
       "pageStart": 9290,
       "pageEnd": 9295
     },
     {
-      "type": "PublicationVolume",
-      "id": "The checkpoint protein Ddc2, functionally related to ",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Genes & Development"
-      },
-      "volumeNumber": 14,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "10950868"
-        }
-      ],
+      "type": "Reference",
       "authors": [
         {
           "type": "Person",
@@ -2865,29 +2686,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2000"
+      },
+      "title": "The checkpoint protein Ddc2, functionally related to ",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Genes & Development"
+        },
+        "volumeNumber": 14
+      },
       "pageStart": 2046,
       "pageEnd": 2059
     },
     {
-      "type": "PublicationVolume",
-      "id": "Activation of Rad53 kinase in response to DNA damage and its effect in modulating phosphorylation of the lagging strand DNA polymerase",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "The EMBO Journal"
-      },
-      "volumeNumber": 18,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1093/emboj/18.22.6561"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "10562568"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1093/emboj/18.22.6561",
       "authors": [
         {
           "type": "Person",
@@ -2971,29 +2788,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "1999"
+      },
+      "title": "Activation of Rad53 kinase in response to DNA damage and its effect in modulating phosphorylation of the lagging strand DNA polymerase",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "The EMBO Journal"
+        },
+        "volumeNumber": 18
+      },
       "pageStart": 6561,
       "pageEnd": 6572
     },
     {
-      "type": "PublicationVolume",
-      "id": "Regulation of Saccharomyces Rad53 checkpoint kinase during adaptation from DNA damage-induced G2/M arrest",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Molecular Cell"
-      },
-      "volumeNumber": 7,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1016/s1097-2765(01)00177-0"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "11239458"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1016/s1097-2765(01)00177-0",
       "authors": [
         {
           "type": "Person",
@@ -3041,29 +2854,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2001"
+      },
+      "title": "Regulation of Saccharomyces Rad53 checkpoint kinase during adaptation from DNA damage-induced G2/M arrest",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Molecular Cell"
+        },
+        "volumeNumber": 7
+      },
       "pageStart": 293,
       "pageEnd": 300
     },
     {
-      "type": "PublicationVolume",
-      "id": "Aberrant synthesis of indole-3-acetic acid in ",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Genetics"
-      },
-      "volumeNumber": 185,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1534/genetics.109.112854"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "20233857"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1534/genetics.109.112854",
       "authors": [
         {
           "type": "Person",
@@ -3102,29 +2911,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2010"
+      },
+      "title": "Aberrant synthesis of indole-3-acetic acid in ",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Genetics"
+        },
+        "volumeNumber": 185
+      },
       "pageStart": 211,
       "pageEnd": 220
     },
     {
-      "type": "PublicationVolume",
-      "id": "DNA double-stranded breaks induce histone H2AX phosphorylation on serine 139",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "The Journal of Biological Chemistry"
-      },
-      "volumeNumber": 273,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1074/jbc.273.10.5858"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "9488723"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1074/jbc.273.10.5858",
       "authors": [
         {
           "type": "Person",
@@ -3172,29 +2977,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "1998"
+      },
+      "title": "DNA double-stranded breaks induce histone H2AX phosphorylation on serine 139",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "The Journal of Biological Chemistry"
+        },
+        "volumeNumber": 273
+      },
       "pageStart": 5858,
       "pageEnd": 5868
     },
     {
-      "type": "PublicationVolume",
-      "id": "The optimal strategy balancing risk and speed predicts DNA damage checkpoint override times",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Nature Physics"
-      },
-      "volumeNumber": 18,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1038/s41567-022-01601-3"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "36281344"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1038/s41567-022-01601-3",
       "authors": [
         {
           "type": "Person",
@@ -3242,29 +3043,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2022"
+      },
+      "title": "The optimal strategy balancing risk and speed predicts DNA damage checkpoint override times",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Physics"
+        },
+        "volumeNumber": 18
+      },
       "pageStart": 832,
       "pageEnd": 839
     },
     {
-      "type": "PublicationVolume",
-      "id": "Control of the DNA damage checkpoint by chk1 and rad53 protein kinases through distinct mechanisms",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Science"
-      },
-      "volumeNumber": 286,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1126/science.286.5442.1166"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "10550056"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1126/science.286.5442.1166",
       "authors": [
         {
           "type": "Person",
@@ -3330,29 +3127,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "1999"
+      },
+      "title": "Control of the DNA damage checkpoint by chk1 and rad53 protein kinases through distinct mechanisms",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Science"
+        },
+        "volumeNumber": 286
+      },
       "pageStart": 1166,
       "pageEnd": 1171
     },
     {
-      "type": "PublicationVolume",
-      "id": "Rad9 phosphorylation sites couple Rad53 to the ",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Molecular Cell"
-      },
-      "volumeNumber": 9,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1016/s1097-2765(02)00532-4"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "12049741"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1016/s1097-2765(02)00532-4",
       "authors": [
         {
           "type": "Person",
@@ -3409,29 +3202,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2002"
+      },
+      "title": "Rad9 phosphorylation sites couple Rad53 to the ",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Molecular Cell"
+        },
+        "volumeNumber": 9
+      },
       "pageStart": 1055,
       "pageEnd": 1065
     },
     {
-      "type": "PublicationVolume",
-      "id": "The yeast TEM1 gene, which encodes a GTP-binding protein, is involved in termination of M phase",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Molecular and Cellular Biology"
-      },
-      "volumeNumber": 14,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1128/mcb.14.11.7476-7482.1994"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "7935462"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1128/mcb.14.11.7476-7482.1994",
       "authors": [
         {
           "type": "Person",
@@ -3461,29 +3250,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "1994"
+      },
+      "title": "The yeast TEM1 gene, which encodes a GTP-binding protein, is involved in termination of M phase",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Molecular and Cellular Biology"
+        },
+        "volumeNumber": 14
+      },
       "pageStart": 7476,
       "pageEnd": 7482
     },
     {
-      "type": "PublicationVolume",
-      "id": "Distribution and dynamics of chromatin modification induced by a defined DNA double-strand break",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Current Biology"
-      },
-      "volumeNumber": 14,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1016/j.cub.2004.09.047"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "15458641"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1016/j.cub.2004.09.047",
       "authors": [
         {
           "type": "Person",
@@ -3558,29 +3343,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2004"
+      },
+      "title": "Distribution and dynamics of chromatin modification induced by a defined DNA double-strand break",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Current Biology"
+        },
+        "volumeNumber": 14
+      },
       "pageStart": 1703,
       "pageEnd": 1711
     },
     {
-      "type": "PublicationVolume",
-      "id": "Proteome-wide identification of in vivo targets of DNA damage checkpoint kinases",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "PNAS"
-      },
-      "volumeNumber": 104,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1073/pnas.0701622104"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "17563356"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1073/pnas.0701622104",
       "authors": [
         {
           "type": "Person",
@@ -3619,28 +3400,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2007"
+      },
+      "title": "Proteome-wide identification of in vivo targets of DNA damage checkpoint kinases",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "PNAS"
+        },
+        "volumeNumber": 104
+      },
       "pageStart": 10364,
       "pageEnd": 10369
     },
     {
-      "type": "PublicationVolume",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Current Biology"
-      },
-      "volumeNumber": 15,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1016/j.cub.2005.06.063"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "16085488"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1016/j.cub.2005.06.063",
       "authors": [
         {
           "type": "Person",
@@ -3697,29 +3475,24 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2005"
+      },
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Current Biology"
+        },
+        "volumeNumber": 15
+      },
       "pageStart": 1364,
       "pageEnd": 1375
     },
     {
-      "type": "PublicationVolume",
-      "id": "Caffeine impairs resection during DNA break repair by reducing the levels of nucleases Sae2 and Dna2",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Nucleic Acids Research"
-      },
-      "volumeNumber": 43,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1093/nar/gkv520"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "26019182"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1093/nar/gkv520",
       "authors": [
         {
           "type": "Person",
@@ -3794,29 +3567,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2015"
+      },
+      "title": "Caffeine impairs resection during DNA break repair by reducing the levels of nucleases Sae2 and Dna2",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nucleic Acids Research"
+        },
+        "volumeNumber": 43
+      },
       "pageStart": 6889,
       "pageEnd": 6901
     },
     {
-      "type": "PublicationVolume",
-      "id": "The ",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "PNAS"
-      },
-      "volumeNumber": 104,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1073/pnas.0611259104"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "17299042"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1073/pnas.0611259104",
       "authors": [
         {
           "type": "Person",
@@ -3837,29 +3606,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2007"
+      },
+      "title": "The ",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "PNAS"
+        },
+        "volumeNumber": 104
+      },
       "pageStart": 2797,
       "pageEnd": 2802
     },
     {
-      "type": "PublicationVolume",
-      "id": "Maintenance of the DNA-damage checkpoint requires DNA-damage-induced mediator protein oligomerization",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Molecular Cell"
-      },
-      "volumeNumber": 33,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1016/j.molcel.2008.12.022"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "19187758"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1016/j.molcel.2008.12.022",
       "authors": [
         {
           "type": "Person",
@@ -3889,29 +3654,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2009"
+      },
+      "title": "Maintenance of the DNA-damage checkpoint requires DNA-damage-induced mediator protein oligomerization",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Molecular Cell"
+        },
+        "volumeNumber": 33
+      },
       "pageStart": 147,
       "pageEnd": 159
     },
     {
-      "type": "PublicationVolume",
-      "id": "Recovery from checkpoint-mediated arrest after repair of a double-strand break requires Srs2 helicase",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Molecular Cell"
-      },
-      "volumeNumber": 10,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1016/s1097-2765(02)00593-2"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "12191482"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1016/s1097-2765(02)00593-2",
       "authors": [
         {
           "type": "Person",
@@ -3986,29 +3747,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2002"
+      },
+      "title": "Recovery from checkpoint-mediated arrest after repair of a double-strand break requires Srs2 helicase",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Molecular Cell"
+        },
+        "volumeNumber": 10
+      },
       "pageStart": 373,
       "pageEnd": 385
     },
     {
-      "type": "PublicationVolume",
-      "id": "New heterologous modules for classical or PCR-based gene disruptions in ",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Yeast"
-      },
-      "volumeNumber": 10,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1002/yea.320101310"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "7747518"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1002/yea.320101310",
       "authors": [
         {
           "type": "Person",
@@ -4047,29 +3804,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "1994"
+      },
+      "title": "New heterologous modules for classical or PCR-based gene disruptions in ",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Yeast"
+        },
+        "volumeNumber": 10
+      },
       "pageStart": 1793,
       "pageEnd": 1808
     },
     {
-      "type": "PublicationVolume",
-      "id": "Checkpoint Responses to DNA Double-Strand Breaks",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Annual Review of Biochemistry"
-      },
-      "volumeNumber": 89,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1146/annurev-biochem-011520-104722"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "32176524"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1146/annurev-biochem-011520-104722",
       "authors": [
         {
           "type": "Person",
@@ -4099,29 +3852,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": "Checkpoint Responses to DNA Double-Strand Breaks",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Annual Review of Biochemistry"
+        },
+        "volumeNumber": 89
+      },
       "pageStart": 103,
       "pageEnd": 133
     },
     {
-      "type": "PublicationVolume",
-      "id": "Dun1, a Chk2-related kinase, is the central regulator of securin-separase dynamics during DNA damage signaling",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Nucleic Acids Research"
-      },
-      "volumeNumber": 48,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1093/nar/gkaa355"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "32402080"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1093/nar/gkaa355",
       "authors": [
         {
           "type": "Person",
@@ -4169,29 +3918,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": "Dun1, a Chk2-related kinase, is the central regulator of securin-separase dynamics during DNA damage signaling",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nucleic Acids Research"
+        },
+        "volumeNumber": 48
+      },
       "pageStart": 6092,
       "pageEnd": 6107
     },
     {
-      "type": "PublicationVolume",
-      "id": "The auxin-inducible degron 2 technology provides sharp degradation control in yeast, mammalian cells, and mice",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Nature Communications"
-      },
-      "volumeNumber": 11,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1038/s41467-020-19532-z"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "33177522"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1038/s41467-020-19532-z",
       "authors": [
         {
           "type": "Person",
@@ -4319,28 +4064,24 @@ expression: article
             "MT"
           ]
         }
-      ]
+      ],
+      "date": {
+        "type": "Date",
+        "value": "2020"
+      },
+      "title": "The auxin-inducible degron 2 technology provides sharp degradation control in yeast, mammalian cells, and mice",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Nature Communications"
+        },
+        "volumeNumber": 11
+      }
     },
     {
-      "type": "PublicationVolume",
-      "id": "The Dun1 checkpoint kinase phosphorylates and regulates the ribonucleotide reductase inhibitor Sml1",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "PNAS"
-      },
-      "volumeNumber": 99,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1073/pnas.062502299"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "11904430"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1073/pnas.062502299",
       "authors": [
         {
           "type": "Person",
@@ -4361,29 +4102,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2002"
+      },
+      "title": "The Dun1 checkpoint kinase phosphorylates and regulates the ribonucleotide reductase inhibitor Sml1",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "PNAS"
+        },
+        "volumeNumber": 99
+      },
       "pageStart": 3746,
       "pageEnd": 3751
     },
     {
-      "type": "PublicationVolume",
-      "id": "DUN1 encodes a protein kinase that controls the DNA damage response in yeast",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Cell"
-      },
-      "volumeNumber": 75,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1016/0092-8674(93)90321-g"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "8261511"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1016/0092-8674(93)90321-g",
       "authors": [
         {
           "type": "Person",
@@ -4404,29 +4141,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "1993"
+      },
+      "title": "DUN1 encodes a protein kinase that controls the DNA damage response in yeast",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cell"
+        },
+        "volumeNumber": 75
+      },
       "pageStart": 1119,
       "pageEnd": 1127
     },
     {
-      "type": "PublicationVolume",
-      "id": "Sgs1 helicase and two nucleases Dna2 and Exo1 resect DNA double-strand break ends",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Cell"
-      },
-      "volumeNumber": 134,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1016/j.cell.2008.08.037"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "18805091"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1016/j.cell.2008.08.037",
       "authors": [
         {
           "type": "Person",
@@ -4474,29 +4207,25 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2008"
+      },
+      "title": "Sgs1 helicase and two nucleases Dna2 and Exo1 resect DNA double-strand break ends",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Cell"
+        },
+        "volumeNumber": 134
+      },
       "pageStart": 981,
       "pageEnd": 994
     },
     {
-      "type": "PublicationVolume",
-      "id": "Sensing DNA damage through ATRIP recognition of RPA-ssDNA complexes",
-      "isPartOf": {
-        "type": "Periodical",
-        "id": "Science"
-      },
-      "volumeNumber": 300,
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/doi",
-          "value": "10.1126/science.1083430"
-        },
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/pubmed",
-          "value": "12791985"
-        }
-      ],
+      "type": "Reference",
+      "doi": "10.1126/science.1083430",
       "authors": [
         {
           "type": "Person",
@@ -4517,6 +4246,19 @@ expression: article
           ]
         }
       ],
+      "date": {
+        "type": "Date",
+        "value": "2003"
+      },
+      "title": "Sensing DNA damage through ATRIP recognition of RPA-ssDNA complexes",
+      "isPartOf": {
+        "type": "PublicationVolume",
+        "isPartOf": {
+          "type": "Periodical",
+          "name": "Science"
+        },
+        "volumeNumber": 300
+      },
       "pageStart": 1542,
       "pageEnd": 1548
     }
