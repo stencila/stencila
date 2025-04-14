@@ -7,8 +7,8 @@ impl MarkdownCodec for Excerpt {
         if matches!(context.format, Format::Smd | Format::Llmd) {
             context.push_colons().push_str(" excerpt");
 
-            if matches!(context.format, Format::Llmd) {
-                context.push_str(" ").push_str(&self.node_id().to_string());
+            if let Some(id) = &self.id {
+                context.push_str(" ").push_str(&id);
             }
 
             context.push_str("\n\n").increase_depth();

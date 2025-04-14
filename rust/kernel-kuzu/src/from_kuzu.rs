@@ -138,6 +138,7 @@ fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
             let mut node_id = None;
             let mut node_path = None;
             let mut node_ancestors = None;
+            let mut position = None;
             for (name, value) in node_val.get_properties() {
                 if name == "docId" {
                     doc_id = Some(value.to_string());
@@ -155,16 +156,27 @@ fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
                     node_ancestors = Some(value.to_string());
                 }
 
+                if name == "position" {
+                    position = Some(value.to_string());
+                }
+
                 if doc_id.is_some()
                     && node_id.is_some()
                     && node_path.is_some()
                     && node_ancestors.is_some()
+                    && position.is_some()
                 {
                     break;
                 }
             }
-            let (Some(doc_id), Some(node_id), Some(node_path), Some(node_ancestors)) =
-                (doc_id, node_id, node_path, node_ancestors)
+
+            let (
+                Some(doc_id),
+                Some(node_id),
+                Some(node_path),
+                Some(node_ancestors),
+                Some(position),
+            ) = (doc_id, node_id, node_path, node_ancestors, position)
             else {
                 // As above, if the Kuzu node does not have docId, nodePath & nodeLane properties
                 // then convert to a primitive
@@ -185,6 +197,8 @@ fn excerpts_from_query_result(result: QueryResult) -> Result<Array> {
                     &node_ancestors,
                     ":",
                     node_type,
+                    ":",
+                    &position,
                 ]
                 .concat(),
             ))

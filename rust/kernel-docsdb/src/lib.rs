@@ -238,7 +238,7 @@ impl DocsDBKernelInstance {
                 bail!("Expected string")
             };
 
-            let Some((doc_id, node_id, node_path_str, node_ancestors, node_type)) =
+            let Some((doc_id, node_id, node_path_str, node_ancestors, node_type, position)) =
                 pair.split(":").collect_tuple()
             else {
                 bail!("Expected : separator")
@@ -298,6 +298,16 @@ impl DocsDBKernelInstance {
                 }
             };
 
+            // Generate a unique but deterministic id for the excerpt
+            let doi = if let Some(doi) = &source.doi {
+                // Replaces characters which may be in DOI which may interfere with
+                // with Markdown parsing of citations
+                doi.to_string().replace(['@', ';', '[', ']'], "-")
+            } else {
+                ["10.0000/", &doc_id[4..]].concat()
+            };
+            let id = Some([&doi, "#", &position].concat());
+
             let Ok(node) = excerpt else {
                 tracing::warn!("Unable to find node path in `{doc_id}`");
                 continue;
@@ -331,6 +341,7 @@ impl DocsDBKernelInstance {
             };
 
             let excerpt = Node::Excerpt(Excerpt {
+                id,
                 source,
                 node_path: node_path_str.to_string(),
                 node_ancestors: node_ancestors.to_string(),
