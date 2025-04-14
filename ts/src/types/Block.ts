@@ -27,7 +27,6 @@ import { type Paragraph } from "./Paragraph.js";
 import { type PromptBlock } from "./PromptBlock.js";
 import { type QuoteBlock } from "./QuoteBlock.js";
 import { type RawBlock } from "./RawBlock.js";
-import { type Reference } from "./Reference.js";
 import { type Section } from "./Section.js";
 import { type StyledBlock } from "./StyledBlock.js";
 import { type SuggestionBlock } from "./SuggestionBlock.js";
@@ -65,7 +64,6 @@ export type Block =
   PromptBlock |
   QuoteBlock |
   RawBlock |
-  Reference |
   Section |
   StyledBlock |
   SuggestionBlock |
@@ -104,7 +102,6 @@ export function block(other: Block): Block {
     case "PromptBlock":
     case "QuoteBlock":
     case "RawBlock":
-    case "Reference":
     case "Section":
     case "StyledBlock":
     case "SuggestionBlock":

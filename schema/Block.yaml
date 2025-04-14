@@ -151,12 +151,6 @@ anyOf:
 
   - $ref: RawBlock
 
-  - $ref: Reference
-    proptest:
-      min:
-        description: Do not generate `Reference` nodes in block content.
-        skip: true
-
   - $ref: Section
     proptest:
       min:

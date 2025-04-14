@@ -593,7 +593,6 @@ impl From<Block> for Node {
             PromptBlock,
             QuoteBlock,
             RawBlock,
-            Reference,
             Section,
             StyledBlock,
             SuggestionBlock,
