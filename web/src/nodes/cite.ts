@@ -18,8 +18,17 @@ export class Cite extends Entity {
   citationMode?: CitationMode
 
   override render() {
-    return this.citationMode == 'Parenthetical'
-      ? html`(<slot name="reference"></slot>)`
-      : html`<slot name="reference"></slot>`
+    if (this.citationMode == 'Parenthetical') {
+      return html`(<slot name="reference"></slot>)`
+    }
+
+    const items = this.closestGlobally('stencila-cite-group [slot=items]')
+    if (items) {
+      if (this != items.lastElementChild) {
+        return html`<slot name="reference"></slot>; `
+      }
+    }
+
+    return html`<slot name="reference"></slot>`
   }
 }

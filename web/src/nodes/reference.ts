@@ -37,19 +37,30 @@ export class Reference extends Entity {
   }
 
   renderWithinCite(cite: Cite) {
-    // TODO: Use author last name
-    const author = this.authors[0]
-
-    switch (cite.citationMode) {
-      case 'Narrative':
-        return html`${author} (${this.date})`
-      case 'NarrativeAuthor':
-        return html`${author}`
-      case 'Parenthetical':
-          return html`${author}, ${this.date}`
-      default:
-        return html`${author} ${this.date}`
+    let author = familyName(this.authors[0])
+    if (this.authors.length == 2) {
+      author += ' & ' + familyName(this.authors[1])
+    } else if (this.authors.length > 2) {
+      author += ' et al.'
     }
+
+    const repr = (() => {
+      switch (cite.citationMode) {
+        case 'Narrative':
+          return html`${author} (${this.date})`
+        case 'NarrativeAuthor':
+          return html`${author}`
+        case 'Parenthetical':
+          return html`${author}, ${this.date}`
+        default:
+          return html`${author} ${this.date}`
+      }
+    })()
+
+    return html`<sl-tooltip class="inline-block"
+      ><span>${repr}</span
+      ><span slot="content">${this.renderDefault()}</span></sl-tooltip
+    >`
   }
 
   renderDefault() {
@@ -67,4 +78,8 @@ export class Reference extends Entity {
         : ''}
     </div>`
   }
+}
+
+function familyName(name: string): string {
+  return name.split(' ').pop()
 }
