@@ -52,7 +52,7 @@ export class CodeChunk extends CodeExecutable {
   }
 
   override render() {
-    if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
+    if (this.isWithin('StyledBlock')) {
       return this.renderOutputs()
     }
 
@@ -81,7 +81,7 @@ export class CodeChunk extends CodeExecutable {
         depth=${this.depth}
         header-icon=${icon}
         header-title=${title}
-        ?no-content=${!this.hasOutputs || this.isHidden}
+        ?no-content-padding=${!this.hasOutputs || this.isHidden}
         ?has-root=${hasRoot}
       >
         <span slot="header-right" class="flex flex-row items-center gap-3">
