@@ -306,7 +306,7 @@ impl DocsDBKernelInstance {
             } else {
                 ["10.0000/", &doc_id[4..]].concat()
             };
-            let id = Some([&doi, "#", &position].concat());
+            let id = Some([&doi, "#", position].concat());
 
             let Ok(node) = excerpt else {
                 tracing::warn!("Unable to find node path in `{doc_id}`");

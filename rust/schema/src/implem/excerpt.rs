@@ -8,7 +8,7 @@ impl MarkdownCodec for Excerpt {
             context.push_colons().push_str(" excerpt");
 
             if let Some(id) = &self.id {
-                context.push_str(" ").push_str(&id);
+                context.push_str(" ").push_str(id);
             }
 
             context.push_str("\n\n").increase_depth();
