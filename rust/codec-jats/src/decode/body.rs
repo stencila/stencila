@@ -5,12 +5,12 @@ use std::str::FromStr;
 use codec::{
     schema::{
         shortcuts::{em, img, mi, p, qb, qi, stg, stk, sub, sup, t, u},
-        Admonition, Article, AudioObject, AudioObjectOptions, Block, Cite, CiteOptions, Claim,
-        ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord, Date, DateTime,
-        Duration, ExecutionMode, Figure, Heading, ImageObject, ImageObjectOptions, Inline, Link,
-        List, ListItem, ListOrder, MathBlock, MediaObject, MediaObjectOptions, Note, NoteType,
-        Parameter, Section, SectionType, StyledInline, Table, TableCell, TableRow, TableRowType,
-        ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
+        Admonition, Article, AudioObject, AudioObjectOptions, Block, CitationMode, Cite,
+        CiteOptions, Claim, ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord,
+        Date, DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject, ImageObjectOptions,
+        Inline, Link, List, ListItem, ListOrder, MathBlock, MediaObject, MediaObjectOptions, Note,
+        NoteType, Parameter, Section, SectionType, StyledInline, Table, TableCell, TableRow,
+        TableRowType, ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
     },
     Losses,
 };
@@ -945,6 +945,7 @@ fn decode_xref_bibr(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 
     Inline::Cite(Cite {
         target,
+        citation_mode: Some(CitationMode::Parenthetical),
         options: Box::new(CiteOptions {
             content,
             ..Default::default()
