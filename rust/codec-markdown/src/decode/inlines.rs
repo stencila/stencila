@@ -207,7 +207,8 @@ pub(super) fn inlines(input: &str) -> Vec<(Inline, Range<usize>)> {
             double_braces,
             math,
             cite_group,
-            cite,
+            cite_parenthetical,
+            cite_narrative,
             parameter,
             button,
             styled_inline,
@@ -370,7 +371,33 @@ fn math(input: &mut Located<&str>) -> ModalResult<Inline> {
     .parse_next(input)
 }
 
+fn cite_target(input: &mut Located<&str>) -> ModalResult<String> {
+    preceded(
+        '@',
+        take_while(1.., |chr: char| {
+            // Permissive on target id to allow for the large variety of characters
+            // that are permitted in a DOI
+            !(chr.is_whitespace() || ['@', ';', '[', ']'].contains(&chr))
+        }),
+    )
+    .map(|target: &str| target.to_string())
+    .parse_next(input)
+}
+
 /// Parse a string into a narrative `Cite` node
+fn cite_narrative(input: &mut Located<&str>) -> ModalResult<Inline> {
+    cite_target
+        .map(|target| {
+            Inline::Cite(Cite {
+                target,
+                citation_mode: Some(CitationMode::Narrative),
+                ..Default::default()
+            })
+        })
+        .parse_next(input)
+}
+
+/// Parse a string into a parenthetical `Cite` node
 ///
 /// This attempts to follow Pandoc's citation handling as closely as possible
 /// (see <https://pandoc.org/MANUAL.html#citations>).
@@ -384,20 +411,16 @@ fn math(input: &mut Located<&str>) -> ModalResult<Inline> {
 ///   - [ ] citation_prefix
 ///   - [ ] citation_suffix
 ///   - [ ] citation_intent
-fn cite(input: &mut Located<&str>) -> ModalResult<Inline> {
-    // TODO: Parse more properties of citations
-    preceded(
-        '@',
-        take_while(1.., |chr: char| chr == '_' || chr.is_alphanumeric()),
-    )
-    .map(|target: &str| {
-        Inline::Cite(Cite {
-            target: target.into(),
-            citation_mode: CitationMode::Narrative,
-            ..Default::default()
+fn cite_parenthetical(input: &mut Located<&str>) -> ModalResult<Inline> {
+    delimited(('[', multispace0), cite_target, (multispace0, ']'))
+        .map(|target| {
+            Inline::Cite(Cite {
+                target,
+                citation_mode: Some(CitationMode::Parenthetical),
+                ..Default::default()
+            })
         })
-    })
-    .parse_next(input)
+        .parse_next(input)
 }
 
 /// Parse a string into a `CiteGroup` node or parenthetical `Cite` node.
@@ -405,12 +428,7 @@ fn cite(input: &mut Located<&str>) -> ModalResult<Inline> {
 /// If there is only one citation within square brackets then a parenthetical `Cite` node is
 /// returned. Otherwise, the `Cite` nodes are grouped into into a `CiteGroup`.
 fn cite_group(input: &mut Located<&str>) -> ModalResult<Inline> {
-    let cite = preceded(
-        '@',
-        take_while(1.., |chr: char| chr == '_' || chr.is_alphanumeric()),
-    )
-    .map(|res: &str| {
-        let target = res.into();
+    let cite = cite_target.map(|target| {
         Inline::Cite(Cite {
             target,
             ..Default::default()
@@ -419,25 +437,21 @@ fn cite_group(input: &mut Located<&str>) -> ModalResult<Inline> {
 
     delimited(
         '[',
-        separated(1.., cite, (multispace0, ';', multispace0)),
+        separated(2.., cite, (multispace0, ';', multispace0)),
         ']',
     )
     .map(|items: Vec<Inline>| {
-        if items.len() == 1 {
-            items[0].clone()
-        } else {
-            Inline::CiteGroup(CiteGroup {
-                items: items
-                    .iter()
-                    .filter_map(|item| match item {
-                        Inline::Cite(cite) => Some(cite),
-                        _ => None,
-                    })
-                    .cloned()
-                    .collect(),
-                ..Default::default()
-            })
-        }
+        Inline::CiteGroup(CiteGroup {
+            items: items
+                .iter()
+                .filter_map(|item| match item {
+                    Inline::Cite(cite) => Some(cite),
+                    _ => None,
+                })
+                .cloned()
+                .collect(),
+            ..Default::default()
+        })
     })
     .parse_next(input)
 }
@@ -888,19 +902,28 @@ mod tests {
     #[test]
     fn test_cite() {
         assert_eq!(
-            cite(&mut Located::new("@someref")).unwrap(),
+            cite_narrative(&mut Located::new("@someref")).unwrap(),
             Inline::Cite(Cite {
                 target: "someref".into(),
-                citation_mode: CitationMode::Narrative,
+                citation_mode: Some(CitationMode::Narrative),
                 ..Default::default()
             })
         );
 
         assert_eq!(
-            cite(&mut Located::new("@exc_a3ser4dkdljUsB1W")).unwrap(),
+            cite_narrative(&mut Located::new("@10.0000/a-b_c/e#123")).unwrap(),
             Inline::Cite(Cite {
-                target: "exc_a3ser4dkdljUsB1W".into(),
-                citation_mode: CitationMode::Narrative,
+                target: "10.0000/a-b_c/e#123".into(),
+                citation_mode: Some(CitationMode::Narrative),
+                ..Default::default()
+            })
+        );
+
+        assert_eq!(
+            cite_parenthetical(&mut Located::new("[@10.0000/2020.10.10(321)#123]")).unwrap(),
+            Inline::Cite(Cite {
+                target: "10.0000/2020.10.10(321)#123".into(),
+                citation_mode: Some(CitationMode::Parenthetical),
                 ..Default::default()
             })
         );

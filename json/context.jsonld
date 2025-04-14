@@ -402,6 +402,7 @@
     "query": "stencila:query",
     "queryPatterns": "stencila:queryPatterns",
     "randomSeed": "stencila:randomSeed",
+    "reference": "stencila:reference",
     "references": "schema:citation",
     "rel": "schema:linkRelationship",
     "relativePosition": "stencila:relativePosition",

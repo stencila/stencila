@@ -5,6 +5,7 @@ import { CitationMode } from "./CitationMode.js";
 import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
 import { IntegerOrString } from "./IntegerOrString.js";
+import { Reference } from "./Reference.js";
 
 /**
  * A reference to a `CreativeWork` that is cited in another `CreativeWork`.
@@ -19,9 +20,14 @@ export class Cite extends Entity {
   target: string;
 
   /**
+   * The `Reference` resolved for the `target`
+   */
+  reference?: Reference;
+
+  /**
    * Determines how the citation is shown within the surrounding text.
    */
-  citationMode: CitationMode;
+  citationMode?: CitationMode;
 
   /**
    * The type/s of the citation, both factually and rhetorically.
@@ -58,18 +64,17 @@ export class Cite extends Entity {
    */
   citationSuffix?: string;
 
-  constructor(target: string, citationMode: CitationMode, options?: Partial<Cite>) {
+  constructor(target: string, options?: Partial<Cite>) {
     super();
     this.type = "Cite";
     if (options) Object.assign(this, options);
     this.target = target;
-    this.citationMode = citationMode;
   }
 }
 
 /**
 * Create a new `Cite`
 */
-export function cite(target: string, citationMode: CitationMode, options?: Partial<Cite>): Cite {
-  return new Cite(target, citationMode, options);
+export function cite(target: string, options?: Partial<Cite>): Cite {
+  return new Cite(target, options);
 }

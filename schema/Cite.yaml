@@ -13,16 +13,27 @@ markdown:
   derive: false
 required:
   - target
-  - citationMode
+core:
+ - citationMode
 properties:
   target:
     "@id": schema:target
     description: The target of the citation (URL or reference ID).
     type: string
+    patch:
+      formats: [all]
+  reference:
+    "@id": stencila:reference
+    description: The `Reference` resolved for the `target`
+    $ref: Reference
+    dom:
+      elem: span
   citationMode:
     "@id": stencila:citationMode
     description: Determines how the citation is shown within the surrounding text.
     $ref: CitationMode
+    patch:
+      formats: [all]
   citationIntent:
     "@id": stencila:citationIntent
     description: The type/s of the citation, both factually and rhetorically.

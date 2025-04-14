@@ -226,6 +226,7 @@ pub enum NodeProperty {
     Query,
     QueryPatterns,
     RandomSeed,
+    Reference,
     References,
     Rel,
     RelativePosition,

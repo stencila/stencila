@@ -24,7 +24,8 @@ pub struct CiteGroup {
     /// One or more `Cite`s to be referenced in the same surrounding text.
     #[serde(alias = "item")]
     #[serde(deserialize_with = "one_or_many")]
-    #[dom(elem = "div")]
+    #[patch(format = "all")]
+    #[dom(elem = "span")]
     pub items: Vec<Cite>,
 
     /// A unique identifier for a node within a document

@@ -6,6 +6,7 @@ use super::citation_intent::CitationIntent;
 use super::citation_mode::CitationMode;
 use super::inline::Inline;
 use super::integer_or_string::IntegerOrString;
+use super::reference::Reference;
 use super::string::String;
 
 /// A reference to a `CreativeWork` that is cited in another `CreativeWork`.
@@ -26,11 +27,13 @@ pub struct Cite {
     pub id: Option<String>,
 
     /// The target of the citation (URL or reference ID).
+    #[patch(format = "all")]
     pub target: String,
 
     /// Determines how the citation is shown within the surrounding text.
     #[serde(alias = "citation-mode", alias = "citation_mode")]
-    pub citation_mode: CitationMode,
+    #[patch(format = "all")]
+    pub citation_mode: Option<CitationMode>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -48,6 +51,10 @@ pub struct Cite {
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CiteOptions {
+    /// The `Reference` resolved for the `target`
+    #[dom(elem = "span")]
+    pub reference: Option<Reference>,
+
     /// The type/s of the citation, both factually and rhetorically.
     #[serde(alias = "citation-intent", alias = "citation_intent")]
     #[serde(default, deserialize_with = "option_one_or_many")]
@@ -91,10 +98,9 @@ impl Cite {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(target: String, citation_mode: CitationMode) -> Self {
+    pub fn new(target: String) -> Self {
         Self {
             target,
-            citation_mode,
             ..Default::default()
         }
     }

@@ -31,8 +31,7 @@ impl Cite {
 
 impl MarkdownCodec for Cite {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        let brackets = matches!(self.citation_mode, CitationMode::Parenthetical)
-            && !context.parent_is(NodeType::CiteGroup);
+        let brackets = matches!(self.citation_mode, Some(CitationMode::Parenthetical));
 
         context
             .enter_node(self.node_type(), self.node_id())

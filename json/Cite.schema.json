@@ -17,11 +17,11 @@
   },
   "required": [
     "type",
-    "target",
-    "citationMode"
+    "target"
   ],
   "core": [
-    "id"
+    "id",
+    "citationMode"
   ],
   "properties": {
     "type": {
@@ -45,7 +45,20 @@
     "target": {
       "@id": "schema:target",
       "description": "The target of the citation (URL or reference ID).",
+      "patch": {
+        "formats": [
+          "all"
+        ]
+      },
       "type": "string"
+    },
+    "reference": {
+      "@id": "stencila:reference",
+      "description": "The `Reference` resolved for the `target`",
+      "dom": {
+        "elem": "span"
+      },
+      "$ref": "Reference.schema.json"
     },
     "citationMode": {
       "@id": "stencila:citationMode",
@@ -54,6 +67,11 @@
         "citation-mode",
         "citation_mode"
       ],
+      "patch": {
+        "formats": [
+          "all"
+        ]
+      },
       "$ref": "CitationMode.schema.json"
     },
     "citationIntent": {

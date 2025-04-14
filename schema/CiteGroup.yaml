@@ -1,5 +1,5 @@
 title: CiteGroup
-'@id': stencila:CiteGroup
+"@id": stencila:CiteGroup
 nick: ctg
 extends: Entity
 category: prose
@@ -21,10 +21,12 @@ required:
   - items
 properties:
   items:
-    '@id': schema:itemListElement
+    "@id": schema:itemListElement
     type: array
     description: One or more `Cite`s to be referenced in the same surrounding text.
     items:
       $ref: Cite
     dom:
-      elem: div
+      elem: span
+    patch:
+      formats: [all]

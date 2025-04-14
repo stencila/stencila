@@ -38,6 +38,18 @@
       }
     },
     {
+      "@id": "stencila:reference",
+      "@type": "rdfs:Property",
+      "rdfs:label": "reference",
+      "rdfs:comment": "The `Reference` resolved for the `target`",
+      "schema:domainIncludes": {
+        "@id": "stencila:Cite"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Reference"
+      }
+    },
+    {
       "@id": "stencila:citationMode",
       "@type": "rdfs:Property",
       "rdfs:label": "citationMode",

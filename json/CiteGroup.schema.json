@@ -45,8 +45,13 @@
       "aliases": [
         "item"
       ],
+      "patch": {
+        "formats": [
+          "all"
+        ]
+      },
       "dom": {
-        "elem": "div"
+        "elem": "span"
       },
       "type": "array",
       "items": {

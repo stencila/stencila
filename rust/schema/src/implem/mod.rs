@@ -13,6 +13,7 @@ mod chat;
 mod chat_message;
 mod chat_message_group;
 mod cite;
+mod cite_group;
 mod claim;
 mod code_block;
 mod code_chunk;

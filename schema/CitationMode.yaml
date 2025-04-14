@@ -20,7 +20,6 @@ $comment: |
   LaTeX's `natbib` package has `\citep{}` (for `parenthetical`), `\citet{}` (for `textual`),
   `\citeauthor{}` (for `textual-author`), `\citeyear{}` (for `textual-year`).
   See https://www.overleaf.com/learn/latex/Natbib_citation_styles.
-default: Parenthetical
 anyOf:
   - const: Parenthetical
     '@id': stencila:Parenthetical

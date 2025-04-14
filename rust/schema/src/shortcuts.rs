@@ -19,7 +19,7 @@ pub fn btn<C: Into<Cord>, S: Into<String>>(name: S, code: C) -> Inline {
 
 /// Create an [`Inline::Cite`] node
 pub fn ct<S: Into<String>>(target: S) -> Inline {
-    Inline::Cite(Cite::new(target.into(), CitationMode::Parenthetical))
+    Inline::Cite(Cite::new(target.into()))
 }
 
 /// Create an [`Inline::CiteGroup`] node
@@ -31,7 +31,7 @@ where
     Inline::CiteGroup(CiteGroup::new(
         items
             .into_iter()
-            .map(|target| Cite::new(target.into(), CitationMode::Parenthetical))
+            .map(|target| Cite::new(target.into()))
             .collect(),
     ))
 }

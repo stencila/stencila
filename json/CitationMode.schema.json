@@ -139,6 +139,5 @@
       "@id": "stencila:NarrativeAuthor",
       "const": "NarrativeAuthor"
     }
-  ],
-  "default": "Parenthetical"
+  ]
 }

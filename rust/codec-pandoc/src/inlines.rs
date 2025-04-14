@@ -253,9 +253,9 @@ fn cite_to_pandoc_citation(cite: &Cite) -> pandoc::Citation {
     pandoc::Citation {
         citation_id: cite.target.clone(),
         citation_mode: match cite.citation_mode {
-            CitationMode::Parenthetical => pandoc::CitationMode::NormalCitation,
-            CitationMode::Narrative => pandoc::CitationMode::SuppressAuthor,
-            CitationMode::NarrativeAuthor => pandoc::CitationMode::AuthorInText,
+            Some(CitationMode::Narrative) => pandoc::CitationMode::SuppressAuthor,
+            Some(CitationMode::NarrativeAuthor) => pandoc::CitationMode::AuthorInText,
+            _ => pandoc::CitationMode::NormalCitation,
         },
         citation_prefix: cite
             .options
@@ -279,14 +279,22 @@ fn cite_from_pandoc(
     _inlines: Vec<pandoc::Inline>,
     context: &mut PandocDecodeContext,
 ) -> Inline {
+    let single = citations.len() == 1;
+
     let mut cites: Vec<Cite> = citations
         .into_iter()
         .map(|cite| Cite {
             target: cite.citation_id,
             citation_mode: match cite.citation_mode {
-                pandoc::CitationMode::NormalCitation => CitationMode::Parenthetical,
-                pandoc::CitationMode::SuppressAuthor => CitationMode::Narrative,
-                pandoc::CitationMode::AuthorInText => CitationMode::NarrativeAuthor,
+                pandoc::CitationMode::NormalCitation => {
+                    if single {
+                        Some(CitationMode::Parenthetical)
+                    } else {
+                        None
+                    }
+                }
+                pandoc::CitationMode::SuppressAuthor => Some(CitationMode::Narrative),
+                pandoc::CitationMode::AuthorInText => Some(CitationMode::NarrativeAuthor),
             },
             options: Box::new(CiteOptions {
                 citation_prefix: (!cite.citation_prefix.is_empty())
@@ -299,7 +307,7 @@ fn cite_from_pandoc(
         })
         .collect();
 
-    if cites.len() == 1 {
+    if single {
         Inline::Cite(cites.swap_remove(0))
     } else {
         Inline::CiteGroup(CiteGroup::new(cites))

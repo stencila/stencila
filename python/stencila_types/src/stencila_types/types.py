@@ -1314,7 +1314,10 @@ class Cite(Entity):
     target: str
     """The target of the citation (URL or reference ID)."""
 
-    citation_mode: CitationMode
+    reference: Reference | None = None
+    """The `Reference` resolved for the `target`"""
+
+    citation_mode: CitationMode | None = None
     """Determines how the citation is shown within the surrounding text."""
 
     citation_intent: list[CitationIntent] | None = None
