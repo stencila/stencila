@@ -30,41 +30,6 @@
       }
     },
     {
-      "@id": "schema:headline",
-      "@type": "rdfs:Property",
-      "rdfs:label": "title",
-      "rdfs:comment": "The title of the work.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:CreativeWork"
-        },
-        {
-          "@id": "stencila:Admonition"
-        },
-        {
-          "@id": "stencila:Link"
-        },
-        {
-          "@id": "stencila:Reference"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
-      "@id": "schema:date",
-      "@type": "rdfs:Property",
-      "rdfs:label": "date",
-      "rdfs:comment": "Date of first publication.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Reference"
-      },
-      "schema:rangeIncludes": {
-        "@id": "schema:Date"
-      }
-    },
-    {
       "@id": "schema:author",
       "@type": "rdfs:Property",
       "rdfs:label": "authors",
@@ -114,6 +79,143 @@
         },
         {
           "@id": "stencila:Suggestion"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Author"
+      }
+    },
+    {
+      "@id": "schema:date",
+      "@type": "rdfs:Property",
+      "rdfs:label": "date",
+      "rdfs:comment": "Date of first publication.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Reference"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Date"
+      }
+    },
+    {
+      "@id": "schema:headline",
+      "@type": "rdfs:Property",
+      "rdfs:label": "title",
+      "rdfs:comment": "The title of the work.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Admonition"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:isPartOf",
+      "@type": "rdfs:Property",
+      "rdfs:label": "isPartOf",
+      "rdfs:comment": "An other `CreativeWork` that the reference is a part of.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ]
+    },
+    {
+      "@id": "schema:pageStart",
+      "@type": "rdfs:Property",
+      "rdfs:label": "pageStart",
+      "rdfs:comment": "The page on which the article starts; for example \"135\" or \"xiii\".",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "schema:PublicationIssue"
+        },
+        {
+          "@id": "schema:PublicationVolume"
+        },
+        {
+          "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Number"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
+    },
+    {
+      "@id": "schema:pageEnd",
+      "@type": "rdfs:Property",
+      "rdfs:label": "pageEnd",
+      "rdfs:comment": "The page on which the article ends; for example \"138\" or \"xvi\".",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "schema:PublicationIssue"
+        },
+        {
+          "@id": "schema:PublicationVolume"
+        },
+        {
+          "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:Number"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
+    },
+    {
+      "@id": "schema:pagination",
+      "@type": "rdfs:Property",
+      "rdfs:label": "pagination",
+      "rdfs:comment": "Any description of pages that is not separated into pageStart and pageEnd; for example, \"1-6, 9, 55\".",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "schema:PublicationIssue"
+        },
+        {
+          "@id": "schema:PublicationVolume"
+        },
+        {
+          "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Reference"
         }
       ],
       "schema:rangeIncludes": {

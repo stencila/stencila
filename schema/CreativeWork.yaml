@@ -269,9 +269,7 @@ properties:
       web page, scholarly article, etc.
     type: array
     items:
-      anyOf:
-        - $ref: CreativeWorkType
-        - $ref: Text
+      $ref: Reference
     strip: [metadata]
     dom:
       elem: section

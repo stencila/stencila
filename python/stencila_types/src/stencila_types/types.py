@@ -633,7 +633,7 @@ class CreativeWork(Thing):
     publisher: Person | Organization | None = None
     """A publisher of the CreativeWork."""
 
-    references: list[CreativeWorkType | Text] | None = None
+    references: list[Reference] | None = None
     """References to other creative works, such as another publication, web page, scholarly article, etc."""
 
     text: Text | None = None
@@ -2640,14 +2640,26 @@ class Reference(Entity):
     doi: str | None = None
     """The Digital Object Identifier for the work."""
 
-    title: str | None = None
-    """The title of the work."""
+    authors: list[Author] | None = None
+    """The authors of the work."""
 
     date: Date | None = None
     """Date of first publication."""
 
-    authors: list[str] | None = None
-    """The authors of the work."""
+    title: str | None = None
+    """The title of the work."""
+
+    is_part_of: CreativeWorkType | None = None
+    """An other `CreativeWork` that the reference is a part of."""
+
+    page_start: int | str | None = None
+    """The page on which the article starts; for example "135" or "xiii"."""
+
+    page_end: int | str | None = None
+    """The page on which the article ends; for example "138" or "xvi"."""
+
+    pagination: str | None = None
+    """Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55"."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3153,7 +3165,6 @@ Block = Union[
     PromptBlock,
     QuoteBlock,
     RawBlock,
-    Reference,
     Section,
     StyledBlock,
     SuggestionBlock,

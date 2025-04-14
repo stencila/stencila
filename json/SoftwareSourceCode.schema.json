@@ -561,14 +561,7 @@
       },
       "type": "array",
       "items": {
-        "anyOf": [
-          {
-            "$ref": "CreativeWorkType.schema.json"
-          },
-          {
-            "$ref": "Text.schema.json"
-          }
-        ]
+        "$ref": "Reference.schema.json"
       }
     },
     "text": {

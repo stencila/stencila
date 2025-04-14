@@ -15,6 +15,7 @@ use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
 use super::provenance_count::ProvenanceCount;
+use super::reference::Reference;
 use super::software_application::SoftwareApplication;
 use super::software_source_code_or_software_application_or_string::SoftwareSourceCodeOrSoftwareApplicationOrString;
 use super::string::String;
@@ -248,7 +249,7 @@ pub struct SoftwareSourceCodeOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     #[dom(elem = "section")]
-    pub references: Option<Vec<CreativeWorkTypeOrText>>,
+    pub references: Option<Vec<Reference>>,
 
     /// The textual content of this creative work.
     #[strip(content)]

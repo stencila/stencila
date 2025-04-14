@@ -73,6 +73,7 @@ const BOX_PROPERTIES: &[&str] = &[
     "Parameter.value",
     "PublicationIssue.is_part_of",
     "PublicationVolume.is_part_of",
+    "Reference.is_part_of",
     "Variable.value",
 ];
 

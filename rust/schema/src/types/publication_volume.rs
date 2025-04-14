@@ -16,6 +16,7 @@ use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
 use super::provenance_count::ProvenanceCount;
+use super::reference::Reference;
 use super::string::String;
 use super::string_or_number::StringOrNumber;
 use super::text::Text;
@@ -234,7 +235,7 @@ pub struct PublicationVolumeOptions {
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
     #[dom(elem = "section")]
-    pub references: Option<Vec<CreativeWorkTypeOrText>>,
+    pub references: Option<Vec<Reference>>,
 
     /// The textual content of this creative work.
     #[strip(content)]

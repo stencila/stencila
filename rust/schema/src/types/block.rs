@@ -27,7 +27,6 @@ use super::paragraph::Paragraph;
 use super::prompt_block::PromptBlock;
 use super::quote_block::QuoteBlock;
 use super::raw_block::RawBlock;
-use super::reference::Reference;
 use super::section::Section;
 use super::styled_block::StyledBlock;
 use super::suggestion_block::SuggestionBlock;
@@ -139,12 +138,6 @@ pub enum Block {
     QuoteBlock(QuoteBlock),
 
     RawBlock(RawBlock),
-
-    #[cfg_attr(feature = "proptest-min", proptest(skip))]
-    #[cfg_attr(feature = "proptest-low", proptest(skip))]
-    #[cfg_attr(feature = "proptest-high", proptest(skip))]
-    #[cfg_attr(feature = "proptest-max", proptest(skip))]
-    Reference(Reference),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Section(Section),

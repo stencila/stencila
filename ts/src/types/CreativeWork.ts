@@ -11,6 +11,7 @@ import { Inline } from "./Inline.js";
 import { Person } from "./Person.js";
 import { PersonOrOrganization } from "./PersonOrOrganization.js";
 import { ProvenanceCount } from "./ProvenanceCount.js";
+import { Reference } from "./Reference.js";
 import { StringOrNumber } from "./StringOrNumber.js";
 import { Text } from "./Text.js";
 import { Thing } from "./Thing.js";
@@ -131,7 +132,7 @@ export class CreativeWork extends Thing {
   /**
    * References to other creative works, such as another publication, web page, scholarly article, etc.
    */
-  references?: CreativeWorkTypeOrText[];
+  references?: Reference[];
 
   /**
    * The textual content of this creative work.

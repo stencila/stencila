@@ -15,16 +15,13 @@ impl From<&Article> for Reference {
     fn from(article: &Article) -> Self {
         Self {
             doi: article.doi(),
-            title: article.title.as_ref().map(to_text),
+            authors: article.authors.clone(),
             date: article
                 .date_published
                 .as_ref()
                 .or(article.date_modified.as_ref())
                 .cloned(),
-            authors: article
-                .authors
-                .as_ref()
-                .map(|authors| authors.iter().map(|author| author.name()).collect()),
+            title: article.title.as_ref().map(to_text),
             ..Default::default()
         }
     }

@@ -31,6 +31,7 @@ use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
 use super::provenance_count::ProvenanceCount;
+use super::reference::Reference;
 use super::string::String;
 use super::string_or_number::StringOrNumber;
 use super::text::Text;
@@ -149,7 +150,7 @@ pub struct Article {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[dom(elem = "section")]
-    pub references: Option<Vec<CreativeWorkTypeOrText>>,
+    pub references: Option<Vec<Reference>>,
 
     /// The title of the creative work.
     #[serde(alias = "headline")]

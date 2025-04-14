@@ -443,9 +443,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "isPartOf",
       "rdfs:comment": "An item or other CreativeWork that this CreativeWork is a part of.",
-      "schema:domainIncludes": {
-        "@id": "schema:CreativeWork"
-      }
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ]
     },
     {
       "@id": "schema:license",
@@ -502,7 +507,7 @@
         "@id": "schema:CreativeWork"
       },
       "schema:rangeIncludes": {
-        "@id": "schema:Text"
+        "@id": "stencila:Reference"
       }
     },
     {
@@ -574,6 +579,9 @@
         },
         {
           "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Reference"
         }
       ],
       "schema:rangeIncludes": [
@@ -602,6 +610,9 @@
         },
         {
           "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Reference"
         }
       ],
       "schema:rangeIncludes": [
@@ -630,6 +641,9 @@
         },
         {
           "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Reference"
         }
       ],
       "schema:rangeIncludes": {

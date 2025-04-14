@@ -200,6 +200,9 @@
         },
         {
           "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Reference"
         }
       ],
       "schema:rangeIncludes": [
@@ -228,6 +231,9 @@
         },
         {
           "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Reference"
         }
       ],
       "schema:rangeIncludes": [
@@ -256,6 +262,9 @@
         },
         {
           "@id": "stencila:Cite"
+        },
+        {
+          "@id": "stencila:Reference"
         }
       ],
       "schema:rangeIncludes": {
