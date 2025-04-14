@@ -176,7 +176,6 @@ impl Visitor for Inspector<'_, '_> {
             PromptBlock,
             QuoteBlock,
             RawBlock,
-            Reference,
             Section,
             StyledBlock,
             Table,
