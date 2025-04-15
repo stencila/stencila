@@ -38,3 +38,23 @@ pub(super) fn record_node_lost(path: &str, node: &Node, losses: &mut Losses) {
         }
     }
 }
+
+/// Split a string of author given names
+///
+/// In addition to splitting by whitespace, removes any trailing dot
+/// (often on initials) and splits all caps (initials without separator).
+pub(super) fn split_given_names(name: &str) -> Vec<String> {
+    name.split_ascii_whitespace()
+        .flat_map(|n| {
+            let trimmed = n.trim_end_matches('.');
+            if trimmed.chars().all(|c| c.is_ascii_uppercase()) && trimmed.chars().count() > 1 {
+                trimmed
+                    .chars()
+                    .map(|c| c.to_string())
+                    .collect::<Vec<String>>()
+            } else {
+                vec![trimmed.to_string()]
+            }
+        })
+        .collect()
+}

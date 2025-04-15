@@ -4,6 +4,7 @@ expression: article
 ---
 {
   "type": "Article",
+  "doi": "10.1101/2024.12.31.630838",
   "abstract": [
     {
       "type": "Paragraph",
@@ -20,18 +21,12 @@ expression: article
   "authors": [
     {
       "type": "Person",
+      "orcid": "0000-0003-4921-5136",
       "familyNames": [
         "Jha"
       ],
       "givenNames": [
         "Ankita"
-      ],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/orcid",
-          "value": "http://orcid.org/0000-0003-4921-5136"
-        }
       ]
     },
     {
@@ -45,66 +40,44 @@ expression: article
     },
     {
       "type": "Person",
+      "orcid": "0000-0003-2912-0519",
       "familyNames": [
         "Farahani"
       ],
       "givenNames": [
         "Payam"
-      ],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/orcid",
-          "value": "http://orcid.org/0000-0003-2912-0519"
-        }
       ]
     },
     {
       "type": "Person",
+      "orcid": "0000-0002-1546-4030",
       "familyNames": [
         "Toettcher"
       ],
       "givenNames": [
         "Jared"
-      ],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/orcid",
-          "value": "http://orcid.org/0000-0002-1546-4030"
-        }
       ]
     },
     {
       "type": "Person",
+      "orcid": "0000-0002-2476-4027",
       "familyNames": [
         "Haugh"
       ],
       "givenNames": [
-        "Jason M."
-      ],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/orcid",
-          "value": "http://orcid.org/0000-0002-2476-4027"
-        }
+        "Jason",
+        "M"
       ]
     },
     {
       "type": "Person",
+      "orcid": "0000-0001-6142-6775",
       "familyNames": [
         "Waterman"
       ],
       "givenNames": [
-        "Clare M."
-      ],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/orcid",
-          "value": "http://orcid.org/0000-0001-6142-6775"
-        }
+        "Clare",
+        "M"
       ]
     }
   ],
@@ -131,7 +104,8 @@ expression: article
             "Stuelten"
           ],
           "givenNames": [
-            "C. H."
+            "C",
+            "H"
           ]
         },
         {
@@ -140,7 +114,8 @@ expression: article
             "Parent"
           ],
           "givenNames": [
-            "C. A."
+            "C",
+            "A"
           ]
         },
         {
@@ -149,7 +124,8 @@ expression: article
             "Montell"
           ],
           "givenNames": [
-            "D. J"
+            "D",
+            "J"
           ]
         }
       ],
@@ -179,7 +155,8 @@ expression: article
             "Novikov"
           ],
           "givenNames": [
-            "N. M."
+            "N",
+            "M"
           ]
         },
         {
@@ -188,7 +165,8 @@ expression: article
             "Zolotaryova"
           ],
           "givenNames": [
-            "S. Y."
+            "S",
+            "Y"
           ]
         },
         {
@@ -197,7 +175,8 @@ expression: article
             "Gautreau"
           ],
           "givenNames": [
-            "A. M."
+            "A",
+            "M"
           ]
         },
         {
@@ -206,7 +185,8 @@ expression: article
             "Denisov"
           ],
           "givenNames": [
-            "E. V"
+            "E",
+            "V"
           ]
         }
       ],
@@ -236,7 +216,7 @@ expression: article
             "Fares"
           ],
           "givenNames": [
-            "J."
+            "J"
           ]
         },
         {
@@ -245,7 +225,8 @@ expression: article
             "Fares"
           ],
           "givenNames": [
-            "M. Y."
+            "M",
+            "Y"
           ]
         },
         {
@@ -254,7 +235,8 @@ expression: article
             "Khachfe"
           ],
           "givenNames": [
-            "H. H."
+            "H",
+            "H"
           ]
         },
         {
@@ -263,7 +245,8 @@ expression: article
             "Salhab"
           ],
           "givenNames": [
-            "H. A."
+            "H",
+            "A"
           ]
         },
         {
@@ -300,7 +283,7 @@ expression: article
             "Alexander"
           ],
           "givenNames": [
-            "S."
+            "S"
           ]
         },
         {
@@ -309,7 +292,8 @@ expression: article
             "Koehl"
           ],
           "givenNames": [
-            "G. E."
+            "G",
+            "E"
           ]
         },
         {
@@ -318,7 +302,7 @@ expression: article
             "Hirschberg"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         },
         {
@@ -327,7 +311,8 @@ expression: article
             "Geissler"
           ],
           "givenNames": [
-            "E. K."
+            "E",
+            "K"
           ]
         },
         {
@@ -366,7 +351,7 @@ expression: article
             "Weigelin"
           ],
           "givenNames": [
-            "B."
+            "B"
           ]
         },
         {
@@ -375,7 +360,7 @@ expression: article
             "Bakker"
           ],
           "givenNames": [
-            "G.-J."
+            "G.-J"
           ]
         },
         {
@@ -414,7 +399,7 @@ expression: article
             "Mayor"
           ],
           "givenNames": [
-            "R."
+            "R"
           ]
         },
         {
@@ -453,7 +438,8 @@ expression: article
             "Ridley"
           ],
           "givenNames": [
-            "A. J."
+            "A",
+            "J"
           ]
         }
       ],
@@ -483,7 +469,7 @@ expression: article
             "Devreotes"
           ],
           "givenNames": [
-            "P."
+            "P"
           ]
         },
         {
@@ -492,7 +478,8 @@ expression: article
             "Horwitz"
           ],
           "givenNames": [
-            "A. R"
+            "A",
+            "R"
           ]
         }
       ],
@@ -520,7 +507,7 @@ expression: article
             "Friedl"
           ],
           "givenNames": [
-            "P."
+            "P"
           ]
         },
         {
@@ -559,7 +546,7 @@ expression: article
             "Friedl"
           ],
           "givenNames": [
-            "P."
+            "P"
           ]
         },
         {
@@ -598,7 +585,7 @@ expression: article
             "Tozluoğlu"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         }
       ],
@@ -628,7 +615,7 @@ expression: article
             "Paňková"
           ],
           "givenNames": [
-            "K."
+            "K"
           ]
         },
         {
@@ -637,7 +624,7 @@ expression: article
             "Rösel"
           ],
           "givenNames": [
-            "D."
+            "D"
           ]
         },
         {
@@ -646,7 +633,7 @@ expression: article
             "Novotný"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         },
         {
@@ -685,7 +672,8 @@ expression: article
             "Case"
           ],
           "givenNames": [
-            "L. B."
+            "L",
+            "B"
           ]
         },
         {
@@ -694,7 +682,8 @@ expression: article
             "Waterman"
           ],
           "givenNames": [
-            "C. M"
+            "C",
+            "M"
           ]
         }
       ],
@@ -724,7 +713,7 @@ expression: article
             "Charras"
           ],
           "givenNames": [
-            "G."
+            "G"
           ]
         },
         {
@@ -763,7 +752,7 @@ expression: article
             "Lorentzen"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         },
         {
@@ -772,7 +761,7 @@ expression: article
             "Bamber"
           ],
           "givenNames": [
-            "J."
+            "J"
           ]
         },
         {
@@ -781,7 +770,7 @@ expression: article
             "Sadok"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         },
         {
@@ -790,7 +779,7 @@ expression: article
             "Elson-Schwab"
           ],
           "givenNames": [
-            "I."
+            "I"
           ]
         },
         {
@@ -799,7 +788,8 @@ expression: article
             "Marshall"
           ],
           "givenNames": [
-            "C. J"
+            "C",
+            "J"
           ]
         }
       ],
@@ -829,7 +819,8 @@ expression: article
             "García-Arcos"
           ],
           "givenNames": [
-            "J. M."
+            "J",
+            "M"
           ]
         },
         {
@@ -838,7 +829,7 @@ expression: article
             "Jha"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         },
         {
@@ -847,7 +838,8 @@ expression: article
             "Waterman"
           ],
           "givenNames": [
-            "C. M."
+            "C",
+            "M"
           ]
         },
         {
@@ -886,7 +878,8 @@ expression: article
             "Charras"
           ],
           "givenNames": [
-            "G. T."
+            "G",
+            "T"
           ]
         },
         {
@@ -895,7 +888,8 @@ expression: article
             "Yarrow"
           ],
           "givenNames": [
-            "J. C."
+            "J",
+            "C"
           ]
         },
         {
@@ -904,7 +898,8 @@ expression: article
             "Horton"
           ],
           "givenNames": [
-            "M. A."
+            "M",
+            "A"
           ]
         },
         {
@@ -913,7 +908,7 @@ expression: article
             "Mahadevan"
           ],
           "givenNames": [
-            "L."
+            "L"
           ]
         },
         {
@@ -922,7 +917,8 @@ expression: article
             "Mitchison"
           ],
           "givenNames": [
-            "T. J"
+            "T",
+            "J"
           ]
         }
       ],
@@ -952,7 +948,7 @@ expression: article
             "Bergert"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         },
         {
@@ -961,7 +957,8 @@ expression: article
             "Chandradoss"
           ],
           "givenNames": [
-            "S. D."
+            "S",
+            "D"
           ]
         },
         {
@@ -970,7 +967,8 @@ expression: article
             "Desai"
           ],
           "givenNames": [
-            "R. A."
+            "R",
+            "A"
           ]
         },
         {
@@ -1009,7 +1007,7 @@ expression: article
             "Liu"
           ],
           "givenNames": [
-            "Y.-J."
+            "Y.-J"
           ]
         }
       ],
@@ -1039,7 +1037,8 @@ expression: article
             "Logue"
           ],
           "givenNames": [
-            "J. S."
+            "J",
+            "S"
           ]
         }
       ],
@@ -1068,7 +1067,8 @@ expression: article
             "Charras"
           ],
           "givenNames": [
-            "G. T."
+            "G",
+            "T"
           ]
         },
         {
@@ -1077,7 +1077,7 @@ expression: article
             "Hu"
           ],
           "givenNames": [
-            "C.-K."
+            "C.-K"
           ]
         },
         {
@@ -1086,7 +1086,7 @@ expression: article
             "Coughlin"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         },
         {
@@ -1095,7 +1095,8 @@ expression: article
             "Mitchison"
           ],
           "givenNames": [
-            "T. J"
+            "T",
+            "J"
           ]
         }
       ],
@@ -1125,7 +1126,7 @@ expression: article
             "Ruprecht"
           ],
           "givenNames": [
-            "V."
+            "V"
           ]
         }
       ],
@@ -1155,7 +1156,7 @@ expression: article
             "Ladoux"
           ],
           "givenNames": [
-            "B."
+            "B"
           ]
         },
         {
@@ -1164,7 +1165,7 @@ expression: article
             "Mège"
           ],
           "givenNames": [
-            "R.-M."
+            "R.-M"
           ]
         },
         {
@@ -1203,7 +1204,7 @@ expression: article
             "Olguin-Olguin"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         }
       ],
@@ -1232,7 +1233,8 @@ expression: article
             "Mullins"
           ],
           "givenNames": [
-            "R. D"
+            "R",
+            "D"
           ]
         }
       ],
@@ -1262,7 +1264,8 @@ expression: article
             "Price"
           ],
           "givenNames": [
-            "L. S."
+            "L",
+            "S"
           ]
         },
         {
@@ -1271,7 +1274,7 @@ expression: article
             "Leng"
           ],
           "givenNames": [
-            "J."
+            "J"
           ]
         },
         {
@@ -1280,7 +1283,8 @@ expression: article
             "Schwartz"
           ],
           "givenNames": [
-            "M. A."
+            "M",
+            "A"
           ]
         },
         {
@@ -1289,7 +1293,8 @@ expression: article
             "Bokoch"
           ],
           "givenNames": [
-            "G. M"
+            "G",
+            "M"
           ]
         }
       ],
@@ -1319,7 +1324,7 @@ expression: article
             "Innocenti"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         }
       ],
@@ -1349,7 +1354,7 @@ expression: article
             "Ponti"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         },
         {
@@ -1358,7 +1363,7 @@ expression: article
             "Machacek"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         },
         {
@@ -1367,7 +1372,8 @@ expression: article
             "Gupton"
           ],
           "givenNames": [
-            "S. L."
+            "S",
+            "L"
           ]
         },
         {
@@ -1376,7 +1382,8 @@ expression: article
             "Waterman-Storer"
           ],
           "givenNames": [
-            "C. M."
+            "C",
+            "M"
           ]
         },
         {
@@ -1415,7 +1422,7 @@ expression: article
             "Wu"
           ],
           "givenNames": [
-            "C."
+            "C"
           ]
         }
       ],
@@ -1445,7 +1452,7 @@ expression: article
             "Nordenfelt"
           ],
           "givenNames": [
-            "P."
+            "P"
           ]
         },
         {
@@ -1454,7 +1461,8 @@ expression: article
             "Elliott"
           ],
           "givenNames": [
-            "H. L."
+            "H",
+            "L"
           ]
         },
         {
@@ -1463,7 +1471,8 @@ expression: article
             "Springer"
           ],
           "givenNames": [
-            "T. A"
+            "T",
+            "A"
           ]
         }
       ],
@@ -1491,7 +1500,7 @@ expression: article
             "SenGupta"
           ],
           "givenNames": [
-            "S."
+            "S"
           ]
         },
         {
@@ -1500,7 +1509,8 @@ expression: article
             "Parent"
           ],
           "givenNames": [
-            "C. A."
+            "C",
+            "A"
           ]
         },
         {
@@ -1509,7 +1519,8 @@ expression: article
             "Bear"
           ],
           "givenNames": [
-            "J. E"
+            "J",
+            "E"
           ]
         }
       ],
@@ -1539,7 +1550,7 @@ expression: article
             "Chrzanowska-Wodnicka"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         },
         {
@@ -1579,7 +1590,8 @@ expression: article
             "García-Arcos"
           ],
           "givenNames": [
-            "J. M."
+            "J",
+            "M"
           ]
         }
       ],
@@ -1599,7 +1611,8 @@ expression: article
             "O’Neill"
           ],
           "givenNames": [
-            "P. R."
+            "P",
+            "R"
           ]
         }
       ],
@@ -1629,7 +1642,7 @@ expression: article
             "Maiuri"
           ],
           "givenNames": [
-            "P."
+            "P"
           ]
         }
       ],
@@ -1659,7 +1672,7 @@ expression: article
             "Hons"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         }
       ],
@@ -1689,7 +1702,7 @@ expression: article
             "Munro"
           ],
           "givenNames": [
-            "E."
+            "E"
           ]
         },
         {
@@ -1698,7 +1711,7 @@ expression: article
             "Nance"
           ],
           "givenNames": [
-            "J."
+            "J"
           ]
         },
         {
@@ -1707,7 +1720,8 @@ expression: article
             "Priess"
           ],
           "givenNames": [
-            "J. R"
+            "J",
+            "R"
           ]
         }
       ],
@@ -1737,7 +1751,7 @@ expression: article
             "Rodriguez-Boulan"
           ],
           "givenNames": [
-            "E."
+            "E"
           ]
         },
         {
@@ -1746,7 +1760,8 @@ expression: article
             "Nelson"
           ],
           "givenNames": [
-            "W. J"
+            "W",
+            "J"
           ]
         }
       ],
@@ -1776,7 +1791,7 @@ expression: article
             "Jékely"
           ],
           "givenNames": [
-            "G."
+            "G"
           ]
         },
         {
@@ -1785,7 +1800,7 @@ expression: article
             "Sung"
           ],
           "givenNames": [
-            "H.-H."
+            "H.-H"
           ]
         },
         {
@@ -1794,7 +1809,8 @@ expression: article
             "Luque"
           ],
           "givenNames": [
-            "C. M."
+            "C",
+            "M"
           ]
         },
         {
@@ -1833,7 +1849,7 @@ expression: article
             "Assaker"
           ],
           "givenNames": [
-            "G."
+            "G"
           ]
         },
         {
@@ -1842,7 +1858,7 @@ expression: article
             "Ramel"
           ],
           "givenNames": [
-            "D."
+            "D"
           ]
         },
         {
@@ -1851,7 +1867,8 @@ expression: article
             "Wculek"
           ],
           "givenNames": [
-            "S. K."
+            "S",
+            "K"
           ]
         },
         {
@@ -1860,7 +1877,7 @@ expression: article
             "González-Gaitán"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         },
         {
@@ -1899,7 +1916,7 @@ expression: article
             "Gong"
           ],
           "givenNames": [
-            "B."
+            "B"
           ]
         },
         {
@@ -1908,7 +1925,8 @@ expression: article
             "Johnston"
           ],
           "givenNames": [
-            "J. D."
+            "J",
+            "D"
           ]
         },
         {
@@ -1917,7 +1935,7 @@ expression: article
             "Thiemicke"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         },
         {
@@ -1926,7 +1944,7 @@ expression: article
             "De Marco"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         },
         {
@@ -1965,7 +1983,7 @@ expression: article
             "Jaqaman"
           ],
           "givenNames": [
-            "K."
+            "K"
           ]
         }
       ],
@@ -1995,7 +2013,8 @@ expression: article
             "Freeman"
           ],
           "givenNames": [
-            "S. A."
+            "S",
+            "A"
           ]
         }
       ],
@@ -2025,7 +2044,7 @@ expression: article
             "Rei"
           ],
           "givenNames": [
-            "K."
+            "K"
           ]
         },
         {
@@ -2034,7 +2053,8 @@ expression: article
             "Nobes"
           ],
           "givenNames": [
-            "C. D."
+            "C",
+            "D"
           ]
         },
         {
@@ -2043,7 +2063,7 @@ expression: article
             "Thomas"
           ],
           "givenNames": [
-            "G."
+            "G"
           ]
         },
         {
@@ -2052,7 +2072,7 @@ expression: article
             "Hall"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         },
         {
@@ -2061,7 +2081,8 @@ expression: article
             "Cantrell"
           ],
           "givenNames": [
-            "D. A"
+            "D",
+            "A"
           ]
         }
       ],
@@ -2091,7 +2112,8 @@ expression: article
             "Fantl"
           ],
           "givenNames": [
-            "W. J."
+            "W",
+            "J"
           ]
         }
       ],
@@ -2121,7 +2143,8 @@ expression: article
             "Cantley"
           ],
           "givenNames": [
-            "L. C."
+            "L",
+            "C"
           ]
         }
       ],
@@ -2151,7 +2174,7 @@ expression: article
             "Brunet"
           ],
           "givenNames": [
-            "T."
+            "T"
           ]
         }
       ],
@@ -2180,7 +2203,7 @@ expression: article
             "Witsch"
           ],
           "givenNames": [
-            "E."
+            "E"
           ]
         },
         {
@@ -2189,7 +2212,7 @@ expression: article
             "Sela"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         },
         {
@@ -2228,7 +2251,7 @@ expression: article
             "Erdogan"
           ],
           "givenNames": [
-            "B."
+            "B"
           ]
         },
         {
@@ -2237,7 +2260,8 @@ expression: article
             "Webb"
           ],
           "givenNames": [
-            "D. J"
+            "D",
+            "J"
           ]
         }
       ],
@@ -2267,7 +2291,7 @@ expression: article
             "Pietraszek-Gremplewicz"
           ],
           "givenNames": [
-            "K."
+            "K"
           ]
         }
       ],
@@ -2297,7 +2321,7 @@ expression: article
             "Pastwińska"
           ],
           "givenNames": [
-            "J."
+            "J"
           ]
         },
         {
@@ -2306,7 +2330,7 @@ expression: article
             "Karaś"
           ],
           "givenNames": [
-            "K."
+            "K"
           ]
         },
         {
@@ -2315,7 +2339,7 @@ expression: article
             "Karwaciak"
           ],
           "givenNames": [
-            "I."
+            "I"
           ]
         },
         {
@@ -2353,7 +2377,8 @@ expression: article
             "Farahani"
           ],
           "givenNames": [
-            "P. E."
+            "P",
+            "E"
           ]
         }
       ],
@@ -2382,7 +2407,7 @@ expression: article
             "Várnai"
           ],
           "givenNames": [
-            "P."
+            "P"
           ]
         },
         {
@@ -2421,7 +2446,8 @@ expression: article
             "Stauffer"
           ],
           "givenNames": [
-            "T. P."
+            "T",
+            "P"
           ]
         },
         {
@@ -2430,7 +2456,7 @@ expression: article
             "Ahn"
           ],
           "givenNames": [
-            "S."
+            "S"
           ]
         },
         {
@@ -2469,7 +2495,9 @@ expression: article
             "Weernink"
           ],
           "givenNames": [
-            "P. A. O."
+            "P",
+            "A",
+            "O"
           ]
         }
       ],
@@ -2499,7 +2527,7 @@ expression: article
             "Shin"
           ],
           "givenNames": [
-            "Y."
+            "Y"
           ]
         }
       ],
@@ -2529,7 +2557,8 @@ expression: article
             "Farahani"
           ],
           "givenNames": [
-            "P. E."
+            "P",
+            "E"
           ]
         }
       ],
@@ -2557,7 +2586,8 @@ expression: article
             "Christie"
           ],
           "givenNames": [
-            "J. M."
+            "J",
+            "M"
           ]
         },
         {
@@ -2566,7 +2596,7 @@ expression: article
             "Salomon"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         },
         {
@@ -2575,7 +2605,7 @@ expression: article
             "Nozue"
           ],
           "givenNames": [
-            "K."
+            "K"
           ]
         },
         {
@@ -2584,7 +2614,7 @@ expression: article
             "Wada"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         },
         {
@@ -2593,7 +2623,8 @@ expression: article
             "Briggs"
           ],
           "givenNames": [
-            "W. R"
+            "W",
+            "R"
           ]
         }
       ],
@@ -2623,7 +2654,8 @@ expression: article
             "Harper"
           ],
           "givenNames": [
-            "S. M."
+            "S",
+            "M"
           ]
         },
         {
@@ -2632,7 +2664,8 @@ expression: article
             "Neil"
           ],
           "givenNames": [
-            "L. C."
+            "L",
+            "C"
           ]
         },
         {
@@ -2641,7 +2674,8 @@ expression: article
             "Gardner"
           ],
           "givenNames": [
-            "K. H"
+            "K",
+            "H"
           ]
         }
       ],
@@ -2671,7 +2705,8 @@ expression: article
             "Wu"
           ],
           "givenNames": [
-            "Y. I."
+            "Y",
+            "I"
           ]
         }
       ],
@@ -2701,7 +2736,8 @@ expression: article
             "Breckenridge"
           ],
           "givenNames": [
-            "L. J."
+            "L",
+            "J"
           ]
         },
         {
@@ -2740,7 +2776,7 @@ expression: article
             "Tomas"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         },
         {
@@ -2749,7 +2785,8 @@ expression: article
             "Futter"
           ],
           "givenNames": [
-            "C. E."
+            "C",
+            "E"
           ]
         },
         {
@@ -2758,7 +2795,8 @@ expression: article
             "Eden"
           ],
           "givenNames": [
-            "E. R"
+            "E",
+            "R"
           ]
         }
       ],
@@ -2788,7 +2826,7 @@ expression: article
             "Illukkumbura"
           ],
           "givenNames": [
-            "R."
+            "R"
           ]
         },
         {
@@ -2797,7 +2835,7 @@ expression: article
             "Bland"
           ],
           "givenNames": [
-            "T."
+            "T"
           ]
         },
         {
@@ -2806,7 +2844,8 @@ expression: article
             "Goehring"
           ],
           "givenNames": [
-            "N. W"
+            "N",
+            "W"
           ]
         }
       ],
@@ -2836,7 +2875,7 @@ expression: article
             "Jaqaman"
           ],
           "givenNames": [
-            "K."
+            "K"
           ]
         },
         {
@@ -2875,7 +2914,7 @@ expression: article
             "Venturini"
           ],
           "givenNames": [
-            "V."
+            "V"
           ]
         }
       ],
@@ -2903,7 +2942,7 @@ expression: article
             "Adams"
           ],
           "givenNames": [
-            "G."
+            "G"
           ]
         },
         {
@@ -2912,7 +2951,8 @@ expression: article
             "López"
           ],
           "givenNames": [
-            "M. P."
+            "M",
+            "P"
           ]
         },
         {
@@ -2921,7 +2961,8 @@ expression: article
             "Cartagena-Rivera"
           ],
           "givenNames": [
-            "A. X."
+            "A",
+            "X"
           ]
         },
         {
@@ -2930,7 +2971,8 @@ expression: article
             "Waterman"
           ],
           "givenNames": [
-            "C. M"
+            "C",
+            "M"
           ]
         }
       ],
@@ -2960,7 +3002,8 @@ expression: article
             "Kenworthy"
           ],
           "givenNames": [
-            "A. K."
+            "A",
+            "K"
           ]
         }
       ],
@@ -2990,7 +3033,7 @@ expression: article
             "Bisaria"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         },
         {
@@ -2999,7 +3042,7 @@ expression: article
             "Hayer"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         },
         {
@@ -3008,7 +3051,7 @@ expression: article
             "Garbett"
           ],
           "givenNames": [
-            "D."
+            "D"
           ]
         },
         {
@@ -3017,7 +3060,7 @@ expression: article
             "Cohen"
           ],
           "givenNames": [
-            "D."
+            "D"
           ]
         },
         {
@@ -3056,7 +3099,7 @@ expression: article
             "Estecha"
           ],
           "givenNames": [
-            "A."
+            "A"
           ]
         }
       ],
@@ -3086,7 +3129,8 @@ expression: article
             "Orgaz"
           ],
           "givenNames": [
-            "J. L."
+            "J",
+            "L"
           ]
         }
       ],
@@ -3115,7 +3159,7 @@ expression: article
             "Poincloux"
           ],
           "givenNames": [
-            "R."
+            "R"
           ]
         }
       ],
@@ -3145,7 +3189,7 @@ expression: article
             "Moissoglu"
           ],
           "givenNames": [
-            "K."
+            "K"
           ]
         },
         {
@@ -3154,7 +3198,8 @@ expression: article
             "Schwartz"
           ],
           "givenNames": [
-            "M. A"
+            "M",
+            "A"
           ]
         }
       ],
@@ -3184,7 +3229,8 @@ expression: article
             "Theriot"
           ],
           "givenNames": [
-            "J. A."
+            "J",
+            "A"
           ]
         },
         {
@@ -3193,7 +3239,8 @@ expression: article
             "Mitchison"
           ],
           "givenNames": [
-            "T. J"
+            "T",
+            "J"
           ]
         }
       ],
@@ -3223,7 +3270,8 @@ expression: article
             "Lin"
           ],
           "givenNames": [
-            "C. H."
+            "C",
+            "H"
           ]
         },
         {
@@ -3232,7 +3280,8 @@ expression: article
             "Espreafico"
           ],
           "givenNames": [
-            "E. M."
+            "E",
+            "M"
           ]
         },
         {
@@ -3241,7 +3290,8 @@ expression: article
             "Mooseker"
           ],
           "givenNames": [
-            "M. S."
+            "M",
+            "S"
           ]
         },
         {
@@ -3280,7 +3330,8 @@ expression: article
             "Welf"
           ],
           "givenNames": [
-            "E. S."
+            "E",
+            "S"
           ]
         }
       ],
@@ -3310,7 +3361,8 @@ expression: article
             "Pasapera"
           ],
           "givenNames": [
-            "A. M."
+            "A",
+            "M"
           ]
         }
       ],
@@ -3340,7 +3392,7 @@ expression: article
             "Ponta"
           ],
           "givenNames": [
-            "H."
+            "H"
           ]
         },
         {
@@ -3349,7 +3401,7 @@ expression: article
             "Sherman"
           ],
           "givenNames": [
-            "L."
+            "L"
           ]
         },
         {
@@ -3358,7 +3410,8 @@ expression: article
             "Herrlich"
           ],
           "givenNames": [
-            "P. A"
+            "P",
+            "A"
           ]
         }
       ],
@@ -3388,7 +3441,8 @@ expression: article
             "Turley"
           ],
           "givenNames": [
-            "E. A."
+            "E",
+            "A"
           ]
         },
         {
@@ -3397,7 +3451,8 @@ expression: article
             "Noble"
           ],
           "givenNames": [
-            "P. W."
+            "P",
+            "W"
           ]
         },
         {
@@ -3406,7 +3461,9 @@ expression: article
             "Bourguignon"
           ],
           "givenNames": [
-            "L. Y. W"
+            "L",
+            "Y",
+            "W"
           ]
         }
       ],
@@ -3436,7 +3493,7 @@ expression: article
             "Teramura"
           ],
           "givenNames": [
-            "Y."
+            "Y"
           ]
         }
       ],
@@ -3466,7 +3523,7 @@ expression: article
             "Fanfone"
           ],
           "givenNames": [
-            "D."
+            "D"
           ]
         }
       ],
@@ -3495,7 +3552,8 @@ expression: article
             "Weems"
           ],
           "givenNames": [
-            "A. D."
+            "A",
+            "D"
           ]
         }
       ],
@@ -3525,7 +3583,7 @@ expression: article
             "Le Berre"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         },
         {
@@ -3534,7 +3592,7 @@ expression: article
             "Zlotek-Zlotkiewicz"
           ],
           "givenNames": [
-            "E."
+            "E"
           ]
         },
         {
@@ -3543,7 +3601,7 @@ expression: article
             "Bonazzi"
           ],
           "givenNames": [
-            "D."
+            "D"
           ]
         },
         {
@@ -3552,7 +3610,7 @@ expression: article
             "Lautenschlaeger"
           ],
           "givenNames": [
-            "F."
+            "F"
           ]
         },
         {
@@ -3591,7 +3649,7 @@ expression: article
             "Meijering"
           ],
           "givenNames": [
-            "E."
+            "E"
           ]
         },
         {
@@ -3600,7 +3658,7 @@ expression: article
             "Dzyubachyk"
           ],
           "givenNames": [
-            "O."
+            "O"
           ]
         },
         {
@@ -3639,7 +3697,7 @@ expression: article
             "Gorelik"
           ],
           "givenNames": [
-            "R."
+            "R"
           ]
         },
         {
@@ -3678,7 +3736,7 @@ expression: article
             "Koulouras"
           ],
           "givenNames": [
-            "G."
+            "G"
           ]
         }
       ],
@@ -3708,7 +3766,8 @@ expression: article
             "Soumpasis"
           ],
           "givenNames": [
-            "D. M"
+            "D",
+            "M"
           ]
         }
       ],
@@ -3738,7 +3797,7 @@ expression: article
             "Kang"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         },
         {
@@ -3747,7 +3806,8 @@ expression: article
             "Day"
           ],
           "givenNames": [
-            "C. A."
+            "C",
+            "A"
           ]
         },
         {
@@ -3756,7 +3816,8 @@ expression: article
             "Kenworthy"
           ],
           "givenNames": [
-            "A. K."
+            "A",
+            "K"
           ]
         },
         {
@@ -3795,7 +3856,7 @@ expression: article
             "Thielicke"
           ],
           "givenNames": [
-            "W."
+            "W"
           ]
         },
         {
@@ -3989,6 +4050,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c9",
                   "citationMode": "Parenthetical",
@@ -4000,6 +4067,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -4056,6 +4129,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c13",
                   "citationMode": "Parenthetical",
@@ -4067,6 +4146,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -4363,6 +4448,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c25",
                   "citationMode": "Parenthetical",
@@ -4374,6 +4465,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -4473,6 +4570,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c30",
                   "citationMode": "Parenthetical",
@@ -4484,6 +4587,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -4497,6 +4606,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c31",
                   "citationMode": "Parenthetical",
@@ -4508,6 +4623,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -4521,6 +4642,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c7",
                   "citationMode": "Parenthetical",
@@ -4532,6 +4659,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -4836,6 +4969,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c16",
                   "citationMode": "Parenthetical",
@@ -4847,6 +4986,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -4933,6 +5078,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c37",
                   "citationMode": "Parenthetical",
@@ -4944,6 +5095,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -4957,6 +5114,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c38",
                   "citationMode": "Parenthetical",
@@ -4968,6 +5131,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -5041,6 +5210,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c41",
                   "citationMode": "Parenthetical",
@@ -5052,6 +5227,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -5065,6 +5246,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c42",
                   "citationMode": "Parenthetical",
@@ -5076,6 +5263,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -5089,6 +5282,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c43",
                   "citationMode": "Parenthetical",
@@ -5100,6 +5299,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -5124,6 +5329,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c20",
                   "citationMode": "Parenthetical",
@@ -5135,6 +5346,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -5263,6 +5480,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c5",
                       "citationMode": "Parenthetical",
@@ -5274,6 +5497,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -5299,6 +5528,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c17",
                       "citationMode": "Parenthetical",
@@ -5310,6 +5545,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -5553,6 +5794,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c20",
                       "citationMode": "Parenthetical",
@@ -5564,6 +5811,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -5864,6 +6117,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c52",
                       "citationMode": "Parenthetical",
@@ -5875,6 +6134,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -5951,6 +6216,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c53",
                       "citationMode": "Parenthetical",
@@ -5962,6 +6233,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -5975,6 +6252,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c54",
                       "citationMode": "Parenthetical",
@@ -5986,6 +6269,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -6028,6 +6317,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c27",
                       "citationMode": "Parenthetical",
@@ -6039,6 +6334,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -6052,6 +6353,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c55",
                       "citationMode": "Parenthetical",
@@ -6063,6 +6370,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -6251,6 +6564,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c2",
                       "citationMode": "Parenthetical",
@@ -6262,6 +6581,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -6341,6 +6666,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c60",
                       "citationMode": "Parenthetical",
@@ -6352,6 +6683,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -6509,6 +6846,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c64",
                       "citationMode": "Parenthetical",
@@ -6520,6 +6863,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -6919,6 +7268,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c35",
                       "citationMode": "Parenthetical",
@@ -6930,6 +7285,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -7010,6 +7371,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c35",
                       "citationMode": "Parenthetical",
@@ -7021,6 +7388,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -7034,6 +7407,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c19",
                       "citationMode": "Parenthetical",
@@ -7045,6 +7424,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -7134,6 +7519,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c67",
                       "citationMode": "Parenthetical",
@@ -7145,6 +7536,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -7334,6 +7731,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c43",
                       "citationMode": "Parenthetical",
@@ -7345,6 +7748,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -7399,6 +7808,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c68",
                       "citationMode": "Parenthetical",
@@ -7410,6 +7825,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -8118,6 +8539,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c72",
                   "citationMode": "Parenthetical",
@@ -8129,6 +8556,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -8142,6 +8575,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c29",
                   "citationMode": "Parenthetical",
@@ -8153,6 +8592,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -8209,6 +8654,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c13",
                   "citationMode": "Parenthetical",
@@ -8220,6 +8671,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -8250,6 +8707,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c33",
                   "citationMode": "Parenthetical",
@@ -8261,6 +8724,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -8274,6 +8743,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c75",
                   "citationMode": "Parenthetical",
@@ -8285,6 +8760,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -8298,6 +8779,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c19",
                   "citationMode": "Parenthetical",
@@ -8309,6 +8796,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -8322,6 +8815,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c33",
                   "citationMode": "Parenthetical",
@@ -8333,6 +8832,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -8346,6 +8851,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c76",
                   "citationMode": "Parenthetical",
@@ -8357,6 +8868,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -8424,6 +8941,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c38",
                   "citationMode": "Parenthetical",
@@ -8435,6 +8958,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -8448,6 +8977,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c70",
                   "citationMode": "Parenthetical",
@@ -8459,6 +8994,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -8526,6 +9067,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c79",
                   "citationMode": "Parenthetical",
@@ -8537,6 +9084,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -8550,6 +9103,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c33",
                   "citationMode": "Parenthetical",
@@ -8561,6 +9120,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -8585,6 +9150,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c20",
                   "citationMode": "Parenthetical",
@@ -8596,6 +9167,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -8652,6 +9229,12 @@ expression: article
               "type": "Superscript",
               "content": [
                 {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n        "
+                  }
+                },
+                {
                   "type": "Cite",
                   "target": "c70",
                   "citationMode": "Parenthetical",
@@ -8663,6 +9246,12 @@ expression: article
                       }
                     }
                   ]
+                },
+                {
+                  "type": "Text",
+                  "value": {
+                    "string": "\n      "
+                  }
                 }
               ]
             },
@@ -8737,6 +9326,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c6",
                       "citationMode": "Parenthetical",
@@ -8748,6 +9343,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -8927,6 +9528,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c82",
                       "citationMode": "Parenthetical",
@@ -8938,6 +9545,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -8951,6 +9564,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c19",
                       "citationMode": "Parenthetical",
@@ -8962,6 +9581,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -9020,6 +9645,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c18",
                       "citationMode": "Parenthetical",
@@ -9031,6 +9662,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -9294,6 +9931,12 @@ expression: article
                       "type": "Superscript",
                       "content": [
                         {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n            "
+                          }
+                        },
+                        {
                           "type": "Cite",
                           "target": "c83",
                           "citationMode": "Parenthetical",
@@ -9305,6 +9948,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
+                          }
                         }
                       ]
                     },
@@ -9318,6 +9967,12 @@ expression: article
                       "type": "Superscript",
                       "content": [
                         {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n            "
+                          }
+                        },
+                        {
                           "type": "Cite",
                           "target": "c84",
                           "citationMode": "Parenthetical",
@@ -9329,6 +9984,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
+                          }
                         }
                       ]
                     },
@@ -9651,6 +10312,12 @@ expression: article
                       "type": "Superscript",
                       "content": [
                         {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n            "
+                          }
+                        },
+                        {
                           "type": "Cite",
                           "target": "c85",
                           "citationMode": "Parenthetical",
@@ -9662,6 +10329,12 @@ expression: article
                               }
                             }
                           ]
+                        },
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "\n          "
+                          }
                         }
                       ]
                     },
@@ -9890,6 +10563,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c85",
                       "citationMode": "Parenthetical",
@@ -9901,6 +10580,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -9976,6 +10661,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c88",
                       "citationMode": "Parenthetical",
@@ -9987,6 +10678,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -10648,6 +11345,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c1",
                       "citationMode": "Parenthetical",
@@ -10659,6 +11362,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -11095,6 +11804,12 @@ expression: article
                   "type": "Superscript",
                   "content": [
                     {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n          "
+                      }
+                    },
+                    {
                       "type": "Cite",
                       "target": "c2",
                       "citationMode": "Parenthetical",
@@ -11106,6 +11821,12 @@ expression: article
                           }
                         }
                       ]
+                    },
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "\n        "
+                      }
                     }
                   ]
                 },
@@ -11835,11 +12556,6 @@ expression: article
     }
   ],
   "identifiers": [
-    {
-      "type": "PropertyValue",
-      "propertyId": "doi",
-      "value": "10.1101/2024.12.31.630838"
-    },
     {
       "type": "PropertyValue",
       "propertyId": "other",

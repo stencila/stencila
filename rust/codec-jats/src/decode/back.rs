@@ -9,7 +9,7 @@ use codec::{
     Losses,
 };
 
-use super::utilities::{extend_path, record_attrs_lost, record_node_lost};
+use super::utilities::{extend_path, record_attrs_lost, record_node_lost, split_given_names};
 
 /// Decode the `<back>` of an `<article>`
 pub(super) fn decode_back(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
@@ -156,7 +156,7 @@ fn decode_person(path: &str, node: &Node, losses: &mut Losses) -> Author {
             }
         } else if tag == "given-names" {
             if let Some(value) = node.text() {
-                given_names.push(value.to_string());
+                given_names.append(&mut split_given_names(value));
             }
         }
     }

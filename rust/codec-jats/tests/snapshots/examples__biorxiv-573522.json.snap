@@ -4,6 +4,7 @@ expression: article
 ---
 {
   "type": "Article",
+  "doi": "10.1101/2023.12.31.573522",
   "abstract": [
     {
       "type": "Paragraph",
@@ -48,82 +49,52 @@ expression: article
   "authors": [
     {
       "type": "Person",
+      "orcid": "0000-0002-6935-0047",
       "familyNames": [
         "Penker"
       ],
       "givenNames": [
         "Sapir"
-      ],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/orcid",
-          "value": "http://orcid.org/0000-0002-6935-0047"
-        }
       ]
     },
     {
       "type": "Person",
+      "orcid": "0000-0002-6760-4728",
       "familyNames": [
         "Lawabny"
       ],
       "givenNames": [
         "Naheel"
-      ],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/orcid",
-          "value": "http://orcid.org/0000-0002-6760-4728"
-        }
       ]
     },
     {
       "type": "Person",
+      "orcid": "0009-0004-0947-2984",
       "familyNames": [
         "Dhamshy"
       ],
       "givenNames": [
         "Aya"
-      ],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/orcid",
-          "value": "http://orcid.org/0009-0004-0947-2984"
-        }
       ]
     },
     {
       "type": "Person",
+      "orcid": "0000-0003-2333-1665",
       "familyNames": [
         "Licht"
       ],
       "givenNames": [
         "Tamar"
-      ],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/orcid",
-          "value": "http://orcid.org/0000-0003-2333-1665"
-        }
       ]
     },
     {
       "type": "Person",
+      "orcid": "0000-0002-3041-8462",
       "familyNames": [
         "Rokni"
       ],
       "givenNames": [
         "Dan"
-      ],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/orcid",
-          "value": "http://orcid.org/0000-0002-3041-8462"
-        }
       ]
     }
   ],
@@ -168,7 +139,8 @@ expression: article
             "Douglas"
           ],
           "givenNames": [
-            "RJ"
+            "R",
+            "J"
           ]
         }
       ],
@@ -198,7 +170,8 @@ expression: article
             "Boyden"
           ],
           "givenNames": [
-            "ES"
+            "E",
+            "S"
           ]
         },
         {
@@ -264,7 +237,8 @@ expression: article
             "Broadwell"
           ],
           "givenNames": [
-            "RD"
+            "R",
+            "D"
           ]
         }
       ],
@@ -294,7 +268,8 @@ expression: article
             "Connors"
           ],
           "givenNames": [
-            "BW"
+            "B",
+            "W"
           ]
         },
         {
@@ -303,7 +278,8 @@ expression: article
             "Gutnick"
           ],
           "givenNames": [
-            "MJ"
+            "M",
+            "J"
           ]
         }
       ],
@@ -342,7 +318,8 @@ expression: article
             "Schnitzlein"
           ],
           "givenNames": [
-            "HN"
+            "H",
+            "N"
           ]
         }
       ],
@@ -380,7 +357,9 @@ expression: article
             "Jaeger"
           ],
           "givenNames": [
-            "ECB"
+            "E",
+            "C",
+            "B"
           ]
         },
         {
@@ -389,7 +368,8 @@ expression: article
             "Tosches"
           ],
           "givenNames": [
-            "MA"
+            "M",
+            "A"
           ]
         }
       ],
@@ -409,7 +389,8 @@ expression: article
             "Dudman"
           ],
           "givenNames": [
-            "JT"
+            "J",
+            "T"
           ]
         },
         {
@@ -427,7 +408,8 @@ expression: article
             "Siegelbaum"
           ],
           "givenNames": [
-            "SA"
+            "S",
+            "A"
           ]
         }
       ],
@@ -466,7 +448,8 @@ expression: article
             "Callister"
           ],
           "givenNames": [
-            "RJ"
+            "R",
+            "J"
           ]
         },
         {
@@ -505,7 +488,9 @@ expression: article
             "Faber"
           ],
           "givenNames": [
-            "ESL"
+            "E",
+            "S",
+            "L"
           ]
         },
         {
@@ -544,7 +529,8 @@ expression: article
             "Franks"
           ],
           "givenNames": [
-            "KM"
+            "K",
+            "M"
           ]
         },
         {
@@ -553,7 +539,8 @@ expression: article
             "Isaacson"
           ],
           "givenNames": [
-            "JS"
+            "J",
+            "S"
           ]
         }
       ],
@@ -583,7 +570,8 @@ expression: article
             "Franks"
           ],
           "givenNames": [
-            "KM"
+            "K",
+            "M"
           ]
         },
         {
@@ -592,7 +580,8 @@ expression: article
             "Isaacson"
           ],
           "givenNames": [
-            "JS"
+            "J",
+            "S"
           ]
         }
       ],
@@ -622,7 +611,8 @@ expression: article
             "Gadziola"
           ],
           "givenNames": [
-            "MA"
+            "M",
+            "A"
           ]
         },
         {
@@ -631,7 +621,8 @@ expression: article
             "Tylicki"
           ],
           "givenNames": [
-            "KA"
+            "K",
+            "A"
           ]
         },
         {
@@ -640,7 +631,8 @@ expression: article
             "Christian"
           ],
           "givenNames": [
-            "DL"
+            "D",
+            "L"
           ]
         },
         {
@@ -649,7 +641,8 @@ expression: article
             "Wesson"
           ],
           "givenNames": [
-            "DW"
+            "D",
+            "W"
           ]
         }
       ],
@@ -697,7 +690,8 @@ expression: article
             "Doughty"
           ],
           "givenNames": [
-            "ML"
+            "M",
+            "L"
           ]
         },
         {
@@ -724,7 +718,8 @@ expression: article
             "Schambra"
           ],
           "givenNames": [
-            "UB"
+            "U",
+            "B"
           ]
         },
         {
@@ -733,7 +728,8 @@ expression: article
             "Nowak"
           ],
           "givenNames": [
-            "NJ"
+            "N",
+            "J"
           ]
         },
         {
@@ -760,7 +756,8 @@ expression: article
             "Hatten"
           ],
           "givenNames": [
-            "ME"
+            "M",
+            "E"
           ]
         },
         {
@@ -835,7 +832,8 @@ expression: article
             "Murthy"
           ],
           "givenNames": [
-            "VN"
+            "V",
+            "N"
           ]
         },
         {
@@ -904,7 +902,8 @@ expression: article
             "Hernández-Pérez"
           ],
           "givenNames": [
-            "OR"
+            "O",
+            "R"
           ]
         },
         {
@@ -913,7 +912,8 @@ expression: article
             "Hernández"
           ],
           "givenNames": [
-            "VS"
+            "V",
+            "S"
           ]
         },
         {
@@ -922,7 +922,8 @@ expression: article
             "Zetter"
           ],
           "givenNames": [
-            "MA"
+            "M",
+            "A"
           ]
         },
         {
@@ -931,7 +932,8 @@ expression: article
             "Eiden"
           ],
           "givenNames": [
-            "LE"
+            "L",
+            "E"
           ]
         },
         {
@@ -968,7 +970,8 @@ expression: article
             "Herz"
           ],
           "givenNames": [
-            "RS"
+            "R",
+            "S"
           ]
         }
       ],
@@ -1203,7 +1206,8 @@ expression: article
             "Izhikevich"
           ],
           "givenNames": [
-            "EM"
+            "E",
+            "M"
           ]
         }
       ],
@@ -1269,7 +1273,8 @@ expression: article
             "Power"
           ],
           "givenNames": [
-            "JM"
+            "J",
+            "M"
           ]
         },
         {
@@ -1278,7 +1283,9 @@ expression: article
             "Albers"
           ],
           "givenNames": [
-            "EHH"
+            "E",
+            "H",
+            "H"
           ]
         },
         {
@@ -1287,7 +1294,9 @@ expression: article
             "Sullivan"
           ],
           "givenNames": [
-            "RKS"
+            "R",
+            "K",
+            "S"
           ]
         },
         {
@@ -1335,7 +1344,8 @@ expression: article
             "East"
           ],
           "givenNames": [
-            "BS"
+            "B",
+            "S"
           ]
         },
         {
@@ -1344,7 +1354,8 @@ expression: article
             "Wilson"
           ],
           "givenNames": [
-            "DA"
+            "D",
+            "A"
           ]
         }
       ],
@@ -1510,7 +1521,8 @@ expression: article
             "Krettek"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         },
         {
@@ -1519,7 +1531,8 @@ expression: article
             "Price"
           ],
           "givenNames": [
-            "JL"
+            "J",
+            "L"
           ]
         }
       ],
@@ -1549,7 +1562,8 @@ expression: article
             "Larkum"
           ],
           "givenNames": [
-            "ME"
+            "M",
+            "E"
           ]
         },
         {
@@ -1558,7 +1572,8 @@ expression: article
             "Zhu"
           ],
           "givenNames": [
-            "JJ"
+            "J",
+            "J"
           ]
         },
         {
@@ -1690,7 +1705,8 @@ expression: article
             "Lisman"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         }
       ],
@@ -1759,7 +1775,8 @@ expression: article
             "Luskin"
           ],
           "givenNames": [
-            "MB"
+            "M",
+            "B"
           ]
         },
         {
@@ -1768,7 +1785,8 @@ expression: article
             "Price"
           ],
           "givenNames": [
-            "JL"
+            "J",
+            "L"
           ]
         }
       ],
@@ -1903,7 +1921,8 @@ expression: article
             "McDonald"
           ],
           "givenNames": [
-            "AJ"
+            "A",
+            "J"
           ]
         }
       ],
@@ -1933,7 +1952,8 @@ expression: article
             "Metwalli"
           ],
           "givenNames": [
-            "AH"
+            "A",
+            "H"
           ]
         },
         {
@@ -2006,7 +2026,8 @@ expression: article
             "Millhouse"
           ],
           "givenNames": [
-            "OE"
+            "O",
+            "E"
           ]
         },
         {
@@ -2045,7 +2066,8 @@ expression: article
             "Millman"
           ],
           "givenNames": [
-            "DJ"
+            "D",
+            "J"
           ]
         },
         {
@@ -2054,7 +2076,8 @@ expression: article
             "Murthy"
           ],
           "givenNames": [
-            "VN"
+            "V",
+            "N"
           ]
         }
       ],
@@ -2111,7 +2134,8 @@ expression: article
             "Weissbourd"
           ],
           "givenNames": [
-            "BC"
+            "B",
+            "C"
           ]
         },
         {
@@ -2159,7 +2183,8 @@ expression: article
             "O’Leary"
           ],
           "givenNames": [
-            "TP"
+            "T",
+            "P"
           ]
         },
         {
@@ -2168,7 +2193,8 @@ expression: article
             "Sullivan"
           ],
           "givenNames": [
-            "KE"
+            "K",
+            "E"
           ]
         },
         {
@@ -2195,7 +2221,8 @@ expression: article
             "Lemire"
           ],
           "givenNames": [
-            "AL"
+            "A",
+            "L"
           ]
         },
         {
@@ -2204,7 +2231,8 @@ expression: article
             "Cembrowski"
           ],
           "givenNames": [
-            "MS"
+            "M",
+            "S"
           ]
         },
         {
@@ -2213,7 +2241,8 @@ expression: article
             "West"
           ],
           "givenNames": [
-            "AE"
+            "A",
+            "E"
           ]
         },
         {
@@ -2222,7 +2251,8 @@ expression: article
             "Colgin"
           ],
           "givenNames": [
-            "LL"
+            "L",
+            "L"
           ]
         },
         {
@@ -2231,7 +2261,8 @@ expression: article
             "Okaty"
           ],
           "givenNames": [
-            "BW"
+            "B",
+            "W"
           ]
         }
       ],
@@ -2260,7 +2291,8 @@ expression: article
             "Price"
           ],
           "givenNames": [
-            "JL"
+            "J",
+            "L"
           ]
         }
       ],
@@ -2290,7 +2322,8 @@ expression: article
             "Rainnie"
           ],
           "givenNames": [
-            "DG"
+            "D",
+            "G"
           ]
         },
         {
@@ -2299,7 +2332,8 @@ expression: article
             "Asprodini"
           ],
           "givenNames": [
-            "EK"
+            "E",
+            "K"
           ]
         },
         {
@@ -2347,7 +2381,8 @@ expression: article
             "Beier"
           ],
           "givenNames": [
-            "KT"
+            "K",
+            "T"
           ]
         }
       ],
@@ -2376,7 +2411,8 @@ expression: article
             "Santiago"
           ],
           "givenNames": [
-            "AC"
+            "A",
+            "C"
           ]
         },
         {
@@ -2385,7 +2421,8 @@ expression: article
             "Shammah-Lagnado"
           ],
           "givenNames": [
-            "SJ"
+            "S",
+            "J"
           ]
         }
       ],
@@ -2424,7 +2461,8 @@ expression: article
             "Winans"
           ],
           "givenNames": [
-            "SS"
+            "S",
+            "S"
           ]
         }
       ],
@@ -2529,7 +2567,8 @@ expression: article
             "Stevens"
           ],
           "givenNames": [
-            "CF"
+            "C",
+            "F"
           ]
         }
       ],
@@ -2614,7 +2653,8 @@ expression: article
             "Turner"
           ],
           "givenNames": [
-            "BH"
+            "B",
+            "H"
           ]
         },
         {
@@ -2623,7 +2663,8 @@ expression: article
             "Gupta"
           ],
           "givenNames": [
-            "KC"
+            "K",
+            "C"
           ]
         },
         {
@@ -2662,7 +2703,8 @@ expression: article
             "Vaz"
           ],
           "givenNames": [
-            "RP"
+            "R",
+            "P"
           ]
         },
         {
@@ -2680,7 +2722,8 @@ expression: article
             "Sá"
           ],
           "givenNames": [
-            "SI"
+            "S",
+            "I"
           ]
         },
         {
@@ -2689,7 +2732,8 @@ expression: article
             "Pereira"
           ],
           "givenNames": [
-            "PA"
+            "P",
+            "A"
           ]
         },
         {
@@ -2698,7 +2742,8 @@ expression: article
             "Madeira"
           ],
           "givenNames": [
-            "MD"
+            "M",
+            "D"
           ]
         }
       ],
@@ -2728,7 +2773,8 @@ expression: article
             "Vaz"
           ],
           "givenNames": [
-            "RP"
+            "R",
+            "P"
           ]
         },
         {
@@ -2737,7 +2783,8 @@ expression: article
             "Pereira"
           ],
           "givenNames": [
-            "PA"
+            "P",
+            "A"
           ]
         },
         {
@@ -2746,7 +2793,8 @@ expression: article
             "Madeira"
           ],
           "givenNames": [
-            "MD"
+            "M",
+            "D"
           ]
         }
       ],
@@ -2776,7 +2824,8 @@ expression: article
             "Wiegand"
           ],
           "givenNames": [
-            "HF"
+            "H",
+            "F"
           ]
         },
         {
@@ -2794,7 +2843,9 @@ expression: article
             "Bendels"
           ],
           "givenNames": [
-            "MHK"
+            "M",
+            "H",
+            "K"
           ]
         },
         {
@@ -2821,7 +2872,8 @@ expression: article
             "Johenning"
           ],
           "givenNames": [
-            "FW"
+            "F",
+            "W"
           ]
         }
       ],
@@ -6656,11 +6708,6 @@ expression: article
     }
   ],
   "identifiers": [
-    {
-      "type": "PropertyValue",
-      "propertyId": "doi",
-      "value": "10.1101/2023.12.31.573522"
-    },
     {
       "type": "PropertyValue",
       "propertyId": "other",

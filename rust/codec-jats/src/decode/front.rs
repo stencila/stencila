@@ -12,7 +12,7 @@ use codec::{
 
 use super::{
     body::{decode_blocks, decode_inlines},
-    utilities::{extend_path, record_attrs_lost, record_node_lost},
+    utilities::{extend_path, record_attrs_lost, record_node_lost, split_given_names},
 };
 
 /// Decode the `<front>` of an `<article>`
@@ -126,6 +126,20 @@ fn decode_article_id(path: &str, node: &Node, article: &mut Article, losses: &mu
     record_attrs_lost(path, node, ["pub-id-type"], losses);
 
     let Some(id) = node.text() else { return };
+
+    if property_id
+        .as_ref()
+        .map(|pid| pid.to_lowercase())
+        .as_deref()
+        == Some("doi")
+    {
+        article.doi = Some(
+            id.trim_start_matches("https://doi.org/")
+                .trim_start_matches("https://dx.doi.org/")
+                .to_string(),
+        );
+        return;
+    }
 
     let item = if property_id.is_some() {
         PropertyValueOrString::PropertyValue(PropertyValue {
@@ -315,9 +329,9 @@ fn decode_contrib_group(path: &str, node: &Node, article: &mut Article, losses: 
 fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> Author {
     record_attrs_lost(path, node, [], losses);
 
+    let mut orcid = None;
     let mut family_names = Vec::new();
     let mut given_names = Vec::new();
-    let mut identifiers = Vec::new();
     let mut emails = Vec::new();
 
     for child in node.children() {
@@ -331,18 +345,17 @@ fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> Author {
                     }
                 } else if grandchild_tag == "given-names" {
                     if let Some(value) = grandchild.text() {
-                        given_names.push(value.to_string());
+                        given_names.append(&mut split_given_names(value));
                     }
                 }
             }
         } else if tag == "contrib-id" {
-            if let Some(value) = child.text() {
-                identifiers.push(PropertyValueOrString::PropertyValue(PropertyValue {
-                    property_id: Some("https://registry.identifiers.org/registry/orcid".into()),
-                    value: Primitive::String(value.into()),
-                    ..Default::default()
-                }));
-            }
+            orcid = child.text().map(|orcid| {
+                orcid
+                    .trim_start_matches("https://orcid.org/")
+                    .trim_start_matches("http://orcid.org/")
+                    .to_string()
+            });
         } else if tag == "email" {
             if let Some(value) = child.text() {
                 emails.push(value.into());
@@ -354,14 +367,13 @@ fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> Author {
 
     let family_names = (!family_names.is_empty()).then_some(family_names);
     let given_names = (!given_names.is_empty()).then_some(given_names);
-    let identifiers = (!identifiers.is_empty()).then_some(identifiers);
     let emails = (!emails.is_empty()).then_some(emails);
 
     Author::Person(Person {
+        orcid,
         family_names,
         given_names,
         options: Box::new(PersonOptions {
-            identifiers,
             emails,
             ..Default::default()
         }),

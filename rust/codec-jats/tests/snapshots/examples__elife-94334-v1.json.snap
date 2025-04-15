@@ -4,6 +4,7 @@ expression: article
 ---
 {
   "type": "Article",
+  "doi": "10.7554/eLife.94334.3",
   "abstract": [
     {
       "type": "Paragraph",
@@ -54,18 +55,13 @@ expression: article
   "authors": [
     {
       "type": "Person",
+      "orcid": "0000-0002-8619-7160",
       "familyNames": [
         "Zhou"
       ],
       "givenNames": [
-        "Felix Y"
-      ],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/orcid",
-          "value": "https://orcid.org/0000-0002-8619-7160"
-        }
+        "Felix",
+        "Y"
       ]
     },
     {
@@ -74,7 +70,8 @@ expression: article
         "Waterman"
       ],
       "givenNames": [
-        "David P"
+        "David",
+        "P"
       ]
     },
     {
@@ -110,23 +107,19 @@ expression: article
         "Eapen"
       ],
       "givenNames": [
-        "Vinay V"
+        "Vinay",
+        "V"
       ]
     },
     {
       "type": "Person",
+      "orcid": "0000-0002-1878-0610",
       "familyNames": [
         "Haber"
       ],
       "givenNames": [
-        "James E"
-      ],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/orcid",
-          "value": "https://orcid.org/0000-0002-1878-0610"
-        }
+        "James",
+        "E"
       ],
       "emails": [
         "haber@brandeis.edu"
@@ -147,7 +140,8 @@ expression: article
         "Cooper"
       ],
       "givenNames": [
-        "Jonathan A"
+        "Jonathan",
+        "A"
       ]
     }
   ],
@@ -335,7 +329,8 @@ expression: article
             "Bardin"
           ],
           "givenNames": [
-            "AJ"
+            "A",
+            "J"
           ]
         },
         {
@@ -420,7 +415,8 @@ expression: article
             "Longhese"
           ],
           "givenNames": [
-            "MP"
+            "M",
+            "P"
           ]
         }
       ],
@@ -460,7 +456,8 @@ expression: article
             "Smolka"
           ],
           "givenNames": [
-            "MB"
+            "M",
+            "B"
           ]
         },
         {
@@ -545,7 +542,8 @@ expression: article
             "Longhese"
           ],
           "givenNames": [
-            "MP"
+            "M",
+            "P"
           ]
         }
       ],
@@ -576,7 +574,8 @@ expression: article
             "de la Torre-Ruiz"
           ],
           "givenNames": [
-            "MA"
+            "M",
+            "A"
           ]
         },
         {
@@ -585,7 +584,8 @@ expression: article
             "Green"
           ],
           "givenNames": [
-            "CM"
+            "C",
+            "M"
           ]
         },
         {
@@ -594,7 +594,8 @@ expression: article
             "Lowndes"
           ],
           "givenNames": [
-            "NF"
+            "N",
+            "F"
           ]
         }
       ],
@@ -625,7 +626,8 @@ expression: article
             "Dick"
           ],
           "givenNames": [
-            "AE"
+            "A",
+            "E"
           ]
         },
         {
@@ -634,7 +636,8 @@ expression: article
             "Gerlich"
           ],
           "givenNames": [
-            "DW"
+            "D",
+            "W"
           ]
         }
       ],
@@ -701,7 +704,8 @@ expression: article
             "Haber"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         }
       ],
@@ -741,7 +745,8 @@ expression: article
             "Harrison"
           ],
           "givenNames": [
-            "JC"
+            "J",
+            "C"
           ]
         },
         {
@@ -768,7 +773,8 @@ expression: article
             "Haber"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         }
       ],
@@ -826,7 +832,8 @@ expression: article
             "Gasser"
           ],
           "givenNames": [
-            "SM"
+            "S",
+            "M"
           ]
         }
       ],
@@ -875,7 +882,8 @@ expression: article
             "Fersht"
           ],
           "givenNames": [
-            "AR"
+            "A",
+            "R"
           ]
         },
         {
@@ -884,7 +892,8 @@ expression: article
             "Jackson"
           ],
           "givenNames": [
-            "SP"
+            "S",
+            "P"
           ]
         }
       ],
@@ -915,7 +924,8 @@ expression: article
             "Eapen"
           ],
           "givenNames": [
-            "VV"
+            "V",
+            "V"
           ]
         },
         {
@@ -942,7 +952,8 @@ expression: article
             "Wu"
           ],
           "givenNames": [
-            "WH"
+            "W",
+            "H"
           ]
         },
         {
@@ -951,7 +962,8 @@ expression: article
             "Haber"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         }
       ],
@@ -1118,7 +1130,8 @@ expression: article
             "Garber"
           ],
           "givenNames": [
-            "PM"
+            "P",
+            "M"
           ]
         },
         {
@@ -1176,7 +1189,9 @@ expression: article
             "Smith"
           ],
           "givenNames": [
-            "SJM"
+            "S",
+            "J",
+            "M"
           ]
         },
         {
@@ -1203,7 +1218,8 @@ expression: article
             "Johnston"
           ],
           "givenNames": [
-            "LH"
+            "L",
+            "H"
           ]
         },
         {
@@ -1212,7 +1228,8 @@ expression: article
             "Sedgwick"
           ],
           "givenNames": [
-            "SG"
+            "S",
+            "G"
           ]
         }
       ],
@@ -1288,7 +1305,8 @@ expression: article
             "Elledge"
           ],
           "givenNames": [
-            "SJ"
+            "S",
+            "J"
           ]
         }
       ],
@@ -1319,7 +1337,8 @@ expression: article
             "Kim"
           ],
           "givenNames": [
-            "JA"
+            "J",
+            "A"
           ]
         },
         {
@@ -1355,7 +1374,8 @@ expression: article
             "Haber"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         }
       ],
@@ -1386,7 +1406,8 @@ expression: article
             "Kim"
           ],
           "givenNames": [
-            "EM"
+            "E",
+            "M"
           ]
         },
         {
@@ -1395,7 +1416,8 @@ expression: article
             "Burke"
           ],
           "givenNames": [
-            "DJ"
+            "D",
+            "J"
           ]
         }
       ],
@@ -1424,7 +1446,8 @@ expression: article
             "Lanz"
           ],
           "givenNames": [
-            "MC"
+            "M",
+            "C"
           ]
         },
         {
@@ -1442,7 +1465,8 @@ expression: article
             "Smolka"
           ],
           "givenNames": [
-            "MB"
+            "M",
+            "B"
           ]
         }
       ],
@@ -1516,7 +1540,8 @@ expression: article
             "Haber"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         },
         {
@@ -1574,7 +1599,8 @@ expression: article
             "Lee"
           ],
           "givenNames": [
-            "SE"
+            "S",
+            "E"
           ]
         },
         {
@@ -1583,7 +1609,8 @@ expression: article
             "Moore"
           ],
           "givenNames": [
-            "JK"
+            "J",
+            "K"
           ]
         },
         {
@@ -1610,7 +1637,8 @@ expression: article
             "Kolodner"
           ],
           "givenNames": [
-            "RD"
+            "R",
+            "D"
           ]
         },
         {
@@ -1619,7 +1647,8 @@ expression: article
             "Haber"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         }
       ],
@@ -1650,7 +1679,8 @@ expression: article
             "Lee"
           ],
           "givenNames": [
-            "CS"
+            "C",
+            "S"
           ]
         },
         {
@@ -1677,7 +1707,8 @@ expression: article
             "Haber"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         }
       ],
@@ -1717,7 +1748,8 @@ expression: article
             "Lee"
           ],
           "givenNames": [
-            "SE"
+            "S",
+            "E"
           ]
         },
         {
@@ -1726,7 +1758,8 @@ expression: article
             "Vaze"
           ],
           "givenNames": [
-            "MB"
+            "M",
+            "B"
           ]
         },
         {
@@ -1753,7 +1786,8 @@ expression: article
             "Haber"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         },
         {
@@ -1762,7 +1796,8 @@ expression: article
             "Marsolier-Kergoat"
           ],
           "givenNames": [
-            "MC"
+            "M",
+            "C"
           ]
         }
       ],
@@ -1802,7 +1837,8 @@ expression: article
             "Porter-Goff"
           ],
           "givenNames": [
-            "ME"
+            "M",
+            "E"
           ]
         },
         {
@@ -1860,7 +1896,8 @@ expression: article
             "Binz"
           ],
           "givenNames": [
-            "SK"
+            "S",
+            "K"
           ]
         },
         {
@@ -1869,7 +1906,8 @@ expression: article
             "Wold"
           ],
           "givenNames": [
-            "MS"
+            "M",
+            "S"
           ]
         },
         {
@@ -1878,7 +1916,9 @@ expression: article
             "Burgers"
           ],
           "givenNames": [
-            "PMJ"
+            "P",
+            "M",
+            "J"
           ]
         }
       ],
@@ -1936,7 +1976,8 @@ expression: article
             "Longhese"
           ],
           "givenNames": [
-            "MP"
+            "M",
+            "P"
           ]
         }
       ],
@@ -2128,7 +2169,8 @@ expression: article
             "McAinsh"
           ],
           "givenNames": [
-            "AD"
+            "A",
+            "D"
           ]
         },
         {
@@ -2137,7 +2179,10 @@ expression: article
             "Kops"
           ],
           "givenNames": [
-            "GJPL"
+            "G",
+            "J",
+            "P",
+            "L"
           ]
         }
       ],
@@ -2177,7 +2222,8 @@ expression: article
             "Haber"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         }
       ],
@@ -2206,7 +2252,8 @@ expression: article
             "Melo"
           ],
           "givenNames": [
-            "JA"
+            "J",
+            "A"
           ]
         },
         {
@@ -2224,7 +2271,8 @@ expression: article
             "Toczyski"
           ],
           "givenNames": [
-            "DP"
+            "D",
+            "P"
           ]
         }
       ],
@@ -2264,7 +2312,8 @@ expression: article
             "Lanz"
           ],
           "givenNames": [
-            "MC"
+            "M",
+            "C"
           ]
         },
         {
@@ -2273,7 +2322,8 @@ expression: article
             "Eapen"
           ],
           "givenNames": [
-            "VV"
+            "V",
+            "V"
           ]
         },
         {
@@ -2282,7 +2332,8 @@ expression: article
             "Jordan"
           ],
           "givenNames": [
-            "JM"
+            "J",
+            "M"
           ]
         },
         {
@@ -2300,7 +2351,8 @@ expression: article
             "Smolka"
           ],
           "givenNames": [
-            "MB"
+            "M",
+            "B"
           ]
         },
         {
@@ -2309,7 +2361,8 @@ expression: article
             "Haber"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         }
       ],
@@ -2367,7 +2420,8 @@ expression: article
             "Klionsky"
           ],
           "givenNames": [
-            "DJ"
+            "D",
+            "J"
           ]
         }
       ],
@@ -2398,7 +2452,8 @@ expression: article
             "Moore"
           ],
           "givenNames": [
-            "JK"
+            "J",
+            "K"
           ]
         },
         {
@@ -2407,7 +2462,8 @@ expression: article
             "Haber"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         }
       ],
@@ -2447,7 +2503,8 @@ expression: article
             "Ulrich"
           ],
           "givenNames": [
-            "HD"
+            "H",
+            "D"
           ]
         }
       ],
@@ -2509,7 +2566,8 @@ expression: article
             "Navadgi-Patil"
           ],
           "givenNames": [
-            "VM"
+            "V",
+            "M"
           ]
         },
         {
@@ -2518,7 +2576,8 @@ expression: article
             "Burgers"
           ],
           "givenNames": [
-            "PM"
+            "P",
+            "M"
           ]
         }
       ],
@@ -2616,7 +2675,8 @@ expression: article
             "O’Neill"
           ],
           "givenNames": [
-            "BM"
+            "B",
+            "M"
           ]
         },
         {
@@ -2625,7 +2685,8 @@ expression: article
             "Szyjka"
           ],
           "givenNames": [
-            "SJ"
+            "S",
+            "J"
           ]
         },
         {
@@ -2634,7 +2695,8 @@ expression: article
             "Lis"
           ],
           "givenNames": [
-            "ET"
+            "E",
+            "T"
           ]
         },
         {
@@ -2643,7 +2705,8 @@ expression: article
             "Bailey"
           ],
           "givenNames": [
-            "AO"
+            "A",
+            "O"
           ]
         },
         {
@@ -2652,7 +2715,8 @@ expression: article
             "Yates"
           ],
           "givenNames": [
-            "JR"
+            "J",
+            "R"
           ]
         },
         {
@@ -2661,7 +2725,8 @@ expression: article
             "Aparicio"
           ],
           "givenNames": [
-            "OM"
+            "O",
+            "M"
           ]
         },
         {
@@ -2670,7 +2735,8 @@ expression: article
             "Romesberg"
           ],
           "givenNames": [
-            "FE"
+            "F",
+            "E"
           ]
         }
       ],
@@ -2727,7 +2793,8 @@ expression: article
             "Longhese"
           ],
           "givenNames": [
-            "MP"
+            "M",
+            "P"
           ]
         }
       ],
@@ -2821,7 +2888,8 @@ expression: article
             "Di Fiore"
           ],
           "givenNames": [
-            "PP"
+            "P",
+            "P"
           ]
         },
         {
@@ -2870,7 +2938,8 @@ expression: article
             "Lee"
           ],
           "givenNames": [
-            "SE"
+            "S",
+            "E"
           ]
         },
         {
@@ -2897,7 +2966,8 @@ expression: article
             "Haber"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         }
       ],
@@ -2928,7 +2998,8 @@ expression: article
             "Rao"
           ],
           "givenNames": [
-            "RP"
+            "R",
+            "P"
           ]
         },
         {
@@ -2986,7 +3057,8 @@ expression: article
             "Rogakou"
           ],
           "givenNames": [
-            "EP"
+            "E",
+            "P"
           ]
         },
         {
@@ -2995,7 +3067,8 @@ expression: article
             "Pilch"
           ],
           "givenNames": [
-            "DR"
+            "D",
+            "R"
           ]
         },
         {
@@ -3004,7 +3077,8 @@ expression: article
             "Orr"
           ],
           "givenNames": [
-            "AH"
+            "A",
+            "H"
           ]
         },
         {
@@ -3013,7 +3087,8 @@ expression: article
             "Ivanova"
           ],
           "givenNames": [
-            "VS"
+            "V",
+            "S"
           ]
         },
         {
@@ -3022,7 +3097,8 @@ expression: article
             "Bonner"
           ],
           "givenNames": [
-            "WM"
+            "W",
+            "M"
           ]
         }
       ],
@@ -3089,7 +3165,8 @@ expression: article
             "Rahi"
           ],
           "givenNames": [
-            "SJ"
+            "S",
+            "J"
           ]
         }
       ],
@@ -3174,7 +3251,8 @@ expression: article
             "Elledge"
           ],
           "givenNames": [
-            "SJ"
+            "S",
+            "J"
           ]
         }
       ],
@@ -3205,7 +3283,8 @@ expression: article
             "Schwartz"
           ],
           "givenNames": [
-            "MF"
+            "M",
+            "F"
           ]
         },
         {
@@ -3214,7 +3293,8 @@ expression: article
             "Duong"
           ],
           "givenNames": [
-            "JK"
+            "J",
+            "K"
           ]
         },
         {
@@ -3232,7 +3312,8 @@ expression: article
             "Morrow"
           ],
           "givenNames": [
-            "JS"
+            "J",
+            "S"
           ]
         },
         {
@@ -3250,7 +3331,8 @@ expression: article
             "Stern"
           ],
           "givenNames": [
-            "DF"
+            "D",
+            "F"
           ]
         }
       ],
@@ -3366,7 +3448,8 @@ expression: article
             "Bonner"
           ],
           "givenNames": [
-            "WM"
+            "W",
+            "M"
           ]
         },
         {
@@ -3375,7 +3458,8 @@ expression: article
             "Petrini"
           ],
           "givenNames": [
-            "JH"
+            "J",
+            "H"
           ]
         },
         {
@@ -3384,7 +3468,8 @@ expression: article
             "Haber"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         },
         {
@@ -3424,7 +3509,8 @@ expression: article
             "Smolka"
           ],
           "givenNames": [
-            "MB"
+            "M",
+            "B"
           ]
         },
         {
@@ -3433,7 +3519,8 @@ expression: article
             "Albuquerque"
           ],
           "givenNames": [
-            "CP"
+            "C",
+            "P"
           ]
         },
         {
@@ -3482,7 +3569,8 @@ expression: article
             "Sweeney"
           ],
           "givenNames": [
-            "FD"
+            "F",
+            "D"
           ]
         },
         {
@@ -3518,7 +3606,8 @@ expression: article
             "Hunt"
           ],
           "givenNames": [
-            "DF"
+            "D",
+            "F"
           ]
         },
         {
@@ -3566,7 +3655,8 @@ expression: article
             "Eapen"
           ],
           "givenNames": [
-            "VV"
+            "V",
+            "V"
           ]
         },
         {
@@ -3575,7 +3665,8 @@ expression: article
             "Mason"
           ],
           "givenNames": [
-            "JM"
+            "J",
+            "M"
           ]
         },
         {
@@ -3593,7 +3684,8 @@ expression: article
             "Waterman"
           ],
           "givenNames": [
-            "DP"
+            "D",
+            "P"
           ]
         },
         {
@@ -3602,7 +3694,8 @@ expression: article
             "Long"
           ],
           "givenNames": [
-            "MJ"
+            "M",
+            "J"
           ]
         },
         {
@@ -3611,7 +3704,8 @@ expression: article
             "Bishop"
           ],
           "givenNames": [
-            "DK"
+            "D",
+            "K"
           ]
         },
         {
@@ -3620,7 +3714,8 @@ expression: article
             "Haber"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         }
       ],
@@ -3660,7 +3755,9 @@ expression: article
             "Petrini"
           ],
           "givenNames": [
-            "JHJ"
+            "J",
+            "H",
+            "J"
           ]
         }
       ],
@@ -3700,7 +3797,8 @@ expression: article
             "Foster"
           ],
           "givenNames": [
-            "SS"
+            "S",
+            "S"
           ]
         },
         {
@@ -3709,7 +3807,9 @@ expression: article
             "Petrini"
           ],
           "givenNames": [
-            "JHJ"
+            "J",
+            "H",
+            "J"
           ]
         }
       ],
@@ -3740,7 +3840,8 @@ expression: article
             "Vaze"
           ],
           "givenNames": [
-            "MB"
+            "M",
+            "B"
           ]
         },
         {
@@ -3758,7 +3859,8 @@ expression: article
             "Lee"
           ],
           "givenNames": [
-            "SE"
+            "S",
+            "E"
           ]
         },
         {
@@ -3803,7 +3905,8 @@ expression: article
             "Haber"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         }
       ],
@@ -3892,7 +3995,8 @@ expression: article
             "Waterman"
           ],
           "givenNames": [
-            "DP"
+            "D",
+            "P"
           ]
         },
         {
@@ -3901,7 +4005,8 @@ expression: article
             "Haber"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         },
         {
@@ -3910,7 +4015,8 @@ expression: article
             "Smolka"
           ],
           "givenNames": [
-            "MB"
+            "M",
+            "B"
           ]
         }
       ],
@@ -3941,7 +4047,9 @@ expression: article
             "Yam"
           ],
           "givenNames": [
-            "CQX"
+            "C",
+            "Q",
+            "X"
           ]
         },
         {
@@ -3950,7 +4058,8 @@ expression: article
             "Chia"
           ],
           "givenNames": [
-            "DB"
+            "D",
+            "B"
           ]
         },
         {
@@ -3968,7 +4077,8 @@ expression: article
             "Lim"
           ],
           "givenNames": [
-            "HH"
+            "H",
+            "H"
           ]
         },
         {
@@ -4116,7 +4226,8 @@ expression: article
             "Hayashi"
           ],
           "givenNames": [
-            "KI"
+            "K",
+            "I"
           ]
         },
         {
@@ -4125,7 +4236,8 @@ expression: article
             "Kanemaki"
           ],
           "givenNames": [
-            "MT"
+            "M",
+            "T"
           ]
         }
       ],
@@ -4203,7 +4315,8 @@ expression: article
             "Elledge"
           ],
           "givenNames": [
-            "SJ"
+            "S",
+            "J"
           ]
         }
       ],
@@ -4243,7 +4356,8 @@ expression: article
             "Chung"
           ],
           "givenNames": [
-            "WH"
+            "W",
+            "H"
           ]
         },
         {
@@ -4252,7 +4366,8 @@ expression: article
             "Shim"
           ],
           "givenNames": [
-            "EY"
+            "E",
+            "Y"
           ]
         },
         {
@@ -4261,7 +4376,8 @@ expression: article
             "Lee"
           ],
           "givenNames": [
-            "SE"
+            "S",
+            "E"
           ]
         },
         {
@@ -4310,7 +4426,8 @@ expression: article
             "Elledge"
           ],
           "givenNames": [
-            "SJ"
+            "S",
+            "J"
           ]
         }
       ],
@@ -16896,16 +17013,6 @@ expression: article
       "type": "PropertyValue",
       "propertyId": "publisher-id",
       "value": "94334"
-    },
-    {
-      "type": "PropertyValue",
-      "propertyId": "doi",
-      "value": "10.7554/eLife.94334"
-    },
-    {
-      "type": "PropertyValue",
-      "propertyId": "doi",
-      "value": "10.7554/eLife.94334.3"
     }
   ],
   "about": [
