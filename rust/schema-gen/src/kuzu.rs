@@ -117,8 +117,6 @@ impl Schemas {
             // will be for relations between creative works etc
             "Author",
             "AuthorRole",
-            "Cite",
-            "CiteGroup",
             "Collection",
             "Comment",
             "CreativeWork",
@@ -177,19 +175,32 @@ impl Schemas {
         // Union types that need to be expanded
         let expand_types = ["Block", "Inline", "Author", "AuthorRoleAuthor"];
 
-        // Node types for which a text property should be added with the plain text
+        // Node types for which a derive property should be added (e.g. with the plain text
         // representation of the node, or one of its properties, to be used in FTS and semantic search,
-        // or in the case of `TableCell` just to use string functions like `contains` or pattern matching
-        let text_properties = HashMap::from([
+        // or in the case of `TableCell` just to use string functions like `contains` or pattern matching)
+        let derived_properties = HashMap::from([
             (
                 "Article",
-                vec![("title", "title"), ("abstract", "r#abstract")],
+                vec![
+                    ("title", "to_text(&self.title)"),
+                    ("abstract", "to_text(&self.r#abstract)"),
+                ],
             ),
-            ("Table", vec![("caption", "caption")]),
-            ("Figure", vec![("caption", "caption")]),
-            ("CodeChunk", vec![("caption", "caption")]),
-            ("Paragraph", vec![("text", "")]),
-            ("TableCell", vec![("text", "")]),
+            ("Table", vec![("caption", "to_text(&self.caption)")]),
+            ("Figure", vec![("caption", "to_text(&self.caption)")]),
+            ("CodeChunk", vec![("caption", "to_text(&self.caption)")]),
+            ("Paragraph", vec![("text", "to_text(self)")]),
+            ("TableCell", vec![("text", "to_text(self)")]),
+            (
+                "Cite",
+                vec![(
+                    "doi",
+                    "self.options.reference.as_ref().and_then(|reference| reference.doi.clone())",
+                ),(
+                    "text",
+                    "to_text(&self.options.content)",
+                )],
+            ),
         ]);
 
         write(
@@ -385,7 +396,7 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
                 .iter()
                 .map(|(name, data_type, ..)| format!("\n  `{name}` {data_type},"))
                 .join("");
-            if let Some(props) = text_properties.get(&title.as_str()) {
+            if let Some(props) = derived_properties.get(&title.as_str()) {
                 for (name, ..) in props {
                     node_table_props.push_str(&format!("\n  `{name}` STRING,"));
                 }
@@ -434,17 +445,11 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
                     format!("(NodeProperty::{property}, {rust_type}::to_kuzu_type(), self.{field}.to_kuzu_value())")
                 })
                 .collect_vec();
-            if let Some(props) = text_properties.get(&title.as_str()) {
-                for (name, field) in props {
+            if let Some(props) = derived_properties.get(&title.as_str()) {
+                for (name, derivation) in props {
                     let property = name.to_pascal_case();
-                    let field = if field.is_empty() {
-                        "self".to_string()
-                    } else {
-                        format!("&self.{field}")
-                    };
-
                     implem_node_table.push(format!(
-                        "(NodeProperty::{property}, String::to_kuzu_type(), to_text({field}).to_kuzu_value())"
+                        "(NodeProperty::{property}, String::to_kuzu_type(), {derivation}.to_kuzu_value())"
                     ));
                 }
             }

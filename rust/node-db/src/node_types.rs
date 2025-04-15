@@ -77,6 +77,7 @@ impl DatabaseNode for Article {
             (NodeProperty::Description, String::to_kuzu_type(), self.description.to_kuzu_value()),
             (NodeProperty::Name, String::to_kuzu_type(), self.options.name.to_kuzu_value()),
             (NodeProperty::Url, String::to_kuzu_type(), self.options.url.to_kuzu_value()),
+            (NodeProperty::Doi, String::to_kuzu_type(), self.doi.to_kuzu_value()),
             (NodeProperty::DateCreated, Date::to_kuzu_type(), self.date_created.to_kuzu_value()),
             (NodeProperty::DateReceived, Date::to_kuzu_type(), self.date_received.to_kuzu_value()),
             (NodeProperty::DateAccepted, Date::to_kuzu_type(), self.date_accepted.to_kuzu_value()),
@@ -122,6 +123,7 @@ impl DatabaseNode for AudioObject {
             (NodeProperty::Description, String::to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, String::to_kuzu_type(), self.options.name.to_kuzu_value()),
             (NodeProperty::Url, String::to_kuzu_type(), self.options.url.to_kuzu_value()),
+            (NodeProperty::Doi, String::to_kuzu_type(), self.doi.to_kuzu_value()),
             (NodeProperty::DateCreated, Date::to_kuzu_type(), self.options.date_created.to_kuzu_value()),
             (NodeProperty::DateReceived, Date::to_kuzu_type(), self.options.date_received.to_kuzu_value()),
             (NodeProperty::DateAccepted, Date::to_kuzu_type(), self.options.date_accepted.to_kuzu_value()),
@@ -148,6 +150,57 @@ impl DatabaseNode for AudioObject {
     }
 }
 
+impl DatabaseNode for Cite {
+    fn node_type(&self) -> NodeType {
+        NodeType::Cite
+    }
+
+    fn node_id(&self) -> NodeId {
+        Cite::node_id(self)
+    }
+    
+    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
+        vec![
+            (NodeProperty::Target, String::to_kuzu_type(), self.target.to_kuzu_value()),
+            (NodeProperty::CitationMode, String::to_kuzu_type(), self.citation_mode.to_kuzu_value()),
+            (NodeProperty::CitationIntent, Vec::<String>::to_kuzu_type(), self.options.citation_intent.to_kuzu_value()),
+            (NodeProperty::Pagination, String::to_kuzu_type(), self.options.pagination.to_kuzu_value()),
+            (NodeProperty::CitationPrefix, String::to_kuzu_type(), self.options.citation_prefix.to_kuzu_value()),
+            (NodeProperty::CitationSuffix, String::to_kuzu_type(), self.options.citation_suffix.to_kuzu_value()),
+            (NodeProperty::Doi, String::to_kuzu_type(), self.options.reference.as_ref().and_then(|reference| reference.doi.clone()).to_kuzu_value()),
+            (NodeProperty::Text, String::to_kuzu_type(), to_text(&self.options.content).to_kuzu_value())
+        ]
+    }
+
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+        vec![
+            (NodeProperty::Content, relations(self.options.content.iter().flatten()))
+        ]
+    }
+}
+
+impl DatabaseNode for CiteGroup {
+    fn node_type(&self) -> NodeType {
+        NodeType::CiteGroup
+    }
+
+    fn node_id(&self) -> NodeId {
+        CiteGroup::node_id(self)
+    }
+    
+    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
+        vec![
+            
+        ]
+    }
+
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+        vec![
+            (NodeProperty::Items, relations(self.items.iter()))
+        ]
+    }
+}
+
 impl DatabaseNode for Claim {
     fn node_type(&self) -> NodeType {
         NodeType::Claim
@@ -163,6 +216,7 @@ impl DatabaseNode for Claim {
             (NodeProperty::Description, String::to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, String::to_kuzu_type(), self.options.name.to_kuzu_value()),
             (NodeProperty::Url, String::to_kuzu_type(), self.options.url.to_kuzu_value()),
+            (NodeProperty::Doi, String::to_kuzu_type(), self.doi.to_kuzu_value()),
             (NodeProperty::DateCreated, Date::to_kuzu_type(), self.options.date_created.to_kuzu_value()),
             (NodeProperty::DateReceived, Date::to_kuzu_type(), self.options.date_received.to_kuzu_value()),
             (NodeProperty::DateAccepted, Date::to_kuzu_type(), self.options.date_accepted.to_kuzu_value()),
@@ -315,6 +369,7 @@ impl DatabaseNode for Figure {
             (NodeProperty::Description, String::to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, String::to_kuzu_type(), self.options.name.to_kuzu_value()),
             (NodeProperty::Url, String::to_kuzu_type(), self.options.url.to_kuzu_value()),
+            (NodeProperty::Doi, String::to_kuzu_type(), self.doi.to_kuzu_value()),
             (NodeProperty::DateCreated, Date::to_kuzu_type(), self.options.date_created.to_kuzu_value()),
             (NodeProperty::DateReceived, Date::to_kuzu_type(), self.options.date_received.to_kuzu_value()),
             (NodeProperty::DateAccepted, Date::to_kuzu_type(), self.options.date_accepted.to_kuzu_value()),
@@ -518,6 +573,7 @@ impl DatabaseNode for ImageObject {
             (NodeProperty::Description, String::to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, String::to_kuzu_type(), self.options.name.to_kuzu_value()),
             (NodeProperty::Url, String::to_kuzu_type(), self.options.url.to_kuzu_value()),
+            (NodeProperty::Doi, String::to_kuzu_type(), self.doi.to_kuzu_value()),
             (NodeProperty::DateCreated, Date::to_kuzu_type(), self.options.date_created.to_kuzu_value()),
             (NodeProperty::DateReceived, Date::to_kuzu_type(), self.options.date_received.to_kuzu_value()),
             (NodeProperty::DateAccepted, Date::to_kuzu_type(), self.options.date_accepted.to_kuzu_value()),
@@ -710,6 +766,7 @@ impl DatabaseNode for MediaObject {
             (NodeProperty::Description, String::to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, String::to_kuzu_type(), self.options.name.to_kuzu_value()),
             (NodeProperty::Url, String::to_kuzu_type(), self.options.url.to_kuzu_value()),
+            (NodeProperty::Doi, String::to_kuzu_type(), self.doi.to_kuzu_value()),
             (NodeProperty::DateCreated, Date::to_kuzu_type(), self.options.date_created.to_kuzu_value()),
             (NodeProperty::DateReceived, Date::to_kuzu_type(), self.options.date_received.to_kuzu_value()),
             (NodeProperty::DateAccepted, Date::to_kuzu_type(), self.options.date_accepted.to_kuzu_value()),
@@ -963,6 +1020,7 @@ impl DatabaseNode for Table {
             (NodeProperty::Description, String::to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, String::to_kuzu_type(), self.options.name.to_kuzu_value()),
             (NodeProperty::Url, String::to_kuzu_type(), self.options.url.to_kuzu_value()),
+            (NodeProperty::Doi, String::to_kuzu_type(), self.doi.to_kuzu_value()),
             (NodeProperty::DateCreated, Date::to_kuzu_type(), self.options.date_created.to_kuzu_value()),
             (NodeProperty::DateReceived, Date::to_kuzu_type(), self.options.date_received.to_kuzu_value()),
             (NodeProperty::DateAccepted, Date::to_kuzu_type(), self.options.date_accepted.to_kuzu_value()),
@@ -1127,6 +1185,7 @@ impl DatabaseNode for VideoObject {
             (NodeProperty::Description, String::to_kuzu_type(), self.options.description.to_kuzu_value()),
             (NodeProperty::Name, String::to_kuzu_type(), self.options.name.to_kuzu_value()),
             (NodeProperty::Url, String::to_kuzu_type(), self.options.url.to_kuzu_value()),
+            (NodeProperty::Doi, String::to_kuzu_type(), self.doi.to_kuzu_value()),
             (NodeProperty::DateCreated, Date::to_kuzu_type(), self.options.date_created.to_kuzu_value()),
             (NodeProperty::DateReceived, Date::to_kuzu_type(), self.options.date_received.to_kuzu_value()),
             (NodeProperty::DateAccepted, Date::to_kuzu_type(), self.options.date_accepted.to_kuzu_value()),
@@ -1162,6 +1221,8 @@ impl DatabaseNode for Node {
             Node::Annotation(node) => node.node_type(),
             Node::Article(node) => node.node_type(),
             Node::AudioObject(node) => node.node_type(),
+            Node::Cite(node) => node.node_type(),
+            Node::CiteGroup(node) => node.node_type(),
             Node::Claim(node) => node.node_type(),
             Node::CodeBlock(node) => node.node_type(),
             Node::CodeChunk(node) => node.node_type(),
@@ -1208,6 +1269,8 @@ impl DatabaseNode for Node {
             Node::Annotation(node) => node.node_id(),
             Node::Article(node) => node.node_id(),
             Node::AudioObject(node) => node.node_id(),
+            Node::Cite(node) => node.node_id(),
+            Node::CiteGroup(node) => node.node_id(),
             Node::Claim(node) => node.node_id(),
             Node::CodeBlock(node) => node.node_id(),
             Node::CodeChunk(node) => node.node_id(),
@@ -1254,6 +1317,8 @@ impl DatabaseNode for Node {
             Node::Annotation(node) => node.node_table(),
             Node::Article(node) => node.node_table(),
             Node::AudioObject(node) => node.node_table(),
+            Node::Cite(node) => node.node_table(),
+            Node::CiteGroup(node) => node.node_table(),
             Node::Claim(node) => node.node_table(),
             Node::CodeBlock(node) => node.node_table(),
             Node::CodeChunk(node) => node.node_table(),
@@ -1300,6 +1365,8 @@ impl DatabaseNode for Node {
             Node::Annotation(node) => node.rel_tables(),
             Node::Article(node) => node.rel_tables(),
             Node::AudioObject(node) => node.rel_tables(),
+            Node::Cite(node) => node.rel_tables(),
+            Node::CiteGroup(node) => node.rel_tables(),
             Node::Claim(node) => node.rel_tables(),
             Node::CodeBlock(node) => node.rel_tables(),
             Node::CodeChunk(node) => node.rel_tables(),
@@ -1462,6 +1529,8 @@ impl DatabaseNode for Inline {
         match self {
             Inline::Annotation(node) => node.node_type(),
             Inline::AudioObject(node) => node.node_type(),
+            Inline::Cite(node) => node.node_type(),
+            Inline::CiteGroup(node) => node.node_type(),
             Inline::CodeExpression(node) => node.node_type(),
             Inline::ImageObject(node) => node.node_type(),
             Inline::Link(node) => node.node_type(),
@@ -1480,6 +1549,8 @@ impl DatabaseNode for Inline {
         match self {
             Inline::Annotation(node) => node.node_id(),
             Inline::AudioObject(node) => node.node_id(),
+            Inline::Cite(node) => node.node_id(),
+            Inline::CiteGroup(node) => node.node_id(),
             Inline::CodeExpression(node) => node.node_id(),
             Inline::ImageObject(node) => node.node_id(),
             Inline::Link(node) => node.node_id(),
@@ -1498,6 +1569,8 @@ impl DatabaseNode for Inline {
         match self {
             Inline::Annotation(node) => node.node_table(),
             Inline::AudioObject(node) => node.node_table(),
+            Inline::Cite(node) => node.node_table(),
+            Inline::CiteGroup(node) => node.node_table(),
             Inline::CodeExpression(node) => node.node_table(),
             Inline::ImageObject(node) => node.node_table(),
             Inline::Link(node) => node.node_table(),
@@ -1516,6 +1589,8 @@ impl DatabaseNode for Inline {
         match self {
             Inline::Annotation(node) => node.rel_tables(),
             Inline::AudioObject(node) => node.rel_tables(),
+            Inline::Cite(node) => node.rel_tables(),
+            Inline::CiteGroup(node) => node.rel_tables(),
             Inline::CodeExpression(node) => node.rel_tables(),
             Inline::ImageObject(node) => node.rel_tables(),
             Inline::Link(node) => node.rel_tables(),
