@@ -14,7 +14,7 @@ impl From<&Node> for Reference {
 impl From<&Article> for Reference {
     fn from(article: &Article) -> Self {
         Self {
-            doi: article.doi(),
+            doi: article.doi.clone(),
             authors: article.authors.clone(),
             date: article
                 .date_published

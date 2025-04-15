@@ -1,47 +1,6 @@
-use crate::{prelude::*, Article, Primitive, PropertyValue, PropertyValueOrString};
+use crate::{prelude::*, Article};
 
 impl Article {
-    /// Get the DOI of an article (if any)
-    pub fn doi(&self) -> Option<String> {
-        const URL_PREFIX: &str = "https://doi.org/";
-
-        let doi = self
-            .options
-            .identifiers
-            .iter()
-            .flatten()
-            .find_map(|id| match id {
-                PropertyValueOrString::PropertyValue(PropertyValue {
-                    property_id: Some(property_id),
-                    value: Primitive::String(value),
-                    ..
-                }) => [
-                    "doi",
-                    URL_PREFIX,
-                    "https://registry.identifiers.org/registry/doi",
-                ]
-                .contains(&property_id.to_lowercase().as_str())
-                .then(|| value.to_string().clone()),
-
-                PropertyValueOrString::PropertyValue(PropertyValue {
-                    value: Primitive::String(value),
-                    ..
-                }) => (value.starts_with(URL_PREFIX)).then(|| value.clone()),
-
-                PropertyValueOrString::String(id) => {
-                    (id.starts_with(URL_PREFIX)).then(|| id.clone())
-                }
-
-                _ => None,
-            });
-
-        if let Some(doi) = doi.as_ref().and_then(|doi| doi.strip_prefix(URL_PREFIX)) {
-            Some(doi.into())
-        } else {
-            doi
-        }
-    }
-
     pub fn to_jats_special(&self) -> (String, Losses) {
         use codec_jats_trait::encode::{elem, elem_no_attrs};
 
