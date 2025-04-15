@@ -73,6 +73,7 @@ export class Section extends Entity {
         node-id=${this.id}
         depth=${this.depth}
         ?has-root=${this.hasRoot()}
+        header-title=${this.sectionType ? `Section: ${this.sectionType}` : null}
       >
         <div slot="body">
           <stencila-ui-node-authors type="Section">
