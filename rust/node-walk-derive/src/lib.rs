@@ -85,16 +85,19 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             (
                 quote! {
                     if visitor.#method(self).is_break() {
+                        #exit
                         return
                     }
                 },
                 quote! {
                     if visitor.#method(self).is_break() {
+                        #exit
                         return
                     }
                 },
                 quote! {
                     if visitor.#method(self).await?.is_break() {
+                        #exit
                         return Ok(())
                     }
                 },
