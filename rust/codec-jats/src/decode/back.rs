@@ -27,19 +27,19 @@ pub(super) fn decode_back(path: &str, node: &Node, article: &mut Article, losses
 fn decode_ref_list(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
     let references = node
         .children()
-        .filter(|child| child.tag_name().name() == "ref")
-        .flat_map(|child| {
+        .filter_map(|child| {
+            if let ("ref", Some(id)) = (child.tag_name().name(), child.attribute("id")) {
+                Some((id, child))
+            } else {
+                None
+            }
+        })
+        .flat_map(|(id, child)| {
             let child_path = &extend_path(path, "ref");
             child
                 .children()
-                .filter(|grandchild| {
-                    grandchild
-                        .tag_name()
-                        .name()
-                        .to_string()
-                        .contains("citation")
-                })
-                .map(|grandchild| decode_citation(child_path, &grandchild, losses))
+                .filter(|grandchild| grandchild.tag_name().name().contains("citation"))
+                .map(|grandchild| decode_citation(child_path, id, &grandchild, losses))
                 .collect_vec()
         })
         .collect_vec();
@@ -50,7 +50,7 @@ fn decode_ref_list(path: &str, node: &Node, article: &mut Article, losses: &mut 
 }
 
 /// Decode any node that contains `<citation>` element
-fn decode_citation(path: &str, node: &Node, losses: &mut Losses) -> Reference {
+fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Reference {
     record_attrs_lost(path, node, [], losses);
 
     let mut doi = None;
@@ -129,6 +129,7 @@ fn decode_citation(path: &str, node: &Node, losses: &mut Losses) -> Reference {
     };
 
     Reference {
+        id: Some(id.into()),
         doi,
         authors,
         date,

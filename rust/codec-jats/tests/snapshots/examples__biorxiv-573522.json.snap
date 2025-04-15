@@ -142,6 +142,7 @@ expression: article
   "references": [
     {
       "type": "Reference",
+      "id": "c1",
       "authors": [
         {
           "type": "Person",
@@ -189,6 +190,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c2",
       "authors": [
         {
           "type": "Person",
@@ -254,6 +256,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c3",
       "authors": [
         {
           "type": "Person",
@@ -283,6 +286,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c4",
       "authors": [
         {
           "type": "Person",
@@ -321,6 +325,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c5",
       "authors": [
         {
           "type": "Person",
@@ -349,6 +354,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c6",
       "authors": [
         {
           "type": "Person",
@@ -395,6 +401,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c7",
       "authors": [
         {
           "type": "Person",
@@ -442,6 +449,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c8",
       "authors": [
         {
           "type": "Person",
@@ -489,6 +497,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c9",
       "authors": [
         {
           "type": "Person",
@@ -527,6 +536,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c10",
       "authors": [
         {
           "type": "Person",
@@ -565,6 +575,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c11",
       "authors": [
         {
           "type": "Person",
@@ -603,6 +614,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c12",
       "authors": [
         {
           "type": "Person",
@@ -659,6 +671,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c13",
       "authors": [
         {
           "type": "Person",
@@ -778,6 +791,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c14",
       "authors": [
         {
           "type": "Person",
@@ -852,6 +866,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c15",
       "authors": [
         {
           "type": "Person",
@@ -881,6 +896,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c16",
       "authors": [
         {
           "type": "Person",
@@ -944,6 +960,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c17",
       "authors": [
         {
           "type": "Person",
@@ -973,6 +990,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c18",
       "authors": [
         {
           "type": "Person",
@@ -1065,6 +1083,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c19",
       "authors": [
         {
           "type": "Person",
@@ -1176,6 +1195,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c20",
       "authors": [
         {
           "type": "Person",
@@ -1204,6 +1224,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c21",
       "authors": [
         {
           "type": "Person",
@@ -1231,6 +1252,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c22",
       "authors": [
         {
           "type": "Person",
@@ -1296,6 +1318,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c23",
       "authors": [
         {
           "type": "Person",
@@ -1341,6 +1364,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c24",
       "authors": [
         {
           "type": "Person",
@@ -1478,6 +1502,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c25",
       "authors": [
         {
           "type": "Person",
@@ -1516,6 +1541,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c26",
       "authors": [
         {
           "type": "Person",
@@ -1563,6 +1589,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c27",
       "authors": [
         {
           "type": "Person",
@@ -1655,6 +1682,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c28",
       "authors": [
         {
           "type": "Person",
@@ -1684,6 +1712,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c29",
       "authors": [
         {
           "type": "Person",
@@ -1722,6 +1751,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c30",
       "authors": [
         {
           "type": "Person",
@@ -1760,6 +1790,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c31",
       "authors": [
         {
           "type": "Person",
@@ -1789,6 +1820,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c32",
       "authors": [
         {
           "type": "Person",
@@ -1863,6 +1895,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c33",
       "authors": [
         {
           "type": "Person",
@@ -1892,6 +1925,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c34",
       "authors": [
         {
           "type": "Person",
@@ -1964,6 +1998,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c35",
       "authors": [
         {
           "type": "Person",
@@ -2002,6 +2037,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c36",
       "authors": [
         {
           "type": "Person",
@@ -2040,6 +2076,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c37",
       "authors": [
         {
           "type": "Person",
@@ -2114,6 +2151,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c38",
       "authors": [
         {
           "type": "Person",
@@ -2214,6 +2252,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c39",
       "authors": [
         {
           "type": "Person",
@@ -2243,6 +2282,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c40",
       "authors": [
         {
           "type": "Person",
@@ -2290,6 +2330,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c41",
       "authors": [
         {
           "type": "Person",
@@ -2327,6 +2368,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c42",
       "authors": [
         {
           "type": "Person",
@@ -2365,6 +2407,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c43",
       "authors": [
         {
           "type": "Person",
@@ -2403,6 +2446,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c44",
       "authors": [
         {
           "type": "Person",
@@ -2468,6 +2512,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c45",
       "authors": [
         {
           "type": "Person",
@@ -2496,6 +2541,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c46",
       "authors": [
         {
           "type": "Person",
@@ -2560,6 +2606,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c47",
       "authors": [
         {
           "type": "Person",
@@ -2607,6 +2654,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c48",
       "authors": [
         {
           "type": "Person",
@@ -2672,6 +2720,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c49",
       "authors": [
         {
           "type": "Person",
@@ -2719,6 +2768,7 @@ expression: article
     },
     {
       "type": "Reference",
+      "id": "c50",
       "authors": [
         {
           "type": "Person",
