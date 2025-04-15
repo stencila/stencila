@@ -1,10 +1,14 @@
-all: biorxiv-573522.xml elife-94334-v1.xml format
+all: biorxiv-573522.jats.xml biorxiv-630838.jats.xml elife-94334-v1.jats.xml format
 
 # bioXiv articles
 
 # First article listed at https://api.biorxiv.org/details/biorxiv/2024-01-01/2024-01-01/1
 biorxiv-573522.jats.xml:
 	curl -sSL https://www.biorxiv.org/content/early/2024/01/01/2023.12.31.573522.source.xml -o $@
+
+# First article listed at https://api.biorxiv.org/details/biorxiv/2025-01-01/2025-01-01/1
+biorxiv-630838.jats.xml:
+	curl -sSL https://www.biorxiv.org/content/early/2025/01/01/2024.12.31.630838.source.xml -o $@
 
 # eLife articles
 
