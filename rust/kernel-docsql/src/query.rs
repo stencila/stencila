@@ -506,6 +506,14 @@ impl Query {
         query
     }
 
+    /// Apply `ORDER BY gen_random_uuid()` and `LIMIT` clauses to query
+    fn sample(&self, count: Option<usize>) -> Self {
+        let mut query = self.clone();
+        query.order_by = Some("gen_random_uuid()".into());
+        query.limit = Some(count.unwrap_or(10));
+        query
+    }
+
     /// Apply a `UNION` clause to query
     fn union(&self, other: DynObject, all: Option<bool>) -> Result<Self, Error> {
         let Some(other) = other.downcast_ref::<Query>() else {
@@ -822,8 +830,12 @@ impl Object for Query {
                 self.skip(skip)
             }
             "limit" => {
-                let (limit,) = from_args(args)?;
-                self.limit(limit)
+                let (count,) = from_args(args)?;
+                self.limit(count)
+            }
+            "sample" => {
+                let (count,) = from_args(args)?;
+                self.sample(count)
             }
             "union" => {
                 let (union, all) = from_args(args)?;
