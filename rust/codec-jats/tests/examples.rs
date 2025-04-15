@@ -17,14 +17,14 @@ fn examples() -> Result<()> {
         .canonicalize()?
         .to_string_lossy()
         .to_string()
-        + "/**/*.xml";
+        + "/**/*.jats.xml";
 
     for path in glob(&pattern)?.flatten() {
         let name = path
             .file_name()
             .map(|name| name.to_string_lossy())
-            .and_then(|name| name.strip_suffix(".xml").map(String::from))
-            .expect("should have .xml suffix");
+            .and_then(|name| name.strip_suffix(".jats.xml").map(String::from))
+            .expect("should have .jats.xml suffix");
 
         let original = read_to_string(path)?;
 
