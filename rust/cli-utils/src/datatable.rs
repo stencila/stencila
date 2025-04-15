@@ -1,10 +1,9 @@
 use comfy_table::{Cell, CellAlignment, Color, Row};
 
 use common::{itertools::Itertools, serde_json};
-use format::Format;
 use schema::{Datatable, Primitive, Validator};
 
-use crate::{table, Code, ToStdout};
+use crate::{table, ToStdout};
 
 impl ToStdout for Datatable {
     fn to_terminal(&self) -> impl std::fmt::Display {
@@ -23,7 +22,10 @@ impl ToStdout for Datatable {
                     Some(Validator::IntegerValidator(..)) => (Color::Cyan, CellAlignment::Right),
                     Some(Validator::NumberValidator(..)) => (Color::Green, CellAlignment::Right),
                     Some(Validator::StringValidator(..)) => (Color::Yellow, CellAlignment::Left),
-                    _ => (Color::Magenta, CellAlignment::Right),
+                    Some(Validator::ArrayValidator(..)) => {
+                        (Color::DarkMagenta, CellAlignment::Left)
+                    }
+                    _ => (Color::Magenta, CellAlignment::Left),
                 };
 
                 Cell::new(column.name.as_str())
@@ -41,8 +43,12 @@ impl ToStdout for Datatable {
                     .as_ref()
                     .and_then(|validator| validator.items_validator.as_deref())
                 {
-                    Some(Validator::StringValidator(..)) => CellAlignment::Left,
-                    _ => CellAlignment::Right,
+                    Some(
+                        Validator::BooleanValidator(..)
+                        | Validator::IntegerValidator(..)
+                        | Validator::NumberValidator(..),
+                    ) => CellAlignment::Right,
+                    _ => CellAlignment::Left,
                 };
 
                 column
@@ -59,20 +65,12 @@ impl ToStdout for Datatable {
                             Primitive::UnsignedInteger(cell) => Cell::new(cell.to_string()),
                             Primitive::Number(cell) => Cell::new(cell.to_string()),
                             Primitive::String(cell) => Cell::new(cell.to_string()),
-                            Primitive::Array(cell) => Cell::new(
-                                Code::new(
-                                    Format::Json,
-                                    &serde_json::to_string(cell).unwrap_or_default(),
-                                )
-                                .to_terminal(),
-                            ),
-                            Primitive::Object(cell) => Cell::new(
-                                Code::new(
-                                    Format::Json,
-                                    &serde_json::to_string(cell).unwrap_or_default(),
-                                )
-                                .to_terminal(),
-                            ),
+                            Primitive::Array(cell) => {
+                                Cell::new(serde_json::to_string(cell).unwrap_or_default())
+                            }
+                            Primitive::Object(cell) => {
+                                Cell::new(serde_json::to_string(cell).unwrap_or_default())
+                            }
                         },
                     )
                     .set_alignment(alignment)
