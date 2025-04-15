@@ -31,14 +31,6 @@ export class Chat extends Executable {
   targetNodes?: string[]
 
   /**
-   * A mutation controller used to update the instruction type of the chat
-   *
-   * @see onPromptSlotChange
-   */
-  // @ts-expect-error is never read
-  private promptMutationController: MutationController
-
-  /**
    * A mutation controller used to scroll to the latest message
    *
    * @see onContentSlotChange
