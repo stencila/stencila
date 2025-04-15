@@ -59,8 +59,15 @@ impl Schemas {
             "TableCell.content",
             // Exclude list item position as it is provided by the position calculated from the node path
             "ListItem.position",
-            // Exclude authors and references
-            "authors",
+            // Exclude unnecessary person properties
+            "Person.description",
+            "Person.jobTitle",
+            "Person.telephoneNumbers",
+            "Person.emails",
+            // Exclude unnecessary organization properties
+            "Organization.logo",
+            "Organization.departments",
+            // Exclude references
             "references",
         ];
 
@@ -101,7 +108,6 @@ impl Schemas {
             "PromptBlock",
             "PropertyValue",
             "ProvenanceCount",
-            "SoftwareApplication",
             "SoftwareSourceCode",
             "Strikeout",
             "Strong",
@@ -115,14 +121,10 @@ impl Schemas {
             "WalkthroughStep",
             // Types for which tables are not currently create but probably
             // will be for relations between creative works etc
-            "Author",
-            "AuthorRole",
             "Collection",
             "Comment",
             "CreativeWork",
-            "Organization",
             "Periodical",
-            "Person",
             "PublicationIssue",
             "PublicationVolume",
             "Reference",

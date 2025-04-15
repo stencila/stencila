@@ -74,6 +74,17 @@ CREATE NODE TABLE IF NOT EXISTS `AudioObject` (
   `position` UINT32
 );
 
+CREATE NODE TABLE IF NOT EXISTS `AuthorRole` (
+  `roleName` STRING,
+  `format` STRING,
+  `lastModified` TIMESTAMP,
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `nodeAncestors` STRING,
+  `position` UINT32
+);
+
 CREATE NODE TABLE IF NOT EXISTS `Cite` (
   `target` STRING,
   `citationMode` STRING,
@@ -421,6 +432,20 @@ CREATE NODE TABLE IF NOT EXISTS `Note` (
   `position` UINT32
 );
 
+CREATE NODE TABLE IF NOT EXISTS `Organization` (
+  `alternateNames` STRING[],
+  `description` STRING,
+  `name` STRING,
+  `url` STRING,
+  `ror` STRING,
+  `legalName` STRING,
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `nodeAncestors` STRING,
+  `position` UINT32
+);
+
 CREATE NODE TABLE IF NOT EXISTS `Paragraph` (
   `text` STRING,
   `docId` STRING,
@@ -440,6 +465,22 @@ CREATE NODE TABLE IF NOT EXISTS `Parameter` (
   `name` STRING,
   `label` STRING,
   `derivedFrom` STRING,
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `nodeAncestors` STRING,
+  `position` UINT32
+);
+
+CREATE NODE TABLE IF NOT EXISTS `Person` (
+  `alternateNames` STRING[],
+  `name` STRING,
+  `url` STRING,
+  `orcid` STRING,
+  `familyNames` STRING[],
+  `givenNames` STRING[],
+  `honorificPrefix` STRING,
+  `honorificSuffix` STRING,
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
@@ -476,6 +517,28 @@ CREATE NODE TABLE IF NOT EXISTS `RawBlock` (
 
 CREATE NODE TABLE IF NOT EXISTS `Section` (
   `sectionType` STRING,
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `nodeAncestors` STRING,
+  `position` UINT32
+);
+
+CREATE NODE TABLE IF NOT EXISTS `SoftwareApplication` (
+  `alternateNames` STRING[],
+  `description` STRING,
+  `name` STRING,
+  `url` STRING,
+  `doi` STRING,
+  `dateCreated` DATE,
+  `dateReceived` DATE,
+  `dateAccepted` DATE,
+  `dateModified` DATE,
+  `datePublished` DATE,
+  `genre` STRING[],
+  `keywords` STRING[],
+  `softwareVersion` STRING,
+  `operatingSystem` STRING,
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
@@ -612,6 +675,19 @@ CREATE NODE TABLE IF NOT EXISTS `VideoObject` (
   `nodePath` STRING,
   `nodeAncestors` STRING,
   `position` UINT32
+);
+
+CREATE REL TABLE IF NOT EXISTS `author` (
+  FROM `AuthorRole` TO `Person`,
+  FROM `AuthorRole` TO `Organization`,
+  FROM `AuthorRole` TO `SoftwareApplication`,
+  FROM `AuthorRole` TO `Thing`,
+  ONE_ONE
+);
+
+CREATE REL TABLE IF NOT EXISTS `parentOrganization` (
+  FROM `Organization` TO `Organization`,
+  ONE_ONE
 );
 
 CREATE REL TABLE IF NOT EXISTS `thumbnail` (
@@ -753,6 +829,28 @@ CREATE REL TABLE IF NOT EXISTS `abstract` (
   FROM `MediaObject` TO `Table`,
   FROM `MediaObject` TO `ThematicBreak`,
   FROM `MediaObject` TO `VideoObject`,
+  FROM `SoftwareApplication` TO `Admonition`,
+  FROM `SoftwareApplication` TO `AudioObject`,
+  FROM `SoftwareApplication` TO `Claim`,
+  FROM `SoftwareApplication` TO `CodeBlock`,
+  FROM `SoftwareApplication` TO `CodeChunk`,
+  FROM `SoftwareApplication` TO `Figure`,
+  FROM `SoftwareApplication` TO `File`,
+  FROM `SoftwareApplication` TO `ForBlock`,
+  FROM `SoftwareApplication` TO `Heading`,
+  FROM `SoftwareApplication` TO `IfBlock`,
+  FROM `SoftwareApplication` TO `ImageObject`,
+  FROM `SoftwareApplication` TO `IncludeBlock`,
+  FROM `SoftwareApplication` TO `List`,
+  FROM `SoftwareApplication` TO `MathBlock`,
+  FROM `SoftwareApplication` TO `Paragraph`,
+  FROM `SoftwareApplication` TO `QuoteBlock`,
+  FROM `SoftwareApplication` TO `RawBlock`,
+  FROM `SoftwareApplication` TO `Section`,
+  FROM `SoftwareApplication` TO `StyledBlock`,
+  FROM `SoftwareApplication` TO `Table`,
+  FROM `SoftwareApplication` TO `ThematicBreak`,
+  FROM `SoftwareApplication` TO `VideoObject`,
   FROM `Table` TO `Admonition`,
   FROM `Table` TO `AudioObject`,
   FROM `Table` TO `Claim`,
@@ -800,6 +898,11 @@ CREATE REL TABLE IF NOT EXISTS `abstract` (
   ONE_MANY
 );
 
+CREATE REL TABLE IF NOT EXISTS `affiliations` (
+  FROM `Person` TO `Organization`,
+  ONE_MANY
+);
+
 CREATE REL TABLE IF NOT EXISTS `annotation` (
   FROM `Annotation` TO `Admonition`,
   FROM `Annotation` TO `AudioObject`,
@@ -823,6 +926,110 @@ CREATE REL TABLE IF NOT EXISTS `annotation` (
   FROM `Annotation` TO `Table`,
   FROM `Annotation` TO `ThematicBreak`,
   FROM `Annotation` TO `VideoObject`,
+  ONE_MANY
+);
+
+CREATE REL TABLE IF NOT EXISTS `authors` (
+  FROM `Admonition` TO `Person`,
+  FROM `Admonition` TO `Organization`,
+  FROM `Admonition` TO `SoftwareApplication`,
+  FROM `Admonition` TO `AuthorRole`,
+  FROM `Article` TO `Person`,
+  FROM `Article` TO `Organization`,
+  FROM `Article` TO `SoftwareApplication`,
+  FROM `Article` TO `AuthorRole`,
+  FROM `AudioObject` TO `Person`,
+  FROM `AudioObject` TO `Organization`,
+  FROM `AudioObject` TO `SoftwareApplication`,
+  FROM `AudioObject` TO `AuthorRole`,
+  FROM `Claim` TO `Person`,
+  FROM `Claim` TO `Organization`,
+  FROM `Claim` TO `SoftwareApplication`,
+  FROM `Claim` TO `AuthorRole`,
+  FROM `CodeBlock` TO `Person`,
+  FROM `CodeBlock` TO `Organization`,
+  FROM `CodeBlock` TO `SoftwareApplication`,
+  FROM `CodeBlock` TO `AuthorRole`,
+  FROM `CodeChunk` TO `Person`,
+  FROM `CodeChunk` TO `Organization`,
+  FROM `CodeChunk` TO `SoftwareApplication`,
+  FROM `CodeChunk` TO `AuthorRole`,
+  FROM `CodeExpression` TO `Person`,
+  FROM `CodeExpression` TO `Organization`,
+  FROM `CodeExpression` TO `SoftwareApplication`,
+  FROM `CodeExpression` TO `AuthorRole`,
+  FROM `Figure` TO `Person`,
+  FROM `Figure` TO `Organization`,
+  FROM `Figure` TO `SoftwareApplication`,
+  FROM `Figure` TO `AuthorRole`,
+  FROM `ForBlock` TO `Person`,
+  FROM `ForBlock` TO `Organization`,
+  FROM `ForBlock` TO `SoftwareApplication`,
+  FROM `ForBlock` TO `AuthorRole`,
+  FROM `Heading` TO `Person`,
+  FROM `Heading` TO `Organization`,
+  FROM `Heading` TO `SoftwareApplication`,
+  FROM `Heading` TO `AuthorRole`,
+  FROM `IfBlockClause` TO `Person`,
+  FROM `IfBlockClause` TO `Organization`,
+  FROM `IfBlockClause` TO `SoftwareApplication`,
+  FROM `IfBlockClause` TO `AuthorRole`,
+  FROM `ImageObject` TO `Person`,
+  FROM `ImageObject` TO `Organization`,
+  FROM `ImageObject` TO `SoftwareApplication`,
+  FROM `ImageObject` TO `AuthorRole`,
+  FROM `List` TO `Person`,
+  FROM `List` TO `Organization`,
+  FROM `List` TO `SoftwareApplication`,
+  FROM `List` TO `AuthorRole`,
+  FROM `MathBlock` TO `Person`,
+  FROM `MathBlock` TO `Organization`,
+  FROM `MathBlock` TO `SoftwareApplication`,
+  FROM `MathBlock` TO `AuthorRole`,
+  FROM `MathInline` TO `Person`,
+  FROM `MathInline` TO `Organization`,
+  FROM `MathInline` TO `SoftwareApplication`,
+  FROM `MathInline` TO `AuthorRole`,
+  FROM `MediaObject` TO `Person`,
+  FROM `MediaObject` TO `Organization`,
+  FROM `MediaObject` TO `SoftwareApplication`,
+  FROM `MediaObject` TO `AuthorRole`,
+  FROM `Paragraph` TO `Person`,
+  FROM `Paragraph` TO `Organization`,
+  FROM `Paragraph` TO `SoftwareApplication`,
+  FROM `Paragraph` TO `AuthorRole`,
+  FROM `QuoteBlock` TO `Person`,
+  FROM `QuoteBlock` TO `Organization`,
+  FROM `QuoteBlock` TO `SoftwareApplication`,
+  FROM `QuoteBlock` TO `AuthorRole`,
+  FROM `RawBlock` TO `Person`,
+  FROM `RawBlock` TO `Organization`,
+  FROM `RawBlock` TO `SoftwareApplication`,
+  FROM `RawBlock` TO `AuthorRole`,
+  FROM `Section` TO `Person`,
+  FROM `Section` TO `Organization`,
+  FROM `Section` TO `SoftwareApplication`,
+  FROM `Section` TO `AuthorRole`,
+  FROM `SoftwareApplication` TO `Person`,
+  FROM `SoftwareApplication` TO `Organization`,
+  FROM `SoftwareApplication` TO `SoftwareApplication`,
+  FROM `SoftwareApplication` TO `AuthorRole`,
+  FROM `StyledBlock` TO `Person`,
+  FROM `StyledBlock` TO `Organization`,
+  FROM `StyledBlock` TO `SoftwareApplication`,
+  FROM `StyledBlock` TO `AuthorRole`,
+  FROM `StyledInline` TO `Person`,
+  FROM `StyledInline` TO `Organization`,
+  FROM `StyledInline` TO `SoftwareApplication`,
+  FROM `StyledInline` TO `AuthorRole`,
+  FROM `Table` TO `Person`,
+  FROM `Table` TO `Organization`,
+  FROM `Table` TO `SoftwareApplication`,
+  FROM `Table` TO `AuthorRole`,
+  FROM `VideoObject` TO `Person`,
+  FROM `VideoObject` TO `Organization`,
+  FROM `VideoObject` TO `SoftwareApplication`,
+  FROM `VideoObject` TO `AuthorRole`,
   ONE_MANY
 );
 
@@ -1314,6 +1521,59 @@ CREATE REL TABLE IF NOT EXISTS `content` (
   ONE_MANY
 );
 
+CREATE REL TABLE IF NOT EXISTS `contributors` (
+  FROM `Article` TO `Person`,
+  FROM `Article` TO `Organization`,
+  FROM `Article` TO `SoftwareApplication`,
+  FROM `Article` TO `AuthorRole`,
+  FROM `AudioObject` TO `Person`,
+  FROM `AudioObject` TO `Organization`,
+  FROM `AudioObject` TO `SoftwareApplication`,
+  FROM `AudioObject` TO `AuthorRole`,
+  FROM `Claim` TO `Person`,
+  FROM `Claim` TO `Organization`,
+  FROM `Claim` TO `SoftwareApplication`,
+  FROM `Claim` TO `AuthorRole`,
+  FROM `Figure` TO `Person`,
+  FROM `Figure` TO `Organization`,
+  FROM `Figure` TO `SoftwareApplication`,
+  FROM `Figure` TO `AuthorRole`,
+  FROM `ImageObject` TO `Person`,
+  FROM `ImageObject` TO `Organization`,
+  FROM `ImageObject` TO `SoftwareApplication`,
+  FROM `ImageObject` TO `AuthorRole`,
+  FROM `MediaObject` TO `Person`,
+  FROM `MediaObject` TO `Organization`,
+  FROM `MediaObject` TO `SoftwareApplication`,
+  FROM `MediaObject` TO `AuthorRole`,
+  FROM `SoftwareApplication` TO `Person`,
+  FROM `SoftwareApplication` TO `Organization`,
+  FROM `SoftwareApplication` TO `SoftwareApplication`,
+  FROM `SoftwareApplication` TO `AuthorRole`,
+  FROM `Table` TO `Person`,
+  FROM `Table` TO `Organization`,
+  FROM `Table` TO `SoftwareApplication`,
+  FROM `Table` TO `AuthorRole`,
+  FROM `VideoObject` TO `Person`,
+  FROM `VideoObject` TO `Organization`,
+  FROM `VideoObject` TO `SoftwareApplication`,
+  FROM `VideoObject` TO `AuthorRole`,
+  ONE_MANY
+);
+
+CREATE REL TABLE IF NOT EXISTS `editors` (
+  FROM `Article` TO `Person`,
+  FROM `AudioObject` TO `Person`,
+  FROM `Claim` TO `Person`,
+  FROM `Figure` TO `Person`,
+  FROM `ImageObject` TO `Person`,
+  FROM `MediaObject` TO `Person`,
+  FROM `SoftwareApplication` TO `Person`,
+  FROM `Table` TO `Person`,
+  FROM `VideoObject` TO `Person`,
+  ONE_MANY
+);
+
 CREATE REL TABLE IF NOT EXISTS `images` (
   FROM `Article` TO `ImageObject`,
   FROM `AudioObject` TO `ImageObject`,
@@ -1322,6 +1582,9 @@ CREATE REL TABLE IF NOT EXISTS `images` (
   FROM `ImageObject` TO `ImageObject`,
   FROM `ListItem` TO `ImageObject`,
   FROM `MediaObject` TO `ImageObject`,
+  FROM `Organization` TO `ImageObject`,
+  FROM `Person` TO `ImageObject`,
+  FROM `SoftwareApplication` TO `ImageObject`,
   FROM `Table` TO `ImageObject`,
   FROM `Thing` TO `ImageObject`,
   FROM `VideoObject` TO `ImageObject`,
@@ -1357,6 +1620,11 @@ CREATE REL TABLE IF NOT EXISTS `iterations` (
   FROM `ForBlock` TO `Table`,
   FROM `ForBlock` TO `ThematicBreak`,
   FROM `ForBlock` TO `VideoObject`,
+  ONE_MANY
+);
+
+CREATE REL TABLE IF NOT EXISTS `memberOf` (
+  FROM `Person` TO `Organization`,
   ONE_MANY
 );
 
@@ -1419,6 +1687,11 @@ CREATE REL TABLE IF NOT EXISTS `parameters` (
 
 CREATE REL TABLE IF NOT EXISTS `rows` (
   FROM `Table` TO `TableRow`,
+  ONE_MANY
+);
+
+CREATE REL TABLE IF NOT EXISTS `softwareRequirements` (
+  FROM `SoftwareApplication` TO `SoftwareApplication`,
   ONE_MANY
 );
 
@@ -1521,6 +1794,20 @@ CREATE REL TABLE IF NOT EXISTS `title` (
   FROM `MediaObject` TO `QuoteInline`,
   FROM `MediaObject` TO `StyledInline`,
   FROM `MediaObject` TO `VideoObject`,
+  FROM `SoftwareApplication` TO `Annotation`,
+  FROM `SoftwareApplication` TO `AudioObject`,
+  FROM `SoftwareApplication` TO `Cite`,
+  FROM `SoftwareApplication` TO `CiteGroup`,
+  FROM `SoftwareApplication` TO `CodeExpression`,
+  FROM `SoftwareApplication` TO `ImageObject`,
+  FROM `SoftwareApplication` TO `Link`,
+  FROM `SoftwareApplication` TO `MathInline`,
+  FROM `SoftwareApplication` TO `MediaObject`,
+  FROM `SoftwareApplication` TO `Note`,
+  FROM `SoftwareApplication` TO `Parameter`,
+  FROM `SoftwareApplication` TO `QuoteInline`,
+  FROM `SoftwareApplication` TO `StyledInline`,
+  FROM `SoftwareApplication` TO `VideoObject`,
   FROM `Table` TO `Annotation`,
   FROM `Table` TO `AudioObject`,
   FROM `Table` TO `Cite`,

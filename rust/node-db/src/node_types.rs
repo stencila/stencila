@@ -34,7 +34,8 @@ impl DatabaseNode for Admonition {
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
             (NodeProperty::Title, relations(self.title.iter().flatten())),
-            (NodeProperty::Content, relations(self.content.iter()))
+            (NodeProperty::Content, relations(self.content.iter())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -102,6 +103,9 @@ impl DatabaseNode for Article {
         vec![
             (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::Abstract, relations(self.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
             (NodeProperty::Title, relations(self.title.iter().flatten())),
             (NodeProperty::Content, relations(self.content.iter()))
         ]
@@ -144,8 +148,35 @@ impl DatabaseNode for AudioObject {
         vec![
             (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
             (NodeProperty::Title, relations(self.title.iter().flatten())),
             (NodeProperty::Caption, relations(self.caption.iter().flatten()))
+        ]
+    }
+}
+
+impl DatabaseNode for AuthorRole {
+    fn node_type(&self) -> NodeType {
+        NodeType::AuthorRole
+    }
+
+    fn node_id(&self) -> NodeId {
+        AuthorRole::node_id(self)
+    }
+    
+    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
+        vec![
+            (NodeProperty::RoleName, String::to_kuzu_type(), self.role_name.to_kuzu_value()),
+            (NodeProperty::Format, String::to_kuzu_type(), self.format.to_kuzu_value()),
+            (NodeProperty::LastModified, Timestamp::to_kuzu_type(), self.last_modified.to_kuzu_value())
+        ]
+    }
+
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+        vec![
+            (NodeProperty::Author, vec![(self.author.node_type(), self.author.node_id())])
         ]
     }
 }
@@ -233,6 +264,9 @@ impl DatabaseNode for Claim {
         vec![
             (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
             (NodeProperty::Title, relations(self.options.title.iter().flatten())),
             (NodeProperty::Content, relations(self.content.iter()))
         ]
@@ -257,7 +291,7 @@ impl DatabaseNode for CodeBlock {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -295,6 +329,7 @@ impl DatabaseNode for CodeChunk {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
             (NodeProperty::Caption, relations(self.caption.iter().flatten()))
         ]
     }
@@ -326,7 +361,7 @@ impl DatabaseNode for CodeExpression {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -387,6 +422,9 @@ impl DatabaseNode for Figure {
         vec![
             (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
             (NodeProperty::Title, relations(self.options.title.iter().flatten())),
             (NodeProperty::Caption, relations(self.caption.iter().flatten())),
             (NodeProperty::Content, relations(self.content.iter()))
@@ -448,6 +486,7 @@ impl DatabaseNode for ForBlock {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
             (NodeProperty::Content, relations(self.content.iter())),
             (NodeProperty::Otherwise, relations(self.otherwise.iter().flatten())),
             (NodeProperty::Iterations, relations(self.iterations.iter().flatten()))
@@ -494,7 +533,8 @@ impl DatabaseNode for Heading {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Content, relations(self.content.iter()))
+            (NodeProperty::Content, relations(self.content.iter())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -553,6 +593,7 @@ impl DatabaseNode for IfBlockClause {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
             (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
@@ -593,6 +634,9 @@ impl DatabaseNode for ImageObject {
         vec![
             (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
             (NodeProperty::Title, relations(self.title.iter().flatten())),
             (NodeProperty::Caption, relations(self.caption.iter().flatten())),
             (NodeProperty::Thumbnail, relations(self.options.thumbnail.iter()))
@@ -671,7 +715,8 @@ impl DatabaseNode for List {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Items, relations(self.items.iter()))
+            (NodeProperty::Items, relations(self.items.iter())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -723,7 +768,7 @@ impl DatabaseNode for MathBlock {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -746,7 +791,7 @@ impl DatabaseNode for MathInline {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -786,6 +831,9 @@ impl DatabaseNode for MediaObject {
         vec![
             (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
             (NodeProperty::Title, relations(self.options.title.iter().flatten()))
         ]
     }
@@ -813,6 +861,34 @@ impl DatabaseNode for Note {
     }
 }
 
+impl DatabaseNode for Organization {
+    fn node_type(&self) -> NodeType {
+        NodeType::Organization
+    }
+
+    fn node_id(&self) -> NodeId {
+        Organization::node_id(self)
+    }
+    
+    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
+        vec![
+            (NodeProperty::AlternateNames, Vec::<String>::to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
+            (NodeProperty::Description, String::to_kuzu_type(), self.options.description.to_kuzu_value()),
+            (NodeProperty::Name, String::to_kuzu_type(), self.name.to_kuzu_value()),
+            (NodeProperty::Url, String::to_kuzu_type(), self.options.url.to_kuzu_value()),
+            (NodeProperty::Ror, String::to_kuzu_type(), self.ror.to_kuzu_value()),
+            (NodeProperty::LegalName, String::to_kuzu_type(), self.options.legal_name.to_kuzu_value())
+        ]
+    }
+
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+        vec![
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::ParentOrganization, relations(self.options.parent_organization.iter()))
+        ]
+    }
+}
+
 impl DatabaseNode for Paragraph {
     fn node_type(&self) -> NodeType {
         NodeType::Paragraph
@@ -830,7 +906,8 @@ impl DatabaseNode for Paragraph {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Content, relations(self.content.iter()))
+            (NodeProperty::Content, relations(self.content.iter())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -865,6 +942,37 @@ impl DatabaseNode for Parameter {
     }
 }
 
+impl DatabaseNode for Person {
+    fn node_type(&self) -> NodeType {
+        NodeType::Person
+    }
+
+    fn node_id(&self) -> NodeId {
+        Person::node_id(self)
+    }
+    
+    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
+        vec![
+            (NodeProperty::AlternateNames, Vec::<String>::to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
+            (NodeProperty::Name, String::to_kuzu_type(), self.options.name.to_kuzu_value()),
+            (NodeProperty::Url, String::to_kuzu_type(), self.options.url.to_kuzu_value()),
+            (NodeProperty::Orcid, String::to_kuzu_type(), self.orcid.to_kuzu_value()),
+            (NodeProperty::FamilyNames, Vec::<String>::to_kuzu_type(), self.family_names.to_kuzu_value()),
+            (NodeProperty::GivenNames, Vec::<String>::to_kuzu_type(), self.given_names.to_kuzu_value()),
+            (NodeProperty::HonorificPrefix, String::to_kuzu_type(), self.options.honorific_prefix.to_kuzu_value()),
+            (NodeProperty::HonorificSuffix, String::to_kuzu_type(), self.options.honorific_suffix.to_kuzu_value())
+        ]
+    }
+
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+        vec![
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Affiliations, relations(self.affiliations.iter().flatten())),
+            (NodeProperty::MemberOf, relations(self.options.member_of.iter().flatten()))
+        ]
+    }
+}
+
 impl DatabaseNode for QuoteBlock {
     fn node_type(&self) -> NodeType {
         NodeType::QuoteBlock
@@ -882,7 +990,8 @@ impl DatabaseNode for QuoteBlock {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Content, relations(self.content.iter()))
+            (NodeProperty::Content, relations(self.content.iter())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -928,7 +1037,7 @@ impl DatabaseNode for RawBlock {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
     }
 }
@@ -950,7 +1059,49 @@ impl DatabaseNode for Section {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Content, relations(self.content.iter()))
+            (NodeProperty::Content, relations(self.content.iter())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten()))
+        ]
+    }
+}
+
+impl DatabaseNode for SoftwareApplication {
+    fn node_type(&self) -> NodeType {
+        NodeType::SoftwareApplication
+    }
+
+    fn node_id(&self) -> NodeId {
+        SoftwareApplication::node_id(self)
+    }
+    
+    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
+        vec![
+            (NodeProperty::AlternateNames, Vec::<String>::to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
+            (NodeProperty::Description, String::to_kuzu_type(), self.options.description.to_kuzu_value()),
+            (NodeProperty::Name, String::to_kuzu_type(), self.name.to_kuzu_value()),
+            (NodeProperty::Url, String::to_kuzu_type(), self.options.url.to_kuzu_value()),
+            (NodeProperty::Doi, String::to_kuzu_type(), self.doi.to_kuzu_value()),
+            (NodeProperty::DateCreated, Date::to_kuzu_type(), self.options.date_created.to_kuzu_value()),
+            (NodeProperty::DateReceived, Date::to_kuzu_type(), self.options.date_received.to_kuzu_value()),
+            (NodeProperty::DateAccepted, Date::to_kuzu_type(), self.options.date_accepted.to_kuzu_value()),
+            (NodeProperty::DateModified, Date::to_kuzu_type(), self.options.date_modified.to_kuzu_value()),
+            (NodeProperty::DatePublished, Date::to_kuzu_type(), self.options.date_published.to_kuzu_value()),
+            (NodeProperty::Genre, Vec::<String>::to_kuzu_type(), self.options.genre.to_kuzu_value()),
+            (NodeProperty::Keywords, Vec::<String>::to_kuzu_type(), self.options.keywords.to_kuzu_value()),
+            (NodeProperty::SoftwareVersion, String::to_kuzu_type(), self.options.software_version.to_kuzu_value()),
+            (NodeProperty::OperatingSystem, String::to_kuzu_type(), self.options.operating_system.to_kuzu_value())
+        ]
+    }
+
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+        vec![
+            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
+            (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
+            (NodeProperty::Title, relations(self.options.title.iter().flatten())),
+            (NodeProperty::SoftwareRequirements, relations(self.options.software_requirements.iter().flatten()))
         ]
     }
 }
@@ -975,6 +1126,7 @@ impl DatabaseNode for StyledBlock {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
             (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
@@ -1000,6 +1152,7 @@ impl DatabaseNode for StyledInline {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
             (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
@@ -1038,6 +1191,9 @@ impl DatabaseNode for Table {
         vec![
             (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
             (NodeProperty::Title, relations(self.options.title.iter().flatten())),
             (NodeProperty::Caption, relations(self.caption.iter().flatten())),
             (NodeProperty::Rows, relations(self.rows.iter())),
@@ -1206,6 +1362,9 @@ impl DatabaseNode for VideoObject {
         vec![
             (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
+            (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
+            (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
+            (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
             (NodeProperty::Title, relations(self.title.iter().flatten())),
             (NodeProperty::Caption, relations(self.caption.iter().flatten())),
             (NodeProperty::Thumbnail, relations(self.options.thumbnail.iter()))
@@ -1221,6 +1380,7 @@ impl DatabaseNode for Node {
             Node::Annotation(node) => node.node_type(),
             Node::Article(node) => node.node_type(),
             Node::AudioObject(node) => node.node_type(),
+            Node::AuthorRole(node) => node.node_type(),
             Node::Cite(node) => node.node_type(),
             Node::CiteGroup(node) => node.node_type(),
             Node::Claim(node) => node.node_type(),
@@ -1244,12 +1404,15 @@ impl DatabaseNode for Node {
             Node::MathInline(node) => node.node_type(),
             Node::MediaObject(node) => node.node_type(),
             Node::Note(node) => node.node_type(),
+            Node::Organization(node) => node.node_type(),
             Node::Paragraph(node) => node.node_type(),
             Node::Parameter(node) => node.node_type(),
+            Node::Person(node) => node.node_type(),
             Node::QuoteBlock(node) => node.node_type(),
             Node::QuoteInline(node) => node.node_type(),
             Node::RawBlock(node) => node.node_type(),
             Node::Section(node) => node.node_type(),
+            Node::SoftwareApplication(node) => node.node_type(),
             Node::StyledBlock(node) => node.node_type(),
             Node::StyledInline(node) => node.node_type(),
             Node::Table(node) => node.node_type(),
@@ -1269,6 +1432,7 @@ impl DatabaseNode for Node {
             Node::Annotation(node) => node.node_id(),
             Node::Article(node) => node.node_id(),
             Node::AudioObject(node) => node.node_id(),
+            Node::AuthorRole(node) => node.node_id(),
             Node::Cite(node) => node.node_id(),
             Node::CiteGroup(node) => node.node_id(),
             Node::Claim(node) => node.node_id(),
@@ -1292,12 +1456,15 @@ impl DatabaseNode for Node {
             Node::MathInline(node) => node.node_id(),
             Node::MediaObject(node) => node.node_id(),
             Node::Note(node) => node.node_id(),
+            Node::Organization(node) => node.node_id(),
             Node::Paragraph(node) => node.node_id(),
             Node::Parameter(node) => node.node_id(),
+            Node::Person(node) => node.node_id(),
             Node::QuoteBlock(node) => node.node_id(),
             Node::QuoteInline(node) => node.node_id(),
             Node::RawBlock(node) => node.node_id(),
             Node::Section(node) => node.node_id(),
+            Node::SoftwareApplication(node) => node.node_id(),
             Node::StyledBlock(node) => node.node_id(),
             Node::StyledInline(node) => node.node_id(),
             Node::Table(node) => node.node_id(),
@@ -1317,6 +1484,7 @@ impl DatabaseNode for Node {
             Node::Annotation(node) => node.node_table(),
             Node::Article(node) => node.node_table(),
             Node::AudioObject(node) => node.node_table(),
+            Node::AuthorRole(node) => node.node_table(),
             Node::Cite(node) => node.node_table(),
             Node::CiteGroup(node) => node.node_table(),
             Node::Claim(node) => node.node_table(),
@@ -1340,12 +1508,15 @@ impl DatabaseNode for Node {
             Node::MathInline(node) => node.node_table(),
             Node::MediaObject(node) => node.node_table(),
             Node::Note(node) => node.node_table(),
+            Node::Organization(node) => node.node_table(),
             Node::Paragraph(node) => node.node_table(),
             Node::Parameter(node) => node.node_table(),
+            Node::Person(node) => node.node_table(),
             Node::QuoteBlock(node) => node.node_table(),
             Node::QuoteInline(node) => node.node_table(),
             Node::RawBlock(node) => node.node_table(),
             Node::Section(node) => node.node_table(),
+            Node::SoftwareApplication(node) => node.node_table(),
             Node::StyledBlock(node) => node.node_table(),
             Node::StyledInline(node) => node.node_table(),
             Node::Table(node) => node.node_table(),
@@ -1365,6 +1536,7 @@ impl DatabaseNode for Node {
             Node::Annotation(node) => node.rel_tables(),
             Node::Article(node) => node.rel_tables(),
             Node::AudioObject(node) => node.rel_tables(),
+            Node::AuthorRole(node) => node.rel_tables(),
             Node::Cite(node) => node.rel_tables(),
             Node::CiteGroup(node) => node.rel_tables(),
             Node::Claim(node) => node.rel_tables(),
@@ -1388,12 +1560,15 @@ impl DatabaseNode for Node {
             Node::MathInline(node) => node.rel_tables(),
             Node::MediaObject(node) => node.rel_tables(),
             Node::Note(node) => node.rel_tables(),
+            Node::Organization(node) => node.rel_tables(),
             Node::Paragraph(node) => node.rel_tables(),
             Node::Parameter(node) => node.rel_tables(),
+            Node::Person(node) => node.rel_tables(),
             Node::QuoteBlock(node) => node.rel_tables(),
             Node::QuoteInline(node) => node.rel_tables(),
             Node::RawBlock(node) => node.rel_tables(),
             Node::Section(node) => node.rel_tables(),
+            Node::SoftwareApplication(node) => node.rel_tables(),
             Node::StyledBlock(node) => node.rel_tables(),
             Node::StyledInline(node) => node.rel_tables(),
             Node::Table(node) => node.rel_tables(),
@@ -1601,6 +1776,49 @@ impl DatabaseNode for Inline {
             Inline::QuoteInline(node) => node.rel_tables(),
             Inline::StyledInline(node) => node.rel_tables(),
             Inline::VideoObject(node) => node.rel_tables(),
+            _ => Vec::new()
+        }
+    }
+}
+
+#[allow(unreachable_patterns)]
+impl DatabaseNode for Author {
+    fn node_type(&self) -> NodeType {
+        match self {
+            Author::Person(node) => node.node_type(),
+            Author::Organization(node) => node.node_type(),
+            Author::SoftwareApplication(node) => node.node_type(),
+            Author::AuthorRole(node) => node.node_type(),
+            _ => NodeType::Unknown
+        }
+    }
+
+    fn node_id(&self) -> NodeId {
+        match self {
+            Author::Person(node) => node.node_id(),
+            Author::Organization(node) => node.node_id(),
+            Author::SoftwareApplication(node) => node.node_id(),
+            Author::AuthorRole(node) => node.node_id(),
+            _ => NodeId::null()
+        }
+    }
+
+    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
+        match self {
+            Author::Person(node) => node.node_table(),
+            Author::Organization(node) => node.node_table(),
+            Author::SoftwareApplication(node) => node.node_table(),
+            Author::AuthorRole(node) => node.node_table(),
+            _ => Vec::new()
+        }
+    }
+
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+        match self {
+            Author::Person(node) => node.rel_tables(),
+            Author::Organization(node) => node.rel_tables(),
+            Author::SoftwareApplication(node) => node.rel_tables(),
+            Author::AuthorRole(node) => node.rel_tables(),
             _ => Vec::new()
         }
     }
