@@ -4,10 +4,15 @@ extends: Thing
 category: other
 description: A person (alive, dead, undead, or fictional).
 core:
+  - orcid
   - affiliations
   - givenNames
   - familyNames
 properties:
+  orcid:
+    '@id': stencila:orcid
+    description: The person's Open Researcher and Contributor ID (https://orcid.org/).
+    type: string
   address:
     '@id': schema:address
     description: Postal address for the person.

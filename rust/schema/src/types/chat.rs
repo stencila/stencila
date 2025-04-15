@@ -53,6 +53,9 @@ pub struct Chat {
     #[html(attr = "id")]
     pub id: Option<String>,
 
+    /// The work's Digital Object Identifier (https://doi.org/).
+    pub doi: Option<String>,
+
     /// The title of the creative work.
     #[serde(alias = "headline")]
     #[serde(default, deserialize_with = "option_one_or_many")]

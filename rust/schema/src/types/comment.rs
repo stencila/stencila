@@ -37,6 +37,9 @@ pub struct Comment {
     #[html(attr = "id")]
     pub id: Option<String>,
 
+    /// The work's Digital Object Identifier (https://doi.org/).
+    pub doi: Option<String>,
+
     /// The authors of the `CreativeWork`.
     #[serde(alias = "author")]
     #[serde(default, deserialize_with = "option_one_or_many_string_or_object")]

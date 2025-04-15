@@ -40,6 +40,9 @@ pub struct MediaObject {
     #[html(attr = "id")]
     pub id: Option<String>,
 
+    /// The work's Digital Object Identifier (https://doi.org/).
+    pub doi: Option<String>,
+
     /// URL for the actual bytes of the media object, for example the image file or video file.
     #[serde(alias = "content-url", alias = "content_url")]
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]

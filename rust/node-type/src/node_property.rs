@@ -198,6 +198,7 @@ pub enum NodeProperty {
     Notes,
     Nulls,
     OperatingSystem,
+    Orcid,
     Order,
     Otherwise,
     Output,

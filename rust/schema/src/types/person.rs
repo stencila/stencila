@@ -25,6 +25,9 @@ pub struct Person {
     #[html(attr = "id")]
     pub id: Option<String>,
 
+    /// The person's Open Researcher and Contributor ID (https://orcid.org/).
+    pub orcid: Option<String>,
+
     /// Organizations that the person is affiliated with.
     #[serde(alias = "affiliation")]
     #[serde(default, deserialize_with = "option_one_or_many")]

@@ -12,6 +12,7 @@
   ],
   "core": [
     "id",
+    "orcid",
     "affiliations",
     "givenNames",
     "familyNames"
@@ -125,6 +126,11 @@
       ],
       "type": "string",
       "format": "uri"
+    },
+    "orcid": {
+      "@id": "stencila:orcid",
+      "description": "The person's Open Researcher and Contributor ID (https://orcid.org/).",
+      "type": "string"
     },
     "address": {
       "@id": "schema:address",

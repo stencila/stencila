@@ -61,6 +61,9 @@ pub struct Prompt {
     #[strip(metadata)]
     pub name: String,
 
+    /// The work's Digital Object Identifier (https://doi.org/).
+    pub doi: Option<String>,
+
     /// The title of the creative work.
     #[serde(alias = "headline")]
     #[serde(deserialize_with = "one_or_many")]

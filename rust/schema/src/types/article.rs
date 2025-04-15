@@ -66,6 +66,10 @@ pub struct Article {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub description: Option<String>,
 
+    /// The work's Digital Object Identifier (https://doi.org/).
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub doi: Option<String>,
+
     /// A short description that summarizes a `CreativeWork`.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]

@@ -21,10 +21,15 @@
       "@id": "stencila:doi",
       "@type": "rdfs:Property",
       "rdfs:label": "doi",
-      "rdfs:comment": "The Digital Object Identifier for the work.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Reference"
-      },
+      "rdfs:comment": "The Digital Object Identifier (https://doi.org/) or the work being referenced.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }

@@ -375,6 +375,7 @@
     "notes": "schema:notes",
     "nulls": "stencila:nulls",
     "operatingSystem": "schema:operatingSystem",
+    "orcid": "stencila:orcid",
     "order": "schema:itemListOrder",
     "otherwise": "stencila:otherwise",
     "output": "stencila:output",

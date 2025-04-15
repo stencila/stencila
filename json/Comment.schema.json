@@ -15,6 +15,7 @@
   ],
   "core": [
     "id",
+    "doi",
     "authors",
     "datePublished"
   ],
@@ -127,6 +128,11 @@
       ],
       "type": "string",
       "format": "uri"
+    },
+    "doi": {
+      "@id": "stencila:doi",
+      "description": "The work's Digital Object Identifier (https://doi.org/).",
+      "type": "string"
     },
     "about": {
       "@id": "schema:about",

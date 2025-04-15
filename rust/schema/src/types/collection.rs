@@ -38,6 +38,9 @@ pub struct Collection {
     #[html(attr = "id")]
     pub id: Option<String>,
 
+    /// The work's Digital Object Identifier (https://doi.org/).
+    pub doi: Option<String>,
+
     /// Elements of the collection which can be a variety of different elements, such as Articles, Datatables, Tables and more.
     #[serde(alias = "hasParts", alias = "part")]
     #[serde(deserialize_with = "one_or_many")]

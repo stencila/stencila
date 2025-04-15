@@ -15,7 +15,7 @@ core:
 properties:
   doi:
     "@id": stencila:doi
-    description: The Digital Object Identifier for the work.
+    description: The Digital Object Identifier (https://doi.org/) or the work being referenced.
     type: string
   authors:
     "@id": schema:author

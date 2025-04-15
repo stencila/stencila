@@ -25,7 +25,7 @@ pub struct Reference {
     #[html(attr = "id")]
     pub id: Option<String>,
 
-    /// The Digital Object Identifier for the work.
+    /// The Digital Object Identifier (https://doi.org/) or the work being referenced.
     pub doi: Option<String>,
 
     /// The authors of the work.

@@ -38,6 +38,9 @@ pub struct CreativeWork {
     #[html(attr = "id")]
     pub id: Option<String>,
 
+    /// The work's Digital Object Identifier (https://doi.org/).
+    pub doi: Option<String>,
+
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]

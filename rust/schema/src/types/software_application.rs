@@ -42,6 +42,9 @@ pub struct SoftwareApplication {
     #[strip(metadata)]
     pub name: String,
 
+    /// The work's Digital Object Identifier (https://doi.org/).
+    pub doi: Option<String>,
+
     /// The version of the creative work.
     #[strip(metadata)]
     pub version: Option<StringOrNumber>,

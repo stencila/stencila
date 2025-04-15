@@ -42,6 +42,9 @@ pub struct Periodical {
     #[strip(metadata)]
     pub name: Option<String>,
 
+    /// The work's Digital Object Identifier (https://doi.org/).
+    pub doi: Option<String>,
+
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]

@@ -13,6 +13,11 @@ export class Person extends Thing {
   type: "Person";
 
   /**
+   * The person's Open Researcher and Contributor ID (https://orcid.org/).
+   */
+  orcid?: string;
+
+  /**
    * Postal address for the person.
    */
   address?: PostalAddressOrString;

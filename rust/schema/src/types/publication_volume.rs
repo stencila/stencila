@@ -39,6 +39,9 @@ pub struct PublicationVolume {
     #[html(attr = "id")]
     pub id: Option<String>,
 
+    /// The work's Digital Object Identifier (https://doi.org/).
+    pub doi: Option<String>,
+
     /// An item or other CreativeWork that this CreativeWork is a part of.
     #[serde(alias = "is-part-of", alias = "is_part_of")]
     #[strip(metadata)]

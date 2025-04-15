@@ -14,7 +14,7 @@ export class Reference extends Entity {
   type: "Reference";
 
   /**
-   * The Digital Object Identifier for the work.
+   * The Digital Object Identifier (https://doi.org/) or the work being referenced.
    */
   doi?: string;
 

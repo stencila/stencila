@@ -39,6 +39,9 @@ pub struct Datatable {
     #[html(attr = "id")]
     pub id: Option<String>,
 
+    /// The work's Digital Object Identifier (https://doi.org/).
+    pub doi: Option<String>,
+
     /// The columns of data.
     #[serde(alias = "column")]
     #[serde(deserialize_with = "one_or_many")]

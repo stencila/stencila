@@ -25,6 +25,11 @@ export class CreativeWork extends Thing {
   type: "CreativeWork";
 
   /**
+   * The work's Digital Object Identifier (https://doi.org/).
+   */
+  doi?: string;
+
+  /**
    * The subject matter of the content.
    */
   about?: ThingType[];

@@ -31,6 +31,7 @@
   ],
   "core": [
     "id",
+    "doi",
     "id",
     "executionMode",
     "title",
@@ -160,6 +161,11 @@
       ],
       "type": "string",
       "format": "uri"
+    },
+    "doi": {
+      "@id": "stencila:doi",
+      "description": "The work's Digital Object Identifier (https://doi.org/).",
+      "type": "string"
     },
     "about": {
       "@id": "schema:about",

@@ -570,6 +570,9 @@ class CreativeWork(Thing):
 
     type: Literal["CreativeWork"] = "CreativeWork"
 
+    doi: str | None = None
+    """The work's Digital Object Identifier (https://doi.org/)."""
+
     about: list[ThingType] | None = None
     """The subject matter of the content."""
 
@@ -2355,6 +2358,9 @@ class Person(Thing):
 
     type: Literal["Person"] = "Person"
 
+    orcid: str | None = None
+    """The person's Open Researcher and Contributor ID (https://orcid.org/)."""
+
     address: PostalAddress | str | None = None
     """Postal address for the person."""
 
@@ -2638,7 +2644,7 @@ class Reference(Entity):
     type: Literal["Reference"] = "Reference"
 
     doi: str | None = None
-    """The Digital Object Identifier for the work."""
+    """The Digital Object Identifier (https://doi.org/) or the work being referenced."""
 
     authors: list[Author] | None = None
     """The authors of the work."""
