@@ -10,7 +10,7 @@ use codec::{
         Date, DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject, ImageObjectOptions,
         Inline, Link, List, ListItem, ListOrder, MathBlock, MediaObject, MediaObjectOptions, Note,
         NoteType, Parameter, Section, SectionType, StyledInline, Table, TableCell, TableRow,
-        TableRowType, ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
+        TableRowType, Text, ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
     },
     Losses,
 };
@@ -60,7 +60,12 @@ pub(super) fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>
             "graphic" => decode_graphic(&child_path, &child, losses),
             "hr" => decode_hr(&child_path, &child, losses),
             "list" => decode_list(&child_path, &child, losses, depth),
-            "p" => decode_p(&child_path, &child, losses),
+            "p" => {
+                if let Some(para) = decode_p(&child_path, &child, losses) {
+                    blocks.push(para);
+                }
+                continue;
+            }
             "sec" => decode_sec(&child_path, &child, losses, depth + 1),
             "statement" => decode_statement(&child_path, &child, losses, depth),
             "title" => decode_title(&child_path, &child, losses, depth),
@@ -118,10 +123,21 @@ fn decode_hr(path: &str, node: &Node, losses: &mut Losses) -> Block {
 }
 
 /// Decode a `<p>` to a [`Block::Paragraph`]
-fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Block {
+fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Option<Block> {
     record_attrs_lost(path, node, [], losses);
 
-    p(decode_inlines(path, node.children(), losses))
+    let inlines = decode_inlines(path, node.children(), losses);
+
+    if inlines.is_empty()
+        || inlines.iter().all(|inline| match inline {
+            Inline::Text(Text { value, .. }) => value.trim().is_empty(),
+            _ => false,
+        })
+    {
+        None
+    } else {
+        Some(p(inlines))
+    }
 }
 
 /// Decode a `<disp-quote>` to a [`Block::QuoteBlock`]
