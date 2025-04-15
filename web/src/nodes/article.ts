@@ -9,6 +9,7 @@ import {
 } from '../ui/document/context'
 
 import '../ui/document/article-headings'
+import '../ui/document/article-references'
 
 import { Entity } from './entity'
 import { HEADING_VISIBILITY_EVENT, HeadingVisibilityEvent } from './heading'
@@ -74,6 +75,10 @@ export class Article extends Entity {
       </stencila-ui-article-headings>
 
       <slot name="content"></slot>
+
+      <stencila-ui-article-references>
+        <slot name="references"></slot>
+      </stencila-ui-article-references>
     `
   }
 }
