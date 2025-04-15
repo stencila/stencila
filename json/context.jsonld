@@ -413,6 +413,7 @@
     "reviews": "schema:review",
     "role": "stencila:role",
     "roleName": "schema:roleName",
+    "ror": "stencila:ror",
     "rowSpan": "stencila:rowspan",
     "rowType": "stencila:rowType",
     "rows": "stencila:rows",

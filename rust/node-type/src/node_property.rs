@@ -237,6 +237,7 @@ pub enum NodeProperty {
     Reviews,
     Role,
     RoleName,
+    Ror,
     RowSpan,
     RowType,
     Rows,

@@ -2286,6 +2286,9 @@ class Organization(Thing):
 
     type: Literal["Organization"] = "Organization"
 
+    ror: str | None = None
+    """The organization's Research Organization Registry ID (https://ror.org/)."""
+
     address: PostalAddress | str | None = None
     """Postal address for the organization."""
 

@@ -31,6 +31,9 @@ pub struct Organization {
     #[strip(metadata)]
     pub name: Option<String>,
 
+    /// The organization's Research Organization Registry ID (https://ror.org/).
+    pub ror: Option<String>,
+
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]

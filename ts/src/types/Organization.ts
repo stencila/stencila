@@ -15,6 +15,11 @@ export class Organization extends Thing {
   type: "Organization";
 
   /**
+   * The organization's Research Organization Registry ID (https://ror.org/).
+   */
+  ror?: string;
+
+  /**
    * Postal address for the organization.
    */
   address?: PostalAddressOrString;

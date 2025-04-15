@@ -16,6 +16,7 @@
   ],
   "core": [
     "id",
+    "ror",
     "name"
   ],
   "properties": {
@@ -127,6 +128,11 @@
       ],
       "type": "string",
       "format": "uri"
+    },
+    "ror": {
+      "@id": "stencila:ror",
+      "description": "The organization's Research Organization Registry ID (https://ror.org/).",
+      "type": "string"
     },
     "address": {
       "@id": "schema:address",

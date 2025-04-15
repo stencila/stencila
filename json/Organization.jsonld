@@ -127,6 +127,18 @@
       }
     },
     {
+      "@id": "stencila:ror",
+      "@type": "rdfs:Property",
+      "rdfs:label": "ror",
+      "rdfs:comment": "The organization's Research Organization Registry ID (https://ror.org/).",
+      "schema:domainIncludes": {
+        "@id": "schema:Organization"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "schema:address",
       "@type": "rdfs:Property",
       "rdfs:label": "address",
