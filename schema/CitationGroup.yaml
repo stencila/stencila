@@ -22,10 +22,11 @@ required:
 properties:
   items:
     "@id": schema:itemListElement
-    type: array
     description: One or more `Citation`s to be referenced in the same surrounding text.
+    type: array
     items:
       $ref: Citation
+    walk: true
     dom:
       elem: span
     patch:

@@ -24,6 +24,7 @@ pub struct CitationGroup {
     /// One or more `Citation`s to be referenced in the same surrounding text.
     #[serde(alias = "item")]
     #[serde(deserialize_with = "one_or_many")]
+    #[walk]
     #[patch(format = "all")]
     #[dom(elem = "span")]
     pub items: Vec<Citation>,

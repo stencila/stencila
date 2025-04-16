@@ -50,6 +50,7 @@
           "all"
         ]
       },
+      "walk": true,
       "dom": {
         "elem": "span"
       },
