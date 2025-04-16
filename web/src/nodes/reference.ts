@@ -1,3 +1,4 @@
+import { Author, CreativeWorkType } from '@stencila/types'
 import { html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
@@ -17,43 +18,64 @@ export class Reference extends Entity {
   @property()
   doi?: string
 
-  @property({ attribute: '_title' })
-  $title?: string
+  @property({ type: Array })
+  authors?: Author[]
 
   @property()
   date?: string
 
-  @property({ type: Array })
-  authors?: string[]
+  @property({ attribute: '_title' })
+  $title?: string
+
+  @property({ attribute: 'is-part-of', type: Object })
+  isPartOf?: CreativeWorkType
+
+  @property({ attribute: 'page-start' })
+  pageStart?: string
+
+  @property({ attribute: 'page-end' })
+  pageEnd?: string
+
+  @property({ attribute: 'pagination' })
+  pagination?: string
 
   override render() {
     const cite = this.closestGlobally('stencila-cite') as Cite | null
-
     if (cite) {
       return this.renderWithinCite(cite)
-    } else {
-      return this.renderDefault()
     }
+
+    const article = this.closestGlobally('stencila-article > [slot=references]')
+    if (article) {
+      return this.renderWithinReferences()
+    }
+
+    return this.renderDefault()
   }
 
   renderWithinCite(cite: Cite) {
-    let author = familyName(this.authors[0])
-    if (this.authors.length == 2) {
-      author += ' & ' + familyName(this.authors[1])
-    } else if (this.authors.length > 2) {
+    let author = this.authors?.[0] ? authorSingleName(this.authors[0]) : 'Anon'
+    if (this.authors?.length == 2) {
+      const second = this.authors[1]
+        ? authorSingleName(this.authors[1])
+        : 'Anon'
+      author += ' & ' + second
+    } else if (this.authors?.length > 2) {
       author += ' et al.'
     }
+
+    const year = dateYear(this.date)
 
     const repr = (() => {
       switch (cite.citationMode) {
         case 'Narrative':
-          return html`${author} (${this.date})`
+          return html`${author} (${year})`
         case 'NarrativeAuthor':
           return html`${author}`
         case 'Parenthetical':
-          return html`${author}, ${this.date}`
+          return html`${author}, ${year}`
         default:
-          return html`${author} ${this.date}`
+          return html`${author} ${year}`
       }
     })()
 
@@ -63,14 +85,33 @@ export class Reference extends Entity {
     >`
   }
 
+  renderWithinReferences() {
+    const authors = this.authors
+      ? this.authors.map(authorNameInitialsDotted).join(', ')
+      : 'Anon'
+
+    return html`<p>
+      ${authors}${this.date ? html` (${dateYear(this.date)}).` : ''}${this.$title
+        ? html` ${this.$title}.`
+        : ''}${this.isPartOf ? html`<em> ${partOf(this.isPartOf)}</em>` : ''}${this.doi
+        ? html` <a href="https://doi.org/${this.doi}" target="_blank"
+            >${this.doi}</a
+          >`
+        : ''}
+    </p>`
+  }
+
   renderDefault() {
+    const authors = this.authors
+      ? this.authors.map(authorNameInitialsDotted).join(', ')
+      : 'Anon'
+
     return html`<div class="font-sans text-xs">
-      ${this.authors ? this.authors.join(', ') : ''}${this.date
-        ? html` (${this.date})`
-        : ''}
+      ${authors}${this.date ? html` (${dateYear(this.date)}).` : ''}
       ${this.$title
-        ? html`<span class="font-semibold"> ${this.$title}</span>`
+        ? html`<span class="font-semibold"> ${this.$title}.</span>`
         : ''}
+      ${this.isPartOf ? html`<span class="italic"> ${partOf(this.isPartOf)}</span>` : ''}
       ${this.doi
         ? html` <a href="https://doi.org/${this.doi}" target="_blank"
             >${this.doi}</a
@@ -80,6 +121,86 @@ export class Reference extends Entity {
   }
 }
 
-function familyName(name: string): string {
-  return name.split(' ').pop()
+/**
+ * Get a single name for an author
+ *
+ * Used for representing an author within a `Cite` e.g.
+ * (Smith & Jones, 1990)
+ */
+function authorSingleName(author: Author): string {
+  switch (author.type) {
+    case 'Person':
+      return author.familyNames?.[0] ?? author.name ?? 'Anon'
+    case 'Organization':
+    case 'SoftwareApplication':
+      return author.name ?? author.alternateNames?.[0] ?? 'Anon'
+    case 'AuthorRole':
+      switch (author.author.type) {
+        case 'Person':
+        case 'Organization':
+        case 'SoftwareApplication':
+          return authorSingleName(author.author)
+        case 'Thing':
+          return (
+            author.author.name ?? author.author.alternateNames?.[0] ?? 'Anon'
+          )
+      }
+  }
+}
+
+/**
+ * Get the name and initials (with dots) for an author
+ *
+ * Used when representing an author within a full reference e.g.
+ * Smith, J. & Jones, T. (1990)
+ */
+function authorNameInitialsDotted(author: Author): string {
+  switch (author.type) {
+    case 'Person':
+      if (author.familyNames?.length && author.givenNames?.length > 0) {
+        return (
+          author.familyNames.filter((name) => name.length > 0).join(' ') +
+          ', ' +
+          author.givenNames
+            .filter((name) => name.length > 0)
+            .map((name) => `${name[0]}.`)
+            .join('')
+        )
+      } else {
+        return authorSingleName(author)
+      }
+    case 'Organization':
+    case 'SoftwareApplication':
+      return authorSingleName(author)
+    case 'AuthorRole':
+      switch (author.author.type) {
+        case 'Person':
+          return authorNameInitialsDotted(author.author)
+        case 'Organization':
+        case 'SoftwareApplication':
+        case 'Thing':
+          return authorSingleName(author)
+      }
+  }
+}
+
+/**
+ * Get the year of a date
+ */
+function dateYear(date: string): string {
+  return date.slice(0, 4)
+}
+
+/**
+ * Return the
+ */
+function partOf(work: CreativeWorkType): string {
+  switch (work.type) {
+    case 'PublicationIssue':
+      return `${work.isPartOf ? `${partOf(work.isPartOf)} ` : ''}(${work.issueNumber ?? ''})`
+    case 'PublicationVolume':
+      return `${work.isPartOf ? `${partOf(work.isPartOf)} ` : ''}${work.volumeNumber ?? ''}`
+    default:
+      return work.name
+  }
 }
