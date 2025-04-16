@@ -19,7 +19,7 @@ use common::{
 };
 
 use color_print::cstr;
-use document::{schema, schema::Node, CommandWait, Document};
+use document::{schema, schema::Node, Document};
 
 mod metadata_extraction;
 
@@ -384,7 +384,7 @@ impl Cli {
                 self.path.display()
             );
         };
-        doc.compile(CommandWait::Yes).await?;
+        doc.compile().await?;
 
         // Pre-check: ensure that we have an Article
         let Node::Article(_) = &doc.root().await else {

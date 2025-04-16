@@ -224,13 +224,6 @@ impl CommandStatus {
     }
 }
 
-/// Whether or not to wait for a command
-#[derive(Debug)]
-pub enum CommandWait {
-    Yes,
-    No,
-}
-
 /// An update to the root node of the document
 #[derive(Debug, Default)]
 pub(crate) struct Update {
@@ -686,14 +679,6 @@ impl Document {
         Ok(())
     }
 
-    /// Perform a command on the document and optionally wait for it to complete
-    pub async fn command(&self, command: Command, wait: CommandWait) -> Result<()> {
-        match wait {
-            CommandWait::No => self.command_send(command).await,
-            CommandWait::Yes => self.command_wait(command).await,
-        }
-    }
-
     /// Send a command to the document without waiting for it or subscribing to its status
     #[tracing::instrument(skip(self))]
     pub async fn command_send(&self, command: Command) -> Result<()> {
@@ -754,37 +739,33 @@ impl Document {
     ///
     /// Note that this does not do any linting. Use the [`Document::lint`] function for that.
     #[tracing::instrument(skip(self))]
-    pub async fn compile(&self, wait: CommandWait) -> Result<()> {
+    pub async fn compile(&self) -> Result<()> {
         tracing::trace!("Compiling document");
 
         let config = self.config().await?;
-        self.command(Command::CompileDocument { config }, wait)
-            .await
+        self.command_wait(Command::CompileDocument { config }).await
     }
 
     /// Lint the document
     #[tracing::instrument(skip(self))]
-    pub async fn lint(&self, format: bool, fix: bool, wait: CommandWait) -> Result<()> {
+    pub async fn lint(&self, format: bool, fix: bool) -> Result<()> {
         tracing::trace!("Linting document");
 
         let config = self.config().await?;
-        self.command(
-            Command::LintDocument {
-                format,
-                fix,
-                config,
-            },
-            wait,
-        )
+        self.command_wait(Command::LintDocument {
+            format,
+            fix,
+            config,
+        })
         .await
     }
 
     /// Execute the document
     #[tracing::instrument(skip(self))]
-    pub async fn execute(&self, options: ExecuteOptions, wait: CommandWait) -> Result<()> {
+    pub async fn execute(&self, options: ExecuteOptions) -> Result<()> {
         tracing::trace!("Executing document");
 
-        self.command(Command::ExecuteDocument(options), wait).await
+        self.command_wait(Command::ExecuteDocument(options)).await
     }
 
     /// Get diagnostics for the document

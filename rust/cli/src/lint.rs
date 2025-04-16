@@ -5,7 +5,7 @@ use common::{
     clap::{self, Parser},
     eyre::Result,
 };
-use document::{CommandWait, Document};
+use document::Document;
 
 /// Lint one or more documents
 #[derive(Debug, Parser)]
@@ -32,7 +32,7 @@ impl Cli {
         let mut count_of_issues = 0;
         for file in self.files {
             let doc = Document::open(&file).await?;
-            doc.lint(self.format, self.fix, CommandWait::Yes).await?;
+            doc.lint(self.format, self.fix).await?;
 
             if self.format || self.fix {
                 doc.save().await?;

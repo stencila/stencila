@@ -6,7 +6,7 @@ use common::{
     clap::{self, Parser},
     eyre::Result,
 };
-use document::{CommandWait, Document};
+use document::Document;
 use format::Format;
 
 use crate::options::{EncodeOptions, StripOptions};
@@ -61,7 +61,7 @@ impl Cli {
         } = self;
 
         let doc = Document::open(&input).await?;
-        doc.compile(CommandWait::Yes).await?;
+        doc.compile().await?;
         doc.diagnostics_print().await?;
 
         if !no_save {

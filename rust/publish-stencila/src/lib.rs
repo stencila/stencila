@@ -15,7 +15,7 @@ use common::{
     tempfile::TempDir,
     tokio, tracing,
 };
-use document::{CommandWait, Document};
+use document::Document;
 use schema::Node;
 
 /// Publish to Stencila Cloud
@@ -58,7 +58,7 @@ async fn publish_path(
 
     if path.is_file() {
         let doc = Document::open(path).await?;
-        doc.compile(CommandWait::Yes).await?;
+        doc.compile().await?;
 
         let theme = doc.config().await?.theme;
         let root = doc.root().await;

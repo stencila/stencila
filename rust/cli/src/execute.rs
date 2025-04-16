@@ -6,7 +6,7 @@ use common::{
     clap::{self, Parser},
     eyre::Result,
 };
-use document::{CommandWait, Document};
+use document::Document;
 use format::Format;
 use node_execute::ExecuteOptions;
 
@@ -66,8 +66,8 @@ impl Cli {
         } = self;
 
         let doc = Document::open(&input).await?;
-        doc.compile(CommandWait::Yes).await?;
-        doc.execute(execute_options, CommandWait::Yes).await?;
+        doc.compile().await?;
+        doc.execute(execute_options).await?;
         doc.diagnostics_print().await?;
 
         if !no_save {

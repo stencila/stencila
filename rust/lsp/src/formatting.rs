@@ -16,7 +16,7 @@ use common::{
     tokio::sync::RwLock,
     tracing,
 };
-use document::{CommandWait, Document};
+use document::Document;
 
 /// Handle to format a document
 #[tracing::instrument(skip(doc))]
@@ -31,7 +31,7 @@ pub(crate) async fn request(
     // for example from an LLM
     doc.read()
         .await
-        .lint(true, false, CommandWait::Yes)
+        .lint(true, false)
         .await
         .map_err(|error| ResponseError::new(ErrorCode::INTERNAL_ERROR, error.to_string()))?;
 

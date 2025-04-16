@@ -37,7 +37,7 @@ use common::{
     tracing,
     uuid::Uuid,
 };
-use document::{CommandWait, Document, SyncDirection};
+use document::{Document, SyncDirection};
 use format::Format;
 
 use crate::{
@@ -101,7 +101,7 @@ impl Documents {
         };
 
         // Compile the document (so math, headings list, etc can be properly encoded to HTML)
-        doc.compile(CommandWait::Yes).await?;
+        doc.compile().await?;
 
         let uuid = Uuid::new_v4();
 

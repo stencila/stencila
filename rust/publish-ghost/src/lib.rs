@@ -22,7 +22,7 @@ use common::{
 use document::{
     codecs,
     schema::{shortcuts::t, ConfigPublishGhostState, ConfigPublishGhostType, Node},
-    CommandWait, DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
+    DecodeOptions, Document, EncodeOptions, Format, LossesResponse,
 };
 
 const API_KEY_NAME: &str = "GHOST_ADMIN_API_KEY";
@@ -177,7 +177,7 @@ impl Cli {
 
         // Open and compile document
         let doc = Document::open(path).await?;
-        doc.compile(CommandWait::Yes).await?;
+        doc.compile().await?;
 
         // Determine if the document has a Ghost URL
         let doc_url = if let (Some(host), Some(id)) = (&self.domain, &self.id) {

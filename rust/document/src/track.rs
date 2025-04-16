@@ -30,7 +30,7 @@ use dirs::{
 };
 use format::Format;
 
-use crate::{CommandWait, Document};
+use crate::Document;
 
 /// Find the closest `.stencila/docs.json` file to a path and read it's entries
 ///
@@ -461,7 +461,7 @@ impl Document {
             let doc = Document::open(path).await?;
             // Compile document to ensure linking between `Citations`s and
             // `Reference`s etc
-            doc.compile(CommandWait::Yes).await?;
+            doc.compile().await?;
 
             let root = doc.root().await;
 
