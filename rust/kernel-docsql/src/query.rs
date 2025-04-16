@@ -457,6 +457,15 @@ impl Query {
         Ok(query)
     }
 
+    /// Set `RETURN` clause to `count(*)`
+    fn count(&self) -> Self {
+        let mut query = self.clone();
+        query.out = Some(QueryResultTransform::Value);
+        query.r#return = Some("count(*)".into());
+        query.return_used = true;
+        query
+    }
+
     /// Apply an `ORDER BY` clause to query
     fn order_by(&self, order_by: String, order: Option<String>) -> Result<Self, Error> {
         let mut query = self.clone();
@@ -823,6 +832,15 @@ impl Object for Query {
             "select" => {
                 let (args, kwargs): (&[Value], Kwargs) = from_args(args)?;
                 self.select(args, kwargs)?
+            }
+            "count" => {
+                if !args.is_empty() {
+                    return Err(Error::new(
+                        ErrorKind::TooManyArguments,
+                        format!("Method `{name}` takes no arguments."),
+                    ));
+                }
+                self.count()
             }
             "order_by" | "orderBy" => {
                 let (order_by, order) = from_args(args)?;
