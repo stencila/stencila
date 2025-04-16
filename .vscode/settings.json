@@ -105,6 +105,7 @@
         "numpy",
         "ollama",
         "openai",
+        "orcid",
         "pandoc",
         "plotly",
         "poshmap",
