@@ -623,7 +623,7 @@ impl Query {
         if let Some(limit) = &self.limit {
             cypher.push_str("\nLIMIT ");
             cypher.push_str(&limit.to_string());
-        } else if matches!(self.out, None | Some(QueryResultTransform::Excerpts)){
+        } else if matches!(self.out, None | Some(QueryResultTransform::Excerpts)) {
             // If no limit is defined and output is excerpts (the default) then
             // apply a limit of 10
             cypher.push_str("\nLIMIT 10");

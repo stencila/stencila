@@ -997,7 +997,7 @@ class(toRd)
     #[test_log::test(tokio::test)]
     async fn forking_randoms() -> Result<()> {
         skip_on_ci!();
-        
+
         let Some(mut instance) = start_instance::<RKernel>().await? else {
             return Ok(());
         };
@@ -1068,7 +1068,7 @@ Sys.sleep(100)",
     #[tokio::test]
     async fn boxed() -> Result<()> {
         skip_on_ci!();
-        
+
         let Some(mut instance) = start_instance_with::<RKernel>(ExecutionBounds::Box).await? else {
             return Ok(());
         };
