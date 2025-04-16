@@ -45,7 +45,7 @@
           "@id": "stencila:ChatMessage"
         },
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Citation"
         },
         {
           "@id": "stencila:Excerpt"
@@ -128,11 +128,20 @@
       }
     },
     {
-      "@id": "stencila:cite",
+      "@id": "stencila:source",
       "@type": "rdfs:Property",
-      "rdfs:label": "cite",
+      "rdfs:label": "source",
       "rdfs:comment": "The source of the quote.",
       "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeLocation"
+        },
+        {
+          "@id": "stencila:Excerpt"
+        },
+        {
+          "@id": "stencila:IncludeBlock"
+        },
         {
           "@id": "stencila:QuoteBlock"
         },
@@ -142,7 +151,7 @@
       ],
       "schema:rangeIncludes": [
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Citation"
         },
         {
           "@id": "schema:Text"

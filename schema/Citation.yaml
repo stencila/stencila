@@ -1,12 +1,12 @@
-title: Cite
-"@id": stencila:Cite
+title: Citation
+"@id": stencila:Citation
 extends: Entity
 category: prose
 description: A reference to a `CreativeWork` that is cited in another `CreativeWork`.
 $comment: |
-  A `Cite` node is used within a [`CreativeWork`](./CreativeWork), usually an
+  A `Citation` node is used within a [`CreativeWork`](./CreativeWork), usually an
   [`Article`](./Article), to refer to an other `CreativeWork`.
-  Often a `Cite` will be associated with other citations, in a [`CiteGroup`](./CiteGroup).
+  Often a `Citation` will be associated with other citations, in a `CitationGroup`.
 jats:
   special: true
 markdown:

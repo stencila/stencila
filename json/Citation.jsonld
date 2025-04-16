@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/Cite",
-  "name": "Cite",
+  "@id": "https://stencila.org/Citation",
+  "name": "Citation",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,9 +9,9 @@
   },
   "@graph": [
     {
-      "@id": "stencila:Cite",
+      "@id": "stencila:Citation",
       "@type": "rdfs:Class",
-      "rdfs:label": "Cite",
+      "rdfs:label": "Citation",
       "rdfs:comment": "A reference to a `CreativeWork` that is cited in another `CreativeWork`.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
@@ -24,7 +24,7 @@
       "rdfs:comment": "The target of the citation (URL or reference ID).",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Citation"
         },
         {
           "@id": "stencila:Link"
@@ -41,9 +41,9 @@
       "@id": "stencila:cites",
       "@type": "rdfs:Property",
       "rdfs:label": "cites",
-      "rdfs:comment": "The `Reference` being cited, resolved from the `target`",
+      "rdfs:comment": "The `Reference` being cited, resolved from the `target`.",
       "schema:domainIncludes": {
-        "@id": "stencila:Cite"
+        "@id": "stencila:Citation"
       },
       "schema:rangeIncludes": {
         "@id": "stencila:Reference"
@@ -55,7 +55,7 @@
       "rdfs:label": "citationMode",
       "rdfs:comment": "Determines how the citation is shown within the surrounding text.",
       "schema:domainIncludes": {
-        "@id": "stencila:Cite"
+        "@id": "stencila:Citation"
       },
       "schema:rangeIncludes": {
         "@id": "stencila:CitationMode"
@@ -67,7 +67,7 @@
       "rdfs:label": "citationIntent",
       "rdfs:comment": "The type/s of the citation, both factually and rhetorically.",
       "schema:domainIncludes": {
-        "@id": "stencila:Cite"
+        "@id": "stencila:Citation"
       },
       "schema:rangeIncludes": {
         "@id": "stencila:CitationIntent"
@@ -101,7 +101,7 @@
           "@id": "stencila:ChatMessage"
         },
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Citation"
         },
         {
           "@id": "stencila:Excerpt"
@@ -199,7 +199,7 @@
           "@id": "schema:PublicationVolume"
         },
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Citation"
         },
         {
           "@id": "stencila:Reference"
@@ -230,7 +230,7 @@
           "@id": "schema:PublicationVolume"
         },
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Citation"
         },
         {
           "@id": "stencila:Reference"
@@ -261,7 +261,7 @@
           "@id": "schema:PublicationVolume"
         },
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Citation"
         },
         {
           "@id": "stencila:Reference"
@@ -277,7 +277,7 @@
       "rdfs:label": "citationPrefix",
       "rdfs:comment": "Text to show before the citation.",
       "schema:domainIncludes": {
-        "@id": "stencila:Cite"
+        "@id": "stencila:Citation"
       },
       "schema:rangeIncludes": {
         "@id": "schema:Text"
@@ -289,7 +289,7 @@
       "rdfs:label": "citationSuffix",
       "rdfs:comment": "Text to show after the citation.",
       "schema:domainIncludes": {
-        "@id": "stencila:Cite"
+        "@id": "stencila:Citation"
       },
       "schema:rangeIncludes": {
         "@id": "schema:Text"

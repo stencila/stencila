@@ -1,15 +1,15 @@
 {
   "$schema": "https://stencila.org/meta.schema.json",
-  "$id": "https://stencila.org/CiteGroup.schema.json",
-  "@id": "stencila:CiteGroup",
-  "title": "CiteGroup",
+  "$id": "https://stencila.org/CitationGroup.schema.json",
+  "@id": "stencila:CitationGroup",
+  "title": "CitationGroup",
   "nick": "ctg",
   "extends": [
     "Entity"
   ],
   "category": "prose",
-  "description": "A group of `Cite` nodes.",
-  "$comment": "This type allows you to group associated citations together.\nWhen some content in a [`Creative Work`](./CreativeWork) cites more than one\nreference for a particular piece of text, use a `CiteGroup` to encapsulate\nmultiple [`Cite`](./Cite) nodes.\n\nAt present we do not give a `citationMode` property to a `CiteGroup` since\nthey will almost always be parenthetical as opposed to narrative.\nIn other words, it usually only makes sense for individual `Cite` nodes to be\nnarrative (although they may be connected together within `content` using words\nsuch as \"and\").\n",
+  "description": "A group of `Citation` nodes.",
+  "$comment": "This type allows you to group associated citations together.\nWhen some content in a [`Creative Work`](./CreativeWork) Citations more than one\nreference for a particular piece of text, use a `CitationGroup` to encapsulate\nmultiple [`Citation`](./Citation) nodes.\n\nAt present we do not give a `citationMode` property to a `CitationGroup` since\nthey will almost always be parenthetical as opposed to narrative.\nIn other words, it usually only makes sense for individual `Citation` nodes to be\nnarrative (although they may be connected together within `content` using words\nsuch as \"and\").\n",
   "markdown": {
     "derive": false
   },
@@ -41,7 +41,7 @@
     },
     "items": {
       "@id": "schema:itemListElement",
-      "description": "One or more `Cite`s to be referenced in the same surrounding text.",
+      "description": "One or more `Citation`s to be referenced in the same surrounding text.",
       "aliases": [
         "item"
       ],
@@ -55,7 +55,7 @@
       },
       "type": "array",
       "items": {
-        "$ref": "Cite.schema.json"
+        "$ref": "Citation.schema.json"
       }
     }
   }

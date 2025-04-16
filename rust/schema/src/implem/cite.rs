@@ -1,8 +1,8 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, CitationMode, Cite};
+use crate::{prelude::*, CitationMode, Citation};
 
-impl Cite {
+impl Citation {
     pub fn to_jats_special(&self) -> (String, Losses) {
         use codec_jats_trait::encode::elem;
 
@@ -29,7 +29,7 @@ impl Cite {
     }
 }
 
-impl MarkdownCodec for Cite {
+impl MarkdownCodec for Citation {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         let brackets = matches!(self.citation_mode, Some(CitationMode::Parenthetical));
 

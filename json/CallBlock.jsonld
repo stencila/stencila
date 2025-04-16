@@ -236,6 +236,12 @@
         },
         {
           "@id": "stencila:IncludeBlock"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:QuoteInline"
         }
       ],
       "schema:rangeIncludes": {
@@ -302,7 +308,7 @@
           "@id": "stencila:ChatMessage"
         },
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Citation"
         },
         {
           "@id": "stencila:Excerpt"

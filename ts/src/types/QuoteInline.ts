@@ -1,6 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
-import { CiteOrText } from "./CiteOrText.js";
+import { CitationOrText } from "./CitationOrText.js";
 import { Inline } from "./Inline.js";
 import { Mark } from "./Mark.js";
 
@@ -14,7 +14,7 @@ export class QuoteInline extends Mark {
   /**
    * The source of the quote.
    */
-  cite?: CiteOrText;
+  source?: CitationOrText;
 
   constructor(content: Inline[], options?: Partial<QuoteInline>) {
     super(content);

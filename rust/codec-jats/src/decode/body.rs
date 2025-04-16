@@ -5,8 +5,8 @@ use std::str::FromStr;
 use codec::{
     schema::{
         shortcuts::{em, img, mi, p, qb, qi, stg, stk, sub, sup, t, u},
-        Admonition, Article, AudioObject, AudioObjectOptions, Block, CitationMode, Cite,
-        CiteOptions, Claim, ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord,
+        Admonition, Article, AudioObject, AudioObjectOptions, Block, CitationMode, Citation,
+        CitationOptions, Claim, ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord,
         Date, DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject, ImageObjectOptions,
         Inline, Link, List, ListItem, ListOrder, MathBlock, MediaObject, MediaObjectOptions, Note,
         NoteType, Parameter, Section, SectionType, StyledInline, Table, TableCell, TableRow,
@@ -950,7 +950,7 @@ fn decode_timestamp(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     })
 }
 
-/// Decode a `<xref ref-type="bibr">` to a [`Inline::Cite`]
+/// Decode a `<xref ref-type="bibr">` to a [`Inline::Citation`]
 fn decode_xref_bibr(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let target = node.attribute("rid").map(String::from).unwrap_or_default();
 
@@ -959,10 +959,10 @@ fn decode_xref_bibr(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let content = decode_inlines(path, node.children(), losses);
     let content = (!content.is_empty()).then_some(content);
 
-    Inline::Cite(Cite {
+    Inline::Citation(Citation {
         target,
         citation_mode: Some(CitationMode::Parenthetical),
-        options: Box::new(CiteOptions {
+        options: Box::new(CitationOptions {
             content,
             ..Default::default()
         }),

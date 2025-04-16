@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 
-use super::cite_or_text::CiteOrText;
+use super::citation_or_text::CitationOrText;
 use super::inline::Inline;
 use super::string::String;
 
@@ -42,7 +42,7 @@ pub struct QuoteInline {
 
     /// The source of the quote.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub cite: Option<CiteOrText>,
+    pub source: Option<CitationOrText>,
 
     /// A unique identifier for a node within a document
     #[serde(skip)]

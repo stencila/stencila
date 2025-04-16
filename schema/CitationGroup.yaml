@@ -1,0 +1,32 @@
+title: CitationGroup
+"@id": stencila:CitationGroup
+nick: ctg
+extends: Entity
+category: prose
+description: A group of `Citation` nodes.
+$comment: |
+  This type allows you to group associated citations together.
+  When some content in a [`Creative Work`](./CreativeWork) Citations more than one
+  reference for a particular piece of text, use a `CitationGroup` to encapsulate
+  multiple [`Citation`](./Citation) nodes.
+
+  At present we do not give a `citationMode` property to a `CitationGroup` since
+  they will almost always be parenthetical as opposed to narrative.
+  In other words, it usually only makes sense for individual `Citation` nodes to be
+  narrative (although they may be connected together within `content` using words
+  such as "and").
+markdown:
+  derive: false
+required:
+  - items
+properties:
+  items:
+    "@id": schema:itemListElement
+    type: array
+    description: One or more `Citation`s to be referenced in the same surrounding text.
+    items:
+      $ref: Citation
+    dom:
+      elem: span
+    patch:
+      formats: [all]

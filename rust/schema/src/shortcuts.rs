@@ -17,21 +17,21 @@ pub fn btn<C: Into<Cord>, S: Into<String>>(name: S, code: C) -> Inline {
     Inline::Button(Button::new(code.into(), name.into()))
 }
 
-/// Create an [`Inline::Cite`] node
+/// Create an [`Inline::Citation`] node
 pub fn ct<S: Into<String>>(target: S) -> Inline {
-    Inline::Cite(Cite::new(target.into()))
+    Inline::Citation(Citation::new(target.into()))
 }
 
-/// Create an [`Inline::CiteGroup`] node
+/// Create an [`Inline::CitationGroup`] node
 pub fn ctg<C, S>(items: C) -> Inline
 where
     C: IntoIterator<Item = S>,
     S: Into<String>,
 {
-    Inline::CiteGroup(CiteGroup::new(
+    Inline::CitationGroup(CitationGroup::new(
         items
             .into_iter()
-            .map(|target| Cite::new(target.into()))
+            .map(|target| Citation::new(target.into()))
             .collect(),
     ))
 }

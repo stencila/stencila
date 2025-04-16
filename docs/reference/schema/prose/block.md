@@ -26,6 +26,7 @@ The `Block` type has these members:
 - [`Claim`](https://stencila.ghost.io/docs/reference/schema/claim)
 - [`CodeBlock`](https://stencila.ghost.io/docs/reference/schema/code-block)
 - [`CodeChunk`](https://stencila.ghost.io/docs/reference/schema/code-chunk)
+- [`Excerpt`](https://stencila.ghost.io/docs/reference/schema/excerpt)
 - [`Figure`](https://stencila.ghost.io/docs/reference/schema/figure)
 - [`File`](https://stencila.ghost.io/docs/reference/schema/file)
 - [`ForBlock`](https://stencila.ghost.io/docs/reference/schema/for-block)
@@ -77,6 +78,7 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 |                    | Low+       | Generate `Claim` nodes in block content.                   | Default for level |
 | `CodeChunk`        | Min+       | Do not generate `CodeChunk` nodes in block content.        | -                 |
 |                    | Low+       | Generate `CodeChunk` nodes in block content.               | Default for level |
+| `Excerpt`          | Min+       | Do not generate `Excerpt` nodes in block content.          | -                 |
 | `Figure`           | Min+       | Do not generate `Figure` nodes in block content.           | -                 |
 |                    | Low+       | Generate `Figure` nodes in block content.                  | Default for level |
 | `File`             | Min+       | Do not generate `File` nodes in block content.             | -                 |

@@ -6,8 +6,8 @@ use super::annotation::Annotation;
 use super::audio_object::AudioObject;
 use super::boolean::Boolean;
 use super::button::Button;
-use super::cite::Cite;
-use super::cite_group::CiteGroup;
+use super::citation::Citation;
+use super::citation_group::CitationGroup;
 use super::code_expression::CodeExpression;
 use super::code_inline::CodeInline;
 use super::date::Date;
@@ -63,13 +63,13 @@ pub enum Inline {
     #[cfg_attr(feature = "proptest-low", proptest(skip))]
     #[cfg_attr(feature = "proptest-high", proptest(skip))]
     #[cfg_attr(feature = "proptest-max", proptest(skip))]
-    Cite(Cite),
+    Citation(Citation),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]
     #[cfg_attr(feature = "proptest-high", proptest(skip))]
     #[cfg_attr(feature = "proptest-max", proptest(skip))]
-    CiteGroup(CiteGroup),
+    CitationGroup(CitationGroup),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     CodeExpression(CodeExpression),

@@ -18,11 +18,11 @@ markdown:
   template: '<q>{{content}}</q>'
 proptest: {}
 core:
-  - cite
+  - source
 properties:
-  cite:
-    '@id': stencila:cite
+  source:
+    '@id': stencila:source
     description: The source of the quote.
     anyOf:
-      - $ref: Cite
+      - $ref: Citation
       - $ref: Text

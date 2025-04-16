@@ -246,7 +246,7 @@ impl Schemas {
             ("Paragraph", vec![("text", "to_text(self)")]),
             ("TableCell", vec![("text", "to_text(self)")]),
             (
-                "Cite",
+                "Citation",
                 vec![
                     (
                         "doi",

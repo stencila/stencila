@@ -56,7 +56,7 @@ The `ConfigModels` type can be encoded (serialized) to, and/or decoded (deserial
 | [JSON5](https://stencila.ghost.io/docs/reference/formats/json5)              |          |          |         |
 | [JSON-LD](https://stencila.ghost.io/docs/reference/formats/jsonld)           |          |          |         |
 | [CBOR](https://stencila.ghost.io/docs/reference/formats/cbor)                |          |          |         |
-| [CBOR+Zstandard](https://stencila.ghost.io/docs/reference/formats/cbor.zstd) |          |          |         |
+| [CBOR+Zstd](https://stencila.ghost.io/docs/reference/formats/cbor.zstd)      |          |          |         |
 | [YAML](https://stencila.ghost.io/docs/reference/formats/yaml)                |          |          |         |
 | [Lexical JSON](https://stencila.ghost.io/docs/reference/formats/lexical)     |          |          |         |
 | [Koenig JSON](https://stencila.ghost.io/docs/reference/formats/koenig)       |          |          |         |

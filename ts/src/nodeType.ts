@@ -24,8 +24,8 @@ export type NodeType =
   | "Chat"
   | "ChatMessage"
   | "ChatMessageGroup"
-  | "Cite"
-  | "CiteGroup"
+  | "Citation"
+  | "CitationGroup"
   | "Claim"
   | "CodeBlock"
   | "CodeChunk"
@@ -159,8 +159,8 @@ export const NodeTypeList = [
   "Chat",
   "ChatMessage",
   "ChatMessageGroup",
-  "Cite",
-  "CiteGroup",
+  "Citation",
+  "CitationGroup",
   "Claim",
   "CodeBlock",
   "CodeChunk",

@@ -1,8 +1,8 @@
 use codec_info::lost_options;
 
-use crate::{prelude::*, CiteGroup};
+use crate::{prelude::*, CitationGroup};
 
-impl MarkdownCodec for CiteGroup {
+impl MarkdownCodec for CitationGroup {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())

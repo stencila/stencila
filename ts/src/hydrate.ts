@@ -65,10 +65,10 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.ChatMessage.prototype);
     case "ChatMessageGroup":
       return Object.setPrototypeOf(value, types.ChatMessageGroup.prototype);
-    case "Cite":
-      return Object.setPrototypeOf(value, types.Cite.prototype);
-    case "CiteGroup":
-      return Object.setPrototypeOf(value, types.CiteGroup.prototype);
+    case "Citation":
+      return Object.setPrototypeOf(value, types.Citation.prototype);
+    case "CitationGroup":
+      return Object.setPrototypeOf(value, types.CitationGroup.prototype);
     case "Claim":
       return Object.setPrototypeOf(value, types.Claim.prototype);
     case "CodeBlock":

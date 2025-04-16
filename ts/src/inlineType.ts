@@ -4,8 +4,8 @@ export type InlineType =
   | "Annotation"
   | "AudioObject"
   | "Button"
-  | "Cite"
-  | "CiteGroup"
+  | "Citation"
+  | "CitationGroup"
   | "CodeExpression"
   | "CodeInline"
   | "Date"
@@ -41,8 +41,8 @@ export const InlineTypeList = [
   "Annotation",
   "AudioObject",
   "Button",
-  "Cite",
-  "CiteGroup",
+  "Citation",
+  "CitationGroup",
   "CodeExpression",
   "CodeInline",
   "Date",

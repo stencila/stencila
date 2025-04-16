@@ -284,7 +284,7 @@
           "@id": "stencila:ChatMessage"
         },
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Citation"
         },
         {
           "@id": "stencila:Excerpt"

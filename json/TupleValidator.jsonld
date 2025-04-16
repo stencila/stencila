@@ -27,7 +27,7 @@
           "@id": "schema:ItemList"
         },
         {
-          "@id": "stencila:CiteGroup"
+          "@id": "stencila:CitationGroup"
         },
         {
           "@id": "stencila:TupleValidator"

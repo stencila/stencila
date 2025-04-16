@@ -4,7 +4,7 @@ import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
-import { Cite } from './cite'
+import { Citation } from './citation'
 import { Entity } from './entity'
 
 /**
@@ -40,7 +40,7 @@ export class Reference extends Entity {
   pagination?: string
 
   override render() {
-    const cite = this.closestGlobally('stencila-cite') as Cite | null
+    const cite = this.closestGlobally('stencila-cite') as Citation | null
     if (cite) {
       return this.renderWithinCite(cite)
     }
@@ -53,7 +53,7 @@ export class Reference extends Entity {
     return this.renderDefault()
   }
 
-  renderWithinCite(cite: Cite) {
+  renderWithinCite(cite: Citation) {
     let author = this.authors?.[0] ? authorSingleName(this.authors[0]) : 'Anon'
     if (this.authors?.length == 2) {
       const second = this.authors[1]
@@ -129,7 +129,7 @@ export class Reference extends Entity {
 /**
  * Get a single name for an author
  *
- * Used for representing an author within a `Cite` e.g.
+ * Used for representing an author within a `Citation` e.g.
  * (Smith & Jones, 1990)
  */
 function authorSingleName(author: Author): string {

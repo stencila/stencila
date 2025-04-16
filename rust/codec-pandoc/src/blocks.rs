@@ -1030,8 +1030,8 @@ fn for_block_from_pandoc(
 }
 
 fn quote_block_to_pandoc(block: &QuoteBlock, context: &mut PandocEncodeContext) -> pandoc::Block {
-    if block.cite.is_some() {
-        context.losses.add("QuoteBlock.cite");
+    if block.source.is_some() {
+        context.losses.add("QuoteBlock.source");
     }
 
     pandoc::Block::BlockQuote(blocks_to_pandoc(&block.content, context))

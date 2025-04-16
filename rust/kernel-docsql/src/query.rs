@@ -289,7 +289,7 @@ impl Query {
             Some(pattern) => {
                 let prev_table = self.node_table_used.as_deref().unwrap_or_default();
                 let relation = match (prev_table, table.as_str()) {
-                    ("CiteGroup", "Cite") => "[:items]",
+                    ("CitationGroup", "Citation") => "[:items]",
                     ("Table", "TableRow") => "[:rows]",
                     ("TableRow", "TableCell") => "[:cells]",
                     ("Table", "TableCell") => "[:rows]-[:cells]",

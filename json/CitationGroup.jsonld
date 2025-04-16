@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/CiteGroup",
-  "name": "CiteGroup",
+  "@id": "https://stencila.org/CitationGroup",
+  "name": "CitationGroup",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,10 +9,10 @@
   },
   "@graph": [
     {
-      "@id": "stencila:CiteGroup",
+      "@id": "stencila:CitationGroup",
       "@type": "rdfs:Class",
-      "rdfs:label": "CiteGroup",
-      "rdfs:comment": "A group of `Cite` nodes.",
+      "rdfs:label": "CitationGroup",
+      "rdfs:comment": "A group of `Citation` nodes.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }
@@ -21,20 +21,20 @@
       "@id": "schema:itemListElement",
       "@type": "rdfs:Property",
       "rdfs:label": "items",
-      "rdfs:comment": "One or more `Cite`s to be referenced in the same surrounding text.",
+      "rdfs:comment": "One or more `Citation`s to be referenced in the same surrounding text.",
       "schema:domainIncludes": [
         {
           "@id": "schema:ItemList"
         },
         {
-          "@id": "stencila:CiteGroup"
+          "@id": "stencila:CitationGroup"
         },
         {
           "@id": "stencila:TupleValidator"
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "stencila:Cite"
+        "@id": "stencila:Citation"
       }
     }
   ]

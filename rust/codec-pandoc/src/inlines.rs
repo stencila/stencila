@@ -88,8 +88,8 @@ fn inline_to_pandoc(
         Inline::MediaObject(media) => media_to_pandoc(media, context),
         Inline::VideoObject(video) => video_to_pandoc(video, context),
         Inline::Link(link) => link_to_pandoc(link, context),
-        Inline::Cite(cite) => cite_to_pandoc(cite, context),
-        Inline::CiteGroup(cite_group) => cite_group_to_pandoc(cite_group, context),
+        Inline::Citation(citation) => citation_to_pandoc(citation, context),
+        Inline::CitationGroup(citation_group) => citation_group_to_pandoc(citation_group, context),
 
         // Code and math
         Inline::CodeExpression(code) => code_expression_to_pandoc(code, context),
@@ -134,7 +134,7 @@ fn inline_from_pandoc(inline: pandoc::Inline, context: &mut PandocDecodeContext)
         // Media, links, citations
         pandoc::Inline::Image(attrs, inlines, target) => media_from_pandoc(attrs, inlines, target, context),
         pandoc::Inline::Link(attrs, inlines, target) => link_from_pandoc(attrs, inlines, target, context),
-        pandoc::Inline::Cite(citations, inlines) => cite_from_pandoc(citations, inlines, context),
+        pandoc::Inline::Cite(citations, inlines) => citation_from_pandoc(citations, inlines, context),
         
         // Code and math
         pandoc::Inline::Code(attrs, code) => code_inline_from_pandoc(attrs, code, context),
@@ -231,12 +231,12 @@ fn link_from_pandoc(
     })
 }
 
-fn cite_to_pandoc(cite: &Cite, _context: &mut PandocEncodeContext) -> pandoc::Inline {
+fn citation_to_pandoc(cite: &Citation, _context: &mut PandocEncodeContext) -> pandoc::Inline {
     pandoc::Inline::Cite(vec![cite_to_pandoc_citation(cite)], Vec::new())
 }
 
-fn cite_group_to_pandoc(
-    cite_group: &CiteGroup,
+fn citation_group_to_pandoc(
+    cite_group: &CitationGroup,
     _context: &mut PandocEncodeContext,
 ) -> pandoc::Inline {
     pandoc::Inline::Cite(
@@ -249,7 +249,7 @@ fn cite_group_to_pandoc(
     )
 }
 
-fn cite_to_pandoc_citation(cite: &Cite) -> pandoc::Citation {
+fn cite_to_pandoc_citation(cite: &Citation) -> pandoc::Citation {
     pandoc::Citation {
         citation_id: cite.target.clone(),
         citation_mode: match cite.citation_mode {
@@ -274,16 +274,16 @@ fn cite_to_pandoc_citation(cite: &Cite) -> pandoc::Citation {
     }
 }
 
-fn cite_from_pandoc(
+fn citation_from_pandoc(
     citations: Vec<pandoc::Citation>,
     _inlines: Vec<pandoc::Inline>,
     context: &mut PandocDecodeContext,
 ) -> Inline {
     let single = citations.len() == 1;
 
-    let mut cites: Vec<Cite> = citations
+    let mut cites: Vec<Citation> = citations
         .into_iter()
-        .map(|cite| Cite {
+        .map(|cite| Citation {
             target: cite.citation_id,
             citation_mode: match cite.citation_mode {
                 pandoc::CitationMode::NormalCitation => {
@@ -296,7 +296,7 @@ fn cite_from_pandoc(
                 pandoc::CitationMode::SuppressAuthor => Some(CitationMode::Narrative),
                 pandoc::CitationMode::AuthorInText => Some(CitationMode::NarrativeAuthor),
             },
-            options: Box::new(CiteOptions {
+            options: Box::new(CitationOptions {
                 citation_prefix: (!cite.citation_prefix.is_empty())
                     .then(|| to_text(&inlines_from_pandoc(cite.citation_prefix, context))),
                 citation_suffix: (!cite.citation_suffix.is_empty())
@@ -308,9 +308,9 @@ fn cite_from_pandoc(
         .collect();
 
     if single {
-        Inline::Cite(cites.swap_remove(0))
+        Inline::Citation(cites.swap_remove(0))
     } else {
-        Inline::CiteGroup(CiteGroup::new(cites))
+        Inline::CitationGroup(CitationGroup::new(cites))
     }
 }
 

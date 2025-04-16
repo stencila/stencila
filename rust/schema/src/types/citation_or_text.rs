@@ -2,15 +2,15 @@
 
 use crate::prelude::*;
 
-use super::cite::Cite;
+use super::citation::Citation;
 use super::text::Text;
 
-/// [`Cite`] or [`Text`]
+/// [`Citation`] or [`Text`]
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(untagged, crate = "common::serde")]
-pub enum CiteOrText {
+pub enum CitationOrText {
     #[default]
-    Cite(Cite),
+    Citation(Citation),
 
     Text(Text),
 }

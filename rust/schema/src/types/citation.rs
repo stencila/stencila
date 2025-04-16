@@ -15,11 +15,11 @@ use super::string::String;
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
-#[display("Cite")]
+#[display("Citation")]
 #[jats(special)]
-pub struct Cite {
+pub struct Citation {
     /// The type of this item.
-    pub r#type: MustBe!("Cite"),
+    pub r#type: MustBe!("Citation"),
 
     /// The identifier for this item.
     #[strip(metadata)]
@@ -39,7 +39,7 @@ pub struct Cite {
     #[serde(flatten)]
     #[html(flatten)]
     #[jats(flatten)]
-    pub options: Box<CiteOptions>,
+    pub options: Box<CitationOptions>,
 
     /// A unique identifier for a node within a document
     #[serde(skip)]
@@ -50,8 +50,8 @@ pub struct Cite {
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
-pub struct CiteOptions {
-    /// The `Reference` being cited, resolved from the `target`
+pub struct CitationOptions {
+    /// The `Reference` being cited, resolved from the `target`.
     #[dom(elem = "span")]
     pub cites: Option<Reference>,
 
@@ -87,11 +87,11 @@ pub struct CiteOptions {
     pub citation_suffix: Option<String>,
 }
 
-impl Cite {
+impl Citation {
     const NICK: [u8; 3] = [99, 105, 116];
     
     pub fn node_type(&self) -> NodeType {
-        NodeType::Cite
+        NodeType::Citation
     }
 
     pub fn node_id(&self) -> NodeId {

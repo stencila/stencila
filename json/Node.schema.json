@@ -72,10 +72,10 @@
       "$ref": "ChatMessageGroup.schema.json"
     },
     {
-      "$ref": "Cite.schema.json"
+      "$ref": "Citation.schema.json"
     },
     {
-      "$ref": "CiteGroup.schema.json"
+      "$ref": "CitationGroup.schema.json"
     },
     {
       "$ref": "Claim.schema.json"

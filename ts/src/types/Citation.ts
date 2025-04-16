@@ -10,9 +10,9 @@ import { Reference } from "./Reference.js";
 /**
  * A reference to a `CreativeWork` that is cited in another `CreativeWork`.
  */
-export class Cite extends Entity {
+export class Citation extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'
-  type: "Cite";
+  type: "Citation";
 
   /**
    * The target of the citation (URL or reference ID).
@@ -20,7 +20,7 @@ export class Cite extends Entity {
   target: string;
 
   /**
-   * The `Reference` being cited, resolved from the `target`
+   * The `Reference` being cited, resolved from the `target`.
    */
   cites?: Reference;
 
@@ -64,17 +64,17 @@ export class Cite extends Entity {
    */
   citationSuffix?: string;
 
-  constructor(target: string, options?: Partial<Cite>) {
+  constructor(target: string, options?: Partial<Citation>) {
     super();
-    this.type = "Cite";
+    this.type = "Citation";
     if (options) Object.assign(this, options);
     this.target = target;
   }
 }
 
 /**
-* Create a new `Cite`
+* Create a new `Citation`
 */
-export function cite(target: string, options?: Partial<Cite>): Cite {
-  return new Cite(target, options);
+export function citation(target: string, options?: Partial<Citation>): Citation {
+  return new Citation(target, options);
 }

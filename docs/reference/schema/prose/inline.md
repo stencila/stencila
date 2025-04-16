@@ -20,8 +20,8 @@ The `Inline` type has these members:
 - [`Annotation`](https://stencila.ghost.io/docs/reference/schema/annotation)
 - [`AudioObject`](https://stencila.ghost.io/docs/reference/schema/audio-object)
 - [`Button`](https://stencila.ghost.io/docs/reference/schema/button)
-- [`Cite`](https://stencila.ghost.io/docs/reference/schema/cite)
-- [`CiteGroup`](https://stencila.ghost.io/docs/reference/schema/cite-group)
+- [`Citation`](https://stencila.ghost.io/docs/reference/schema/citation)
+- [`CitationGroup`](https://stencila.ghost.io/docs/reference/schema/citation-group)
 - [`CodeExpression`](https://stencila.ghost.io/docs/reference/schema/code-expression)
 - [`CodeInline`](https://stencila.ghost.io/docs/reference/schema/code-inline)
 - [`Date`](https://stencila.ghost.io/docs/reference/schema/date)
@@ -73,8 +73,8 @@ During property-based (a.k.a generative) testing, the variants of the `Inline` t
 | `AudioObject`       | Min+       | Do not generate `AudioObject` nodes in inline content.                                                                                                                                            | -                                                |
 |                     | High+      | Generate `AudioObject` nodes in inline content.                                                                                                                                                   | Default for level                                |
 | `Button`            | Min+       | Do not generate `Button` nodes in inline content.                                                                                                                                                 | -                                                |
-| `Cite`              | Min+       | Do not generate `Cite` nodes in inline content.                                                                                                                                                   | -                                                |
-| `CiteGroup`         | Min+       | Do not generate `CiteGroup` nodes in inline content.                                                                                                                                              | -                                                |
+| `Citation`          | Min+       | Do not generate `Citation` nodes in inline content.                                                                                                                                               | -                                                |
+| `CitationGroup`     | Min+       | Do not generate `CitationGroup` nodes in inline content.                                                                                                                                          | -                                                |
 | `CodeExpression`    | Min+       | Do not generate `CodeExpression` nodes in inline content.                                                                                                                                         | -                                                |
 |                     | Low+       | Generate `CodeExpression` nodes in inline content.                                                                                                                                                | Default for level                                |
 | `Date`              | Min+       | Do not generate `Date` nodes in inline content.                                                                                                                                                   | -                                                |

@@ -26,16 +26,16 @@ anyOf:
         description: Do not generate `Button` nodes in inline content.
         skip: true
 
-  - $ref: Cite
+  - $ref: Citation
     proptest:
       min:
-        description: Do not generate `Cite` nodes in inline content.
+        description: Do not generate `Citation` nodes in inline content.
         skip: true
 
-  - $ref: CiteGroup
+  - $ref: CitationGroup
     proptest:
       min:
-        description: Do not generate `CiteGroup` nodes in inline content.
+        description: Do not generate `CitationGroup` nodes in inline content.
         skip: true
 
   - $ref: CodeExpression

@@ -155,7 +155,7 @@
           "@id": "schema:PublicationVolume"
         },
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Citation"
         },
         {
           "@id": "stencila:Reference"
@@ -186,7 +186,7 @@
           "@id": "schema:PublicationVolume"
         },
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Citation"
         },
         {
           "@id": "stencila:Reference"
@@ -217,7 +217,7 @@
           "@id": "schema:PublicationVolume"
         },
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Citation"
         },
         {
           "@id": "stencila:Reference"

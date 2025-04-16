@@ -5,8 +5,8 @@ import { hydrate } from "../hydrate.js";
 import { type Annotation } from "./Annotation.js";
 import { type AudioObject } from "./AudioObject.js";
 import { type Button } from "./Button.js";
-import { type Cite } from "./Cite.js";
-import { type CiteGroup } from "./CiteGroup.js";
+import { type Citation } from "./Citation.js";
+import { type CitationGroup } from "./CitationGroup.js";
 import { type CodeExpression } from "./CodeExpression.js";
 import { type CodeInline } from "./CodeInline.js";
 import { type Date } from "./Date.js";
@@ -42,8 +42,8 @@ export type Inline =
   Annotation |
   AudioObject |
   Button |
-  Cite |
-  CiteGroup |
+  Citation |
+  CitationGroup |
   CodeExpression |
   CodeInline |
   Date |
@@ -86,8 +86,8 @@ export function inline(other: Inline): Inline {
     case "Annotation":
     case "AudioObject":
     case "Button":
-    case "Cite":
-    case "CiteGroup":
+    case "Citation":
+    case "CitationGroup":
     case "CodeExpression":
     case "CodeInline":
     case "Date":

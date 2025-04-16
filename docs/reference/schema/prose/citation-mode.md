@@ -1,6 +1,6 @@
 ---
 title: Citation Mode
-description: The mode of a `Cite`.
+description: The mode of a `Citation`.
 config:
   publish:
     ghost:

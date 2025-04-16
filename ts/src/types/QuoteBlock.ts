@@ -2,7 +2,7 @@
 
 import { Author } from "./Author.js";
 import { Block } from "./Block.js";
-import { CiteOrText } from "./CiteOrText.js";
+import { CitationOrText } from "./CitationOrText.js";
 import { Entity } from "./Entity.js";
 import { ProvenanceCount } from "./ProvenanceCount.js";
 
@@ -16,7 +16,7 @@ export class QuoteBlock extends Entity {
   /**
    * The source of the quote.
    */
-  cite?: CiteOrText;
+  source?: CitationOrText;
 
   /**
    * The content of the quote.

@@ -40,20 +40,20 @@
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `Cite` nodes in inline content.",
+          "description": "Do not generate `Citation` nodes in inline content.",
           "skip": true
         }
       },
-      "$ref": "Cite.schema.json"
+      "$ref": "Citation.schema.json"
     },
     {
       "proptest": {
         "min": {
-          "description": "Do not generate `CiteGroup` nodes in inline content.",
+          "description": "Do not generate `CitationGroup` nodes in inline content.",
           "skip": true
         }
       },
-      "$ref": "CiteGroup.schema.json"
+      "$ref": "CitationGroup.schema.json"
     },
     {
       "proptest": {

@@ -7,24 +7,24 @@ start     end        offsets   node_type+property                   authorship
     18     33        (-2, 1)   Heading
     34    510      (16, 477)   Text.value
     34    510         (0, 0)   Text
-   512    515       (478, 5)   Cite.target
-   510    516        (-2, 1)   Cite
+   512    515       (478, 5)   Citation.target
+   510    516        (-2, 1)   Citation
    516    703       (6, 187)   Text.value
    516    703         (0, 0)   Text
-   705    708       (189, 5)   Cite.target
-   703    709        (-2, 1)   Cite
+   705    708       (189, 5)   Citation.target
+   703    709        (-2, 1)   Citation
    709    939       (6, 230)   Text.value
    709    939         (0, 0)   Text
-   941    944       (232, 5)   Cite.target
-   939    945        (-2, 1)   Cite
+   941    944       (232, 5)   Citation.target
+   939    945        (-2, 1)   Citation
    945   1212       (6, 267)   Text.value
    945   1212         (0, 0)   Text
-  1214   1217       (269, 5)   Cite.target
-  1212   1218        (-2, 1)   Cite
+  1214   1217       (269, 5)   Citation.target
+  1212   1218        (-2, 1)   Citation
   1218   1220         (6, 2)   Text.value
   1218   1220         (0, 0)   Text
-  1222   1225         (4, 5)   Cite.target
-  1220   1226        (-2, 1)   Cite
+  1222   1225         (4, 5)   Citation.target
+  1220   1226        (-2, 1)   Citation
   1226   1419       (6, 193)   Text.value
   1226   1419         (0, 0)   Text
   1420   1430      (194, 11)   Text.value
@@ -39,132 +39,132 @@ start     end        offsets   node_type+property                   authorship
   1452   1464        (-1, 1)   Emphasis
   1464   1466        (12, 2)   Text.value
   1464   1466         (0, 0)   Text
-  1468   1470         (4, 4)   Cite.target
-  1466   1471        (-2, 1)   Cite
+  1468   1470         (4, 4)   Citation.target
+  1466   1471        (-2, 1)   Citation
   1471   1473         (5, 2)   Text.value
   1471   1473         (0, 0)   Text
-  1475   1478         (4, 5)   Cite.target
-  1473   1479        (-2, 1)   Cite
+  1475   1478         (4, 5)   Citation.target
+  1473   1479        (-2, 1)   Citation
   1479   1481         (6, 2)   Text.value
   1479   1481         (0, 0)   Text
-  1483   1486         (4, 5)   Cite.target
-  1481   1487        (-2, 1)   Cite
+  1483   1486         (4, 5)   Citation.target
+  1481   1487        (-2, 1)   Citation
   1487   1604       (6, 117)   Text.value
   1487   1604         (0, 0)   Text
     34   1604     (-1453, 0)   Paragraph.content
     34   1605         (0, 1)   Paragraph
   1606   1900    (1572, 295)   Text.value
   1606   1900         (0, 0)   Text
-  1902   1905       (296, 5)   Cite.target
-  1900   1906        (-2, 1)   Cite
+  1902   1905       (296, 5)   Citation.target
+  1900   1906        (-2, 1)   Citation
   1906   2522       (6, 616)   Text.value
   1906   2522         (0, 0)   Text
-  2524   2527       (618, 5)   Cite.target
-  2522   2528        (-2, 1)   Cite
+  2524   2527       (618, 5)   Citation.target
+  2522   2528        (-2, 1)   Citation
   2528   2683       (6, 155)   Text.value
   2528   2683         (0, 0)   Text
-  2685   2688       (157, 5)   Cite.target
-  2683   2689        (-2, 1)   Cite
+  2685   2688       (157, 5)   Citation.target
+  2683   2689        (-2, 1)   Citation
   2689   2691         (6, 2)   Text.value
   2689   2691         (0, 0)   Text
-  2693   2696         (4, 5)   Cite.target
-  2691   2697        (-2, 1)   Cite
+  2693   2696         (4, 5)   Citation.target
+  2691   2697        (-2, 1)   Citation
   2697   2709        (6, 12)   Text.value
   2697   2709         (0, 0)   Text
-  2711   2714        (14, 5)   Cite.target
-  2709   2715        (-2, 1)   Cite
+  2711   2714        (14, 5)   Citation.target
+  2709   2715        (-2, 1)   Citation
   2715   2717         (6, 2)   Text.value
   2715   2717         (0, 0)   Text
-  2719   2722         (4, 5)   Cite.target
-  2717   2723        (-2, 1)   Cite
+  2719   2722         (4, 5)   Citation.target
+  2717   2723        (-2, 1)   Citation
   2723   2725         (6, 2)   Text.value
   2723   2725         (0, 0)   Text
-  2727   2730         (4, 5)   Cite.target
-  2725   2731        (-2, 1)   Cite
+  2727   2730         (4, 5)   Citation.target
+  2725   2731        (-2, 1)   Citation
   2731   2744        (6, 13)   Text.value
   2731   2744         (0, 0)   Text
-  2746   2749        (15, 5)   Cite.target
-  2744   2750        (-2, 1)   Cite
+  2746   2749        (15, 5)   Citation.target
+  2744   2750        (-2, 1)   Citation
   2750   2764        (6, 14)   Text.value
   2750   2764         (0, 0)   Text
-  2766   2769        (16, 5)   Cite.target
-  2764   2770        (-2, 1)   Cite
+  2766   2769        (16, 5)   Citation.target
+  2764   2770        (-2, 1)   Citation
   2770   2772         (6, 2)   Text.value
   2770   2772         (0, 0)   Text
   1606   2772     (-1164, 0)   Paragraph.content
   1606   2773         (0, 1)   Paragraph
   2774   3154    (1168, 381)   Text.value
   2774   3154         (0, 0)   Text
-  3156   3159       (382, 5)   Cite.target
-  3154   3160        (-2, 1)   Cite
+  3156   3159       (382, 5)   Citation.target
+  3154   3160        (-2, 1)   Citation
   3160   3349       (6, 189)   Text.value
   3160   3349         (0, 0)   Text
-  3351   3354       (191, 5)   Cite.target
-  3349   3355        (-2, 1)   Cite
+  3351   3354       (191, 5)   Citation.target
+  3349   3355        (-2, 1)   Citation
   3355   3357         (6, 2)   Text.value
   3355   3357         (0, 0)   Text
-  3359   3362         (4, 5)   Cite.target
-  3357   3363        (-2, 1)   Cite
+  3359   3362         (4, 5)   Citation.target
+  3357   3363        (-2, 1)   Citation
   3363   3365         (6, 2)   Text.value
   3363   3365         (0, 0)   Text
-  3367   3370         (4, 5)   Cite.target
-  3365   3371        (-2, 1)   Cite
+  3367   3370         (4, 5)   Citation.target
+  3365   3371        (-2, 1)   Citation
   3371   3584       (6, 213)   Text.value
   3371   3584         (0, 0)   Text
-  3586   3588       (215, 4)   Cite.target
-  3584   3589        (-2, 1)   Cite
+  3586   3588       (215, 4)   Citation.target
+  3584   3589        (-2, 1)   Citation
   3589   3591         (5, 2)   Text.value
   3589   3591         (0, 0)   Text
-  3593   3596         (4, 5)   Cite.target
-  3591   3597        (-2, 1)   Cite
+  3593   3596         (4, 5)   Citation.target
+  3591   3597        (-2, 1)   Citation
   3597   3599         (6, 2)   Text.value
   3597   3599         (0, 0)   Text
   2774   3599      (-823, 0)   Paragraph.content
   2774   3600         (0, 1)   Paragraph
   3601   3865     (827, 265)   Text.value
   3601   3865         (0, 0)   Text
-  3867   3870       (266, 5)   Cite.target
-  3865   3871        (-2, 1)   Cite
+  3867   3870       (266, 5)   Citation.target
+  3865   3871        (-2, 1)   Citation
   3871   4143       (6, 272)   Text.value
   3871   4143         (0, 0)   Text
   4143   4337     (272, 194)   Text.value
   4143   4337         (0, 0)   Text
-  4339   4342       (196, 5)   Cite.target
-  4337   4343        (-2, 1)   Cite
+  4339   4342       (196, 5)   Citation.target
+  4337   4343        (-2, 1)   Citation
   4343   4501       (6, 158)   Text.value
   4343   4501         (0, 0)   Text
-  4503   4506       (160, 5)   Cite.target
-  4501   4507        (-2, 1)   Cite
+  4503   4506       (160, 5)   Citation.target
+  4501   4507        (-2, 1)   Citation
   4507   4509         (6, 2)   Text.value
   4507   4509         (0, 0)   Text
-  4511   4514         (4, 5)   Cite.target
-  4509   4515        (-2, 1)   Cite
+  4511   4514         (4, 5)   Citation.target
+  4509   4515        (-2, 1)   Citation
   4515   4622       (6, 107)   Text.value
   4515   4622         (0, 0)   Text
-  4624   4627       (109, 5)   Cite.target
-  4622   4628        (-2, 1)   Cite
+  4624   4627       (109, 5)   Citation.target
+  4622   4628        (-2, 1)   Citation
   4628   4708        (6, 80)   Text.value
   4628   4708         (0, 0)   Text
-  4710   4713        (82, 5)   Cite.target
-  4708   4714        (-2, 1)   Cite
+  4710   4713        (82, 5)   Citation.target
+  4708   4714        (-2, 1)   Citation
   4714   4895       (6, 181)   Text.value
   4714   4895         (0, 0)   Text
-  4897   4900       (183, 5)   Cite.target
-  4895   4901        (-2, 1)   Cite
+  4897   4900       (183, 5)   Citation.target
+  4895   4901        (-2, 1)   Citation
   4901   4903         (6, 2)   Text.value
   4901   4903         (0, 0)   Text
-  4905   4908         (4, 5)   Cite.target
-  4903   4909        (-2, 1)   Cite
+  4905   4908         (4, 5)   Citation.target
+  4903   4909        (-2, 1)   Citation
   4909   5030       (6, 121)   Text.value
   4909   5030         (0, 0)   Text
   5030   5243     (121, 213)   Text.value
   5030   5243         (0, 0)   Text
-  5245   5247       (215, 4)   Cite.target
-  5243   5248        (-2, 1)   Cite
+  5245   5247       (215, 4)   Citation.target
+  5243   5248        (-2, 1)   Citation
   5248   5250         (5, 2)   Text.value
   5248   5250         (0, 0)   Text
-  5252   5255         (4, 5)   Cite.target
-  5250   5256        (-2, 1)   Cite
+  5252   5255         (4, 5)   Citation.target
+  5250   5256        (-2, 1)   Citation
   5256   5381       (6, 125)   Text.value
   5256   5381         (0, 0)   Text
   5381   5430      (125, 49)   Text.value
@@ -262,8 +262,8 @@ start     end        offsets   node_type+property                   authorship
   7878   8060         (0, 0)   Text
   8060   8063       (182, 3)   Text.value
   8060   8063         (0, 0)   Text
-  8065   8068         (5, 5)   Cite.target
-  8063   8069        (-2, 1)   Cite
+  8065   8068         (5, 5)   Citation.target
+  8063   8069        (-2, 1)   Citation
   8069   8180       (6, 111)   Text.value
   8069   8180         (0, 0)   Text
   8180   8295     (111, 115)   Text.value
@@ -280,8 +280,8 @@ start     end        offsets   node_type+property                   authorship
   7878   8690         (0, 1)   Paragraph
   8691   8878     (813, 188)   Text.value
   8691   8878         (0, 0)   Text
-  8880   8883       (189, 5)   Cite.target
-  8878   8884        (-2, 1)   Cite
+  8880   8883       (189, 5)   Citation.target
+  8878   8884        (-2, 1)   Citation
   8884   8965        (6, 81)   Text.value
   8884   8965         (0, 0)   Text
   8965   9094      (81, 129)   Text.value
@@ -294,26 +294,26 @@ start     end        offsets   node_type+property                   authorship
   9159   9254         (0, 0)   Text
   9254   9257        (95, 3)   Text.value
   9254   9257         (0, 0)   Text
-  9259   9261         (5, 4)   Cite.target
-  9257   9262        (-2, 1)   Cite
+  9259   9261         (5, 4)   Citation.target
+  9257   9262        (-2, 1)   Citation
   9262   9264         (5, 2)   Text.value
   9262   9264         (0, 0)   Text
-  9266   9269         (4, 5)   Cite.target
-  9264   9270        (-2, 1)   Cite
+  9266   9269         (4, 5)   Citation.target
+  9264   9270        (-2, 1)   Citation
   9270   9456       (6, 186)   Text.value
   9270   9456         (0, 0)   Text
   9456   9573     (186, 117)   Text.value
   9456   9573         (0, 0)   Text
   9573   9678     (117, 105)   Text.value
   9573   9678         (0, 0)   Text
-  9680   9683       (107, 5)   Cite.target
-  9678   9684        (-2, 1)   Cite
+  9680   9683       (107, 5)   Citation.target
+  9678   9684        (-2, 1)   Citation
   9684   9772        (6, 88)   Text.value
   9684   9772         (0, 0)   Text
   9772   9914      (88, 142)   Text.value
   9772   9914         (0, 0)   Text
-  9916   9919       (144, 5)   Cite.target
-  9914   9920        (-2, 1)   Cite
+  9916   9919       (144, 5)   Citation.target
+  9914   9920        (-2, 1)   Citation
   9920   9922         (6, 2)   Text.value
   9920   9922         (0, 0)   Text
   8691   9922     (-1229, 0)   Paragraph.content
@@ -329,12 +329,12 @@ start     end        offsets   node_type+property                   authorship
  10030  10503         (0, 0)   Text
  10503  10531      (473, 28)   Text.value
  10503  10531         (0, 0)   Text
- 10533  10535        (30, 4)   Cite.target
- 10531  10536        (-2, 1)   Cite
+ 10533  10535        (30, 4)   Citation.target
+ 10531  10536        (-2, 1)   Citation
  10536  10538         (5, 2)   Text.value
  10536  10538         (0, 0)   Text
- 10540  10543         (4, 5)   Cite.target
- 10538  10544        (-2, 1)   Cite
+ 10540  10543         (4, 5)   Citation.target
+ 10538  10544        (-2, 1)   Citation
  10544  10710       (6, 166)   Text.value
  10544  10710         (0, 0)   Text
  10710  10874     (166, 164)   Text.value
@@ -439,8 +439,8 @@ start     end        offsets   node_type+property                   authorship
  13144  14709         (0, 1)   Paragraph
  14710  14902    (1566, 193)   Text.value
  14710  14902         (0, 0)   Text
- 14904  14907       (194, 5)   Cite.target
- 14902  14908        (-2, 1)   Cite
+ 14904  14907       (194, 5)   Citation.target
+ 14902  14908        (-2, 1)   Citation
  14908  15029       (6, 121)   Text.value
  14908  15029         (0, 0)   Text
  15029  15192     (121, 163)   Text.value
@@ -453,16 +453,16 @@ start     end        offsets   node_type+property                   authorship
  15420  15422         (0, 0)   Text
  15422  15660       (2, 238)   Text.value
  15422  15660         (0, 0)   Text
- 15662  15665       (240, 5)   Cite.target
- 15660  15666        (-2, 1)   Cite
+ 15662  15665       (240, 5)   Citation.target
+ 15660  15666        (-2, 1)   Citation
  15666  15668         (6, 2)   Text.value
  15666  15668         (0, 0)   Text
- 15670  15673         (4, 5)   Cite.target
- 15668  15674        (-2, 1)   Cite
+ 15670  15673         (4, 5)   Citation.target
+ 15668  15674        (-2, 1)   Citation
  15674  15676         (6, 2)   Text.value
  15674  15676         (0, 0)   Text
- 15678  15681         (4, 5)   Cite.target
- 15676  15682        (-2, 1)   Cite
+ 15678  15681         (4, 5)   Citation.target
+ 15676  15682        (-2, 1)   Citation
  15682  15906       (6, 224)   Text.value
  15682  15906         (0, 0)   Text
  14710  15906      (-972, 0)   Paragraph.content
@@ -610,8 +610,8 @@ start     end        offsets   node_type+property                   authorship
  19164  19956      (-760, 8)   Figure
  19957  20103     (793, 147)   Text.value
  19957  20103         (0, 0)   Text
- 20105  20108       (148, 5)   Cite.target
- 20103  20109        (-2, 1)   Cite
+ 20105  20108       (148, 5)   Citation.target
+ 20103  20109        (-2, 1)   Citation
  20109  20540       (6, 431)   Text.value
  20109  20540         (0, 0)   Text
  20540  20542       (431, 2)   Text.value
@@ -631,8 +631,8 @@ start     end        offsets   node_type+property                   authorship
  20853  20917        (-3, 1)   Heading
  20918  21115      (65, 198)   Text.value
  20918  21115         (0, 0)   Text
- 21117  21120       (199, 5)   Cite.target
- 21115  21121        (-2, 1)   Cite
+ 21117  21120       (199, 5)   Citation.target
+ 21115  21121        (-2, 1)   Citation
  21121  21329       (6, 208)   Text.value
  21121  21329         (0, 0)   Text
  21329  21557     (208, 228)   Text.value
@@ -773,8 +773,8 @@ start     end        offsets   node_type+property                   authorship
  24141  25180     (-1007, 8)   Figure
  25181  25397    (1040, 217)   Text.value
  25181  25397         (0, 0)   Text
- 25399  25402       (218, 5)   Cite.target
- 25397  25403        (-2, 1)   Cite
+ 25399  25402       (218, 5)   Citation.target
+ 25397  25403        (-2, 1)   Citation
  25403  25789       (6, 386)   Text.value
  25403  25789         (0, 0)   Text
  25789  25791       (386, 2)   Text.value
@@ -832,12 +832,12 @@ start     end        offsets   node_type+property                   authorship
  28023  28099        (-3, 1)   Heading
  28100  28250      (77, 151)   Text.value
  28100  28250         (0, 0)   Text
- 28252  28254       (152, 4)   Cite.target
- 28250  28255        (-2, 1)   Cite
+ 28252  28254       (152, 4)   Citation.target
+ 28250  28255        (-2, 1)   Citation
  28255  28257         (5, 2)   Text.value
  28255  28257         (0, 0)   Text
- 28259  28262         (4, 5)   Cite.target
- 28257  28263        (-2, 1)   Cite
+ 28259  28262         (4, 5)   Citation.target
+ 28257  28263        (-2, 1)   Citation
  28263  28544       (6, 281)   Text.value
  28263  28544         (0, 0)   Text
  28544  28546       (281, 2)   Text.value
@@ -892,8 +892,8 @@ start     end        offsets   node_type+property                   authorship
  30487  30500        (-2, 1)   Heading
  30501  30602      (14, 102)   Text.value
  30501  30602         (0, 0)   Text
- 30604  30606       (103, 4)   Cite.target
- 30602  30607        (-2, 1)   Cite
+ 30604  30606       (103, 4)   Citation.target
+ 30602  30607        (-2, 1)   Citation
  30607  30663        (5, 56)   Text.value
  30607  30663         (0, 0)   Text
  30664  30687       (57, 24)   Text.value
@@ -908,12 +908,12 @@ start     end        offsets   node_type+property                   authorship
  30713  30734        (-1, 1)   Emphasis
  30734  30803       (21, 69)   Text.value
  30734  30803         (0, 0)   Text
- 30805  30807        (71, 4)   Cite.target
- 30803  30808        (-2, 1)   Cite
+ 30805  30807        (71, 4)   Citation.target
+ 30803  30808        (-2, 1)   Citation
  30808  30810         (5, 2)   Text.value
  30808  30810         (0, 0)   Text
- 30812  30815         (4, 5)   Cite.target
- 30810  30816        (-2, 1)   Cite
+ 30812  30815         (4, 5)   Citation.target
+ 30810  30816        (-2, 1)   Citation
  30816  31043       (6, 227)   Text.value
  30816  31043         (0, 0)   Text
  31043  31045       (227, 2)   Text.value
@@ -922,18 +922,18 @@ start     end        offsets   node_type+property                   authorship
  31045  31047         (0, 0)   Text
  31047  31335       (2, 288)   Text.value
  31047  31335         (0, 0)   Text
- 31337  31339       (290, 4)   Cite.target
- 31335  31340        (-2, 1)   Cite
+ 31337  31339       (290, 4)   Citation.target
+ 31335  31340        (-2, 1)   Citation
  31340  31343         (5, 3)   Text.value
  31340  31343         (0, 0)   Text
  31343  31429        (3, 86)   Text.value
  31343  31429         (0, 0)   Text
- 31431  31434        (88, 5)   Cite.target
- 31429  31435        (-2, 1)   Cite
+ 31431  31434        (88, 5)   Citation.target
+ 31429  31435        (-2, 1)   Citation
  31435  31601       (6, 166)   Text.value
  31435  31601         (0, 0)   Text
- 31603  31606       (168, 5)   Cite.target
- 31601  31607        (-2, 1)   Cite
+ 31603  31606       (168, 5)   Citation.target
+ 31601  31607        (-2, 1)   Citation
  31607  31609         (6, 2)   Text.value
  31607  31609         (0, 0)   Text
  30501  31609     (-1106, 0)   Paragraph.content
@@ -950,68 +950,68 @@ start     end        offsets   node_type+property                   authorship
  32293  32592         (0, 0)   Text
  32592  32757     (299, 165)   Text.value
  32592  32757         (0, 0)   Text
- 32759  32762       (167, 5)   Cite.target
- 32757  32763        (-2, 1)   Cite
+ 32759  32762       (167, 5)   Citation.target
+ 32757  32763        (-2, 1)   Citation
  32763  33063       (6, 300)   Text.value
  32763  33063         (0, 0)   Text
- 33065  33067       (302, 4)   Cite.target
- 33063  33068        (-2, 1)   Cite
+ 33065  33067       (302, 4)   Citation.target
+ 33063  33068        (-2, 1)   Citation
  33068  33070         (5, 2)   Text.value
  33068  33070         (0, 0)   Text
- 33072  33075         (4, 5)   Cite.target
- 33070  33076        (-2, 1)   Cite
+ 33072  33075         (4, 5)   Citation.target
+ 33070  33076        (-2, 1)   Citation
  33076  33078         (6, 2)   Text.value
  33076  33078         (0, 0)   Text
  31611  33078     (-1465, 0)   Paragraph.content
  31611  33079         (0, 1)   Paragraph
  33080  33447    (1469, 368)   Text.value
  33080  33447         (0, 0)   Text
- 33449  33451       (369, 4)   Cite.target
- 33447  33452        (-2, 1)   Cite
+ 33449  33451       (369, 4)   Citation.target
+ 33447  33452        (-2, 1)   Citation
  33452  33454         (5, 2)   Text.value
  33452  33454         (0, 0)   Text
- 33456  33459         (4, 5)   Cite.target
- 33454  33460        (-2, 1)   Cite
+ 33456  33459         (4, 5)   Citation.target
+ 33454  33460        (-2, 1)   Citation
  33460  33462         (6, 2)   Text.value
  33460  33462         (0, 0)   Text
- 33464  33467         (4, 5)   Cite.target
- 33462  33468        (-2, 1)   Cite
+ 33464  33467         (4, 5)   Citation.target
+ 33462  33468        (-2, 1)   Citation
  33468  33470         (6, 2)   Text.value
  33468  33470         (0, 0)   Text
- 33472  33475         (4, 5)   Cite.target
- 33470  33476        (-2, 1)   Cite
+ 33472  33475         (4, 5)   Citation.target
+ 33470  33476        (-2, 1)   Citation
  33476  33569        (6, 93)   Text.value
  33476  33569         (0, 0)   Text
- 33571  33573        (95, 4)   Cite.target
- 33569  33574        (-2, 1)   Cite
+ 33571  33573        (95, 4)   Citation.target
+ 33569  33574        (-2, 1)   Citation
  33574  33685       (5, 111)   Text.value
  33574  33685         (0, 0)   Text
- 33687  33690       (113, 5)   Cite.target
- 33685  33691        (-2, 1)   Cite
+ 33687  33690       (113, 5)   Citation.target
+ 33685  33691        (-2, 1)   Citation
  33691  33992       (6, 301)   Text.value
  33691  33992         (0, 0)   Text
  33080  33992      (-611, 0)   Paragraph.content
  33080  33993         (0, 1)   Paragraph
  33994  34232     (914, 239)   Text.value
  33994  34232         (0, 0)   Text
- 34234  34237       (240, 5)   Cite.target
- 34232  34238        (-2, 1)   Cite
+ 34234  34237       (240, 5)   Citation.target
+ 34232  34238        (-2, 1)   Citation
  34238  34533       (6, 295)   Text.value
  34238  34533         (0, 0)   Text
  34533  34535       (295, 2)   Text.value
  34533  34535         (0, 0)   Text
  34535  34538         (2, 3)   Text.value
  34535  34538         (0, 0)   Text
- 34540  34543         (5, 5)   Cite.target
- 34538  34544        (-2, 1)   Cite
+ 34540  34543         (5, 5)   Citation.target
+ 34538  34544        (-2, 1)   Citation
  34544  34546         (6, 2)   Text.value
  34544  34546         (0, 0)   Text
- 34548  34551         (4, 5)   Cite.target
- 34546  34552        (-2, 1)   Cite
+ 34548  34551         (4, 5)   Citation.target
+ 34546  34552        (-2, 1)   Citation
  34552  34719       (6, 167)   Text.value
  34552  34719         (0, 0)   Text
- 34721  34724       (169, 5)   Cite.target
- 34719  34725        (-2, 1)   Cite
+ 34721  34724       (169, 5)   Citation.target
+ 34719  34725        (-2, 1)   Citation
  34725  34831       (6, 106)   Text.value
  34725  34831         (0, 0)   Text
  34831  34833       (106, 2)   Text.value
@@ -1024,18 +1024,18 @@ start     end        offsets   node_type+property                   authorship
  33994  35054         (0, 1)   Paragraph
  35055  35358    (1061, 304)   Text.value
  35055  35358         (0, 0)   Text
- 35360  35363       (305, 5)   Cite.target
- 35358  35364        (-2, 1)   Cite
+ 35360  35363       (305, 5)   Citation.target
+ 35358  35364        (-2, 1)   Citation
  35364  35366         (6, 2)   Text.value
  35364  35366         (0, 0)   Text
- 35368  35371         (4, 5)   Cite.target
- 35366  35372        (-2, 1)   Cite
+ 35368  35371         (4, 5)   Citation.target
+ 35366  35372        (-2, 1)   Citation
  35372  35680       (6, 308)   Text.value
  35372  35680         (0, 0)   Text
  35680  35902     (308, 222)   Text.value
  35680  35902         (0, 0)   Text
- 35904  35907       (224, 5)   Cite.target
- 35902  35908        (-2, 1)   Cite
+ 35904  35907       (224, 5)   Citation.target
+ 35902  35908        (-2, 1)   Citation
  35908  36129       (6, 221)   Text.value
  35908  36129         (0, 0)   Text
  36129  36131       (221, 2)   Text.value
@@ -1050,8 +1050,8 @@ start     end        offsets   node_type+property                   authorship
  35055  36698         (0, 1)   Paragraph
  36699  36839    (1644, 141)   Text.value
  36699  36839         (0, 0)   Text
- 36841  36844       (142, 5)   Cite.target
- 36839  36845        (-2, 1)   Cite
+ 36841  36844       (142, 5)   Citation.target
+ 36839  36845        (-2, 1)   Citation
  36845  37002       (6, 157)   Text.value
  36845  37002         (0, 0)   Text
  37002  37004       (157, 2)   Text.value
@@ -1064,8 +1064,8 @@ start     end        offsets   node_type+property                   authorship
  37049  37068        (-1, 1)   Emphasis
  37068  37137       (19, 69)   Text.value
  37068  37137         (0, 0)   Text
- 37139  37142        (71, 5)   Cite.target
- 37137  37143        (-2, 1)   Cite
+ 37139  37142        (71, 5)   Citation.target
+ 37137  37143        (-2, 1)   Citation
  37143  37427       (6, 284)   Text.value
  37143  37427         (0, 0)   Text
  37427  37461      (284, 34)   Text.value
@@ -1074,16 +1074,16 @@ start     end        offsets   node_type+property                   authorship
  36699  37462         (0, 1)   Paragraph
  37463  37870     (764, 408)   Text.value
  37463  37870         (0, 0)   Text
- 37872  37875       (409, 5)   Cite.target
- 37870  37876        (-2, 1)   Cite
+ 37872  37875       (409, 5)   Citation.target
+ 37870  37876        (-2, 1)   Citation
  37876  37878         (6, 2)   Text.value
  37876  37878         (0, 0)   Text
- 37880  37883         (4, 5)   Cite.target
- 37878  37884        (-2, 1)   Cite
+ 37880  37883         (4, 5)   Citation.target
+ 37878  37884        (-2, 1)   Citation
  37884  38086       (6, 202)   Text.value
  37884  38086         (0, 0)   Text
- 38088  38091       (204, 5)   Cite.target
- 38086  38092        (-2, 1)   Cite
+ 38088  38091       (204, 5)   Citation.target
+ 38086  38092        (-2, 1)   Citation
  38092  38344       (6, 252)   Text.value
  38092  38344         (0, 0)   Text
  37463  38344      (-629, 0)   Paragraph.content
@@ -1127,8 +1127,8 @@ start     end        offsets   node_type+property                   authorship
  39216  39220        (-1, 1)   Superscript
  39220  40163       (4, 943)   Text.value
  39220  40163         (0, 0)   Text
- 40165  40168       (945, 5)   Cite.target
- 40163  40169        (-2, 1)   Cite
+ 40165  40168       (945, 5)   Citation.target
+ 40163  40169        (-2, 1)   Citation
  40169  40364       (6, 195)   Text.value
  40169  40364         (0, 0)   Text
  40364  40545     (195, 181)   Text.value
@@ -1148,8 +1148,8 @@ start     end        offsets   node_type+property                   authorship
  40949  40989        (-3, 1)   Heading
  40990  41063       (41, 74)   Text.value
  40990  41063         (0, 0)   Text
- 41065  41068        (75, 5)   Cite.target
- 41063  41069        (-2, 1)   Cite
+ 41065  41068        (75, 5)   Citation.target
+ 41063  41069        (-2, 1)   Citation
  41069  41709       (6, 640)   Text.value
  41069  41709         (0, 0)   Text
  41709  41735      (640, 26)   Text.value
@@ -1158,8 +1158,8 @@ start     end        offsets   node_type+property                   authorship
  41709  41735         (0, 0)   Link
  41735  41810       (26, 75)   Text.value
  41735  41810         (0, 0)   Text
- 41812  41815        (77, 5)   Cite.target
- 41810  41816        (-2, 1)   Cite
+ 41812  41815        (77, 5)   Citation.target
+ 41810  41816        (-2, 1)   Citation
  41816  41994       (6, 178)   Text.value
  41816  41994         (0, 0)   Text
  41994  42062      (178, 68)   Text.value

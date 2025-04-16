@@ -47,12 +47,12 @@ def btn(*, name: str, code: str) -> T.Button:
 
 @beartype
 def ct(target: str):
-    return T.Cite(target=target, citation_mode=T.CitationMode.Parenthetical)
+    return T.Citation(target=target, citation_mode=T.CitationMode.Parenthetical)
 
 
 @beartype
 def ctg(targets: Iterable[str]):
-    return T.CiteGroup(items=[ct(t) for t in targets])
+    return T.CitationGroup(items=[ct(t) for t in targets])
 
 
 @beartype

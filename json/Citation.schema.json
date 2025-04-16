@@ -1,14 +1,14 @@
 {
   "$schema": "https://stencila.org/meta.schema.json",
-  "$id": "https://stencila.org/Cite.schema.json",
-  "@id": "stencila:Cite",
-  "title": "Cite",
+  "$id": "https://stencila.org/Citation.schema.json",
+  "@id": "stencila:Citation",
+  "title": "Citation",
   "extends": [
     "Entity"
   ],
   "category": "prose",
   "description": "A reference to a `CreativeWork` that is cited in another `CreativeWork`.",
-  "$comment": "A `Cite` node is used within a [`CreativeWork`](./CreativeWork), usually an\n[`Article`](./Article), to refer to an other `CreativeWork`.\nOften a `Cite` will be associated with other citations, in a [`CiteGroup`](./CiteGroup).\n",
+  "$comment": "A `Citation` node is used within a [`CreativeWork`](./CreativeWork), usually an\n[`Article`](./Article), to refer to an other `CreativeWork`.\nOften a `Citation` will be associated with other citations, in a `CitationGroup`.\n",
   "jats": {
     "special": true
   },
@@ -54,7 +54,7 @@
     },
     "cites": {
       "@id": "stencila:cites",
-      "description": "The `Reference` being cited, resolved from the `target`",
+      "description": "The `Reference` being cited, resolved from the `target`.",
       "dom": {
         "elem": "span"
       },

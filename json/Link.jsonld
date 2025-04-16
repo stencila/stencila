@@ -45,7 +45,7 @@
           "@id": "stencila:ChatMessage"
         },
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Citation"
         },
         {
           "@id": "stencila:Excerpt"
@@ -134,7 +134,7 @@
       "rdfs:comment": "The target of the link.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Citation"
         },
         {
           "@id": "stencila:Link"

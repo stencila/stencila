@@ -224,7 +224,7 @@ pub struct Executor {
 
     /// References within the document
     ///
-    /// Usually, only references in `Cite` nodes will be listed in the references
+    /// Usually, only references in `Citation` nodes will be listed in the references
     /// section of the document.
     ///
     /// This is an [`IndexMap`] so that, if desired, references can be listed in
@@ -1195,8 +1195,8 @@ impl VisitorAsync for Executor {
 
         use Inline::*;
         Ok(match inline {
-            Cite(node) => self.visit_executable(node).await,
-            CiteGroup(node) => self.visit_executable(node).await,
+            Citation(node) => self.visit_executable(node).await,
+            CitationGroup(node) => self.visit_executable(node).await,
             CodeExpression(node) => self.visit_executable(node).await,
             InstructionInline(node) => self.visit_executable(node).await,
             MathInline(node) => self.visit_executable(node).await,

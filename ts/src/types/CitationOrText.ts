@@ -2,26 +2,26 @@
 
 import { hydrate } from "../hydrate.js";
 
-import { type Cite } from "./Cite.js";
+import { type Citation } from "./Citation.js";
 import { type Text } from "./Text.js";
 
 /**
- * `Cite` or `Text`
+ * `Citation` or `Text`
  */
-export type CiteOrText =
-  Cite |
+export type CitationOrText =
+  Citation |
   Text;
 
 /**
- * Create a `CiteOrText` from an object
+ * Create a `CitationOrText` from an object
  */
-export function citeOrText(other: CiteOrText): CiteOrText {
+export function citationOrText(other: CitationOrText): CitationOrText {
   switch(other.type) {
-    case "Cite":
+    case "Citation":
     case "Text":
-      return hydrate(other) as CiteOrText
+      return hydrate(other) as CitationOrText
     default:
       // @ts-expect-error that this can never happen because this function may be used in weakly-typed JavaScript
-      throw new Error(`Unexpected type for CiteOrText: ${other.type}`);
+      throw new Error(`Unexpected type for CitationOrText: ${other.type}`);
   }
 }

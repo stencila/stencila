@@ -19,8 +19,8 @@ use super::call_block::CallBlock;
 use super::chat::Chat;
 use super::chat_message::ChatMessage;
 use super::chat_message_group::ChatMessageGroup;
-use super::cite::Cite;
-use super::cite_group::CiteGroup;
+use super::citation::Citation;
+use super::citation_group::CitationGroup;
 use super::claim::Claim;
 use super::code_block::CodeBlock;
 use super::code_chunk::CodeChunk;
@@ -187,9 +187,9 @@ pub enum Node {
 
     ChatMessageGroup(ChatMessageGroup),
 
-    Cite(Cite),
+    Citation(Citation),
 
-    CiteGroup(CiteGroup),
+    CitationGroup(CitationGroup),
 
     Claim(Claim),
 

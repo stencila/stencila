@@ -459,7 +459,7 @@ impl Document {
                 Document::track_path(path, Some(time_now()), Some(time_now())).await?;
 
             let doc = Document::open(path).await?;
-            // Compile document to ensure linking between `Cite`s and
+            // Compile document to ensure linking between `Citations`s and
             // `Reference`s etc
             doc.compile(CommandWait::Yes).await?;
 

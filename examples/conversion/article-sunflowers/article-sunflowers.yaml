@@ -1,4 +1,5 @@
 type: Article
+doi: 10.1101/2022.06.30.498369
 abstract:
 - type: Paragraph
   content:
@@ -10,34 +11,29 @@ authors:
   familyNames:
   - Marshall
   givenNames:
-  - Carine M.
+  - Carine
+  - M
 - type: Person
+  orcid: 0000-0003-0500-5639
   familyNames:
   - Thompson
   givenNames:
-  - Veronica L.
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/orcid
-    value: http://orcid.org/0000-0003-0500-5639
+  - Veronica
+  - L
 - type: Person
+  orcid: 0000-0002-4179-6995
   familyNames:
   - Creux
   givenNames:
-  - Nicky M.
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/orcid
-    value: http://orcid.org/0000-0002-4179-6995
+  - Nicky
+  - M
 - type: Person
+  orcid: 0000-0001-6813-6682
   familyNames:
   - Harmer
   givenNames:
-  - Stacey L.
-  identifiers:
-  - type: PropertyValue
-    propertyId: https://registry.identifiers.org/registry/orcid
-    value: http://orcid.org/0000-0001-6813-6682
+  - Stacey
+  - L
 dateReceived:
   type: Date
   value: 2022-6-30
@@ -56,39 +52,45 @@ keywords:
 - external coincidence model
 references:
 - type: Reference
+  id: c1
   authors:
   - type: Person
     familyNames:
     - Agostinelli
     givenNames:
-    - C.
+    - C
   - type: Person
     familyNames:
     - Lund
     givenNames:
-    - U.
+    - U
   date:
     type: Date
     value: '2022'
   title: R package “circular”
 - type: Reference
+  id: c2
   doi: 10.1111/plb.13283
   authors:
   - type: Person
     familyNames:
     - Amorim
     givenNames:
-    - MD
+    - M
+    - D
   - type: Person
     familyNames:
     - da S
     givenNames:
-    - Costa D
+    - Costa
+    - D
   - type: Person
     familyNames:
     - Krahl
     givenNames:
-    - DRP
+    - D
+    - R
+    - P
   - type: Person
     familyNames:
     - Fischer
@@ -98,7 +100,8 @@ references:
     familyNames:
     - Rech
     givenNames:
-    - AR
+    - A
+    - R
   date:
     type: Date
     value: '2021'
@@ -112,38 +115,45 @@ references:
   pageStart: 728
   pageEnd: 734
 - type: Reference
+  id: c3
   doi: 10.1126/science.aaf9793
   authors:
   - type: Person
     familyNames:
     - Atamian
     givenNames:
-    - HS
+    - H
+    - S
   - type: Person
     familyNames:
     - Creux
     givenNames:
-    - NM
+    - N
+    - M
   - type: Person
     familyNames:
     - Brown
     givenNames:
-    - EA
+    - E
+    - A
   - type: Person
     familyNames:
     - Garner
     givenNames:
-    - AG
+    - A
+    - G
   - type: Person
     familyNames:
     - Blackman
     givenNames:
-    - BK
+    - B
+    - K
   - type: Person
     familyNames:
     - Harmer
     givenNames:
-    - SL
+    - S
+    - L
   date:
     type: Date
     value: '2016'
@@ -157,6 +167,7 @@ references:
   pageStart: 587
   pageEnd: 590
 - type: Reference
+  id: c4
   authors:
   - type: Person
     familyNames:
@@ -177,7 +188,7 @@ references:
     familyNames:
     - Pugliesi
     givenNames:
-    - C.
+    - C
   date:
     type: Date
     value: '1990'
@@ -191,6 +202,7 @@ references:
   pageStart: 229
   pageEnd: 231
 - type: Reference
+  id: c5
   doi: 10.1098/rstb.2016.0256
   authors:
   - type: Person
@@ -212,7 +224,7 @@ references:
     familyNames:
     - Green
     givenNames:
-    - R.
+    - R
   date:
     type: Date
     value: '2017'
@@ -225,6 +237,7 @@ references:
     volumeNumber: 372
   pageStart: 20160256
 - type: Reference
+  id: c6
   doi: 10.3389/fphys.2021.776826
   authors:
   - type: Person
@@ -246,7 +259,7 @@ references:
     familyNames:
     - Sandrelli
     givenNames:
-    - F.
+    - F
   date:
     type: Date
     value: '2021'
@@ -259,6 +272,7 @@ references:
     volumeNumber: 12
   pageStart: 776826
 - type: Reference
+  id: c7
   authors:
   - type: Person
     familyNames:
@@ -269,7 +283,9 @@ references:
     familyNames:
     - Raju
     givenNames:
-    - AJS
+    - A
+    - J
+    - S
   date:
     type: Date
     value: '2018'
@@ -283,12 +299,13 @@ references:
   pageStart: 89
   pageEnd: 100
 - type: Reference
+  id: c8
   authors:
   - type: Person
     familyNames:
     - Bünsow
     givenNames:
-    - R.
+    - R
   date:
     type: Date
     value: '1953'
@@ -302,13 +319,15 @@ references:
   pageStart: 220
   pageEnd: 252
 - type: Reference
+  id: c9
   doi: 10.1007/s00344-010-9180-x
   authors:
   - type: Person
     familyNames:
     - Chandler
     givenNames:
-    - JW
+    - J
+    - W
   date:
     type: Date
     value: '2011'
@@ -322,23 +341,27 @@ references:
   pageStart: 242
   pageEnd: 254
 - type: Reference
+  id: c10
   doi: 10.1111/nph.17627
   authors:
   - type: Person
     familyNames:
     - Creux
     givenNames:
-    - NM
+    - N
+    - M
   - type: Person
     familyNames:
     - Brown
     givenNames:
-    - EA
+    - E
+    - A
   - type: Person
     familyNames:
     - Garner
     givenNames:
-    - AG
+    - A
+    - G
   - type: Person
     familyNames:
     - Saeed
@@ -348,12 +371,14 @@ references:
     familyNames:
     - Scher
     givenNames:
-    - CL
+    - C
+    - L
   - type: Person
     familyNames:
     - Holalu
     givenNames:
-    - SV
+    - S
+    - V
   - type: Person
     familyNames:
     - Yang
@@ -363,17 +388,20 @@ references:
     familyNames:
     - Maloof
     givenNames:
-    - JN
+    - J
+    - N
   - type: Person
     familyNames:
     - Blackman
     givenNames:
-    - BK
+    - B
+    - K
   - type: Person
     familyNames:
     - Harmer
     givenNames:
-    - SL
+    - S
+    - L
   date:
     type: Date
     value: '2021'
@@ -387,6 +415,7 @@ references:
   pageStart: 868
   pageEnd: 879
 - type: Reference
+  id: c11
   doi: 10.1080/00218839.2000.11101019
   authors:
   - type: Person
@@ -398,7 +427,8 @@ references:
     familyNames:
     - Watkins
     givenNames:
-    - JC
+    - J
+    - C
   date:
     type: Date
     value: '2000'
@@ -412,13 +442,15 @@ references:
   pageStart: 37
   pageEnd: 45
 - type: Reference
+  id: c12
   doi: 10.1126/science.1115581
   authors:
   - type: Person
     familyNames:
     - Dodd
     givenNames:
-    - AN
+    - A
+    - N
   - type: Person
     familyNames:
     - Salathia
@@ -448,17 +480,21 @@ references:
     familyNames:
     - Hibberd
     givenNames:
-    - JM
+    - J
+    - M
   - type: Person
     familyNames:
     - Millar
     givenNames:
-    - AJ
+    - A
+    - J
   - type: Person
     familyNames:
     - Webb
     givenNames:
-    - A a R.
+    - A
+    - a
+    - R
   date:
     type: Date
     value: '2005'
@@ -472,23 +508,27 @@ references:
   pageStart: 630
   pageEnd: 633
 - type: Reference
+  id: c13
   doi: 10.1111/j.1558-5646.2008.00324.x
   authors:
   - type: Person
     familyNames:
     - Emerson
     givenNames:
-    - KJ
+    - K
+    - J
   - type: Person
     familyNames:
     - Bradshaw
     givenNames:
-    - WE
+    - W
+    - E
   - type: Person
     familyNames:
     - Holzapfel
     givenNames:
-    - CM
+    - C
+    - M
   date:
     type: Date
     value: '2008'
@@ -502,12 +542,14 @@ references:
   pageStart: 979
   pageEnd: 83
 - type: Reference
+  id: c14
   authors:
   - type: Person
     familyNames:
     - Funk
     givenNames:
-    - VA
+    - V
+    - A
   - type: Person
     familyNames:
     - Susanna
@@ -517,12 +559,13 @@ references:
     familyNames:
     - Stuessy
     givenNames:
-    - TF
+    - T
+    - F
   - type: Person
     familyNames:
     - Robinson
     givenNames:
-    - H.
+    - H
   date:
     type: Date
     value: '2009'
@@ -530,6 +573,7 @@ references:
   pageStart: 171
   pageEnd: 189
 - type: Reference
+  id: c15
   doi: 10.1038/nrg3976
   authors:
   - type: Person
@@ -541,7 +585,8 @@ references:
     familyNames:
     - McClung
     givenNames:
-    - CR
+    - C
+    - R
   date:
     type: Date
     value: '2015'
@@ -555,6 +600,7 @@ references:
   pageStart: 598
   pageEnd: 610
 - type: Reference
+  id: c16
   doi: 10.1007/s40415-013-0023-4
   authors:
   - type: Person
@@ -576,12 +622,14 @@ references:
     familyNames:
     - Viana
     givenNames:
-    - BF
+    - B
+    - F
   - type: Person
     familyNames:
     - Kevan
     givenNames:
-    - PG
+    - P
+    - G
   date:
     type: Date
     value: '2013'
@@ -595,6 +643,7 @@ references:
   pageStart: 247
   pageEnd: 254
 - type: Reference
+  id: c17
   doi: 10.1016/j.mce.2011.06.040
   authors:
   - type: Person
@@ -606,7 +655,7 @@ references:
     familyNames:
     - Yoshimura
     givenNames:
-    - T.
+    - T
   date:
     type: Date
     value: '2012'
@@ -620,6 +669,7 @@ references:
   pageStart: 76
   pageEnd: 81
 - type: Reference
+  id: c18
   doi: 10.1016/j.tplants.2006.09.004
   authors:
   - type: Person
@@ -631,7 +681,8 @@ references:
     familyNames:
     - Kay
     givenNames:
-    - SA
+    - S
+    - A
   date:
     type: Date
     value: '2006'
@@ -645,6 +696,7 @@ references:
   pageStart: 550
   pageEnd: 558
 - type: Reference
+  id: c19
   doi: 10.1007/s10265-017-0991-8
   authors:
   - type: Person
@@ -661,7 +713,7 @@ references:
     familyNames:
     - Endo
     givenNames:
-    - M.
+    - M
   date:
     type: Date
     value: '2018'
@@ -675,6 +727,7 @@ references:
   pageStart: 59
   pageEnd: 66
 - type: Reference
+  id: c20
   doi: 10.1101/gad.999202
   authors:
   - type: Person
@@ -706,7 +759,7 @@ references:
     familyNames:
     - Shimamoto
     givenNames:
-    - K.
+    - K
   date:
     type: Date
     value: '2002'
@@ -720,12 +773,13 @@ references:
   pageStart: 2006
   pageEnd: 2020
 - type: Reference
+  id: c21
   authors:
   - type: Person
     familyNames:
     - Jeffrey
     givenNames:
-    - C.
+    - C
   date:
     type: Date
     value: '2009'
@@ -733,13 +787,16 @@ references:
   pageStart: 131
   pageEnd: 138
 - type: Reference
+  id: c22
   doi: 10.1177/0748730419896486
   authors:
   - type: Person
     familyNames:
     - Koritala
     givenNames:
-    - BSC
+    - B
+    - S
+    - C
   - type: Person
     familyNames:
     - Wager
@@ -749,7 +806,8 @@ references:
     familyNames:
     - Waters
     givenNames:
-    - JC
+    - J
+    - C
   - type: Person
     familyNames:
     - Pachucki
@@ -769,12 +827,14 @@ references:
     familyNames:
     - Scheinfeldt
     givenNames:
-    - LB
+    - L
+    - B
   - type: Person
     familyNames:
     - Shende
     givenNames:
-    - SM
+    - S
+    - M
   - type: Person
     familyNames:
     - Park
@@ -784,7 +844,8 @@ references:
     familyNames:
     - Hozier
     givenNames:
-    - JI
+    - J
+    - I
   - type: Person
     familyNames:
     - Lalakia
@@ -799,7 +860,7 @@ references:
     familyNames:
     - Lee
     givenNames:
-    - K.
+    - K
   date:
     type: Date
     value: '2020'
@@ -813,18 +874,20 @@ references:
   pageStart: 134
   pageEnd: 144
 - type: Reference
+  id: c23
   doi: 10.1007/82_2018_143
   authors:
   - type: Person
     familyNames:
     - Larrondo
     givenNames:
-    - LF
+    - L
+    - F
   - type: Person
     familyNames:
     - Canessa
     givenNames:
-    - P.
+    - P
   date:
     type: Date
     value: '2018'
@@ -832,18 +895,21 @@ references:
   pageStart: 121
   pageEnd: 156
 - type: Reference
+  id: c24
   doi: 10.1139/cjb-2014-0245
   authors:
   - type: Person
     familyNames:
     - Lindström
     givenNames:
-    - LI
+    - L
+    - I
   - type: Person
     familyNames:
     - Hernández
     givenNames:
-    - LF
+    - L
+    - F
   date:
     type: Date
     value: '2015'
@@ -857,23 +923,27 @@ references:
   pageStart: 307
   pageEnd: 316
 - type: Reference
+  id: c25
   doi: 10.1016/j.fcr.2007.06.005
   authors:
   - type: Person
     familyNames:
     - Lindström
     givenNames:
-    - LI
+    - L
+    - I
   - type: Person
     familyNames:
     - Pellegrini
     givenNames:
-    - CN
+    - C
+    - N
   - type: Person
     familyNames:
     - Hernández
     givenNames:
-    - LF
+    - L
+    - F
   date:
     type: Date
     value: '2007'
@@ -887,6 +957,7 @@ references:
   pageStart: 229
   pageEnd: 238
 - type: Reference
+  id: c26
   doi: 10.1093/jxb/51.349.1403
   authors:
   - type: Person
@@ -913,29 +984,33 @@ references:
     familyNames:
     - Pugliesi
     givenNames:
-    - C.
+    - C
   date:
     type: Date
     value: '2000'
   title: Hormonal influence on photocontrol of the protandry in the genus Helianthus
 - type: Reference
+  id: c27
   doi: 10.1073/pnas.1903871116
   authors:
   - type: Person
     familyNames:
     - Mandel
     givenNames:
-    - JR
+    - J
+    - R
   - type: Person
     familyNames:
     - Dikow
     givenNames:
-    - RB
+    - R
+    - B
   - type: Person
     familyNames:
     - Siniscalchi
     givenNames:
-    - CM
+    - C
+    - M
   - type: Person
     familyNames:
     - Thapa
@@ -945,12 +1020,14 @@ references:
     familyNames:
     - Watson
     givenNames:
-    - LE
+    - L
+    - E
   - type: Person
     familyNames:
     - Funk
     givenNames:
-    - VA
+    - V
+    - A
   date:
     type: Date
     value: '2019'
@@ -964,6 +1041,7 @@ references:
   pageStart: 14083
   pageEnd: 14088
 - type: Reference
+  id: c28
   doi: 10.1016/0378-4290(81)90065-4
   authors:
   - type: Person
@@ -975,7 +1053,8 @@ references:
     familyNames:
     - Palmer
     givenNames:
-    - JH
+    - J
+    - H
   date:
     type: Date
     value: '1981'
@@ -989,6 +1068,7 @@ references:
   pageStart: 155
   pageEnd: 164
 - type: Reference
+  id: c29
   doi: 10.3390/genes10100811
   authors:
   - type: Person
@@ -1008,13 +1088,15 @@ references:
     volumeNumber: 10
   pageStart: 811
 - type: Reference
+  id: c30
   doi: 10.3390/biology8010014
   authors:
   - type: Person
     familyNames:
     - McClung
     givenNames:
-    - CR
+    - C
+    - R
   date:
     type: Date
     value: '2019'
@@ -1026,18 +1108,21 @@ references:
       name: Biol Basel
     volumeNumber: 8
 - type: Reference
+  id: c31
   doi: 10.1371/journal.pgen.0040014
   authors:
   - type: Person
     familyNames:
     - Michael
     givenNames:
-    - TP
+    - T
+    - P
   - type: Person
     familyNames:
     - Mockler
     givenNames:
-    - TC
+    - T
+    - C
   - type: Person
     familyNames:
     - Breton
@@ -1057,12 +1142,14 @@ references:
     familyNames:
     - Trout
     givenNames:
-    - JD
+    - J
+    - D
   - type: Person
     familyNames:
     - Hazen
     givenNames:
-    - SP
+    - S
+    - P
   - type: Person
     familyNames:
     - Shen
@@ -1072,17 +1159,20 @@ references:
     familyNames:
     - Priest
     givenNames:
-    - HD
+    - H
+    - D
   - type: Person
     familyNames:
     - Sullivan
     givenNames:
-    - CM
+    - C
+    - M
   - type: Person
     familyNames:
     - Givan
     givenNames:
-    - SA
+    - S
+    - A
   - type: Person
     familyNames:
     - Yanovsky
@@ -1097,12 +1187,13 @@ references:
     familyNames:
     - Kay
     givenNames:
-    - SA
+    - S
+    - A
   - type: Person
     familyNames:
     - Chory
     givenNames:
-    - J.
+    - J
   date:
     type: Date
     value: '2008'
@@ -1115,53 +1206,63 @@ references:
     volumeNumber: 4
   pageStart: e14
 - type: Reference
+  id: c32
   doi: 10.1126/science.1082971
   authors:
   - type: Person
     familyNames:
     - Michael
     givenNames:
-    - TP
+    - T
+    - P
   - type: Person
     familyNames:
     - Salomé
     givenNames:
-    - PA
+    - P
+    - A
   - type: Person
     familyNames:
     - Yu
     givenNames:
-    - HJ
+    - H
+    - J
   - type: Person
     familyNames:
     - Spencer
     givenNames:
-    - TR
+    - T
+    - R
   - type: Person
     familyNames:
     - Sharp
     givenNames:
-    - EL
+    - E
+    - L
   - type: Person
     familyNames:
     - McPeek
     givenNames:
-    - MA
+    - M
+    - A
   - type: Person
     familyNames:
     - Alonso
     givenNames:
-    - JM
+    - J
+    - M
   - type: Person
     familyNames:
     - Ecker
     givenNames:
-    - JR
+    - J
+    - R
   - type: Person
     familyNames:
     - McClung
     givenNames:
-    - CR
+    - C
+    - R
   date:
     type: Date
     value: '2003'
@@ -1175,38 +1276,45 @@ references:
   pageStart: 1049
   pageEnd: 1053
 - type: Reference
+  id: c33
   doi: 10.1016/j.cub.2004.07.055
   authors:
   - type: Person
     familyNames:
     - Miller
     givenNames:
-    - BH
+    - B
+    - H
   - type: Person
     familyNames:
     - Olson
     givenNames:
-    - SL
+    - S
+    - L
   - type: Person
     familyNames:
     - Turek
     givenNames:
-    - FW
+    - F
+    - W
   - type: Person
     familyNames:
     - Levine
     givenNames:
-    - JE
+    - J
+    - E
   - type: Person
     familyNames:
     - Horton
     givenNames:
-    - TH
+    - T
+    - H
   - type: Person
     familyNames:
     - Takahashi
     givenNames:
-    - JS
+    - J
+    - S
   date:
     type: Date
     value: '2004'
@@ -1220,18 +1328,21 @@ references:
   pageStart: 1367
   pageEnd: 1373
 - type: Reference
+  id: c34
   doi: 10.1177/07487304211014622
   authors:
   - type: Person
     familyNames:
     - Mosier
     givenNames:
-    - AE
+    - A
+    - E
   - type: Person
     familyNames:
     - Hurley
     givenNames:
-    - JM
+    - J
+    - M
   date:
     type: Date
     value: '2021'
@@ -1245,6 +1356,7 @@ references:
   pageStart: 315
   pageEnd: 328
 - type: Reference
+  id: c35
   doi: 10.1093/pcp/pcab048
   authors:
   - type: Person
@@ -1296,7 +1408,7 @@ references:
     familyNames:
     - Kutsuna
     givenNames:
-    - S.
+    - S
   date:
     type: Date
     value: '2021'
@@ -1310,17 +1422,20 @@ references:
   pageStart: 883
   pageEnd: 893
 - type: Reference
+  id: c36
   authors:
   - type: Person
     familyNames:
     - Neff
     givenNames:
-    - JL
+    - J
+    - L
   - type: Person
     familyNames:
     - Simpson
     givenNames:
-    - BB
+    - B
+    - B
   date:
     type: Date
     value: '1990'
@@ -1334,6 +1449,7 @@ references:
   pageStart: 197
   pageEnd: 216
 - type: Reference
+  id: c37
   doi: 10.1073/pnas.95.15.8660
   authors:
   - type: Person
@@ -1345,7 +1461,8 @@ references:
     familyNames:
     - Andersson
     givenNames:
-    - CR
+    - C
+    - R
   - type: Person
     familyNames:
     - Kondo
@@ -1355,12 +1472,14 @@ references:
     familyNames:
     - Golden
     givenNames:
-    - SS
+    - S
+    - S
   - type: Person
     familyNames:
     - Johnson
     givenNames:
-    - CH
+    - C
+    - H
   date:
     type: Date
     value: '1998'
@@ -1374,18 +1493,21 @@ references:
   pageStart: 8660
   pageEnd: 4
 - type: Reference
+  id: c38
   doi: 10.1016/0378-4290(85)90088-7
   authors:
   - type: Person
     familyNames:
     - Palmer
     givenNames:
-    - JH
+    - J
+    - H
   - type: Person
     familyNames:
     - Steer
     givenNames:
-    - BT
+    - B
+    - T
   date:
     type: Date
     value: '1985'
@@ -1399,29 +1521,33 @@ references:
   pageStart: 1
   pageEnd: 12
 - type: Reference
+  id: c39
   doi: 10.3120/0024-9637-56.3.209
   authors:
   - type: Person
     familyNames:
     - Patterson
     givenNames:
-    - B.
+    - B
   date:
     type: Date
     value: '2009'
 - type: Reference
+  id: c40
   doi: 10.1086/282327
   authors:
   - type: Person
     familyNames:
     - Pittendrigh
     givenNames:
-    - CS
+    - C
+    - S
   - type: Person
     familyNames:
     - Minis
     givenNames:
-    - DH
+    - D
+    - H
   date:
     type: Date
     value: '1964'
@@ -1435,6 +1561,7 @@ references:
   pageStart: 261
   pageEnd: 294
 - type: Reference
+  id: c41
   date:
     type: Date
     value: '1940'
@@ -1448,6 +1575,7 @@ references:
   pageStart: 167
   pageEnd: 179
 - type: Reference
+  id: c42
   doi: 10.1081/CBI-120014569
   authors:
   - type: Person
@@ -1459,7 +1587,7 @@ references:
     familyNames:
     - Ruoff
     givenNames:
-    - P.
+    - P
   date:
     type: Date
     value: '2002'
@@ -1473,18 +1601,21 @@ references:
   pageStart: 807
   pageEnd: 864
 - type: Reference
+  id: c43
   doi: 10.1016/j.gde.2012.10.003
   authors:
   - type: Person
     familyNames:
     - Richmond
     givenNames:
-    - DL
+    - D
+    - L
   - type: Person
     familyNames:
     - Oates
     givenNames:
-    - AC
+    - A
+    - C
   date:
     type: Date
     value: '2012'
@@ -1498,6 +1629,7 @@ references:
   pageStart: 600
   pageEnd: 606
 - type: Reference
+  id: c44
   doi: 10.1073/pnas.0501884102
   authors:
   - type: Person
@@ -1514,7 +1646,7 @@ references:
     familyNames:
     - Merrow
     givenNames:
-    - M.
+    - M
   date:
     type: Date
     value: '2005'
@@ -1528,6 +1660,7 @@ references:
   pageStart: 7742
   pageEnd: 7
 - type: Reference
+  id: c45
   doi: 10.1038/s41573-020-00109-w
   authors:
   - type: Person
@@ -1544,7 +1677,8 @@ references:
     familyNames:
     - Eltzschig
     givenNames:
-    - HK
+    - H
+    - K
   date:
     type: Date
     value: '2021'
@@ -1558,23 +1692,27 @@ references:
   pageStart: 287
   pageEnd: 307
 - type: Reference
+  id: c46
   doi: 10.1104/pp.41.8.1343
   authors:
   - type: Person
     familyNames:
     - Sargent
     givenNames:
-    - ML
+    - M
+    - L
   - type: Person
     familyNames:
     - Briggs
     givenNames:
-    - WR
+    - W
+    - R
   - type: Person
     familyNames:
     - Woodward
     givenNames:
-    - DO
+    - D
+    - O
   date:
     type: Date
     value: '1966'
@@ -1588,22 +1726,26 @@ references:
   pageStart: 1343
   pageEnd: 1349
 - type: Reference
+  id: c47
   authors:
   - type: Person
     familyNames:
     - Schneider
     givenNames:
-    - CA
+    - C
+    - A
   - type: Person
     familyNames:
     - Rasband
     givenNames:
-    - WS
+    - W
+    - S
   - type: Person
     familyNames:
     - Eliceiri
     givenNames:
-    - KW
+    - K
+    - W
   date:
     type: Date
     value: '2012'
@@ -1617,13 +1759,15 @@ references:
   pageStart: 671
   pageEnd: 5
 - type: Reference
+  id: c48
   doi: 10.2134/agronmonogr35.c3
   authors:
   - type: Person
     familyNames:
     - Seiler
     givenNames:
-    - GJ
+    - G
+    - J
   date:
     type: Date
     value: '2015'
@@ -1631,6 +1775,7 @@ references:
   pageStart: 67
   pageEnd: 111
 - type: Reference
+  id: c49
   doi: 10.1073/pnas.1516442113
   authors:
   - type: Person
@@ -1652,12 +1797,14 @@ references:
     familyNames:
     - Loudon
     givenNames:
-    - ASI
+    - A
+    - S
+    - I
   - type: Person
     familyNames:
     - Hau
     givenNames:
-    - M.
+    - M
   date:
     type: Date
     value: '2016'
@@ -1671,6 +1818,7 @@ references:
   pageStart: 686
   pageEnd: 691
 - type: Reference
+  id: c50
   doi: 10.1080/0028825X.2016.1236735
   authors:
   - type: Person
@@ -1697,7 +1845,7 @@ references:
     familyNames:
     - Vieira
     givenNames:
-    - M.
+    - M
   date:
     type: Date
     value: '2016'
@@ -1711,18 +1859,21 @@ references:
   pageStart: 498
   pageEnd: 510
 - type: Reference
+  id: c51
   doi: 10.2307/1940121
   authors:
   - type: Person
     familyNames:
     - Visscher
     givenNames:
-    - PK
+    - P
+    - K
   - type: Person
     familyNames:
     - Seeley
     givenNames:
-    - TD
+    - T
+    - D
   date:
     type: Date
     value: '1982'
@@ -1735,6 +1886,7 @@ references:
     volumeNumber: 63
   pageStart: 1790
 - type: Reference
+  id: c52
   doi: 10.1111/j.1365-313X.2011.04505.x
   authors:
   - type: Person
@@ -1751,22 +1903,28 @@ references:
     familyNames:
     - Edwards
     givenNames:
-    - KD
+    - K
+    - D
   - type: Person
     familyNames:
     - Hall
     givenNames:
-    - AJW
+    - A
+    - J
+    - W
   - type: Person
     familyNames:
     - Locke
     givenNames:
-    - JCW
+    - J
+    - C
+    - W
   - type: Person
     familyNames:
     - Millar
     givenNames:
-    - AJ
+    - A
+    - J
   date:
     type: Date
     value: '2011'
@@ -1780,6 +1938,7 @@ references:
   pageStart: 480
   pageEnd: 491
 - type: Reference
+  id: c53
   doi: 10.21105/joss.01686
   authors:
   - type: Person
@@ -1901,7 +2060,7 @@ references:
     familyNames:
     - Yutani
     givenNames:
-    - H.
+    - H
   date:
     type: Date
     value: '2019'
@@ -1914,6 +2073,7 @@ references:
     volumeNumber: 4
   pageStart: 1686
 - type: Reference
+  id: c54
   doi: 10.1242/dev.181446
   authors:
   - type: Person
@@ -1930,7 +2090,7 @@ references:
     familyNames:
     - Beeckman
     givenNames:
-    - T.
+    - T
   date:
     type: Date
     value: '2020'
@@ -1943,18 +2103,21 @@ references:
     volumeNumber: 147
   pageStart: dev181446
 - type: Reference
+  id: c55
   doi: 10.1038/nrm1077
   authors:
   - type: Person
     familyNames:
     - Yanovsky
     givenNames:
-    - MJ
+    - M
+    - J
   - type: Person
     familyNames:
     - Kay
     givenNames:
-    - SA
+    - S
+    - A
   date:
     type: Date
     value: '2003'
@@ -1968,6 +2131,7 @@ references:
   pageStart: 265
   pageEnd: 276
 - type: Reference
+  id: c56
   doi: 10.1111/nph.13681
   authors:
   - type: Person
@@ -1994,12 +2158,13 @@ references:
     familyNames:
     - Baldwin
     givenNames:
-    - IT
+    - I
+    - T
   - type: Person
     familyNames:
     - Kim
     givenNames:
-    - S-G.
+    - S-G
   date:
     type: Date
     value: '2016'
@@ -2013,6 +2178,7 @@ references:
   pageStart: 1058
   pageEnd: 1066
 - type: Reference
+  id: c57
   doi: 10.1111/jipb.12511
   authors:
   - type: Person
@@ -2039,12 +2205,14 @@ references:
     familyNames:
     - Kim
     givenNames:
-    - SG
+    - S
+    - G
   - type: Person
     familyNames:
     - Baldwin
     givenNames:
-    - IT
+    - I
+    - T
   date:
     type: Date
     value: '2017'
@@ -2058,6 +2226,7 @@ references:
   pageStart: 180
   pageEnd: 189
 - type: Reference
+  id: c58
   doi: 10.1073/pnas.2016304118
   authors:
   - type: Person
@@ -2084,12 +2253,14 @@ references:
     familyNames:
     - Broholm
     givenNames:
-    - SK
+    - S
+    - K
   - type: Person
     familyNames:
     - Teeri
     givenNames:
-    - TH
+    - T
+    - H
   - type: Person
     familyNames:
     - Elomaa
@@ -2099,7 +2270,7 @@ references:
     familyNames:
     - Prusinkiewicz
     givenNames:
-    - P.
+    - P
   date:
     type: Date
     value: '2021'
@@ -2112,6 +2283,7 @@ references:
     volumeNumber: 118
   pageStart: e2016304118
 - type: Reference
+  id: c59
   doi: 10.1371/journal.pone.0096462
   authors:
   - type: Person
@@ -2123,7 +2295,8 @@ references:
     familyNames:
     - Moore
     givenNames:
-    - AM
+    - A
+    - M
   - type: Person
     familyNames:
     - Troup
@@ -2133,12 +2306,14 @@ references:
     familyNames:
     - Halliday
     givenNames:
-    - KJ
+    - K
+    - J
   - type: Person
     familyNames:
     - Millar
     givenNames:
-    - AJ
+    - A
+    - J
   date:
     type: Date
     value: '2014'
@@ -2168,7 +2343,7 @@ content:
     - type: Text
       value:
         string: From the earliest stages of cellular differentiation to reproductive maturity, spatio-temporal regulation of developmental transitions plays an important role in biological success. In some cases, internal temporal rhythms are used to spatially organize a body plan. For example, in vertebrate embryos a molecular ‘segmentation clock’ acts at regular intervals to divide the developing body axis into discrete blocks of cells that later differentiate into individual somites (
-    - type: Cite
+    - type: Citation
       target: c43
       citationMode: Parenthetical
       content:
@@ -2178,7 +2353,7 @@ content:
     - type: Text
       value:
         string: ). In plants, the regular spacing of lateral roots along the length of the primary root axis is controlled by a ‘root clock’ that generates a temporally oscillating developmental signal (
-    - type: Cite
+    - type: Citation
       target: c54
       citationMode: Parenthetical
       content:
@@ -2188,7 +2363,7 @@ content:
     - type: Text
       value:
         string: ). Thus in both plants and animals, internal body clocks can generate serially-repeated organs. These types of clocks are distinct from the circadian oscillator, the biological clock found in most eukaryotes and some prokaryotes (
-    - type: Cite
+    - type: Citation
       target: c34
       citationMode: Parenthetical
       content:
@@ -2198,7 +2373,7 @@ content:
     - type: Text
       value:
         string: ). Circadian clocks coordinate development on daily and seasonal time scales. In both plants and animals, the circadian clock can integrate environmental cues such as day length and temperature to time the transition to reproductive stages to the appropriate season (
-    - type: Cite
+    - type: Citation
       target: c17
       citationMode: Parenthetical
       content:
@@ -2208,7 +2383,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c19
       citationMode: Parenthetical
       content:
@@ -2234,7 +2409,7 @@ content:
     - type: Text
       value:
         string: ' ('
-    - type: Cite
+    - type: Citation
       target: c6
       citationMode: Parenthetical
       content:
@@ -2244,7 +2419,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c23
       citationMode: Parenthetical
       content:
@@ -2254,7 +2429,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c30
       citationMode: Parenthetical
       content:
@@ -2269,7 +2444,7 @@ content:
     - type: Text
       value:
         string: Circadian clocks in eukaryotes are cell-autonomous systems made up of transcriptional-translational feedback loops that create rhythms of gene expression to regulate biological timing. Circadian rhythms, biological processes regulated by the circadian clock, meet several fundamental criteria (
-    - type: Cite
+    - type: Citation
       target: c42
       citationMode: Parenthetical
       content:
@@ -2279,7 +2454,7 @@ content:
     - type: Text
       value:
         string: ). First, they are stably entrained to environmental cues. Second, they persist in free running environmental conditions. Third, circadian rhythms are temperature compensated such that they maintain a uniform period over a range of ambient temperatures, in contrast to the general rule that the rate of enzymatic processes changes with temperature. In addition, the circadian clock gates certain biological processes so that responsiveness to environmental cues is time-of-day dependent. For example, studies in humans show the timing of drug treatment can be critical to creating an effective therapeutic response (
-    - type: Cite
+    - type: Citation
       target: c45
       citationMode: Parenthetical
       content:
@@ -2289,7 +2464,7 @@ content:
     - type: Text
       value:
         string: ). A functioning circadian clock whose biological rhythms match that of the environment provides a fitness advantage for many organisms, including plants (
-    - type: Cite
+    - type: Citation
       target: c12
       citationMode: Parenthetical
       content:
@@ -2299,7 +2474,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c32
       citationMode: Parenthetical
       content:
@@ -2309,7 +2484,7 @@ content:
     - type: Text
       value:
         string: ), animals (
-    - type: Cite
+    - type: Citation
       target: c33
       citationMode: Parenthetical
       content:
@@ -2319,7 +2494,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c13
       citationMode: Parenthetical
       content:
@@ -2329,7 +2504,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c49
       citationMode: Parenthetical
       content:
@@ -2339,7 +2514,7 @@ content:
     - type: Text
       value:
         string: ), bacteria (
-    - type: Cite
+    - type: Citation
       target: c37
       citationMode: Parenthetical
       content:
@@ -2349,7 +2524,7 @@ content:
     - type: Text
       value:
         string: ), and fungi (
-    - type: Cite
+    - type: Citation
       target: c22
       citationMode: Parenthetical
       content:
@@ -2364,7 +2539,7 @@ content:
     - type: Text
       value:
         string: One important way the circadian clock promotes fitness is by controlling timing of reproductive development, for example by allowing organisms to distinguish between the long and short days of different seasons. In plants, the circadian system mediates the effects of day length during the transition from vegetative to reproductive growth, usually referred to as flowering time (
-    - type: Cite
+    - type: Citation
       target: c18
       citationMode: Parenthetical
       content:
@@ -2374,7 +2549,7 @@ content:
     - type: Text
       value:
         string: ). The circadian clock also regulates daily aspects of floral development, for example coordinating daily rhythms in scent emission and floral opening and closing with pollinator activity (
-    - type: Cite
+    - type: Citation
       target: c57
       citationMode: Parenthetical
       content:
@@ -2384,7 +2559,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c19
       citationMode: Parenthetical
       content:
@@ -2394,7 +2569,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c35
       citationMode: Parenthetical
       content:
@@ -2404,7 +2579,7 @@ content:
     - type: Text
       value:
         string: ). In addition, the circadian clock is implicated in the uniform eastward orientation observed in mature sunflower plants; this eastward orientation was shown to enhance both male and female reproductive fitness (
-    - type: Cite
+    - type: Citation
       target: c3
       citationMode: Parenthetical
       content:
@@ -2414,7 +2589,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c10
       citationMode: Parenthetical
       content:
@@ -2429,7 +2604,7 @@ content:
     - type: Text
       value:
         string: Domesticated sunflower is an excellent model system to study the temporal regulation of floral development. Sunflowers are members of the Asteraceae, a highly successful family comprised of about 30,000 distinct species that are widely dispersed around the world (
-    - type: Cite
+    - type: Citation
       target: c14
       citationMode: Parenthetical
       content:
@@ -2442,7 +2617,7 @@ content:
     - type: Text
       value:
         string: ). These phyllotactic spirals, called parastichies, are generated by the precise specification of floral primordia, first at the outer rim and then moving into the center of the capitulum disk (
-    - type: Cite
+    - type: Citation
       target: c58
       citationMode: Parenthetical
       content:
@@ -2452,7 +2627,7 @@ content:
     - type: Text
       value:
         string: ). In domesticated sunflower, specification of the hundreds or even thousands of floret primordia found on a single capitulum takes approximately 10-14 days (
-    - type: Cite
+    - type: Citation
       target: c28
       citationMode: Parenthetical
       content:
@@ -2462,7 +2637,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c38
       citationMode: Parenthetical
       content:
@@ -2472,7 +2647,7 @@ content:
     - type: Text
       value:
         string: ), followed approximately 20 days later by the onset of anthesis, or floral opening, of the first florets (
-    - type: Cite
+    - type: Citation
       target: c24
       citationMode: Parenthetical
       content:
@@ -2482,7 +2657,7 @@ content:
     - type: Text
       value:
         string: ). Anthesis of all florets on a capitulum head typically occurs over 5-10 days (
-    - type: Cite
+    - type: Citation
       target: c48
       citationMode: Parenthetical
       content:
@@ -2492,7 +2667,7 @@ content:
     - type: Text
       value:
         string: ). Intriguingly, the timing of anthesis does not follow the gradual and continuous pattern of development seen during specification of floret primordia on the developing capitulum (
-    - type: Cite
+    - type: Citation
       target: c28
       citationMode: Parenthetical
       content:
@@ -2502,7 +2677,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c58
       citationMode: Parenthetical
       content:
@@ -2515,7 +2690,7 @@ content:
     - type: Text
       value:
         string: ). Each ring, or pseudowhorl, undergoes anthesis on successive days. While previous studies examined the effects of hormones and environmental factors on the timing of development of florets within a pseudowhorl (
-    - type: Cite
+    - type: Citation
       target: c4
       citationMode: Parenthetical
       content:
@@ -2525,7 +2700,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c26
       citationMode: Parenthetical
       content:
@@ -2659,7 +2834,7 @@ content:
       - type: Text
         value:
           string: ) (
-      - type: Cite
+      - type: Citation
         target: c28
         citationMode: Parenthetical
         content:
@@ -2689,7 +2864,7 @@ content:
       - type: Text
         value:
           string: 'Previous studies described daily patterns in sunflower floret anthesis, with a single floret releasing pollen the day before the stigma of this floret is receptive to pollen (Putt, 1940; '
-      - type: Cite
+      - type: Citation
         target: c36
         citationMode: Parenthetical
         content:
@@ -2714,7 +2889,7 @@ content:
       - type: Text
         value:
           string: ) (
-      - type: Cite
+      - type: Citation
         target: c4
         citationMode: Parenthetical
         content:
@@ -2724,7 +2899,7 @@ content:
       - type: Text
         value:
           string: '; '
-      - type: Cite
+      - type: Citation
         target: c26
         citationMode: Parenthetical
         content:
@@ -2740,7 +2915,7 @@ content:
       - type: Text
         value:
           string: ). This plunger-style mechanism of pollen presentation is an ancestral feature of the Asteraceae family (
-      - type: Cite
+      - type: Citation
         target: c21
         citationMode: Parenthetical
         content:
@@ -2753,7 +2928,7 @@ content:
       - type: Text
         value:
           string: ). The temporal and spatial separation between pollen release and stigma presentation in sunflowers promotes cross-fertilization across head (
-      - type: Cite
+      - type: Citation
         target: c39
         citationMode: Parenthetical
         content:
@@ -2779,7 +2954,7 @@ content:
       - type: Text
         value:
           string: ). As previously described (
-      - type: Cite
+      - type: Citation
         target: c4
         citationMode: Parenthetical
         content:
@@ -2789,7 +2964,7 @@ content:
       - type: Text
         value:
           string: '; '
-      - type: Cite
+      - type: Citation
         target: c26
         citationMode: Parenthetical
         content:
@@ -2936,7 +3111,7 @@ content:
       - type: Text
         value:
           string: This high degree of developmental coordination within each pseudowhorl is quite remarkable given that the initiation of floret primordia along a parastichy occurs continuously over many days (
-      - type: Cite
+      - type: Citation
         target: c58
         citationMode: Parenthetical
         content:
@@ -2961,7 +3136,7 @@ content:
       - type: Text
         value:
           string: ), but there was a large step-down in length compared to ovaries of pre-anthesis florets in the same parastichy. Previous studies showed the large changes in ovary size and filament length during anthesis are due to rapid cell expansion (
-      - type: Cite
+      - type: Citation
         target: c25
         citationMode: Parenthetical
         content:
@@ -2971,7 +3146,7 @@ content:
       - type: Text
         value:
           string: '; '
-      - type: Cite
+      - type: Citation
         target: c24
         citationMode: Parenthetical
         content:
@@ -2981,7 +3156,7 @@ content:
       - type: Text
         value:
           string: '; '
-      - type: Cite
+      - type: Citation
         target: c26
         citationMode: Parenthetical
         content:
@@ -3180,7 +3355,7 @@ content:
       - type: Text
         value:
           string: Circadian-regulated processes are characterized by their relative insensitivity to temperature variation across a physiologically relevant range (
-      - type: Cite
+      - type: Citation
         target: c15
         citationMode: Parenthetical
         content:
@@ -3212,7 +3387,7 @@ content:
       - type: Text
         value:
           string: Environmental influences on clock-regulated processes are often ‘gated’ by the circadian clock, meaning that the same stimulus can evoke different responses when applied at different times of day (
-      - type: Cite
+      - type: Citation
         target: c52
         citationMode: Parenthetical
         content:
@@ -3406,7 +3581,7 @@ content:
       - type: Text
         value:
           string: Many circadian-regulated processes exhibit frequency demultiplication; that is, they maintain 24-hour rhythms even when subjected to light/dark cycles with a cycle length close to half that of the endogenous period (
-      - type: Cite
+      - type: Citation
         target: c44
         citationMode: Parenthetical
         content:
@@ -3487,7 +3662,7 @@ content:
       - type: Text
         value:
           string: Previous studies show that sunflower anther filament elongation is completely inhibited and style elongation is reduced in constant light conditions (
-      - type: Cite
+      - type: Citation
         target: c4
         citationMode: Parenthetical
         content:
@@ -3497,7 +3672,7 @@ content:
       - type: Text
         value:
           string: '; '
-      - type: Cite
+      - type: Citation
         target: c26
         citationMode: Parenthetical
         content:
@@ -3577,7 +3752,7 @@ content:
     - type: Text
       value:
         string: Many aspects of floral physiology, including flower opening and scent production, vary across a day (
-    - type: Cite
+    - type: Citation
       target: c5
       citationMode: Parenthetical
       content:
@@ -3603,7 +3778,7 @@ content:
     - type: Text
       value:
         string: ', the circadian clock has been shown to regulate these diel rhythms ('
-    - type: Cite
+    - type: Citation
       target: c8
       citationMode: Parenthetical
       content:
@@ -3613,7 +3788,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c56
       citationMode: Parenthetical
       content:
@@ -3632,7 +3807,7 @@ content:
     - type: Text
       value:
         string: ). We therefore conclude that the circadian clock controls floral development in sunflower to ensure release of pollen soon after dawn and the emergence of styles and stigmas late in the day. Although style elongation is largely complete near the end of the first day of floret anthesis (
-    - type: Cite
+    - type: Citation
       target: c4
       citationMode: Parenthetical
       content:
@@ -3645,7 +3820,7 @@ content:
     - type: Text
       value:
         string: '), stigmas do not become receptive to pollen until the following morning (Putt, 1940; '
-    - type: Cite
+    - type: Citation
       target: c36
       citationMode: Parenthetical
       content:
@@ -3655,7 +3830,7 @@ content:
     - type: Text
       value:
         string: ). This temporal separation between release of pollen and stigma receptivity is thought to reduce self-pollination and is prevalent throughout the Asteraceae family (
-    - type: Cite
+    - type: Citation
       target: c21
       citationMode: Parenthetical
       content:
@@ -3685,7 +3860,7 @@ content:
     - type: Text
       value:
         string: ). These results are consistent with our previous field studies that showed modest changes in ambient temperature affected style but not anther filament elongation (
-    - type: Cite
+    - type: Citation
       target: c10
       citationMode: Parenthetical
       content:
@@ -3695,7 +3870,7 @@ content:
     - type: Text
       value:
         string: ). Overall, the different sensitivities of floral organs to light and temperature suggest they may be regulated by distinct growth regulatory pathways. This is consistent with studies in other plants, which revealed that different hormones regulate the growth of male and female reproductive organs (
-    - type: Cite
+    - type: Citation
       target: c9
       citationMode: Parenthetical
       content:
@@ -3705,7 +3880,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c29
       citationMode: Parenthetical
       content:
@@ -3720,7 +3895,7 @@ content:
     - type: Text
       value:
         string: While the molecular pathways controlling elongation of anther filaments and styles in sunflower are likely different, we demonstrate that their common regulation by the circadian clock results in the fast and near-synchronous release of pollen a few hours after dawn. Intriguingly, many bee- and butterfly-pollinated Asteraceae species release pollen in the morning (
-    - type: Cite
+    - type: Citation
       target: c7
       citationMode: Parenthetical
       content:
@@ -3730,7 +3905,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c16
       citationMode: Parenthetical
       content:
@@ -3740,7 +3915,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c36
       citationMode: Parenthetical
       content:
@@ -3750,7 +3925,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c50
       citationMode: Parenthetical
       content:
@@ -3760,7 +3935,7 @@ content:
     - type: Text
       value:
         string: ) while at least one bat-pollinated member of the family releases pollen in the early night (
-    - type: Cite
+    - type: Citation
       target: c2
       citationMode: Parenthetical
       content:
@@ -3770,7 +3945,7 @@ content:
     - type: Text
       value:
         string: ). Since the precise timing of pollen release relative to dawn affects male reproductive success in sunflower (
-    - type: Cite
+    - type: Citation
       target: c10
       citationMode: Parenthetical
       content:
@@ -3785,7 +3960,7 @@ content:
     - type: Text
       value:
         string: The ecological and evolutionary success of the Asteraceae family, estimated to contain ∼10% of angiosperm species, is attributed in part to their compressed inflorescences that act together as single false flowers to attract pollinators (
-    - type: Cite
+    - type: Citation
       target: c27
       citationMode: Parenthetical
       content:
@@ -3801,7 +3976,7 @@ content:
     - type: Text
       value:
         string: ) (
-    - type: Cite
+    - type: Citation
       target: c28
       citationMode: Parenthetical
       content:
@@ -3811,7 +3986,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c38
       citationMode: Parenthetical
       content:
@@ -3821,7 +3996,7 @@ content:
     - type: Text
       value:
         string: ). Recent experimental and modeling studies in gerbera daisies attributed formation of this spiral pattern to short-range interactions between spatially close initia (
-    - type: Cite
+    - type: Citation
       target: c58
       citationMode: Parenthetical
       content:
@@ -3845,7 +4020,7 @@ content:
     - type: Text
       value:
         string: How do florets of different developmental ages temporally coordinate anthesis to generate pseudowhorls? We propose that a type of external coincidence model is at work, analogous to the mechanisms underlying photoperiodic control of the transition from vegetative to reproductive growth in many plants (
-    - type: Cite
+    - type: Citation
       target: c40
       citationMode: Parenthetical
       content:
@@ -3855,7 +4030,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c55
       citationMode: Parenthetical
       content:
@@ -3868,7 +4043,7 @@ content:
     - type: Text
       value:
         string: ). This is conceptually similar to photoperiodic control of flowering in short day plants such as rice, in which light at night inactivates a clock-regulated transcription factor that promotes the transition to flowering (
-    - type: Cite
+    - type: Citation
       target: c20
       citationMode: Parenthetical
       content:
@@ -3895,7 +4070,7 @@ content:
     - type: Text
       value:
         string: Plants are generally considered diurnal organisms and often have more robust circadian rhythms in constant light than in constant darkness (
-    - type: Cite
+    - type: Citation
       target: c31
       citationMode: Parenthetical
       content:
@@ -3919,7 +4094,7 @@ content:
     - type: Text
       value:
         string: ', which are observed in constant darkness but not in constant light ('
-    - type: Cite
+    - type: Citation
       target: c46
       citationMode: Parenthetical
       content:
@@ -3937,7 +4112,7 @@ content:
     - type: Text
       value:
         string: Another interesting question is why florets of different developmental ages undergo coordinated anthesis to generate pseudowhorls. It has been reported that the foraging activity of both honeybees and native bees on sunflower heads is positively correlated with the number of florets undergoing anthesis at any given time, and that seed set is strongly correlated with the number of bees foraging on heads (
-    - type: Cite
+    - type: Citation
       target: c11
       citationMode: Parenthetical
       content:
@@ -3947,7 +4122,7 @@ content:
     - type: Text
       value:
         string: '; '
-    - type: Cite
+    - type: Citation
       target: c36
       citationMode: Parenthetical
       content:
@@ -3957,7 +4132,7 @@ content:
     - type: Text
       value:
         string: ). In the case of the highly social honeybees, hive members communicate via a dance language to quickly reallocate the numbers of foragers sent to different food sources based on resource availability (
-    - type: Cite
+    - type: Citation
       target: c51
       citationMode: Parenthetical
       content:
@@ -4021,7 +4196,7 @@ content:
       - type: Text
         value:
           string: ' provided by metal halide and incandescent lamps) to image floret development under the indicated environmental conditions. Transfer to experimental conditions occurred at ZT 0. Sunflower stalks and capitula were taped to bamboo stakes (to avoid capitulum moving out of the camera frame). Raspberry Pi NoIR V2 cameras were mounted on Raspberry Pi 3 model B computers (Raspberry Pi, Cambridge, UK); cameras were fitted with LEE 87 75 x75mm infrared (IR) filters (Lee Filters, Andover, England). Computers were programmed to take a photo every 15 minutes. Infrared LEDs (Mouser Electronics, El Cajon, CA, USA) were programmed to flash during image capture so that the capitula were visible in the dark without disrupting plant growth. Sunflowers were imaged immediately upon transfer to experimental conditions, and through anthesis of all florets in the capitulum. The 15-minute interval images were analyzed sequentially in a stack on ImageJ ('
-      - type: Cite
+      - type: Citation
         target: c47
         citationMode: Parenthetical
         content:
@@ -4053,7 +4228,7 @@ content:
       - type: Text
         value:
           string: All sunflower scoring data was plotted in R using the tidyverse package (
-      - type: Cite
+      - type: Citation
         target: c53
         citationMode: Parenthetical
         content:
@@ -4072,7 +4247,7 @@ content:
       - type: Text
         value:
           string: ) was used to calculate rhythmic parameters for all conditions and organs (
-      - type: Cite
+      - type: Citation
         target: c59
         citationMode: Parenthetical
         content:
@@ -4144,10 +4319,6 @@ content:
         value:
           string: ; LD|25°C (19.5h:4.5h)) entire florets from a single pseudowhorl were dissected from the capitulum and photographed. Organs were then measured with Image J for each floret. For ovary growth measurements, at ZT 2 on after the second day in a given growth condition, entire florets, including ovaries, were dissected from the capitulum along 4-8 continuous parastichies and photographed. Ovary length was then measured with Image J for each floret, consecutively. Position 8 always designated the boundary between pseudowhorls.
   sectionType: Methods
-identifiers:
-- type: PropertyValue
-  propertyId: doi
-  value: 10.1101/2022.06.30.498369
 about:
 - type: PropertyValue
   propertyId: author-type

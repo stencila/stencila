@@ -19,7 +19,6 @@ The `ExecutionBounds` type has these members:
 
 - `Main`
 - `Fork`
-- `Limit`
 - `Box`
 
 # Bindings

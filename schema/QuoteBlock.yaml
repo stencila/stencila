@@ -14,15 +14,15 @@ proptest: {}
 required:
   - content
 core:
-  - cite
+  - source
   - authors
   - provenance
 properties:
-  cite:
-    '@id': stencila:cite
+  source:
+    '@id': stencila:source
     description: The source of the quote.
     anyOf:
-      - $ref: Cite
+      - $ref: Citation
       - $ref: Text
   content:
     '@id': stencila:content

@@ -185,7 +185,7 @@ class CitationIntent(StrEnum):
 
 class CitationMode(StrEnum):
     """
-    The mode of a `Cite`.
+    The mode of a `Citation`.
     """
 
     Parenthetical = "Parenthetical"
@@ -1307,18 +1307,18 @@ class ChatMessageGroup(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
-class Cite(Entity):
+class Citation(Entity):
     """
     A reference to a `CreativeWork` that is cited in another `CreativeWork`.
     """
 
-    type: Literal["Cite"] = "Cite"
+    type: Literal["Citation"] = "Citation"
 
     target: str
     """The target of the citation (URL or reference ID)."""
 
     cites: Reference | None = None
-    """The `Reference` being cited, resolved from the `target`"""
+    """The `Reference` being cited, resolved from the `target`."""
 
     citation_mode: CitationMode | None = None
     """Determines how the citation is shown within the surrounding text."""
@@ -1346,15 +1346,15 @@ class Cite(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
-class CiteGroup(Entity):
+class CitationGroup(Entity):
     """
-    A group of `Cite` nodes.
+    A group of `Citation` nodes.
     """
 
-    type: Literal["CiteGroup"] = "CiteGroup"
+    type: Literal["CitationGroup"] = "CitationGroup"
 
-    items: list[Cite]
-    """One or more `Cite`s to be referenced in the same surrounding text."""
+    items: list[Citation]
+    """One or more `Citation`s to be referenced in the same surrounding text."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2583,7 +2583,7 @@ class QuoteBlock(Entity):
 
     type: Literal["QuoteBlock"] = "QuoteBlock"
 
-    cite: Cite | Text | None = None
+    source: Citation | Text | None = None
     """The source of the quote."""
 
     content: list[Block]
@@ -2604,7 +2604,7 @@ class QuoteInline(Mark):
 
     type: Literal["QuoteInline"] = "QuoteInline"
 
-    cite: Cite | Text | None = None
+    source: Citation | Text | None = None
     """The source of the quote."""
 
 
@@ -3263,8 +3263,8 @@ Inline = Union[
     Annotation,
     AudioObject,
     Button,
-    Cite,
-    CiteGroup,
+    Citation,
+    CitationGroup,
     CodeExpression,
     CodeInline,
     Date,
@@ -3336,8 +3336,8 @@ Node = Union[
     Chat,
     ChatMessage,
     ChatMessageGroup,
-    Cite,
-    CiteGroup,
+    Citation,
+    CitationGroup,
     Claim,
     CodeBlock,
     CodeChunk,
@@ -3545,8 +3545,8 @@ TYPES = [
     Chat,
     ChatMessage,
     ChatMessageGroup,
-    Cite,
-    CiteGroup,
+    Citation,
+    CitationGroup,
     Claim,
     CodeBlock,
     CodeChunk,
@@ -3667,7 +3667,7 @@ UNIONS = [
 
 
 ANON_UNIONS = [
-    Cite | Text,
+    Citation | Text,
     CreativeWorkType | Text,
     File | Directory,
     Grant | MonetaryGrant,

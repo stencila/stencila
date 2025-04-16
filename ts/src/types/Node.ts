@@ -18,8 +18,8 @@ import { type CallBlock } from "./CallBlock.js";
 import { type Chat } from "./Chat.js";
 import { type ChatMessage } from "./ChatMessage.js";
 import { type ChatMessageGroup } from "./ChatMessageGroup.js";
-import { type Cite } from "./Cite.js";
-import { type CiteGroup } from "./CiteGroup.js";
+import { type Citation } from "./Citation.js";
+import { type CitationGroup } from "./CitationGroup.js";
 import { type Claim } from "./Claim.js";
 import { type CodeBlock } from "./CodeBlock.js";
 import { type CodeChunk } from "./CodeChunk.js";
@@ -159,8 +159,8 @@ export type Node =
   Chat |
   ChatMessage |
   ChatMessageGroup |
-  Cite |
-  CiteGroup |
+  Citation |
+  CitationGroup |
   Claim |
   CodeBlock |
   CodeChunk |
@@ -293,8 +293,8 @@ export function node(other: Node): Node {
     case "Chat":
     case "ChatMessage":
     case "ChatMessageGroup":
-    case "Cite":
-    case "CiteGroup":
+    case "Citation":
+    case "CitationGroup":
     case "Claim":
     case "CodeBlock":
     case "CodeChunk":

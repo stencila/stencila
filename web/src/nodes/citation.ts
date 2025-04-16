@@ -7,13 +7,13 @@ import { withTwind } from '../twind'
 import { Entity } from './entity'
 
 /**
- * Web component representing a Stencila Schema `Cite` node
+ * Web component representing a Stencila Schema `Citation` node
  *
- * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/cite.md
+ * @see https://github.com/stencila/stencila/blob/main/docs/reference/schema/prose/citation.md
  */
-@customElement('stencila-cite')
+@customElement('stencila-citation')
 @withTwind()
-export class Cite extends Entity {
+export class Citation extends Entity {
   @property({ attribute: 'target' })
   target?: string
 
@@ -21,9 +21,9 @@ export class Cite extends Entity {
   citationMode?: CitationMode
 
   /**
-   * Whether the `Cite` has a resolved `Reference` in the `cites` slot
+   * Whether the citation has a resolved `Reference` in the `cites` slot
    *
-   * `Cite` nodes that originate from sources such as JATS can has both a resolved `cites` property
+   * `Citation` nodes that originate from sources such as JATS can has both a resolved `cites` property
    * (based on `target`) and `content`. The `content` is treated as a fallback and will not be shown
    * if the cite has a resolved `reference`.
    */

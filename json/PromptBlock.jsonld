@@ -287,7 +287,7 @@
       "rdfs:comment": "An identifier for the prompt to be rendered",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Citation"
         },
         {
           "@id": "stencila:Link"
@@ -340,7 +340,7 @@
           "@id": "stencila:ChatMessage"
         },
         {
-          "@id": "stencila:Cite"
+          "@id": "stencila:Citation"
         },
         {
           "@id": "stencila:Excerpt"

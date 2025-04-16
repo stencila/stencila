@@ -65,6 +65,7 @@ Support and degree of loss by node type:
 | [Prompt](https://stencila.ghost.io/docs/reference/schema/prompt)                             | ⚠️ High loss |            |       |
 | [PublicationIssue](https://stencila.ghost.io/docs/reference/schema/publication_issue)        | ⚠️ High loss |            |       |
 | [PublicationVolume](https://stencila.ghost.io/docs/reference/schema/publication_volume)      | ⚠️ High loss |            |       |
+| [Reference](https://stencila.ghost.io/docs/reference/schema/reference)                       | ⚠️ High loss |            |       |
 | [Review](https://stencila.ghost.io/docs/reference/schema/review)                             | ⚠️ High loss |            |       |
 | [SoftwareApplication](https://stencila.ghost.io/docs/reference/schema/software_application)  | ⚠️ High loss |            |       |
 | [SoftwareSourceCode](https://stencila.ghost.io/docs/reference/schema/software_source_code)   | ⚠️ High loss |            |       |
@@ -75,8 +76,8 @@ Support and degree of loss by node type:
 | **Prose**                                                                                    |
 | [Admonition](https://stencila.ghost.io/docs/reference/schema/admonition)                     | 🟢 No loss    | 🟢 No loss  |       |
 | [Annotation](https://stencila.ghost.io/docs/reference/schema/annotation)                     | ⚠️ High loss |            |       |
-| [Cite](https://stencila.ghost.io/docs/reference/schema/cite)                                 | ⚠️ High loss |            |       |
-| [CiteGroup](https://stencila.ghost.io/docs/reference/schema/cite_group)                      | ⚠️ High loss |            |       |
+| [Citation](https://stencila.ghost.io/docs/reference/schema/citation)                         | ⚠️ High loss |            |       |
+| [CitationGroup](https://stencila.ghost.io/docs/reference/schema/citation_group)              | ⚠️ High loss |            |       |
 | [DefinedTerm](https://stencila.ghost.io/docs/reference/schema/defined_term)                  | ⚠️ High loss |            |       |
 | [Emphasis](https://stencila.ghost.io/docs/reference/schema/emphasis)                         | 🟢 No loss    | 🟢 No loss  |       |
 | [Heading](https://stencila.ghost.io/docs/reference/schema/heading)                           | 🟢 No loss    | 🟢 No loss  |       |
@@ -176,6 +177,7 @@ Support and degree of loss by node type:
 | [Brand](https://stencila.ghost.io/docs/reference/schema/brand)                               | ⚠️ High loss |            |       |
 | [ContactPoint](https://stencila.ghost.io/docs/reference/schema/contact_point)                | ⚠️ High loss |            |       |
 | [Enumeration](https://stencila.ghost.io/docs/reference/schema/enumeration)                   | ⚠️ High loss |            |       |
+| [Excerpt](https://stencila.ghost.io/docs/reference/schema/excerpt)                           | ⚠️ High loss |            |       |
 | [Grant](https://stencila.ghost.io/docs/reference/schema/grant)                               | ⚠️ High loss |            |       |
 | [ModelParameters](https://stencila.ghost.io/docs/reference/schema/model_parameters)          | ⚠️ High loss |            |       |
 | [MonetaryGrant](https://stencila.ghost.io/docs/reference/schema/monetary_grant)              | ⚠️ High loss |            |       |

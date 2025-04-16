@@ -4,7 +4,7 @@ use crate::prelude::*;
 
 use super::author::Author;
 use super::block::Block;
-use super::cite_or_text::CiteOrText;
+use super::citation_or_text::CitationOrText;
 use super::provenance_count::ProvenanceCount;
 use super::string::String;
 
@@ -32,7 +32,7 @@ pub struct QuoteBlock {
 
     /// The source of the quote.
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub cite: Option<CiteOrText>,
+    pub source: Option<CitationOrText>,
 
     /// The content of the quote.
     #[serde(deserialize_with = "one_or_many")]

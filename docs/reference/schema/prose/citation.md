@@ -1,11 +1,11 @@
 ---
-title: Cite
+title: Citation
 description: A reference to a `CreativeWork` that is cited in another `CreativeWork`.
 config:
   publish:
     ghost:
       type: post
-      slug: cite
+      slug: citation
       state: publish
       tags:
       - '#doc'
@@ -13,19 +13,20 @@ config:
       - Prose
 ---
 
-A `Cite` node is used within a [`CreativeWork`](./CreativeWork), usually an
+A `Citation` node is used within a [`CreativeWork`](./CreativeWork), usually an
 [`Article`](./Article), to refer to an other `CreativeWork`.
-Often a `Cite` will be associated with other citations, in a [`CiteGroup`](./CiteGroup).
+Often a `Citation` will be associated with other citations, in a `CitationGroup`.
 
 
 # Properties
 
-The `Cite` type has these properties:
+The `Citation` type has these properties:
 
 | Name             | Description                                                                                           | Type                                                                                                                                       | Inherited from                                                     | `JSON-LD @id`                                        | Aliases                              |
 | ---------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------- | ------------------------------------ |
 | `id`             | The identifier for this item.                                                                         | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                         | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id)                 | -                                    |
 | `target`         | The target of the citation (URL or reference ID).                                                     | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                         | -                                                                  | [`schema:target`](https://schema.org/target)         | -                                    |
+| `cites`          | The `Reference` being cited, resolved from the `target`.                                              | [`Reference`](https://stencila.ghost.io/docs/reference/schema/reference)                                                                   | -                                                                  | `stencila:cites`                                     | -                                    |
 | `citationMode`   | Determines how the citation is shown within the surrounding text.                                     | [`CitationMode`](https://stencila.ghost.io/docs/reference/schema/citation-mode)                                                            | -                                                                  | `stencila:citationMode`                              | `citation-mode`, `citation_mode`     |
 | `citationIntent` | The type/s of the citation, both factually and rhetorically.                                          | [`CitationIntent`](https://stencila.ghost.io/docs/reference/schema/citation-intent)*                                                       | -                                                                  | `stencila:citationIntent`                            | `citation-intent`, `citation_intent` |
 | `content`        | Optional structured content/text of this citation.                                                    | [`Inline`](https://stencila.ghost.io/docs/reference/schema/inline)*                                                                        | -                                                                  | `stencila:content`                                   | -                                    |
@@ -37,14 +38,14 @@ The `Cite` type has these properties:
 
 # Related
 
-The `Cite` type is related to these types:
+The `Citation` type is related to these types:
 
 - Parents: [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity)
 - Children: none
 
 # Formats
 
-The `Cite` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
+The `Citation` type can be encoded (serialized) to, and/or decoded (deserialized) from, these formats:
 
 | Format                                                                       | Encoding     | Decoding   | Support                            | Notes |
 | ---------------------------------------------------------------------------- | ------------ | ---------- | ---------------------------------- | ----- |
@@ -68,7 +69,7 @@ The `Cite` type can be encoded (serialized) to, and/or decoded (deserialized) fr
 | [JSON5](https://stencila.ghost.io/docs/reference/formats/json5)              | 🟢 No loss    | 🟢 No loss  |                                    |
 | [JSON-LD](https://stencila.ghost.io/docs/reference/formats/jsonld)           | 🟢 No loss    | 🟢 No loss  |                                    |
 | [CBOR](https://stencila.ghost.io/docs/reference/formats/cbor)                | 🟢 No loss    | 🟢 No loss  |                                    |
-| [CBOR+Zstandard](https://stencila.ghost.io/docs/reference/formats/cbor.zstd) | 🟢 No loss    | 🟢 No loss  |                                    |
+| [CBOR+Zstd](https://stencila.ghost.io/docs/reference/formats/cbor.zstd)      | 🟢 No loss    | 🟢 No loss  |                                    |
 | [YAML](https://stencila.ghost.io/docs/reference/formats/yaml)                | 🟢 No loss    | 🟢 No loss  |                                    |
 | [Lexical JSON](https://stencila.ghost.io/docs/reference/formats/lexical)     | 🔷 Low loss   | 🔷 Low loss |                                    |
 | [Koenig JSON](https://stencila.ghost.io/docs/reference/formats/koenig)       | 🔷 Low loss   | 🔷 Low loss |                                    |
@@ -79,14 +80,14 @@ The `Cite` type can be encoded (serialized) to, and/or decoded (deserialized) fr
 
 # Bindings
 
-The `Cite` type is represented in:
+The `Citation` type is represented in:
 
-- [JSON-LD](https://stencila.org/Cite.jsonld)
-- [JSON Schema](https://stencila.org/Cite.schema.json)
-- Python class [`Cite`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/cite.py)
-- Rust struct [`Cite`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/cite.rs)
-- TypeScript class [`Cite`](https://github.com/stencila/stencila/blob/main/ts/src/types/Cite.ts)
+- [JSON-LD](https://stencila.org/Citation.jsonld)
+- [JSON Schema](https://stencila.org/Citation.schema.json)
+- Python class [`Citation`](https://github.com/stencila/stencila/blob/main/python/python/stencila/types/citation.py)
+- Rust struct [`Citation`](https://github.com/stencila/stencila/blob/main/rust/schema/src/types/citation.rs)
+- TypeScript class [`Citation`](https://github.com/stencila/stencila/blob/main/ts/src/types/Citation.ts)
 
 # Source
 
-This documentation was generated from [`Cite.yaml`](https://github.com/stencila/stencila/blob/main/schema/Cite.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).
+This documentation was generated from [`Citation.yaml`](https://github.com/stencila/stencila/blob/main/schema/Citation.yaml) by [`docs_types.rs`](https://github.com/stencila/stencila/blob/main/rust/schema-gen/src/docs_types.rs).

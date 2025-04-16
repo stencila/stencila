@@ -591,7 +591,7 @@ impl Executable for Chat {
 
         // Patch the chat's execution details
         // Note: this requests a compile of the document. This is needed for things like
-        // linking `Cite`s to `Excerpt`s because they are not in the same message so this
+        // linking `Citation`s to `Excerpt`s because they are not in the same message so this
         // can not be done on individual messages.
         let ops = [
             set(NodeProperty::ExecutionStatus, status),

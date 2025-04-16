@@ -4482,7 +4482,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib35",
               "citationMode": "Parenthetical",
               "content": [
@@ -4518,7 +4518,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib62",
               "citationMode": "Parenthetical",
               "content": [
@@ -4548,7 +4548,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib30",
               "citationMode": "Parenthetical",
               "content": [
@@ -4567,7 +4567,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib47",
               "citationMode": "Parenthetical",
               "content": [
@@ -4586,7 +4586,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib32",
               "citationMode": "Parenthetical",
               "content": [
@@ -4605,7 +4605,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib15",
               "citationMode": "Parenthetical",
               "content": [
@@ -4624,7 +4624,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib29",
               "citationMode": "Parenthetical",
               "content": [
@@ -4660,7 +4660,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib12",
               "citationMode": "Parenthetical",
               "content": [
@@ -4679,7 +4679,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib68",
               "citationMode": "Parenthetical",
               "content": [
@@ -4698,7 +4698,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib42",
               "citationMode": "Parenthetical",
               "content": [
@@ -4717,7 +4717,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib36",
               "citationMode": "Parenthetical",
               "content": [
@@ -4736,7 +4736,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib47",
               "citationMode": "Parenthetical",
               "content": [
@@ -4755,7 +4755,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib57",
               "citationMode": "Parenthetical",
               "content": [
@@ -4774,7 +4774,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib60",
               "citationMode": "Parenthetical",
               "content": [
@@ -4810,7 +4810,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib12",
               "citationMode": "Parenthetical",
               "content": [
@@ -4840,7 +4840,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib23",
               "citationMode": "Parenthetical",
               "content": [
@@ -4859,7 +4859,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib55",
               "citationMode": "Parenthetical",
               "content": [
@@ -4878,7 +4878,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib49",
               "citationMode": "Parenthetical",
               "content": [
@@ -4897,7 +4897,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib54",
               "citationMode": "Parenthetical",
               "content": [
@@ -4916,7 +4916,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib13",
               "citationMode": "Parenthetical",
               "content": [
@@ -4935,7 +4935,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib16",
               "citationMode": "Parenthetical",
               "content": [
@@ -4954,7 +4954,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib52",
               "citationMode": "Parenthetical",
               "content": [
@@ -4973,7 +4973,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib6",
               "citationMode": "Parenthetical",
               "content": [
@@ -4992,7 +4992,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib17",
               "citationMode": "Parenthetical",
               "content": [
@@ -5011,7 +5011,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib46",
               "citationMode": "Parenthetical",
               "content": [
@@ -5030,7 +5030,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib58",
               "citationMode": "Parenthetical",
               "content": [
@@ -5049,7 +5049,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib63",
               "citationMode": "Parenthetical",
               "content": [
@@ -5079,7 +5079,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib41",
               "citationMode": "Parenthetical",
               "content": [
@@ -5166,7 +5166,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib18",
               "citationMode": "Parenthetical",
               "content": [
@@ -5185,7 +5185,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib22",
               "citationMode": "Parenthetical",
               "content": [
@@ -5238,7 +5238,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib11",
               "citationMode": "Parenthetical",
               "content": [
@@ -5257,7 +5257,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib31",
               "citationMode": "Parenthetical",
               "content": [
@@ -5276,7 +5276,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib33",
               "citationMode": "Parenthetical",
               "content": [
@@ -5295,7 +5295,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib19",
               "citationMode": "Parenthetical",
               "content": [
@@ -5314,7 +5314,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib4",
               "citationMode": "Parenthetical",
               "content": [
@@ -5333,7 +5333,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib53",
               "citationMode": "Parenthetical",
               "content": [
@@ -5352,7 +5352,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib20",
               "citationMode": "Parenthetical",
               "content": [
@@ -5388,7 +5388,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib11",
               "citationMode": "Parenthetical",
               "content": [
@@ -5435,7 +5435,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib40",
               "citationMode": "Parenthetical",
               "content": [
@@ -5454,7 +5454,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib43",
               "citationMode": "Parenthetical",
               "content": [
@@ -5534,7 +5534,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib25",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -5604,7 +5604,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib21",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -5623,7 +5623,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib25",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -5642,7 +5642,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib26",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -5712,7 +5712,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib39",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -5759,7 +5759,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib25",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -5801,7 +5801,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib47",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -6190,7 +6190,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib47",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -6260,7 +6260,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib43",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -6296,7 +6296,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib37",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -6315,7 +6315,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib56",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -6334,7 +6334,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib8",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -6444,7 +6444,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib48",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -6475,7 +6475,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib47",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -6494,7 +6494,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib45",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -6513,7 +6513,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib16",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -6532,7 +6532,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib8",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -7811,7 +7811,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib10",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -7830,7 +7830,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib47",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -7849,7 +7849,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib51",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -8499,7 +8499,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib11",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -8518,7 +8518,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib28",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -8537,7 +8537,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib51",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -8556,7 +8556,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib58",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -8632,7 +8632,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib12",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -8696,7 +8696,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib6",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -8715,7 +8715,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib63",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -8734,7 +8734,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib66",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -9134,7 +9134,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib37",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -9153,7 +9153,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib7",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -9599,7 +9599,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib64",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -12965,7 +12965,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib34",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -13018,7 +13018,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib11",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -14527,7 +14527,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib50",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -14597,7 +14597,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib11",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -14820,7 +14820,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib25",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -14856,7 +14856,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib26",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -15038,7 +15038,7 @@ expression: article
                       }
                     },
                     {
-                      "type": "Cite",
+                      "type": "Citation",
                       "target": "bib25",
                       "citationMode": "Parenthetical",
                       "content": [
@@ -15115,7 +15115,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib11",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -15134,7 +15134,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib26",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -15153,7 +15153,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib14",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -15357,7 +15357,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib47",
               "citationMode": "Parenthetical",
               "content": [
@@ -15393,7 +15393,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib47",
               "citationMode": "Parenthetical",
               "content": [
@@ -15412,7 +15412,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib60",
               "citationMode": "Parenthetical",
               "content": [
@@ -15431,7 +15431,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib5",
               "citationMode": "Parenthetical",
               "content": [
@@ -15450,7 +15450,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib27",
               "citationMode": "Parenthetical",
               "content": [
@@ -15469,7 +15469,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib44",
               "citationMode": "Parenthetical",
               "content": [
@@ -15516,7 +15516,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib12",
               "citationMode": "Parenthetical",
               "content": [
@@ -15535,7 +15535,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib42",
               "citationMode": "Parenthetical",
               "content": [
@@ -15554,7 +15554,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib68",
               "citationMode": "Parenthetical",
               "content": [
@@ -15573,7 +15573,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib36",
               "citationMode": "Parenthetical",
               "content": [
@@ -15592,7 +15592,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib36",
               "citationMode": "Parenthetical",
               "content": [
@@ -15628,7 +15628,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib3",
               "citationMode": "Parenthetical",
               "content": [
@@ -15647,7 +15647,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib67",
               "citationMode": "Parenthetical",
               "content": [
@@ -15677,7 +15677,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib16",
               "citationMode": "Parenthetical",
               "content": [
@@ -15696,7 +15696,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib52",
               "citationMode": "Parenthetical",
               "content": [
@@ -15715,7 +15715,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib56",
               "citationMode": "Parenthetical",
               "content": [
@@ -15762,7 +15762,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib1",
               "citationMode": "Parenthetical",
               "content": [
@@ -15792,7 +15792,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib63",
               "citationMode": "Parenthetical",
               "content": [
@@ -15845,7 +15845,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib65",
               "citationMode": "Parenthetical",
               "content": [
@@ -15864,7 +15864,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib66",
               "citationMode": "Parenthetical",
               "content": [
@@ -15883,7 +15883,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib63",
               "citationMode": "Parenthetical",
               "content": [
@@ -15924,7 +15924,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib11",
               "citationMode": "Parenthetical",
               "content": [
@@ -15943,7 +15943,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib18",
               "citationMode": "Parenthetical",
               "content": [
@@ -15962,7 +15962,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib22",
               "citationMode": "Parenthetical",
               "content": [
@@ -15981,7 +15981,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib11",
               "citationMode": "Parenthetical",
               "content": [
@@ -16000,7 +16000,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib9",
               "citationMode": "Parenthetical",
               "content": [
@@ -16030,7 +16030,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib50",
               "citationMode": "Parenthetical",
               "content": [
@@ -16049,7 +16049,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib11",
               "citationMode": "Parenthetical",
               "content": [
@@ -16085,7 +16085,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib11",
               "citationMode": "Parenthetical",
               "content": [
@@ -16104,7 +16104,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib50",
               "citationMode": "Parenthetical",
               "content": [
@@ -16134,7 +16134,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib33",
               "citationMode": "Parenthetical",
               "content": [
@@ -16153,7 +16153,7 @@ expression: article
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "bib33",
               "citationMode": "Parenthetical",
               "content": [
@@ -16244,7 +16244,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib43",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -16297,7 +16297,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib64",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -16333,7 +16333,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib40",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -16352,7 +16352,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib61",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -16371,7 +16371,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib2",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -16407,7 +16407,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib2",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -16505,7 +16505,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib24",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -16756,7 +16756,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib38",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -16803,7 +16803,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib59",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -16895,7 +16895,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib14",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -16914,7 +16914,7 @@ expression: article
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "bib25",
                   "citationMode": "Parenthetical",
                   "content": [

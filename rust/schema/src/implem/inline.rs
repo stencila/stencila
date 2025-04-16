@@ -22,8 +22,8 @@ impl Inline {
             Annotation,
             AudioObject,
             Button,
-            Cite,
-            CiteGroup,
+            Citation,
+            CitationGroup,
             CodeExpression,
             CodeInline,
             Date,
@@ -71,8 +71,8 @@ impl Inline {
             Annotation,
             AudioObject,
             Button,
-            Cite,
-            CiteGroup,
+            Citation,
+            CitationGroup,
             CodeExpression,
             CodeInline,
             Date,
@@ -143,8 +143,8 @@ impl ReadNode for Inline {
         load_map_variants!(
             AudioObject,
             Button,
-            Cite,
-            CiteGroup,
+            Citation,
+            CitationGroup,
             CodeExpression,
             CodeInline,
             Date,
@@ -201,7 +201,7 @@ impl From<Block> for Inline {
             }),
             Block::QuoteBlock(quote_block) => Inline::QuoteInline(QuoteInline {
                 content: blocks_to_inlines(quote_block.content),
-                cite: quote_block.cite,
+                source: quote_block.source,
                 ..Default::default()
             }),
 

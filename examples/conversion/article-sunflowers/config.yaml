@@ -8,7 +8,7 @@ compact.jats.xml:
 
 smd:
   decode:
-    # TODO: Enable when Cite nodes are supported
+    # TODO: Enable when citation nodes are supported
     skip: true
 
 myst:

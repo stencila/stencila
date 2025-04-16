@@ -70,6 +70,7 @@ Support and degree of loss by node type:
 | [Prompt](https://stencila.ghost.io/docs/reference/schema/prompt)                             | ⚠️ High loss |            | Encoded using implemented function |
 | [PublicationIssue](https://stencila.ghost.io/docs/reference/schema/publication_issue)        | ⚠️ High loss |            |                                    |
 | [PublicationVolume](https://stencila.ghost.io/docs/reference/schema/publication_volume)      | ⚠️ High loss |            |                                    |
+| [Reference](https://stencila.ghost.io/docs/reference/schema/reference)                       | ⚠️ High loss |            |                                    |
 | [Review](https://stencila.ghost.io/docs/reference/schema/review)                             | ⚠️ High loss |            |                                    |
 | [SoftwareApplication](https://stencila.ghost.io/docs/reference/schema/software_application)  | ⚠️ High loss |            |                                    |
 | [SoftwareSourceCode](https://stencila.ghost.io/docs/reference/schema/software_source_code)   | ⚠️ High loss |            |                                    |
@@ -80,8 +81,8 @@ Support and degree of loss by node type:
 | **Prose**                                                                                    |
 | [Admonition](https://stencila.ghost.io/docs/reference/schema/admonition)                     | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
 | [Annotation](https://stencila.ghost.io/docs/reference/schema/annotation)                     | ⚠️ High loss |            | Encoded as `=={{content}}==`       |
-| [Cite](https://stencila.ghost.io/docs/reference/schema/cite)                                 | ⚠️ High loss |            | Encoded using implemented function |
-| [CiteGroup](https://stencila.ghost.io/docs/reference/schema/cite_group)                      | ⚠️ High loss |            |                                    |
+| [Citation](https://stencila.ghost.io/docs/reference/schema/citation)                         | ⚠️ High loss |            | Encoded using implemented function |
+| [CitationGroup](https://stencila.ghost.io/docs/reference/schema/citation_group)              | ⚠️ High loss |            | Encoded using implemented function |
 | [DefinedTerm](https://stencila.ghost.io/docs/reference/schema/defined_term)                  | ⚠️ High loss |            |                                    |
 | [Emphasis](https://stencila.ghost.io/docs/reference/schema/emphasis)                         | 🟢 No loss    | 🟢 No loss  | Encoded as `_{{content}}_`         |
 | [Heading](https://stencila.ghost.io/docs/reference/schema/heading)                           | 🟢 No loss    | 🟢 No loss  | Encoded using implemented function |
@@ -170,7 +171,7 @@ Support and degree of loss by node type:
 | [StyledInline](https://stencila.ghost.io/docs/reference/schema/styled_inline)                | ⚠️ High loss |            | Encoded using implemented function |
 | **Edits**                                                                                    |
 | [InstructionBlock](https://stencila.ghost.io/docs/reference/schema/instruction_block)        | ⚠️ High loss |            | Encoded using implemented function |
-| [InstructionInline](https://stencila.ghost.io/docs/reference/schema/instruction_inline)      | ⚠️ High loss |            | Encoded using implemented function |
+| [InstructionInline](https://stencila.ghost.io/docs/reference/schema/instruction_inline)      | ⚠️ High loss |            |                                    |
 | [InstructionMessage](https://stencila.ghost.io/docs/reference/schema/instruction_message)    | ⚠️ High loss |            | Encoded using implemented function |
 | [PromptBlock](https://stencila.ghost.io/docs/reference/schema/prompt_block)                  | ⚠️ High loss |            | Encoded using implemented function |
 | [SuggestionBlock](https://stencila.ghost.io/docs/reference/schema/suggestion_block)          | ⚠️ High loss |            | Encoded using implemented function |
@@ -181,6 +182,7 @@ Support and degree of loss by node type:
 | [Brand](https://stencila.ghost.io/docs/reference/schema/brand)                               | ⚠️ High loss |            |                                    |
 | [ContactPoint](https://stencila.ghost.io/docs/reference/schema/contact_point)                | ⚠️ High loss |            |                                    |
 | [Enumeration](https://stencila.ghost.io/docs/reference/schema/enumeration)                   | ⚠️ High loss |            |                                    |
+| [Excerpt](https://stencila.ghost.io/docs/reference/schema/excerpt)                           | ⚠️ High loss |            | Encoded using implemented function |
 | [Grant](https://stencila.ghost.io/docs/reference/schema/grant)                               | ⚠️ High loss |            |                                    |
 | [ModelParameters](https://stencila.ghost.io/docs/reference/schema/model_parameters)          | ⚠️ High loss |            | Encoded using implemented function |
 | [MonetaryGrant](https://stencila.ghost.io/docs/reference/schema/monetary_grant)              | ⚠️ High loss |            |                                    |

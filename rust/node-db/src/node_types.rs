@@ -183,13 +183,13 @@ impl DatabaseNode for AuthorRole {
     }
 }
 
-impl DatabaseNode for Cite {
+impl DatabaseNode for Citation {
     fn node_type(&self) -> NodeType {
-        NodeType::Cite
+        NodeType::Citation
     }
 
     fn node_id(&self) -> NodeId {
-        Cite::node_id(self)
+        Citation::node_id(self)
     }
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
@@ -213,13 +213,13 @@ impl DatabaseNode for Cite {
     }
 }
 
-impl DatabaseNode for CiteGroup {
+impl DatabaseNode for CitationGroup {
     fn node_type(&self) -> NodeType {
-        NodeType::CiteGroup
+        NodeType::CitationGroup
     }
 
     fn node_id(&self) -> NodeId {
-        CiteGroup::node_id(self)
+        CitationGroup::node_id(self)
     }
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
@@ -1489,8 +1489,8 @@ impl DatabaseNode for Node {
             Node::Article(node) => node.node_type(),
             Node::AudioObject(node) => node.node_type(),
             Node::AuthorRole(node) => node.node_type(),
-            Node::Cite(node) => node.node_type(),
-            Node::CiteGroup(node) => node.node_type(),
+            Node::Citation(node) => node.node_type(),
+            Node::CitationGroup(node) => node.node_type(),
             Node::Claim(node) => node.node_type(),
             Node::CodeBlock(node) => node.node_type(),
             Node::CodeChunk(node) => node.node_type(),
@@ -1545,8 +1545,8 @@ impl DatabaseNode for Node {
             Node::Article(node) => node.node_id(),
             Node::AudioObject(node) => node.node_id(),
             Node::AuthorRole(node) => node.node_id(),
-            Node::Cite(node) => node.node_id(),
-            Node::CiteGroup(node) => node.node_id(),
+            Node::Citation(node) => node.node_id(),
+            Node::CitationGroup(node) => node.node_id(),
             Node::Claim(node) => node.node_id(),
             Node::CodeBlock(node) => node.node_id(),
             Node::CodeChunk(node) => node.node_id(),
@@ -1601,8 +1601,8 @@ impl DatabaseNode for Node {
             Node::Article(node) => node.node_table(),
             Node::AudioObject(node) => node.node_table(),
             Node::AuthorRole(node) => node.node_table(),
-            Node::Cite(node) => node.node_table(),
-            Node::CiteGroup(node) => node.node_table(),
+            Node::Citation(node) => node.node_table(),
+            Node::CitationGroup(node) => node.node_table(),
             Node::Claim(node) => node.node_table(),
             Node::CodeBlock(node) => node.node_table(),
             Node::CodeChunk(node) => node.node_table(),
@@ -1657,8 +1657,8 @@ impl DatabaseNode for Node {
             Node::Article(node) => node.rel_tables(),
             Node::AudioObject(node) => node.rel_tables(),
             Node::AuthorRole(node) => node.rel_tables(),
-            Node::Cite(node) => node.rel_tables(),
-            Node::CiteGroup(node) => node.rel_tables(),
+            Node::Citation(node) => node.rel_tables(),
+            Node::CitationGroup(node) => node.rel_tables(),
             Node::Claim(node) => node.rel_tables(),
             Node::CodeBlock(node) => node.rel_tables(),
             Node::CodeChunk(node) => node.rel_tables(),
@@ -1828,8 +1828,8 @@ impl DatabaseNode for Inline {
         match self {
             Inline::Annotation(node) => node.node_type(),
             Inline::AudioObject(node) => node.node_type(),
-            Inline::Cite(node) => node.node_type(),
-            Inline::CiteGroup(node) => node.node_type(),
+            Inline::Citation(node) => node.node_type(),
+            Inline::CitationGroup(node) => node.node_type(),
             Inline::CodeExpression(node) => node.node_type(),
             Inline::ImageObject(node) => node.node_type(),
             Inline::Link(node) => node.node_type(),
@@ -1848,8 +1848,8 @@ impl DatabaseNode for Inline {
         match self {
             Inline::Annotation(node) => node.node_id(),
             Inline::AudioObject(node) => node.node_id(),
-            Inline::Cite(node) => node.node_id(),
-            Inline::CiteGroup(node) => node.node_id(),
+            Inline::Citation(node) => node.node_id(),
+            Inline::CitationGroup(node) => node.node_id(),
             Inline::CodeExpression(node) => node.node_id(),
             Inline::ImageObject(node) => node.node_id(),
             Inline::Link(node) => node.node_id(),
@@ -1868,8 +1868,8 @@ impl DatabaseNode for Inline {
         match self {
             Inline::Annotation(node) => node.node_table(),
             Inline::AudioObject(node) => node.node_table(),
-            Inline::Cite(node) => node.node_table(),
-            Inline::CiteGroup(node) => node.node_table(),
+            Inline::Citation(node) => node.node_table(),
+            Inline::CitationGroup(node) => node.node_table(),
             Inline::CodeExpression(node) => node.node_table(),
             Inline::ImageObject(node) => node.node_table(),
             Inline::Link(node) => node.node_table(),
@@ -1888,8 +1888,8 @@ impl DatabaseNode for Inline {
         match self {
             Inline::Annotation(node) => node.rel_tables(),
             Inline::AudioObject(node) => node.rel_tables(),
-            Inline::Cite(node) => node.rel_tables(),
-            Inline::CiteGroup(node) => node.rel_tables(),
+            Inline::Citation(node) => node.rel_tables(),
+            Inline::CitationGroup(node) => node.rel_tables(),
             Inline::CodeExpression(node) => node.rel_tables(),
             Inline::ImageObject(node) => node.rel_tables(),
             Inline::Link(node) => node.rel_tables(),

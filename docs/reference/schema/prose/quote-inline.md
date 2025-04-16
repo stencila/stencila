@@ -17,11 +17,11 @@ config:
 
 The `QuoteInline` type has these properties:
 
-| Name      | Description                   | Type                                                                                                                             | Inherited from                                                     | `JSON-LD @id`                        | Aliases |
-| --------- | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------ | ------- |
-| `id`      | The identifier for this item. | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                               | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -       |
-| `content` | The content that is marked.   | [`Inline`](https://stencila.ghost.io/docs/reference/schema/inline)*                                                              | [`Mark`](https://stencila.ghost.io/docs/reference/schema/mark)     | `stencila:content`                   | -       |
-| `cite`    | The source of the quote.      | [`Cite`](https://stencila.ghost.io/docs/reference/schema/cite) \| [`Text`](https://stencila.ghost.io/docs/reference/schema/text) | -                                                                  | `stencila:cite`                      | -       |
+| Name      | Description                   | Type                                                                                                                                     | Inherited from                                                     | `JSON-LD @id`                        | Aliases |
+| --------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ | ------------------------------------ | ------- |
+| `id`      | The identifier for this item. | [`String`](https://stencila.ghost.io/docs/reference/schema/string)                                                                       | [`Entity`](https://stencila.ghost.io/docs/reference/schema/entity) | [`schema:id`](https://schema.org/id) | -       |
+| `content` | The content that is marked.   | [`Inline`](https://stencila.ghost.io/docs/reference/schema/inline)*                                                                      | [`Mark`](https://stencila.ghost.io/docs/reference/schema/mark)     | `stencila:content`                   | -       |
+| `source`  | The source of the quote.      | [`Citation`](https://stencila.ghost.io/docs/reference/schema/citation) \| [`Text`](https://stencila.ghost.io/docs/reference/schema/text) | -                                                                  | `stencila:source`                    | -       |
 
 # Related
 
@@ -56,7 +56,7 @@ The `QuoteInline` type can be encoded (serialized) to, and/or decoded (deseriali
 | [JSON5](https://stencila.ghost.io/docs/reference/formats/json5)              | 🟢 No loss    | 🟢 No loss  |                                                                                                                    |
 | [JSON-LD](https://stencila.ghost.io/docs/reference/formats/jsonld)           | 🟢 No loss    | 🟢 No loss  |                                                                                                                    |
 | [CBOR](https://stencila.ghost.io/docs/reference/formats/cbor)                | 🟢 No loss    | 🟢 No loss  |                                                                                                                    |
-| [CBOR+Zstandard](https://stencila.ghost.io/docs/reference/formats/cbor.zstd) | 🟢 No loss    | 🟢 No loss  |                                                                                                                    |
+| [CBOR+Zstd](https://stencila.ghost.io/docs/reference/formats/cbor.zstd)      | 🟢 No loss    | 🟢 No loss  |                                                                                                                    |
 | [YAML](https://stencila.ghost.io/docs/reference/formats/yaml)                | 🟢 No loss    | 🟢 No loss  |                                                                                                                    |
 | [Lexical JSON](https://stencila.ghost.io/docs/reference/formats/lexical)     | 🔷 Low loss   | 🔷 Low loss |                                                                                                                    |
 | [Koenig JSON](https://stencila.ghost.io/docs/reference/formats/koenig)       | 🔷 Low loss   | 🔷 Low loss |                                                                                                                    |

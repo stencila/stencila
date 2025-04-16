@@ -4,6 +4,7 @@
     "stencila": "https://stencila.org/"
   },
   "@type": "Article",
+  "stencila:doi": "10.1101/2022.06.30.498369",
   "abstract": [
     {
       "@type": "stencila:Paragraph",
@@ -24,55 +25,41 @@
         "Marshall"
       ],
       "givenName": [
-        "Carine M."
+        "Carine",
+        "M"
       ]
     },
     {
       "@type": "Person",
+      "stencila:orcid": "0000-0003-0500-5639",
       "familyName": [
         "Thompson"
       ],
       "givenName": [
-        "Veronica L."
-      ],
-      "identifier": [
-        {
-          "@type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/orcid",
-          "value": "http://orcid.org/0000-0003-0500-5639"
-        }
+        "Veronica",
+        "L"
       ]
     },
     {
       "@type": "Person",
+      "stencila:orcid": "0000-0002-4179-6995",
       "familyName": [
         "Creux"
       ],
       "givenName": [
-        "Nicky M."
-      ],
-      "identifier": [
-        {
-          "@type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/orcid",
-          "value": "http://orcid.org/0000-0002-4179-6995"
-        }
+        "Nicky",
+        "M"
       ]
     },
     {
       "@type": "Person",
+      "stencila:orcid": "0000-0001-6813-6682",
       "familyName": [
         "Harmer"
       ],
       "givenName": [
-        "Stacey L."
-      ],
-      "identifier": [
-        {
-          "@type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/orcid",
-          "value": "http://orcid.org/0000-0001-6813-6682"
-        }
+        "Stacey",
+        "L"
       ]
     }
   ],
@@ -99,6 +86,7 @@
   "citation": [
     {
       "@type": "stencila:Reference",
+      "@id": "c1",
       "author": [
         {
           "@type": "Person",
@@ -106,7 +94,7 @@
             "Agostinelli"
           ],
           "givenName": [
-            "C."
+            "C"
           ]
         },
         {
@@ -115,7 +103,7 @@
             "Lund"
           ],
           "givenName": [
-            "U."
+            "U"
           ]
         }
       ],
@@ -127,6 +115,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c2",
       "stencila:doi": "10.1111/plb.13283",
       "author": [
         {
@@ -135,7 +124,8 @@
             "Amorim"
           ],
           "givenName": [
-            "MD"
+            "M",
+            "D"
           ]
         },
         {
@@ -144,7 +134,8 @@
             "da S"
           ],
           "givenName": [
-            "Costa D"
+            "Costa",
+            "D"
           ]
         },
         {
@@ -153,7 +144,9 @@
             "Krahl"
           ],
           "givenName": [
-            "DRP"
+            "D",
+            "R",
+            "P"
           ]
         },
         {
@@ -171,7 +164,8 @@
             "Rech"
           ],
           "givenName": [
-            "AR"
+            "A",
+            "R"
           ]
         }
       ],
@@ -193,6 +187,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c3",
       "stencila:doi": "10.1126/science.aaf9793",
       "author": [
         {
@@ -201,7 +196,8 @@
             "Atamian"
           ],
           "givenName": [
-            "HS"
+            "H",
+            "S"
           ]
         },
         {
@@ -210,7 +206,8 @@
             "Creux"
           ],
           "givenName": [
-            "NM"
+            "N",
+            "M"
           ]
         },
         {
@@ -219,7 +216,8 @@
             "Brown"
           ],
           "givenName": [
-            "EA"
+            "E",
+            "A"
           ]
         },
         {
@@ -228,7 +226,8 @@
             "Garner"
           ],
           "givenName": [
-            "AG"
+            "A",
+            "G"
           ]
         },
         {
@@ -237,7 +236,8 @@
             "Blackman"
           ],
           "givenName": [
-            "BK"
+            "B",
+            "K"
           ]
         },
         {
@@ -246,7 +246,8 @@
             "Harmer"
           ],
           "givenName": [
-            "SL"
+            "S",
+            "L"
           ]
         }
       ],
@@ -268,6 +269,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c4",
       "author": [
         {
           "@type": "Person",
@@ -302,7 +304,7 @@
             "Pugliesi"
           ],
           "givenName": [
-            "C."
+            "C"
           ]
         }
       ],
@@ -324,6 +326,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c5",
       "stencila:doi": "10.1098/rstb.2016.0256",
       "author": [
         {
@@ -359,7 +362,7 @@
             "Green"
           ],
           "givenName": [
-            "R."
+            "R"
           ]
         }
       ],
@@ -380,6 +383,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c6",
       "stencila:doi": "10.3389/fphys.2021.776826",
       "author": [
         {
@@ -415,7 +419,7 @@
             "Sandrelli"
           ],
           "givenName": [
-            "F."
+            "F"
           ]
         }
       ],
@@ -436,6 +440,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c7",
       "author": [
         {
           "@type": "Person",
@@ -452,7 +457,9 @@
             "Raju"
           ],
           "givenName": [
-            "AJS"
+            "A",
+            "J",
+            "S"
           ]
         }
       ],
@@ -474,6 +481,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c8",
       "author": [
         {
           "@type": "Person",
@@ -481,7 +489,7 @@
             "Bünsow"
           ],
           "givenName": [
-            "R."
+            "R"
           ]
         }
       ],
@@ -503,6 +511,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c9",
       "stencila:doi": "10.1007/s00344-010-9180-x",
       "author": [
         {
@@ -511,7 +520,8 @@
             "Chandler"
           ],
           "givenName": [
-            "JW"
+            "J",
+            "W"
           ]
         }
       ],
@@ -533,6 +543,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c10",
       "stencila:doi": "10.1111/nph.17627",
       "author": [
         {
@@ -541,7 +552,8 @@
             "Creux"
           ],
           "givenName": [
-            "NM"
+            "N",
+            "M"
           ]
         },
         {
@@ -550,7 +562,8 @@
             "Brown"
           ],
           "givenName": [
-            "EA"
+            "E",
+            "A"
           ]
         },
         {
@@ -559,7 +572,8 @@
             "Garner"
           ],
           "givenName": [
-            "AG"
+            "A",
+            "G"
           ]
         },
         {
@@ -577,7 +591,8 @@
             "Scher"
           ],
           "givenName": [
-            "CL"
+            "C",
+            "L"
           ]
         },
         {
@@ -586,7 +601,8 @@
             "Holalu"
           ],
           "givenName": [
-            "SV"
+            "S",
+            "V"
           ]
         },
         {
@@ -604,7 +620,8 @@
             "Maloof"
           ],
           "givenName": [
-            "JN"
+            "J",
+            "N"
           ]
         },
         {
@@ -613,7 +630,8 @@
             "Blackman"
           ],
           "givenName": [
-            "BK"
+            "B",
+            "K"
           ]
         },
         {
@@ -622,7 +640,8 @@
             "Harmer"
           ],
           "givenName": [
-            "SL"
+            "S",
+            "L"
           ]
         }
       ],
@@ -644,6 +663,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c11",
       "stencila:doi": "10.1080/00218839.2000.11101019",
       "author": [
         {
@@ -661,7 +681,8 @@
             "Watkins"
           ],
           "givenName": [
-            "JC"
+            "J",
+            "C"
           ]
         }
       ],
@@ -683,6 +704,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c12",
       "stencila:doi": "10.1126/science.1115581",
       "author": [
         {
@@ -691,7 +713,8 @@
             "Dodd"
           ],
           "givenName": [
-            "AN"
+            "A",
+            "N"
           ]
         },
         {
@@ -745,7 +768,8 @@
             "Hibberd"
           ],
           "givenName": [
-            "JM"
+            "J",
+            "M"
           ]
         },
         {
@@ -754,7 +778,8 @@
             "Millar"
           ],
           "givenName": [
-            "AJ"
+            "A",
+            "J"
           ]
         },
         {
@@ -763,7 +788,9 @@
             "Webb"
           ],
           "givenName": [
-            "A a R."
+            "A",
+            "a",
+            "R"
           ]
         }
       ],
@@ -785,6 +812,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c13",
       "stencila:doi": "10.1111/j.1558-5646.2008.00324.x",
       "author": [
         {
@@ -793,7 +821,8 @@
             "Emerson"
           ],
           "givenName": [
-            "KJ"
+            "K",
+            "J"
           ]
         },
         {
@@ -802,7 +831,8 @@
             "Bradshaw"
           ],
           "givenName": [
-            "WE"
+            "W",
+            "E"
           ]
         },
         {
@@ -811,7 +841,8 @@
             "Holzapfel"
           ],
           "givenName": [
-            "CM"
+            "C",
+            "M"
           ]
         }
       ],
@@ -833,6 +864,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c14",
       "author": [
         {
           "@type": "Person",
@@ -840,7 +872,8 @@
             "Funk"
           ],
           "givenName": [
-            "VA"
+            "V",
+            "A"
           ]
         },
         {
@@ -858,7 +891,8 @@
             "Stuessy"
           ],
           "givenName": [
-            "TF"
+            "T",
+            "F"
           ]
         },
         {
@@ -867,7 +901,7 @@
             "Robinson"
           ],
           "givenName": [
-            "H."
+            "H"
           ]
         }
       ],
@@ -881,6 +915,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c15",
       "stencila:doi": "10.1038/nrg3976",
       "author": [
         {
@@ -898,7 +933,8 @@
             "McClung"
           ],
           "givenName": [
-            "CR"
+            "C",
+            "R"
           ]
         }
       ],
@@ -920,6 +956,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c16",
       "stencila:doi": "10.1007/s40415-013-0023-4",
       "author": [
         {
@@ -955,7 +992,8 @@
             "Viana"
           ],
           "givenName": [
-            "BF"
+            "B",
+            "F"
           ]
         },
         {
@@ -964,7 +1002,8 @@
             "Kevan"
           ],
           "givenName": [
-            "PG"
+            "P",
+            "G"
           ]
         }
       ],
@@ -986,6 +1025,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c17",
       "stencila:doi": "10.1016/j.mce.2011.06.040",
       "author": [
         {
@@ -1003,7 +1043,7 @@
             "Yoshimura"
           ],
           "givenName": [
-            "T."
+            "T"
           ]
         }
       ],
@@ -1025,6 +1065,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c18",
       "stencila:doi": "10.1016/j.tplants.2006.09.004",
       "author": [
         {
@@ -1042,7 +1083,8 @@
             "Kay"
           ],
           "givenName": [
-            "SA"
+            "S",
+            "A"
           ]
         }
       ],
@@ -1064,6 +1106,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c19",
       "stencila:doi": "10.1007/s10265-017-0991-8",
       "author": [
         {
@@ -1090,7 +1133,7 @@
             "Endo"
           ],
           "givenName": [
-            "M."
+            "M"
           ]
         }
       ],
@@ -1112,6 +1155,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c20",
       "stencila:doi": "10.1101/gad.999202",
       "author": [
         {
@@ -1165,7 +1209,7 @@
             "Shimamoto"
           ],
           "givenName": [
-            "K."
+            "K"
           ]
         }
       ],
@@ -1187,6 +1231,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c21",
       "author": [
         {
           "@type": "Person",
@@ -1194,7 +1239,7 @@
             "Jeffrey"
           ],
           "givenName": [
-            "C."
+            "C"
           ]
         }
       ],
@@ -1208,6 +1253,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c22",
       "stencila:doi": "10.1177/0748730419896486",
       "author": [
         {
@@ -1216,7 +1262,9 @@
             "Koritala"
           ],
           "givenName": [
-            "BSC"
+            "B",
+            "S",
+            "C"
           ]
         },
         {
@@ -1234,7 +1282,8 @@
             "Waters"
           ],
           "givenName": [
-            "JC"
+            "J",
+            "C"
           ]
         },
         {
@@ -1270,7 +1319,8 @@
             "Scheinfeldt"
           ],
           "givenName": [
-            "LB"
+            "L",
+            "B"
           ]
         },
         {
@@ -1279,7 +1329,8 @@
             "Shende"
           ],
           "givenName": [
-            "SM"
+            "S",
+            "M"
           ]
         },
         {
@@ -1297,7 +1348,8 @@
             "Hozier"
           ],
           "givenName": [
-            "JI"
+            "J",
+            "I"
           ]
         },
         {
@@ -1324,7 +1376,7 @@
             "Lee"
           ],
           "givenName": [
-            "K."
+            "K"
           ]
         }
       ],
@@ -1346,6 +1398,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c23",
       "stencila:doi": "10.1007/82_2018_143",
       "author": [
         {
@@ -1354,7 +1407,8 @@
             "Larrondo"
           ],
           "givenName": [
-            "LF"
+            "L",
+            "F"
           ]
         },
         {
@@ -1363,7 +1417,7 @@
             "Canessa"
           ],
           "givenName": [
-            "P."
+            "P"
           ]
         }
       ],
@@ -1377,6 +1431,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c24",
       "stencila:doi": "10.1139/cjb-2014-0245",
       "author": [
         {
@@ -1385,7 +1440,8 @@
             "Lindström"
           ],
           "givenName": [
-            "LI"
+            "L",
+            "I"
           ]
         },
         {
@@ -1394,7 +1450,8 @@
             "Hernández"
           ],
           "givenName": [
-            "LF"
+            "L",
+            "F"
           ]
         }
       ],
@@ -1416,6 +1473,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c25",
       "stencila:doi": "10.1016/j.fcr.2007.06.005",
       "author": [
         {
@@ -1424,7 +1482,8 @@
             "Lindström"
           ],
           "givenName": [
-            "LI"
+            "L",
+            "I"
           ]
         },
         {
@@ -1433,7 +1492,8 @@
             "Pellegrini"
           ],
           "givenName": [
-            "CN"
+            "C",
+            "N"
           ]
         },
         {
@@ -1442,7 +1502,8 @@
             "Hernández"
           ],
           "givenName": [
-            "LF"
+            "L",
+            "F"
           ]
         }
       ],
@@ -1464,6 +1525,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c26",
       "stencila:doi": "10.1093/jxb/51.349.1403",
       "author": [
         {
@@ -1508,7 +1570,7 @@
             "Pugliesi"
           ],
           "givenName": [
-            "C."
+            "C"
           ]
         }
       ],
@@ -1520,6 +1582,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c27",
       "stencila:doi": "10.1073/pnas.1903871116",
       "author": [
         {
@@ -1528,7 +1591,8 @@
             "Mandel"
           ],
           "givenName": [
-            "JR"
+            "J",
+            "R"
           ]
         },
         {
@@ -1537,7 +1601,8 @@
             "Dikow"
           ],
           "givenName": [
-            "RB"
+            "R",
+            "B"
           ]
         },
         {
@@ -1546,7 +1611,8 @@
             "Siniscalchi"
           ],
           "givenName": [
-            "CM"
+            "C",
+            "M"
           ]
         },
         {
@@ -1564,7 +1630,8 @@
             "Watson"
           ],
           "givenName": [
-            "LE"
+            "L",
+            "E"
           ]
         },
         {
@@ -1573,7 +1640,8 @@
             "Funk"
           ],
           "givenName": [
-            "VA"
+            "V",
+            "A"
           ]
         }
       ],
@@ -1595,6 +1663,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c28",
       "stencila:doi": "10.1016/0378-4290(81)90065-4",
       "author": [
         {
@@ -1612,7 +1681,8 @@
             "Palmer"
           ],
           "givenName": [
-            "JH"
+            "J",
+            "H"
           ]
         }
       ],
@@ -1634,6 +1704,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c29",
       "stencila:doi": "10.3390/genes10100811",
       "author": [
         {
@@ -1663,6 +1734,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c30",
       "stencila:doi": "10.3390/biology8010014",
       "author": [
         {
@@ -1671,7 +1743,8 @@
             "McClung"
           ],
           "givenName": [
-            "CR"
+            "C",
+            "R"
           ]
         }
       ],
@@ -1691,6 +1764,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c31",
       "stencila:doi": "10.1371/journal.pgen.0040014",
       "author": [
         {
@@ -1699,7 +1773,8 @@
             "Michael"
           ],
           "givenName": [
-            "TP"
+            "T",
+            "P"
           ]
         },
         {
@@ -1708,7 +1783,8 @@
             "Mockler"
           ],
           "givenName": [
-            "TC"
+            "T",
+            "C"
           ]
         },
         {
@@ -1744,7 +1820,8 @@
             "Trout"
           ],
           "givenName": [
-            "JD"
+            "J",
+            "D"
           ]
         },
         {
@@ -1753,7 +1830,8 @@
             "Hazen"
           ],
           "givenName": [
-            "SP"
+            "S",
+            "P"
           ]
         },
         {
@@ -1771,7 +1849,8 @@
             "Priest"
           ],
           "givenName": [
-            "HD"
+            "H",
+            "D"
           ]
         },
         {
@@ -1780,7 +1859,8 @@
             "Sullivan"
           ],
           "givenName": [
-            "CM"
+            "C",
+            "M"
           ]
         },
         {
@@ -1789,7 +1869,8 @@
             "Givan"
           ],
           "givenName": [
-            "SA"
+            "S",
+            "A"
           ]
         },
         {
@@ -1816,7 +1897,8 @@
             "Kay"
           ],
           "givenName": [
-            "SA"
+            "S",
+            "A"
           ]
         },
         {
@@ -1825,7 +1907,7 @@
             "Chory"
           ],
           "givenName": [
-            "J."
+            "J"
           ]
         }
       ],
@@ -1846,6 +1928,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c32",
       "stencila:doi": "10.1126/science.1082971",
       "author": [
         {
@@ -1854,7 +1937,8 @@
             "Michael"
           ],
           "givenName": [
-            "TP"
+            "T",
+            "P"
           ]
         },
         {
@@ -1863,7 +1947,8 @@
             "Salomé"
           ],
           "givenName": [
-            "PA"
+            "P",
+            "A"
           ]
         },
         {
@@ -1872,7 +1957,8 @@
             "Yu"
           ],
           "givenName": [
-            "HJ"
+            "H",
+            "J"
           ]
         },
         {
@@ -1881,7 +1967,8 @@
             "Spencer"
           ],
           "givenName": [
-            "TR"
+            "T",
+            "R"
           ]
         },
         {
@@ -1890,7 +1977,8 @@
             "Sharp"
           ],
           "givenName": [
-            "EL"
+            "E",
+            "L"
           ]
         },
         {
@@ -1899,7 +1987,8 @@
             "McPeek"
           ],
           "givenName": [
-            "MA"
+            "M",
+            "A"
           ]
         },
         {
@@ -1908,7 +1997,8 @@
             "Alonso"
           ],
           "givenName": [
-            "JM"
+            "J",
+            "M"
           ]
         },
         {
@@ -1917,7 +2007,8 @@
             "Ecker"
           ],
           "givenName": [
-            "JR"
+            "J",
+            "R"
           ]
         },
         {
@@ -1926,7 +2017,8 @@
             "McClung"
           ],
           "givenName": [
-            "CR"
+            "C",
+            "R"
           ]
         }
       ],
@@ -1948,6 +2040,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c33",
       "stencila:doi": "10.1016/j.cub.2004.07.055",
       "author": [
         {
@@ -1956,7 +2049,8 @@
             "Miller"
           ],
           "givenName": [
-            "BH"
+            "B",
+            "H"
           ]
         },
         {
@@ -1965,7 +2059,8 @@
             "Olson"
           ],
           "givenName": [
-            "SL"
+            "S",
+            "L"
           ]
         },
         {
@@ -1974,7 +2069,8 @@
             "Turek"
           ],
           "givenName": [
-            "FW"
+            "F",
+            "W"
           ]
         },
         {
@@ -1983,7 +2079,8 @@
             "Levine"
           ],
           "givenName": [
-            "JE"
+            "J",
+            "E"
           ]
         },
         {
@@ -1992,7 +2089,8 @@
             "Horton"
           ],
           "givenName": [
-            "TH"
+            "T",
+            "H"
           ]
         },
         {
@@ -2001,7 +2099,8 @@
             "Takahashi"
           ],
           "givenName": [
-            "JS"
+            "J",
+            "S"
           ]
         }
       ],
@@ -2023,6 +2122,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c34",
       "stencila:doi": "10.1177/07487304211014622",
       "author": [
         {
@@ -2031,7 +2131,8 @@
             "Mosier"
           ],
           "givenName": [
-            "AE"
+            "A",
+            "E"
           ]
         },
         {
@@ -2040,7 +2141,8 @@
             "Hurley"
           ],
           "givenName": [
-            "JM"
+            "J",
+            "M"
           ]
         }
       ],
@@ -2062,6 +2164,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c35",
       "stencila:doi": "10.1093/pcp/pcab048",
       "author": [
         {
@@ -2151,7 +2254,7 @@
             "Kutsuna"
           ],
           "givenName": [
-            "S."
+            "S"
           ]
         }
       ],
@@ -2173,6 +2276,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c36",
       "author": [
         {
           "@type": "Person",
@@ -2180,7 +2284,8 @@
             "Neff"
           ],
           "givenName": [
-            "JL"
+            "J",
+            "L"
           ]
         },
         {
@@ -2189,7 +2294,8 @@
             "Simpson"
           ],
           "givenName": [
-            "BB"
+            "B",
+            "B"
           ]
         }
       ],
@@ -2211,6 +2317,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c37",
       "stencila:doi": "10.1073/pnas.95.15.8660",
       "author": [
         {
@@ -2228,7 +2335,8 @@
             "Andersson"
           ],
           "givenName": [
-            "CR"
+            "C",
+            "R"
           ]
         },
         {
@@ -2246,7 +2354,8 @@
             "Golden"
           ],
           "givenName": [
-            "SS"
+            "S",
+            "S"
           ]
         },
         {
@@ -2255,7 +2364,8 @@
             "Johnson"
           ],
           "givenName": [
-            "CH"
+            "C",
+            "H"
           ]
         }
       ],
@@ -2277,6 +2387,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c38",
       "stencila:doi": "10.1016/0378-4290(85)90088-7",
       "author": [
         {
@@ -2285,7 +2396,8 @@
             "Palmer"
           ],
           "givenName": [
-            "JH"
+            "J",
+            "H"
           ]
         },
         {
@@ -2294,7 +2406,8 @@
             "Steer"
           ],
           "givenName": [
-            "BT"
+            "B",
+            "T"
           ]
         }
       ],
@@ -2316,6 +2429,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c39",
       "stencila:doi": "10.3120/0024-9637-56.3.209",
       "author": [
         {
@@ -2324,7 +2438,7 @@
             "Patterson"
           ],
           "givenName": [
-            "B."
+            "B"
           ]
         }
       ],
@@ -2335,6 +2449,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c40",
       "stencila:doi": "10.1086/282327",
       "author": [
         {
@@ -2343,7 +2458,8 @@
             "Pittendrigh"
           ],
           "givenName": [
-            "CS"
+            "C",
+            "S"
           ]
         },
         {
@@ -2352,7 +2468,8 @@
             "Minis"
           ],
           "givenName": [
-            "DH"
+            "D",
+            "H"
           ]
         }
       ],
@@ -2374,6 +2491,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c41",
       "date": {
         "@type": "Date",
         "value": "1940"
@@ -2392,6 +2510,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c42",
       "stencila:doi": "10.1081/CBI-120014569",
       "author": [
         {
@@ -2409,7 +2528,7 @@
             "Ruoff"
           ],
           "givenName": [
-            "P."
+            "P"
           ]
         }
       ],
@@ -2431,6 +2550,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c43",
       "stencila:doi": "10.1016/j.gde.2012.10.003",
       "author": [
         {
@@ -2439,7 +2559,8 @@
             "Richmond"
           ],
           "givenName": [
-            "DL"
+            "D",
+            "L"
           ]
         },
         {
@@ -2448,7 +2569,8 @@
             "Oates"
           ],
           "givenName": [
-            "AC"
+            "A",
+            "C"
           ]
         }
       ],
@@ -2470,6 +2592,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c44",
       "stencila:doi": "10.1073/pnas.0501884102",
       "author": [
         {
@@ -2496,7 +2619,7 @@
             "Merrow"
           ],
           "givenName": [
-            "M."
+            "M"
           ]
         }
       ],
@@ -2518,6 +2641,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c45",
       "stencila:doi": "10.1038/s41573-020-00109-w",
       "author": [
         {
@@ -2544,7 +2668,8 @@
             "Eltzschig"
           ],
           "givenName": [
-            "HK"
+            "H",
+            "K"
           ]
         }
       ],
@@ -2566,6 +2691,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c46",
       "stencila:doi": "10.1104/pp.41.8.1343",
       "author": [
         {
@@ -2574,7 +2700,8 @@
             "Sargent"
           ],
           "givenName": [
-            "ML"
+            "M",
+            "L"
           ]
         },
         {
@@ -2583,7 +2710,8 @@
             "Briggs"
           ],
           "givenName": [
-            "WR"
+            "W",
+            "R"
           ]
         },
         {
@@ -2592,7 +2720,8 @@
             "Woodward"
           ],
           "givenName": [
-            "DO"
+            "D",
+            "O"
           ]
         }
       ],
@@ -2614,6 +2743,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c47",
       "author": [
         {
           "@type": "Person",
@@ -2621,7 +2751,8 @@
             "Schneider"
           ],
           "givenName": [
-            "CA"
+            "C",
+            "A"
           ]
         },
         {
@@ -2630,7 +2761,8 @@
             "Rasband"
           ],
           "givenName": [
-            "WS"
+            "W",
+            "S"
           ]
         },
         {
@@ -2639,7 +2771,8 @@
             "Eliceiri"
           ],
           "givenName": [
-            "KW"
+            "K",
+            "W"
           ]
         }
       ],
@@ -2661,6 +2794,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c48",
       "stencila:doi": "10.2134/agronmonogr35.c3",
       "author": [
         {
@@ -2669,7 +2803,8 @@
             "Seiler"
           ],
           "givenName": [
-            "GJ"
+            "G",
+            "J"
           ]
         }
       ],
@@ -2683,6 +2818,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c49",
       "stencila:doi": "10.1073/pnas.1516442113",
       "author": [
         {
@@ -2718,7 +2854,9 @@
             "Loudon"
           ],
           "givenName": [
-            "ASI"
+            "A",
+            "S",
+            "I"
           ]
         },
         {
@@ -2727,7 +2865,7 @@
             "Hau"
           ],
           "givenName": [
-            "M."
+            "M"
           ]
         }
       ],
@@ -2749,6 +2887,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c50",
       "stencila:doi": "10.1080/0028825X.2016.1236735",
       "author": [
         {
@@ -2793,7 +2932,7 @@
             "Vieira"
           ],
           "givenName": [
-            "M."
+            "M"
           ]
         }
       ],
@@ -2815,6 +2954,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c51",
       "stencila:doi": "10.2307/1940121",
       "author": [
         {
@@ -2823,7 +2963,8 @@
             "Visscher"
           ],
           "givenName": [
-            "PK"
+            "P",
+            "K"
           ]
         },
         {
@@ -2832,7 +2973,8 @@
             "Seeley"
           ],
           "givenName": [
-            "TD"
+            "T",
+            "D"
           ]
         }
       ],
@@ -2853,6 +2995,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c52",
       "stencila:doi": "10.1111/j.1365-313X.2011.04505.x",
       "author": [
         {
@@ -2879,7 +3022,8 @@
             "Edwards"
           ],
           "givenName": [
-            "KD"
+            "K",
+            "D"
           ]
         },
         {
@@ -2888,7 +3032,9 @@
             "Hall"
           ],
           "givenName": [
-            "AJW"
+            "A",
+            "J",
+            "W"
           ]
         },
         {
@@ -2897,7 +3043,9 @@
             "Locke"
           ],
           "givenName": [
-            "JCW"
+            "J",
+            "C",
+            "W"
           ]
         },
         {
@@ -2906,7 +3054,8 @@
             "Millar"
           ],
           "givenName": [
-            "AJ"
+            "A",
+            "J"
           ]
         }
       ],
@@ -2928,6 +3077,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c53",
       "stencila:doi": "10.21105/joss.01686",
       "author": [
         {
@@ -3143,7 +3293,7 @@
             "Yutani"
           ],
           "givenName": [
-            "H."
+            "H"
           ]
         }
       ],
@@ -3164,6 +3314,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c54",
       "stencila:doi": "10.1242/dev.181446",
       "author": [
         {
@@ -3190,7 +3341,7 @@
             "Beeckman"
           ],
           "givenName": [
-            "T."
+            "T"
           ]
         }
       ],
@@ -3211,6 +3362,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c55",
       "stencila:doi": "10.1038/nrm1077",
       "author": [
         {
@@ -3219,7 +3371,8 @@
             "Yanovsky"
           ],
           "givenName": [
-            "MJ"
+            "M",
+            "J"
           ]
         },
         {
@@ -3228,7 +3381,8 @@
             "Kay"
           ],
           "givenName": [
-            "SA"
+            "S",
+            "A"
           ]
         }
       ],
@@ -3250,6 +3404,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c56",
       "stencila:doi": "10.1111/nph.13681",
       "author": [
         {
@@ -3294,7 +3449,8 @@
             "Baldwin"
           ],
           "givenName": [
-            "IT"
+            "I",
+            "T"
           ]
         },
         {
@@ -3303,7 +3459,7 @@
             "Kim"
           ],
           "givenName": [
-            "S-G."
+            "S-G"
           ]
         }
       ],
@@ -3325,6 +3481,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c57",
       "stencila:doi": "10.1111/jipb.12511",
       "author": [
         {
@@ -3369,7 +3526,8 @@
             "Kim"
           ],
           "givenName": [
-            "SG"
+            "S",
+            "G"
           ]
         },
         {
@@ -3378,7 +3536,8 @@
             "Baldwin"
           ],
           "givenName": [
-            "IT"
+            "I",
+            "T"
           ]
         }
       ],
@@ -3400,6 +3559,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c58",
       "stencila:doi": "10.1073/pnas.2016304118",
       "author": [
         {
@@ -3444,7 +3604,8 @@
             "Broholm"
           ],
           "givenName": [
-            "SK"
+            "S",
+            "K"
           ]
         },
         {
@@ -3453,7 +3614,8 @@
             "Teeri"
           ],
           "givenName": [
-            "TH"
+            "T",
+            "H"
           ]
         },
         {
@@ -3471,7 +3633,7 @@
             "Prusinkiewicz"
           ],
           "givenName": [
-            "P."
+            "P"
           ]
         }
       ],
@@ -3492,6 +3654,7 @@
     },
     {
       "@type": "stencila:Reference",
+      "@id": "c59",
       "stencila:doi": "10.1371/journal.pone.0096462",
       "author": [
         {
@@ -3509,7 +3672,8 @@
             "Moore"
           ],
           "givenName": [
-            "AM"
+            "A",
+            "M"
           ]
         },
         {
@@ -3527,7 +3691,8 @@
             "Halliday"
           ],
           "givenName": [
-            "KJ"
+            "K",
+            "J"
           ]
         },
         {
@@ -3536,7 +3701,8 @@
             "Millar"
           ],
           "givenName": [
-            "AJ"
+            "A",
+            "J"
           ]
         }
       ],
@@ -3590,7 +3756,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c43",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -3609,7 +3775,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c54",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -3628,7 +3794,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c34",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -3647,7 +3813,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c17",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -3666,7 +3832,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c19",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -3719,7 +3885,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c6",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -3738,7 +3904,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c23",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -3757,7 +3923,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c30",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -3787,7 +3953,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c42",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -3806,7 +3972,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c45",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -3825,7 +3991,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c12",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -3844,7 +4010,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c32",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -3863,7 +4029,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c33",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -3882,7 +4048,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c13",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -3901,7 +4067,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c49",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -3920,7 +4086,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c37",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -3939,7 +4105,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c22",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -3969,7 +4135,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c18",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -3988,7 +4154,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c57",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -4007,7 +4173,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c19",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -4026,7 +4192,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c35",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -4045,7 +4211,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c3",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -4064,7 +4230,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c10",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -4094,7 +4260,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c14",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -4119,7 +4285,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c58",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -4138,7 +4304,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c28",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -4157,7 +4323,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c38",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -4176,7 +4342,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c24",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -4195,7 +4361,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c48",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -4214,7 +4380,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c28",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -4233,7 +4399,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c58",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -4258,7 +4424,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c4",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -4277,7 +4443,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c26",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -4556,7 +4722,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c28",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -4616,7 +4782,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c36",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -4665,7 +4831,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c4",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -4684,7 +4850,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c26",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -4715,7 +4881,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c21",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -4740,7 +4906,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c39",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -4793,7 +4959,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c4",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -4812,7 +4978,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c26",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -5118,7 +5284,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c58",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -5167,7 +5333,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c25",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -5186,7 +5352,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c24",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -5205,7 +5371,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c26",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -5623,7 +5789,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c15",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -5688,7 +5854,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c52",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -6092,7 +6258,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c44",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -6260,7 +6426,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c4",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -6279,7 +6445,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c26",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -6442,7 +6608,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c5",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6495,7 +6661,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c8",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6514,7 +6680,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c56",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6551,7 +6717,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c4",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6576,7 +6742,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c36",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6595,7 +6761,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c21",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6655,7 +6821,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c10",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6674,7 +6840,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c9",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6693,7 +6859,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c29",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6723,7 +6889,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c7",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6742,7 +6908,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c16",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6761,7 +6927,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c36",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6780,7 +6946,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c50",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6799,7 +6965,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c2",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6818,7 +6984,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c10",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6848,7 +7014,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c27",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6879,7 +7045,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c28",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6898,7 +7064,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c38",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6917,7 +7083,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c58",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6965,7 +7131,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c40",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -6984,7 +7150,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c55",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -7009,7 +7175,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c20",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -7063,7 +7229,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c31",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -7111,7 +7277,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c46",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -7147,7 +7313,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c11",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -7166,7 +7332,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c36",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -7185,7 +7351,7 @@
               }
             },
             {
-              "@type": "stencila:Cite",
+              "@type": "stencila:Citation",
               "target": "c51",
               "stencila:citationMode": "Parenthetical",
               "stencila:content": [
@@ -7316,7 +7482,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c47",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -7381,7 +7547,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c53",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -7418,7 +7584,7 @@
                   }
                 },
                 {
-                  "@type": "stencila:Cite",
+                  "@type": "stencila:Citation",
                   "target": "c59",
                   "stencila:citationMode": "Parenthetical",
                   "stencila:content": [
@@ -7572,13 +7738,6 @@
         }
       ],
       "stencila:sectionType": "Methods"
-    }
-  ],
-  "identifier": [
-    {
-      "@type": "PropertyValue",
-      "propertyId": "doi",
-      "value": "10.1101/2022.06.30.498369"
     }
   ],
   "about": [

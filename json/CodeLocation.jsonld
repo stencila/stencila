@@ -31,6 +31,12 @@
         },
         {
           "@id": "stencila:IncludeBlock"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:QuoteInline"
         }
       ],
       "schema:rangeIncludes": {

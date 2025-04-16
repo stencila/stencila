@@ -1,5 +1,6 @@
 {
   "type": "Article",
+  "doi": "10.1101/2022.06.30.498369",
   "abstract": [
     {
       "type": "Paragraph",
@@ -20,55 +21,41 @@
         "Marshall"
       ],
       "givenNames": [
-        "Carine M."
+        "Carine",
+        "M"
       ]
     },
     {
       "type": "Person",
+      "orcid": "0000-0003-0500-5639",
       "familyNames": [
         "Thompson"
       ],
       "givenNames": [
-        "Veronica L."
-      ],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/orcid",
-          "value": "http://orcid.org/0000-0003-0500-5639"
-        }
+        "Veronica",
+        "L"
       ]
     },
     {
       "type": "Person",
+      "orcid": "0000-0002-4179-6995",
       "familyNames": [
         "Creux"
       ],
       "givenNames": [
-        "Nicky M."
-      ],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/orcid",
-          "value": "http://orcid.org/0000-0002-4179-6995"
-        }
+        "Nicky",
+        "M"
       ]
     },
     {
       "type": "Person",
+      "orcid": "0000-0001-6813-6682",
       "familyNames": [
         "Harmer"
       ],
       "givenNames": [
-        "Stacey L."
-      ],
-      "identifiers": [
-        {
-          "type": "PropertyValue",
-          "propertyId": "https://registry.identifiers.org/registry/orcid",
-          "value": "http://orcid.org/0000-0001-6813-6682"
-        }
+        "Stacey",
+        "L"
       ]
     }
   ],
@@ -95,6 +82,7 @@
   "references": [
     {
       "type": "Reference",
+      "id": "c1",
       "authors": [
         {
           "type": "Person",
@@ -102,7 +90,7 @@
             "Agostinelli"
           ],
           "givenNames": [
-            "C."
+            "C"
           ]
         },
         {
@@ -111,7 +99,7 @@
             "Lund"
           ],
           "givenNames": [
-            "U."
+            "U"
           ]
         }
       ],
@@ -123,6 +111,7 @@
     },
     {
       "type": "Reference",
+      "id": "c2",
       "doi": "10.1111/plb.13283",
       "authors": [
         {
@@ -131,7 +120,8 @@
             "Amorim"
           ],
           "givenNames": [
-            "MD"
+            "M",
+            "D"
           ]
         },
         {
@@ -140,7 +130,8 @@
             "da S"
           ],
           "givenNames": [
-            "Costa D"
+            "Costa",
+            "D"
           ]
         },
         {
@@ -149,7 +140,9 @@
             "Krahl"
           ],
           "givenNames": [
-            "DRP"
+            "D",
+            "R",
+            "P"
           ]
         },
         {
@@ -167,7 +160,8 @@
             "Rech"
           ],
           "givenNames": [
-            "AR"
+            "A",
+            "R"
           ]
         }
       ],
@@ -189,6 +183,7 @@
     },
     {
       "type": "Reference",
+      "id": "c3",
       "doi": "10.1126/science.aaf9793",
       "authors": [
         {
@@ -197,7 +192,8 @@
             "Atamian"
           ],
           "givenNames": [
-            "HS"
+            "H",
+            "S"
           ]
         },
         {
@@ -206,7 +202,8 @@
             "Creux"
           ],
           "givenNames": [
-            "NM"
+            "N",
+            "M"
           ]
         },
         {
@@ -215,7 +212,8 @@
             "Brown"
           ],
           "givenNames": [
-            "EA"
+            "E",
+            "A"
           ]
         },
         {
@@ -224,7 +222,8 @@
             "Garner"
           ],
           "givenNames": [
-            "AG"
+            "A",
+            "G"
           ]
         },
         {
@@ -233,7 +232,8 @@
             "Blackman"
           ],
           "givenNames": [
-            "BK"
+            "B",
+            "K"
           ]
         },
         {
@@ -242,7 +242,8 @@
             "Harmer"
           ],
           "givenNames": [
-            "SL"
+            "S",
+            "L"
           ]
         }
       ],
@@ -264,6 +265,7 @@
     },
     {
       "type": "Reference",
+      "id": "c4",
       "authors": [
         {
           "type": "Person",
@@ -298,7 +300,7 @@
             "Pugliesi"
           ],
           "givenNames": [
-            "C."
+            "C"
           ]
         }
       ],
@@ -320,6 +322,7 @@
     },
     {
       "type": "Reference",
+      "id": "c5",
       "doi": "10.1098/rstb.2016.0256",
       "authors": [
         {
@@ -355,7 +358,7 @@
             "Green"
           ],
           "givenNames": [
-            "R."
+            "R"
           ]
         }
       ],
@@ -376,6 +379,7 @@
     },
     {
       "type": "Reference",
+      "id": "c6",
       "doi": "10.3389/fphys.2021.776826",
       "authors": [
         {
@@ -411,7 +415,7 @@
             "Sandrelli"
           ],
           "givenNames": [
-            "F."
+            "F"
           ]
         }
       ],
@@ -432,6 +436,7 @@
     },
     {
       "type": "Reference",
+      "id": "c7",
       "authors": [
         {
           "type": "Person",
@@ -448,7 +453,9 @@
             "Raju"
           ],
           "givenNames": [
-            "AJS"
+            "A",
+            "J",
+            "S"
           ]
         }
       ],
@@ -470,6 +477,7 @@
     },
     {
       "type": "Reference",
+      "id": "c8",
       "authors": [
         {
           "type": "Person",
@@ -477,7 +485,7 @@
             "Bünsow"
           ],
           "givenNames": [
-            "R."
+            "R"
           ]
         }
       ],
@@ -499,6 +507,7 @@
     },
     {
       "type": "Reference",
+      "id": "c9",
       "doi": "10.1007/s00344-010-9180-x",
       "authors": [
         {
@@ -507,7 +516,8 @@
             "Chandler"
           ],
           "givenNames": [
-            "JW"
+            "J",
+            "W"
           ]
         }
       ],
@@ -529,6 +539,7 @@
     },
     {
       "type": "Reference",
+      "id": "c10",
       "doi": "10.1111/nph.17627",
       "authors": [
         {
@@ -537,7 +548,8 @@
             "Creux"
           ],
           "givenNames": [
-            "NM"
+            "N",
+            "M"
           ]
         },
         {
@@ -546,7 +558,8 @@
             "Brown"
           ],
           "givenNames": [
-            "EA"
+            "E",
+            "A"
           ]
         },
         {
@@ -555,7 +568,8 @@
             "Garner"
           ],
           "givenNames": [
-            "AG"
+            "A",
+            "G"
           ]
         },
         {
@@ -573,7 +587,8 @@
             "Scher"
           ],
           "givenNames": [
-            "CL"
+            "C",
+            "L"
           ]
         },
         {
@@ -582,7 +597,8 @@
             "Holalu"
           ],
           "givenNames": [
-            "SV"
+            "S",
+            "V"
           ]
         },
         {
@@ -600,7 +616,8 @@
             "Maloof"
           ],
           "givenNames": [
-            "JN"
+            "J",
+            "N"
           ]
         },
         {
@@ -609,7 +626,8 @@
             "Blackman"
           ],
           "givenNames": [
-            "BK"
+            "B",
+            "K"
           ]
         },
         {
@@ -618,7 +636,8 @@
             "Harmer"
           ],
           "givenNames": [
-            "SL"
+            "S",
+            "L"
           ]
         }
       ],
@@ -640,6 +659,7 @@
     },
     {
       "type": "Reference",
+      "id": "c11",
       "doi": "10.1080/00218839.2000.11101019",
       "authors": [
         {
@@ -657,7 +677,8 @@
             "Watkins"
           ],
           "givenNames": [
-            "JC"
+            "J",
+            "C"
           ]
         }
       ],
@@ -679,6 +700,7 @@
     },
     {
       "type": "Reference",
+      "id": "c12",
       "doi": "10.1126/science.1115581",
       "authors": [
         {
@@ -687,7 +709,8 @@
             "Dodd"
           ],
           "givenNames": [
-            "AN"
+            "A",
+            "N"
           ]
         },
         {
@@ -741,7 +764,8 @@
             "Hibberd"
           ],
           "givenNames": [
-            "JM"
+            "J",
+            "M"
           ]
         },
         {
@@ -750,7 +774,8 @@
             "Millar"
           ],
           "givenNames": [
-            "AJ"
+            "A",
+            "J"
           ]
         },
         {
@@ -759,7 +784,9 @@
             "Webb"
           ],
           "givenNames": [
-            "A a R."
+            "A",
+            "a",
+            "R"
           ]
         }
       ],
@@ -781,6 +808,7 @@
     },
     {
       "type": "Reference",
+      "id": "c13",
       "doi": "10.1111/j.1558-5646.2008.00324.x",
       "authors": [
         {
@@ -789,7 +817,8 @@
             "Emerson"
           ],
           "givenNames": [
-            "KJ"
+            "K",
+            "J"
           ]
         },
         {
@@ -798,7 +827,8 @@
             "Bradshaw"
           ],
           "givenNames": [
-            "WE"
+            "W",
+            "E"
           ]
         },
         {
@@ -807,7 +837,8 @@
             "Holzapfel"
           ],
           "givenNames": [
-            "CM"
+            "C",
+            "M"
           ]
         }
       ],
@@ -829,6 +860,7 @@
     },
     {
       "type": "Reference",
+      "id": "c14",
       "authors": [
         {
           "type": "Person",
@@ -836,7 +868,8 @@
             "Funk"
           ],
           "givenNames": [
-            "VA"
+            "V",
+            "A"
           ]
         },
         {
@@ -854,7 +887,8 @@
             "Stuessy"
           ],
           "givenNames": [
-            "TF"
+            "T",
+            "F"
           ]
         },
         {
@@ -863,7 +897,7 @@
             "Robinson"
           ],
           "givenNames": [
-            "H."
+            "H"
           ]
         }
       ],
@@ -877,6 +911,7 @@
     },
     {
       "type": "Reference",
+      "id": "c15",
       "doi": "10.1038/nrg3976",
       "authors": [
         {
@@ -894,7 +929,8 @@
             "McClung"
           ],
           "givenNames": [
-            "CR"
+            "C",
+            "R"
           ]
         }
       ],
@@ -916,6 +952,7 @@
     },
     {
       "type": "Reference",
+      "id": "c16",
       "doi": "10.1007/s40415-013-0023-4",
       "authors": [
         {
@@ -951,7 +988,8 @@
             "Viana"
           ],
           "givenNames": [
-            "BF"
+            "B",
+            "F"
           ]
         },
         {
@@ -960,7 +998,8 @@
             "Kevan"
           ],
           "givenNames": [
-            "PG"
+            "P",
+            "G"
           ]
         }
       ],
@@ -982,6 +1021,7 @@
     },
     {
       "type": "Reference",
+      "id": "c17",
       "doi": "10.1016/j.mce.2011.06.040",
       "authors": [
         {
@@ -999,7 +1039,7 @@
             "Yoshimura"
           ],
           "givenNames": [
-            "T."
+            "T"
           ]
         }
       ],
@@ -1021,6 +1061,7 @@
     },
     {
       "type": "Reference",
+      "id": "c18",
       "doi": "10.1016/j.tplants.2006.09.004",
       "authors": [
         {
@@ -1038,7 +1079,8 @@
             "Kay"
           ],
           "givenNames": [
-            "SA"
+            "S",
+            "A"
           ]
         }
       ],
@@ -1060,6 +1102,7 @@
     },
     {
       "type": "Reference",
+      "id": "c19",
       "doi": "10.1007/s10265-017-0991-8",
       "authors": [
         {
@@ -1086,7 +1129,7 @@
             "Endo"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         }
       ],
@@ -1108,6 +1151,7 @@
     },
     {
       "type": "Reference",
+      "id": "c20",
       "doi": "10.1101/gad.999202",
       "authors": [
         {
@@ -1161,7 +1205,7 @@
             "Shimamoto"
           ],
           "givenNames": [
-            "K."
+            "K"
           ]
         }
       ],
@@ -1183,6 +1227,7 @@
     },
     {
       "type": "Reference",
+      "id": "c21",
       "authors": [
         {
           "type": "Person",
@@ -1190,7 +1235,7 @@
             "Jeffrey"
           ],
           "givenNames": [
-            "C."
+            "C"
           ]
         }
       ],
@@ -1204,6 +1249,7 @@
     },
     {
       "type": "Reference",
+      "id": "c22",
       "doi": "10.1177/0748730419896486",
       "authors": [
         {
@@ -1212,7 +1258,9 @@
             "Koritala"
           ],
           "givenNames": [
-            "BSC"
+            "B",
+            "S",
+            "C"
           ]
         },
         {
@@ -1230,7 +1278,8 @@
             "Waters"
           ],
           "givenNames": [
-            "JC"
+            "J",
+            "C"
           ]
         },
         {
@@ -1266,7 +1315,8 @@
             "Scheinfeldt"
           ],
           "givenNames": [
-            "LB"
+            "L",
+            "B"
           ]
         },
         {
@@ -1275,7 +1325,8 @@
             "Shende"
           ],
           "givenNames": [
-            "SM"
+            "S",
+            "M"
           ]
         },
         {
@@ -1293,7 +1344,8 @@
             "Hozier"
           ],
           "givenNames": [
-            "JI"
+            "J",
+            "I"
           ]
         },
         {
@@ -1320,7 +1372,7 @@
             "Lee"
           ],
           "givenNames": [
-            "K."
+            "K"
           ]
         }
       ],
@@ -1342,6 +1394,7 @@
     },
     {
       "type": "Reference",
+      "id": "c23",
       "doi": "10.1007/82_2018_143",
       "authors": [
         {
@@ -1350,7 +1403,8 @@
             "Larrondo"
           ],
           "givenNames": [
-            "LF"
+            "L",
+            "F"
           ]
         },
         {
@@ -1359,7 +1413,7 @@
             "Canessa"
           ],
           "givenNames": [
-            "P."
+            "P"
           ]
         }
       ],
@@ -1373,6 +1427,7 @@
     },
     {
       "type": "Reference",
+      "id": "c24",
       "doi": "10.1139/cjb-2014-0245",
       "authors": [
         {
@@ -1381,7 +1436,8 @@
             "Lindström"
           ],
           "givenNames": [
-            "LI"
+            "L",
+            "I"
           ]
         },
         {
@@ -1390,7 +1446,8 @@
             "Hernández"
           ],
           "givenNames": [
-            "LF"
+            "L",
+            "F"
           ]
         }
       ],
@@ -1412,6 +1469,7 @@
     },
     {
       "type": "Reference",
+      "id": "c25",
       "doi": "10.1016/j.fcr.2007.06.005",
       "authors": [
         {
@@ -1420,7 +1478,8 @@
             "Lindström"
           ],
           "givenNames": [
-            "LI"
+            "L",
+            "I"
           ]
         },
         {
@@ -1429,7 +1488,8 @@
             "Pellegrini"
           ],
           "givenNames": [
-            "CN"
+            "C",
+            "N"
           ]
         },
         {
@@ -1438,7 +1498,8 @@
             "Hernández"
           ],
           "givenNames": [
-            "LF"
+            "L",
+            "F"
           ]
         }
       ],
@@ -1460,6 +1521,7 @@
     },
     {
       "type": "Reference",
+      "id": "c26",
       "doi": "10.1093/jxb/51.349.1403",
       "authors": [
         {
@@ -1504,7 +1566,7 @@
             "Pugliesi"
           ],
           "givenNames": [
-            "C."
+            "C"
           ]
         }
       ],
@@ -1516,6 +1578,7 @@
     },
     {
       "type": "Reference",
+      "id": "c27",
       "doi": "10.1073/pnas.1903871116",
       "authors": [
         {
@@ -1524,7 +1587,8 @@
             "Mandel"
           ],
           "givenNames": [
-            "JR"
+            "J",
+            "R"
           ]
         },
         {
@@ -1533,7 +1597,8 @@
             "Dikow"
           ],
           "givenNames": [
-            "RB"
+            "R",
+            "B"
           ]
         },
         {
@@ -1542,7 +1607,8 @@
             "Siniscalchi"
           ],
           "givenNames": [
-            "CM"
+            "C",
+            "M"
           ]
         },
         {
@@ -1560,7 +1626,8 @@
             "Watson"
           ],
           "givenNames": [
-            "LE"
+            "L",
+            "E"
           ]
         },
         {
@@ -1569,7 +1636,8 @@
             "Funk"
           ],
           "givenNames": [
-            "VA"
+            "V",
+            "A"
           ]
         }
       ],
@@ -1591,6 +1659,7 @@
     },
     {
       "type": "Reference",
+      "id": "c28",
       "doi": "10.1016/0378-4290(81)90065-4",
       "authors": [
         {
@@ -1608,7 +1677,8 @@
             "Palmer"
           ],
           "givenNames": [
-            "JH"
+            "J",
+            "H"
           ]
         }
       ],
@@ -1630,6 +1700,7 @@
     },
     {
       "type": "Reference",
+      "id": "c29",
       "doi": "10.3390/genes10100811",
       "authors": [
         {
@@ -1659,6 +1730,7 @@
     },
     {
       "type": "Reference",
+      "id": "c30",
       "doi": "10.3390/biology8010014",
       "authors": [
         {
@@ -1667,7 +1739,8 @@
             "McClung"
           ],
           "givenNames": [
-            "CR"
+            "C",
+            "R"
           ]
         }
       ],
@@ -1687,6 +1760,7 @@
     },
     {
       "type": "Reference",
+      "id": "c31",
       "doi": "10.1371/journal.pgen.0040014",
       "authors": [
         {
@@ -1695,7 +1769,8 @@
             "Michael"
           ],
           "givenNames": [
-            "TP"
+            "T",
+            "P"
           ]
         },
         {
@@ -1704,7 +1779,8 @@
             "Mockler"
           ],
           "givenNames": [
-            "TC"
+            "T",
+            "C"
           ]
         },
         {
@@ -1740,7 +1816,8 @@
             "Trout"
           ],
           "givenNames": [
-            "JD"
+            "J",
+            "D"
           ]
         },
         {
@@ -1749,7 +1826,8 @@
             "Hazen"
           ],
           "givenNames": [
-            "SP"
+            "S",
+            "P"
           ]
         },
         {
@@ -1767,7 +1845,8 @@
             "Priest"
           ],
           "givenNames": [
-            "HD"
+            "H",
+            "D"
           ]
         },
         {
@@ -1776,7 +1855,8 @@
             "Sullivan"
           ],
           "givenNames": [
-            "CM"
+            "C",
+            "M"
           ]
         },
         {
@@ -1785,7 +1865,8 @@
             "Givan"
           ],
           "givenNames": [
-            "SA"
+            "S",
+            "A"
           ]
         },
         {
@@ -1812,7 +1893,8 @@
             "Kay"
           ],
           "givenNames": [
-            "SA"
+            "S",
+            "A"
           ]
         },
         {
@@ -1821,7 +1903,7 @@
             "Chory"
           ],
           "givenNames": [
-            "J."
+            "J"
           ]
         }
       ],
@@ -1842,6 +1924,7 @@
     },
     {
       "type": "Reference",
+      "id": "c32",
       "doi": "10.1126/science.1082971",
       "authors": [
         {
@@ -1850,7 +1933,8 @@
             "Michael"
           ],
           "givenNames": [
-            "TP"
+            "T",
+            "P"
           ]
         },
         {
@@ -1859,7 +1943,8 @@
             "Salomé"
           ],
           "givenNames": [
-            "PA"
+            "P",
+            "A"
           ]
         },
         {
@@ -1868,7 +1953,8 @@
             "Yu"
           ],
           "givenNames": [
-            "HJ"
+            "H",
+            "J"
           ]
         },
         {
@@ -1877,7 +1963,8 @@
             "Spencer"
           ],
           "givenNames": [
-            "TR"
+            "T",
+            "R"
           ]
         },
         {
@@ -1886,7 +1973,8 @@
             "Sharp"
           ],
           "givenNames": [
-            "EL"
+            "E",
+            "L"
           ]
         },
         {
@@ -1895,7 +1983,8 @@
             "McPeek"
           ],
           "givenNames": [
-            "MA"
+            "M",
+            "A"
           ]
         },
         {
@@ -1904,7 +1993,8 @@
             "Alonso"
           ],
           "givenNames": [
-            "JM"
+            "J",
+            "M"
           ]
         },
         {
@@ -1913,7 +2003,8 @@
             "Ecker"
           ],
           "givenNames": [
-            "JR"
+            "J",
+            "R"
           ]
         },
         {
@@ -1922,7 +2013,8 @@
             "McClung"
           ],
           "givenNames": [
-            "CR"
+            "C",
+            "R"
           ]
         }
       ],
@@ -1944,6 +2036,7 @@
     },
     {
       "type": "Reference",
+      "id": "c33",
       "doi": "10.1016/j.cub.2004.07.055",
       "authors": [
         {
@@ -1952,7 +2045,8 @@
             "Miller"
           ],
           "givenNames": [
-            "BH"
+            "B",
+            "H"
           ]
         },
         {
@@ -1961,7 +2055,8 @@
             "Olson"
           ],
           "givenNames": [
-            "SL"
+            "S",
+            "L"
           ]
         },
         {
@@ -1970,7 +2065,8 @@
             "Turek"
           ],
           "givenNames": [
-            "FW"
+            "F",
+            "W"
           ]
         },
         {
@@ -1979,7 +2075,8 @@
             "Levine"
           ],
           "givenNames": [
-            "JE"
+            "J",
+            "E"
           ]
         },
         {
@@ -1988,7 +2085,8 @@
             "Horton"
           ],
           "givenNames": [
-            "TH"
+            "T",
+            "H"
           ]
         },
         {
@@ -1997,7 +2095,8 @@
             "Takahashi"
           ],
           "givenNames": [
-            "JS"
+            "J",
+            "S"
           ]
         }
       ],
@@ -2019,6 +2118,7 @@
     },
     {
       "type": "Reference",
+      "id": "c34",
       "doi": "10.1177/07487304211014622",
       "authors": [
         {
@@ -2027,7 +2127,8 @@
             "Mosier"
           ],
           "givenNames": [
-            "AE"
+            "A",
+            "E"
           ]
         },
         {
@@ -2036,7 +2137,8 @@
             "Hurley"
           ],
           "givenNames": [
-            "JM"
+            "J",
+            "M"
           ]
         }
       ],
@@ -2058,6 +2160,7 @@
     },
     {
       "type": "Reference",
+      "id": "c35",
       "doi": "10.1093/pcp/pcab048",
       "authors": [
         {
@@ -2147,7 +2250,7 @@
             "Kutsuna"
           ],
           "givenNames": [
-            "S."
+            "S"
           ]
         }
       ],
@@ -2169,6 +2272,7 @@
     },
     {
       "type": "Reference",
+      "id": "c36",
       "authors": [
         {
           "type": "Person",
@@ -2176,7 +2280,8 @@
             "Neff"
           ],
           "givenNames": [
-            "JL"
+            "J",
+            "L"
           ]
         },
         {
@@ -2185,7 +2290,8 @@
             "Simpson"
           ],
           "givenNames": [
-            "BB"
+            "B",
+            "B"
           ]
         }
       ],
@@ -2207,6 +2313,7 @@
     },
     {
       "type": "Reference",
+      "id": "c37",
       "doi": "10.1073/pnas.95.15.8660",
       "authors": [
         {
@@ -2224,7 +2331,8 @@
             "Andersson"
           ],
           "givenNames": [
-            "CR"
+            "C",
+            "R"
           ]
         },
         {
@@ -2242,7 +2350,8 @@
             "Golden"
           ],
           "givenNames": [
-            "SS"
+            "S",
+            "S"
           ]
         },
         {
@@ -2251,7 +2360,8 @@
             "Johnson"
           ],
           "givenNames": [
-            "CH"
+            "C",
+            "H"
           ]
         }
       ],
@@ -2273,6 +2383,7 @@
     },
     {
       "type": "Reference",
+      "id": "c38",
       "doi": "10.1016/0378-4290(85)90088-7",
       "authors": [
         {
@@ -2281,7 +2392,8 @@
             "Palmer"
           ],
           "givenNames": [
-            "JH"
+            "J",
+            "H"
           ]
         },
         {
@@ -2290,7 +2402,8 @@
             "Steer"
           ],
           "givenNames": [
-            "BT"
+            "B",
+            "T"
           ]
         }
       ],
@@ -2312,6 +2425,7 @@
     },
     {
       "type": "Reference",
+      "id": "c39",
       "doi": "10.3120/0024-9637-56.3.209",
       "authors": [
         {
@@ -2320,7 +2434,7 @@
             "Patterson"
           ],
           "givenNames": [
-            "B."
+            "B"
           ]
         }
       ],
@@ -2331,6 +2445,7 @@
     },
     {
       "type": "Reference",
+      "id": "c40",
       "doi": "10.1086/282327",
       "authors": [
         {
@@ -2339,7 +2454,8 @@
             "Pittendrigh"
           ],
           "givenNames": [
-            "CS"
+            "C",
+            "S"
           ]
         },
         {
@@ -2348,7 +2464,8 @@
             "Minis"
           ],
           "givenNames": [
-            "DH"
+            "D",
+            "H"
           ]
         }
       ],
@@ -2370,6 +2487,7 @@
     },
     {
       "type": "Reference",
+      "id": "c41",
       "date": {
         "type": "Date",
         "value": "1940"
@@ -2388,6 +2506,7 @@
     },
     {
       "type": "Reference",
+      "id": "c42",
       "doi": "10.1081/CBI-120014569",
       "authors": [
         {
@@ -2405,7 +2524,7 @@
             "Ruoff"
           ],
           "givenNames": [
-            "P."
+            "P"
           ]
         }
       ],
@@ -2427,6 +2546,7 @@
     },
     {
       "type": "Reference",
+      "id": "c43",
       "doi": "10.1016/j.gde.2012.10.003",
       "authors": [
         {
@@ -2435,7 +2555,8 @@
             "Richmond"
           ],
           "givenNames": [
-            "DL"
+            "D",
+            "L"
           ]
         },
         {
@@ -2444,7 +2565,8 @@
             "Oates"
           ],
           "givenNames": [
-            "AC"
+            "A",
+            "C"
           ]
         }
       ],
@@ -2466,6 +2588,7 @@
     },
     {
       "type": "Reference",
+      "id": "c44",
       "doi": "10.1073/pnas.0501884102",
       "authors": [
         {
@@ -2492,7 +2615,7 @@
             "Merrow"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         }
       ],
@@ -2514,6 +2637,7 @@
     },
     {
       "type": "Reference",
+      "id": "c45",
       "doi": "10.1038/s41573-020-00109-w",
       "authors": [
         {
@@ -2540,7 +2664,8 @@
             "Eltzschig"
           ],
           "givenNames": [
-            "HK"
+            "H",
+            "K"
           ]
         }
       ],
@@ -2562,6 +2687,7 @@
     },
     {
       "type": "Reference",
+      "id": "c46",
       "doi": "10.1104/pp.41.8.1343",
       "authors": [
         {
@@ -2570,7 +2696,8 @@
             "Sargent"
           ],
           "givenNames": [
-            "ML"
+            "M",
+            "L"
           ]
         },
         {
@@ -2579,7 +2706,8 @@
             "Briggs"
           ],
           "givenNames": [
-            "WR"
+            "W",
+            "R"
           ]
         },
         {
@@ -2588,7 +2716,8 @@
             "Woodward"
           ],
           "givenNames": [
-            "DO"
+            "D",
+            "O"
           ]
         }
       ],
@@ -2610,6 +2739,7 @@
     },
     {
       "type": "Reference",
+      "id": "c47",
       "authors": [
         {
           "type": "Person",
@@ -2617,7 +2747,8 @@
             "Schneider"
           ],
           "givenNames": [
-            "CA"
+            "C",
+            "A"
           ]
         },
         {
@@ -2626,7 +2757,8 @@
             "Rasband"
           ],
           "givenNames": [
-            "WS"
+            "W",
+            "S"
           ]
         },
         {
@@ -2635,7 +2767,8 @@
             "Eliceiri"
           ],
           "givenNames": [
-            "KW"
+            "K",
+            "W"
           ]
         }
       ],
@@ -2657,6 +2790,7 @@
     },
     {
       "type": "Reference",
+      "id": "c48",
       "doi": "10.2134/agronmonogr35.c3",
       "authors": [
         {
@@ -2665,7 +2799,8 @@
             "Seiler"
           ],
           "givenNames": [
-            "GJ"
+            "G",
+            "J"
           ]
         }
       ],
@@ -2679,6 +2814,7 @@
     },
     {
       "type": "Reference",
+      "id": "c49",
       "doi": "10.1073/pnas.1516442113",
       "authors": [
         {
@@ -2714,7 +2850,9 @@
             "Loudon"
           ],
           "givenNames": [
-            "ASI"
+            "A",
+            "S",
+            "I"
           ]
         },
         {
@@ -2723,7 +2861,7 @@
             "Hau"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         }
       ],
@@ -2745,6 +2883,7 @@
     },
     {
       "type": "Reference",
+      "id": "c50",
       "doi": "10.1080/0028825X.2016.1236735",
       "authors": [
         {
@@ -2789,7 +2928,7 @@
             "Vieira"
           ],
           "givenNames": [
-            "M."
+            "M"
           ]
         }
       ],
@@ -2811,6 +2950,7 @@
     },
     {
       "type": "Reference",
+      "id": "c51",
       "doi": "10.2307/1940121",
       "authors": [
         {
@@ -2819,7 +2959,8 @@
             "Visscher"
           ],
           "givenNames": [
-            "PK"
+            "P",
+            "K"
           ]
         },
         {
@@ -2828,7 +2969,8 @@
             "Seeley"
           ],
           "givenNames": [
-            "TD"
+            "T",
+            "D"
           ]
         }
       ],
@@ -2849,6 +2991,7 @@
     },
     {
       "type": "Reference",
+      "id": "c52",
       "doi": "10.1111/j.1365-313X.2011.04505.x",
       "authors": [
         {
@@ -2875,7 +3018,8 @@
             "Edwards"
           ],
           "givenNames": [
-            "KD"
+            "K",
+            "D"
           ]
         },
         {
@@ -2884,7 +3028,9 @@
             "Hall"
           ],
           "givenNames": [
-            "AJW"
+            "A",
+            "J",
+            "W"
           ]
         },
         {
@@ -2893,7 +3039,9 @@
             "Locke"
           ],
           "givenNames": [
-            "JCW"
+            "J",
+            "C",
+            "W"
           ]
         },
         {
@@ -2902,7 +3050,8 @@
             "Millar"
           ],
           "givenNames": [
-            "AJ"
+            "A",
+            "J"
           ]
         }
       ],
@@ -2924,6 +3073,7 @@
     },
     {
       "type": "Reference",
+      "id": "c53",
       "doi": "10.21105/joss.01686",
       "authors": [
         {
@@ -3139,7 +3289,7 @@
             "Yutani"
           ],
           "givenNames": [
-            "H."
+            "H"
           ]
         }
       ],
@@ -3160,6 +3310,7 @@
     },
     {
       "type": "Reference",
+      "id": "c54",
       "doi": "10.1242/dev.181446",
       "authors": [
         {
@@ -3186,7 +3337,7 @@
             "Beeckman"
           ],
           "givenNames": [
-            "T."
+            "T"
           ]
         }
       ],
@@ -3207,6 +3358,7 @@
     },
     {
       "type": "Reference",
+      "id": "c55",
       "doi": "10.1038/nrm1077",
       "authors": [
         {
@@ -3215,7 +3367,8 @@
             "Yanovsky"
           ],
           "givenNames": [
-            "MJ"
+            "M",
+            "J"
           ]
         },
         {
@@ -3224,7 +3377,8 @@
             "Kay"
           ],
           "givenNames": [
-            "SA"
+            "S",
+            "A"
           ]
         }
       ],
@@ -3246,6 +3400,7 @@
     },
     {
       "type": "Reference",
+      "id": "c56",
       "doi": "10.1111/nph.13681",
       "authors": [
         {
@@ -3290,7 +3445,8 @@
             "Baldwin"
           ],
           "givenNames": [
-            "IT"
+            "I",
+            "T"
           ]
         },
         {
@@ -3299,7 +3455,7 @@
             "Kim"
           ],
           "givenNames": [
-            "S-G."
+            "S-G"
           ]
         }
       ],
@@ -3321,6 +3477,7 @@
     },
     {
       "type": "Reference",
+      "id": "c57",
       "doi": "10.1111/jipb.12511",
       "authors": [
         {
@@ -3365,7 +3522,8 @@
             "Kim"
           ],
           "givenNames": [
-            "SG"
+            "S",
+            "G"
           ]
         },
         {
@@ -3374,7 +3532,8 @@
             "Baldwin"
           ],
           "givenNames": [
-            "IT"
+            "I",
+            "T"
           ]
         }
       ],
@@ -3396,6 +3555,7 @@
     },
     {
       "type": "Reference",
+      "id": "c58",
       "doi": "10.1073/pnas.2016304118",
       "authors": [
         {
@@ -3440,7 +3600,8 @@
             "Broholm"
           ],
           "givenNames": [
-            "SK"
+            "S",
+            "K"
           ]
         },
         {
@@ -3449,7 +3610,8 @@
             "Teeri"
           ],
           "givenNames": [
-            "TH"
+            "T",
+            "H"
           ]
         },
         {
@@ -3467,7 +3629,7 @@
             "Prusinkiewicz"
           ],
           "givenNames": [
-            "P."
+            "P"
           ]
         }
       ],
@@ -3488,6 +3650,7 @@
     },
     {
       "type": "Reference",
+      "id": "c59",
       "doi": "10.1371/journal.pone.0096462",
       "authors": [
         {
@@ -3505,7 +3668,8 @@
             "Moore"
           ],
           "givenNames": [
-            "AM"
+            "A",
+            "M"
           ]
         },
         {
@@ -3523,7 +3687,8 @@
             "Halliday"
           ],
           "givenNames": [
-            "KJ"
+            "K",
+            "J"
           ]
         },
         {
@@ -3532,7 +3697,8 @@
             "Millar"
           ],
           "givenNames": [
-            "AJ"
+            "A",
+            "J"
           ]
         }
       ],
@@ -3586,7 +3752,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c43",
               "citationMode": "Parenthetical",
               "content": [
@@ -3605,7 +3771,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c54",
               "citationMode": "Parenthetical",
               "content": [
@@ -3624,7 +3790,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c34",
               "citationMode": "Parenthetical",
               "content": [
@@ -3643,7 +3809,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c17",
               "citationMode": "Parenthetical",
               "content": [
@@ -3662,7 +3828,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c19",
               "citationMode": "Parenthetical",
               "content": [
@@ -3715,7 +3881,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c6",
               "citationMode": "Parenthetical",
               "content": [
@@ -3734,7 +3900,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c23",
               "citationMode": "Parenthetical",
               "content": [
@@ -3753,7 +3919,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c30",
               "citationMode": "Parenthetical",
               "content": [
@@ -3783,7 +3949,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c42",
               "citationMode": "Parenthetical",
               "content": [
@@ -3802,7 +3968,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c45",
               "citationMode": "Parenthetical",
               "content": [
@@ -3821,7 +3987,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c12",
               "citationMode": "Parenthetical",
               "content": [
@@ -3840,7 +4006,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c32",
               "citationMode": "Parenthetical",
               "content": [
@@ -3859,7 +4025,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c33",
               "citationMode": "Parenthetical",
               "content": [
@@ -3878,7 +4044,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c13",
               "citationMode": "Parenthetical",
               "content": [
@@ -3897,7 +4063,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c49",
               "citationMode": "Parenthetical",
               "content": [
@@ -3916,7 +4082,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c37",
               "citationMode": "Parenthetical",
               "content": [
@@ -3935,7 +4101,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c22",
               "citationMode": "Parenthetical",
               "content": [
@@ -3965,7 +4131,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c18",
               "citationMode": "Parenthetical",
               "content": [
@@ -3984,7 +4150,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c57",
               "citationMode": "Parenthetical",
               "content": [
@@ -4003,7 +4169,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c19",
               "citationMode": "Parenthetical",
               "content": [
@@ -4022,7 +4188,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c35",
               "citationMode": "Parenthetical",
               "content": [
@@ -4041,7 +4207,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c3",
               "citationMode": "Parenthetical",
               "content": [
@@ -4060,7 +4226,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c10",
               "citationMode": "Parenthetical",
               "content": [
@@ -4090,7 +4256,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c14",
               "citationMode": "Parenthetical",
               "content": [
@@ -4115,7 +4281,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c58",
               "citationMode": "Parenthetical",
               "content": [
@@ -4134,7 +4300,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c28",
               "citationMode": "Parenthetical",
               "content": [
@@ -4153,7 +4319,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c38",
               "citationMode": "Parenthetical",
               "content": [
@@ -4172,7 +4338,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c24",
               "citationMode": "Parenthetical",
               "content": [
@@ -4191,7 +4357,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c48",
               "citationMode": "Parenthetical",
               "content": [
@@ -4210,7 +4376,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c28",
               "citationMode": "Parenthetical",
               "content": [
@@ -4229,7 +4395,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c58",
               "citationMode": "Parenthetical",
               "content": [
@@ -4254,7 +4420,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c4",
               "citationMode": "Parenthetical",
               "content": [
@@ -4273,7 +4439,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c26",
               "citationMode": "Parenthetical",
               "content": [
@@ -4552,7 +4718,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c28",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -4612,7 +4778,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c36",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -4661,7 +4827,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c4",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -4680,7 +4846,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c26",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -4711,7 +4877,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c21",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -4736,7 +4902,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c39",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -4789,7 +4955,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c4",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -4808,7 +4974,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c26",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -5114,7 +5280,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c58",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -5163,7 +5329,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c25",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -5182,7 +5348,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c24",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -5201,7 +5367,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c26",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -5619,7 +5785,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c15",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -5684,7 +5850,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c52",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -6088,7 +6254,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c44",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -6256,7 +6422,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c4",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -6275,7 +6441,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c26",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -6438,7 +6604,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c5",
               "citationMode": "Parenthetical",
               "content": [
@@ -6491,7 +6657,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c8",
               "citationMode": "Parenthetical",
               "content": [
@@ -6510,7 +6676,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c56",
               "citationMode": "Parenthetical",
               "content": [
@@ -6547,7 +6713,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c4",
               "citationMode": "Parenthetical",
               "content": [
@@ -6572,7 +6738,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c36",
               "citationMode": "Parenthetical",
               "content": [
@@ -6591,7 +6757,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c21",
               "citationMode": "Parenthetical",
               "content": [
@@ -6651,7 +6817,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c10",
               "citationMode": "Parenthetical",
               "content": [
@@ -6670,7 +6836,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c9",
               "citationMode": "Parenthetical",
               "content": [
@@ -6689,7 +6855,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c29",
               "citationMode": "Parenthetical",
               "content": [
@@ -6719,7 +6885,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c7",
               "citationMode": "Parenthetical",
               "content": [
@@ -6738,7 +6904,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c16",
               "citationMode": "Parenthetical",
               "content": [
@@ -6757,7 +6923,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c36",
               "citationMode": "Parenthetical",
               "content": [
@@ -6776,7 +6942,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c50",
               "citationMode": "Parenthetical",
               "content": [
@@ -6795,7 +6961,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c2",
               "citationMode": "Parenthetical",
               "content": [
@@ -6814,7 +6980,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c10",
               "citationMode": "Parenthetical",
               "content": [
@@ -6844,7 +7010,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c27",
               "citationMode": "Parenthetical",
               "content": [
@@ -6875,7 +7041,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c28",
               "citationMode": "Parenthetical",
               "content": [
@@ -6894,7 +7060,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c38",
               "citationMode": "Parenthetical",
               "content": [
@@ -6913,7 +7079,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c58",
               "citationMode": "Parenthetical",
               "content": [
@@ -6961,7 +7127,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c40",
               "citationMode": "Parenthetical",
               "content": [
@@ -6980,7 +7146,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c55",
               "citationMode": "Parenthetical",
               "content": [
@@ -7005,7 +7171,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c20",
               "citationMode": "Parenthetical",
               "content": [
@@ -7059,7 +7225,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c31",
               "citationMode": "Parenthetical",
               "content": [
@@ -7107,7 +7273,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c46",
               "citationMode": "Parenthetical",
               "content": [
@@ -7143,7 +7309,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c11",
               "citationMode": "Parenthetical",
               "content": [
@@ -7162,7 +7328,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c36",
               "citationMode": "Parenthetical",
               "content": [
@@ -7181,7 +7347,7 @@
               }
             },
             {
-              "type": "Cite",
+              "type": "Citation",
               "target": "c51",
               "citationMode": "Parenthetical",
               "content": [
@@ -7312,7 +7478,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c47",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -7377,7 +7543,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c53",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -7414,7 +7580,7 @@
                   }
                 },
                 {
-                  "type": "Cite",
+                  "type": "Citation",
                   "target": "c59",
                   "citationMode": "Parenthetical",
                   "content": [
@@ -7568,13 +7734,6 @@
         }
       ],
       "sectionType": "Methods"
-    }
-  ],
-  "identifiers": [
-    {
-      "type": "PropertyValue",
-      "propertyId": "doi",
-      "value": "10.1101/2022.06.30.498369"
     }
   ],
   "about": [

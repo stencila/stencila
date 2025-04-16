@@ -28,7 +28,7 @@
   ],
   "core": [
     "id",
-    "cite"
+    "source"
   ],
   "properties": {
     "type": {
@@ -78,12 +78,12 @@
         "$ref": "Inline.schema.json"
       }
     },
-    "cite": {
-      "@id": "stencila:cite",
+    "source": {
+      "@id": "stencila:source",
       "description": "The source of the quote.",
       "anyOf": [
         {
-          "$ref": "Cite.schema.json"
+          "$ref": "Citation.schema.json"
         },
         {
           "$ref": "Text.schema.json"
