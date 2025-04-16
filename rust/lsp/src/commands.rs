@@ -1024,7 +1024,7 @@ pub(super) async fn execute_command(
                 }
 
                 if !update_after {
-                    return
+                    return;
                 }
 
                 // If necessary, create a task to update the text for the node when the command is finished

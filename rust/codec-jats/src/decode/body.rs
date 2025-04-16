@@ -5,7 +5,7 @@ use std::str::FromStr;
 use codec::{
     schema::{
         shortcuts::{em, img, mi, p, qb, qi, stg, stk, sub, sup, t, u},
-        Admonition, Article, AudioObject, AudioObjectOptions, Block, CitationMode, Citation,
+        Admonition, Article, AudioObject, AudioObjectOptions, Block, Citation, CitationMode,
         CitationOptions, Claim, ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord,
         Date, DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject, ImageObjectOptions,
         Inline, Link, List, ListItem, ListOrder, MathBlock, MediaObject, MediaObjectOptions, Note,
