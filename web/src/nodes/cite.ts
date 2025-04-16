@@ -21,28 +21,28 @@ export class Cite extends Entity {
   citationMode?: CitationMode
 
   /**
-   * Whether the `Cite` has a resolved `Reference`
+   * Whether the `Cite` has a resolved `Reference` in the `cites` slot
    *
-   * `Cite` nodes that originate from sources such as JATS can has both a resolved `reference`
-   * (based on `target`) and `content`. The `content` is treated as a fallback and will not be shown if the cite has
-   * a resolved `reference`.
+   * `Cite` nodes that originate from sources such as JATS can has both a resolved `cites` property
+   * (based on `target`) and `content`. The `content` is treated as a fallback and will not be shown
+   * if the cite has a resolved `reference`.
    */
   @state()
-  hasReference: boolean = false
+  hasCites: boolean = false
 
-  onReferencesSlotChange({ target: slot }: Event) {
-    const referenceElem = (slot as HTMLSlotElement).assignedElements({
+  onCitesSlotChange({ target: slot }: Event) {
+    const citesElem = (slot as HTMLSlotElement).assignedElements({
       flatten: true,
     })[0]
-    this.hasReference = !!referenceElem
+    this.hasCites = !!citesElem
   }
 
   override render() {
     const inner = html`<slot
-        name="reference"
-        @slotchange=${this.onReferencesSlotChange}
+        name="cites"
+        @slotchange=${this.onCitesSlotChange}
       ></slot
-      ><span class=${this.hasReference ? 'hidden' : ''}
+      ><span class=${this.hasCites ? 'hidden' : ''}
         ><slot name="content"></slot
       ></span>`
 
