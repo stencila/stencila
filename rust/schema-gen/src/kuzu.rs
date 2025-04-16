@@ -59,6 +59,64 @@ impl Schemas {
             "TableCell.content",
             // Exclude list item position as it is provided by the position calculated from the node path
             "ListItem.position",
+            // Exclude unnecessary reference properties
+            "Reference.pageStart",
+            "Reference.pageEnd",
+            "Reference.pagination",
+            // Exclude unnecessary properties of periodicals, publication volumes and issues
+            "Periodical.abstract",
+            "Periodical.authors",
+            "Periodical.contributors",
+            "Periodical.dateAccepted",
+            "Periodical.dateCreated",
+            "Periodical.dateModified",
+            "Periodical.datePublished",
+            "Periodical.dateReceived",
+            "Periodical.doi",
+            "Periodical.editors",
+            "Periodical.images",
+            "Periodical.references",
+            "Periodical.title",
+            "PublicationIssue.abstract",
+            "PublicationIssue.alternateNames",
+            "PublicationIssue.authors",
+            "PublicationIssue.contributors",
+            "PublicationIssue.dateAccepted",
+            "PublicationIssue.dateCreated",
+            "PublicationIssue.dateModified",
+            "PublicationIssue.datePublished",
+            "PublicationIssue.dateReceived",
+            "PublicationIssue.description",
+            "PublicationIssue.doi",
+            "PublicationIssue.editors",
+            "PublicationIssue.genre",
+            "PublicationIssue.images",
+            "PublicationIssue.keywords",
+            "PublicationIssue.name",
+            "PublicationIssue.pagination",
+            "PublicationIssue.references",
+            "PublicationIssue.title",
+            "PublicationIssue.url",
+            "PublicationVolume.abstract",
+            "PublicationVolume.alternateNames",
+            "PublicationVolume.authors",
+            "PublicationVolume.contributors",
+            "PublicationVolume.dateAccepted",
+            "PublicationVolume.dateCreated",
+            "PublicationVolume.dateModified",
+            "PublicationVolume.datePublished",
+            "PublicationVolume.dateReceived",
+            "PublicationVolume.description",
+            "PublicationVolume.doi",
+            "PublicationVolume.editors",
+            "PublicationVolume.genre",
+            "PublicationVolume.images",
+            "PublicationVolume.keywords",
+            "PublicationVolume.name",
+            "PublicationVolume.pagination",
+            "PublicationVolume.references",
+            "PublicationVolume.title",
+            "PublicationVolume.url",
             // Exclude unnecessary person properties
             "Person.description",
             "Person.jobTitle",
@@ -67,8 +125,6 @@ impl Schemas {
             // Exclude unnecessary organization properties
             "Organization.logo",
             "Organization.departments",
-            // Exclude references
-            "references",
         ];
 
         let skip_types = [
@@ -124,10 +180,6 @@ impl Schemas {
             "Collection",
             "Comment",
             "CreativeWork",
-            "Periodical",
-            "PublicationIssue",
-            "PublicationVolume",
-            "Reference",
             "Review",
             // Types that have equivalent Kuzu data types
             "Null",
@@ -195,13 +247,21 @@ impl Schemas {
             ("TableCell", vec![("text", "to_text(self)")]),
             (
                 "Cite",
-                vec![(
-                    "doi",
-                    "self.options.reference.as_ref().and_then(|reference| reference.doi.clone())",
-                ),(
-                    "text",
-                    "to_text(&self.options.content)",
-                )],
+                vec![
+                    (
+                        "doi",
+                        "self.options.cites.as_ref().and_then(|cites| cites.doi.clone())",
+                    ),
+                    ("text", "to_text(&self.options.content)"),
+                ],
+            ),
+            (
+                "PublicationVolume",
+                vec![("volumeNumber", "to_text(&self.volume_number)")],
+            ),
+            (
+                "PublicationIssue",
+                vec![("issueNumber", "to_text(&self.issue_number)")],
             ),
         ]);
 

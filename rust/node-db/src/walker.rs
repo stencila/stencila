@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use kernel_kuzu::kuzu::{LogicalType, Value};
 use schema::{
-    Block, IfBlockClause, Inline, ListItem, Node, NodeId, NodePath, NodeProperty, NodeSlot,
-    NodeType, TableCell, TableRow, Visitor, WalkControl,
+    Article, Block, IfBlockClause, Inline, ListItem, Node, NodeId, NodePath, NodeProperty,
+    NodeSlot, NodeType, TableCell, TableRow, Visitor, WalkControl,
 };
 
 use super::{DatabaseNode, NodeAncestors};
@@ -137,6 +137,25 @@ impl Visitor for DatabaseWalker {
     }
 
     fn visit_node(&mut self, node: &Node) -> WalkControl {
+        // Visit nodes that are not otherwise walked over
+        if let Node::Article(Article {
+            authors: Some(authors),
+            references,
+            ..
+        }) = node
+        {
+            for author in authors {
+                self.visit_database_node(author);
+            }
+
+            for reference in references.iter().flatten() {
+                for author in reference.authors.iter().flatten() {
+                    self.visit_database_node(author);
+                }
+                self.visit_database_node(reference);
+            }
+        }
+
         self.visit_database_node(node)
     }
 

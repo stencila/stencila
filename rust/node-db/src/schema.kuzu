@@ -472,6 +472,23 @@ CREATE NODE TABLE IF NOT EXISTS `Parameter` (
   `position` UINT32
 );
 
+CREATE NODE TABLE IF NOT EXISTS `Periodical` (
+  `alternateNames` STRING[],
+  `description` STRING,
+  `name` STRING,
+  `url` STRING,
+  `genre` STRING[],
+  `keywords` STRING[],
+  `dateStart` DATE,
+  `dateEnd` DATE,
+  `issns` STRING[],
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `nodeAncestors` STRING,
+  `position` UINT32
+);
+
 CREATE NODE TABLE IF NOT EXISTS `Person` (
   `alternateNames` STRING[],
   `name` STRING,
@@ -481,6 +498,24 @@ CREATE NODE TABLE IF NOT EXISTS `Person` (
   `givenNames` STRING[],
   `honorificPrefix` STRING,
   `honorificSuffix` STRING,
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `nodeAncestors` STRING,
+  `position` UINT32
+);
+
+CREATE NODE TABLE IF NOT EXISTS `PublicationIssue` (
+  `issueNumber` STRING,
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `nodeAncestors` STRING,
+  `position` UINT32
+);
+
+CREATE NODE TABLE IF NOT EXISTS `PublicationVolume` (
+  `volumeNumber` STRING,
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
@@ -508,6 +543,17 @@ CREATE NODE TABLE IF NOT EXISTS `RawBlock` (
   `format` STRING,
   `content` STRING,
   `css` STRING,
+  `docId` STRING,
+  `nodeId` STRING PRIMARY KEY,
+  `nodePath` STRING,
+  `nodeAncestors` STRING,
+  `position` UINT32
+);
+
+CREATE NODE TABLE IF NOT EXISTS `Reference` (
+  `doi` STRING,
+  `date` DATE,
+  `title` STRING,
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
@@ -682,6 +728,11 @@ CREATE REL TABLE IF NOT EXISTS `author` (
   FROM `AuthorRole` TO `Organization`,
   FROM `AuthorRole` TO `SoftwareApplication`,
   FROM `AuthorRole` TO `Thing`,
+  ONE_ONE
+);
+
+CREATE REL TABLE IF NOT EXISTS `cites` (
+  FROM `Cite` TO `Reference`,
   ONE_ONE
 );
 
@@ -1006,6 +1057,10 @@ CREATE REL TABLE IF NOT EXISTS `authors` (
   FROM `RawBlock` TO `Organization`,
   FROM `RawBlock` TO `SoftwareApplication`,
   FROM `RawBlock` TO `AuthorRole`,
+  FROM `Reference` TO `Person`,
+  FROM `Reference` TO `Organization`,
+  FROM `Reference` TO `SoftwareApplication`,
+  FROM `Reference` TO `AuthorRole`,
   FROM `Section` TO `Person`,
   FROM `Section` TO `Organization`,
   FROM `Section` TO `SoftwareApplication`,
@@ -1682,6 +1737,19 @@ CREATE REL TABLE IF NOT EXISTS `otherwise` (
 
 CREATE REL TABLE IF NOT EXISTS `parameters` (
   FROM `Function` TO `Parameter`,
+  ONE_MANY
+);
+
+CREATE REL TABLE IF NOT EXISTS `references` (
+  FROM `Article` TO `Reference`,
+  FROM `AudioObject` TO `Reference`,
+  FROM `Claim` TO `Reference`,
+  FROM `Figure` TO `Reference`,
+  FROM `ImageObject` TO `Reference`,
+  FROM `MediaObject` TO `Reference`,
+  FROM `SoftwareApplication` TO `Reference`,
+  FROM `Table` TO `Reference`,
+  FROM `VideoObject` TO `Reference`,
   ONE_MANY
 );
 
