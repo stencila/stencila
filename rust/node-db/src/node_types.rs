@@ -197,9 +197,6 @@ impl DatabaseNode for Citation {
             (NodeProperty::Target, String::to_kuzu_type(), self.target.to_kuzu_value()),
             (NodeProperty::CitationMode, String::to_kuzu_type(), self.citation_mode.to_kuzu_value()),
             (NodeProperty::CitationIntent, Vec::<String>::to_kuzu_type(), self.options.citation_intent.to_kuzu_value()),
-            (NodeProperty::Pagination, String::to_kuzu_type(), self.options.pagination.to_kuzu_value()),
-            (NodeProperty::CitationPrefix, String::to_kuzu_type(), self.options.citation_prefix.to_kuzu_value()),
-            (NodeProperty::CitationSuffix, String::to_kuzu_type(), self.options.citation_suffix.to_kuzu_value()),
             (NodeProperty::Doi, String::to_kuzu_type(), self.options.cites.as_ref().and_then(|cites| cites.doi.clone()).to_kuzu_value()),
             (NodeProperty::Text, String::to_kuzu_type(), to_text(&self.options.content).to_kuzu_value())
         ]
@@ -207,8 +204,7 @@ impl DatabaseNode for Citation {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Cites, relations(self.options.cites.iter())),
-            (NodeProperty::Content, relations(self.options.content.iter().flatten()))
+            
         ]
     }
 }

@@ -89,9 +89,6 @@ CREATE NODE TABLE IF NOT EXISTS `Citation` (
   `target` STRING,
   `citationMode` STRING,
   `citationIntent` STRING[],
-  `pagination` STRING,
-  `citationPrefix` STRING,
-  `citationSuffix` STRING,
   `doi` STRING,
   `text` STRING,
   `docId` STRING,
@@ -731,11 +728,6 @@ CREATE REL TABLE IF NOT EXISTS `author` (
   ONE_ONE
 );
 
-CREATE REL TABLE IF NOT EXISTS `cites` (
-  FROM `Citation` TO `Reference`,
-  ONE_ONE
-);
-
 CREATE REL TABLE IF NOT EXISTS `parentOrganization` (
   FROM `Organization` TO `Organization`,
   ONE_ONE
@@ -1269,20 +1261,6 @@ CREATE REL TABLE IF NOT EXISTS `content` (
   FROM `Article` TO `Table`,
   FROM `Article` TO `ThematicBreak`,
   FROM `Article` TO `VideoObject`,
-  FROM `Citation` TO `Annotation`,
-  FROM `Citation` TO `AudioObject`,
-  FROM `Citation` TO `Citation`,
-  FROM `Citation` TO `CitationGroup`,
-  FROM `Citation` TO `CodeExpression`,
-  FROM `Citation` TO `ImageObject`,
-  FROM `Citation` TO `Link`,
-  FROM `Citation` TO `MathInline`,
-  FROM `Citation` TO `MediaObject`,
-  FROM `Citation` TO `Note`,
-  FROM `Citation` TO `Parameter`,
-  FROM `Citation` TO `QuoteInline`,
-  FROM `Citation` TO `StyledInline`,
-  FROM `Citation` TO `VideoObject`,
   FROM `Claim` TO `Admonition`,
   FROM `Claim` TO `AudioObject`,
   FROM `Claim` TO `Claim`,

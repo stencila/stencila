@@ -59,6 +59,14 @@ impl Schemas {
             "TableCell.content",
             // Exclude list item position as it is provided by the position calculated from the node path
             "ListItem.position",
+            // Exclude unnecessary citation properties
+            "Citation.citationPrefix",
+            "Citation.citationSuffix",
+            "Citation.pagination",
+            "Citation.content", // Provided for by the derived `text` field
+            // Exclude citation `cites` relation because it is generated
+            // based on DOIs, rather than node ids
+            "Citation.cites",
             // Exclude unnecessary reference properties
             "Reference.pageStart",
             "Reference.pageEnd",
