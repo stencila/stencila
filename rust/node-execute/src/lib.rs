@@ -5,11 +5,11 @@ use std::{collections::HashMap, fmt::Debug, path::PathBuf, str::FromStr, sync::A
 use codecs::Format;
 use common::{
     clap::{self, Args},
-    eyre::{eyre, Result},
+    eyre::{bail, eyre, Result},
     futures::future::join_all,
     itertools::Itertools,
     serde::{Deserialize, Serialize},
-    tokio::sync::{mpsc::UnboundedSender, RwLock, RwLockWriteGuard},
+    tokio::sync::{mpsc, oneshot, RwLock, RwLockWriteGuard},
     tracing,
 };
 use kernels::{KernelLintingOptions, Kernels};
@@ -55,19 +55,22 @@ mod styled_inline;
 mod suggestion_block;
 mod table;
 
+type PatchSender = mpsc::UnboundedSender<(Patch, Option<oneshot::Sender<()>>)>;
+
 /// Walk over a root node and compile it and child nodes
 pub async fn compile(
     home: PathBuf,
     root: Arc<RwLock<Node>>,
     kernels: Arc<RwLock<Kernels>>,
-    patch_sender: Option<UnboundedSender<Patch>>,
+    patch_sender: Option<PatchSender>,
     config: Config,
 ) -> Result<()> {
     let mut root = root.read().await.clone();
     let mut executor = Executor::new(home, kernels, patch_sender);
     executor.config = Some(config);
     executor.compile(&mut root).await?;
-    executor.link(&mut root).await
+    executor.link(&mut root).await?;
+    executor.finalize().await
 }
 
 /// Walk over a root node and lint it and child nodes
@@ -75,7 +78,7 @@ pub async fn lint(
     home: PathBuf,
     root: Arc<RwLock<Node>>,
     kernels: Arc<RwLock<Kernels>>,
-    patch_sender: Option<UnboundedSender<Patch>>,
+    patch_sender: Option<PatchSender>,
     format: bool,
     fix: bool,
     config: Config,
@@ -85,7 +88,8 @@ pub async fn lint(
     executor.config = Some(config);
     executor.compile(&mut root).await?;
     executor.link(&mut root).await?;
-    executor.lint(&mut root, format, fix).await
+    executor.lint(&mut root, format, fix).await?;
+    executor.finalize().await
 }
 
 /// Walk over a root node and execute it and child nodes
@@ -93,7 +97,7 @@ pub async fn execute(
     home: PathBuf,
     root: Arc<RwLock<Node>>,
     kernels: Arc<RwLock<Kernels>>,
-    patch_sender: Option<UnboundedSender<Patch>>,
+    patch_sender: Option<PatchSender>,
     node_ids: Option<NodeIds>,
     execute_options: Option<ExecuteOptions>,
 ) -> Result<()> {
@@ -102,7 +106,8 @@ pub async fn execute(
     executor.node_ids = node_ids;
     executor.execute_options = execute_options;
     executor.prepare(&mut root).await?;
-    executor.execute(&mut root).await
+    executor.execute(&mut root).await?;
+    executor.finalize().await
 }
 
 /// Walk over a root node and interrupt it and child nodes
@@ -110,7 +115,7 @@ pub async fn interrupt(
     home: PathBuf,
     root: Arc<RwLock<Node>>,
     kernels: Arc<RwLock<Kernels>>,
-    patch_sender: Option<UnboundedSender<Patch>>,
+    patch_sender: Option<PatchSender>,
     node_ids: Option<NodeIds>,
 ) -> Result<()> {
     let mut root = root.read().await.clone();
@@ -175,7 +180,7 @@ pub struct Executor {
     ///
     /// Patches reflecting the state of nodes during execution should be sent
     /// on this channel.
-    patch_sender: Option<UnboundedSender<Patch>>,
+    patch_sender: Option<PatchSender>,
 
     /// The nodes that should be executed
     ///
@@ -416,7 +421,7 @@ impl Executor {
     fn new(
         home: PathBuf,
         kernels: Arc<RwLock<Kernels>>,
-        patch_sender: Option<UnboundedSender<Patch>>,
+        patch_sender: Option<PatchSender>,
     ) -> Self {
         Self {
             directory_stack: vec![home],
@@ -1106,7 +1111,7 @@ impl Executor {
             ..Default::default()
         };
 
-        if let Err(error) = sender.send(patch) {
+        if let Err(error) = sender.send((patch, None)) {
             tracing::error!("When sending execution node patch: {error}")
         }
     }
@@ -1117,9 +1122,32 @@ impl Executor {
             return;
         };
 
-        if let Err(error) = sender.send(patch) {
+        if let Err(error) = sender.send((patch, None)) {
             tracing::error!("When sending execution node patch: {error}")
         }
+    }
+
+    /// Finalize an operation by sending an empty patch with an acknowledgement
+    ///
+    /// Call this when the executor has walked over a node, possibly sending multiple patches as it goes,
+    /// and you want to wait until all patches have been applied.
+    ///
+    /// Sends an empty patch with an acknowledgment sender and waits for the acknowledgment. This
+    /// ensures that any patches sent previously have been applied before proceeding.
+    async fn finalize(&self) -> Result<()> {
+        let Some(sender) = &self.patch_sender else {
+            bail!("No patch sender for this executor");
+        };
+
+        let (ack_sender, ack_receiver) = oneshot::channel();
+        if let Err(error) = sender.send((Patch::default(), Some(ack_sender))) {
+            tracing::error!("When sending execution node patch: {error}")
+        }
+
+        tracing::trace!("Waiting for finalization patch");
+        ack_receiver.await?;
+
+        Ok(())
     }
 
     /// Visit an executable node and call the appropriate method for the phase

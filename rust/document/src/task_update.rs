@@ -45,7 +45,7 @@ impl Document {
         };
 
         loop {
-            let (compile, lint, execute) = tokio::select! {
+            let (compile, lint, execute, ack) = tokio::select! {
                 Some(update) = update_receiver.recv() => {
                     tracing::trace!("Document root node update received");
 
@@ -57,9 +57,9 @@ impl Document {
                         tracing::error!("While merging update into root: {error}");
                     }
 
-                    (true, true, None)
+                    (true, true, None, None)
                 },
-                Some(mut patch) = patch_receiver.recv() => {
+                Some((mut patch, ack)) = patch_receiver.recv() => {
                     tracing::trace!("Document root node patch received");
 
                     let compile = patch.compile;
@@ -83,13 +83,20 @@ impl Document {
                         tracing::debug!("While applying patch to root: {error}");
                     }
 
-                    (compile, lint, execute)
+                    (compile, lint, execute, ack)
                 },
                 else => {
                     tracing::debug!("Both update and patch channels closed");
                     break;
                 },
             };
+
+            // If acknowledgement requested, acknowledge that the update was applied
+            if let Some(ack) = ack {
+                if ack.send(()).is_err() {
+                    tracing::error!("Error sending update acknowledgement");
+                }
+            }
 
             // Send the node to watchers
             if watch_sender.receiver_count() > 0 {

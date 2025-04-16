@@ -1027,13 +1027,6 @@ pub(super) async fn execute_command(
                     return;
                 }
 
-                // If necessary, create a task to update the text for the node when the command is finished
-                // TODO: this is not ideal because it does not handle case where nodes need to be updated after
-                // the whole document is run, and because it has to hackily wait for the final patch to be
-                // applied. Instead need to set up a patch watcher that allows us to watch for
-                // the node types and ids to which a patch was applied.
-                tokio::time::sleep(Duration::from_millis(100)).await;
-
                 // Format the doc and apply any edits
                 let edits = match format_doc(doc.clone(), format.clone(), source.clone()).await {
                     Ok(Some(edits)) => edits,

@@ -4,7 +4,7 @@ use std::{
     io,
     path::{Path, PathBuf},
     sync::Arc,
-    time::{Duration, SystemTime},
+    time::SystemTime,
 };
 
 use codecs::PoshMap;
@@ -16,8 +16,7 @@ use common::{
     tokio::{
         self,
         fs::read_to_string,
-        sync::{mpsc, watch, RwLock},
-        time::sleep,
+        sync::{mpsc, oneshot, watch, RwLock},
     },
     tracing,
 };
@@ -260,13 +259,13 @@ type DocumentWatchReceiver = watch::Receiver<Node>;
 type DocumentUpdateSender = mpsc::Sender<Update>;
 type DocumentUpdateReceiver = mpsc::Receiver<Update>;
 
-type DocumentPatchSender = mpsc::UnboundedSender<Patch>;
-type DocumentPatchReceiver = mpsc::UnboundedReceiver<Patch>;
-
-type DocumentCommandSender = mpsc::Sender<(Command, Option<DocumentCommandStatusSender>)>;
-type DocumentCommandReceiver = mpsc::Receiver<(Command, Option<DocumentCommandStatusSender>)>;
+type DocumentPatchAckSender = oneshot::Sender<()>;
+type DocumentPatchSender = mpsc::UnboundedSender<(Patch, Option<DocumentPatchAckSender>)>;
+type DocumentPatchReceiver = mpsc::UnboundedReceiver<(Patch, Option<DocumentPatchAckSender>)>;
 
 type DocumentCommandStatusSender = mpsc::Sender<CommandStatus>;
+type DocumentCommandSender = mpsc::Sender<(Command, Option<DocumentCommandStatusSender>)>;
+type DocumentCommandReceiver = mpsc::Receiver<(Command, Option<DocumentCommandStatusSender>)>;
 
 /// A document
 #[allow(unused)]
@@ -725,12 +724,6 @@ impl Document {
                 break;
             }
         }
-
-        // TODO: This is a hack to wait for any patches to be applied to the
-        // store (e.g. updating execution status etc). Currently we have no
-        // way to know when that is complete, so this this just sleeps for a bit
-        // in the hope that this will be long enough.
-        sleep(Duration::from_millis(100)).await;
 
         Ok(())
     }

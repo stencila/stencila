@@ -136,7 +136,7 @@ impl Document {
 
             match command.clone() {
                 PatchNode(patch) => {
-                    let status = if let Err(error) = patch_sender.send(patch) {
+                    let status = if let Err(error) = patch_sender.send((patch, None)) {
                         CommandStatus::Failed(format!("While sending patch: {error}"))
                     } else {
                         CommandStatus::Succeeded
@@ -175,14 +175,17 @@ impl Document {
                                 .collect_vec(),
                         };
 
-                        patch_sender.send(Patch {
-                            node_id,
-                            ops: vec![
-                                (NodePath::from(property), PatchOp::Clear),
-                                (NodePath::from(property), PatchOp::Append(value)),
-                            ],
-                            ..Default::default()
-                        })?;
+                        patch_sender.send((
+                            Patch {
+                                node_id,
+                                ops: vec![
+                                    (NodePath::from(property), PatchOp::Clear),
+                                    (NodePath::from(property), PatchOp::Append(value)),
+                                ],
+                                ..Default::default()
+                            },
+                            None,
+                        ))?;
 
                         Ok(())
                     }

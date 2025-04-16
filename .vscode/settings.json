@@ -104,6 +104,7 @@
         "ndarray",
         "numpy",
         "ollama",
+        "oneshot",
         "openai",
         "orcid",
         "pandoc",
