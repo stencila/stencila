@@ -3,7 +3,7 @@
 use std::{
     io,
     path::{Path, PathBuf},
-    sync::{atomic::AtomicU64, Arc},
+    sync::Arc,
     time::{Duration, SystemTime},
 };
 
@@ -16,7 +16,7 @@ use common::{
     tokio::{
         self,
         fs::read_to_string,
-        sync::{broadcast, mpsc, watch, RwLock},
+        sync::{mpsc, watch, RwLock},
         time::sleep,
     },
     tracing,
@@ -270,13 +270,10 @@ type DocumentUpdateReceiver = mpsc::Receiver<Update>;
 type DocumentPatchSender = mpsc::UnboundedSender<Patch>;
 type DocumentPatchReceiver = mpsc::UnboundedReceiver<Patch>;
 
-type DocumentCommandCounter = AtomicU64;
+type DocumentCommandSender = mpsc::Sender<(Command, Option<DocumentCommandStatusSender>)>;
+type DocumentCommandReceiver = mpsc::Receiver<(Command, Option<DocumentCommandStatusSender>)>;
 
-type DocumentCommandSender = mpsc::Sender<(Command, u64)>;
-type DocumentCommandReceiver = mpsc::Receiver<(Command, u64)>;
-
-type DocumentCommandStatusSender = broadcast::Sender<(u64, CommandStatus)>;
-type DocumentCommandStatusReceiver = broadcast::Receiver<(u64, CommandStatus)>;
+type DocumentCommandStatusSender = mpsc::Sender<CommandStatus>;
 
 /// A document
 #[allow(unused)]
@@ -303,14 +300,8 @@ pub struct Document {
     /// A channel sender for sending patches to the root [`Node`]
     patch_sender: DocumentPatchSender,
 
-    /// A counter of commands used for creating unique command ids
-    command_counter: DocumentCommandCounter,
-
     /// A channel sender for sending commands to the document
     command_sender: DocumentCommandSender,
-
-    /// A channel for receiving notifications of command status
-    command_status_receiver: DocumentCommandStatusReceiver,
 }
 
 impl Document {
@@ -341,7 +332,6 @@ impl Document {
         let (update_sender, update_receiver) = mpsc::channel(8);
         let (patch_sender, patch_receiver) = mpsc::unbounded_channel();
         let (command_sender, command_receiver) = mpsc::channel(256);
-        let (command_status_sender, command_status_receiver) = broadcast::channel(256);
 
         // Create the document's kernels with the same home directory
         let kernels = Kernels::new(ExecutionBounds::Main, &home, Some(watch_receiver.clone()));
@@ -365,9 +355,6 @@ impl Document {
             });
         }
 
-        // Start command counter at one, so tasks that do not wait can use zero
-        let command_counter = AtomicU64::new(1);
-
         // Start the command task
         {
             let home = home.clone();
@@ -375,15 +362,7 @@ impl Document {
             let kernels = kernels.clone();
             let patch_sender = patch_sender.clone();
             tokio::spawn(async move {
-                Self::command_task(
-                    command_receiver,
-                    command_status_sender,
-                    home,
-                    root,
-                    kernels,
-                    patch_sender,
-                )
-                .await
+                Self::command_task(command_receiver, home, root, kernels, patch_sender).await
             });
         }
 
@@ -395,9 +374,7 @@ impl Document {
             watch_receiver,
             update_sender,
             patch_sender,
-            command_counter,
             command_sender,
-            command_status_receiver,
         })
     }
 
@@ -722,7 +699,7 @@ impl Document {
     pub async fn command_send(&self, command: Command) -> Result<()> {
         tracing::trace!("Sending document command");
 
-        Ok(self.command_sender.send((command, 0)).await?)
+        Ok(self.command_sender.send((command, None)).await?)
     }
 
     /// Send a command to the document and obtain a command id and
@@ -731,17 +708,13 @@ impl Document {
     pub async fn command_subscribe(
         &self,
         command: Command,
-    ) -> Result<(u64, DocumentCommandStatusReceiver)> {
+    ) -> Result<mpsc::Receiver<CommandStatus>> {
         tracing::trace!("Sending document command and returning status subscription");
 
-        let command_id: u64 = self
-            .command_counter
-            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-        let status_receiver = self.command_status_receiver.resubscribe();
+        let (sender, receiver) = mpsc::channel(24);
+        self.command_sender.send((command, Some(sender))).await?;
 
-        self.command_sender.send((command, command_id)).await?;
-
-        Ok((command_id, status_receiver))
+        Ok(receiver)
     }
 
     /// Send a command to the document and wait for it to complete
@@ -749,19 +722,14 @@ impl Document {
     pub async fn command_wait(&self, command: Command) -> Result<()> {
         tracing::trace!("Sending document command and waiting for it to finish");
 
-        // Set up things to be able to wait for completion
-        let command_id: u64 = self
-            .command_counter
-            .fetch_add(1, std::sync::atomic::Ordering::SeqCst);
-        let mut status_receiver = self.command_status_receiver.resubscribe();
-
         // Send command
-        self.command_sender.send((command, command_id)).await?;
+        let (sender, mut receiver) = mpsc::channel(24);
+        self.command_sender.send((command, Some(sender))).await?;
 
         // Wait for the command status to be finished
         tracing::trace!("Waiting for command to finish");
-        while let Ok((id, status)) = status_receiver.recv().await {
-            if id == command_id && status.finished() {
+        while let Some(status) = receiver.recv().await {
+            if status.finished() {
                 tracing::trace!("Command finished");
 
                 // Bail if command failed

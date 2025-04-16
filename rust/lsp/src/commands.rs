@@ -991,8 +991,7 @@ pub(super) async fn execute_command(
     };
 
     // Send the command to the document with a subscription to receive status updates
-    let (command_id, mut status_receiver) = match doc.read().await.command_subscribe(command).await
-    {
+    let mut status_receiver = match doc.read().await.command_subscribe(command).await {
         Ok(receiver) => receiver,
         Err(error) => {
             client
@@ -1005,65 +1004,13 @@ pub(super) async fn execute_command(
         }
     };
 
-    // If necessary, create a task to update the text for the node when the command is finished
-    // TODO: this is not ideal because it does not handle case where nodes need to be updated after
-    // the whole document is run, and because it has to hackily wait for the final patch to be
-    // applied. Instead need to set up a patch watcher that allows us to watch for
-    // the node types and ids to which a patch was applied.
-    if update_after {
-        let mut status_receiver = status_receiver.resubscribe();
-        let mut client = client.clone();
-        let uri = uri.clone();
-        tokio::spawn(async move {
-            while let Ok((id, status)) = status_receiver.recv().await {
-                if id == command_id && status.finished() {
-                    // Wait an arbitrary amount of time for any patches to be applied (see note above)
-                    tokio::time::sleep(Duration::from_millis(100)).await;
-
-                    // Format the doc and apply any edits
-                    let edits = match format_doc(doc.clone(), format.clone(), source.clone()).await
-                    {
-                        Ok(Some(edits)) => edits,
-                        Ok(None) => continue,
-                        Err(error) => {
-                            tracing::error!("While formatting doc after command: {error}");
-                            continue;
-                        }
-                    };
-
-                    let edits = edits.into_iter().map(OneOf::Left).collect();
-                    client
-                        .apply_edit(ApplyWorkspaceEditParams {
-                            edit: WorkspaceEdit {
-                                document_changes: Some(DocumentChanges::Edits(vec![
-                                    TextDocumentEdit {
-                                        text_document: OptionalVersionedTextDocumentIdentifier {
-                                            uri,
-                                            version: None,
-                                        },
-                                        edits,
-                                    },
-                                ])),
-                                ..Default::default()
-                            },
-                            label: Some("Update after completion".to_string()),
-                        })
-                        .await
-                        .ok();
-
-                    client.code_lens_refresh(()).await.ok();
-
-                    break;
-                }
-            }
-        });
-    }
-
     // Create a progress notification and spawn a task to update it
     let progress_sender = create_progress(client.clone(), title, cancellable).await;
+    let mut client = client.clone();
+    let uri = uri.clone();
     tokio::spawn(async move {
-        while let Ok((id, status)) = status_receiver.recv().await {
-            if id == command_id && status.finished() {
+        while let Some(status) = status_receiver.recv().await {
+            if status.finished() {
                 progress_sender.send((100, None)).ok();
 
                 // Notify the user if the command failed
@@ -1075,6 +1022,49 @@ pub(super) async fn execute_command(
                         })
                         .ok();
                 }
+
+                if !update_after {
+                    return
+                }
+
+                // If necessary, create a task to update the text for the node when the command is finished
+                // TODO: this is not ideal because it does not handle case where nodes need to be updated after
+                // the whole document is run, and because it has to hackily wait for the final patch to be
+                // applied. Instead need to set up a patch watcher that allows us to watch for
+                // the node types and ids to which a patch was applied.
+                tokio::time::sleep(Duration::from_millis(100)).await;
+
+                // Format the doc and apply any edits
+                let edits = match format_doc(doc.clone(), format.clone(), source.clone()).await {
+                    Ok(Some(edits)) => edits,
+                    Ok(None) => continue,
+                    Err(error) => {
+                        tracing::error!("While formatting doc after command: {error}");
+                        continue;
+                    }
+                };
+
+                let edits = edits.into_iter().map(OneOf::Left).collect();
+                client
+                    .apply_edit(ApplyWorkspaceEditParams {
+                        edit: WorkspaceEdit {
+                            document_changes: Some(DocumentChanges::Edits(vec![
+                                TextDocumentEdit {
+                                    text_document: OptionalVersionedTextDocumentIdentifier {
+                                        uri,
+                                        version: None,
+                                    },
+                                    edits,
+                                },
+                            ])),
+                            ..Default::default()
+                        },
+                        label: Some("Update after completion".to_string()),
+                    })
+                    .await
+                    .ok();
+
+                client.code_lens_refresh(()).await.ok();
 
                 break;
             }

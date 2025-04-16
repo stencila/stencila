@@ -114,7 +114,7 @@ impl Document {
                     Command::CompileDocument { config }
                 };
 
-                if let Err(error) = command_sender.send((command, 0)).await {
+                if let Err(error) = command_sender.send((command, None)).await {
                     tracing::error!("While sending command to document: {error}");
                     continue;
                 }
@@ -129,7 +129,7 @@ impl Document {
                     },
                     ExecuteOptions::default(),
                 ));
-                if let Err(error) = command_sender.send((command, 0)).await {
+                if let Err(error) = command_sender.send((command, None)).await {
                     tracing::error!("While sending command to document: {error}");
                 }
             }

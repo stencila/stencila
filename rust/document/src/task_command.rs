@@ -25,7 +25,6 @@ impl Document {
     #[tracing::instrument(skip_all)]
     pub(super) async fn command_task(
         mut command_receiver: DocumentCommandReceiver,
-        status_sender: DocumentCommandStatusSender,
         home: PathBuf,
         root: DocumentRoot,
         kernels: DocumentKernels,
@@ -34,36 +33,42 @@ impl Document {
         tracing::debug!("Document command task started");
 
         // Local function to send back command status and log any error when doing so
-        fn send_status(sender: &DocumentCommandStatusSender, id: u64, status: CommandStatus) {
-            if let Err(error) = sender.send((id, status)) {
-                tracing::error!("While sending command status: {error}");
+        async fn send_status(sender: &Option<DocumentCommandStatusSender>, status: CommandStatus) {
+            if let Some(sender) = sender {
+                if let Err(error) = sender.send(status).await {
+                    tracing::error!("While sending command status: {error}");
+                }
             }
         }
 
         // The details of the command that is currently running
-        let mut current_command_details: Option<(Command, u64, JoinHandle<()>)> = None;
+        let mut current_command_details: Option<(
+            Command,
+            Option<DocumentCommandStatusSender>,
+            JoinHandle<()>,
+        )> = None;
 
-        while let Some((command, command_id)) = command_receiver.recv().await {
+        while let Some((command, status_sender)) = command_receiver.recv().await {
             tracing::trace!("Document command `{}` received", command.to_string());
 
             use Command::*;
 
             // If there is already a command running, decide whether to ignore the new command,
             // interrupt execution, or wait for the current command to finish.
-            if let Some((current_command, current_command_id, current_task)) =
+            if let Some((current_command, current_status_sender, current_task)) =
                 &current_command_details
             {
                 if !current_task.is_finished() {
                     match (&command, current_command) {
                         (CompileDocument { .. } | ExecuteDocument(..), ExecuteDocument(..)) => {
                             tracing::debug!("Ignoring document command: already executing");
-                            send_status(&status_sender, command_id, CommandStatus::Ignored);
+                            send_status(&status_sender, CommandStatus::Ignored).await;
 
                             continue;
                         }
                         (InterruptDocument, ExecuteDocument(..) | ExecuteNodes(..)) => {
                             tracing::debug!("Interrupting document execution");
-                            send_status(&status_sender, command_id, CommandStatus::Running);
+                            send_status(&status_sender, CommandStatus::Running).await;
 
                             current_task.abort();
 
@@ -80,15 +85,12 @@ impl Document {
                                     "While interrupting document: {error}"
                                 ))
                             } else {
-                                send_status(
-                                    &status_sender,
-                                    *current_command_id,
-                                    CommandStatus::Interrupted,
-                                );
+                                send_status(current_status_sender, CommandStatus::Interrupted)
+                                    .await;
                                 CommandStatus::Succeeded
                             };
 
-                            send_status(&status_sender, command_id, status);
+                            send_status(&status_sender, status).await;
                             continue;
                         }
                         (
@@ -96,7 +98,7 @@ impl Document {
                             ExecuteDocument(..) | ExecuteNodes(..),
                         ) => {
                             tracing::debug!("Interrupting node execution");
-                            send_status(&status_sender, command_id, CommandStatus::Running);
+                            send_status(&status_sender, CommandStatus::Running).await;
 
                             // Abort the current task if it has the same node_ids and scope
                             if &command == current_command {
@@ -114,15 +116,12 @@ impl Document {
                             {
                                 CommandStatus::Failed(format!("While interrupting nodes: {error}"))
                             } else {
-                                send_status(
-                                    &status_sender,
-                                    *current_command_id,
-                                    CommandStatus::Interrupted,
-                                );
+                                send_status(current_status_sender, CommandStatus::Interrupted)
+                                    .await;
                                 CommandStatus::Succeeded
                             };
 
-                            send_status(&status_sender, command_id, status);
+                            send_status(&status_sender, status).await;
                             continue;
                         }
                         _ => {}
@@ -142,8 +141,9 @@ impl Document {
                     } else {
                         CommandStatus::Succeeded
                     };
-                    send_status(&status_sender, command_id, status);
+                    send_status(&status_sender, status).await;
                 }
+
                 PatchNodeFormat {
                     node_id,
                     property,
@@ -192,10 +192,11 @@ impl Document {
                     } else {
                         CommandStatus::Succeeded
                     };
-                    send_status(&status_sender, command_id, status);
+                    send_status(&status_sender, status).await;
                 }
+
                 CompileDocument { config } => {
-                    let status_sender = status_sender.clone();
+                    let status_sender_clone = status_sender.clone();
                     let task = tokio::spawn(async move {
                         let status = if let Err(error) =
                             compile(home, root, kernels, Some(patch_sender), config).await
@@ -204,16 +205,17 @@ impl Document {
                         } else {
                             CommandStatus::Succeeded
                         };
-                        send_status(&status_sender, command_id, status);
+                        send_status(&status_sender_clone, status).await;
                     });
-                    current_command_details = Some((command, command_id, task));
+                    current_command_details = Some((command, status_sender, task));
                 }
+
                 LintDocument {
                     format,
                     fix,
                     config,
                 } => {
-                    let status_sender = status_sender.clone();
+                    let status_sender_clone = status_sender.clone();
                     let task = tokio::spawn(async move {
                         let status = if let Err(error) =
                             lint(home, root, kernels, Some(patch_sender), format, fix, config).await
@@ -222,12 +224,13 @@ impl Document {
                         } else {
                             CommandStatus::Succeeded
                         };
-                        send_status(&status_sender, command_id, status);
+                        send_status(&status_sender_clone, status).await;
                     });
-                    current_command_details = Some((command, command_id, task));
+                    current_command_details = Some((command, status_sender, task));
                 }
+
                 ExecuteDocument(options) => {
-                    let status_sender = status_sender.clone();
+                    let status_sender_clone = status_sender.clone();
                     let task = tokio::spawn(async move {
                         let status = if let Err(error) =
                             execute(home, root, kernels, Some(patch_sender), None, Some(options))
@@ -237,9 +240,9 @@ impl Document {
                         } else {
                             CommandStatus::Succeeded
                         };
-                        send_status(&status_sender, command_id, status);
+                        send_status(&status_sender_clone, status).await;
                     });
-                    current_command_details = Some((command, command_id, task));
+                    current_command_details = Some((command, status_sender, task));
                 }
 
                 ExecuteNodes(..) | PatchExecuteNodes(..) | PatchExecuteChat { .. } => {
@@ -255,15 +258,15 @@ impl Document {
                             files,
                         } => {
                             let patch = match chat_patch(&chat_id, text, files).await {
-                                Ok(message) => message,
+                                Ok(patch) => patch,
                                 Err(error) => {
                                     send_status(
                                         &status_sender,
-                                        command_id,
                                         CommandStatus::Failed(format!(
                                             "While creating chat patch: {error}"
                                         )),
-                                    );
+                                    )
+                                    .await;
                                     continue;
                                 }
                             };
@@ -279,17 +282,17 @@ impl Document {
                         if let Err(error) = schema::patch(root, patch) {
                             send_status(
                                 &status_sender,
-                                command_id,
                                 CommandStatus::Failed(format!(
                                     "While applying patch to root: {error}"
                                 )),
-                            );
+                            )
+                            .await;
                             continue;
                         }
                     }
 
                     // Execute the node/s
-                    let status_sender = status_sender.clone();
+                    let status_sender_clone = status_sender.clone();
                     let task = tokio::spawn(async move {
                         let status = match execute(
                             home,
@@ -306,11 +309,11 @@ impl Document {
                                 CommandStatus::Failed(format!("While executing nodes: {error}"))
                             }
                         };
-                        send_status(&status_sender, command_id, status);
+                        send_status(&status_sender_clone, status).await;
                     });
                     current_command_details = Some((
                         Command::ExecuteNodes((CommandNodes::default(), ExecuteOptions::default())),
-                        command_id,
+                        status_sender,
                         task,
                     ));
                 }
@@ -318,7 +321,7 @@ impl Document {
                 InterruptDocument | InterruptNodes(..) => {
                     // If these have fallen down to here it means that no execution was happening at the time
                     // so just ignore them
-                    send_status(&status_sender, command_id, CommandStatus::Ignored);
+                    send_status(&status_sender, CommandStatus::Ignored).await;
                 }
             }
         }
