@@ -22,9 +22,9 @@ properties:
     type: string
     patch:
       formats: [all]
-  reference:
-    "@id": stencila:reference
-    description: The `Reference` resolved for the `target`
+  cites:
+    "@id": stencila:cites
+    description: The `Reference` being cited, resolved from the `target`.
     $ref: Reference
     dom:
       elem: span

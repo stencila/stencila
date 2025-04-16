@@ -38,10 +38,10 @@
       }
     },
     {
-      "@id": "stencila:reference",
+      "@id": "stencila:cites",
       "@type": "rdfs:Property",
-      "rdfs:label": "reference",
-      "rdfs:comment": "The `Reference` resolved for the `target`",
+      "rdfs:label": "cites",
+      "rdfs:comment": "The `Reference` being cited, resolved from the `target`",
       "schema:domainIncludes": {
         "@id": "stencila:Cite"
       },

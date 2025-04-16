@@ -52,9 +52,9 @@
       },
       "type": "string"
     },
-    "reference": {
-      "@id": "stencila:reference",
-      "description": "The `Reference` resolved for the `target`",
+    "cites": {
+      "@id": "stencila:cites",
+      "description": "The `Reference` being cited, resolved from the `target`",
       "dom": {
         "elem": "span"
       },

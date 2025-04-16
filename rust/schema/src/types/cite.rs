@@ -51,9 +51,9 @@ pub struct Cite {
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CiteOptions {
-    /// The `Reference` resolved for the `target`
+    /// The `Reference` being cited, resolved from the `target`
     #[dom(elem = "span")]
-    pub reference: Option<Reference>,
+    pub cites: Option<Reference>,
 
     /// The type/s of the citation, both factually and rhetorically.
     #[serde(alias = "citation-intent", alias = "citation_intent")]

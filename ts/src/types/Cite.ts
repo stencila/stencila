@@ -20,9 +20,9 @@ export class Cite extends Entity {
   target: string;
 
   /**
-   * The `Reference` resolved for the `target`
+   * The `Reference` being cited, resolved from the `target`
    */
-  reference?: Reference;
+  cites?: Reference;
 
   /**
    * Determines how the citation is shown within the surrounding text.

@@ -1317,8 +1317,8 @@ class Cite(Entity):
     target: str
     """The target of the citation (URL or reference ID)."""
 
-    reference: Reference | None = None
-    """The `Reference` resolved for the `target`"""
+    cites: Reference | None = None
+    """The `Reference` being cited, resolved from the `target`"""
 
     citation_mode: CitationMode | None = None
     """Determines how the citation is shown within the surrounding text."""
