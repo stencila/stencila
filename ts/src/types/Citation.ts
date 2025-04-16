@@ -2,6 +2,7 @@
 
 import { CitationIntent } from "./CitationIntent.js";
 import { CitationMode } from "./CitationMode.js";
+import { CompilationMessage } from "./CompilationMessage.js";
 import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
 import { IntegerOrString } from "./IntegerOrString.js";
@@ -18,6 +19,11 @@ export class Citation extends Entity {
    * The target of the citation (URL or reference ID).
    */
   target: string;
+
+  /**
+   * Messages generated while resolving the target if the citation.
+   */
+  compilationMessages?: CompilationMessage[];
 
   /**
    * The `Reference` being cited, resolved from the `target`.

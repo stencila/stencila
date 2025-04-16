@@ -1317,6 +1317,9 @@ class Citation(Entity):
     target: str
     """The target of the citation (URL or reference ID)."""
 
+    compilation_messages: list[CompilationMessage] | None = None
+    """Messages generated while resolving the target if the citation."""
+
     cites: Reference | None = None
     """The `Reference` being cited, resolved from the `target`."""
 

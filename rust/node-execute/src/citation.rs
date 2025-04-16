@@ -1,4 +1,4 @@
-use schema::Citation;
+use schema::{Citation, CompilationMessage};
 
 use crate::prelude::*;
 
@@ -12,6 +12,19 @@ impl Executable for Citation {
                 self.options.cites = Some(reference.clone());
                 executor.patch(&node_id, [set(NodeProperty::Cites, reference.clone())]);
             }
+
+            if self.options.compilation_messages.is_some() {
+                self.options.compilation_messages = None;
+                executor.patch(&node_id, [none(NodeProperty::CompilationMessages)]);
+            }
+        } else {
+            let messages = vec![CompilationMessage {
+                level: MessageLevel::Error,
+                message: format!("Unable to resolve citation target `{}`", self.target),
+                ..Default::default()
+            }];
+            self.options.compilation_messages = Some(messages.clone());
+            executor.patch(&node_id, [set(NodeProperty::CompilationMessages, messages)]);
         }
 
         if let Some(reference) = &self.options.cites {

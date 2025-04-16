@@ -626,6 +626,9 @@
       "rdfs:comment": "Messages generated while compiling the code.",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:Citation"
+        },
+        {
           "@id": "stencila:Executable"
         },
         {

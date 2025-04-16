@@ -4,6 +4,7 @@ use crate::prelude::*;
 
 use super::citation_intent::CitationIntent;
 use super::citation_mode::CitationMode;
+use super::compilation_message::CompilationMessage;
 use super::inline::Inline;
 use super::integer_or_string::IntegerOrString;
 use super::reference::Reference;
@@ -51,6 +52,12 @@ pub struct Citation {
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 pub struct CitationOptions {
+    /// Messages generated while resolving the target if the citation.
+    #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(compilation)]
+    pub compilation_messages: Option<Vec<CompilationMessage>>,
+
     /// The `Reference` being cited, resolved from the `target`.
     #[dom(elem = "span")]
     pub cites: Option<Reference>,

@@ -52,6 +52,24 @@
       },
       "type": "string"
     },
+    "compilationMessages": {
+      "@id": "stencila:compilationMessages",
+      "description": "Messages generated while resolving the target if the citation.",
+      "aliases": [
+        "compilation-messages",
+        "compilation_messages",
+        "compilationMessage",
+        "compilation-message",
+        "compilation_message"
+      ],
+      "strip": [
+        "compilation"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "CompilationMessage.schema.json"
+      }
+    },
     "cites": {
       "@id": "stencila:cites",
       "description": "The `Reference` being cited, resolved from the `target`.",

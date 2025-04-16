@@ -408,6 +408,7 @@ impl Visitor for Collector {
     #[rustfmt::skip]
     fn visit_inline(&mut self, inline: &schema::Inline) -> WalkControl {
         match inline {
+            Inline::Citation(inline) => cms!(self, inline, None, None),
             Inline::CodeExpression(inline) => cms_ems!(self, inline, inline.programming_language.as_deref(), Some(&inline.code)),
             Inline::InstructionInline(inline) => cms_ems!(self, inline, None, None),
             Inline::MathInline(inline) => cms!(self, inline, inline.math_language.as_deref(), Some(&inline.code)),

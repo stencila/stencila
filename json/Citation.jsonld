@@ -38,6 +38,32 @@
       }
     },
     {
+      "@id": "stencila:compilationMessages",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationMessages",
+      "rdfs:comment": "Messages generated while resolving the target if the citation.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Citation"
+        },
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationMessage"
+      }
+    },
+    {
       "@id": "stencila:cites",
       "@type": "rdfs:Property",
       "rdfs:label": "cites",
