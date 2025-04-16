@@ -28,9 +28,19 @@ impl Executable for Article {
         // Clear the executor's headings
         executor.headings.clear();
 
+        // Add references that have an id to the executor's targets
+        // so that citations can link to them
+        executor.targets.clear();
+        for reference in self.references.iter().flatten() {
+            if let Some(id) = &reference.id {
+                executor.targets.insert(id.into(), reference.clone());
+            }
+        }
+
         // Compile `content` and other properties
         if let Err(error) = async {
             self.title.walk_async(executor).await?;
+            self.r#abstract.walk_async(executor).await?;
             self.content.walk_async(executor).await
         }
         .await
@@ -49,8 +59,8 @@ impl Executable for Article {
         // with the path to headings and send a patch if necessary
         match diff(&self.headings, &headings, None, None) {
             Ok(mut patch) => {
-                patch.node_id = Some(node_id);
                 if !patch.ops.is_empty() {
+                    patch.node_id = Some(node_id);
                     patch.prepend_paths(vec![NodeSlot::Property(NodeProperty::Headings)]);
                     executor.send_patch(patch);
                 }
@@ -61,6 +71,47 @@ impl Executable for Article {
         }
 
         // Break because properties compiled above
+        WalkControl::Break
+    }
+
+    async fn link(&mut self, executor: &mut Executor) -> WalkControl {
+        let node_id = self.node_id();
+        tracing::trace!("Linking Article {node_id}");
+
+        // Link `content` and other properties
+        if let Err(error) = async {
+            self.title.walk_async(executor).await?;
+            self.r#abstract.walk_async(executor).await?;
+            self.content.walk_async(executor).await
+        }
+        .await
+        {
+            tracing::error!("While linking article: {error}")
+        }
+
+        // Mark references as being cited and insert into references list if not
+        // already there.
+        let references = std::mem::take(&mut executor.references);
+        if references.is_empty() {
+            executor.patch(&node_id, [none(NodeProperty::References)]);
+        } else if let Some(current) = &self.references {
+            match diff(current, &references, None, None) {
+                Ok(mut patch) => {
+                    if !patch.ops.is_empty() {
+                        patch.node_id = Some(node_id);
+                        patch.prepend_paths(vec![NodeSlot::Property(NodeProperty::References)]);
+                        executor.send_patch(patch);
+                    }
+                }
+                Err(error) => {
+                    tracing::error!("While diffing article references: {error}")
+                }
+            }
+        } else {
+            executor.patch(&node_id, [set(NodeProperty::References, references)]);
+        }
+
+        // Break because properties linked above
         WalkControl::Break
     }
 

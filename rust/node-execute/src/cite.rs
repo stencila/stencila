@@ -8,14 +8,15 @@ impl Executable for Cite {
         tracing::trace!("Linking Cite {node_id}");
 
         if let Some(reference) = executor.targets.get(&self.target) {
-            executor.references.push(reference.clone());
-
-            if self.options.reference.is_none()
-                || Some(reference) != self.options.reference.as_ref()
-            {
-                self.options.reference = Some(reference.clone());
-                executor.patch(&node_id, [set(NodeProperty::Reference, reference.clone())]);
+            if self.options.cites.is_none() || Some(reference) != self.options.cites.as_ref() {
+                self.options.cites = Some(reference.clone());
+                executor.patch(&node_id, [set(NodeProperty::Cite, reference.clone())]);
             }
+        }
+
+        if let Some(reference) = &self.options.cites {
+            // Register any cited reference
+            executor.references.push(reference.clone());
         }
 
         WalkControl::Continue
