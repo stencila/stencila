@@ -91,9 +91,12 @@ export class Reference extends Entity {
       : 'Anon'
 
     return html`<p>
-      ${authors}${this.date ? html` (${dateYear(this.date)}).` : ''}${this.$title
+      ${authors}${this.date ? html` (${dateYear(this.date)}).` : ''}${this
+        .$title
         ? html` ${this.$title}.`
-        : ''}${this.isPartOf ? html`<em> ${partOf(this.isPartOf)}</em>` : ''}${this.doi
+        : ''}${this.isPartOf
+        ? html`<em> ${partOf(this.isPartOf)}</em>`
+        : ''}${this.doi
         ? html` <a href="https://doi.org/${this.doi}" target="_blank"
             >${this.doi}</a
           >`
@@ -111,7 +114,9 @@ export class Reference extends Entity {
       ${this.$title
         ? html`<span class="font-semibold"> ${this.$title}.</span>`
         : ''}
-      ${this.isPartOf ? html`<span class="italic"> ${partOf(this.isPartOf)}</span>` : ''}
+      ${this.isPartOf
+        ? html`<span class="italic"> ${partOf(this.isPartOf)}</span>`
+        : ''}
       ${this.doi
         ? html` <a href="https://doi.org/${this.doi}" target="_blank"
             >${this.doi}</a
