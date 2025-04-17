@@ -252,7 +252,7 @@ impl Query {
 
         let mut query = self.clone();
 
-        let mut table = match method {
+        let table = match method {
             "rows" => "TableRow".to_string(),
             "cells" => "TableCell".to_string(),
             "eqn" | "equations" => "MathBlock".to_string(),
@@ -276,10 +276,7 @@ impl Query {
             }
             _ => method.to_singular().to_pascal_case(),
         };
-
-        if table == "Table" {
-            table = ["`", &table, "`"].concat();
-        }
+        let table = escape_keyword(&table);
 
         let alias = alias_for_table(&table);
 
@@ -419,12 +416,14 @@ impl Query {
             };
 
             let mut column = if !arg.contains(".") {
-                [&alias, ".`", arg, "`"].concat()
+                [&alias, ".", &escape_keyword(arg)].concat()
             } else {
-                arg.into()
+                escape_keyword(arg)
             };
 
-            if !(arg.contains(['.', '*']) || arg.to_uppercase().contains(" AS ")) {
+            if !(arg.contains(['*']) || arg.to_uppercase().contains(" AS ")) {
+                // Always escape the the arg because it might be an expression
+                // such as `familyNames[1]`
                 column.push_str(" AS `");
                 column.push_str(arg);
                 column.push('`');
@@ -441,7 +440,7 @@ impl Query {
                 ));
             };
 
-            returns.push([&alias, ".", arg, " AS `", label, "`"].concat());
+            returns.push([&alias, ".", arg, " AS ", &escape_keyword(label)].concat());
         }
 
         let returns = if returns.is_empty() {
@@ -797,10 +796,72 @@ fn alias_for_table<S: AsRef<str>>(table: S) -> String {
         "mathBlock" => "eqn".to_string(),
         "organization" => "org".to_string(),
         "reference" => "ref".to_string(),
-        "table" => ["`", &alias, "`"].concat(),
         "tableCell" => "cell".to_string(),
         "tableRow" => "row".to_string(),
-        _ => alias
+        _ => escape_keyword(&alias),
+    }
+}
+
+/// Escape an expression if it is a keyword
+///
+/// Only escaped whole words, not words withing an expression.
+/// See https://docs.kuzudb.com/cypher/syntax/#reserved-keywords
+fn escape_keyword(word: &str) -> String {
+    const KEYWORDS: &[&str] = &[
+        "ALL",
+        "AND",
+        "ASC",
+        "ASCENDING",
+        "CASE",
+        "CAST",
+        "COLUMN",
+        "CREATE",
+        "DBTYPE",
+        "DEFAULT",
+        "DESC",
+        "DESCENDING",
+        "DISTINCT",
+        "ELSE",
+        "END",
+        "ENDS",
+        "EXISTS",
+        "FALSE",
+        "FROM",
+        "GLOB",
+        "GROUP",
+        "HEADERS",
+        "IN",
+        "INSTALL",
+        "IS",
+        "LIMIT",
+        "MACRO",
+        "NOT",
+        "NULL",
+        "ON",
+        "ONLY",
+        "OPTIONAL",
+        "OR",
+        "ORDER",
+        "PRIMARY",
+        "PROFILE",
+        "SHORTEST",
+        "STARTS",
+        "TABLE",
+        "THEN",
+        "TO",
+        "TRUE",
+        "UNION",
+        "UNWIND",
+        "WHEN",
+        "WHERE",
+        "WITH",
+        "XOR",
+    ];
+
+    if KEYWORDS.contains(&word.to_uppercase().as_str()) {
+        ["`", word, "`"].concat()
+    } else {
+        word.to_string()
     }
 }
 
