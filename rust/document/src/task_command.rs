@@ -8,6 +8,7 @@ use common::{
     tracing,
 };
 use format::Format;
+use node_canonicalize::canonicalize;
 use node_execute::{compile, execute, interrupt, lint, ExecuteOptions};
 use schema::{
     transforms::blocks_to_inlines, Article, Block, ChatMessage, ChatMessageOptions, CodeChunk,
@@ -224,6 +225,20 @@ impl Document {
                             lint(home, root, kernels, Some(patch_sender), format, fix, config).await
                         {
                             CommandStatus::Failed(format!("While linting document: {error}"))
+                        } else {
+                            CommandStatus::Succeeded
+                        };
+                        send_status(&status_sender_clone, status).await;
+                    });
+                    current_command_details = Some((command, status_sender, task));
+                }
+
+                CanonicalizeDocument => {
+                    let status_sender_clone = status_sender.clone();
+                    let task = tokio::spawn(async move {
+                        let root = &mut *root.write().await;
+                        let status = if let Err(error) = canonicalize(root).await {
+                            CommandStatus::Failed(format!("While canonicalizing document: {error}"))
                         } else {
                             CommandStatus::Succeeded
                         };

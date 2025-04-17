@@ -2057,6 +2057,7 @@ dependencies = [
  "format",
  "json-patch",
  "kernels",
+ "node-canonicalize",
  "node-db",
  "node-diagnostics",
  "node-execute",
@@ -4053,6 +4054,16 @@ dependencies = [
  "napi",
  "napi-build",
  "napi-derive",
+]
+
+[[package]]
+name = "node-canonicalize"
+version = "0.0.0"
+dependencies = [
+ "base64 0.22.1",
+ "codec-cbor",
+ "common",
+ "schema",
 ]
 
 [[package]]

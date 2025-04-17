@@ -1,0 +1,13 @@
+[package]
+name = "node-canonicalize"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+base64 = { workspace = true }
+codec-cbor = { path = "../codec-cbor" }
+common = { path = "../common" }
+schema = { path = "../schema" }
+
+[lints]
+workspace = true

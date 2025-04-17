@@ -12,11 +12,12 @@ dirs = { path = "../dirs" }
 format = { path = "../format" }
 kernels = { path = "../kernels" }
 json-patch = "1.2.0"
+node-canonicalize = { path = "../node-canonicalize" }
 node-db = { path = "../node-db" }
+node-diagnostics = { path = "../node-diagnostics" }
 node-execute = { path = "../node-execute" }
 node-find = { path = "../node-find" }
 node-map = { path = "../node-map" }
-node-diagnostics = { path = "../node-diagnostics" }
 node-strip = { path = "../node-strip" }
 notify = { version = "8.0.0", default-features = false, features = ["macos_kqueue"] }
 schema = { path = "../schema" }
