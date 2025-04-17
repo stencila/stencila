@@ -5,6 +5,7 @@ use schema::{
 };
 
 mod cbor_hash;
+mod open_alex;
 
 /// Canonicalize a node
 ///
@@ -107,12 +108,15 @@ impl Canonicalize for Organization {
 
 impl Canonicalize for Person {
     async fn canonicalize(&mut self) -> Result<()> {
-        if self.orcid.is_some() {
-            return Ok(());
+        if self.orcid.is_none() {
+            // Attempt to get ORCID from OpenAlex, falling back to generating an
+            // ORCID from the hash of the person
+            let orcid = match open_alex::orcid(&self.family_names, &self.given_names).await? {
+                Some(orcid) => orcid,
+                None => cbor_hash::orcid(self)?,
+            };
+            self.orcid = Some(orcid);
         }
-
-        // Fallback to generating an ORCID from the hash of the person
-        self.orcid = Some(cbor_hash::orcid(self)?);
 
         // Walk over properties that are not walked otherwise, in parallel.
 
