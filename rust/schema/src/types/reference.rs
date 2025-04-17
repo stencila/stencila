@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::author::Author;
 use super::creative_work_type::CreativeWorkType;
 use super::date::Date;
+use super::inline::Inline;
 use super::integer_or_string::IntegerOrString;
 use super::string::String;
 
@@ -38,10 +39,12 @@ pub struct Reference {
     #[dom(with = "Date::to_dom_attr")]
     pub date: Option<Date>,
 
-    /// The title of the work.
+    /// The title of the referenced work.
     #[serde(alias = "headline")]
-    #[dom(attr = "_title")]
-    pub title: Option<String>,
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[walk]
+    #[dom(elem = "span")]
+    pub title: Option<Vec<Inline>>,
 
     /// An other `CreativeWork` that the reference is a part of.
     #[serde(alias = "is-part-of", alias = "is_part_of")]

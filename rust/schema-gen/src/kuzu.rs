@@ -71,6 +71,7 @@ impl Schemas {
             "Reference.pageStart",
             "Reference.pageEnd",
             "Reference.pagination",
+            "Reference.title", // Provided for by the derived `title` text field
             // Exclude unnecessary properties of periodicals, publication volumes and issues
             "Periodical.abstract",
             "Periodical.authors",
@@ -263,6 +264,7 @@ impl Schemas {
                     ("text", "to_text(&self.options.content)"),
                 ],
             ),
+            ("Reference", vec![("title", "to_text(&self.title)")]),
             (
                 "PublicationVolume",
                 vec![("volumeNumber", "to_text(&self.volume_number)")],

@@ -2658,8 +2658,8 @@ class Reference(Entity):
     date: Date | None = None
     """Date of first publication."""
 
-    title: str | None = None
-    """The title of the work."""
+    title: list[Inline] | None = None
+    """The title of the referenced work."""
 
     is_part_of: CreativeWorkType | None = None
     """An other `CreativeWork` that the reference is a part of."""

@@ -148,7 +148,14 @@ expression: article
         "type": "Date",
         "value": "1994"
       },
-      "title": "Amplification and linearization of distal synaptic input to cortical pyramidal cells",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Amplification and linearization of distal synaptic input to cortical pyramidal cells"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -215,7 +222,14 @@ expression: article
         "type": "Date",
         "value": "2005"
       },
-      "title": "Millisecond-timescale, genetically targeted optical control of neural activity",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Millisecond-timescale, genetically targeted optical control of neural activity"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -246,7 +260,14 @@ expression: article
         "type": "Date",
         "value": "1975"
       },
-      "title": "Olfactory relationships of the telencephlaon and diencephalon in the rabbit. 1. An autoradiographic study of the efferent connections of the main and accessory olfactory bulbs",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Olfactory relationships of the telencephlaon and diencephalon in the rabbit. 1. An autoradiographic study of the efferent connections of the main and accessory olfactory bulbs"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -287,7 +308,14 @@ expression: article
         "type": "Date",
         "value": "1990"
       },
-      "title": "Intrinsic firing patterns of diverse neocortical neurons",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Intrinsic firing patterns of diverse neocortical neurons"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -327,7 +355,14 @@ expression: article
         "type": "Date",
         "value": "1982"
       },
-      "title": "Comparative correlative neuroanatomy of the vertebrate telencephalon"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Comparative correlative neuroanatomy of the vertebrate telencephalon"
+          }
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -377,7 +412,14 @@ expression: article
         "type": "Date",
         "value": "2022"
       },
-      "title": "Glutamatergic neuron types in the amygdala of the urodele amphibian Pleurodeles waltl"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Glutamatergic neuron types in the amygdala of the urodele amphibian Pleurodeles waltl"
+          }
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -417,7 +459,14 @@ expression: article
         "type": "Date",
         "value": "2007"
       },
-      "title": "A Role for Synaptic Inputs at Distal Dendrites: Instructive Signals for Hippocampal Long-Term Plasticity",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A Role for Synaptic Inputs at Distal Dendrites: Instructive Signals for Hippocampal Long-Term Plasticity"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -466,7 +515,14 @@ expression: article
         "type": "Date",
         "value": "2001"
       },
-      "title": "Morphological and Electrophysiological Properties of Principal Neurons in the Rat Lateral Amygdala In Vitro",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Morphological and Electrophysiological Properties of Principal Neurons in the Rat Lateral Amygdala In Vitro"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -507,7 +563,14 @@ expression: article
         "type": "Date",
         "value": "2002"
       },
-      "title": "Physiological Role of Calcium-Activated Potassium Currents in the Rat Lateral Amygdala",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Physiological Role of Calcium-Activated Potassium Currents in the Rat Lateral Amygdala"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -548,7 +611,14 @@ expression: article
         "type": "Date",
         "value": "2005"
       },
-      "title": "Synapse-Specific Downregulation of NMDA Receptors by Early Experience: A Critical Period for Plasticity of Sensory Input to Olfactory Cortex",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Synapse-Specific Downregulation of NMDA Receptors by Early Experience: A Critical Period for Plasticity of Sensory Input to Olfactory Cortex"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -589,7 +659,14 @@ expression: article
         "type": "Date",
         "value": "2006"
       },
-      "title": "Strong Single-Fiber Sensory Inputs to Olfactory Cortex: Implications for Olfactory Coding",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Strong Single-Fiber Sensory Inputs to Olfactory Cortex: Implications for Olfactory Coding"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -650,7 +727,14 @@ expression: article
         "type": "Date",
         "value": "2015"
       },
-      "title": "The Olfactory Tubercle Encodes Odor Valence in Behaving Mice",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The Olfactory Tubercle Encodes Odor Valence in Behaving Mice"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -774,7 +858,14 @@ expression: article
         "type": "Date",
         "value": "2003"
       },
-      "title": "A gene expression atlas of the central nervous system based on bacterial artificial chromosomes",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A gene expression atlas of the central nervous system based on bacterial artificial chromosomes"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -850,7 +941,14 @@ expression: article
         "type": "Date",
         "value": "2013"
       },
-      "title": "Olfactory cortical neurons read out a relative time code in the olfactory bulb",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Olfactory cortical neurons read out a relative time code in the olfactory bulb"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -880,7 +978,14 @@ expression: article
         "type": "Date",
         "value": "2001"
       },
-      "title": "Synaptic function: Dendritic democracy",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Synaptic function: Dendritic democracy"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -950,7 +1055,14 @@ expression: article
         "type": "Date",
         "value": "2022"
       },
-      "title": "Nucleus of the lateral olfactory tract: A hub linking the water homeostasis-associated supraoptic nucleus-arginine vasopressin circuit and neocortical regions to promote social behavior under osmotic challenge",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Nucleus of the lateral olfactory tract: A hub linking the water homeostasis-associated supraoptic nucleus-arginine vasopressin circuit and neocortical regions to promote social behavior under osmotic challenge"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -979,7 +1091,14 @@ expression: article
         "type": "Date",
         "value": "2005"
       },
-      "title": "Odor-associative Learning and Emotion: Effects on Perception and Behavior",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Odor-associative Learning and Emotion: Effects on Perception and Behavior"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1072,7 +1191,14 @@ expression: article
         "type": "Date",
         "value": "2019"
       },
-      "title": "A Novel Birthdate-Labeling Method Reveals Segregated Parallel Projections of Mitral and External Tufted Cells in the Main Olfactory System",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A Novel Birthdate-Labeling Method Reveals Segregated Parallel Projections of Mitral and External Tufted Cells in the Main Olfactory System"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1192,7 +1318,14 @@ expression: article
         "type": "Date",
         "value": "2023"
       },
-      "title": "Neuronal types in the mouse amygdala and their transcriptional response to fear conditioning",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Neuronal types in the mouse amygdala and their transcriptional response to fear conditioning"
+          }
+        }
+      ],
       "pageStart": 1,
       "pageEnd": 13
     },
@@ -1215,7 +1348,14 @@ expression: article
         "type": "Date",
         "value": "2006"
       },
-      "title": "Bursting",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Bursting"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1244,7 +1384,14 @@ expression: article
         "type": "Date",
         "value": "2013"
       },
-      "title": "Effects of odor on emotion, with implications",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Effects of odor on emotion, with implications"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1313,7 +1460,14 @@ expression: article
         "type": "Date",
         "value": "2015"
       },
-      "title": "Dendritic Organization of Olfactory Inputs to Medial Amygdala Neurons",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Dendritic Organization of Olfactory Inputs to Medial Amygdala Neurons"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1363,7 +1517,14 @@ expression: article
         "type": "Date",
         "value": "2020"
       },
-      "title": "Behavioral and Neurobiological Convergence of Odor, Mood and Emotion: A Review",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Behavioral and Neurobiological Convergence of Odor, Mood and Emotion: A Review"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1499,7 +1660,14 @@ expression: article
         "type": "Date",
         "value": "2019"
       },
-      "title": "Adaptive disinhibitory gating by VIP interneurons permits associative learning",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Adaptive disinhibitory gating by VIP interneurons permits associative learning"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1540,7 +1708,14 @@ expression: article
         "type": "Date",
         "value": "1978"
       },
-      "title": "A description of the amygdaloid complex in the rat and cat with observations on intra-amygdaloid axonal connections",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A description of the amygdaloid complex in the rat and cat with observations on intra-amygdaloid axonal connections"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1590,7 +1765,14 @@ expression: article
         "type": "Date",
         "value": "1999"
       },
-      "title": "A new cellular mechanism for coupling inputs arriving at different cortical layers",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A new cellular mechanism for coupling inputs arriving at different cortical layers"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1683,7 +1865,14 @@ expression: article
         "type": "Date",
         "value": "2023"
       },
-      "title": "Adaptive olfactory circuitry restores function despite severe olfactory bulb degeneration",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Adaptive olfactory circuitry restores function despite severe olfactory bulb degeneration"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1714,7 +1903,14 @@ expression: article
         "type": "Date",
         "value": "1997"
       },
-      "title": "Bursts as a unit of neural information: making unreliable synapses reliable",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Bursts as a unit of neural information: making unreliable synapses reliable"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1753,7 +1949,14 @@ expression: article
         "type": "Date",
         "value": "2004"
       },
-      "title": "Firing Properties and Connectivity of Neurons in the Rat Lateral Central Nucleus of the Amygdala",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Firing Properties and Connectivity of Neurons in the Rat Lateral Central Nucleus of the Amygdala"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1794,7 +1997,14 @@ expression: article
         "type": "Date",
         "value": "1983"
       },
-      "title": "The topographic organization of associational fibers of the olfactory system in the rat, including centrifugal fibers to the olfactory bulb",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The topographic organization of associational fibers of the olfactory system in the rat, including centrifugal fibers to the olfactory bulb"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1824,7 +2034,14 @@ expression: article
         "type": "Date",
         "value": "2012"
       },
-      "title": "A toolbox of Cre-dependent optogenetic transgenic mice for light-induced activation and silencing",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A toolbox of Cre-dependent optogenetic transgenic mice for light-induced activation and silencing"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1899,7 +2116,14 @@ expression: article
         "type": "Date",
         "value": "2004"
       },
-      "title": "Interneurons of the neocortical inhibitory system",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Interneurons of the neocortical inhibitory system"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1930,7 +2154,14 @@ expression: article
         "type": "Date",
         "value": "1983"
       },
-      "title": "Cytoarchitecture of the nucleus of the lateral olfactory tract: A Golgi study in the rat",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Cytoarchitecture of the nucleus of the lateral olfactory tract: A Golgi study in the rat"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2006,7 +2237,14 @@ expression: article
         "type": "Date",
         "value": "2022"
       },
-      "title": "Distinct Subdivisions in the Transition Between Telencephalon and Hypothalamus Produce Otp and Sim1 Cells for the Extended Amygdala in Sauropsids",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Distinct Subdivisions in the Transition Between Telencephalon and Hypothalamus Produce Otp and Sim1 Cells for the Extended Amygdala in Sauropsids"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2044,7 +2282,14 @@ expression: article
         "type": "Date",
         "value": "1985"
       },
-      "title": "The structure of the nucleus of the lateral olfactory tract",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The structure of the nucleus of the lateral olfactory tract"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2085,7 +2330,14 @@ expression: article
         "type": "Date",
         "value": "2020"
       },
-      "title": "Rapid Learning of Odor–Value Association in the Olfactory Striatum",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Rapid Learning of Odor–Value Association in the Olfactory Striatum"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2161,7 +2413,14 @@ expression: article
         "type": "Date",
         "value": "2013"
       },
-      "title": "Dissecting Local Circuits: Parvalbumin Interneurons Underlie Broad Feedback Control of Olfactory Bulb Output",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Dissecting Local Circuits: Parvalbumin Interneurons Underlie Broad Feedback Control of Olfactory Bulb Output"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2270,7 +2529,14 @@ expression: article
         "type": "Date",
         "value": "2020"
       },
-      "title": "Extensive and spatially variable within-cell-type heterogeneity across the basolateral amygdala",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Extensive and spatially variable within-cell-type heterogeneity across the basolateral amygdala"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2300,7 +2566,14 @@ expression: article
         "type": "Date",
         "value": "1973"
       },
-      "title": "An autoradiographic study of complementary laminar patterns of termination of afferent fibers to the olfactory cortex",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "An autoradiographic study of complementary laminar patterns of termination of afferent fibers to the olfactory cortex"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2350,7 +2623,14 @@ expression: article
         "type": "Date",
         "value": "1993"
       },
-      "title": "Intracellular recordings from morphologically identified neurons of the basolateral amygdala",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Intracellular recordings from morphologically identified neurons of the basolateral amygdala"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2390,7 +2670,14 @@ expression: article
         "type": "Date",
         "value": "2021"
       },
-      "title": "Can transsynaptic viral strategies be used to reveal functional aspects of neural circuitry?",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Can transsynaptic viral strategies be used to reveal functional aspects of neural circuitry?"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2430,7 +2717,14 @@ expression: article
         "type": "Date",
         "value": "2004"
       },
-      "title": "Efferent connections of the nucleus of the lateral olfactory tract in the rat",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Efferent connections of the nucleus of the lateral olfactory tract in the rat"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2470,7 +2764,14 @@ expression: article
         "type": "Date",
         "value": "1975"
       },
-      "title": "The differential projections of the olfactory bulb and accessory olfactory bulb in mammals",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The differential projections of the olfactory bulb and accessory olfactory bulb in mammals"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2536,7 +2837,14 @@ expression: article
         "type": "Date",
         "value": "2011"
       },
-      "title": "Olfactory system and emotion: Common substrates. European Annals of Otorhinolaryngology",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Olfactory system and emotion: Common substrates. European Annals of Otorhinolaryngology"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2576,7 +2884,14 @@ expression: article
         "type": "Date",
         "value": "2017"
       },
-      "title": "A quantitative description of the mouse piriform cortex"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A quantitative description of the mouse piriform cortex"
+          }
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -2632,7 +2947,14 @@ expression: article
         "type": "Date",
         "value": "2021"
       },
-      "title": "Bi-directional encoding of context-based odors and behavioral states by the nucleus of the lateral olfactory tract",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Bi-directional encoding of context-based odors and behavioral states by the nucleus of the lateral olfactory tract"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2681,7 +3003,14 @@ expression: article
         "type": "Date",
         "value": "1978"
       },
-      "title": "The locus and cytoarchitecture of the projection areas of the olfactory bulb in Macaca mulatta",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The locus and cytoarchitecture of the projection areas of the olfactory bulb in Macaca mulatta"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2751,7 +3080,14 @@ expression: article
         "type": "Date",
         "value": "2017"
       },
-      "title": "The integrity of the nucleus of the lateral olfactory tract is essential for the normal functioning of the olfactory system",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The integrity of the nucleus of the lateral olfactory tract is essential for the normal functioning of the olfactory system"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2802,7 +3138,14 @@ expression: article
         "type": "Date",
         "value": "2016"
       },
-      "title": "Age effects on the nucleus of the lateral olfactory tract of the rat",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Age effects on the nucleus of the lateral olfactory tract of the rat"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2881,7 +3224,14 @@ expression: article
         "type": "Date",
         "value": "2011"
       },
-      "title": "Complementary Sensory and Associative Microcircuitry in Primary Olfactory Cortex",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Complementary Sensory and Associative Microcircuitry in Primary Olfactory Cortex"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {

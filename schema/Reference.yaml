@@ -35,14 +35,20 @@ properties:
       with: Date::to_dom_attr
   title:
     "@id": schema:headline
-    description: The title of the work.
+    description: The title of the referenced work.
+    $comment: |
+      An array of inlines (rather than a string) to be consistent with `CreativeWork.title`
+      and allow for italicization of species names, math etc.
     aliases:
       - headline
-    type: string
+    type: array
+    items:
+      $ref: Inline
+    walk: true
     dom:
-      attr: _title
+      elem: span
   isPartOf:
-    '@id': schema:isPartOf
+    "@id": schema:isPartOf
     description: An other `CreativeWork` that the reference is a part of.
     $ref: CreativeWorkType
   pageStart:

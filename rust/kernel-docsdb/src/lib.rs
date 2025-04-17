@@ -25,8 +25,8 @@ use kernel_kuzu::{
         format::Format,
         generate_id,
         schema::{
-            get, Array, Excerpt, ExecutionBounds, ExecutionMessage, Node, NodeId, NodeSet,
-            NodeType, Primitive, Reference, SoftwareApplication, Variable,
+            get, shortcuts::t, Array, Excerpt, ExecutionBounds, ExecutionMessage, Node, NodeId,
+            NodeSet, NodeType, Primitive, Reference, SoftwareApplication, Variable,
         },
         Kernel, KernelInstance, KernelType, KernelVariableRequester, KernelVariableResponder,
     },
@@ -288,7 +288,7 @@ impl DocsDBKernelInstance {
                     let (doc, ..) = &*doc.lock().await;
 
                     let source = Reference {
-                        title: Some("Current document".into()),
+                        title: Some(vec![t("Current document")]),
                         ..Default::default()
                     };
 
@@ -386,7 +386,7 @@ impl DocsDBKernelInstance {
         title += &variable.name;
 
         let source = Reference {
-            title: Some(title),
+            title: Some(vec![t(title)]),
             ..Default::default()
         };
 

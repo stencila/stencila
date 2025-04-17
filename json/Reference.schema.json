@@ -73,14 +73,19 @@
     },
     "title": {
       "@id": "schema:headline",
-      "description": "The title of the work.",
+      "description": "The title of the referenced work.",
+      "$comment": "An array of inlines (rather than a string) to be consistent with `CreativeWork.title`\nand allow for italicization of species names, math etc.\n",
       "aliases": [
         "headline"
       ],
+      "walk": true,
       "dom": {
-        "attr": "_title"
+        "elem": "span"
       },
-      "type": "string"
+      "type": "array",
+      "items": {
+        "$ref": "Inline.schema.json"
+      }
     },
     "isPartOf": {
       "@id": "schema:isPartOf",

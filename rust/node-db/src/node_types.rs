@@ -1132,7 +1132,7 @@ impl DatabaseNode for Reference {
         vec![
             (NodeProperty::Doi, String::to_kuzu_type(), self.doi.to_kuzu_value()),
             (NodeProperty::Date, Date::to_kuzu_type(), self.date.to_kuzu_value()),
-            (NodeProperty::Title, String::to_kuzu_type(), self.title.to_kuzu_value())
+            (NodeProperty::Title, String::to_kuzu_type(), to_text(&self.title).to_kuzu_value())
         ]
     }
 

@@ -24,9 +24,6 @@ export class Reference extends Entity {
   @property()
   date?: string
 
-  @property({ attribute: '_title' })
-  $title?: string
-
   @property({ attribute: 'is-part-of', type: Object })
   isPartOf?: CreativeWorkType
 
@@ -40,9 +37,9 @@ export class Reference extends Entity {
   pagination?: string
 
   override render() {
-    const cite = this.closestGlobally('stencila-cite') as Citation | null
+    const cite = this.closestGlobally('stencila-citation') as Citation | null
     if (cite) {
-      return this.renderWithinCite(cite)
+      return this.renderWithinCitation(cite)
     }
 
     const article = this.closestGlobally('stencila-article > [slot=references]')
@@ -53,7 +50,7 @@ export class Reference extends Entity {
     return this.renderDefault()
   }
 
-  renderWithinCite(cite: Citation) {
+  renderWithinCitation(cite: Citation) {
     let author = this.authors?.[0] ? authorSingleName(this.authors[0]) : 'Anon'
     if (this.authors?.length == 2) {
       const second = this.authors[1]
@@ -90,18 +87,17 @@ export class Reference extends Entity {
       ? this.authors.map(authorNameInitialsDotted).join(', ')
       : 'Anon'
 
-    return html`<p>
-      ${authors}${this.date ? html` (${dateYear(this.date)}).` : ''}${this
-        .$title
-        ? html` ${this.$title}.`
-        : ''}${this.isPartOf
-        ? html`<em> ${partOf(this.isPartOf)}</em>`
-        : ''}${this.doi
+    return html`<div class="mt-3">
+      ${authors}${this.date ? html` (${dateYear(this.date)}). ` : ''}<slot
+        name="title"
+      ></slot
+      >.
+      ${this.isPartOf ? html`<em> ${partOf(this.isPartOf)}</em>` : ''}${this.doi
         ? html` <a href="https://doi.org/${this.doi}" target="_blank"
             >${this.doi}</a
           >`
         : ''}
-    </p>`
+    </div>`
   }
 
   renderDefault() {
@@ -110,10 +106,10 @@ export class Reference extends Entity {
       : 'Anon'
 
     return html`<div class="font-sans text-xs">
-      ${authors}${this.date ? html` (${dateYear(this.date)}).` : ''}
-      ${this.$title
-        ? html`<span class="font-semibold"> ${this.$title}.</span>`
-        : ''}
+      ${authors}${this.date ? html` (${dateYear(this.date)}). ` : ''}<span
+        class="font-semibold"
+        ><slot name="title"></slot></span
+      >.
       ${this.isPartOf
         ? html`<span class="italic"> ${partOf(this.isPartOf)}</span>`
         : ''}

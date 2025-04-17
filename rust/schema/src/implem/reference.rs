@@ -1,5 +1,3 @@
-use codec_text_trait::to_text;
-
 use crate::{prelude::*, Article, Reference};
 
 impl From<&Node> for Reference {
@@ -21,7 +19,7 @@ impl From<&Article> for Reference {
                 .as_ref()
                 .or(article.date_modified.as_ref())
                 .cloned(),
-            title: article.title.as_ref().map(to_text),
+            title: article.title.clone(),
             ..Default::default()
         }
     }

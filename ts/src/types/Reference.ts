@@ -4,6 +4,7 @@ import { Author } from "./Author.js";
 import { CreativeWorkType } from "./CreativeWorkType.js";
 import { Date } from "./Date.js";
 import { Entity } from "./Entity.js";
+import { Inline } from "./Inline.js";
 import { IntegerOrString } from "./IntegerOrString.js";
 
 /**
@@ -29,9 +30,9 @@ export class Reference extends Entity {
   date?: Date;
 
   /**
-   * The title of the work.
+   * The title of the referenced work.
    */
-  title?: string;
+  title?: Inline[];
 
   /**
    * An other `CreativeWork` that the reference is a part of.

@@ -133,7 +133,14 @@ expression: article
         "type": "Date",
         "value": "2018"
       },
-      "title": "Cell motility in cancer invasion and metastasis: insights from simple model organisms",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Cell motility in cancer invasion and metastasis: insights from simple model organisms"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -194,7 +201,14 @@ expression: article
         "type": "Date",
         "value": "2021"
       },
-      "title": "Mutational drivers of cancer cell migration and invasion",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mutational drivers of cancer cell migration and invasion"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -263,7 +277,14 @@ expression: article
         "type": "Date",
         "value": "2020"
       },
-      "title": "Molecular principles of metastasis: a hallmark of cancer revisited",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Molecular principles of metastasis: a hallmark of cancer revisited"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -329,7 +350,14 @@ expression: article
         "type": "Date",
         "value": "2008"
       },
-      "title": "Dynamic imaging of cancer growth and invasion: a modified skin-fold chamber model",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Dynamic imaging of cancer growth and invasion: a modified skin-fold chamber model"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -377,7 +405,14 @@ expression: article
         "type": "Date",
         "value": "2012"
       },
-      "title": "Intravital third harmonic generation microscopy of collective melanoma cell invasion: Principles of interface guidance and microvesicle dynamics",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Intravital third harmonic generation microscopy of collective melanoma cell invasion: Principles of interface guidance and microvesicle dynamics"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -416,7 +451,14 @@ expression: article
         "type": "Date",
         "value": "2016"
       },
-      "title": "The front and rear of collective cell migration",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The front and rear of collective cell migration"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -447,7 +489,14 @@ expression: article
         "type": "Date",
         "value": "2003"
       },
-      "title": "Cell Migration: Integrating Signals from Front to Back",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Cell Migration: Integrating Signals from Front to Back"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -487,7 +536,14 @@ expression: article
         "type": "Date",
         "value": "2015"
       },
-      "title": "Signaling Networks that Regulate Cell Migration",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Signaling Networks that Regulate Cell Migration"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -524,7 +580,14 @@ expression: article
         "type": "Date",
         "value": "2003"
       },
-      "title": "Tumour-cell invasion and migration: diversity and escape mechanisms",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Tumour-cell invasion and migration: diversity and escape mechanisms"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -563,7 +626,14 @@ expression: article
         "type": "Date",
         "value": "2011"
       },
-      "title": "Cancer Invasion and the Microenvironment: Plasticity and Reciprocity",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Cancer Invasion and the Microenvironment: Plasticity and Reciprocity"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -593,7 +663,14 @@ expression: article
         "type": "Date",
         "value": "2013"
       },
-      "title": "Matrix geometry determines optimal cancer cell migration strategy and modulates response to interventions",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Matrix geometry determines optimal cancer cell migration strategy and modulates response to interventions"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -650,7 +727,14 @@ expression: article
         "type": "Date",
         "value": "2010"
       },
-      "title": "The molecular mechanisms of transition between mesenchymal and amoeboid invasiveness in tumor cells",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The molecular mechanisms of transition between mesenchymal and amoeboid invasiveness in tumor cells"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -691,7 +775,14 @@ expression: article
         "type": "Date",
         "value": "2015"
       },
-      "title": "Integration of actin dynamics and cell adhesion by a three-dimensional, mechanosensitive molecular clutch",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Integration of actin dynamics and cell adhesion by a three-dimensional, mechanosensitive molecular clutch"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -730,7 +821,14 @@ expression: article
         "type": "Date",
         "value": "2008"
       },
-      "title": "Blebs lead the way: how to migrate without lamellipodia",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Blebs lead the way: how to migrate without lamellipodia"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -797,7 +895,14 @@ expression: article
         "type": "Date",
         "value": "2011"
       },
-      "title": "An ezrin-rich, rigid uropod-like structure directs movement of amoeboid blebbing cells",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "An ezrin-rich, rigid uropod-like structure directs movement of amoeboid blebbing cells"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -856,7 +961,14 @@ expression: article
         "type": "Date",
         "value": "2024"
       },
-      "title": "Blebology: principles of bleb-based migration",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Blebology: principles of bleb-based migration"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -926,7 +1038,14 @@ expression: article
         "type": "Date",
         "value": "2005"
       },
-      "title": "Non-equilibration of hydrostatic pressure in blebbing cells",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Non-equilibration of hydrostatic pressure in blebbing cells"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -985,7 +1104,14 @@ expression: article
         "type": "Date",
         "value": "2012"
       },
-      "title": "Cell mechanics control rapid transitions between blebs and lamellipodia during migration",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Cell mechanics control rapid transitions between blebs and lamellipodia during migration"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1015,7 +1141,14 @@ expression: article
         "type": "Date",
         "value": "2015"
       },
-      "title": "Confinement and Low Adhesion Induce Fast Amoeboid Migration of Slow Mesenchymal Cells",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Confinement and Low Adhesion Induce Fast Amoeboid Migration of Slow Mesenchymal Cells"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1046,7 +1179,14 @@ expression: article
         "type": "Date",
         "value": "2015"
       },
-      "title": "Erk regulation of actin capping and bundling by Eps8 promotes cortex tension and leader bleb-based migration",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Erk regulation of actin capping and bundling by Eps8 promotes cortex tension and leader bleb-based migration"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1104,7 +1244,14 @@ expression: article
         "type": "Date",
         "value": "2006"
       },
-      "title": "Reassembly of contractile actin cortex in cell blebs",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Reassembly of contractile actin cortex in cell blebs"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1134,7 +1281,14 @@ expression: article
         "type": "Date",
         "value": "2015"
       },
-      "title": "Cortical Contractility Triggers a Stochastic Switch to Fast Amoeboid Cell Motility",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Cortical Contractility Triggers a Stochastic Switch to Fast Amoeboid Cell Motility"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1182,7 +1336,14 @@ expression: article
         "type": "Date",
         "value": "2016"
       },
-      "title": "Front–Rear Polarization by Mechanical Cues: From Single Cells to Tissues",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Front–Rear Polarization by Mechanical Cues: From Single Cells to Tissues"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1212,7 +1373,14 @@ expression: article
         "type": "Date",
         "value": "2021"
       },
-      "title": "Chemokine-biased robust self-organizing polarization of migrating cells in vivo",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Chemokine-biased robust self-organizing polarization of migrating cells in vivo"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1242,7 +1410,14 @@ expression: article
         "type": "Date",
         "value": "2010"
       },
-      "title": "Cytoskeletal Mechanisms for Breaking Cellular Symmetry",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Cytoskeletal Mechanisms for Breaking Cellular Symmetry"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1302,7 +1477,14 @@ expression: article
         "type": "Date",
         "value": "1998"
       },
-      "title": "Activation of Rac and Cdc42 by Integrins Mediates Cell Spreading",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Activation of Rac and Cdc42 by Integrins Mediates Cell Spreading"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1332,7 +1514,14 @@ expression: article
         "type": "Date",
         "value": "2003"
       },
-      "title": "Phosphoinositide 3-kinase activates Rac by entering in a complex with Eps8, Abi1, and Sos-1",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Phosphoinositide 3-kinase activates Rac by entering in a complex with Eps8, Abi1, and Sos-1"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1400,7 +1589,14 @@ expression: article
         "type": "Date",
         "value": "2004"
       },
-      "title": "Two Distinct Actin Networks Drive the Protrusion of Migrating Cells",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Two Distinct Actin Networks Drive the Protrusion of Migrating Cells"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1430,7 +1626,14 @@ expression: article
         "type": "Date",
         "value": "2012"
       },
-      "title": "Arp2/3 Is Critical for Lamellipodia and Response to Extracellular Matrix Cues but Is Dispensable for Chemotaxis",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Arp2/3 Is Critical for Lamellipodia and Response to Extracellular Matrix Cues but Is Dispensable for Chemotaxis"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1480,7 +1683,14 @@ expression: article
         "type": "Date",
         "value": "2016"
       },
-      "title": "Coordinated integrin activation by actin-dependent force during T-cell migration",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Coordinated integrin activation by actin-dependent force during T-cell migration"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1528,7 +1738,14 @@ expression: article
         "type": "Date",
         "value": "2021"
       },
-      "title": "The principles of directed cell migration",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The principles of directed cell migration"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1567,7 +1784,14 @@ expression: article
         "type": "Date",
         "value": "1996"
       },
-      "title": "Rho-stimulated contractility drives the formation of stress fibers and focal adhesions",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Rho-stimulated contractility drives the formation of stress fibers and focal adhesions"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1599,7 +1823,14 @@ expression: article
         "type": "Date",
         "value": "2024"
       },
-      "title": "Rigidity percolation and active advection synergize in the actomyosin cortex to drive amoeboid cell motility"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Rigidity percolation and active advection synergize in the actomyosin cortex to drive amoeboid cell motility"
+          }
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1620,7 +1851,14 @@ expression: article
         "type": "Date",
         "value": "2018"
       },
-      "title": "Membrane Flow Drives an Adhesion-Independent Amoeboid Cell Migration Mode",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Membrane Flow Drives an Adhesion-Independent Amoeboid Cell Migration Mode"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1650,7 +1888,14 @@ expression: article
         "type": "Date",
         "value": "2015"
       },
-      "title": "Actin Flows Mediate a Universal Coupling between Cell Speed and Cell Persistence",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Actin Flows Mediate a Universal Coupling between Cell Speed and Cell Persistence"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1680,7 +1925,14 @@ expression: article
         "type": "Date",
         "value": "2018"
       },
-      "title": "Chemokines and integrins independently tune actin flow and substrate friction during intranodal migration of T cells",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Chemokines and integrins independently tune actin flow and substrate friction during intranodal migration of T cells"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1729,7 +1981,14 @@ expression: article
         "type": "Date",
         "value": "2004"
       },
-      "title": "Cortical Flows Powered by Asymmetrical Contraction Transport PAR Proteins to Establish and Maintain Anterior-Posterior Polarity in the Early C. elegans Embryo",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Cortical Flows Powered by Asymmetrical Contraction Transport PAR Proteins to Establish and Maintain Anterior-Posterior Polarity in the Early C. elegans Embryo"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1769,7 +2028,14 @@ expression: article
         "type": "Date",
         "value": "1989"
       },
-      "title": "Morphogenesis of the Polarized Epithelial Cell Phenotype",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Morphogenesis of the Polarized Epithelial Cell Phenotype"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1827,7 +2093,14 @@ expression: article
         "type": "Date",
         "value": "2005"
       },
-      "title": "Regulators of Endocytosis Maintain Localized Receptor Tyrosine Kinase Signaling in Guided Migration",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Regulators of Endocytosis Maintain Localized Receptor Tyrosine Kinase Signaling in Guided Migration"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1894,7 +2167,14 @@ expression: article
         "type": "Date",
         "value": "2010"
       },
-      "title": "Spatial restriction of receptor tyrosine kinase activity through a polarized endocytic cycle controls border cell migration",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Spatial restriction of receptor tyrosine kinase activity through a polarized endocytic cycle controls border cell migration"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1961,7 +2241,14 @@ expression: article
         "type": "Date",
         "value": "2024"
       },
-      "title": "Endoplasmic reticulum–plasma membrane contact gradients direct cell migration",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Endoplasmic reticulum–plasma membrane contact gradients direct cell migration"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1991,7 +2278,14 @@ expression: article
         "type": "Date",
         "value": "2011"
       },
-      "title": "Cytoskeletal Control of CD36 Diffusion Promotes Its Receptor and Signaling Function",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Cytoskeletal Control of CD36 Diffusion Promotes Its Receptor and Signaling Function"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2022,7 +2316,14 @@ expression: article
         "type": "Date",
         "value": "2018"
       },
-      "title": "Transmembrane Pickets Connect Cyto- and Pericellular Skeletons Forming Barriers to Receptor Engagement",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Transmembrane Pickets Connect Cyto- and Pericellular Skeletons Forming Barriers to Receptor Engagement"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2090,7 +2391,14 @@ expression: article
         "type": "Date",
         "value": "1996"
       },
-      "title": "Phosphatidylinositol 3-kinase signals activate a selective subset of Rac/Rho-dependent effector pathways",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Phosphatidylinositol 3-kinase signals activate a selective subset of Rac/Rho-dependent effector pathways"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2121,7 +2429,14 @@ expression: article
         "type": "Date",
         "value": "1992"
       },
-      "title": "Distinct phosphotyrosines on a growth factor receptor bind to specific molecules that mediate different signaling pathways",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Distinct phosphotyrosines on a growth factor receptor bind to specific molecules that mediate different signaling pathways"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2152,7 +2467,14 @@ expression: article
         "type": "Date",
         "value": "1991"
       },
-      "title": "Oncogenes and signal transduction",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Oncogenes and signal transduction"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2182,7 +2504,14 @@ expression: article
         "type": "Date",
         "value": "2021"
       },
-      "title": "A flagellate-to-amoeboid switch in the closest living relatives of animals",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A flagellate-to-amoeboid switch in the closest living relatives of animals"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2229,7 +2558,14 @@ expression: article
         "type": "Date",
         "value": "2010"
       },
-      "title": "Roles for Growth Factors in Cancer Progression",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Roles for Growth Factors in Cancer Progression"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2269,7 +2605,14 @@ expression: article
         "type": "Date",
         "value": "2017"
       },
-      "title": "Cancer-associated fibroblasts modulate growth factor signaling and extracellular matrix remodeling to regulate tumor metastasis",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Cancer-associated fibroblasts modulate growth factor signaling and extracellular matrix remodeling to regulate tumor metastasis"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2299,7 +2642,14 @@ expression: article
         "type": "Date",
         "value": "2019"
       },
-      "title": "Expression level of EGFR and MET receptors regulates invasiveness of melanoma cells",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Expression level of EGFR and MET receptors regulates invasiveness of melanoma cells"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2356,7 +2706,14 @@ expression: article
         "type": "Date",
         "value": "2022"
       },
-      "title": "Targeting EGFR in melanoma – The sea of possibilities to overcome drug resistance",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Targeting EGFR in melanoma – The sea of possibilities to overcome drug resistance"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2386,7 +2743,14 @@ expression: article
         "type": "Date",
         "value": "2023"
       },
-      "title": "pYtags enable spatiotemporal measurements of receptor tyrosine kinase signaling in living cells",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "pYtags enable spatiotemporal measurements of receptor tyrosine kinase signaling in living cells"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2424,7 +2788,14 @@ expression: article
         "type": "Date",
         "value": "1998"
       },
-      "title": "Visualization of Phosphoinositides That Bind Pleckstrin Homology Domains: Calcium- and Agonist-induced Dynamic Changes and Relationship to Myo-[3H]inositol-labeled Phosphoinositide Pools",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Visualization of Phosphoinositides That Bind Pleckstrin Homology Domains: Calcium- and Agonist-induced Dynamic Changes and Relationship to Myo-[3H]inositol-labeled Phosphoinositide Pools"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2473,7 +2844,14 @@ expression: article
         "type": "Date",
         "value": "1998"
       },
-      "title": "Receptor-induced transient reduction in plasma membrane PtdIns(4,5)P2 concentration monitored in living cells",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Receptor-induced transient reduction in plasma membrane PtdIns(4,5)P2 concentration monitored in living cells"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2505,7 +2883,14 @@ expression: article
         "type": "Date",
         "value": "2004"
       },
-      "title": "Activation of Type I Phosphatidylinositol 4-Phosphate 5-Kinase Isoforms by the Rho GTPases, RhoA, Rac1, and Cdc42",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Activation of Type I Phosphatidylinositol 4-Phosphate 5-Kinase Isoforms by the Rho GTPases, RhoA, Rac1, and Cdc42"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2535,7 +2920,14 @@ expression: article
         "type": "Date",
         "value": "2017"
       },
-      "title": "Spatiotemporal Control of Intracellular Phase Transitions Using Light-Activated optoDroplets",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Spatiotemporal Control of Intracellular Phase Transitions Using Light-Activated optoDroplets"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2566,7 +2958,14 @@ expression: article
         "type": "Date",
         "value": "2021"
       },
-      "title": "Substratum stiffness regulates Erk signaling dynamics through receptor-level control",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Substratum stiffness regulates Erk signaling dynamics through receptor-level control"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2632,7 +3031,14 @@ expression: article
         "type": "Date",
         "value": "1999"
       },
-      "title": "LOV (light, oxygen, or voltage) domains of the blue-light photoreceptor phototropin (nph1): Binding sites for the chromophore flavin mononucleotide",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "LOV (light, oxygen, or voltage) domains of the blue-light photoreceptor phototropin (nph1): Binding sites for the chromophore flavin mononucleotide"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2683,7 +3089,14 @@ expression: article
         "type": "Date",
         "value": "2003"
       },
-      "title": "Structural Basis of a Phototropin Light Switch",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Structural Basis of a Phototropin Light Switch"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2714,7 +3127,14 @@ expression: article
         "type": "Date",
         "value": "2009"
       },
-      "title": "A genetically encoded photoactivatable Rac controls the motility of living cells",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A genetically encoded photoactivatable Rac controls the motility of living cells"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2754,7 +3174,14 @@ expression: article
         "type": "Date",
         "value": "1987"
       },
-      "title": "Currents through the fusion pore that forms during exocytosis of a secretory vesicle",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Currents through the fusion pore that forms during exocytosis of a secretory vesicle"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2804,7 +3231,14 @@ expression: article
         "type": "Date",
         "value": "2014"
       },
-      "title": "EGF receptor trafficking: consequences for signaling and cancer",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "EGF receptor trafficking: consequences for signaling and cancer"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2853,7 +3287,14 @@ expression: article
         "type": "Date",
         "value": "2020"
       },
-      "title": "Patterning and polarization of cells by intracellular flows",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Patterning and polarization of cells by intracellular flows"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2892,7 +3333,14 @@ expression: article
         "type": "Date",
         "value": "2012"
       },
-      "title": "Regulation from within: the cytoskeleton in transmembrane signaling",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Regulation from within: the cytoskeleton in transmembrane signaling"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2922,7 +3370,14 @@ expression: article
         "type": "Date",
         "value": "2020"
       },
-      "title": "The nucleus measures shape changes for cellular proprioception to control dynamic cell behavior",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The nucleus measures shape changes for cellular proprioception to control dynamic cell behavior"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2980,7 +3435,14 @@ expression: article
         "type": "Date",
         "value": "2021"
       },
-      "title": "Survey of cancer cell anatomy in nonadhesive confinement reveals a role for filamin-A and fascin-1 in leader bleb–based migration",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Survey of cancer cell anatomy in nonadhesive confinement reveals a role for filamin-A and fascin-1 in leader bleb–based migration"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3011,7 +3473,14 @@ expression: article
         "type": "Date",
         "value": "2004"
       },
-      "title": "Dynamics of putative raft-associated proteins at the cell surface",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Dynamics of putative raft-associated proteins at the cell surface"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3077,7 +3546,14 @@ expression: article
         "type": "Date",
         "value": "2020"
       },
-      "title": "Membrane-proximal F-actin restricts local membrane protrusions and directs cell migration",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Membrane-proximal F-actin restricts local membrane protrusions and directs cell migration"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3107,7 +3583,14 @@ expression: article
         "type": "Date",
         "value": "2009"
       },
-      "title": "Moesin orchestrates cortical polarity of melanoma tumour cells to initiate 3D invasion",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Moesin orchestrates cortical polarity of melanoma tumour cells to initiate 3D invasion"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3138,7 +3621,14 @@ expression: article
         "type": "Date",
         "value": "2014"
       },
-      "title": "Diverse matrix metalloproteinase functions regulate cancer amoeboid migration",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Diverse matrix metalloproteinase functions regulate cancer amoeboid migration"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3167,7 +3657,14 @@ expression: article
         "type": "Date",
         "value": "2011"
       },
-      "title": "Contractility of the cell rear drives invasion of breast tumor cells in 3D Matrigel",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Contractility of the cell rear drives invasion of breast tumor cells in 3D Matrigel"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3207,7 +3704,14 @@ expression: article
         "type": "Date",
         "value": "2006"
       },
-      "title": "Integrin signalling in directed cell migration",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Integrin signalling in directed cell migration"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3248,7 +3752,14 @@ expression: article
         "type": "Date",
         "value": "1991"
       },
-      "title": "Actin microfilament dynamics in locomoting cells",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Actin microfilament dynamics in locomoting cells"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3308,7 +3819,14 @@ expression: article
         "type": "Date",
         "value": "1996"
       },
-      "title": "Myosin Drives Retrograde F-Actin Flow in Neuronal Growth Cones",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Myosin Drives Retrograde F-Actin Flow in Neuronal Growth Cones"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3339,7 +3857,14 @@ expression: article
         "type": "Date",
         "value": "2020"
       },
-      "title": "Actin-Membrane Release Initiates Cell Protrusions",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Actin-Membrane Release Initiates Cell Protrusions"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3370,7 +3895,14 @@ expression: article
         "type": "Date",
         "value": "2015"
       },
-      "title": "Rac1-Dependent Phosphorylation and Focal Adhesion Recruitment of Myosin IIA Regulates Migration and Mechanosensing",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Rac1-Dependent Phosphorylation and Focal Adhesion Recruitment of Myosin IIA Regulates Migration and Mechanosensing"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3419,7 +3951,14 @@ expression: article
         "type": "Date",
         "value": "2003"
       },
-      "title": "CD44: From adhesion molecules to signalling regulators",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "CD44: From adhesion molecules to signalling regulators"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3471,7 +4010,14 @@ expression: article
         "type": "Date",
         "value": "2002"
       },
-      "title": "Signaling Properties of Hyaluronan Receptors",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Signaling Properties of Hyaluronan Receptors"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3501,7 +4047,14 @@ expression: article
         "type": "Date",
         "value": "2006"
       },
-      "title": "Single-molecule analysis of epidermal growth factor binding on the surface of living cells",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Single-molecule analysis of epidermal growth factor binding on the surface of living cells"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3531,7 +4084,14 @@ expression: article
         "type": "Date",
         "value": "2022"
       },
-      "title": "Confined migration promotes cancer metastasis through resistance to anoikis and increased invasiveness",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Confined migration promotes cancer metastasis through resistance to anoikis and increased invasiveness"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3561,7 +4121,14 @@ expression: article
         "type": "Date",
         "value": "2023"
       },
-      "title": "Blebs promote cell survival by assembling oncogenic signalling hubs",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Blebs promote cell survival by assembling oncogenic signalling hubs"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3627,7 +4194,14 @@ expression: article
         "type": "Date",
         "value": "2014"
       },
-      "title": "Methods for Two-Dimensional Cell Confinement",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Methods for Two-Dimensional Cell Confinement"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3675,7 +4249,14 @@ expression: article
         "type": "Date",
         "value": "2012"
       },
-      "title": "Methods for Cell and Particle Tracking",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Methods for Cell and Particle Tracking"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3714,7 +4295,14 @@ expression: article
         "type": "Date",
         "value": "2014"
       },
-      "title": "Quantitative and unbiased analysis of directional persistence in cell migration",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Quantitative and unbiased analysis of directional persistence in cell migration"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3744,7 +4332,14 @@ expression: article
         "type": "Date",
         "value": "2018"
       },
-      "title": "EasyFRAP-web: a web-based tool for the analysis of fluorescence recovery after photobleaching data",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "EasyFRAP-web: a web-based tool for the analysis of fluorescence recovery after photobleaching data"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3775,7 +4370,14 @@ expression: article
         "type": "Date",
         "value": "1983"
       },
-      "title": "Theoretical analysis of fluorescence photobleaching recovery experiments",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Theoretical analysis of fluorescence photobleaching recovery experiments"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3834,7 +4436,14 @@ expression: article
         "type": "Date",
         "value": "2012"
       },
-      "title": "Simplified Equation to Extract Diffusion Coefficients from Confocal FRAP Data",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Simplified Equation to Extract Diffusion Coefficients from Confocal FRAP Data"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3873,7 +4482,14 @@ expression: article
         "type": "Date",
         "value": "2021"
       },
-      "title": "Particle Image Velocimetry for MATLAB: Accuracy and enhanced algorithms in PIVlab",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Particle Image Velocimetry for MATLAB: Accuracy and enhanced algorithms in PIVlab"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {

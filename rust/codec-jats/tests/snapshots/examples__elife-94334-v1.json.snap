@@ -208,7 +208,14 @@ expression: article
         "type": "Date",
         "value": "2003"
       },
-      "title": "Two distinct pathways for inhibiting pds1 ubiquitination in response to DNA damage",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Two distinct pathways for inhibiting pds1 ubiquitination in response to DNA damage"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -266,7 +273,14 @@ expression: article
         "type": "Date",
         "value": "2017"
       },
-      "title": "Rad51-mediated double-strand break repair and mismatch correction of divergent substrates",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Rad51-mediated double-strand break repair and mismatch correction of divergent substrates"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -306,7 +320,31 @@ expression: article
         "type": "Date",
         "value": "2003"
       },
-      "title": "The checkpoint protein Rad24 of ",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The checkpoint protein Rad24 of "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " is involved in processing double-strand break ends and in recombination partner choice"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -356,7 +394,14 @@ expression: article
         "type": "Date",
         "value": "2000"
       },
-      "title": "A mechanism for coupling exit from mitosis to partitioning of the nucleus",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A mechanism for coupling exit from mitosis to partitioning of the nucleus"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -424,7 +469,14 @@ expression: article
         "type": "Date",
         "value": "2010"
       },
-      "title": "Dephosphorylation of gamma H2A by Glc7/protein phosphatase 1 promotes recovery from inhibition of DNA replication",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Dephosphorylation of gamma H2A by Glc7/protein phosphatase 1 promotes recovery from inhibition of DNA replication"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -474,7 +526,25 @@ expression: article
         "type": "Date",
         "value": "2007"
       },
-      "title": "Mechanism of Dun1 activation by Rad53 phosphorylation in ",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mechanism of Dun1 activation by Rad53 phosphorylation in "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -551,7 +621,14 @@ expression: article
         "type": "Date",
         "value": "2001"
       },
-      "title": "Hyperactivation of the yeast DNA damage checkpoint by TEL1 and DDC2 overexpression",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Hyperactivation of the yeast DNA damage checkpoint by TEL1 and DDC2 overexpression"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -603,7 +680,14 @@ expression: article
         "type": "Date",
         "value": "1998"
       },
-      "title": "RAD9 and RAD24 define two additive, interacting branches of the DNA damage checkpoint pathway in budding yeast normally required for Rad53 modification and activation",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "RAD9 and RAD24 define two additive, interacting branches of the DNA damage checkpoint pathway in budding yeast normally required for Rad53 modification and activation"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -645,7 +729,14 @@ expression: article
         "type": "Date",
         "value": "2013"
       },
-      "title": "Kinetic framework of spindle assembly checkpoint signalling",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Kinetic framework of spindle assembly checkpoint signalling"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -713,7 +804,14 @@ expression: article
         "type": "Date",
         "value": "2007"
       },
-      "title": "The yeast DNA damage checkpoint proteins control a cytoplasmic response to DNA damage",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The yeast DNA damage checkpoint proteins control a cytoplasmic response to DNA damage"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -782,7 +880,14 @@ expression: article
         "type": "Date",
         "value": "2010"
       },
-      "title": "Mad2 prolongs DNA damage checkpoint arrest caused by a double-strand break via a centromere-dependent mechanism",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mad2 prolongs DNA damage checkpoint arrest caused by a double-strand break via a centromere-dependent mechanism"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -841,7 +946,14 @@ expression: article
         "type": "Date",
         "value": "2007"
       },
-      "title": "The processing of double-strand breaks and binding of single-strand-binding proteins RPA and Rad51 modulate the formation of ATR-kinase foci in yeast",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The processing of double-strand breaks and binding of single-strand-binding proteins RPA and Rad51 modulate the formation of ATR-kinase foci in yeast"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -901,7 +1013,14 @@ expression: article
         "type": "Date",
         "value": "1999"
       },
-      "title": "The FHA domain is a modular phosphopeptide recognition motif",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The FHA domain is a modular phosphopeptide recognition motif"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -971,7 +1090,31 @@ expression: article
         "type": "Date",
         "value": "2012"
       },
-      "title": "The ",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " chromatin remodeler Fun30 regulates DNA end resection and checkpoint deactivation"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1011,7 +1154,14 @@ expression: article
         "type": "Date",
         "value": "2003"
       },
-      "title": "Biochemical characterization of DNA damage checkpoint complexes: clamp loader and clamp complexes with specificity for 5’ recessed DNA",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Biochemical characterization of DNA damage checkpoint complexes: clamp loader and clamp complexes with specificity for 5’ recessed DNA"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1040,7 +1190,14 @@ expression: article
         "type": "Date",
         "value": "1998"
       },
-      "title": "MEC1-dependent phosphorylation of Rad9p in response to DNA damage",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "MEC1-dependent phosphorylation of Rad9p in response to DNA damage"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1107,7 +1264,14 @@ expression: article
         "type": "Date",
         "value": "2008"
       },
-      "title": "Characterization of the activation domain of the Rad53 checkpoint kinase",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Characterization of the activation domain of the Rad53 checkpoint kinase"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1148,7 +1312,25 @@ expression: article
         "type": "Date",
         "value": "2002"
       },
-      "title": "Overlapping roles of the spindle assembly and DNA damage checkpoints in the cell-cycle response to altered chromosomes in ",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Overlapping roles of the spindle assembly and DNA damage checkpoints in the cell-cycle response to altered chromosomes in "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1237,7 +1419,14 @@ expression: article
         "type": "Date",
         "value": "2002"
       },
-      "title": "Control of mitotic exit in budding yeast. In vitro regulation of Tem1 GTPase by Bub2 and Bfa1",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Control of mitotic exit in budding yeast. In vitro regulation of Tem1 GTPase by Bub2 and Bfa1"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1314,7 +1503,14 @@ expression: article
         "type": "Date",
         "value": "2001"
       },
-      "title": "Regulation of the Bub2/Bfa1 GAP complex by Cdc5 and cell cycle checkpoints",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Regulation of the Bub2/Bfa1 GAP complex by Cdc5 and cell cycle checkpoints"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1383,7 +1579,14 @@ expression: article
         "type": "Date",
         "value": "2007"
       },
-      "title": "Heterochromatin is refractory to gamma-H2AX modification in yeast and mammals",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Heterochromatin is refractory to gamma-H2AX modification in yeast and mammals"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1425,7 +1628,14 @@ expression: article
         "type": "Date",
         "value": "2008"
       },
-      "title": "DNA damage activates the SAC in an ATM/ATR-dependent manner, independently of the kinetochore",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "DNA damage activates the SAC in an ATM/ATR-dependent manner, independently of the kinetochore"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1474,7 +1684,14 @@ expression: article
         "type": "Date",
         "value": "2019"
       },
-      "title": "DNA damage kinase signaling: checkpoint and repair at 30 years",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "DNA damage kinase signaling: checkpoint and repair at 30 years"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1576,7 +1793,14 @@ expression: article
         "type": "Date",
         "value": "2008"
       },
-      "title": "Histone methyltransferase Dot1 and Rad9 inhibit single-stranded DNA accumulation at DSBs and uncapped telomeres",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Histone methyltransferase Dot1 and Rad9 inhibit single-stranded DNA accumulation at DSBs and uncapped telomeres"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1656,7 +1880,14 @@ expression: article
         "type": "Date",
         "value": "1998"
       },
-      "title": "Saccharomyces Ku70, mre11/rad50 and RPA proteins regulate adaptation to G2/M arrest after DNA damage",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Saccharomyces Ku70, mre11/rad50 and RPA proteins regulate adaptation to G2/M arrest after DNA damage"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1716,7 +1947,14 @@ expression: article
         "type": "Date",
         "value": "2014"
       },
-      "title": "Dynamics of yeast histone H2A and H2B phosphorylation in response to a double-strand break",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Dynamics of yeast histone H2A and H2B phosphorylation in response to a double-strand break"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1805,7 +2043,14 @@ expression: article
         "type": "Date",
         "value": "2003"
       },
-      "title": "PP2C phosphatases Ptc2 and Ptc3 are required for DNA checkpoint inactivation after a double-strand break",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "PP2C phosphatases Ptc2 and Ptc3 are required for DNA checkpoint inactivation after a double-strand break"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1864,7 +2109,14 @@ expression: article
         "type": "Date",
         "value": "2011"
       },
-      "title": "Mre11 nuclease activity and Ctp1 regulate Chk1 activation by Rad3ATR and Tel1ATM checkpoint kinases at double-strand breaks",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mre11 nuclease activity and Ctp1 regulate Chk1 activation by Rad3ATR and Tel1ATM checkpoint kinases at double-strand breaks"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1926,7 +2178,14 @@ expression: article
         "type": "Date",
         "value": "2006"
       },
-      "title": "Replication protein A directs loading of the DNA damage checkpoint clamp to 5’-DNA junctions",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Replication protein A directs loading of the DNA damage checkpoint clamp to 5’-DNA junctions"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1985,7 +2244,31 @@ expression: article
         "type": "Date",
         "value": "2007"
       },
-      "title": "Dual role for ",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Dual role for "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " Tel1 in the checkpoint response to double-strand breaks"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2070,7 +2353,14 @@ expression: article
         "type": "Date",
         "value": "2015"
       },
-      "title": "DNA damage-induced metaphase I arrest is mediated by the spindle assembly checkpoint and maternal age",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "DNA damage-induced metaphase I arrest is mediated by the spindle assembly checkpoint and maternal age"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2108,7 +2398,14 @@ expression: article
         "type": "Date",
         "value": "2015"
       },
-      "title": "RPA-coated single-stranded DNA as a platform for post-translational modifications in the DNA damage response",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "RPA-coated single-stranded DNA as a platform for post-translational modifications in the DNA damage response"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2148,7 +2445,25 @@ expression: article
         "type": "Date",
         "value": "2020"
       },
-      "title": "Regulation of mitotic exit by cell cycle checkpoints: lessons from ",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Regulation of mitotic exit by cell cycle checkpoints: lessons from "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2190,7 +2505,14 @@ expression: article
         "type": "Date",
         "value": "2023"
       },
-      "title": "Principles and dynamics of spindle assembly checkpoint signalling",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Principles and dynamics of spindle assembly checkpoint signalling"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2231,7 +2553,14 @@ expression: article
         "type": "Date",
         "value": "2014"
       },
-      "title": "Sources of DNA double-strand breaks and models of recombinational DNA repair",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Sources of DNA double-strand breaks and models of recombinational DNA repair"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2280,7 +2609,14 @@ expression: article
         "type": "Date",
         "value": "2001"
       },
-      "title": "Two checkpoint complexes are independently recruited to sites of DNA damage in vivo",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Two checkpoint complexes are independently recruited to sites of DNA damage in vivo"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2370,7 +2706,14 @@ expression: article
         "type": "Date",
         "value": "2019"
       },
-      "title": "Mec1ATR Autophosphorylation and Ddc2ATRIP Phosphorylation Regulates DNA Damage Checkpoint Signaling",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Mec1ATR Autophosphorylation and Ddc2ATRIP Phosphorylation Regulates DNA Damage Checkpoint Signaling"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2429,7 +2772,31 @@ expression: article
         "type": "Date",
         "value": "2014"
       },
-      "title": "Detection of ",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Detection of "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " Atg13 by western blot"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2471,7 +2838,25 @@ expression: article
         "type": "Date",
         "value": "1996"
       },
-      "title": "Cell cycle and genetic requirements of two pathways of nonhomologous end-joining repair of double-strand breaks in ",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Cell cycle and genetic requirements of two pathways of nonhomologous end-joining repair of double-strand breaks in "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2512,7 +2897,14 @@ expression: article
         "type": "Date",
         "value": "2013"
       },
-      "title": "An expanded tool kit for the auxin-inducible degron system in budding yeast",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "An expanded tool kit for the auxin-inducible degron system in budding yeast"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2543,7 +2935,14 @@ expression: article
         "type": "Date",
         "value": "2015"
       },
-      "title": "The molecular biology of spindle assembly checkpoint signaling dynamics",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The molecular biology of spindle assembly checkpoint signaling dynamics"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2585,7 +2984,14 @@ expression: article
         "type": "Date",
         "value": "2009"
       },
-      "title": "The unstructured C-terminal tail of the 9-1-1 clamp subunit Ddc1 activates Mec1/ATR via two distinct mechanisms",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The unstructured C-terminal tail of the 9-1-1 clamp subunit Ddc1 activates Mec1/ATR via two distinct mechanisms"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2652,7 +3058,14 @@ expression: article
         "type": "Date",
         "value": "2009"
       },
-      "title": "An auxin-based degron system for the rapid depletion of proteins in nonplant cells",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "An auxin-based degron system for the rapid depletion of proteins in nonplant cells"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2744,7 +3157,14 @@ expression: article
         "type": "Date",
         "value": "2007"
       },
-      "title": "Pph3-Psy2 is a phosphatase complex required for Rad53 dephosphorylation and replication fork restart during recovery from DNA damage",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Pph3-Psy2 is a phosphatase complex required for Rad53 dephosphorylation and replication fork restart during recovery from DNA damage"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2802,7 +3222,31 @@ expression: article
         "type": "Date",
         "value": "2000"
       },
-      "title": "The checkpoint protein Ddc2, functionally related to ",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The checkpoint protein Ddc2, functionally related to "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "S. pombe"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " Rad26, interacts with Mec1 and is regulated by Mec1-dependent phosphorylation in budding yeast"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2906,7 +3350,14 @@ expression: article
         "type": "Date",
         "value": "1999"
       },
-      "title": "Activation of Rad53 kinase in response to DNA damage and its effect in modulating phosphorylation of the lagging strand DNA polymerase",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Activation of Rad53 kinase in response to DNA damage and its effect in modulating phosphorylation of the lagging strand DNA polymerase"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2975,7 +3426,14 @@ expression: article
         "type": "Date",
         "value": "2001"
       },
-      "title": "Regulation of Saccharomyces Rad53 checkpoint kinase during adaptation from DNA damage-induced G2/M arrest",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Regulation of Saccharomyces Rad53 checkpoint kinase during adaptation from DNA damage-induced G2/M arrest"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3034,7 +3492,31 @@ expression: article
         "type": "Date",
         "value": "2010"
       },
-      "title": "Aberrant synthesis of indole-3-acetic acid in ",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Aberrant synthesis of indole-3-acetic acid in "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " triggers morphogenic transition, a virulence trait of pathogenic fungi"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3106,7 +3588,14 @@ expression: article
         "type": "Date",
         "value": "1998"
       },
-      "title": "DNA double-stranded breaks induce histone H2AX phosphorylation on serine 139",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "DNA double-stranded breaks induce histone H2AX phosphorylation on serine 139"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3174,7 +3663,14 @@ expression: article
         "type": "Date",
         "value": "2022"
       },
-      "title": "The optimal strategy balancing risk and speed predicts DNA damage checkpoint override times",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The optimal strategy balancing risk and speed predicts DNA damage checkpoint override times"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3260,7 +3756,14 @@ expression: article
         "type": "Date",
         "value": "1999"
       },
-      "title": "Control of the DNA damage checkpoint by chk1 and rad53 protein kinases through distinct mechanisms",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Control of the DNA damage checkpoint by chk1 and rad53 protein kinases through distinct mechanisms"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3340,7 +3843,31 @@ expression: article
         "type": "Date",
         "value": "2002"
       },
-      "title": "Rad9 phosphorylation sites couple Rad53 to the ",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Rad9 phosphorylation sites couple Rad53 to the "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " DNA damage checkpoint"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3389,7 +3916,14 @@ expression: article
         "type": "Date",
         "value": "1994"
       },
-      "title": "The yeast TEM1 gene, which encodes a GTP-binding protein, is involved in termination of M phase",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The yeast TEM1 gene, which encodes a GTP-binding protein, is involved in termination of M phase"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3486,7 +4020,14 @@ expression: article
         "type": "Date",
         "value": "2004"
       },
-      "title": "Distribution and dynamics of chromatin modification induced by a defined DNA double-strand break",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Distribution and dynamics of chromatin modification induced by a defined DNA double-strand break"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3546,7 +4087,14 @@ expression: article
         "type": "Date",
         "value": "2007"
       },
-      "title": "Proteome-wide identification of in vivo targets of DNA damage checkpoint kinases",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Proteome-wide identification of in vivo targets of DNA damage checkpoint kinases"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3624,6 +4172,25 @@ expression: article
         "type": "Date",
         "value": "2005"
       },
+      "title": [
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " Rad9 acts as a Mec1 adaptor to allow Rad53 activation"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3723,7 +4290,14 @@ expression: article
         "type": "Date",
         "value": "2015"
       },
-      "title": "Caffeine impairs resection during DNA break repair by reducing the levels of nucleases Sae2 and Dna2",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Caffeine impairs resection during DNA break repair by reducing the levels of nucleases Sae2 and Dna2"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3765,7 +4339,31 @@ expression: article
         "type": "Date",
         "value": "2007"
       },
-      "title": "The ",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " 14-3-3 proteins Bmh1 and Bmh2 directly influence the DNA damage-dependent functions of Rad53"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3817,7 +4415,14 @@ expression: article
         "type": "Date",
         "value": "2009"
       },
-      "title": "Maintenance of the DNA-damage checkpoint requires DNA-damage-induced mediator protein oligomerization",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Maintenance of the DNA-damage checkpoint requires DNA-damage-induced mediator protein oligomerization"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3914,7 +4519,14 @@ expression: article
         "type": "Date",
         "value": "2002"
       },
-      "title": "Recovery from checkpoint-mediated arrest after repair of a double-strand break requires Srs2 helicase",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Recovery from checkpoint-mediated arrest after repair of a double-strand break requires Srs2 helicase"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3972,7 +4584,25 @@ expression: article
         "type": "Date",
         "value": "1994"
       },
-      "title": "New heterologous modules for classical or PCR-based gene disruptions in ",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "New heterologous modules for classical or PCR-based gene disruptions in "
+          }
+        },
+        {
+          "type": "Emphasis",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Saccharomyces cerevisiae"
+              }
+            }
+          ]
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -4024,7 +4654,14 @@ expression: article
         "type": "Date",
         "value": "2020"
       },
-      "title": "Checkpoint Responses to DNA Double-Strand Breaks",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Checkpoint Responses to DNA Double-Strand Breaks"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -4095,7 +4732,14 @@ expression: article
         "type": "Date",
         "value": "2020"
       },
-      "title": "Dun1, a Chk2-related kinase, is the central regulator of securin-separase dynamics during DNA damage signaling",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Dun1, a Chk2-related kinase, is the central regulator of securin-separase dynamics during DNA damage signaling"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -4245,7 +4889,14 @@ expression: article
         "type": "Date",
         "value": "2020"
       },
-      "title": "The auxin-inducible degron 2 technology provides sharp degradation control in yeast, mammalian cells, and mice",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The auxin-inducible degron 2 technology provides sharp degradation control in yeast, mammalian cells, and mice"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -4283,7 +4934,14 @@ expression: article
         "type": "Date",
         "value": "2002"
       },
-      "title": "The Dun1 checkpoint kinase phosphorylates and regulates the ribonucleotide reductase inhibitor Sml1",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The Dun1 checkpoint kinase phosphorylates and regulates the ribonucleotide reductase inhibitor Sml1"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -4324,7 +4982,14 @@ expression: article
         "type": "Date",
         "value": "1993"
       },
-      "title": "DUN1 encodes a protein kinase that controls the DNA damage response in yeast",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "DUN1 encodes a protein kinase that controls the DNA damage response in yeast"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -4394,7 +5059,14 @@ expression: article
         "type": "Date",
         "value": "2008"
       },
-      "title": "Sgs1 helicase and two nucleases Dna2 and Exo1 resect DNA double-strand break ends",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Sgs1 helicase and two nucleases Dna2 and Exo1 resect DNA double-strand break ends"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -4435,7 +5107,14 @@ expression: article
         "type": "Date",
         "value": "2003"
       },
-      "title": "Sensing DNA damage through ATRIP recognition of RPA-ssDNA complexes",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Sensing DNA damage through ATRIP recognition of RPA-ssDNA complexes"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {

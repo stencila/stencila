@@ -106,7 +106,7 @@
       "@id": "schema:headline",
       "@type": "rdfs:Property",
       "rdfs:label": "title",
-      "rdfs:comment": "The title of the work.",
+      "rdfs:comment": "The title of the referenced work.",
       "schema:domainIncludes": [
         {
           "@id": "schema:CreativeWork"
@@ -122,7 +122,7 @@
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "schema:Text"
+        "@id": "stencila:Inline"
       }
     },
     {

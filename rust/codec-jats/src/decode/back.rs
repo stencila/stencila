@@ -9,7 +9,10 @@ use codec::{
     Losses,
 };
 
-use super::utilities::{extend_path, record_attrs_lost, record_node_lost, split_given_names};
+use super::{
+    body::decode_inlines,
+    utilities::{extend_path, record_attrs_lost, record_node_lost, split_given_names},
+};
 
 /// Decode the `<back>` of an `<article>`
 pub(super) fn decode_back(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
@@ -76,7 +79,7 @@ fn decode_citation(path: &str, id: &str, node: &Node, losses: &mut Losses) -> Re
         } else if child_tag == "year" {
             date = child.text().map(|year| Date::new(year.to_string()));
         } else if child_tag.to_string().contains("title") {
-            title = child.text().map(String::from)
+            title = Some(decode_inlines(path, child.children(), losses))
         } else if child_tag == "source" {
             source = child.text().map(String::from);
         } else if child_tag == "volume" {
