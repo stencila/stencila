@@ -252,15 +252,17 @@ impl Query {
 
         let mut query = self.clone();
 
-        let mut alias = method.to_singular();
         let mut table = match method {
             "rows" => "TableRow".to_string(),
             "cells" => "TableCell".to_string(),
-            "equations" => "MathBlock".to_string(),
+            "eqn" | "equations" => "MathBlock".to_string(),
             "items" => "ListItem".to_string(),
             "audios" => "AudioObject".to_string(),
             "images" => "ImageObject".to_string(),
             "videos" => "VideoObject".to_string(),
+            "people" => "Person".to_string(),
+            "orgs" => "Organization".to_string(),
+            "refs" => "References".to_string(),
             "abstracts" | "introductions" | "methods" | "results" | "discussions" => {
                 let section_type = match method {
                     "methods" => "Methods".to_string(),
@@ -269,19 +271,17 @@ impl Query {
                 };
                 query
                     .ands
-                    .push(format!("{alias}.sectionType = '{section_type}'"));
+                    .push(format!("section.sectionType = '{section_type}'"));
                 "Section".to_string()
             }
-            _ => alias.to_pascal_case(),
+            _ => method.to_singular().to_pascal_case(),
         };
 
-        // Escape reserved words
-        if alias == "table" {
-            alias = ["`", &alias, "`"].concat();
-        }
         if table == "Table" {
             table = ["`", &table, "`"].concat();
         }
+
+        let alias = alias_for_table(&table);
 
         let node = ["(", &alias, ":", &table, ")"].concat();
 
@@ -405,7 +405,7 @@ impl Query {
         let alias = query
             .node_table_used
             .as_ref()
-            .map(|table| table.to_singular().to_camel_case())
+            .map(alias_for_table)
             .unwrap_or_else(|| "node".to_string());
 
         let mut returns = Vec::new();
@@ -471,11 +471,7 @@ impl Query {
         let mut query = self.clone();
 
         let order_by = if !order_by.contains(".") {
-            let Some(alias) = query
-                .node_table_used
-                .as_ref()
-                .map(|table| table.to_singular().to_lowercase())
-            else {
+            let Some(alias) = query.node_table_used.as_ref().map(alias_for_table) else {
                 return Err(Error::new(
                     ErrorKind::InvalidOperation,
                     "first argument should have form 'name.property' e.g 'article.datePublished'",
@@ -595,14 +591,7 @@ impl Query {
 
         if self.call.is_some() {
             if let Some(table) = &self.node_table_used {
-                let mut alias = table.to_camel_case();
-                if alias == "table" {
-                    alias = "table".to_string();
-                } else if alias == "tableCell" {
-                    alias = "cell".to_string();
-                } else if alias == "tableRow" {
-                    alias = "row".to_string();
-                }
+                let alias = alias_for_table(table);
                 cypher = cypher.replace(&[&alias, "."].concat(), "node.");
             }
             cypher.push_str("\nRETURN node");
@@ -797,6 +786,21 @@ impl Query {
                 "Empty result set so cannot get last node",
             )),
         }
+    }
+}
+
+/// Generate an alias for a table
+fn alias_for_table<S: AsRef<str>>(table: S) -> String {
+    let alias = table.as_ref().to_camel_case();
+
+    match alias.as_str() {
+        "mathBlock" => "eqn".to_string(),
+        "organization" => "org".to_string(),
+        "reference" => "ref".to_string(),
+        "table" => ["`", &alias, "`"].concat(),
+        "tableCell" => "cell".to_string(),
+        "tableRow" => "row".to_string(),
+        _ => alias
     }
 }
 

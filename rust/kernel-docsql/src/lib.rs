@@ -535,41 +535,41 @@ LIMIT 10"#
 
         expect!(
             "test.abstracts()",
-            r#"MATCH (abstract:Section)
-WHERE abstract.sectionType = 'Abstract'
-RETURN abstract
+            r#"MATCH (section:Section)
+WHERE section.sectionType = 'Abstract'
+RETURN section
 LIMIT 10"#
         );
 
         expect!(
             "test.introductions()",
-            r#"MATCH (introduction:Section)
-WHERE introduction.sectionType = 'Introduction'
-RETURN introduction
+            r#"MATCH (section:Section)
+WHERE section.sectionType = 'Introduction'
+RETURN section
 LIMIT 10"#
         );
 
         expect!(
             "test.methods()",
-            r#"MATCH (method:Section)
-WHERE method.sectionType = 'Methods'
-RETURN method
+            r#"MATCH (section:Section)
+WHERE section.sectionType = 'Methods'
+RETURN section
 LIMIT 10"#
         );
 
         expect!(
             "test.results()",
-            r#"MATCH (result:Section)
-WHERE result.sectionType = 'Results'
-RETURN result
+            r#"MATCH (section:Section)
+WHERE section.sectionType = 'Results'
+RETURN section
 LIMIT 10"#
         );
 
         expect!(
             "test.discussions()",
-            r#"MATCH (discussion:Section)
-WHERE discussion.sectionType = 'Discussion'
-RETURN discussion
+            r#"MATCH (section:Section)
+WHERE section.sectionType = 'Discussion'
+RETURN section
 LIMIT 10"#
         );
 
