@@ -78,8 +78,27 @@ export class Reference extends Entity {
 
     return html`<sl-tooltip class="inline-block"
       ><span>${repr}</span
-      ><span slot="content">${this.renderDefault()}</span></sl-tooltip
+      ><span slot="content">${this.renderWithinTooltip()}</span></sl-tooltip
     >`
+  }
+
+  renderWithinTooltip() {
+    // Links do not work within a <sl-tooltip> , nor does copy and pasting, so
+    // this does not include the DOI
+
+    const authors = this.authors
+      ? this.authors.map(authorNameInitialsDotted).join(', ')
+      : 'Anon'
+
+    return html`<div class="font-sans text-xs">
+      ${authors}${this.date ? html` (${dateYear(this.date)}). ` : ''}<span
+        class="font-semibold"
+        ><slot name="title"></slot></span
+      >.
+      ${this.isPartOf
+        ? html`<span class="italic"> ${partOf(this.isPartOf)}</span>`
+        : ''}
+    </div>`
   }
 
   renderWithinReferences() {
@@ -87,14 +106,18 @@ export class Reference extends Entity {
       ? this.authors.map(authorNameInitialsDotted).join(', ')
       : 'Anon'
 
+    const pages = pagesEndashed(this.pageStart, this.pageStart, this.pagination)
+
     return html`<div class="mt-3">
       ${authors}${this.date ? html` (${dateYear(this.date)}). ` : ''}<slot
         name="title"
       ></slot
       >.
-      ${this.isPartOf ? html`<em> ${partOf(this.isPartOf)}</em>` : ''}${this.doi
+      ${this.isPartOf ? html`<em> ${partOf(this.isPartOf)}</em>` : ''}${pages
+        ? html` ${pages}`
+        : ''}${this.doi
         ? html` <a href="https://doi.org/${this.doi}" target="_blank"
-            >${this.doi}</a
+            >https://doi.org/${this.doi}</a
           >`
         : ''}
     </div>`
@@ -112,11 +135,13 @@ export class Reference extends Entity {
       >.
       ${this.isPartOf
         ? html`<span class="italic"> ${partOf(this.isPartOf)}</span>`
-        : ''}
-      ${this.doi
+        : ''}${this.doi
         ? html` <a href="https://doi.org/${this.doi}" target="_blank"
-            >${this.doi}</a
-          >`
+            ><stencila-ui-icon
+              class="inline-block"
+              name="externalLink"
+            ></stencila-ui-icon
+          ></a>`
         : ''}
     </div>`
   }
@@ -193,7 +218,7 @@ function dateYear(date: string): string {
 }
 
 /**
- * Return the
+ * Render the `isPartOf` property as a string
  */
 function partOf(work: CreativeWorkType): string {
   switch (work.type) {
@@ -204,4 +229,21 @@ function partOf(work: CreativeWorkType): string {
     default:
       return work.name
   }
+}
+
+/**
+ * Render the pagination properties
+ */
+function pagesEndashed(
+  pageStart?: string,
+  pageEnd?: string,
+  pagination?: string
+): string {
+  return pageStart && pageStart.length > 0
+    ? pageEnd && pageEnd.length > 0
+      ? `${pageStart}–${pageEnd}`
+      : pageStart
+    : pagination && pagination.length > 0
+      ? pagination
+      : ''
 }

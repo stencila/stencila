@@ -76,6 +76,7 @@ import elseClause from './else-clause.svg'
 import eslint from './eslint.svg'
 import exclamationCircle from './exclamation-circle.svg'
 import exclamationTriangle from './exclamation-triangle.svg'
+import externalLink from './external-link.svg'
 import eyeSlash from './eye-slash.svg'
 import eye from './eye.svg'
 import fastForwardCircle from './fast-forward-circle.svg'
@@ -216,6 +217,7 @@ const icons = {
   eslint,
   exclamationCircle,
   exclamationTriangle,
+  externalLink,
   eye,
   eyeSlash,
   fastForwardCircle,
