@@ -43,7 +43,7 @@ async fn open_alex_id() -> Result<()> {
         orcid: Some(orcid), ..
     }) = person
     {
-        assert_eq!(orcid, "A000-0050-8313-8872")
+        assert_eq!(orcid, "O000-0050-8313-8872")
     } else {
         bail!("No ORCID")
     };

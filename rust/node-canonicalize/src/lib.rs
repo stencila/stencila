@@ -95,12 +95,15 @@ impl Canonicalize for AuthorRole {
 
 impl Canonicalize for Organization {
     async fn canonicalize(&mut self) -> Result<()> {
-        if self.ror.is_some() {
-            return Ok(());
+        if self.ror.is_none() {
+            // Attempt to get ROR from OpenAlex, falling back to generating an
+            // ROR from the hash of the organization
+            let ror = match open_alex::ror(&self.name).await? {
+                Some(ror) => ror,
+                None => cbor_hash::ror(self)?,
+            };
+            self.ror = Some(ror);
         }
-
-        // Fallback to generating a ROR from the hash of the organization
-        self.ror = Some(cbor_hash::ror(self)?);
 
         Ok(())
     }
