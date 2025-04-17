@@ -987,13 +987,13 @@ impl DatabaseNode for Person {
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::AlternateNames, Vec::<String>::to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
-            (NodeProperty::Name, String::to_kuzu_type(), self.options.name.to_kuzu_value()),
             (NodeProperty::Url, String::to_kuzu_type(), self.options.url.to_kuzu_value()),
             (NodeProperty::Orcid, String::to_kuzu_type(), self.orcid.to_kuzu_value()),
             (NodeProperty::FamilyNames, Vec::<String>::to_kuzu_type(), self.family_names.to_kuzu_value()),
             (NodeProperty::GivenNames, Vec::<String>::to_kuzu_type(), self.given_names.to_kuzu_value()),
             (NodeProperty::HonorificPrefix, String::to_kuzu_type(), self.options.honorific_prefix.to_kuzu_value()),
-            (NodeProperty::HonorificSuffix, String::to_kuzu_type(), self.options.honorific_suffix.to_kuzu_value())
+            (NodeProperty::HonorificSuffix, String::to_kuzu_type(), self.options.honorific_suffix.to_kuzu_value()),
+            (NodeProperty::Name, String::to_kuzu_type(), self.name().to_kuzu_value())
         ]
     }
 

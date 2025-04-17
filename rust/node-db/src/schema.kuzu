@@ -488,13 +488,13 @@ CREATE NODE TABLE IF NOT EXISTS `Periodical` (
 
 CREATE NODE TABLE IF NOT EXISTS `Person` (
   `alternateNames` STRING[],
-  `name` STRING,
   `url` STRING,
   `orcid` STRING,
   `familyNames` STRING[],
   `givenNames` STRING[],
   `honorificPrefix` STRING,
   `honorificSuffix` STRING,
+  `name` STRING,
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,

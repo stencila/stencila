@@ -131,6 +131,7 @@ impl Schemas {
             "Person.jobTitle",
             "Person.telephoneNumbers",
             "Person.emails",
+            "Person.name", // Provided by derived name field
             // Exclude unnecessary organization properties
             "Organization.logo",
             "Organization.departments",
@@ -273,6 +274,7 @@ impl Schemas {
                 "PublicationIssue",
                 vec![("issueNumber", "to_text(&self.issue_number)")],
             ),
+            ("Person", vec![("name", "self.name()")]),
         ]);
 
         write(
