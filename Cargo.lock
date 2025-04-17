@@ -4063,6 +4063,7 @@ dependencies = [
  "base64 0.22.1",
  "codec-cbor",
  "common",
+ "common-dev",
  "schema",
 ]
 
