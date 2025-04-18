@@ -262,7 +262,7 @@ impl Query {
             "videos" => "VideoObject".to_string(),
             "people" => "Person".to_string(),
             "orgs" => "Organization".to_string(),
-            "refs" => "References".to_string(),
+            "refs" => "Reference".to_string(),
             "abstracts" | "introductions" | "methods" | "results" | "discussions" => {
                 let section_type = match method {
                     "methods" => "Methods".to_string(),
