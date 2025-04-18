@@ -66,7 +66,6 @@ CREATE NODE TABLE IF NOT EXISTS `AudioObject` (
   `contentUrl` STRING,
   `embedUrl` STRING,
   `mediaType` STRING,
-  `transcript` STRING,
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
@@ -712,7 +711,6 @@ CREATE NODE TABLE IF NOT EXISTS `VideoObject` (
   `contentUrl` STRING,
   `embedUrl` STRING,
   `mediaType` STRING,
-  `transcript` STRING,
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
@@ -730,12 +728,6 @@ CREATE REL TABLE IF NOT EXISTS `author` (
 
 CREATE REL TABLE IF NOT EXISTS `parentOrganization` (
   FROM `Organization` TO `Organization`,
-  ONE_ONE
-);
-
-CREATE REL TABLE IF NOT EXISTS `thumbnail` (
-  FROM `ImageObject` TO `ImageObject`,
-  FROM `VideoObject` TO `ImageObject`,
   ONE_ONE
 );
 
@@ -1607,23 +1599,6 @@ CREATE REL TABLE IF NOT EXISTS `editors` (
   ONE_MANY
 );
 
-CREATE REL TABLE IF NOT EXISTS `images` (
-  FROM `Article` TO `ImageObject`,
-  FROM `AudioObject` TO `ImageObject`,
-  FROM `Claim` TO `ImageObject`,
-  FROM `Figure` TO `ImageObject`,
-  FROM `ImageObject` TO `ImageObject`,
-  FROM `ListItem` TO `ImageObject`,
-  FROM `MediaObject` TO `ImageObject`,
-  FROM `Organization` TO `ImageObject`,
-  FROM `Person` TO `ImageObject`,
-  FROM `SoftwareApplication` TO `ImageObject`,
-  FROM `Table` TO `ImageObject`,
-  FROM `Thing` TO `ImageObject`,
-  FROM `VideoObject` TO `ImageObject`,
-  ONE_MANY
-);
-
 CREATE REL TABLE IF NOT EXISTS `items` (
   FROM `CitationGroup` TO `Citation`,
   FROM `List` TO `ListItem`,
@@ -1653,11 +1628,6 @@ CREATE REL TABLE IF NOT EXISTS `iterations` (
   FROM `ForBlock` TO `Table`,
   FROM `ForBlock` TO `ThematicBreak`,
   FROM `ForBlock` TO `VideoObject`,
-  ONE_MANY
-);
-
-CREATE REL TABLE IF NOT EXISTS `memberOf` (
-  FROM `Person` TO `Organization`,
   ONE_MANY
 );
 

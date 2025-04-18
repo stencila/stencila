@@ -101,7 +101,6 @@ impl DatabaseNode for Article {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::Abstract, relations(self.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
             (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
@@ -140,14 +139,12 @@ impl DatabaseNode for AudioObject {
             (NodeProperty::ContentSize, f64::to_kuzu_type(), self.options.content_size.to_kuzu_value()),
             (NodeProperty::ContentUrl, String::to_kuzu_type(), self.content_url.to_kuzu_value()),
             (NodeProperty::EmbedUrl, String::to_kuzu_type(), self.options.embed_url.to_kuzu_value()),
-            (NodeProperty::MediaType, String::to_kuzu_type(), self.media_type.to_kuzu_value()),
-            (NodeProperty::Transcript, String::to_kuzu_type(), self.options.transcript.to_kuzu_value())
+            (NodeProperty::MediaType, String::to_kuzu_type(), self.media_type.to_kuzu_value())
         ]
     }
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
             (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
@@ -261,7 +258,6 @@ impl DatabaseNode for Claim {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
             (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
@@ -420,7 +416,6 @@ impl DatabaseNode for Figure {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
             (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
@@ -633,15 +628,13 @@ impl DatabaseNode for ImageObject {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
             (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
             (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
             (NodeProperty::References, relations(self.options.references.iter().flatten())),
             (NodeProperty::Title, relations(self.title.iter().flatten())),
-            (NodeProperty::Caption, relations(self.caption.iter().flatten())),
-            (NodeProperty::Thumbnail, relations(self.options.thumbnail.iter()))
+            (NodeProperty::Caption, relations(self.caption.iter().flatten()))
         ]
     }
 }
@@ -744,7 +737,6 @@ impl DatabaseNode for ListItem {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::Content, relations(self.content.iter()))
         ]
     }
@@ -831,7 +823,6 @@ impl DatabaseNode for MediaObject {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
             (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
@@ -886,7 +877,6 @@ impl DatabaseNode for Organization {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::ParentOrganization, relations(self.options.parent_organization.iter()))
         ]
     }
@@ -999,9 +989,7 @@ impl DatabaseNode for Person {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
-            (NodeProperty::Affiliations, relations(self.affiliations.iter().flatten())),
-            (NodeProperty::MemberOf, relations(self.options.member_of.iter().flatten()))
+            (NodeProperty::Affiliations, relations(self.affiliations.iter().flatten()))
         ]
     }
 }
@@ -1196,7 +1184,6 @@ impl DatabaseNode for SoftwareApplication {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
             (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
@@ -1291,7 +1278,6 @@ impl DatabaseNode for Table {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
             (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
@@ -1398,7 +1384,7 @@ impl DatabaseNode for Thing {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Images, relations(self.options.images.iter().flatten()))
+            
         ]
     }
 }
@@ -1456,22 +1442,19 @@ impl DatabaseNode for VideoObject {
             (NodeProperty::ContentSize, f64::to_kuzu_type(), self.options.content_size.to_kuzu_value()),
             (NodeProperty::ContentUrl, String::to_kuzu_type(), self.content_url.to_kuzu_value()),
             (NodeProperty::EmbedUrl, String::to_kuzu_type(), self.options.embed_url.to_kuzu_value()),
-            (NodeProperty::MediaType, String::to_kuzu_type(), self.media_type.to_kuzu_value()),
-            (NodeProperty::Transcript, String::to_kuzu_type(), self.options.transcript.to_kuzu_value())
+            (NodeProperty::MediaType, String::to_kuzu_type(), self.media_type.to_kuzu_value())
         ]
     }
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
         vec![
-            (NodeProperty::Images, relations(self.options.images.iter().flatten())),
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
             (NodeProperty::Contributors, relations(self.options.contributors.iter().flatten())),
             (NodeProperty::Editors, relations(self.options.editors.iter().flatten())),
             (NodeProperty::References, relations(self.options.references.iter().flatten())),
             (NodeProperty::Title, relations(self.title.iter().flatten())),
-            (NodeProperty::Caption, relations(self.caption.iter().flatten())),
-            (NodeProperty::Thumbnail, relations(self.options.thumbnail.iter()))
+            (NodeProperty::Caption, relations(self.caption.iter().flatten()))
         ]
     }
 }

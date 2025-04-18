@@ -48,6 +48,9 @@ impl Schemas {
             "extra",
             "config",
             "text",
+            "images",
+            "thumbnail",
+            "transcript",
             "headings",
             "archive",
             // Others (not excluded by skip_types below)
@@ -132,6 +135,7 @@ impl Schemas {
             "Person.telephoneNumbers",
             "Person.emails",
             "Person.name", // Provided by derived name field
+            "Person.memberOf",
             // Exclude unnecessary organization properties
             "Organization.logo",
             "Organization.departments",
