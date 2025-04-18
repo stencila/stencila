@@ -82,6 +82,8 @@ impl Canonicalize for Article {
 
             self.doi = reference.doi;
 
+            // This will canonicalize ids based on authorship of the article, which
+            // is preferable to just based on names.
             for (author1, author2) in self
                 .authors
                 .iter_mut()
@@ -89,25 +91,40 @@ impl Canonicalize for Article {
                 .zip(reference.authors.into_iter().flatten())
             {
                 match (author1, author2) {
-                    (Author::Person(person1), Author::Person(person2)) => {
-                        person1.orcid = if is_orcid(&person2.orcid) {
-                            person2.orcid
-                        } else {
-                            cbor_hash::orcid(person1).ok()
-                        };
+                    (Author::Person(person1), Author::Person(person2))
+                    | (
+                        Author::AuthorRole(AuthorRole {
+                            author: AuthorRoleAuthor::Person(person1),
+                            ..
+                        }),
+                        Author::AuthorRole(AuthorRole {
+                            author: AuthorRoleAuthor::Person(person2),
+                            ..
+                        }),
+                    ) => {
+                        person1.orcid = person2.orcid;
 
-                        for (org1, org2) in person1
+                        for (aff1, aff2) in person1
                             .affiliations
                             .iter_mut()
                             .flatten()
                             .zip(person2.affiliations.into_iter().flatten())
                         {
-                            org1.ror = if is_ror(&org2.ror) {
-                                org2.ror
-                            } else {
-                                cbor_hash::ror(org1).ok()
-                            };
+                            aff1.ror = aff2.ror;
                         }
+                    }
+                    (Author::Organization(org1), Author::Organization(org2))
+                    | (
+                        Author::AuthorRole(AuthorRole {
+                            author: AuthorRoleAuthor::Organization(org1),
+                            ..
+                        }),
+                        Author::AuthorRole(AuthorRole {
+                            author: AuthorRoleAuthor::Organization(org2),
+                            ..
+                        }),
+                    ) => {
+                        org1.ror = org2.ror;
                     }
                     _ => (),
                 }
@@ -115,7 +132,16 @@ impl Canonicalize for Article {
         }
 
         // Walk over properties that are not walked otherwise, in parallel.
-        // Note `authors` and their `affiliations` should be covered above.
+        // Authors are walked over above as part of the reference (above) but
+        // doing the below allows for fallbacks for canonicalizing their affiliations
+        // which may not be handled as part of that process.
+
+        let authors = self
+            .authors
+            .iter_mut()
+            .flatten()
+            .map(|author| author.canonicalize());
+        try_join_all(authors).await?;
 
         let references = self
             .references
@@ -183,7 +209,7 @@ impl Canonicalize for Person {
             .affiliations
             .iter_mut()
             .flatten()
-            .map(|author| author.canonicalize());
+            .map(|org| org.canonicalize());
         try_join_all(affiliations).await?;
 
         Ok(())
@@ -200,7 +226,7 @@ impl Canonicalize for Reference {
         // If the DOI is still missing then fallback to generating a DOI from the
         // hash of the reference
         if self.doi.is_none() {
-            self.doi = Some(cbor_hash::doi(self)?);
+            self.doi = Some(cbor_hash::doi_reference(self)?);
         }
 
         // Walk over properties that are not walked otherwise, in parallel.

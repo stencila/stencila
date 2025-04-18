@@ -1,10 +1,11 @@
 use common::{
     eyre::{bail, Result},
+    serde_json::{self, json},
     tokio,
 };
 use common_dev::pretty_assertions::assert_eq;
 use node_canonicalize::canonicalize;
-use schema::{shortcuts::t, Date, Node, Reference};
+use schema::{shortcuts::t, Author, Date, Node, Person, Reference};
 
 /// Reference with a DOI on OpenAlex should get that DOI
 #[tokio::test]
@@ -61,6 +62,54 @@ async fn cbor_hash() -> Result<()> {
         assert_eq!(doi, "10.0000/stencila.aOoQvBTTtbA")
     } else {
         bail!("No DOI")
+    };
+
+    Ok(())
+}
+
+/// Reference with authors having affiliations should have ORCIDs and RORs canonicalized
+#[tokio::test]
+async fn open_alex_affiliations() -> Result<()> {
+    let mut reference = serde_json::from_value(json!({
+        "type": "Reference",
+        "doi": "10.1101/2023.12.31.573522",
+        "authors": [{
+            "type": "Person",
+            "familyNames": ["Penker"],
+            "givenNames": ["Sapir"],
+            "affiliations": [{
+                "type": "Organization",
+                "name": "Department of Medical Neurobiology, Faculty of Medicine and IMRIC, The Hebrew University of Jerusalem",
+            }],
+        }]
+    }))?;
+    canonicalize(&mut reference).await?;
+
+    if let Node::Reference(Reference {
+        authors: Some(authors),
+        ..
+    }) = reference
+    {
+        if let Some(Author::Person(Person {
+            orcid,
+            affiliations,
+            ..
+        })) = authors.first()
+        {
+            assert_eq!(orcid.as_deref(), Some("0000-0002-6935-0047"));
+            assert_eq!(
+                affiliations
+                    .iter()
+                    .flatten()
+                    .next()
+                    .and_then(|org| org.ror.as_deref()),
+                Some("03qxff017")
+            );
+        } else {
+            bail!("Not a person")
+        }
+    } else {
+        bail!("No authors!")
     };
 
     Ok(())

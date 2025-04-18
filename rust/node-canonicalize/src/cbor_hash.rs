@@ -6,8 +6,9 @@ use base64::{prelude::BASE64_URL_SAFE_NO_PAD, Engine as _};
 
 use codec_cbor::r#trait::CborCodec;
 use common::{eyre::Result, seahash::SeaHasher};
+use schema::{Organization, Person, Reference};
 
-/// Hash a Stencila node to a ROR-like string
+/// Hash a Stencila [`Organization`] to a ROR-like string
 ///
 /// Generates a string matching `^S[a-hj-km-np-tv-z0-9]{6}[0-9]{2}$`
 /// by mapping bits of `n` into the 31‑char alphabet, then
@@ -15,11 +16,16 @@ use common::{eyre::Result, seahash::SeaHasher};
 ///
 /// Uses a leading letter of S to indicate that this is a Stencila generated
 /// pseudo-ROR.
-pub(super) fn ror<T>(node: &T) -> Result<String>
-where
-    T: CborCodec,
-{
-    let int = hash(node)?;
+pub(super) fn ror(org: &Organization) -> Result<String> {
+    // Set ROR to None so that it is not part of the hash
+    // This avoids the hash changing when this function is applied
+    // more than once
+    let org = Organization {
+        ror: None,
+        ..org.clone()
+    };
+
+    let int = hash(&org)?;
 
     const CHARSET: &[u8] = b"abcdefghjkmnpqrstvwxyz0123456789";
     let base = CHARSET.len() as u64;
@@ -40,7 +46,7 @@ where
 /// this is a pseudo-DOI whilst still being valid e.g.
 ///
 /// 10.0000/stencila.QL-299Yo5YU
-pub(super) fn doi<T>(node: &T) -> Result<String>
+fn doi<T>(node: &T) -> Result<String>
 where
     T: CborCodec,
 {
@@ -49,18 +55,34 @@ where
     Ok(format!("10.0000/stencila.{b64}"))
 }
 
-/// Hash a Stencila node to a ORCID-like string
+/// Hash a Stencila [`Reference`] to a DOI-like string
+pub(super) fn doi_reference(node: &Reference) -> Result<String> {
+    // Set DOI to None so that it is not part of the hash
+    // This avoids the hash changing when this function is applied
+    // more than once
+    doi(&Reference {
+        doi: None,
+        ..node.clone()
+    })
+}
+
+/// Hash a Stencila [`Person`] to a ORCID-like string
 ///
 /// Uses a leading letter S to indicate that this is a Stencila generated
 /// pseudo-ORCID.
 ///
 /// Note that the last digit of ORCIDs is a checksum so the generated ORCID
 /// is likely to be invalid (which is a good thing in this case).
-pub(super) fn orcid<T>(node: &T) -> Result<String>
-where
-    T: CborCodec,
-{
-    let int = hash(node)?;
+pub(super) fn orcid(person: &Person) -> Result<String> {
+    // Set ORCID to None so that it is not part of the hash
+    // This avoids the hash changing when this function is applied
+    // more than once
+    let person = Person {
+        orcid: None,
+        ..person.clone()
+    };
+
+    let int = hash(&person)?;
     let digits = format!("{:015}", int % 1_000_000_000_000_000);
     Ok(format!(
         "S{}-{}-{}-{}",

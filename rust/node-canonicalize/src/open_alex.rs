@@ -20,7 +20,7 @@ use common::{
     tokio::time::Instant,
     tracing,
 };
-use schema::{AuthorRoleAuthor, Reference};
+use schema::{AuthorRole, AuthorRoleAuthor, Reference};
 
 use crate::{is_doi, is_orcid, is_ror};
 
@@ -60,7 +60,10 @@ impl ReqwestRateLimiter for RateLimiter {
     async fn acquire_permit(&self) {
         let start = Instant::now();
         GOVERNOR.until_ready().await;
-        tracing::trace!("Rate limited for {}ms", (Instant::now() - start).as_millis())
+        tracing::trace!(
+            "Rate limited for {}ms",
+            (Instant::now() - start).as_millis()
+        )
     }
 }
 
@@ -269,7 +272,12 @@ pub(super) async fn reference(reference: &mut Reference) -> Result<()> {
         .flatten()
         .zip(work.authorships.iter())
     {
-        if let schema::Author::Person(person) = author {
+        if let schema::Author::Person(person)
+        | schema::Author::AuthorRole(AuthorRole {
+            author: AuthorRoleAuthor::Person(person),
+            ..
+        }) = author
+        {
             let Some(name) = human_name::Name::parse(&person.name()) else {
                 continue;
             };
@@ -367,23 +375,38 @@ pub(super) async fn ror(name: &Option<String>) -> Result<Option<String>> {
         return Ok(None);
     }
 
-    tracing::trace!("Searching for institution");
+    let mut name = name.to_string();
 
-    let response = CLIENT
-        .get(format!("{API_BASE_URL}/institutions"))
-        .query(&[("search", name)])
-        .send()
-        .await?;
+    loop {
+        tracing::trace!("Searching for institution: {name}");
 
-    if let Err(error) = response.error_for_status_ref() {
-        bail!("{error}: {}", response.text().await.unwrap_or_default());
+        let response = CLIENT
+            .get(format!("{API_BASE_URL}/institutions"))
+            .query(&[("search", &name)])
+            .send()
+            .await?;
+
+        if let Err(error) = response.error_for_status_ref() {
+            bail!("{error}: {}", response.text().await.unwrap_or_default());
+        }
+
+        let response: InstitutionResponse = response.json().await?;
+
+        if let Some(inst) = response.results.first() {
+            return Ok(Some(inst.ror('O')));
+        }
+
+        // Try successively removing sub-orgs (e.g. departments) from the
+        // org until no more commas
+        if let Some(comma) = name.find(',') {
+            if comma + 1 >= name.len() {
+                break;
+            }
+            name = name[(comma + 1)..].to_string();
+        } else {
+            break;
+        }
     }
 
-    let response: InstitutionResponse = response.json().await?;
-
-    let Some(inst) = response.results.first() else {
-        return Ok(None);
-    };
-
-    Ok(Some(inst.ror('O')))
+    Ok(None)
 }

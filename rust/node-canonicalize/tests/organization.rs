@@ -24,6 +24,50 @@ async fn open_alex_ror() -> Result<()> {
     Ok(())
 }
 
+/// Organization name with departments should get ROR
+#[tokio::test]
+async fn open_alex_ror_departments() -> Result<()> {
+    const NIH_ROR: &str = "01cwqze88";
+
+    let mut org = Node::Organization(Organization {
+        name: Some("National Institutes of Health".into()),
+        ..Default::default()
+    });
+    canonicalize(&mut org).await?;
+
+    if let Node::Organization(Organization { ror: Some(ror), .. }) = org {
+        assert_eq!(ror, NIH_ROR)
+    } else {
+        bail!("No ROR")
+    };
+
+    let mut org = Node::Organization(Organization {
+        name: Some("National Heart Lung and Blood Institute, National Institutes of Health".into()),
+        ..Default::default()
+    });
+    canonicalize(&mut org).await?;
+
+    if let Node::Organization(Organization { ror: Some(ror), .. }) = org {
+        assert_eq!(ror, NIH_ROR)
+    } else {
+        bail!("No ROR")
+    };
+
+    let mut org = Node::Organization(Organization {
+        name: Some("Cell and Developmental Biology Center, National Heart Lung and Blood Institute, National Institutes of Health".into()),
+        ..Default::default()
+    });
+    canonicalize(&mut org).await?;
+
+    if let Node::Organization(Organization { ror: Some(ror), .. }) = org {
+        assert_eq!(ror, NIH_ROR)
+    } else {
+        bail!("No ROR")
+    };
+
+    Ok(())
+}
+
 /// Organization with no ROR on OpenAlex should get ROR
 /// derived from OpenAlex ID.
 #[tokio::test]
