@@ -11,6 +11,30 @@ use common::{
 use crate::{prelude::*, Date};
 
 impl Date {
+    /// Get the year part of a date
+    pub fn year(&self) -> Option<u32> {
+        self.value
+            .split('-')
+            .next()
+            .and_then(|year| year.parse().ok())
+    }
+
+    /// Get the month part of a date
+    pub fn month(&self) -> Option<u32> {
+        self.value
+            .split('-')
+            .nth(1)
+            .and_then(|month| month.parse().ok())
+    }
+
+    /// Get the day part of a date
+    pub fn day(&self) -> Option<u32> {
+        self.value
+            .split('-')
+            .nth(2)
+            .and_then(|day| day.parse().ok())
+    }
+
     pub fn to_jats_special(&self) -> (String, Losses) {
         use codec_jats_trait::encode::elem;
 

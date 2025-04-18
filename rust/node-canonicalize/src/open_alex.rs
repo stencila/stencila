@@ -1,6 +1,25 @@
+use codec_text::to_text;
 use common::{eyre::Result, reqwest, serde::Deserialize};
+use schema::{AuthorRoleAuthor, Reference};
 
-#[derive(Deserialize)]
+use crate::{is_doi, is_orcid};
+
+#[derive(Default, Deserialize)]
+#[serde(default, crate = "common::serde")]
+struct Work {
+    id: String,
+    doi: Option<String>,
+    authorships: Vec<Authorship>,
+}
+
+#[derive(Default, Deserialize)]
+#[serde(default, crate = "common::serde")]
+struct Authorship {
+    author: Author,
+    institutions: Vec<Institution>,
+}
+
+#[derive(Default, Deserialize)]
 #[serde(crate = "common::serde")]
 struct Author {
     id: String,
@@ -16,14 +35,81 @@ struct Institution {
 
 #[derive(Deserialize)]
 #[serde(crate = "common::serde")]
-struct AuthorsSearchResponse {
+struct WorksResponse {
+    results: Vec<Work>,
+}
+
+#[derive(Deserialize)]
+#[serde(crate = "common::serde")]
+struct AuthorsResponse {
     results: Vec<Author>,
 }
 
 #[derive(Deserialize)]
 #[serde(crate = "common::serde")]
-struct InstitutionSearchResponse {
+struct InstitutionResponse {
     results: Vec<Institution>,
+}
+
+/// Canonicalize a [`Reference`] using OpenAlex.
+///
+/// This will canonicalize the DOI of the reference as well as the ORCIDs of the authors
+/// and the RORs of their affiliations.
+///
+/// It returns early if none of these require canonicalization. Otherwise it searches
+/// for the reference by year and title and uses the OpenAlex response to
+/// canonicalize each of these ids.
+pub(super) async fn reference(reference: &mut Reference) -> Result<()> {
+    if is_doi(&reference.doi)
+        && reference
+            .authors
+            .iter()
+            .flatten()
+            .all(|author| match author {
+                schema::Author::Person(person) => is_orcid(&person.orcid),
+                schema::Author::AuthorRole(role) => match &role.author {
+                    AuthorRoleAuthor::Person(person) => is_orcid(&person.orcid),
+                    _ => true,
+                },
+                _ => true,
+            })
+    {
+        return Ok(());
+    }
+
+    let Some(title) = &reference.title else {
+        return Ok(());
+    };
+
+    let title = to_text(title);
+    if title.is_empty() {
+        return Ok(());
+    }
+
+    let mut filters = vec![format!("filter=title.search:{title}")];
+    if let Some(year) = reference.date.as_ref().and_then(|date| date.year()) {
+        filters.push(format!("filter=publication_date:{year}"))
+    }
+    let filters = filters.join("&");
+
+    let response: WorksResponse = reqwest::get(format!("https://api.openalex.org/works?{filters}"))
+        .await?
+        .json()
+        .await?;
+
+    let Some(work) = response.results.first() else {
+        return Ok(());
+    };
+
+    if let Some(doi) = &work.doi {
+        let doi = doi.trim_start_matches("https://doi.org/");
+        reference.doi = Some(doi.to_string());
+    } else {
+        let id = work.id.trim_start_matches("https://openalex.org/");
+        reference.doi = Some(format!("10.0000/openalex.{}", id));
+    }
+
+    Ok(())
 }
 
 /// Get the ORCID for an author from OpenAlex based on their name
@@ -50,7 +136,7 @@ pub(super) async fn orcid(
         name = format!("{} {}", given_names.join(" "), name);
     };
 
-    let response: AuthorsSearchResponse =
+    let response: AuthorsResponse =
         reqwest::get(format!("https://api.openalex.org/authors?search={name}"))
             .await?
             .json()
@@ -62,10 +148,7 @@ pub(super) async fn orcid(
 
     // If author has an ORCID, return it (with URL prefix stripped)
     if let Some(orcid) = &author.orcid {
-        let orcid = orcid
-            .strip_prefix("https://orcid.org/")
-            .unwrap_or(&orcid)
-            .into();
+        let orcid = orcid.trim_start_matches("https://orcid.org/").into();
         return Ok(Some(orcid));
     }
 
@@ -74,9 +157,8 @@ pub(super) async fn orcid(
     // (and which OpenAlex author IDs have anyway)
     let int: u64 = author
         .id
-        .strip_prefix("https://openalex.org/")
-        .unwrap_or(&author.id)
-        .trim_start_matches('A')
+        .trim_start_matches("https://openalex.org/")
+        .trim_start_matches("A")
         .parse()?;
     let digits = format!("{:015}", int % 1_000_000_000_000_000);
     let pseudo_orcid = format!(
@@ -102,7 +184,7 @@ pub(super) async fn ror(name: &Option<String>) -> Result<Option<String>> {
         return Ok(None);
     }
 
-    let response: InstitutionSearchResponse = reqwest::get(format!(
+    let response: InstitutionResponse = reqwest::get(format!(
         "https://api.openalex.org/institutions?search={name}"
     ))
     .await?
@@ -115,7 +197,7 @@ pub(super) async fn ror(name: &Option<String>) -> Result<Option<String>> {
 
     // If author has an ROR, return it (with URL prefix stripped)
     if let Some(ror) = &author.ror {
-        let ror = ror.strip_prefix("https://ror.org/").unwrap_or(&ror).into();
+        let ror = ror.trim_start_matches("https://ror.org/").into();
         return Ok(Some(ror));
     }
 
@@ -123,8 +205,7 @@ pub(super) async fn ror(name: &Option<String>) -> Result<Option<String>> {
     // Uses 'O' as the first letter to indicate that it is a pseudo-ROR based on OpenAlex ID
     let digits = author
         .id
-        .strip_prefix("https://openalex.org/")
-        .unwrap_or(&author.id)
+        .trim_start_matches("https://openalex.org/")
         .trim_start_matches('I');
     let pseudo_ror = format!("O{digits}");
 

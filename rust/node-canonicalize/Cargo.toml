@@ -6,6 +6,7 @@ edition = "2021"
 [dependencies]
 base64 = { workspace = true }
 codec-cbor = { path = "../codec-cbor" }
+codec-text = { path = "../codec-text" }
 common = { path = "../common" }
 schema = { path = "../schema" }
 
