@@ -315,7 +315,7 @@ fn decode_contrib_group(path: &str, node: &Node, article: &mut Article, losses: 
     let mut authors = node
         .children()
         .filter(|child| child.tag_name().name() == "contrib")
-        .map(|child| decode_contrib(path, &child, losses))
+        .map(|child| decode_contrib(path, &child, node, losses))
         .collect();
 
     if let Some(ref mut vector) = article.authors {
@@ -325,14 +325,15 @@ fn decode_contrib_group(path: &str, node: &Node, article: &mut Article, losses: 
     }
 }
 
-/// Decode `<contrib-id>, <email> and <name>` elements
-fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> Author {
+/// Decode a `<contrib>` element
+fn decode_contrib(path: &str, node: &Node, parent: &Node, losses: &mut Losses) -> Author {
     record_attrs_lost(path, node, [], losses);
 
-    let mut orcid = None;
     let mut family_names = Vec::new();
     let mut given_names = Vec::new();
+    let mut orcid = None;
     let mut emails = Vec::new();
+    let mut affiliations = Vec::new();
 
     for child in node.children() {
         let tag = child.tag_name().name();
@@ -349,16 +350,37 @@ fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> Author {
                     }
                 }
             }
-        } else if tag == "contrib-id" {
+        } else if tag == "contrib-id"
+            && matches!(child.attribute("contrib-id-type"), Some("orcid"))
+            && orcid.is_none()
+        {
             orcid = child.text().map(|orcid| {
                 orcid
                     .trim_start_matches("https://orcid.org/")
                     .trim_start_matches("http://orcid.org/")
                     .to_string()
             });
+        } else if tag == "object-id" && orcid.is_none() {
+            if let Some(url) = child.attribute("xlink:href") {
+                if let Some(id) = url
+                    .strip_prefix("https://orcid.org/")
+                    .or_else(|| url.strip_prefix("http://orcid.org/"))
+                {
+                    orcid = Some(id.into())
+                }
+            };
         } else if tag == "email" {
             if let Some(value) = child.text() {
                 emails.push(value.into());
+            }
+        } else if tag == "xref" && matches!(child.attribute("ref-type"), Some("aff")) {
+            if let Some(id) = child.attribute("rid") {
+                if let Some(aff) = parent
+                    .descendants()
+                    .find(|n| n.has_tag_name("aff") && n.attribute("id").unwrap_or_default() == id)
+                {
+                    affiliations.push(decode_aff(&aff));
+                }
             }
         } else {
             record_node_lost(path, &child, losses);
@@ -368,17 +390,43 @@ fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> Author {
     let family_names = (!family_names.is_empty()).then_some(family_names);
     let given_names = (!given_names.is_empty()).then_some(given_names);
     let emails = (!emails.is_empty()).then_some(emails);
+    let affiliations = (!affiliations.is_empty()).then_some(affiliations);
 
     Author::Person(Person {
         orcid,
         family_names,
         given_names,
+        affiliations,
         options: Box::new(PersonOptions {
             emails,
             ..Default::default()
         }),
         ..Default::default()
     })
+}
+
+/// Decode an `<aff>` element
+fn decode_aff(node: &Node) -> Organization {
+    let name = node
+        .descendants()
+        .find(|n| n.tag_name().name() == "institution")
+        .and_then(|n| n.text())
+        .map(String::from);
+
+    let ror = node
+        .descendants()
+        .find(|n| {
+            n.tag_name().name() == "institution-id"
+                && matches!(n.attribute("institution-id-type"), Some("ror"))
+        })
+        .and_then(|n| n.text())
+        .map(|ror| ror.trim_start_matches("https://ror.org/").to_string());
+
+    Organization {
+        name,
+        ror,
+        ..Default::default()
+    }
 }
 
 /// Decode a `<journal-meta>` tag to properties on an [`Article`]

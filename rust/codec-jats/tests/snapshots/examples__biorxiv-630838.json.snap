@@ -22,6 +22,12 @@ expression: article
     {
       "type": "Person",
       "orcid": "0000-0003-4921-5136",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Cell and Developmental Biology Center, National Heart Lung and Blood Institute, National Institutes of Health"
+        }
+      ],
       "familyNames": [
         "Jha"
       ],
@@ -31,6 +37,12 @@ expression: article
     },
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Chemical & Biomolecular Engineering, North Carolina State University"
+        }
+      ],
       "familyNames": [
         "Chandra"
       ],
@@ -41,6 +53,12 @@ expression: article
     {
       "type": "Person",
       "orcid": "0000-0003-2912-0519",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Chemical and Biological Engineering, Princeton University"
+        }
+      ],
       "familyNames": [
         "Farahani"
       ],
@@ -51,6 +69,16 @@ expression: article
     {
       "type": "Person",
       "orcid": "0000-0002-1546-4030",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Molecular Biology, Princeton University"
+        },
+        {
+          "type": "Organization",
+          "name": "Omenn-Darling Bioengineering Institute, Princeton University"
+        }
+      ],
       "familyNames": [
         "Toettcher"
       ],
@@ -61,6 +89,12 @@ expression: article
     {
       "type": "Person",
       "orcid": "0000-0002-2476-4027",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Chemical & Biomolecular Engineering, North Carolina State University"
+        }
+      ],
       "familyNames": [
         "Haugh"
       ],
@@ -72,6 +106,12 @@ expression: article
     {
       "type": "Person",
       "orcid": "0000-0001-6142-6775",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Cell and Developmental Biology Center, National Heart Lung and Blood Institute, National Institutes of Health"
+        }
+      ],
       "familyNames": [
         "Waterman"
       ],
