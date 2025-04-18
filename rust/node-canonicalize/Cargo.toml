@@ -8,6 +8,9 @@ base64 = { workspace = true }
 codec-cbor = { path = "../codec-cbor" }
 codec-text = { path = "../codec-text" }
 common = { path = "../common" }
+governor = {version = "0.10.0", default-features = false, features = ["std"]}
+reqwest-middleware = "0.4.2"
+reqwest-ratelimit = "0.3.0"
 schema = { path = "../schema" }
 
 [dev-dependencies]
