@@ -1,4 +1,4 @@
-use schema::{Citation, CompilationMessage};
+use schema::{replicate, Citation, CompilationMessage};
 
 use crate::prelude::*;
 
@@ -8,9 +8,13 @@ impl Executable for Citation {
         tracing::trace!("Linking Citation {node_id}");
 
         if let Some(reference) = executor.targets.get(&self.target) {
+            // If the reference is matched in targets and current reference is none or not equal,
+            // then replicate the reference (do NOT clone to avoid duplicated id)
             if self.options.cites.is_none() || Some(reference) != self.options.cites.as_ref() {
-                self.options.cites = Some(reference.clone());
-                executor.patch(&node_id, [set(NodeProperty::Cites, reference.clone())]);
+                if let Ok(reference) = replicate(reference) {
+                    self.options.cites = Some(reference.clone());
+                    executor.patch(&node_id, [set(NodeProperty::Cites, reference.clone())]);
+                }
             }
 
             if self.options.compilation_messages.is_some() {

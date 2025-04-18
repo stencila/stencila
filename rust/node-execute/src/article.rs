@@ -89,6 +89,9 @@ impl Executable for Article {
             tracing::error!("While linking article: {error}")
         }
 
+        /*
+        WIP so commented out until complete
+
         // Mark references as being cited and insert into references list if not
         // already there.
         let references = std::mem::take(&mut executor.references);
@@ -110,6 +113,7 @@ impl Executable for Article {
         } else {
             executor.patch(&node_id, [set(NodeProperty::References, references)]);
         }
+        */
 
         // Break because properties linked above
         WalkControl::Break

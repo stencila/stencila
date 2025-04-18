@@ -1,4 +1,4 @@
-use crate::{prelude::*, Article, Reference};
+use crate::{prelude::*, replicate, Article, Reference};
 
 impl From<&Node> for Reference {
     fn from(node: &Node) -> Self {
@@ -13,13 +13,19 @@ impl From<&Article> for Reference {
     fn from(article: &Article) -> Self {
         Self {
             doi: article.doi.clone(),
-            authors: article.authors.clone(),
+            authors: article
+                .authors
+                .as_ref()
+                .and_then(|authors| replicate(authors).ok()),
             date: article
                 .date_published
                 .as_ref()
                 .or(article.date_modified.as_ref())
-                .cloned(),
-            title: article.title.clone(),
+                .and_then(|date| replicate(date).ok()),
+            title: article
+                .title
+                .as_ref()
+                .and_then(|title| replicate(title).ok()),
             ..Default::default()
         }
     }
