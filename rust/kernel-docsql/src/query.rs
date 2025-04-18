@@ -290,6 +290,9 @@ impl Query {
                     ("Table", "TableRow") => "[:rows]",
                     ("TableRow", "TableCell") => "[:cells]",
                     ("Table", "TableCell") => "[:rows]-[:cells]",
+                    ("Article", "Person") => "[:authors]",
+                    ("Reference", "Person") => "[:authors]",
+                    ("Person", "Organization") => "[:affiliations]",
                     _ => "[:content* acyclic]",
                 };
                 [&pattern, "-", relation, "->", &node].concat()
