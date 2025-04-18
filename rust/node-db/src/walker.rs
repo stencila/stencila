@@ -2,8 +2,9 @@ use std::collections::HashMap;
 
 use kernel_kuzu::kuzu::{LogicalType, Value};
 use schema::{
-    Article, Block, IfBlockClause, Inline, ListItem, Node, NodeId, NodePath, NodeProperty,
-    NodeSlot, NodeType, TableCell, TableRow, Visitor, WalkControl,
+    Article, Author, AuthorRoleAuthor, Block, IfBlockClause, Inline, ListItem, Node, NodeId,
+    NodePath, NodeProperty, NodeSlot, NodeType, Organization, Person, Reference, TableCell,
+    TableRow, Visitor, WalkControl,
 };
 
 use super::{DatabaseNode, NodeAncestors};
@@ -106,6 +107,51 @@ impl DatabaseWalker {
     }
 }
 
+impl DatabaseWalker {
+    // Methods to visit types that are not otherwise visited/walked over
+
+    fn visit_article(&mut self, article: &Article) {
+        for author in article.authors.iter().flatten() {
+            self.visit_author(author);
+        }
+
+        for reference in article.references.iter().flatten() {
+            self.visit_reference(reference)
+        }
+    }
+
+    fn visit_author(&mut self, author: &Author) {
+        match author {
+            Author::Person(person) => self.visit_person(person),
+            Author::Organization(org) => self.visit_organization(org),
+            Author::AuthorRole(role) => match &role.author {
+                AuthorRoleAuthor::Person(person) => self.visit_person(person),
+                AuthorRoleAuthor::Organization(org) => self.visit_organization(org),
+                _ => {}
+            },
+            _ => {}
+        }
+    }
+
+    fn visit_person(&mut self, person: &Person) {
+        for org in person.affiliations.iter().flatten() {
+            self.visit_organization(org);
+        }
+        self.visit_database_node(person);
+    }
+
+    fn visit_organization(&mut self, org: &Organization) {
+        self.visit_database_node(org);
+    }
+
+    fn visit_reference(&mut self, reference: &Reference) {
+        for author in reference.authors.iter().flatten() {
+            self.visit_author(author);
+        }
+        self.visit_database_node(reference);
+    }
+}
+
 impl Visitor for DatabaseWalker {
     fn enter_struct(&mut self, node_type: NodeType, _node_id: NodeId) -> WalkControl {
         if !matches!(node_type, NodeType::Section) {
@@ -137,23 +183,9 @@ impl Visitor for DatabaseWalker {
     }
 
     fn visit_node(&mut self, node: &Node) -> WalkControl {
-        // Visit nodes that are not otherwise walked over
-        if let Node::Article(Article {
-            authors: Some(authors),
-            references,
-            ..
-        }) = node
-        {
-            for author in authors {
-                self.visit_database_node(author);
-            }
-
-            for reference in references.iter().flatten() {
-                for author in reference.authors.iter().flatten() {
-                    self.visit_database_node(author);
-                }
-                self.visit_database_node(reference);
-            }
+        match node {
+            Node::Article(article) => self.visit_article(article),
+            _ => {}
         }
 
         self.visit_database_node(node)
