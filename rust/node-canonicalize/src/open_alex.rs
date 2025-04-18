@@ -181,29 +181,8 @@ struct InstitutionResponse {
 ///
 /// This will canonicalize the DOI of the reference as well as the ORCIDs of the authors
 /// and the RORs of their affiliations.
-///
-/// It returns early if none of these require canonicalization. Otherwise it searches
-/// for the reference by year and title and uses the OpenAlex response to
-/// canonicalize each of these ids.
 #[tracing::instrument(skip(reference))]
 pub(super) async fn reference(reference: &mut Reference) -> Result<()> {
-    if is_doi(&reference.doi)
-        && reference
-            .authors
-            .iter()
-            .flatten()
-            .all(|author| match author {
-                schema::Author::Person(person) => is_orcid(&person.orcid),
-                schema::Author::AuthorRole(role) => match &role.author {
-                    AuthorRoleAuthor::Person(person) => is_orcid(&person.orcid),
-                    _ => true,
-                },
-                _ => true,
-            })
-    {
-        return Ok(());
-    }
-
     let work: Work = if let (Some(doi), true) = (&reference.doi, is_doi(&reference.doi)) {
         tracing::trace!("Fetching work");
 

@@ -75,59 +75,61 @@ trait Canonicalize {
 
 impl Canonicalize for Article {
     async fn canonicalize(&mut self) -> Result<()> {
-        if self.doi.is_none() {
-            // Generate a reference for the article, canonicalize that and then update ids
-            let mut reference = Reference::from(&*self);
-            reference.canonicalize().await?;
+        // Generate a reference for the article, canonicalize that and then update ids
+        // of parts including ORCIDs of authors and RORs of their affiliations.
 
+        let mut reference = Reference::from(&*self);
+        reference.canonicalize().await?;
+
+        if !is_doi(&self.doi) {
             self.doi = reference.doi;
+        }
 
-            // This will canonicalize ids based on authorship of the article, which
-            // is preferable to just based on names.
-            for (author1, author2) in self
-                .authors
-                .iter_mut()
-                .flatten()
-                .zip(reference.authors.into_iter().flatten())
-            {
-                match (author1, author2) {
-                    (Author::Person(person1), Author::Person(person2))
-                    | (
-                        Author::AuthorRole(AuthorRole {
-                            author: AuthorRoleAuthor::Person(person1),
-                            ..
-                        }),
-                        Author::AuthorRole(AuthorRole {
-                            author: AuthorRoleAuthor::Person(person2),
-                            ..
-                        }),
-                    ) => {
-                        person1.orcid = person2.orcid;
+        // This will canonicalize ids based on authorship of the article, which
+        // is preferable to just based on names.
+        for (author1, author2) in self
+            .authors
+            .iter_mut()
+            .flatten()
+            .zip(reference.authors.into_iter().flatten())
+        {
+            match (author1, author2) {
+                (Author::Person(person1), Author::Person(person2))
+                | (
+                    Author::AuthorRole(AuthorRole {
+                        author: AuthorRoleAuthor::Person(person1),
+                        ..
+                    }),
+                    Author::AuthorRole(AuthorRole {
+                        author: AuthorRoleAuthor::Person(person2),
+                        ..
+                    }),
+                ) => {
+                    person1.orcid = person2.orcid;
 
-                        for (aff1, aff2) in person1
-                            .affiliations
-                            .iter_mut()
-                            .flatten()
-                            .zip(person2.affiliations.into_iter().flatten())
-                        {
-                            aff1.ror = aff2.ror;
-                        }
+                    for (aff1, aff2) in person1
+                        .affiliations
+                        .iter_mut()
+                        .flatten()
+                        .zip(person2.affiliations.into_iter().flatten())
+                    {
+                        aff1.ror = aff2.ror;
                     }
-                    (Author::Organization(org1), Author::Organization(org2))
-                    | (
-                        Author::AuthorRole(AuthorRole {
-                            author: AuthorRoleAuthor::Organization(org1),
-                            ..
-                        }),
-                        Author::AuthorRole(AuthorRole {
-                            author: AuthorRoleAuthor::Organization(org2),
-                            ..
-                        }),
-                    ) => {
-                        org1.ror = org2.ror;
-                    }
-                    _ => (),
                 }
+                (Author::Organization(org1), Author::Organization(org2))
+                | (
+                    Author::AuthorRole(AuthorRole {
+                        author: AuthorRoleAuthor::Organization(org1),
+                        ..
+                    }),
+                    Author::AuthorRole(AuthorRole {
+                        author: AuthorRoleAuthor::Organization(org2),
+                        ..
+                    }),
+                ) => {
+                    org1.ror = org2.ror;
+                }
+                _ => (),
             }
         }
 
@@ -267,6 +269,7 @@ mod tests {
     #[test]
     fn test_is_ror() {
         assert!(is_ror(&Some("02mhbdp94".into())));
+        assert!(is_ror(&Some("03qxff017".into())));
 
         assert!(!is_ror(&Some("O4389424196".into())));
         assert!(!is_ror(&Some("Sddx6tq37".into())));
