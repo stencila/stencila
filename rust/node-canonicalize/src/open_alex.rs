@@ -14,18 +14,35 @@ use common::{
     eyre::{bail, Result},
     itertools::Itertools,
     once_cell::sync::Lazy,
+    regex::Regex,
     reqwest::Client,
     serde::Deserialize,
+    tokio::time::Instant,
     tracing,
 };
 use schema::{AuthorRoleAuthor, Reference};
 
-use crate::{is_doi, is_orcid};
+use crate::{is_doi, is_orcid, is_ror};
+
+/// Is an optional id a pseudo ORCID based on from OpenAlex authorship (not name match)
+pub(super) fn is_authorship_orcid(id: &Option<String>) -> bool {
+    let Some(id) = id else { return false };
+    static REGEX: Lazy<Regex> =
+        Lazy::new(|| Regex::new(r"^A000-\d{4}-\d{4}-\d{4}$").expect("invalid regex"));
+    REGEX.is_match(id)
+}
+
+/// Is an optional id a pseudo ROR based on from OpenAlex authorship
+pub(super) fn is_authorship_ror(id: &Option<String>) -> bool {
+    let Some(id) = id else { return false };
+    static REGEX: Lazy<Regex> = Lazy::new(|| Regex::new(r"(?i)^A\d+$").expect("invalid regex"));
+    REGEX.is_match(id)
+}
 
 const API_BASE_URL: &str = "https://api.openalex.org";
 
 // Keep below the default rate limit. Although that is documented to be 10 req/s
-// for some reason using values >=5 causes hitting of the limit.
+// for some reason using values >=4 causes hitting of the limit.
 // See https://docs.openalex.org/how-to-use-the-api/rate-limits-and-authentication
 const MAX_REQUESTS_PER_SECOND: u32 = 3;
 
@@ -41,7 +58,9 @@ struct RateLimiter;
 #[async_trait]
 impl ReqwestRateLimiter for RateLimiter {
     async fn acquire_permit(&self) {
+        let start = Instant::now();
         GOVERNOR.until_ready().await;
+        tracing::trace!("Rate limited for {}ms", (Instant::now() - start).as_millis())
     }
 }
 
@@ -51,7 +70,7 @@ static CLIENT: Lazy<ClientWithMiddleware> = Lazy::new(|| {
         .build()
 });
 
-#[derive(Default, Deserialize)]
+#[derive(Clone, Default, Deserialize)]
 #[serde(default, crate = "common::serde")]
 struct Work {
     id: String,
@@ -59,25 +78,82 @@ struct Work {
     authorships: Vec<Authorship>,
 }
 
-#[derive(Default, Deserialize)]
+impl Work {
+    /// Get the DOI of a work, or generate a pseudo DOI
+    fn doi(&self) -> String {
+        if let Some(doi) = &self.doi {
+            doi.trim_start_matches("https://doi.org/").into()
+        } else {
+            let id = self.id.trim_start_matches("https://openalex.org/");
+            format!("10.0000/openalex.{}", id)
+        }
+    }
+}
+
+#[derive(Clone, Default, Deserialize)]
 #[serde(default, crate = "common::serde")]
 struct Authorship {
     author: Author,
     institutions: Vec<Institution>,
 }
 
-#[derive(Default, Deserialize)]
-#[serde(crate = "common::serde")]
+#[derive(Clone, Default, Deserialize)]
+#[serde(default, crate = "common::serde")]
 struct Author {
     id: String,
     orcid: Option<String>,
+    display_name: String,
 }
 
-#[derive(Deserialize)]
-#[serde(crate = "common::serde")]
+impl Author {
+    /// Get the ORCID of an author, or generate a pseudo ORCID
+    fn orcid(&self, prefix: char) -> Result<String> {
+        if let Some(orcid) = &self.orcid {
+            return Ok(orcid.trim_start_matches("https://orcid.org/").into());
+        }
+
+        // Generate a pseudo-ORCID from the OpenAlex ID
+        // Uses 'O' as the first letter to indicate that it is a pseudo-ORCID based on OpenAlex ID
+        // (and which OpenAlex author IDs have anyway)
+        let int: u64 = self
+            .id
+            .trim_start_matches("https://openalex.org/")
+            .trim_start_matches("A")
+            .parse()?;
+        let digits = format!("{:015}", int % 1_000_000_000_000_000);
+        Ok(format!(
+            "{prefix}{}-{}-{}-{}",
+            &digits[0..3],
+            &digits[3..7],
+            &digits[7..11],
+            &digits[11..15],
+        ))
+    }
+}
+
+#[derive(Clone, Default, Deserialize)]
+#[serde(default, crate = "common::serde")]
 struct Institution {
     id: String,
     ror: Option<String>,
+    display_name: String,
+}
+
+impl Institution {
+    /// Get the ROR of an institution, or generate a pseudo ROR
+    fn ror(&self, prefix: char) -> String {
+        if let Some(ror) = &self.ror {
+            ror.trim_start_matches("https://ror.org/").into()
+        } else {
+            // Generate a pseudo-ROR from the OpenAlex ID
+            // Uses 'O' as the first letter to indicate that it is a pseudo-ROR based on OpenAlex ID
+            let digits = self
+                .id
+                .trim_start_matches("https://openalex.org/")
+                .trim_start_matches('I');
+            format!("{prefix}{digits}")
+        }
+    }
 }
 
 #[derive(Deserialize)]
@@ -125,48 +201,108 @@ pub(super) async fn reference(reference: &mut Reference) -> Result<()> {
         return Ok(());
     }
 
-    let Some(title) = &reference.title else {
-        return Ok(());
-    };
+    let work: Work = if let (Some(doi), true) = (&reference.doi, is_doi(&reference.doi)) {
+        tracing::trace!("Fetching work");
 
-    let title = to_text(title);
-    if title.is_empty() {
-        return Ok(());
-    }
+        let response = CLIENT
+            .get(format!("{API_BASE_URL}/works/https://doi.org/{doi}"))
+            .send()
+            .await?;
 
-    let title = title.replace(",", "");
+        if let Err(error) = response.error_for_status_ref() {
+            bail!("{error}: {}", response.text().await.unwrap_or_default());
+        }
 
-    let mut filters = vec![format!("title.search:{title}")];
-    if let Some(year) = reference.date.as_ref().and_then(|date| date.year()) {
-        filters.push(format!("publication_date:{year}"))
-    }
-    let filters = filters
-        .into_iter()
-        .map(|filter| ("filter", filter))
-        .collect_vec();
-
-    let response = CLIENT
-        .get(format!("{API_BASE_URL}/works"))
-        .query(&filters)
-        .send()
-        .await?;
-
-    if let Err(error) = response.error_for_status_ref() {
-        bail!("{error}: {}", response.text().await.unwrap_or_default());
-    }
-
-    let response: WorksResponse = response.json().await?;
-
-    let Some(work) = response.results.first() else {
-        return Ok(());
-    };
-
-    if let Some(doi) = &work.doi {
-        let doi = doi.trim_start_matches("https://doi.org/");
-        reference.doi = Some(doi.to_string());
+        response.json().await?
     } else {
-        let id = work.id.trim_start_matches("https://openalex.org/");
-        reference.doi = Some(format!("10.0000/openalex.{}", id));
+        let Some(title) = &reference.title else {
+            return Ok(());
+        };
+
+        let title = to_text(title);
+        if title.is_empty() {
+            return Ok(());
+        }
+
+        let title = title.replace(",", " ");
+
+        let mut filters = vec![format!("title.search:{title}")];
+        if let Some(year) = reference.date.as_ref().and_then(|date| date.year()) {
+            filters.push(format!("publication_date:{year}"))
+        }
+        let filters = filters
+            .into_iter()
+            .map(|filter| ("filter", filter))
+            .collect_vec();
+
+        tracing::trace!("Searching for work");
+
+        let response = CLIENT
+            .get(format!("{API_BASE_URL}/works"))
+            .query(&filters)
+            .send()
+            .await?;
+
+        if let Err(error) = response.error_for_status_ref() {
+            bail!("{error}: {}", response.text().await.unwrap_or_default());
+        }
+
+        let response: WorksResponse = response.json().await?;
+        let Some(work) = response.results.first() else {
+            return Ok(());
+        };
+
+        work.clone()
+    };
+
+    // Canonicalize DOI if necessary
+    if !is_doi(&reference.doi) {
+        reference.doi = Some(work.doi());
+    }
+
+    // Canonicalize the ORCID's of authors and the ROR's of their affiliations
+    // To avoid mis-assignment due to differences in order of authors, for any change to be made
+    // the author's first name must be in the `display_name`.
+    for (author, authorship) in reference
+        .authors
+        .iter_mut()
+        .flatten()
+        .zip(work.authorships.iter())
+    {
+        if let schema::Author::Person(person) = author {
+            let Some(name) = human_name::Name::parse(&person.name()) else {
+                continue;
+            };
+            let Some(oa_name) = human_name::Name::parse(&authorship.author.display_name) else {
+                continue;
+            };
+
+            if !oa_name.consistent_with(&name) {
+                tracing::debug!(
+                    "`{}` not consistent with `{}`",
+                    name.display_full(),
+                    oa_name.display_full()
+                );
+
+                continue;
+            }
+
+            if !is_orcid(&person.orcid) {
+                person.orcid = Some(authorship.author.orcid('A')?);
+            }
+
+            for org in person.affiliations.iter_mut().flatten() {
+                let Some(name) = &org.name else { continue };
+                if !is_ror(&org.ror) {
+                    for inst in &authorship.institutions {
+                        if name.contains(&inst.display_name) {
+                            org.ror = Some(inst.ror('A'));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     Ok(())
@@ -197,6 +333,8 @@ pub(super) async fn orcid(
         name = format!("{} {}", given_names.join(" "), name);
     };
 
+    tracing::trace!("Searching for author");
+
     let response = CLIENT
         .get(format!("{API_BASE_URL}/authors"))
         .query(&[("search", name)])
@@ -213,30 +351,7 @@ pub(super) async fn orcid(
         return Ok(None);
     };
 
-    // If author has an ORCID, return it (with URL prefix stripped)
-    if let Some(orcid) = &author.orcid {
-        let orcid = orcid.trim_start_matches("https://orcid.org/").into();
-        return Ok(Some(orcid));
-    }
-
-    // Generate a pseudo-ORCID from the OpenAlex ID
-    // Uses 'O' as the first letter to indicate that it is a pseudo-ORCID based on OpenAlex ID
-    // (and which OpenAlex author IDs have anyway)
-    let int: u64 = author
-        .id
-        .trim_start_matches("https://openalex.org/")
-        .trim_start_matches("A")
-        .parse()?;
-    let digits = format!("{:015}", int % 1_000_000_000_000_000);
-    let pseudo_orcid = format!(
-        "O{}-{}-{}-{}",
-        &digits[0..3],
-        &digits[3..7],
-        &digits[7..11],
-        &digits[11..15],
-    );
-
-    Ok(Some(pseudo_orcid))
+    Ok(Some(author.orcid('O')?))
 }
 
 /// Get the ROR for an organization from OpenAlex based on it's name
@@ -252,6 +367,8 @@ pub(super) async fn ror(name: &Option<String>) -> Result<Option<String>> {
         return Ok(None);
     }
 
+    tracing::trace!("Searching for institution");
+
     let response = CLIENT
         .get(format!("{API_BASE_URL}/institutions"))
         .query(&[("search", name)])
@@ -264,23 +381,9 @@ pub(super) async fn ror(name: &Option<String>) -> Result<Option<String>> {
 
     let response: InstitutionResponse = response.json().await?;
 
-    let Some(author) = response.results.first() else {
+    let Some(inst) = response.results.first() else {
         return Ok(None);
     };
 
-    // If author has an ROR, return it (with URL prefix stripped)
-    if let Some(ror) = &author.ror {
-        let ror = ror.trim_start_matches("https://ror.org/").into();
-        return Ok(Some(ror));
-    }
-
-    // Generate a pseudo-ROR from the OpenAlex ID
-    // Uses 'O' as the first letter to indicate that it is a pseudo-ROR based on OpenAlex ID
-    let digits = author
-        .id
-        .trim_start_matches("https://openalex.org/")
-        .trim_start_matches('I');
-    let pseudo_ror = format!("O{digits}");
-
-    Ok(Some(pseudo_ror))
+    Ok(Some(inst.ror('O')))
 }

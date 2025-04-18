@@ -76,20 +76,46 @@ trait Canonicalize {
 impl Canonicalize for Article {
     async fn canonicalize(&mut self) -> Result<()> {
         if self.doi.is_none() {
-            // Generate a DOI from the reference for the article
+            // Generate a reference for the article, canonicalize that and then update ids
             let mut reference = Reference::from(&*self);
             reference.canonicalize().await?;
+
             self.doi = reference.doi;
+
+            for (author1, author2) in self
+                .authors
+                .iter_mut()
+                .flatten()
+                .zip(reference.authors.into_iter().flatten())
+            {
+                match (author1, author2) {
+                    (Author::Person(person1), Author::Person(person2)) => {
+                        person1.orcid = if is_orcid(&person2.orcid) {
+                            person2.orcid
+                        } else {
+                            cbor_hash::orcid(person1).ok()
+                        };
+
+                        for (org1, org2) in person1
+                            .affiliations
+                            .iter_mut()
+                            .flatten()
+                            .zip(person2.affiliations.into_iter().flatten())
+                        {
+                            org1.ror = if is_ror(&org2.ror) {
+                                org2.ror
+                            } else {
+                                cbor_hash::ror(org1).ok()
+                            };
+                        }
+                    }
+                    _ => (),
+                }
+            }
         }
 
         // Walk over properties that are not walked otherwise, in parallel.
-
-        let authors = self
-            .authors
-            .iter_mut()
-            .flatten()
-            .map(|author| author.canonicalize());
-        try_join_all(authors).await?;
+        // Note `authors` and their `affiliations` should be covered above.
 
         let references = self
             .references
@@ -125,7 +151,7 @@ impl Canonicalize for AuthorRole {
 
 impl Canonicalize for Organization {
     async fn canonicalize(&mut self) -> Result<()> {
-        if !is_ror(&self.ror) {
+        if !is_ror(&self.ror) && !open_alex::is_authorship_ror(&self.ror) {
             // Attempt to get ROR from OpenAlex, falling back to generating an
             // ROR from the hash of the organization
             let ror = match open_alex::ror(&self.name).await? {
@@ -141,7 +167,7 @@ impl Canonicalize for Organization {
 
 impl Canonicalize for Person {
     async fn canonicalize(&mut self) -> Result<()> {
-        if !is_orcid(&self.orcid) {
+        if !is_orcid(&self.orcid) && !open_alex::is_authorship_orcid(&self.orcid) {
             // Attempt to get ORCID from OpenAlex, falling back to generating an
             // ORCID from the hash of the person
             let orcid = match open_alex::orcid(&self.family_names, &self.given_names).await? {
