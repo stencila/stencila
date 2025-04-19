@@ -50,7 +50,7 @@ export class Citation extends Entity {
       return html`(${inner})`
     }
 
-    const items = this.closestGlobally('stencila-cite-group [slot=items]')
+    const items = this.closestGlobally('stencila-citation-group [slot=items]')
     if (items) {
       if (this != items.lastElementChild) {
         return html`${inner}; `
