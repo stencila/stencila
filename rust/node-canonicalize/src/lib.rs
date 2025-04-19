@@ -1,7 +1,7 @@
 use common::{eyre::Result, futures::future::try_join_all, once_cell::sync::Lazy, regex::Regex};
 use schema::{
-    Article, Author, AuthorRole, AuthorRoleAuthor, Node, Organization, Person, Reference,
-    VisitorAsync, WalkControl, WalkNode,
+    replicate, Article, Author, AuthorRole, AuthorRoleAuthor, Citation, Inline, Node, Organization,
+    Person, Reference, VisitorMut, WalkControl, WalkNode,
 };
 
 mod cbor_hash;
@@ -11,12 +11,13 @@ mod open_alex;
 ///
 /// Sets the canonical id for `Article` and `Reference` nodes (DOI),
 /// `Person` nodes (ORCID), and `Organization` nodes (ROR).
-pub async fn canonicalize<T>(node: &mut T) -> Result<()>
-where
-    T: WalkNode,
-{
-    let mut walker = Walker::default();
-    node.walk_async(&mut walker).await
+pub async fn canonicalize(node: &mut Node) -> Result<()> {
+    node.canonicalize().await?;
+
+    let mut linker = Linker::new(node);
+    node.walk_mut(&mut linker);
+
+    Ok(())
 }
 
 /// Is an optional id a valid DOI
@@ -50,27 +51,70 @@ fn is_ror(id: &Option<String>) -> bool {
 }
 
 #[derive(Default)]
-struct Walker;
+struct Linker {
+    references: Option<Vec<Reference>>,
+}
 
-impl VisitorAsync for Walker {
-    async fn visit_node(&mut self, node: &mut Node) -> Result<WalkControl> {
-        match node {
-            Node::Article(node) => node.canonicalize().await?,
+impl Linker {
+    fn new(node: &Node) -> Self {
+        let references = match node {
+            Node::Article(node) => node.references.clone(),
+            _ => None,
+        };
 
-            // These node types are not normally canonicalized directly but are included
-            // here primarily for tests
-            Node::Organization(node) => node.canonicalize().await?,
-            Node::Person(node) => node.canonicalize().await?,
-            Node::Reference(node) => node.canonicalize().await?,
+        Self { references }
+    }
 
+    fn visit_citation(&self, citation: &mut Citation) {
+        // Do not change the targets of citations that are already DOIs and which have a reference
+        if citation.target.starts_with("10.") && citation.options.cites.is_some() {
+            return;
+        }
+
+        // Find the reference with the target as either id or DOI
+        if let Some(reference) = self.references.iter().flatten().find(|reference| {
+            reference.id.as_ref() == Some(&citation.target)
+                || reference.doi.as_ref() == Some(&citation.target)
+        }) {
+            if let Some(doi) = &reference.doi {
+                citation.target = doi.clone();
+            }
+            if let Ok(cites) = replicate(reference) {
+                citation.options.cites = Some(cites);
+            }
+        };
+    }
+}
+
+impl VisitorMut for Linker {
+    fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
+        match inline {
+            Inline::Citation(citation) => self.visit_citation(citation),
             _ => {}
         }
-        Ok(WalkControl::Continue)
+
+        WalkControl::Continue
     }
 }
 
 trait Canonicalize {
     async fn canonicalize(&mut self) -> Result<()>;
+}
+
+impl Canonicalize for Node {
+    async fn canonicalize(&mut self) -> Result<()> {
+        match self {
+            Node::Article(node) => node.canonicalize().await,
+
+            // These node types are not normally canonicalized directly but are included
+            // here primarily for tests
+            Node::Organization(node) => node.canonicalize().await,
+            Node::Person(node) => node.canonicalize().await,
+            Node::Reference(node) => node.canonicalize().await,
+
+            _ => Ok(()),
+        }
+    }
 }
 
 impl Canonicalize for Article {
