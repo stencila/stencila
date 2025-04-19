@@ -28,12 +28,15 @@ impl Executable for Article {
         // Clear the executor's headings
         executor.headings.clear();
 
-        // Add references that have an id to the executor's targets
+        // Add references that have an id and/or DOI to the executor's targets
         // so that citations can link to them
         executor.targets.clear();
         for reference in self.references.iter().flatten() {
             if let Some(id) = &reference.id {
                 executor.targets.insert(id.into(), reference.clone());
+            }
+            if let Some(doi) = &reference.doi {
+                executor.targets.insert(doi.into(), reference.clone());
             }
         }
 
