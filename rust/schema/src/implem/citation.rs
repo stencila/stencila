@@ -25,7 +25,13 @@ impl Citation {
 
         let xref = elem("xref", attrs, content);
 
-        (xref, losses)
+        let jats = if matches!(self.citation_mode, Some(CitationMode::Parenthetical)) {
+            ["(", &xref, ")"].concat()
+        } else {
+            xref
+        };
+
+        (jats, losses)
     }
 }
 

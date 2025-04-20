@@ -2,6 +2,24 @@ use codec_info::lost_options;
 
 use crate::{prelude::*, CitationGroup};
 
+impl CitationGroup {
+    pub fn to_jats_special(&self) -> (String, Losses) {
+        (
+            [
+                "(",
+                &self
+                    .items
+                    .iter()
+                    .map(|item| item.to_jats_special().0)
+                    .join("; "),
+                ")",
+            ]
+            .concat(),
+            Losses::none(),
+        )
+    }
+}
+
 impl MarkdownCodec for CitationGroup {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context

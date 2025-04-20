@@ -10,6 +10,9 @@
   "category": "prose",
   "description": "A group of `Citation` nodes.",
   "$comment": "This type allows you to group associated citations together.\nWhen some content in a [`Creative Work`](./CreativeWork) Citations more than one\nreference for a particular piece of text, use a `CitationGroup` to encapsulate\nmultiple [`Citation`](./Citation) nodes.\n\nAt present we do not give a `citationMode` property to a `CitationGroup` since\nthey will almost always be parenthetical as opposed to narrative.\nIn other words, it usually only makes sense for individual `Citation` nodes to be\nnarrative (although they may be connected together within `content` using words\nsuch as \"and\").\n",
+  "jats": {
+    "special": true
+  },
   "markdown": {
     "derive": false
   },

@@ -15,6 +15,8 @@ $comment: |
   In other words, it usually only makes sense for individual `Citation` nodes to be
   narrative (although they may be connected together within `content` using words
   such as "and").
+jats:
+  special: true
 markdown:
   derive: false
 required:

@@ -12,6 +12,7 @@ use super::string::String;
 #[serde(rename_all = "camelCase", crate = "common::serde")]
 #[derive(derive_more::Display)]
 #[display("CitationGroup")]
+#[jats(special)]
 pub struct CitationGroup {
     /// The type of this item.
     pub r#type: MustBe!("CitationGroup"),
