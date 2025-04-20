@@ -259,16 +259,7 @@ impl Schemas {
             ("CodeChunk", vec![("caption", "to_text(&self.caption)")]),
             ("Paragraph", vec![("text", "to_text(self)")]),
             ("TableCell", vec![("text", "to_text(self)")]),
-            (
-                "Citation",
-                vec![
-                    (
-                        "doi",
-                        "self.options.cites.as_ref().and_then(|cites| cites.doi.clone())",
-                    ),
-                    ("text", "to_text(&self.options.content)"),
-                ],
-            ),
+            ("Citation", vec![("text", "to_text(&self.options.content)")]),
             ("Reference", vec![("title", "to_text(&self.title)")]),
             (
                 "PublicationVolume",

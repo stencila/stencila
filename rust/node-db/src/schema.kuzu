@@ -88,7 +88,6 @@ CREATE NODE TABLE IF NOT EXISTS `Citation` (
   `target` STRING,
   `citationMode` STRING,
   `citationIntent` STRING[],
-  `doi` STRING,
   `text` STRING,
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
