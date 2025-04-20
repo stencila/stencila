@@ -7,10 +7,12 @@ Article.keywords: 1
 Article.options: 1
 Article.rAbstract: 1
 Article.references: 1
-Citation#: 80
-Citation.citationMode: 80
-Citation.options: 80
-Citation.target: 80
+Citation#: 36
+Citation.citationMode: 36
+Citation.options: 36
+Citation.target: 36
+CitationGroup#: 19
+CitationGroup.items: 19
 Emphasis#: 8
 Figure#: 7
 Figure.label: 7

@@ -15,7 +15,10 @@ use codec::{
     Losses,
 };
 
-use super::utilities::{extend_path, record_attrs_lost, record_node_lost};
+use super::{
+    inlines::normalize_inlines,
+    utilities::{extend_path, record_attrs_lost, record_node_lost},
+};
 
 const XLINK: &str = "http://www.w3.org/1999/xlink";
 
@@ -669,7 +672,8 @@ pub fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
         };
         inlines.push(inline);
     }
-    inlines
+
+    normalize_inlines(inlines)
 }
 
 /// Decode a `<inline-media>` to a [`Inline::AudioObject`], [`Inline::ImageObject`],

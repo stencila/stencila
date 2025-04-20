@@ -17,6 +17,12 @@
   "authors": [
     {
       "type": "Person",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Plant Biology, University of California"
+        }
+      ],
       "familyNames": [
         "Marshall"
       ],
@@ -28,6 +34,12 @@
     {
       "type": "Person",
       "orcid": "0000-0003-0500-5639",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Plant Biology, University of California"
+        }
+      ],
       "familyNames": [
         "Thompson"
       ],
@@ -39,6 +51,16 @@
     {
       "type": "Person",
       "orcid": "0000-0002-4179-6995",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Plant Biology, University of California"
+        },
+        {
+          "type": "Organization",
+          "name": "Department of Plant and Soil Sciences, FABI, Innovation Africa, University of Pretoria"
+        }
+      ],
       "familyNames": [
         "Creux"
       ],
@@ -50,6 +72,12 @@
     {
       "type": "Person",
       "orcid": "0000-0001-6813-6682",
+      "affiliations": [
+        {
+          "type": "Organization",
+          "name": "Department of Plant Biology, University of California"
+        }
+      ],
       "familyNames": [
         "Harmer"
       ],
@@ -107,7 +135,14 @@
         "type": "Date",
         "value": "2022"
       },
-      "title": "R package “circular”"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "R package “circular”"
+          }
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -169,7 +204,14 @@
         "type": "Date",
         "value": "2021"
       },
-      "title": "Gongylolepis martiana, an Asteraceae pollinated by bats in the Amazon",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Gongylolepis martiana, an Asteraceae pollinated by bats in the Amazon"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -251,7 +293,14 @@
         "type": "Date",
         "value": "2016"
       },
-      "title": "Circadian regulation of sunflower heliotropism, floral orientation, and pollinator visits",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Circadian regulation of sunflower heliotropism, floral orientation, and pollinator visits"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -308,7 +357,14 @@
         "type": "Date",
         "value": "1990"
       },
-      "title": "Light control of elongation of filament in sunflower (Helianthus annuus L",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Light control of elongation of filament in sunflower (Helianthus annuus L"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -366,7 +422,14 @@
         "type": "Date",
         "value": "2017"
       },
-      "title": "Time is honey: circadian clocks of bees and flowers and how their interactions may influence ecological communities",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Time is honey: circadian clocks of bees and flowers and how their interactions may influence ecological communities"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -423,7 +486,14 @@
         "type": "Date",
         "value": "2021"
       },
-      "title": "The Circadian Clock in Lepidoptera",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The Circadian Clock in Lepidoptera"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -463,7 +533,14 @@
         "type": "Date",
         "value": "2018"
       },
-      "title": "Pollination ecology of Bidens pilosa L. (Asteraceae)",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Pollination ecology of Bidens pilosa L. (Asteraceae)"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -493,7 +570,14 @@
         "type": "Date",
         "value": "1953"
       },
-      "title": "Endogene Tagesrhythmik und Photoperiodismus bei Kalanchoë blössfedliana",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Endogene Tagesrhythmik und Photoperiodismus bei Kalanchoë blössfedliana"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -525,7 +609,14 @@
         "type": "Date",
         "value": "2011"
       },
-      "title": "The Hormonal Regulation of Flower Development",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The Hormonal Regulation of Flower Development"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -645,7 +736,14 @@
         "type": "Date",
         "value": "2021"
       },
-      "title": "Flower orientation influences floral temperature, pollinator visits and plant fitness",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Flower orientation influences floral temperature, pollinator visits and plant fitness"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -686,7 +784,14 @@
         "type": "Date",
         "value": "2000"
       },
-      "title": "The foraging activity of honey bees Apis mellifera and non-Apis bees on hybrid sunflowers (Helianthus annuus) and its influence on cross-pollination and seed set",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The foraging activity of honey bees Apis mellifera and non-Apis bees on hybrid sunflowers (Helianthus annuus) and its influence on cross-pollination and seed set"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -794,7 +899,14 @@
         "type": "Date",
         "value": "2005"
       },
-      "title": "Plant circadian clocks increase photosynthesis, growth, survival, and competitive advantage",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Plant circadian clocks increase photosynthesis, growth, survival, and competitive advantage"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -846,7 +958,14 @@
         "type": "Date",
         "value": "2008"
       },
-      "title": "Concordance of the circadian clock with the environment is necessary to maximize fitness in natural populations",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Concordance of the circadian clock with the environment is necessary to maximize fitness in natural populations"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -905,7 +1024,14 @@
         "type": "Date",
         "value": "2009"
       },
-      "title": "Classification of Compositae",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Classification of Compositae"
+          }
+        }
+      ],
       "pageStart": 171,
       "pageEnd": 189
     },
@@ -938,7 +1064,14 @@
         "type": "Date",
         "value": "2015"
       },
-      "title": "Integrating circadian dynamics with physiological processes in plants",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Integrating circadian dynamics with physiological processes in plants"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1007,7 +1140,14 @@
         "type": "Date",
         "value": "2013"
       },
-      "title": "The pollination biology of Pseudostifftia kingii H.Rob. (Asteraceae), a rare endemic Brazilian species with uniflorous capitula",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The pollination biology of Pseudostifftia kingii H.Rob. (Asteraceae), a rare endemic Brazilian species with uniflorous capitula"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1047,7 +1187,14 @@
         "type": "Date",
         "value": "2012"
       },
-      "title": "Circadian clocks and the measurement of daylength in seasonal reproduction",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Circadian clocks and the measurement of daylength in seasonal reproduction"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1088,7 +1235,14 @@
         "type": "Date",
         "value": "2006"
       },
-      "title": "Photoperiodic control of flowering: not only by coincidence",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Photoperiodic control of flowering: not only by coincidence"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1137,7 +1291,14 @@
         "type": "Date",
         "value": "2018"
       },
-      "title": "Circadian clock during plant development",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Circadian clock during plant development"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1213,7 +1374,14 @@
         "type": "Date",
         "value": "2002"
       },
-      "title": "Phytochrome mediates the external light signal to repress FT orthologs in photoperiodic flowering of rice",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Phytochrome mediates the external light signal to repress FT orthologs in photoperiodic flowering of rice"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1243,7 +1411,14 @@
         "type": "Date",
         "value": "2009"
       },
-      "title": "Evolution of Compositae Flowers",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Evolution of Compositae Flowers"
+          }
+        }
+      ],
       "pageStart": 131,
       "pageEnd": 138
     },
@@ -1380,7 +1555,14 @@
         "type": "Date",
         "value": "2020"
       },
-      "title": "Habitat-Specific Clock Variation and Its Consequence on Reproductive Fitness",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Habitat-Specific Clock Variation and Its Consequence on Reproductive Fitness"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1421,7 +1603,14 @@
         "type": "Date",
         "value": "2018"
       },
-      "title": "The Clock Keeps on Ticking: Emerging Roles for Circadian Regulation in the Control of Fungal Physiology and Pathogenesis",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The Clock Keeps on Ticking: Emerging Roles for Circadian Regulation in the Control of Fungal Physiology and Pathogenesis"
+          }
+        }
+      ],
       "pageStart": 121,
       "pageEnd": 156
     },
@@ -1455,7 +1644,14 @@
         "type": "Date",
         "value": "2015"
       },
-      "title": "Developmental morphology and anatomy of the reproductive structures in sunflower (Helianthus annuus): a unified temporal scale",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Developmental morphology and anatomy of the reproductive structures in sunflower (Helianthus annuus): a unified temporal scale"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1507,7 +1703,14 @@
         "type": "Date",
         "value": "2007"
       },
-      "title": "Histological development of the sunflower fruit pericarp as affected by pre- and early post-anthesis canopy shading",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Histological development of the sunflower fruit pericarp as affected by pre- and early post-anthesis canopy shading"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1574,7 +1777,14 @@
         "type": "Date",
         "value": "2000"
       },
-      "title": "Hormonal influence on photocontrol of the protandry in the genus Helianthus"
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Hormonal influence on photocontrol of the protandry in the genus Helianthus"
+          }
+        }
+      ]
     },
     {
       "type": "Reference",
@@ -1645,7 +1855,14 @@
         "type": "Date",
         "value": "2019"
       },
-      "title": "A fully resolved backbone phylogeny reveals numerous dispersals and explosive diversifications throughout the history of Asteraceae",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A fully resolved backbone phylogeny reveals numerous dispersals and explosive diversifications throughout the history of Asteraceae"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1686,7 +1903,14 @@
         "type": "Date",
         "value": "1981"
       },
-      "title": "Photoperiodic sensitivity of inflorescence initiation and development in sunflower",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Photoperiodic sensitivity of inflorescence initiation and development in sunflower"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1717,7 +1941,14 @@
         "type": "Date",
         "value": "2019"
       },
-      "title": "Comprehensive Insight into Gibberellin- and Jasmonate-Mediated Stamen Development",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Comprehensive Insight into Gibberellin- and Jasmonate-Mediated Stamen Development"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1748,7 +1979,14 @@
         "type": "Date",
         "value": "2019"
       },
-      "title": "The Plant Circadian Oscillator",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The Plant Circadian Oscillator"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -1911,7 +2149,14 @@
         "type": "Date",
         "value": "2008"
       },
-      "title": "Network Discovery Pipeline Elucidates Conserved Time-of-Day–Specific cis-Regulatory Modules",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Network Discovery Pipeline Elucidates Conserved Time-of-Day–Specific cis-Regulatory Modules"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2022,7 +2267,14 @@
         "type": "Date",
         "value": "2003"
       },
-      "title": "Enhanced Fitness Conferred by Naturally Occurring Variation in the Circadian Clock",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Enhanced Fitness Conferred by Naturally Occurring Variation in the Circadian Clock"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2104,7 +2356,14 @@
         "type": "Date",
         "value": "2004"
       },
-      "title": "Circadian Clock Mutation Disrupts Estrous Cyclicity and Maintenance of Pregnancy",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Circadian Clock Mutation Disrupts Estrous Cyclicity and Maintenance of Pregnancy"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2146,7 +2405,14 @@
         "type": "Date",
         "value": "2021"
       },
-      "title": "Circadian Interactomics: How Research Into Protein-Protein Interactions Beyond the Core Clock Has Influenced the Model of Circadian Timekeeping",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Circadian Interactomics: How Research Into Protein-Protein Interactions Beyond the Core Clock Has Influenced the Model of Circadian Timekeeping"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2258,7 +2524,14 @@
         "type": "Date",
         "value": "2021"
       },
-      "title": "Circadian Clock in Arabidopsis thaliana Determines Flower Opening Time Early in the Morning and Dominantly Closes Early in the Afternoon",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Circadian Clock in Arabidopsis thaliana Determines Flower Opening Time Early in the Morning and Dominantly Closes Early in the Afternoon"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2299,7 +2572,14 @@
         "type": "Date",
         "value": "1990"
       },
-      "title": "The Roles of Phenology and Reward Structure in the Pollination Biology of Wild Sunflower (Helianthus annuus L., Asteraceae)",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The Roles of Phenology and Reward Structure in the Pollination Biology of Wild Sunflower (Helianthus annuus L., Asteraceae)"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2369,7 +2649,14 @@
         "type": "Date",
         "value": "1998"
       },
-      "title": "Resonating circadian clocks enhance fitness in cyanobacteria",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Resonating circadian clocks enhance fitness in cyanobacteria"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2411,7 +2698,14 @@
         "type": "Date",
         "value": "1985"
       },
-      "title": "The generative area as the site of floret initiation in the sunflower capitulum and its integration to predict floret number",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The generative area as the site of floret initiation in the sunflower capitulum and its integration to predict floret number"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2473,7 +2767,14 @@
         "type": "Date",
         "value": "1964"
       },
-      "title": "The Entrainment of Circadian Oscillations by Light and Their Role as Photoperiodic Clocks",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The Entrainment of Circadian Oscillations by Light and Their Role as Photoperiodic Clocks"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2492,7 +2793,14 @@
         "type": "Date",
         "value": "1940"
       },
-      "title": "Observations on Morphological Characters and Flowering Processes in the Sunflower (Helianthus annuus L",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Observations on Morphological Characters and Flowering Processes in the Sunflower (Helianthus annuus L"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2532,7 +2840,14 @@
         "type": "Date",
         "value": "2002"
       },
-      "title": "Temperature effect on entrainment, phase shifting, and amplitude of circadian clocks and its molecular bases",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Temperature effect on entrainment, phase shifting, and amplitude of circadian clocks and its molecular bases"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2574,7 +2889,14 @@
         "type": "Date",
         "value": "2012"
       },
-      "title": "The segmentation clock: inherited trait or universal design principle?",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The segmentation clock: inherited trait or universal design principle?"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2623,7 +2945,14 @@
         "type": "Date",
         "value": "2005"
       },
-      "title": "Demasking biological oscillators: properties and principles of entrainment exemplified by the Neurospora circadian clock",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Demasking biological oscillators: properties and principles of entrainment exemplified by the Neurospora circadian clock"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2673,7 +3002,14 @@
         "type": "Date",
         "value": "2021"
       },
-      "title": "Circadian rhythm as a therapeutic target",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Circadian rhythm as a therapeutic target"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2725,7 +3061,14 @@
         "type": "Date",
         "value": "1966"
       },
-      "title": "Circadian Nature of a Rhythm Expressed by an Invertaseless Strain of Neurospora crassa",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Circadian Nature of a Rhythm Expressed by an Invertaseless Strain of Neurospora crassa"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2776,7 +3119,14 @@
         "type": "Date",
         "value": "2012"
       },
-      "title": "NIH Image to ImageJ: 25 years of image analysis",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "NIH Image to ImageJ: 25 years of image analysis"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2808,7 +3158,14 @@
         "type": "Date",
         "value": "2015"
       },
-      "title": "Anatomy and Morphology of Sunflower",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Anatomy and Morphology of Sunflower"
+          }
+        }
+      ],
       "pageStart": 67,
       "pageEnd": 111
     },
@@ -2869,7 +3226,14 @@
         "type": "Date",
         "value": "2016"
       },
-      "title": "Natural selection against a circadian clock gene mutation in mice",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Natural selection against a circadian clock gene mutation in mice"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2936,7 +3300,14 @@
         "type": "Date",
         "value": "2016"
       },
-      "title": "Three psychophilous Asteraceae species with distinct reproductive mechanisms in southeastern Brazil",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Three psychophilous Asteraceae species with distinct reproductive mechanisms in southeastern Brazil"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -2978,7 +3349,14 @@
         "type": "Date",
         "value": "1982"
       },
-      "title": "Foraging Strategy of Honeybee Colonies in a Temperate Deciduous Forest",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Foraging Strategy of Honeybee Colonies in a Temperate Deciduous Forest"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3059,7 +3437,14 @@
         "type": "Date",
         "value": "2011"
       },
-      "title": "Light inputs shape the Arabidopsis circadian system",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Light inputs shape the Arabidopsis circadian system"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3297,7 +3682,14 @@
         "type": "Date",
         "value": "2019"
       },
-      "title": "Welcome to the Tidyverse",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Welcome to the Tidyverse"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3345,7 +3737,14 @@
         "type": "Date",
         "value": "2020"
       },
-      "title": "The dynamic nature and regulation of the root clock",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "The dynamic nature and regulation of the root clock"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3386,7 +3785,14 @@
         "type": "Date",
         "value": "2003"
       },
-      "title": "Living by the calendar: how plants know when to flower",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Living by the calendar: how plants know when to flower"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3463,7 +3869,14 @@
         "type": "Date",
         "value": "2016"
       },
-      "title": "Silencing Nicotiana attenuata LHY and ZTL alters circadian rhythms in flowers",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Silencing Nicotiana attenuata LHY and ZTL alters circadian rhythms in flowers"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3541,7 +3954,14 @@
         "type": "Date",
         "value": "2017"
       },
-      "title": "Fitness consequences of altering floral circadian oscillations for Nicotiana attenuata",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Fitness consequences of altering floral circadian oscillations for Nicotiana attenuata"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3637,7 +4057,14 @@
         "type": "Date",
         "value": "2021"
       },
-      "title": "Phyllotactic patterning of gerbera flower heads",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Phyllotactic patterning of gerbera flower heads"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3706,7 +4133,14 @@
         "type": "Date",
         "value": "2014"
       },
-      "title": "Strengths and limitations of period estimation methods for circadian data",
+      "title": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Strengths and limitations of period estimation methods for circadian data"
+          }
+        }
+      ],
       "isPartOf": {
         "type": "PublicationVolume",
         "isPartOf": {
@@ -3748,7 +4182,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "From the earliest stages of cellular differentiation to reproductive maturity, spatio-temporal regulation of developmental transitions plays an important role in biological success. In some cases, internal temporal rhythms are used to spatially organize a body plan. For example, in vertebrate embryos a molecular ‘segmentation clock’ acts at regular intervals to divide the developing body axis into discrete blocks of cells that later differentiate into individual somites ("
+                "string": "From the earliest stages of cellular differentiation to reproductive maturity, spatio-temporal regulation of developmental transitions plays an important role in biological success. In some cases, internal temporal rhythms are used to spatially organize a body plan. For example, in vertebrate embryos a molecular ‘segmentation clock’ acts at regular intervals to divide the developing body axis into discrete blocks of cells that later differentiate into individual somites "
               }
             },
             {
@@ -3767,7 +4201,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "). In plants, the regular spacing of lateral roots along the length of the primary root axis is controlled by a ‘root clock’ that generates a temporally oscillating developmental signal ("
+                "string": ". In plants, the regular spacing of lateral roots along the length of the primary root axis is controlled by a ‘root clock’ that generates a temporally oscillating developmental signal "
               }
             },
             {
@@ -3786,7 +4220,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "). Thus in both plants and animals, internal body clocks can generate serially-repeated organs. These types of clocks are distinct from the circadian oscillator, the biological clock found in most eukaryotes and some prokaryotes ("
+                "string": ". Thus in both plants and animals, internal body clocks can generate serially-repeated organs. These types of clocks are distinct from the circadian oscillator, the biological clock found in most eukaryotes and some prokaryotes "
               }
             },
             {
@@ -3805,45 +4239,42 @@
             {
               "type": "Text",
               "value": {
-                "string": "). Circadian clocks coordinate development on daily and seasonal time scales. In both plants and animals, the circadian clock can integrate environmental cues such as day length and temperature to time the transition to reproductive stages to the appropriate season ("
+                "string": ". Circadian clocks coordinate development on daily and seasonal time scales. In both plants and animals, the circadian clock can integrate environmental cues such as day length and temperature to time the transition to reproductive stages to the appropriate season "
               }
             },
             {
-              "type": "Citation",
-              "target": "c17",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Ikegami and Yoshimura, 2012"
-                  }
+                  "type": "Citation",
+                  "target": "c17",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Ikegami and Yoshimura, 2012"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c19",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Inoue et al., 2018"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c19",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Inoue et al., 2018"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "). On a diel scale, the circadian clock can coordinate developmental processes with environmental transitions associated with the earth’s rotation, such as leaf movement in plants, eclosion in "
+                "string": ". On a diel scale, the circadian clock can coordinate developmental processes with environmental transitions associated with the earth’s rotation, such as leaf movement in plants, eclosion in "
               }
             },
             {
@@ -3877,64 +4308,54 @@
             {
               "type": "Text",
               "value": {
-                "string": " ("
+                "string": " "
               }
             },
             {
-              "type": "Citation",
-              "target": "c6",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Brady et al., 2021"
-                  }
+                  "type": "Citation",
+                  "target": "c6",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Brady et al., 2021"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c23",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Larrondo and Canessa, 2018"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c30",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "McClung, 2019"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c23",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Larrondo and Canessa, 2018"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c30",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "McClung, 2019"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "). However, a role for the circadian clock in the spatial patterning of development has not previously been reported."
+                "string": ". However, a role for the circadian clock in the spatial patterning of development has not previously been reported."
               }
             }
           ]
@@ -3945,7 +4366,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "Circadian clocks in eukaryotes are cell-autonomous systems made up of transcriptional-translational feedback loops that create rhythms of gene expression to regulate biological timing. Circadian rhythms, biological processes regulated by the circadian clock, meet several fundamental criteria ("
+                "string": "Circadian clocks in eukaryotes are cell-autonomous systems made up of transcriptional-translational feedback loops that create rhythms of gene expression to regulate biological timing. Circadian rhythms, biological processes regulated by the circadian clock, meet several fundamental criteria "
               }
             },
             {
@@ -3964,7 +4385,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "). First, they are stably entrained to environmental cues. Second, they persist in free running environmental conditions. Third, circadian rhythms are temperature compensated such that they maintain a uniform period over a range of ambient temperatures, in contrast to the general rule that the rate of enzymatic processes changes with temperature. In addition, the circadian clock gates certain biological processes so that responsiveness to environmental cues is time-of-day dependent. For example, studies in humans show the timing of drug treatment can be critical to creating an effective therapeutic response ("
+                "string": ". First, they are stably entrained to environmental cues. Second, they persist in free running environmental conditions. Third, circadian rhythms are temperature compensated such that they maintain a uniform period over a range of ambient temperatures, in contrast to the general rule that the rate of enzymatic processes changes with temperature. In addition, the circadian clock gates certain biological processes so that responsiveness to environmental cues is time-of-day dependent. For example, studies in humans show the timing of drug treatment can be critical to creating an effective therapeutic response "
               }
             },
             {
@@ -3983,102 +4404,89 @@
             {
               "type": "Text",
               "value": {
-                "string": "). A functioning circadian clock whose biological rhythms match that of the environment provides a fitness advantage for many organisms, including plants ("
+                "string": ". A functioning circadian clock whose biological rhythms match that of the environment provides a fitness advantage for many organisms, including plants "
               }
             },
             {
-              "type": "Citation",
-              "target": "c12",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Dodd et al., 2005"
-                  }
+                  "type": "Citation",
+                  "target": "c12",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Dodd et al., 2005"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c32",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Michael et al., 2003"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
+                "string": ", animals "
               }
             },
             {
-              "type": "Citation",
-              "target": "c32",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Michael et al., 2003"
-                  }
+                  "type": "Citation",
+                  "target": "c33",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Miller et al., 2004"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c13",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Emerson et al., 2008"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c49",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Spoelstra et al., 2016"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "), animals ("
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c33",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Miller et al., 2004"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c13",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Emerson et al., 2008"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c49",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Spoelstra et al., 2016"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "), bacteria ("
+                "string": ", bacteria "
               }
             },
             {
@@ -4097,7 +4505,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "), and fungi ("
+                "string": ", and fungi "
               }
             },
             {
@@ -4116,7 +4524,7 @@
             {
               "type": "Text",
               "value": {
-                "string": ")."
+                "string": "."
               }
             }
           ]
@@ -4127,7 +4535,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "One important way the circadian clock promotes fitness is by controlling timing of reproductive development, for example by allowing organisms to distinguish between the long and short days of different seasons. In plants, the circadian system mediates the effects of day length during the transition from vegetative to reproductive growth, usually referred to as flowering time ("
+                "string": "One important way the circadian clock promotes fitness is by controlling timing of reproductive development, for example by allowing organisms to distinguish between the long and short days of different seasons. In plants, the circadian system mediates the effects of day length during the transition from vegetative to reproductive growth, usually referred to as flowering time "
               }
             },
             {
@@ -4146,102 +4554,89 @@
             {
               "type": "Text",
               "value": {
-                "string": "). The circadian clock also regulates daily aspects of floral development, for example coordinating daily rhythms in scent emission and floral opening and closing with pollinator activity ("
+                "string": ". The circadian clock also regulates daily aspects of floral development, for example coordinating daily rhythms in scent emission and floral opening and closing with pollinator activity "
               }
             },
             {
-              "type": "Citation",
-              "target": "c57",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Yon et al., 2017"
-                  }
+                  "type": "Citation",
+                  "target": "c57",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Yon et al., 2017"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c19",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Inoue et al., 2018"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c35",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Muroya et al., 2021"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
+                "string": ". In addition, the circadian clock is implicated in the uniform eastward orientation observed in mature sunflower plants; this eastward orientation was shown to enhance both male and female reproductive fitness "
               }
             },
             {
-              "type": "Citation",
-              "target": "c19",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Inoue et al., 2018"
-                  }
+                  "type": "Citation",
+                  "target": "c3",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Atamian et al., 2016"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c10",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Creux et al., 2021"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c35",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Muroya et al., 2021"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "). In addition, the circadian clock is implicated in the uniform eastward orientation observed in mature sunflower plants; this eastward orientation was shown to enhance both male and female reproductive fitness ("
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c3",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Atamian et al., 2016"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c10",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Creux et al., 2021"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": ")."
+                "string": "."
               }
             }
           ]
@@ -4252,7 +4647,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "Domesticated sunflower is an excellent model system to study the temporal regulation of floral development. Sunflowers are members of the Asteraceae, a highly successful family comprised of about 30,000 distinct species that are widely dispersed around the world ("
+                "string": "Domesticated sunflower is an excellent model system to study the temporal regulation of floral development. Sunflowers are members of the Asteraceae, a highly successful family comprised of about 30,000 distinct species that are widely dispersed around the world "
               }
             },
             {
@@ -4271,13 +4666,13 @@
             {
               "type": "Text",
               "value": {
-                "string": "). Asteraceae are characterized by the arrangement of individual florets together in a complex, compressed inflorescence called the capitulum. Individual florets are arranged on the capitulum disk in spiral patterns, a classic type of phyllotaxis observed in many plants ("
+                "string": ". Asteraceae are characterized by the arrangement of individual florets together in a complex, compressed inflorescence called the capitulum. Individual florets are arranged on the capitulum disk in spiral patterns, a classic type of phyllotaxis observed in many plants ("
               }
             },
             {
               "type": "Text",
               "value": {
-                "string": "). These phyllotactic spirals, called parastichies, are generated by the precise specification of floral primordia, first at the outer rim and then moving into the center of the capitulum disk ("
+                "string": "). These phyllotactic spirals, called parastichies, are generated by the precise specification of floral primordia, first at the outer rim and then moving into the center of the capitulum disk "
               }
             },
             {
@@ -4296,45 +4691,42 @@
             {
               "type": "Text",
               "value": {
-                "string": "). In domesticated sunflower, specification of the hundreds or even thousands of floret primordia found on a single capitulum takes approximately 10-14 days ("
+                "string": ". In domesticated sunflower, specification of the hundreds or even thousands of floret primordia found on a single capitulum takes approximately 10-14 days "
               }
             },
             {
-              "type": "Citation",
-              "target": "c28",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Marc and Palmer, 1981"
-                  }
+                  "type": "Citation",
+                  "target": "c28",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Marc and Palmer, 1981"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c38",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Palmer and Steer, 1985"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c38",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Palmer and Steer, 1985"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "), followed approximately 20 days later by the onset of anthesis, or floral opening, of the first florets ("
+                "string": ", followed approximately 20 days later by the onset of anthesis, or floral opening, of the first florets "
               }
             },
             {
@@ -4353,7 +4745,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "). Anthesis of all florets on a capitulum head typically occurs over 5-10 days ("
+                "string": ". Anthesis of all florets on a capitulum head typically occurs over 5-10 days "
               }
             },
             {
@@ -4372,89 +4764,83 @@
             {
               "type": "Text",
               "value": {
-                "string": "). Intriguingly, the timing of anthesis does not follow the gradual and continuous pattern of development seen during specification of floret primordia on the developing capitulum ("
+                "string": ". Intriguingly, the timing of anthesis does not follow the gradual and continuous pattern of development seen during specification of floret primordia on the developing capitulum "
               }
             },
             {
-              "type": "Citation",
-              "target": "c28",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Marc and Palmer, 1981"
-                  }
+                  "type": "Citation",
+                  "target": "c28",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Marc and Palmer, 1981"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c58",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Zhang et al., 2021"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
+                "string": ". Instead, discrete developmental boundaries are observed with obvious rings of florets at distinct stages of anthesis ("
               }
             },
             {
-              "type": "Citation",
-              "target": "c58",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "Text",
+              "value": {
+                "string": "). Each ring, or pseudowhorl, undergoes anthesis on successive days. While previous studies examined the effects of hormones and environmental factors on the timing of development of florets within a pseudowhorl "
+              }
+            },
+            {
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Zhang et al., 2021"
-                  }
+                  "type": "Citation",
+                  "target": "c4",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Baroncelli et al., 1990"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c26",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Lobello et al., 2000"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "). Instead, discrete developmental boundaries are observed with obvious rings of florets at distinct stages of anthesis ("
-              }
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "). Each ring, or pseudowhorl, undergoes anthesis on successive days. While previous studies examined the effects of hormones and environmental factors on the timing of development of florets within a pseudowhorl ("
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c4",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Baroncelli et al., 1990"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c26",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Lobello et al., 2000"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "), the mechanisms governing the conversion of the continuous spiral pattern of development seen early in floral development ("
+                "string": ", the mechanisms governing the conversion of the continuous spiral pattern of development seen early in floral development ("
               }
             },
             {
@@ -4714,7 +5100,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": ") ("
+                    "string": ") "
                   }
                 },
                 {
@@ -4733,7 +5119,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). Each disc floret is an individual flower with an epigynous ovary that holds a corolla tube of fused petals ("
+                    "string": ". Each disc floret is an individual flower with an epigynous ovary that holds a corolla tube of fused petals ("
                   }
                 },
                 {
@@ -4793,7 +5179,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). Before anthesis all reproductive organs are enclosed within the corolla tube ("
+                    "string": ". Before anthesis all reproductive organs are enclosed within the corolla tube ("
                   }
                 },
                 {
@@ -4823,45 +5209,42 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": ") ("
+                    "string": ") "
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c4",
-                  "citationMode": "Parenthetical",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "Baroncelli et al., 1990"
-                      }
+                      "type": "Citation",
+                      "target": "c4",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Baroncelli et al., 1990"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c26",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Lobello et al., 2000"
+                          }
+                        }
+                      ]
                     }
                   ]
                 },
                 {
                   "type": "Text",
                   "value": {
-                    "string": "; "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c26",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Lobello et al., 2000"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "). In this staminate stage of anthesis, pollen is released within the anther tube and is then pushed up and out by the rapid growth of the style through the anther tube soon after dawn ("
+                    "string": ". In this staminate stage of anthesis, pollen is released within the anther tube and is then pushed up and out by the rapid growth of the style through the anther tube soon after dawn ("
                   }
                 },
                 {
@@ -4873,7 +5256,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). This plunger-style mechanism of pollen presentation is an ancestral feature of the Asteraceae family ("
+                    "string": "). This plunger-style mechanism of pollen presentation is an ancestral feature of the Asteraceae family "
                   }
                 },
                 {
@@ -4892,13 +5275,13 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). The stigmas then unfold and become receptive to pollen the day after pollen release ("
+                    "string": ". The stigmas then unfold and become receptive to pollen the day after pollen release ("
                   }
                 },
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). The temporal and spatial separation between pollen release and stigma presentation in sunflowers promotes cross-fertilization across head ("
+                    "string": "). The temporal and spatial separation between pollen release and stigma presentation in sunflowers promotes cross-fertilization across head "
                   }
                 },
                 {
@@ -4917,7 +5300,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": ")."
+                    "string": "."
                   }
                 }
               ]
@@ -4951,45 +5334,42 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). As previously described ("
+                    "string": "). As previously described "
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c4",
-                  "citationMode": "Parenthetical",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "Baroncelli et al., 1990"
-                      }
+                      "type": "Citation",
+                      "target": "c4",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Baroncelli et al., 1990"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c26",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Lobello et al., 2000"
+                          }
+                        }
+                      ]
                     }
                   ]
                 },
                 {
                   "type": "Text",
                   "value": {
-                    "string": "; "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c26",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Lobello et al., 2000"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "), we found that stamen elongation commenced approximately 8 hours after lights off, driven by an approximately 2.5x increase in anther filament length over 5 hours ("
+                    "string": ", we found that stamen elongation commenced approximately 8 hours after lights off, driven by an approximately 2.5x increase in anther filament length over 5 hours ("
                   }
                 },
                 {
@@ -5276,7 +5656,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "This high degree of developmental coordination within each pseudowhorl is quite remarkable given that the initiation of floret primordia along a parastichy occurs continuously over many days ("
+                    "string": "This high degree of developmental coordination within each pseudowhorl is quite remarkable given that the initiation of floret primordia along a parastichy occurs continuously over many days "
                   }
                 },
                 {
@@ -5295,7 +5675,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). We therefore examined the timing of ovary, stamen, and style growth within a pseudowhorl along separate parastichies ("
+                    "string": ". We therefore examined the timing of ovary, stamen, and style growth within a pseudowhorl along separate parastichies ("
                   }
                 },
                 {
@@ -5325,64 +5705,54 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "), but there was a large step-down in length compared to ovaries of pre-anthesis florets in the same parastichy. Previous studies showed the large changes in ovary size and filament length during anthesis are due to rapid cell expansion ("
+                    "string": "), but there was a large step-down in length compared to ovaries of pre-anthesis florets in the same parastichy. Previous studies showed the large changes in ovary size and filament length during anthesis are due to rapid cell expansion "
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c25",
-                  "citationMode": "Parenthetical",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "Lindström et al., 2007"
-                      }
+                      "type": "Citation",
+                      "target": "c25",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Lindström et al., 2007"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c24",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Lindström and Hernández, 2015"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c26",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Lobello et al., 2000"
+                          }
+                        }
+                      ]
                     }
                   ]
                 },
                 {
                   "type": "Text",
                   "value": {
-                    "string": "; "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c24",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Lindström and Hernández, 2015"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "; "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c26",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Lobello et al., 2000"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "). The remarkable synchronization of cell elongation and organ growth during anthesis, despite the age difference of florets along each parastichy, suggests some master regulator coordinates anthesis within each pseudowhorl."
+                    "string": ". The remarkable synchronization of cell elongation and organ growth during anthesis, despite the age difference of florets along each parastichy, suggests some master regulator coordinates anthesis within each pseudowhorl."
                   }
                 }
               ]
@@ -5781,7 +6151,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "Circadian-regulated processes are characterized by their relative insensitivity to temperature variation across a physiologically relevant range ("
+                    "string": "Circadian-regulated processes are characterized by their relative insensitivity to temperature variation across a physiologically relevant range "
                   }
                 },
                 {
@@ -5800,7 +6170,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). We therefore determined the free-running periods for ovary and stamen developmental rhythms in sunflowers maintained in constant darkness at 18°C, 25°C, or 30°C. Across the three different growth conditions, the estimated periods for cycles of ovary development were not statistically different while the estimated period for stamen development was slightly but significantly longer at 30°C, suggesting modest overcompensation ("
+                    "string": ". We therefore determined the free-running periods for ovary and stamen developmental rhythms in sunflowers maintained in constant darkness at 18°C, 25°C, or 30°C. Across the three different growth conditions, the estimated periods for cycles of ovary development were not statistically different while the estimated period for stamen development was slightly but significantly longer at 30°C, suggesting modest overcompensation ("
                   }
                 },
                 {
@@ -5846,7 +6216,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "Environmental influences on clock-regulated processes are often ‘gated’ by the circadian clock, meaning that the same stimulus can evoke different responses when applied at different times of day ("
+                    "string": "Environmental influences on clock-regulated processes are often ‘gated’ by the circadian clock, meaning that the same stimulus can evoke different responses when applied at different times of day "
                   }
                 },
                 {
@@ -5865,7 +6235,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). We therefore examined whether the effects of light and darkness on sunflower anthesis were time-of-day dependent by applying a short 4.5-hour dark period at different times of the subjective day or night ("
+                    "string": ". We therefore examined whether the effects of light and darkness on sunflower anthesis were time-of-day dependent by applying a short 4.5-hour dark period at different times of the subjective day or night ("
                   }
                 },
                 {
@@ -6250,7 +6620,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "Many circadian-regulated processes exhibit frequency demultiplication; that is, they maintain 24-hour rhythms even when subjected to light/dark cycles with a cycle length close to half that of the endogenous period ("
+                    "string": "Many circadian-regulated processes exhibit frequency demultiplication; that is, they maintain 24-hour rhythms even when subjected to light/dark cycles with a cycle length close to half that of the endogenous period "
                   }
                 },
                 {
@@ -6269,7 +6639,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). We therefore examined whether multiple periods of darkness during a 24-hour period would affect the timing of floret anthesis within pseudowhorls. We first exposed sunflowers to four equal periods of darkness and light every 24 hours, LDLD|25°C (6h:6h:6h:6h). One pseudowhorl of florets underwent anthesis every 24 hours, but florets within each pseudowhorl were poorly coordinated ("
+                    "string": ". We therefore examined whether multiple periods of darkness during a 24-hour period would affect the timing of floret anthesis within pseudowhorls. We first exposed sunflowers to four equal periods of darkness and light every 24 hours, LDLD|25°C (6h:6h:6h:6h). One pseudowhorl of florets underwent anthesis every 24 hours, but florets within each pseudowhorl were poorly coordinated ("
                   }
                 },
                 {
@@ -6418,45 +6788,42 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "Previous studies show that sunflower anther filament elongation is completely inhibited and style elongation is reduced in constant light conditions ("
+                    "string": "Previous studies show that sunflower anther filament elongation is completely inhibited and style elongation is reduced in constant light conditions "
                   }
                 },
                 {
-                  "type": "Citation",
-                  "target": "c4",
-                  "citationMode": "Parenthetical",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": "Baroncelli et al., 1990"
-                      }
+                      "type": "Citation",
+                      "target": "c4",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Baroncelli et al., 1990"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Citation",
+                      "target": "c26",
+                      "content": [
+                        {
+                          "type": "Text",
+                          "value": {
+                            "string": "Lobello et al., 2000"
+                          }
+                        }
+                      ]
                     }
                   ]
                 },
                 {
                   "type": "Text",
                   "value": {
-                    "string": "; "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c26",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "Lobello et al., 2000"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "). To investigate whether constant light also affected other aspects of flower development, we entrained sunflowers in LD|25°C (16h:8h) and then transitioned them to constant light and temperature (LL|25°C) on the first day of anthesis. As expected, no stamen growth was observed ("
+                    "string": ". To investigate whether constant light also affected other aspects of flower development, we entrained sunflowers in LD|25°C (16h:8h) and then transitioned them to constant light and temperature (LL|25°C) on the first day of anthesis. As expected, no stamen growth was observed ("
                   }
                 },
                 {
@@ -6600,7 +6967,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "Many aspects of floral physiology, including flower opening and scent production, vary across a day ("
+                "string": "Many aspects of floral physiology, including flower opening and scent production, vary across a day "
               }
             },
             {
@@ -6619,7 +6986,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "). In a few cases, such as petal opening and closing in "
+                "string": ". In a few cases, such as petal opening and closing in "
               }
             },
             {
@@ -6653,45 +7020,42 @@
             {
               "type": "Text",
               "value": {
-                "string": ", the circadian clock has been shown to regulate these diel rhythms ("
+                "string": ", the circadian clock has been shown to regulate these diel rhythms "
               }
             },
             {
-              "type": "Citation",
-              "target": "c8",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Bünsow, 1953"
-                  }
+                  "type": "Citation",
+                  "target": "c8",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Bünsow, 1953"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c56",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Yon et al., 2016"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c56",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Yon et al., 2016"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "). Here, we show that daily rhythms in the development of floral organs in sunflower persist in constant environmental conditions, are temperature compensated, and exhibit a time-of-day specific response to environmental cues ("
+                "string": ". Here, we show that daily rhythms in the development of floral organs in sunflower persist in constant environmental conditions, are temperature compensated, and exhibit a time-of-day specific response to environmental cues ("
               }
             },
             {
@@ -6709,7 +7073,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "). We therefore conclude that the circadian clock controls floral development in sunflower to ensure release of pollen soon after dawn and the emergence of styles and stigmas late in the day. Although style elongation is largely complete near the end of the first day of floret anthesis ("
+                "string": "). We therefore conclude that the circadian clock controls floral development in sunflower to ensure release of pollen soon after dawn and the emergence of styles and stigmas late in the day. Although style elongation is largely complete near the end of the first day of floret anthesis "
               }
             },
             {
@@ -6728,7 +7092,7 @@
             {
               "type": "Text",
               "value": {
-                "string": ") ("
+                "string": " ("
               }
             },
             {
@@ -6753,7 +7117,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "). This temporal separation between release of pollen and stigma receptivity is thought to reduce self-pollination and is prevalent throughout the Asteraceae family ("
+                "string": ". This temporal separation between release of pollen and stigma receptivity is thought to reduce self-pollination and is prevalent throughout the Asteraceae family "
               }
             },
             {
@@ -6772,7 +7136,7 @@
             {
               "type": "Text",
               "value": {
-                "string": ")."
+                "string": "."
               }
             }
           ]
@@ -6813,7 +7177,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "). These results are consistent with our previous field studies that showed modest changes in ambient temperature affected style but not anther filament elongation ("
+                "string": "). These results are consistent with our previous field studies that showed modest changes in ambient temperature affected style but not anther filament elongation "
               }
             },
             {
@@ -6832,45 +7196,42 @@
             {
               "type": "Text",
               "value": {
-                "string": "). Overall, the different sensitivities of floral organs to light and temperature suggest they may be regulated by distinct growth regulatory pathways. This is consistent with studies in other plants, which revealed that different hormones regulate the growth of male and female reproductive organs ("
+                "string": ". Overall, the different sensitivities of floral organs to light and temperature suggest they may be regulated by distinct growth regulatory pathways. This is consistent with studies in other plants, which revealed that different hormones regulate the growth of male and female reproductive organs "
               }
             },
             {
-              "type": "Citation",
-              "target": "c9",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Chandler, 2011"
-                  }
+                  "type": "Citation",
+                  "target": "c9",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Chandler, 2011"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c29",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Marciniak and Przedniczek, 2019"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c29",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Marciniak and Przedniczek, 2019"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": ")."
+                "string": "."
               }
             }
           ]
@@ -6881,83 +7242,66 @@
             {
               "type": "Text",
               "value": {
-                "string": "While the molecular pathways controlling elongation of anther filaments and styles in sunflower are likely different, we demonstrate that their common regulation by the circadian clock results in the fast and near-synchronous release of pollen a few hours after dawn. Intriguingly, many bee- and butterfly-pollinated Asteraceae species release pollen in the morning ("
+                "string": "While the molecular pathways controlling elongation of anther filaments and styles in sunflower are likely different, we demonstrate that their common regulation by the circadian clock results in the fast and near-synchronous release of pollen a few hours after dawn. Intriguingly, many bee- and butterfly-pollinated Asteraceae species release pollen in the morning "
               }
             },
             {
-              "type": "Citation",
-              "target": "c7",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Budumajji and Raju, 2018"
-                  }
+                  "type": "Citation",
+                  "target": "c7",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Budumajji and Raju, 2018"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c16",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Hipólito et al., 2013"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c36",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Neff and Simpson, 1990"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c50",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Valentin-Silva et al., 2016"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c16",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Hipólito et al., 2013"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c36",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Neff and Simpson, 1990"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c50",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Valentin-Silva et al., 2016"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": ") while at least one bat-pollinated member of the family releases pollen in the early night ("
+                "string": " while at least one bat-pollinated member of the family releases pollen in the early night "
               }
             },
             {
@@ -6976,7 +7320,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "). Since the precise timing of pollen release relative to dawn affects male reproductive success in sunflower ("
+                "string": ". Since the precise timing of pollen release relative to dawn affects male reproductive success in sunflower "
               }
             },
             {
@@ -6995,7 +7339,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "), it is tempting to speculate that clock regulation of late-stage floret development may be widespread in the Asteraceae. Identification of the mechanisms by which the circadian system coordinates the growth of male and female floral organs to promote timely pollen release will be of great interest."
+                "string": ", it is tempting to speculate that clock regulation of late-stage floret development may be widespread in the Asteraceae. Identification of the mechanisms by which the circadian system coordinates the growth of male and female floral organs to promote timely pollen release will be of great interest."
               }
             }
           ]
@@ -7006,7 +7350,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "The ecological and evolutionary success of the Asteraceae family, estimated to contain ∼10% of angiosperm species, is attributed in part to their compressed inflorescences that act together as single false flowers to attract pollinators ("
+                "string": "The ecological and evolutionary success of the Asteraceae family, estimated to contain ∼10% of angiosperm species, is attributed in part to their compressed inflorescences that act together as single false flowers to attract pollinators "
               }
             },
             {
@@ -7025,7 +7369,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "). In sunflowers, the individual disk floret primordia are first initiated on the outer perimeter of the very large, flat head meristem and subsequent primordia are initiated following a centripetal pattern to generate the characteristic spiral pattern of immature florets seen across the disk ("
+                "string": ". In sunflowers, the individual disk floret primordia are first initiated on the outer perimeter of the very large, flat head meristem and subsequent primordia are initiated following a centripetal pattern to generate the characteristic spiral pattern of immature florets seen across the disk ("
               }
             },
             {
@@ -7037,45 +7381,42 @@
             {
               "type": "Text",
               "value": {
-                "string": ") ("
+                "string": ") "
               }
             },
             {
-              "type": "Citation",
-              "target": "c28",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Marc and Palmer, 1981"
-                  }
+                  "type": "Citation",
+                  "target": "c28",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Marc and Palmer, 1981"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c38",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Palmer and Steer, 1985"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c38",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Palmer and Steer, 1985"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "). Recent experimental and modeling studies in gerbera daisies attributed formation of this spiral pattern to short-range interactions between spatially close initia ("
+                "string": ". Recent experimental and modeling studies in gerbera daisies attributed formation of this spiral pattern to short-range interactions between spatially close initia "
               }
             },
             {
@@ -7094,7 +7435,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "). In contrast, our work suggests that the ringlike pattern of pseudowhorls that emerges during anthesis ("
+                "string": ". In contrast, our work suggests that the ringlike pattern of pseudowhorls that emerges during anthesis ("
               }
             },
             {
@@ -7123,51 +7464,48 @@
             {
               "type": "Text",
               "value": {
-                "string": "How do florets of different developmental ages temporally coordinate anthesis to generate pseudowhorls? We propose that a type of external coincidence model is at work, analogous to the mechanisms underlying photoperiodic control of the transition from vegetative to reproductive growth in many plants ("
+                "string": "How do florets of different developmental ages temporally coordinate anthesis to generate pseudowhorls? We propose that a type of external coincidence model is at work, analogous to the mechanisms underlying photoperiodic control of the transition from vegetative to reproductive growth in many plants "
               }
             },
             {
-              "type": "Citation",
-              "target": "c40",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Pittendrigh and Minis, 1964"
-                  }
+                  "type": "Citation",
+                  "target": "c40",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Pittendrigh and Minis, 1964"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c55",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Yanovsky and Kay, 2003"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c55",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Yanovsky and Kay, 2003"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "). In our model, developmentally competent immature florets respond to a period of darkness that falls during the subjective night and is at least 4.5 hours long by undergoing the growth events that lead to anthesis (ovary expansion followed by the rapid onset of anther filament and then style elongation) ("
+                "string": ". In our model, developmentally competent immature florets respond to a period of darkness that falls during the subjective night and is at least 4.5 hours long by undergoing the growth events that lead to anthesis (ovary expansion followed by the rapid onset of anther filament and then style elongation) ("
               }
             },
             {
               "type": "Text",
               "value": {
-                "string": "). This is conceptually similar to photoperiodic control of flowering in short day plants such as rice, in which light at night inactivates a clock-regulated transcription factor that promotes the transition to flowering ("
+                "string": "). This is conceptually similar to photoperiodic control of flowering in short day plants such as rice, in which light at night inactivates a clock-regulated transcription factor that promotes the transition to flowering "
               }
             },
             {
@@ -7186,7 +7524,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "). However, we speculate that local signals also contribute to the coordination of floret anthesis across the capitulum disk. Imposition of dark treatments during the subjective day delayed anthesis by close to 24 hours ("
+                "string": ". However, we speculate that local signals also contribute to the coordination of floret anthesis across the capitulum disk. Imposition of dark treatments during the subjective day delayed anthesis by close to 24 hours ("
               }
             },
             {
@@ -7221,7 +7559,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "Plants are generally considered diurnal organisms and often have more robust circadian rhythms in constant light than in constant darkness ("
+                "string": "Plants are generally considered diurnal organisms and often have more robust circadian rhythms in constant light than in constant darkness "
               }
             },
             {
@@ -7240,7 +7578,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "). We were therefore surprised to find robust rhythms of anthesis in conditions of constant temperature and darkness but not constant temperature and light ("
+                "string": ". We were therefore surprised to find robust rhythms of anthesis in conditions of constant temperature and darkness but not constant temperature and light ("
               }
             },
             {
@@ -7269,7 +7607,7 @@
             {
               "type": "Text",
               "value": {
-                "string": ", which are observed in constant darkness but not in constant light ("
+                "string": ", which are observed in constant darkness but not in constant light "
               }
             },
             {
@@ -7288,7 +7626,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "). An interesting question for further study is whether in constant light sunflower floret rhythms are present but masked, or whether the floral circadian clock is arrhythmic in this condition. The very rapid resetting of the different phases of organ growth to new light conditions ("
+                "string": ". An interesting question for further study is whether in constant light sunflower floret rhythms are present but masked, or whether the floral circadian clock is arrhythmic in this condition. The very rapid resetting of the different phases of organ growth to new light conditions ("
               }
             },
             {
@@ -7305,45 +7643,42 @@
             {
               "type": "Text",
               "value": {
-                "string": "Another interesting question is why florets of different developmental ages undergo coordinated anthesis to generate pseudowhorls. It has been reported that the foraging activity of both honeybees and native bees on sunflower heads is positively correlated with the number of florets undergoing anthesis at any given time, and that seed set is strongly correlated with the number of bees foraging on heads ("
+                "string": "Another interesting question is why florets of different developmental ages undergo coordinated anthesis to generate pseudowhorls. It has been reported that the foraging activity of both honeybees and native bees on sunflower heads is positively correlated with the number of florets undergoing anthesis at any given time, and that seed set is strongly correlated with the number of bees foraging on heads "
               }
             },
             {
-              "type": "Citation",
-              "target": "c11",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "DeGrandi-Hoffman and Watkins, 2000"
-                  }
+                  "type": "Citation",
+                  "target": "c11",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "DeGrandi-Hoffman and Watkins, 2000"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c36",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Neff and Simpson, 1990"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c36",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Neff and Simpson, 1990"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "). In the case of the highly social honeybees, hive members communicate via a dance language to quickly reallocate the numbers of foragers sent to different food sources based on resource availability ("
+                "string": ". In the case of the highly social honeybees, hive members communicate via a dance language to quickly reallocate the numbers of foragers sent to different food sources based on resource availability "
               }
             },
             {
@@ -7362,7 +7697,7 @@
             {
               "type": "Text",
               "value": {
-                "string": "). We therefore speculate that the coordinated release of floral rewards by the hundreds of florets undergoing anthesis within a pseudowhorl each morning may be a mechanism to enhance attractiveness to pollinators and thus promote reproductive success."
+                "string": ". We therefore speculate that the coordinated release of floral rewards by the hundreds of florets undergoing anthesis within a pseudowhorl each morning may be a mechanism to enhance attractiveness to pollinators and thus promote reproductive success."
               }
             }
           ]
@@ -7474,7 +7809,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": " provided by metal halide and incandescent lamps) to image floret development under the indicated environmental conditions. Transfer to experimental conditions occurred at ZT 0. Sunflower stalks and capitula were taped to bamboo stakes (to avoid capitulum moving out of the camera frame). Raspberry Pi NoIR V2 cameras were mounted on Raspberry Pi 3 model B computers (Raspberry Pi, Cambridge, UK); cameras were fitted with LEE 87 75 x75mm infrared (IR) filters (Lee Filters, Andover, England). Computers were programmed to take a photo every 15 minutes. Infrared LEDs (Mouser Electronics, El Cajon, CA, USA) were programmed to flash during image capture so that the capitula were visible in the dark without disrupting plant growth. Sunflowers were imaged immediately upon transfer to experimental conditions, and through anthesis of all florets in the capitulum. The 15-minute interval images were analyzed sequentially in a stack on ImageJ ("
+                    "string": " provided by metal halide and incandescent lamps) to image floret development under the indicated environmental conditions. Transfer to experimental conditions occurred at ZT 0. Sunflower stalks and capitula were taped to bamboo stakes (to avoid capitulum moving out of the camera frame). Raspberry Pi NoIR V2 cameras were mounted on Raspberry Pi 3 model B computers (Raspberry Pi, Cambridge, UK); cameras were fitted with LEE 87 75 x75mm infrared (IR) filters (Lee Filters, Andover, England). Computers were programmed to take a photo every 15 minutes. Infrared LEDs (Mouser Electronics, El Cajon, CA, USA) were programmed to flash during image capture so that the capitula were visible in the dark without disrupting plant growth. Sunflowers were imaged immediately upon transfer to experimental conditions, and through anthesis of all florets in the capitulum. The 15-minute interval images were analyzed sequentially in a stack on ImageJ "
                   }
                 },
                 {
@@ -7493,7 +7828,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). For each image, the ovaries, stamens, and styles were scored for a change in size from the previous image. Ovary growth was seen as corolla tube swelling above the immature capitulum surface ("
+                    "string": ". For each image, the ovaries, stamens, and styles were scored for a change in size from the previous image. Ovary growth was seen as corolla tube swelling above the immature capitulum surface ("
                   }
                 },
                 {
@@ -7539,7 +7874,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "All sunflower scoring data was plotted in R using the tidyverse package ("
+                    "string": "All sunflower scoring data was plotted in R using the tidyverse package "
                   }
                 },
                 {
@@ -7558,7 +7893,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). To create polar plots based on each pseudowhorl, scoring data was separated into pseudowhorls. At times, more than 24 hours of data is presented on one polar plot. In the environmental conditions that eliminated pseudowhorl coordination, polar plots were created based on 24 hours of data. The average time of anthesis for each organ, and standard deviation was calculated using the circular package in R (Agostinelli, C. and Lund, 2022). This information was calculated for each pseudowhorl, all pseudowhorls together superimposed on one 24-hour cycle, and for pseudowhorls 3 and up (after resetting is complete). The BioDare2 website ("
+                    "string": ". To create polar plots based on each pseudowhorl, scoring data was separated into pseudowhorls. At times, more than 24 hours of data is presented on one polar plot. In the environmental conditions that eliminated pseudowhorl coordination, polar plots were created based on 24 hours of data. The average time of anthesis for each organ, and standard deviation was calculated using the circular package in R (Agostinelli, C. and Lund, 2022). This information was calculated for each pseudowhorl, all pseudowhorls together superimposed on one 24-hour cycle, and for pseudowhorls 3 and up (after resetting is complete). The BioDare2 website ("
                   }
                 },
                 {
@@ -7576,7 +7911,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": ") was used to calculate rhythmic parameters for all conditions and organs ("
+                    "string": ") was used to calculate rhythmic parameters for all conditions and organs "
                   }
                 },
                 {
@@ -7595,7 +7930,7 @@
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). The FFT-NLLS fit method was used to calculate period and phase values based on average peak values. The time frame analyzed was different in each condition and is reported in "
+                    "string": ". The FFT-NLLS fit method was used to calculate period and phase values based on average peak values. The time frame analyzed was different in each condition and is reported in "
                   }
                 },
                 {

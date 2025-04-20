@@ -4570,16 +4570,15 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Cancer cell migration plays a crucial role in invasion and metastasis, which is often fatal"
+                "string": "Cancer cell migration plays a crucial role in invasion and metastasis, which is often fatal "
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c1",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4590,15 +4589,20 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "–"
-                  }
+                  "type": "Citation",
+                  "target": "c2",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Citation",
                   "target": "c3",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4613,16 +4617,15 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". During metastasis, tumor cells migrate through their surrounding microenvironment, navigating various tissue and extracellular matrix (ECM) geometries, including confined spaces, to spread to distant sites"
+                "string": ". During metastasis, tumor cells migrate through their surrounding microenvironment, navigating various tissue and extracellular matrix (ECM) geometries, including confined spaces, to spread to distant sites "
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c4",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4633,15 +4636,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c5",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4656,16 +4652,15 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". For cells to undergo motility, they must establish spatial polarity to create an actomyosin architecture that generates protrusion in the direction of migration, adhesion to the microenvironment, traction forces to move the cell relative to the environment, and retraction of the cell rear to make forward progress"
+                "string": ". For cells to undergo motility, they must establish spatial polarity to create an actomyosin architecture that generates protrusion in the direction of migration, adhesion to the microenvironment, traction forces to move the cell relative to the environment, and retraction of the cell rear to make forward progress "
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c6",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4676,15 +4671,20 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "–"
-                  }
+                  "type": "Citation",
+                  "target": "c7",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "7"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Citation",
                   "target": "c8",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4699,35 +4699,18 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Tumor cells can employ several distinct modes of migration, which are influenced by their interactions with their particular microenvironment"
+                "string": ". Tumor cells can employ several distinct modes of migration, which are influenced by their interactions with their particular microenvironment "
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c9",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c9",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "9"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "9"
                   }
                 }
               ]
@@ -4735,16 +4718,15 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Depending on the availability of adhesion ligands, cancer cells can dynamically switch between integrin-mediated mesenchymal migration and adhesion-independent amoeboid migration"
+                "string": ". Depending on the availability of adhesion ligands, cancer cells can dynamically switch between integrin-mediated mesenchymal migration and adhesion-independent amoeboid migration "
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c9",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4755,15 +4737,32 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "–"
-                  }
+                  "type": "Citation",
+                  "target": "c10",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "10"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c11",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "11"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Citation",
                   "target": "c12",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4778,35 +4777,18 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". In integrin-dependent migration, ECM ligand binding induces signaling that drives actin polymerization-based protrusions including lamellipodia and filopodia, and utilizes integrin-ligand binding and integrin linkages to the cytoskeleton to drive adhesion and traction generation"
+                "string": ". In integrin-dependent migration, ECM ligand binding induces signaling that drives actin polymerization-based protrusions including lamellipodia and filopodia, and utilizes integrin-ligand binding and integrin linkages to the cytoskeleton to drive adhesion and traction generation "
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c13",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c13",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "13"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "13"
                   }
                 }
               ]
@@ -4814,16 +4796,15 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". However, when ECM ligand is unavailable or integrin signaling is suppressed, metastatic tumor cells fail to make actin-driven protrusions and instead switch to ameboid migration in which they adopt a bleb-driven mode of protrusion"
+                "string": ". However, when ECM ligand is unavailable or integrin signaling is suppressed, metastatic tumor cells fail to make actin-driven protrusions and instead switch to ameboid migration in which they adopt a bleb-driven mode of protrusion "
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c14",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4834,15 +4815,20 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "–"
-                  }
+                  "type": "Citation",
+                  "target": "c15",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "15"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Citation",
                   "target": "c16",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4857,16 +4843,15 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". In bleb-based migration, hydrostatic pressure causes a directional bubbling out of the plasma membrane from the actin cortex in the direction of migration, and non-specific friction with the confined microenvironment together with actomyosin-driven cortical flow of transmembrane proteins drives adhesion and traction"
+                "string": ". In bleb-based migration, hydrostatic pressure causes a directional bubbling out of the plasma membrane from the actin cortex in the direction of migration, and non-specific friction with the confined microenvironment together with actomyosin-driven cortical flow of transmembrane proteins drives adhesion and traction "
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c17",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4877,15 +4862,32 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "–"
-                  }
+                  "type": "Citation",
+                  "target": "c18",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "18"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c19",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "19"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Citation",
                   "target": "c20",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4900,16 +4902,15 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Blebbing is associated with increased Rho activity and is particularly pronounced in confined spaces, where high Rho-mediated contractility and elevated hydrostatic pressure from the confinement lead to the formation of large blebs that facilitate persistent migration"
+                "string": ". Blebbing is associated with increased Rho activity and is particularly pronounced in confined spaces, where high Rho-mediated contractility and elevated hydrostatic pressure from the confinement lead to the formation of large blebs that facilitate persistent migration "
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c14",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4920,15 +4921,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c17",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4939,15 +4933,56 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "–"
-                  }
+                  "type": "Citation",
+                  "target": "c18",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "18"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c19",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "19"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c20",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "20"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c21",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "21"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Citation",
                   "target": "c22",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4973,16 +5008,15 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "While it is reasonably well understood how cell polarity is established during mesenchymal migration"
+                "string": "While it is reasonably well understood how cell polarity is established during mesenchymal migration "
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c6",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -4993,15 +5027,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c7",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5012,15 +5039,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c23",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5035,16 +5055,15 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", how this is achieved during bleb-based ameboid migration is largely unknown. Establishment of polarity requires symmetry breaking, which can occur in response to asymmetric cues, including diffusible molecules like during chemotaxis, substrate-bound signals as in haptotaxis, and physical cues as in mechanotaxis"
+                "string": ", how this is achieved during bleb-based ameboid migration is largely unknown. Establishment of polarity requires symmetry breaking, which can occur in response to asymmetric cues, including diffusible molecules like during chemotaxis, substrate-bound signals as in haptotaxis, and physical cues as in mechanotaxis "
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c13",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5055,15 +5074,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c23",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5074,15 +5086,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c24",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5097,35 +5102,18 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". In the absence of such directional cues, cells may spontaneously break symmetry due to cytoskeletal instabilities"
+                "string": ". In the absence of such directional cues, cells may spontaneously break symmetry due to cytoskeletal instabilities "
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c25",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c25",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "25"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "25"
                   }
                 }
               ]
@@ -5133,16 +5121,15 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". However, such cytoskeletal asymmetry must be reinforced and maintained by polarized signaling within the cell. For instance, in adhesion-based mesenchymal migration, integrin engagement with an ECM gradient activates local Rac1 signaling"
+                "string": ". However, such cytoskeletal asymmetry must be reinforced and maintained by polarized signaling within the cell. For instance, in adhesion-based mesenchymal migration, integrin engagement with an ECM gradient activates local Rac1 signaling "
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c26",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5153,15 +5140,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c27",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5176,16 +5156,15 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " that generates branched actin-driven lamellipodial protrusions"
+                "string": " that generates branched actin-driven lamellipodial protrusions "
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c28",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5196,15 +5175,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c29",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5223,31 +5195,14 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c30",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c30",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "30"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "30"
                   }
                 }
               ]
@@ -5255,35 +5210,18 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", thus reinforcing protrusion and adhesion in a specific direction. In addition, in mesenchymal chemotaxis, growth factor gradients result in receptor tyrosine kinase (RTK) and G protein-coupled receptor (GPCR) activation at the cell front"
+                "string": ", thus reinforcing protrusion and adhesion in a specific direction. In addition, in mesenchymal chemotaxis, growth factor gradients result in receptor tyrosine kinase (RTK) and G protein-coupled receptor (GPCR) activation at the cell front "
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c31",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c31",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "31"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "31"
                   }
                 }
               ]
@@ -5295,31 +5233,14 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c7",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c7",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "7"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "7"
                   }
                 }
               ]
@@ -5327,16 +5248,15 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Simultaneously, phosphatidylinositol (4,5)-bisphosphate (PIP2) and Rho GTPase activity at the cell rear drive formin-based actin bundle formation and myosin II activation, generating traction and rear retraction"
+                "string": ". Simultaneously, phosphatidylinositol (4,5)-bisphosphate (PIP2) and Rho GTPase activity at the cell rear drive formin-based actin bundle formation and myosin II activation, generating traction and rear retraction "
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c7",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5347,15 +5267,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c32",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5374,12 +5287,11 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c19",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5390,15 +5302,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c22",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5409,15 +5314,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c24",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5428,15 +5326,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c25",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5455,12 +5346,11 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c16",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5471,15 +5361,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c33",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5498,12 +5381,11 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c19",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5514,15 +5396,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c21",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5533,15 +5408,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c33",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5556,16 +5424,15 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". This asymmetry in polymerization and contraction drives cortical actomyosin flow within the bleb, which when coupled to transmembrane proteins that generate friction on the tightly confined microenvironment, propels the cell forward"
+                "string": ". This asymmetry in polymerization and contraction drives cortical actomyosin flow within the bleb, which when coupled to transmembrane proteins that generate friction on the tightly confined microenvironment, propels the cell forward "
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c19",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5576,15 +5443,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c22",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5595,15 +5455,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c33",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5618,35 +5471,18 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". However, the role of polarized receptor signaling in reinforcing polarity in the absence of integrin engagement in bleb-based migration remains unknown"
+                "string": ". However, the role of polarized receptor signaling in reinforcing polarity in the absence of integrin engagement in bleb-based migration remains unknown "
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c16",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c16",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "16"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "16"
                   }
                 }
               ]
@@ -5665,16 +5501,15 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "One system for maintaining polarized cellular asymmetries is by spatial regulation of receptor signaling on the plasma membrane. Establishment and maintenance of spatially constrained domains of transmembrane receptors in the fluid plasma membrane can occur through multiple mechanisms. One of these mechanisms is by advective movement along with membrane or cortical flows driven by membrane tension gradients or by direct or indirect binding to flowing cortical actomyosin"
+                "string": "One system for maintaining polarized cellular asymmetries is by spatial regulation of receptor signaling on the plasma membrane. Establishment and maintenance of spatially constrained domains of transmembrane receptors in the fluid plasma membrane can occur through multiple mechanisms. One of these mechanisms is by advective movement along with membrane or cortical flows driven by membrane tension gradients or by direct or indirect binding to flowing cortical actomyosin "
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c22",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5685,15 +5520,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c34",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5704,15 +5532,20 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "–"
-                  }
+                  "type": "Citation",
+                  "target": "c35",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "35"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Citation",
                   "target": "c36",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5727,35 +5560,18 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", as occurs during establishment of body-axis polarity in the early C. elegans embryo"
+                "string": ", as occurs during establishment of body-axis polarity in the early C. elegans embryo "
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c37",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c37",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "37"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "37"
                   }
                 }
               ]
@@ -5763,35 +5579,18 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Alternatively, regions of specific plasma membrane composition can be formed by local addition or removal of surface proteins by spatial regulation of endo- and exocytosis, as occurs in maintenance of apical and basal-specific ion channels and transporters in polarized kidney epithelia"
+                "string": ". Alternatively, regions of specific plasma membrane composition can be formed by local addition or removal of surface proteins by spatial regulation of endo- and exocytosis, as occurs in maintenance of apical and basal-specific ion channels and transporters in polarized kidney epithelia "
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c38",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c38",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "38"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "38"
                   }
                 }
               ]
@@ -5816,16 +5615,15 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " ovary, where RTK signaling is spatially restricted to distinct regions of migrating border cells"
+                "string": " ovary, where RTK signaling is spatially restricted to distinct regions of migrating border cells "
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c39",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5836,15 +5634,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c40",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -5859,35 +5650,18 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". Finally, local surface receptor compartmentalization can also be mediated by polarizing endoplasmic reticulum-plasma membrane contact"
+                "string": ". Finally, local surface receptor compartmentalization can also be mediated by polarizing endoplasmic reticulum-plasma membrane contact "
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c41",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c41",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "41"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "41"
                   }
                 }
               ]
@@ -5895,35 +5669,18 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": " or spatial restriction of receptor lateral mobility within the plasma membrane, also known as “corralling”"
+                "string": " or spatial restriction of receptor lateral mobility within the plasma membrane, also known as “corralling” "
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c42",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c42",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "42"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "42"
                   }
                 }
               ]
@@ -5931,35 +5688,18 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". For instance, during phagocytosis, large transmembrane proteins, such as Cluster of Differentiation 44 (CD44), limit the diffusion of Fcγ receptors by corralling at the rear of polarized macrophages, leaving them more mobile at the leading edge"
+                "string": ". For instance, during phagocytosis, large transmembrane proteins, such as Cluster of Differentiation 44 (CD44), limit the diffusion of Fcγ receptors by corralling at the rear of polarized macrophages, leaving them more mobile at the leading edge "
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c43",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c43",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "43"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "43"
                   }
                 }
               ]
@@ -5978,35 +5718,18 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "In this study, we aimed to identify the mechanisms that mediate the cell polarization that enables persistent bleb-based migration of metastatic cancer cells in non-adhesive confined microenvironments. Our previous work demonstrated that leader bleb-based migration in metastatic melanoma cells under confinement is driven by Erk signaling"
+                "string": "In this study, we aimed to identify the mechanisms that mediate the cell polarization that enables persistent bleb-based migration of metastatic cancer cells in non-adhesive confined microenvironments. Our previous work demonstrated that leader bleb-based migration in metastatic melanoma cells under confinement is driven by Erk signaling "
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c20",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c20",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "20"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "20"
                   }
                 }
               ]
@@ -6014,16 +5737,15 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ", which is linked to EGF/EGFR/Ras/Raf pathways. We thus hypothesized that the polarized distribution of growth factor receptor tyrosine kinases and their downstream signaling components, such as phosphoinositides and Rho GTPases"
+                "string": ", which is linked to EGF/EGFR/Ras/Raf pathways. We thus hypothesized that the polarized distribution of growth factor receptor tyrosine kinases and their downstream signaling components, such as phosphoinositides and Rho GTPases "
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c44",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -6034,15 +5756,20 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "–"
-                  }
+                  "type": "Citation",
+                  "target": "c45",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "45"
+                      }
+                    }
+                  ]
                 },
                 {
                   "type": "Citation",
                   "target": "c46",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -6133,31 +5860,14 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c5",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c5",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "5"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "5"
                       }
                     }
                   ]
@@ -6177,35 +5887,18 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", top row, 1B)"
+                    "string": ", top row, 1B) "
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c17",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c17",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "17"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "17"
                       }
                     }
                   ]
@@ -6219,16 +5912,15 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", rows 2-4), as described for many cell types from different organisms"
+                    "string": ", rows 2-4), as described for many cell types from different organisms "
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "c19",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -6239,15 +5931,8 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
-                    },
-                    {
                       "type": "Citation",
                       "target": "c20",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -6258,15 +5943,8 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
-                    },
-                    {
                       "type": "Citation",
                       "target": "c22",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -6277,15 +5955,8 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
-                    },
-                    {
                       "type": "Citation",
                       "target": "c47",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -6443,35 +6114,18 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", B; Movie 1)"
+                    "string": ", B; Movie 1) "
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c20",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c20",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "20"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "20"
                       }
                     }
                   ]
@@ -6532,16 +6186,15 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "We then sought to investigate the molecular basis underlying stabilization of highly polarized leader blebs in melanoma cells in non-adhesive confinement. As sensing of soluble growth factors in the microenvironment is critical to cell polarization in directional, adhesion-based migration of cancer cells"
+                    "string": "We then sought to investigate the molecular basis underlying stabilization of highly polarized leader blebs in melanoma cells in non-adhesive confinement. As sensing of soluble growth factors in the microenvironment is critical to cell polarization in directional, adhesion-based migration of cancer cells "
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "c48",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -6552,15 +6205,8 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
-                    },
-                    {
                       "type": "Citation",
                       "target": "c49",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -6593,16 +6239,15 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", J). As EGF signaling is critical to cell migration and developing drug resistance in metastatic melanoma"
+                    "string": ", J). As EGF signaling is critical to cell migration and developing drug resistance in metastatic melanoma "
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "c50",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -6613,15 +6258,8 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
-                    },
-                    {
                       "type": "Citation",
                       "target": "c51",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -6770,31 +6408,14 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c52",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c52",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "52"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "52"
                       }
                     }
                   ]
@@ -6869,31 +6490,14 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c53",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c53",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "53"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "53"
                       }
                     }
                   ]
@@ -6905,31 +6509,14 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c54",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c54",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "54"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "54"
                       }
                     }
                   ]
@@ -6970,31 +6557,14 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c27",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c27",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "27"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "27"
                       }
                     }
                   ]
@@ -7006,31 +6576,14 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c55",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c55",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "55"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "55"
                       }
                     }
                   ]
@@ -7174,12 +6727,11 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "c56",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -7190,15 +6742,8 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
-                    },
-                    {
                       "type": "Citation",
                       "target": "c57",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -7213,35 +6758,18 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". Cells were transfected with either Opto-EGFR or EGFR fused to fusion red (EGFR-FR) and a galvanometric mirror was used to locally expose a 25 × 40 μm"
+                    "string": ". Cells were transfected with either Opto-EGFR or EGFR fused to fusion red (EGFR-FR) and a galvanometric mirror was used to locally expose a 25 × 40 μm "
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c2",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c2",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "2"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "2"
                       }
                     }
                   ]
@@ -7276,12 +6804,11 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "c58",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -7292,15 +6819,8 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
-                    },
-                    {
                       "type": "Citation",
                       "target": "c59",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -7319,31 +6839,14 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c60",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c60",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "60"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "60"
                       }
                     }
                   ]
@@ -7413,12 +6916,11 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "c61",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -7429,15 +6931,8 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
-                    },
-                    {
                       "type": "Citation",
                       "target": "c62",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -7456,12 +6951,11 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "c37",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -7472,15 +6966,8 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
-                    },
-                    {
                       "type": "Citation",
                       "target": "c63",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -7499,31 +6986,14 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c64",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c64",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "64"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "64"
                       }
                     }
                   ]
@@ -7535,12 +7005,11 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "c65",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -7551,15 +7020,8 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
-                    },
-                    {
                       "type": "Citation",
                       "target": "c66",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -7592,16 +7054,15 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ", Movie 6), with no localized bursts of EGFR-GFP anywhere along the length of the bleb that would be indicative of exocytosis of EGFR-containing vesicles"
+                    "string": ", Movie 6), with no localized bursts of EGFR-GFP anywhere along the length of the bleb that would be indicative of exocytosis of EGFR-containing vesicles "
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "c61",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -7612,15 +7073,8 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
-                    },
-                    {
                       "type": "Citation",
                       "target": "c62",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -7917,35 +7371,18 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "We thus explored the possible contribution of advection by actin retrograde flow in forming the EGFR gradient"
+                    "string": "We thus explored the possible contribution of advection by actin retrograde flow in forming the EGFR gradient "
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c35",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c35",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "35"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "35"
                       }
                     }
                   ]
@@ -7969,12 +7406,11 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "c19",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -7985,15 +7421,8 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
-                    },
-                    {
                       "type": "Citation",
                       "target": "c33",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -8020,35 +7449,18 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "), suggesting that an EGFR gradient could potentially be established by cytoskeletal advection, as has been suggested before"
+                    "string": "), suggesting that an EGFR gradient could potentially be established by cytoskeletal advection, as has been suggested before "
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c35",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c35",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "35"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "35"
                       }
                     }
                   ]
@@ -8056,35 +7468,18 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ". To test this experimentally, we perfused leader bleb cells expressing F-tractin-FR and EGFR-GFP with the actin stabilizing drug, jasplakinolide, to inhibit the actin treadmilling that drives retrograde flow"
+                    "string": ". To test this experimentally, we perfused leader bleb cells expressing F-tractin-FR and EGFR-GFP with the actin stabilizing drug, jasplakinolide, to inhibit the actin treadmilling that drives retrograde flow "
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c19",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c19",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "19"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "19"
                       }
                     }
                   ]
@@ -8172,31 +7567,14 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c67",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c67",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "67"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "67"
                       }
                     }
                   ]
@@ -8384,31 +7762,14 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c43",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c43",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "43"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "43"
                       }
                     }
                   ]
@@ -8461,31 +7822,14 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c68",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c68",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "68"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "68"
                       }
                     }
                   ]
@@ -8607,12 +7951,11 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "c15",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -8623,15 +7966,8 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
-                    },
-                    {
                       "type": "Citation",
                       "target": "c69",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -9040,12 +8376,11 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c17",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9056,15 +8391,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c70",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9083,12 +8411,11 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c19",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9099,15 +8426,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c20",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9118,15 +8438,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c22",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9137,15 +8450,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c71",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9192,31 +8498,14 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c72",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c72",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "72"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "72"
                   }
                 }
               ]
@@ -9228,31 +8517,14 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c29",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c29",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "29"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "29"
                   }
                 }
               ]
@@ -9264,12 +8536,11 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c73",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9280,15 +8551,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c74",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9307,31 +8571,14 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c13",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c13",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "13"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "13"
                   }
                 }
               ]
@@ -9360,31 +8607,14 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c33",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c33",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "33"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "33"
                   }
                 }
               ]
@@ -9396,31 +8626,14 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c75",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c75",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "75"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "75"
                   }
                 }
               ]
@@ -9432,31 +8645,14 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c19",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c19",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "19"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "19"
                   }
                 }
               ]
@@ -9468,31 +8664,14 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c33",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c33",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "33"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "33"
                   }
                 }
               ]
@@ -9504,31 +8683,14 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c76",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c76",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "76"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "76"
                   }
                 }
               ]
@@ -9540,12 +8702,11 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c19",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9556,15 +8717,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c33",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9590,35 +8744,18 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Our study identifies CD44 as critical for maintaining polarity and bleb stability in metastatic melanoma cells, in line with its high expression at tumor fronts"
+                "string": "Our study identifies CD44 as critical for maintaining polarity and bleb stability in metastatic melanoma cells, in line with its high expression at tumor fronts "
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c38",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c38",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "38"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "38"
                   }
                 }
               ]
@@ -9626,35 +8763,18 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ". CD44 depletion reduces blebbing and contractility, implying a role in myosin activation at the bleb rear"
+                "string": ". CD44 depletion reduces blebbing and contractility, implying a role in myosin activation at the bleb rear "
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c70",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c70",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "70"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "70"
                   }
                 }
               ]
@@ -9666,12 +8786,11 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c77",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9682,15 +8801,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c78",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9720,31 +8832,14 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c79",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c79",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "79"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "79"
                   }
                 }
               ]
@@ -9756,31 +8851,14 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c33",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c33",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "33"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "33"
                   }
                 }
               ]
@@ -9803,31 +8881,14 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c20",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c20",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "20"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "20"
                   }
                 }
               ]
@@ -9839,12 +8900,11 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
                   "type": "Citation",
                   "target": "c80",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9855,15 +8915,8 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": ","
-                  }
-                },
-                {
                   "type": "Citation",
                   "target": "c81",
-                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
@@ -9882,31 +8935,14 @@ expression: article
               }
             },
             {
-              "type": "Superscript",
+              "type": "Citation",
+              "target": "c70",
+              "citationMode": "Parenthetical",
               "content": [
                 {
                   "type": "Text",
                   "value": {
-                    "string": "\n        "
-                  }
-                },
-                {
-                  "type": "Citation",
-                  "target": "c70",
-                  "citationMode": "Parenthetical",
-                  "content": [
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "70"
-                      }
-                    }
-                  ]
-                },
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "\n      "
+                    "string": "70"
                   }
                 }
               ]
@@ -9975,35 +9011,18 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " for <15 passages in tissue culture treated dishes (Falcon). Cells were maintained in DMEM supplemented with 10% FBS (Atlanta Biologicals), GlutaMAX (Gibco) and 20 mM Hepes pH 7.4. Transient transfection of cDNAs or siRNAs was performed using the Amaxa nucleofector kit V (Lonza) with 1.5 µg of DNA for 2×10"
+                    "string": " for <15 passages in tissue culture treated dishes (Falcon). Cells were maintained in DMEM supplemented with 10% FBS (Atlanta Biologicals), GlutaMAX (Gibco) and 20 mM Hepes pH 7.4. Transient transfection of cDNAs or siRNAs was performed using the Amaxa nucleofector kit V (Lonza) with 1.5 µg of DNA for 2×10 "
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c6",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c6",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "6"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "6"
                       }
                     }
                   ]
@@ -10082,12 +9101,11 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
-                  "content": [
+                  "type": "CitationGroup",
+                  "items": [
                     {
                       "type": "Citation",
                       "target": "c52",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -10098,15 +9116,8 @@ expression: article
                       ]
                     },
                     {
-                      "type": "Text",
-                      "value": {
-                        "string": ","
-                      }
-                    },
-                    {
                       "type": "Citation",
                       "target": "c57",
-                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
@@ -10181,31 +9192,14 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c82",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c82",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "82"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "82"
                       }
                     }
                   ]
@@ -10217,31 +9211,14 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c19",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c19",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "19"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "19"
                       }
                     }
                   ]
@@ -10298,31 +9275,14 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c18",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c18",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "18"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "18"
                       }
                     }
                   ]
@@ -10584,31 +9544,14 @@ expression: article
                       }
                     },
                     {
-                      "type": "Superscript",
+                      "type": "Citation",
+                      "target": "c83",
+                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "\n            "
-                          }
-                        },
-                        {
-                          "type": "Citation",
-                          "target": "c83",
-                          "citationMode": "Parenthetical",
-                          "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "83"
-                              }
-                            }
-                          ]
-                        },
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "\n          "
+                            "string": "83"
                           }
                         }
                       ]
@@ -10616,35 +9559,18 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ") where each step was manually tracked following the center of the cell body. The tracking coordinates were then exported to the Microsoft Excel plug-in Diper"
+                        "string": " where each step was manually tracked following the center of the cell body. The tracking coordinates were then exported to the Microsoft Excel plug-in Diper "
                       }
                     },
                     {
-                      "type": "Superscript",
+                      "type": "Citation",
+                      "target": "c84",
+                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "\n            "
-                          }
-                        },
-                        {
-                          "type": "Citation",
-                          "target": "c84",
-                          "citationMode": "Parenthetical",
-                          "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "84"
-                              }
-                            }
-                          ]
-                        },
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "\n          "
+                            "string": "84"
                           }
                         }
                       ]
@@ -10965,31 +9891,14 @@ expression: article
                       }
                     },
                     {
-                      "type": "Superscript",
+                      "type": "Citation",
+                      "target": "c85",
+                      "citationMode": "Parenthetical",
                       "content": [
                         {
                           "type": "Text",
                           "value": {
-                            "string": "\n            "
-                          }
-                        },
-                        {
-                          "type": "Citation",
-                          "target": "c85",
-                          "citationMode": "Parenthetical",
-                          "content": [
-                            {
-                              "type": "Text",
-                              "value": {
-                                "string": "85"
-                              }
-                            }
-                          ]
-                        },
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "\n          "
+                            "string": "85"
                           }
                         }
                       ]
@@ -11065,16 +9974,15 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": " was used to calculate the diffusion coefficient of EGFR-GFP on the membrane using Soumpasis equation"
+                        "string": " was used to calculate the diffusion coefficient of EGFR-GFP on the membrane using Soumpasis equation "
                       }
                     },
                     {
-                      "type": "Superscript",
-                      "content": [
+                      "type": "CitationGroup",
+                      "items": [
                         {
                           "type": "Citation",
                           "target": "c86",
-                          "citationMode": "Parenthetical",
                           "content": [
                             {
                               "type": "Text",
@@ -11085,15 +9993,8 @@ expression: article
                           ]
                         },
                         {
-                          "type": "Text",
-                          "value": {
-                            "string": ","
-                          }
-                        },
-                        {
                           "type": "Citation",
                           "target": "c87",
-                          "citationMode": "Parenthetical",
                           "content": [
                             {
                               "type": "Text",
@@ -11216,31 +10117,14 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c85",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c85",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "85"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "85"
                       }
                     }
                   ]
@@ -11314,31 +10198,14 @@ expression: article
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c88",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c88",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "88"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "88"
                       }
                     }
                   ]
@@ -11998,31 +10865,14 @@ expression: article
                   ]
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c1",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c1",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "1"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "1"
                       }
                     }
                   ]
@@ -12453,35 +11303,18 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " ≈ 0.02 μm"
+                    "string": " ≈ 0.02 μm "
                   }
                 },
                 {
-                  "type": "Superscript",
+                  "type": "Citation",
+                  "target": "c2",
+                  "citationMode": "Parenthetical",
                   "content": [
                     {
                       "type": "Text",
                       "value": {
-                        "string": "\n          "
-                      }
-                    },
-                    {
-                      "type": "Citation",
-                      "target": "c2",
-                      "citationMode": "Parenthetical",
-                      "content": [
-                        {
-                          "type": "Text",
-                          "value": {
-                            "string": "2"
-                          }
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Text",
-                      "value": {
-                        "string": "\n        "
+                        "string": "2"
                       }
                     }
                   ]

@@ -3304,197 +3304,149 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "The intimate links between olfaction and emotions are thought to rely on the direct input from early olfactory processing centers to the amygdala ("
+                "string": "The intimate links between olfaction and emotions are thought to rely on the direct input from early olfactory processing centers to the amygdala "
               }
             },
             {
-              "type": "Citation",
-              "target": "c17",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Herz, 2005"
-                  }
+                  "type": "Citation",
+                  "target": "c17",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Herz, 2005"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c44",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Soudry et al., 2011"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c21",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Kadohisa, 2013"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c23",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Kontaris et al., 2020"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
+                "string": ". However, there are several pathways projecting olfactory signals to the amygdala and many of them remain poorly analyzed. The nucleus of the lateral olfactory tract (NLOT) is a major hub that is positioned at the caudal end of the lateral olfactory tract (LOT) and is interconnected with several olfactory brain regions as well as the basolateral amygdala (BLA) "
               }
             },
             {
-              "type": "Citation",
-              "target": "c44",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Soudry et al., 2011"
-                  }
+                  "type": "Citation",
+                  "target": "c39",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Price, 1973"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c3",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Broadwell, 1975"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c43",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Scalia and Winans, 1975"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c25",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Krettek and Price, 1978"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c30",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Luskin and Price, 1983"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c24",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Krabbe et al., 2019"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c21",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Kadohisa, 2013"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c23",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Kontaris et al., 2020"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "). However, there are several pathways projecting olfactory signals to the amygdala and many of them remain poorly analyzed. The nucleus of the lateral olfactory tract (NLOT) is a major hub that is positioned at the caudal end of the lateral olfactory tract (LOT) and is interconnected with several olfactory brain regions as well as the basolateral amygdala (BLA) ("
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c39",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Price, 1973"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c3",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Broadwell, 1975"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c43",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Scalia and Winans, 1975"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c25",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Krettek and Price, 1978"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c30",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Luskin and Price, 1983"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c24",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Krabbe et al., 2019"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "). NLOT is an amygdaloid nucleus that is also considered part of olfactory cortex since it receives direct synaptic input from the olfactory bulb (OB) ("
+                "string": ". NLOT is an amygdaloid nucleus that is also considered part of olfactory cortex since it receives direct synaptic input from the olfactory bulb (OB) "
               }
             },
             {
@@ -3513,7 +3465,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "). It displays a unique gene expression pattern that distinguishes it from surrounding amygdalar nuclei ("
+                "string": ". It displays a unique gene expression pattern that distinguishes it from surrounding amygdalar nuclei "
               }
             },
             {
@@ -3532,7 +3484,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "). It is perhaps the least studied olfactory cortical region. Its functional connectivity and physiological properties are unknown and its function is yet unclear."
+                "string": ". It is perhaps the least studied olfactory cortical region. Its functional connectivity and physiological properties are unknown and its function is yet unclear."
               }
             }
           ]
@@ -3543,64 +3495,54 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "NLOT is evolutionarily conserved and can be found in both mammalian and non-mammalian species ("
+                "string": "NLOT is evolutionarily conserved and can be found in both mammalian and non-mammalian species "
               }
             },
             {
-              "type": "Citation",
-              "target": "c47",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Turner et al., 1978"
-                  }
+                  "type": "Citation",
+                  "target": "c47",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Turner et al., 1978"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c6",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Deryckere et al., 2022"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c34",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Metwalli et al., 2022"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c6",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Deryckere et al., 2022"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c34",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Metwalli et al., 2022"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "). In mammalians, it is more prominent in macrosmatic species ("
+                "string": ". In mammalians, it is more prominent in macrosmatic species "
               }
             },
             {
@@ -3619,7 +3561,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "), supporting the notion that it plays an important role in odor-guided behaviors. Several other findings suggest that NLOT plays an important role in odor-guided behaviors and particularly in linking olfactory and emotional functions. First, chemical ablation of NLOT was reported to cause severe deficits in odor-guided behaviors ("
+                "string": ", supporting the notion that it plays an important role in odor-guided behaviors. Several other findings suggest that NLOT plays an important role in odor-guided behaviors and particularly in linking olfactory and emotional functions. First, chemical ablation of NLOT was reported to cause severe deficits in odor-guided behaviors "
               }
             },
             {
@@ -3638,7 +3580,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "). Second, odor responses in NLOT are strongly influenced by odor valence ("
+                "string": ". Second, odor responses in NLOT are strongly influenced by odor valence "
               }
             },
             {
@@ -3657,45 +3599,42 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "), similarly to the olfactory tubercle (OT) ("
+                "string": ", similarly to the olfactory tubercle (OT) "
               }
             },
             {
-              "type": "Citation",
-              "target": "c12",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Gadziola et al., 2015"
-                  }
+                  "type": "Citation",
+                  "target": "c12",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Gadziola et al., 2015"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c36",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Millman and Murthy, 2020"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c36",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Millman and Murthy, 2020"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "). Third, perturbation of NLOT activity affects social behavior in rats, that is known to rely on olfaction and be affected by emotional state ("
+                "string": ". Third, perturbation of NLOT activity affects social behavior in rats, that is known to rely on olfaction and be affected by emotional state "
               }
             },
             {
@@ -3714,7 +3653,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "). Lastly, NLOT neurons show marked transcriptomic changes following fear conditioning ("
+                "string": ". Lastly, NLOT neurons show marked transcriptomic changes following fear conditioning "
               }
             },
             {
@@ -3733,7 +3672,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "). Given these findings, it stands to reason that NLOT plays an important role in linking odors to emotional experiences."
+                "string": ". Given these findings, it stands to reason that NLOT plays an important role in linking odors to emotional experiences."
               }
             }
           ]
@@ -3744,64 +3683,54 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "The input sources and output targets of NLOT have not been fully determined. Reported inputs include olfactory brain regions such as the OB and piriform cortex ("
+                "string": "The input sources and output targets of NLOT have not been fully determined. Reported inputs include olfactory brain regions such as the OB and piriform cortex "
               }
             },
             {
-              "type": "Citation",
-              "target": "c39",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Price, 1973"
-                  }
+                  "type": "Citation",
+                  "target": "c39",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Price, 1973"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c43",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Scalia and Winans, 1975"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c30",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Luskin and Price, 1983"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c43",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Scalia and Winans, 1975"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c30",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Luskin and Price, 1983"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "), and the basolateral amygdala (BLA, ("
+                "string": ", and the basolateral amygdala (BLA, "
               }
             },
             {
@@ -3820,45 +3749,42 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ")). Reported outputs include projections to the OB, the anterior olfactory nucleus (AON), piriform cortex (PC), the OT, and the BLA ("
+                "string": "). Reported outputs include projections to the OB, the anterior olfactory nucleus (AON), piriform cortex (PC), the OT, and the BLA "
               }
             },
             {
-              "type": "Citation",
-              "target": "c42",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Santiago and Shammah-Lagnado, 2004"
-                  }
+                  "type": "Citation",
+                  "target": "c42",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Santiago and Shammah-Lagnado, 2004"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c24",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Krabbe et al., 2019"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c24",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Krabbe et al., 2019"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "). The relative synaptic efficacies of the various inputs into NLOT in driving its activity are unknown."
+                "string": ". The relative synaptic efficacies of the various inputs into NLOT in driving its activity are unknown."
               }
             }
           ]
@@ -3869,7 +3795,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "NLOT was estimated to contain about 20000 neurons in rats ("
+                "string": "NLOT was estimated to contain about 20000 neurons in rats "
               }
             },
             {
@@ -3888,7 +3814,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "). In mice, we estimate that it contains about 2500 neurons, less than one percent of the number of neurons in PC ("
+                "string": ". In mice, we estimate that it contains about 2500 neurons, less than one percent of the number of neurons in PC "
               }
             },
             {
@@ -3907,64 +3833,54 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "). This already suggests that NLOT may not be able to encode the full odor space, and probably operates on lower dimensional features. The cellular organization of NLOT is reminiscent of PC. It has three layers with layer 1 containing mostly neuropil. Its portion that is closest to the pial surface (layer 1a) contains the lateral olfactory tract (LOT) which consists of olfactory bulb mitral cell axons. Layer 2 contains most of NLOT neurons. However, unlike PC, layer 2 neurons are almost exclusively glutamatergic, pyramidal-like neurons ("
+                "string": ". This already suggests that NLOT may not be able to encode the full odor space, and probably operates on lower dimensional features. The cellular organization of NLOT is reminiscent of PC. It has three layers with layer 1 containing mostly neuropil. Its portion that is closest to the pial surface (layer 1a) contains the lateral olfactory tract (LOT) which consists of olfactory bulb mitral cell axons. Layer 2 contains most of NLOT neurons. However, unlike PC, layer 2 neurons are almost exclusively glutamatergic, pyramidal-like neurons "
               }
             },
             {
-              "type": "Citation",
-              "target": "c33",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "McDonald, 1983"
-                  }
+                  "type": "Citation",
+                  "target": "c33",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "McDonald, 1983"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c35",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Millhouse and Uemura-Sumi, 1985"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c16",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Hernández-Pérez et al., 2022"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c35",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Millhouse and Uemura-Sumi, 1985"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c16",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Hernández-Pérez et al., 2022"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "). These send their apical dendrites ventrally into layer 1 where they branch and form synaptic connections with olfactory bulb mitral cell axons. Layer 3 neurons are more diverse and less well characterized."
+                "string": ". These send their apical dendrites ventrally into layer 1 where they branch and form synaptic connections with olfactory bulb mitral cell axons. Layer 3 neurons are more diverse and less well characterized."
               }
             }
           ]
@@ -4030,7 +3946,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "For activation of olfactory bulb inputs, Tbet-Cre mice (Jackson Laboratory strain 024507 ("
+                    "string": "For activation of olfactory bulb inputs, Tbet-Cre mice (Jackson Laboratory strain 024507 "
                   }
                 },
                 {
@@ -4049,7 +3965,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ")) were crossed with Ai32 mice (Jackson Laboratory strain 024109, ("
+                    "string": ") were crossed with Ai32 mice (Jackson Laboratory strain 024109, "
                   }
                 },
                 {
@@ -4068,7 +3984,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ")). C57bl6 mice were used in all experiments in which ChR2 expression was driven virally. Rbp4-cre mice (MGI:4367067, ("
+                    "string": "). C57bl6 mice were used in all experiments in which ChR2 expression was driven virally. Rbp4-cre mice (MGI:4367067, "
                   }
                 },
                 {
@@ -4087,7 +4003,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ")) were used to specifically express the rabies helper viruses in the NLOT. 2–6-month-old male and female mice were used for connectivity tracing experiments. For electrophysiology, AAVs carrying the channelrhodopsin (ChR2) gene were injected into 3–6-week-old males. Animals were kept in a regular specific pathogen–free housing conditions with a 12-hour light/ 12-hour dark cycle. Irradiated rodent food and water were given "
+                    "string": ") were used to specifically express the rabies helper viruses in the NLOT. 2–6-month-old male and female mice were used for connectivity tracing experiments. For electrophysiology, AAVs carrying the channelrhodopsin (ChR2) gene were injected into 3–6-week-old males. Animals were kept in a regular specific pathogen–free housing conditions with a 12-hour light/ 12-hour dark cycle. Irradiated rodent food and water were given "
                   }
                 },
                 {
@@ -4492,7 +4408,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "Brains or acute slices were fixed by immersion in 4% paraformaldehyde on ice for 12h. Brains were washed with PBS, and sectioned to 50-μm coronal sections by a vibratome (Leica). Staining was performed for rabies tracing experiments as described ("
+                    "string": "Brains or acute slices were fixed by immersion in 4% paraformaldehyde on ice for 12h. Brains were washed with PBS, and sectioned to 50-μm coronal sections by a vibratome (Leica). Staining was performed for rabies tracing experiments as described "
                   }
                 },
                 {
@@ -4511,7 +4427,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": ") with anti-GFP (1:400; Abcam RRID: AB_305643) and Alexa 488 anti-goat (RRID: AB_2336933) as secondary antibody. Acute slices with biocytin-filled cells were stained with Streptavidin-cy3 (Jackson Immunoresearch) diluted 1:400. Sections were mounted on glass slides, covered by mounting medium containing Dapi (SouthernBiotech), and coverslipped. Low-magnification images were acquired using Nikon SMZ-25 fluorescent stereoscope equipped with X1 and X2 objectives. Confocal microscopy was done using Olympus FV-1000 on 10X and 20X objectives and 1µm distance between confocal z-slices."
+                    "string": " with anti-GFP (1:400; Abcam RRID: AB_305643) and Alexa 488 anti-goat (RRID: AB_2336933) as secondary antibody. Acute slices with biocytin-filled cells were stained with Streptavidin-cy3 (Jackson Immunoresearch) diluted 1:400. Sections were mounted on glass slides, covered by mounting medium containing Dapi (SouthernBiotech), and coverslipped. Low-magnification images were acquired using Nikon SMZ-25 fluorescent stereoscope equipped with X1 and X2 objectives. Confocal microscopy was done using Olympus FV-1000 on 10X and 20X objectives and 1µm distance between confocal z-slices."
                   }
                 }
               ]
@@ -4718,7 +4634,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": " currents ("
+                    "string": " currents "
                   }
                 },
                 {
@@ -4737,7 +4653,7 @@ expression: article
                 {
                   "type": "Text",
                   "value": {
-                    "string": "). These data suggest that NLOT neurons convey information by brief, high-rate, bursts of action potentials that are the result of an interplay between voltage-gated sodium and calcium channels."
+                    "string": ". These data suggest that NLOT neurons convey information by brief, high-rate, bursts of action potentials that are the result of an interplay between voltage-gated sodium and calcium channels."
                   }
                 }
               ]
@@ -5296,7 +5212,7 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "). The anterior piriform cortex (aPC) was mostly devoid of NLOT axons other than the ventromedial-most region bordering the OT. Within the OT axons were evident in the area bordering PC (presumably the anterolateral isolation of the CAP compartments (aiCAP) region that is the target of projections from a specific subpopulation of mitral cells ("
+                        "string": "). The anterior piriform cortex (aPC) was mostly devoid of NLOT axons other than the ventromedial-most region bordering the OT. Within the OT axons were evident in the area bordering PC (presumably the anterolateral isolation of the CAP compartments (aiCAP) region that is the target of projections from a specific subpopulation of mitral cells "
                       }
                     },
                     {
@@ -5315,7 +5231,7 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": ")), and within two lateral islands of Calleja ("
+                        "string": "), and within two lateral islands of Calleja ("
                       }
                     },
                     {
@@ -5494,7 +5410,7 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "Trans-synaptic tracing does not inform us of the strength and functional significance of synaptic connections ("
+                        "string": "Trans-synaptic tracing does not inform us of the strength and functional significance of synaptic connections "
                       }
                     },
                     {
@@ -5513,7 +5429,7 @@ expression: article
                     {
                       "type": "Text",
                       "value": {
-                        "string": "). To analyze synaptic efficacy, we turned to slice physiology experiments. We specifically analyzed the synaptic properties of inputs from the OB, PC, AON/TT, and the BLA. These inputs represent the majority of olfactory and amygdalar inputs and their integration by the NLOT may underlie olfactory-emotional linking. Each input was analyzed separately by selective activation with channelrhodopsin2 (ChR2) while recording synaptic currents and potentials in NLOT layer 2 neurons. Synaptic currents were studied using a Cs-based internal solution and synaptic potentials using a K-based internal solution. Biocytin was added to the internal solution for recovering the cellular morphology of the recorded neurons. We found that the NLOT receives strong input from the PC, the BLA, and TT, but only very weak input from the OB. Below we describe the properties of each of these inputs in detail."
+                        "string": ". To analyze synaptic efficacy, we turned to slice physiology experiments. We specifically analyzed the synaptic properties of inputs from the OB, PC, AON/TT, and the BLA. These inputs represent the majority of olfactory and amygdalar inputs and their integration by the NLOT may underlie olfactory-emotional linking. Each input was analyzed separately by selective activation with channelrhodopsin2 (ChR2) while recording synaptic currents and potentials in NLOT layer 2 neurons. Synaptic currents were studied using a Cs-based internal solution and synaptic potentials using a K-based internal solution. Biocytin was added to the internal solution for recovering the cellular morphology of the recorded neurons. We found that the NLOT receives strong input from the PC, the BLA, and TT, but only very weak input from the OB. Below we describe the properties of each of these inputs in detail."
                       }
                     }
                   ]
@@ -6572,114 +6488,105 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "-current dependent bursts are common in various neuron types including several types of cortical pyramidal neurons ("
+                "string": "-current dependent bursts are common in various neuron types including several types of cortical pyramidal neurons "
               }
             },
             {
-              "type": "Citation",
-              "target": "c4",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Connors and Gutnick, 1990"
-                  }
+                  "type": "Citation",
+                  "target": "c4",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Connors and Gutnick, 1990"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c32",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Markram et al., 2004"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
+                "string": ". Such bursting has been suggested to be transmitted across synapses with much greater reliability as the high rate of action potentials ensures temporal summation of postsynaptic potentials and may be specifically efficient in facilitating synapses "
               }
             },
             {
-              "type": "Citation",
-              "target": "c32",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Markram et al., 2004"
-                  }
+                  "type": "Citation",
+                  "target": "c28",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Lisman, 1997"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c20",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Izhikevich, 2006"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "). Such bursting has been suggested to be transmitted across synapses with much greater reliability as the high rate of action potentials ensures temporal summation of postsynaptic potentials and may be specifically efficient in facilitating synapses ("
+                "string": ". However, bursting also means that the neuronal output may act in a binary fashion rather than a continuous firing rate value and therefore may have a lower encoding capacity. Bursting of NLOT neurons may therefore convey a low-dimensional signal that is of high importance and needs to efficiently activate its postsynaptic targets. The firing properties of NLOT neurons seem distinct from the properties of other amygdalar excitatory neurons. These have been shown to be variable both molecularly and biophysically, ranging in their firing properties from adapting to continuous firing neurons "
               }
             },
             {
-              "type": "Citation",
-              "target": "c28",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Lisman, 1997"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c20",
-              "citationMode": "Parenthetical",
-              "content": [
+                  "type": "Citation",
+                  "target": "c40",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Rainnie et al., 1993"
+                      }
+                    }
+                  ]
+                },
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Izhikevich, 2006"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "). However, bursting also means that the neuronal output may act in a binary fashion rather than a continuous firing rate value and therefore may have a lower encoding capacity. Bursting of NLOT neurons may therefore convey a low-dimensional signal that is of high importance and needs to efficiently activate its postsynaptic targets. The firing properties of NLOT neurons seem distinct from the properties of other amygdalar excitatory neurons. These have been shown to be variable both molecularly and biophysically, ranging in their firing properties from adapting to continuous firing neurons ("
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c40",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Rainnie et al., 1993"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c8",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Faber et al., 2001"
-                  }
+                  "type": "Citation",
+                  "target": "c8",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Faber et al., 2001"
+                      }
+                    }
+                  ]
                 }
               ]
             },
@@ -6705,7 +6612,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "). We find that layer 2 neurons are quite homogeneously bursting neurons. The distinct properties of NLOT neurons as compared to other amygdalar neurons is in line with their unique gene expression profile ("
+                "string": ". We find that layer 2 neurons are quite homogeneously bursting neurons. The distinct properties of NLOT neurons as compared to other amygdalar neurons is in line with their unique gene expression profile "
               }
             },
             {
@@ -6724,7 +6631,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ")."
+                "string": "."
               }
             }
           ]
@@ -6735,121 +6642,90 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "Using virus-based tracing methods we find that the main input sources as well as output targets of NLOT are olfactory and amygdalar brain regions. Some of the connectivity that we describe here has been previously shown using other techniques ("
+                "string": "Using virus-based tracing methods we find that the main input sources as well as output targets of NLOT are olfactory and amygdalar brain regions. Some of the connectivity that we describe here has been previously shown using other techniques "
               }
             },
             {
-              "type": "Citation",
-              "target": "c39",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Price, 1973"
-                  }
+                  "type": "Citation",
+                  "target": "c39",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Price, 1973"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c43",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Scalia and Winans, 1975"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c25",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Krettek and Price, 1978"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c30",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Luskin and Price, 1983"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c42",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Santiago and Shammah-Lagnado, 2004"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c24",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Krabbe et al., 2019"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c43",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Scalia and Winans, 1975"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c25",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Krettek and Price, 1978"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c30",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Luskin and Price, 1983"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c42",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Santiago and Shammah-Lagnado, 2004"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c24",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Krabbe et al., 2019"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "). Olfactory brain regions represent the largest fraction of NLOT inputs and outputs followed by BLA, cortical amygdala nuclei, and internal NLOT connectivity. Additionally, we show here that there are two inputs from brain regions that contain cholinergic neurons – the SI and the NDB, which may explain the dense expression of acetylcholine esterase in the NLOT ("
+                "string": ". Olfactory brain regions represent the largest fraction of NLOT inputs and outputs followed by BLA, cortical amygdala nuclei, and internal NLOT connectivity. Additionally, we show here that there are two inputs from brain regions that contain cholinergic neurons – the SI and the NDB, which may explain the dense expression of acetylcholine esterase in the NLOT "
               }
             },
             {
@@ -6868,7 +6744,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "). These may play a role in state-dependent modulation NLOT function. Interestingly, the projections from the NLOT to many brain regions are either bi-hemispheric, or exclusively contralateral. The NLOT projects bilaterally to the more anterior structures (OB, aPC, OT), and contralaterally to the more posterior structures (pPC and BLA). The significance of this interhemispheric projection pattern is yet unclear."
+                "string": ". These may play a role in state-dependent modulation NLOT function. Interestingly, the projections from the NLOT to many brain regions are either bi-hemispheric, or exclusively contralateral. The NLOT projects bilaterally to the more anterior structures (OB, aPC, OT), and contralaterally to the more posterior structures (pPC and BLA). The significance of this interhemispheric projection pattern is yet unclear."
               }
             }
           ]
@@ -6879,64 +6755,54 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "The input from the OB is rather weak and incapable of driving NLOT output by itself, much different than OB input into PC ("
+                "string": "The input from the OB is rather weak and incapable of driving NLOT output by itself, much different than OB input into PC "
               }
             },
             {
-              "type": "Citation",
-              "target": "c10",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Franks and Isaacson, 2005"
-                  }
+                  "type": "Citation",
+                  "target": "c10",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Franks and Isaacson, 2005"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c11",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "2006"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c50",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Wiegand et al., 2011"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": ", "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c11",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "2006"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c50",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Wiegand et al., 2011"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "). On the other hand, inputs from olfactory cortical regions (PC and TT/AON) are powerful and can drive NLOT bursting. This suggests that NLOT activity primarily reflects highly processed olfactory information ("
+                "string": ". On the other hand, inputs from olfactory cortical regions (PC and TT/AON) are powerful and can drive NLOT bursting. This suggests that NLOT activity primarily reflects highly processed olfactory information "
               }
             },
             {
@@ -6955,7 +6821,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "). Interestingly, similar findings were described for olfactory inputs into the medial amygdala ("
+                "string": ". Interestingly, similar findings were described for olfactory inputs into the medial amygdala "
               }
             },
             {
@@ -6974,45 +6840,42 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "). There, direct input from the accessory OB is much weaker (and located distally on the dendrite) compared to the more processed cortical amygdala input. What may be the impact of the OB input that is located so distally on the dendrite? The potential effects of distal inputs on neuronal output have been studied both experimentally and theoretically ("
+                "string": ". There, direct input from the accessory OB is much weaker (and located distally on the dendrite) compared to the more processed cortical amygdala input. What may be the impact of the OB input that is located so distally on the dendrite? The potential effects of distal inputs on neuronal output have been studied both experimentally and theoretically "
               }
             },
             {
-              "type": "Citation",
-              "target": "c1",
-              "citationMode": "Parenthetical",
-              "content": [
+              "type": "CitationGroup",
+              "items": [
                 {
-                  "type": "Text",
-                  "value": {
-                    "string": "Bernander et al., 1994"
-                  }
+                  "type": "Citation",
+                  "target": "c1",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Bernander et al., 1994"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "Citation",
+                  "target": "c15",
+                  "content": [
+                    {
+                      "type": "Text",
+                      "value": {
+                        "string": "Häusser, 2001"
+                      }
+                    }
+                  ]
                 }
               ]
             },
             {
               "type": "Text",
               "value": {
-                "string": "; "
-              }
-            },
-            {
-              "type": "Citation",
-              "target": "c15",
-              "citationMode": "Parenthetical",
-              "content": [
-                {
-                  "type": "Text",
-                  "value": {
-                    "string": "Häusser, 2001"
-                  }
-                }
-              ]
-            },
-            {
-              "type": "Text",
-              "value": {
-                "string": "). Two findings seem relevant to the NLOT. First, distal inputs may be effective in modifying spike output when they coincide with proximal inputs. This coincidence is particularly effective in activating dendritic voltage gated channels and eliciting dendritic action potentials ("
+                "string": ". Two findings seem relevant to the NLOT. First, distal inputs may be effective in modifying spike output when they coincide with proximal inputs. This coincidence is particularly effective in activating dendritic voltage gated channels and eliciting dendritic action potentials "
               }
             },
             {
@@ -7031,7 +6894,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": "). Indeed, we find that when NLOT neurons are depolarized, OB inputs may elicit regenerative responses that are most probably dendritic spikes. Second, distal inputs may induce plastic changes of proximal input responses. Such interaction has been reported in hippocampal CA1 neurons ("
+                "string": ". Indeed, we find that when NLOT neurons are depolarized, OB inputs may elicit regenerative responses that are most probably dendritic spikes. Second, distal inputs may induce plastic changes of proximal input responses. Such interaction has been reported in hippocampal CA1 neurons "
               }
             },
             {
@@ -7050,7 +6913,7 @@ expression: article
             {
               "type": "Text",
               "value": {
-                "string": ")."
+                "string": "."
               }
             }
           ]
