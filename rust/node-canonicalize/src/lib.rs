@@ -88,9 +88,8 @@ impl Linker {
 
 impl VisitorMut for Linker {
     fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
-        match inline {
-            Inline::Citation(citation) => self.visit_citation(citation),
-            _ => {}
+        if let Inline::Citation(citation) = inline {
+            self.visit_citation(citation)
         }
 
         WalkControl::Continue

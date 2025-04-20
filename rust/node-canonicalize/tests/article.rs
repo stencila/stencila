@@ -93,11 +93,7 @@ async fn open_alex_affiliations() -> Result<()> {
         ..
     }) = article
     {
-        if let Some(Author::Person(Person {
-            affiliations,
-            ..
-        })) = authors.first()
-        {
+        if let Some(Author::Person(Person { affiliations, .. })) = authors.first() {
             assert_eq!(
                 affiliations
                     .iter()

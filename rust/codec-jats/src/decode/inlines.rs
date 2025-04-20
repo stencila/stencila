@@ -7,7 +7,7 @@ use codec_text_trait::to_text;
 /// Normalize a vector of Stencila inlines to:
 ///
 /// - remove parentheses and square brackets around citations,
-/// 
+///
 /// - group citations into citation groups and remove parentheses around those
 pub(super) fn normalize_inlines(input: Vec<Inline>) -> Vec<Inline> {
     let mut output = Vec::with_capacity(input.len());
@@ -46,7 +46,7 @@ pub(super) fn normalize_inlines(input: Vec<Inline>) -> Vec<Inline> {
                         let mut target_prefix = previous.target.chars().collect_vec();
                         while target_prefix
                             .last()
-                            .map(|c| c.is_digit(10))
+                            .map(|c| c.is_ascii_digit())
                             .unwrap_or_default()
                         {
                             target_prefix.pop();
@@ -79,14 +79,15 @@ pub(super) fn normalize_inlines(input: Vec<Inline>) -> Vec<Inline> {
                                     .collect_vec();
 
                                 if !previous_is_group {
-                                    // Dash separated pair of citations so pop off the 
+                                    // Dash separated pair of citations so pop off the
                                     // first citation and replace with a citation group with range
                                     output.pop();
                                     output.push(Inline::CitationGroup(CitationGroup {
                                         items,
                                         ..Default::default()
                                     }));
-                                } else if let Some(Inline::CitationGroup(group)) = output.last_mut(){
+                                } else if let Some(Inline::CitationGroup(group)) = output.last_mut()
+                                {
                                     // Citation after an existing citation group so extend
                                     // the group with the new items (removing the last existing first
                                     // since it is the start of the new range of items)
@@ -140,7 +141,7 @@ pub(super) fn normalize_inlines(input: Vec<Inline>) -> Vec<Inline> {
                 // Superscript with only a citation or citation group: replace with content
                 if let Some(Inline::Text(Text { value, .. })) = output.last_mut() {
                     if !value.ends_with(" ") {
-                        value.push_str(" ");
+                        value.push(' ');
                     }
                 }
                 output.push(content[0].clone());
@@ -160,7 +161,7 @@ pub(super) fn normalize_inlines(input: Vec<Inline>) -> Vec<Inline> {
                     // Superscript with only a citation or citation group surrounded by whitespace: replace with content
                     if let Some(Inline::Text(Text { value, .. })) = output.last_mut() {
                         if !value.ends_with(" ") {
-                            value.push_str(" ");
+                            value.push(' ');
                         }
                     }
                     output.push(content[1].clone());

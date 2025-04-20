@@ -183,9 +183,8 @@ impl Visitor for DatabaseWalker {
     }
 
     fn visit_node(&mut self, node: &Node) -> WalkControl {
-        match node {
-            Node::Article(article) => self.visit_article(article),
-            _ => {}
+        if let Node::Article(article) = node {
+            self.visit_article(article)
         }
 
         self.visit_database_node(node)
