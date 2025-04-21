@@ -8,11 +8,14 @@ This document contains the help content for the `stencila` command-line program.
 * [`stencila new`↴](#stencila-new)
 * [`stencila init`↴](#stencila-init)
 * [`stencila config`↴](#stencila-config)
-* [`stencila status`↴](#stencila-status)
+* [`stencila add`↴](#stencila-add)
+* [`stencila remove`↴](#stencila-remove)
+* [`stencila move`↴](#stencila-move)
 * [`stencila track`↴](#stencila-track)
 * [`stencila untrack`↴](#stencila-untrack)
-* [`stencila move`↴](#stencila-move)
-* [`stencila remove`↴](#stencila-remove)
+* [`stencila status`↴](#stencila-status)
+* [`stencila rebuild`↴](#stencila-rebuild)
+* [`stencila query`↴](#stencila-query)
 * [`stencila convert`↴](#stencila-convert)
 * [`stencila sync`↴](#stencila-sync)
 * [`stencila compile`↴](#stencila-compile)
@@ -69,20 +72,23 @@ CLI subcommands and global options
 ###### **Subcommands:**
 
 * `new` — Create a new, tracked, document
-* `init` — Initialize document config and tracking
+* `init` — Initialize a workspace
 * `config` — Display the configuration for a document
-* `status` — Get the tracking status of documents
+* `add` — Add documents to the workspace database
+* `remove` — Remove documents from the workspace database
+* `move` — Move a tracked document
 * `track` — Start tracking a document
 * `untrack` — Stop tracking a document
-* `move` — Move a tracked document
-* `remove` — Remove a tracked document
+* `status` — Get the tracking status of documents
+* `rebuild` — Rebuild a workspace database
+* `query` — Query a workspace database
 * `convert` — Convert a document to another format
 * `sync` — Synchronize a document between formats
 * `compile` — Compile a document
 * `lint` — Lint one or more documents
 * `execute` — Execute a document
 * `render` — Render a document
-* `preview` — Preview a document or site
+* `preview` — Preview a document
 * `publish` — Publish one or more documents
 * `serve` — Run the HTTP/Websocket server
 * `lsp` — Run the Language Server Protocol server
@@ -125,13 +131,13 @@ Create a new, tracked, document
 
 ## `stencila init`
 
-Initialize document config and tracking
+Initialize a workspace
 
 **Usage:** `stencila init [OPTIONS] [DIR]`
 
 ###### **Arguments:**
 
-* `<DIR>` — The directory to start document tracking in
+* `<DIR>` — The workspace directory to initialize
 
    Defaults to the current directory.
 
@@ -139,7 +145,7 @@ Initialize document config and tracking
 
 ###### **Options:**
 
-* `--gitignore` — Create a `.gitignore` file
+* `--no-gitignore` — Do not create a `.gitignore` file
 
 
 
@@ -155,22 +161,46 @@ Display the configuration for a document
 
 
 
-## `stencila status`
+## `stencila add`
 
-Get the tracking status of documents
+Add documents to the workspace database
 
-**Usage:** `stencila status [OPTIONS] [FILES]...`
+**Usage:** `stencila add [FILES]...`
 
 ###### **Arguments:**
 
-* `<FILES>` — The paths of the files to get status for
+* `<FILES>` — The files to add
+
+
+
+## `stencila remove`
+
+Remove documents from the workspace database
+
+**Usage:** `stencila remove [FILES]...`
+
+###### **Arguments:**
+
+* `<FILES>` — The files to remove
+
+
+
+## `stencila move`
+
+Move a tracked document
+
+Moves the document file to the new path (if it still exists at the old path) and updates any tracking information.
+
+**Usage:** `stencila move [OPTIONS] <FROM> <TO>`
+
+###### **Arguments:**
+
+* `<FROM>` — The old path of the file
+* `<TO>` — The new path of the file
 
 ###### **Options:**
 
-* `-a`, `--as <AS>` — Output the status as JSON or YAML
-
-  Possible values: `json`, `yaml`
-
+* `-f`, `--force` — Overwrite the destination path if it already exists
 
 
 
@@ -200,40 +230,70 @@ Stop tracking a document
 
 
 
-## `stencila move`
+## `stencila status`
 
-Move a tracked document
+Get the tracking status of documents
 
-Moves the document file to the new path (if it still exists at the old path) and updates any tracking information.
-
-**Usage:** `stencila move [OPTIONS] <FROM> <TO>`
+**Usage:** `stencila status [OPTIONS] [FILES]...`
 
 ###### **Arguments:**
 
-* `<FROM>` — The old path of the file
-* `<TO>` — The new path of the file
+* `<FILES>` — The paths of the files to get status for
 
 ###### **Options:**
 
-* `-f`, `--force` — Overwrite the destination path if it already exists
+* `-a`, `--as <AS>` — Output the status as JSON or YAML
+
+  Possible values: `json`, `yaml`
 
 
 
-## `stencila remove`
 
-Remove a tracked document
+## `stencila rebuild`
 
-Deletes the document file (if it still exists) and removes any tracking data from the `.stencila` directory.
+Rebuild a workspace database
 
-**Usage:** `stencila remove [OPTIONS] <FILE>`
+**Usage:** `stencila rebuild [DIR]`
 
 ###### **Arguments:**
 
-* `<FILE>` — The path of the file to remove
+* `<DIR>` — The workspace directory to rebuild the database for
+
+   Defaults to the current directory.
+
+  Default value: `.`
+
+
+
+## `stencila query`
+
+Query a workspace database
+
+**Usage:** `stencila query [OPTIONS] <QUERY> [OUTPUT]`
+
+###### **Arguments:**
+
+* `<QUERY>` — The DocsQL query
+* `<OUTPUT>` — The path of the file to output the result to
+
+   If not supplied the output content is written to `stdout`.
 
 ###### **Options:**
 
-* `-f`, `--force` — Do not ask for confirmation of removal
+* `-t`, `--to <TO>` — The format to output the result as
+
+   Defaults to inferring the format from the file name extension of the `output`. If no `output` is supplied, defaults to JSON. See `stencila codecs list` for available formats.
+* `-c`, `--compact` — Use compact form of encoding if possible
+
+   Use this flag to produce the compact forms of encoding (e.g. no indentation) which are supported by some formats (e.g. JSON, HTML).
+* `-p`, `--pretty` — Use a "pretty" form of encoding if possible
+
+   Use this flag to produce pretty forms of encoding (e.g. indentation) which are supported by some formats (e.g. JSON, HTML).
+* `-d`, `--dir <DIR>` — The directory from which the closest workspace should be found
+
+   Defaults to the current directory. Use this option if wanting to query a database outside of the current workspace, or if not in a workspace.
+
+  Default value: `.`
 
 
 
@@ -273,7 +333,6 @@ Convert a document to another format
   Default value: `warn`
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
-* `-r`, `--render` — For executable nodes, only encode outputs, not source properties
 * `-c`, `--compact` — Use compact form of encoding if possible
 
    Use this flag to produce the compact forms of encoding (e.g. no indentation) which are supported by some formats (e.g. JSON, HTML).
@@ -336,7 +395,6 @@ The direction of synchronization can be specified by appending the to the file p
   Default value: `warn`
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
-* `-r`, `--render` — For executable nodes, only encode outputs, not source properties
 * `-c`, `--compact` — Use compact form of encoding if possible
 
    Use this flag to produce the compact forms of encoding (e.g. no indentation) which are supported by some formats (e.g. JSON, HTML).
@@ -397,7 +455,6 @@ Compile a document
    Defaults to inferring the format from the file name extension of the `output`. If no `output` is supplied, defaults to JSON. See `stencila codecs list` for available formats.
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
-* `-r`, `--render` — For executable nodes, only encode outputs, not source properties
 * `-c`, `--compact` — Use compact form of encoding if possible
 
    Use this flag to produce the compact forms of encoding (e.g. no indentation) which are supported by some formats (e.g. JSON, HTML).
@@ -502,7 +559,6 @@ Execute a document
    Currently only supported by instructions where it is useful for debugging the rendering of prompts without making a potentially slow generative model API request.
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
-* `-r`, `--render` — For executable nodes, only encode outputs, not source properties
 * `-c`, `--compact` — Use compact form of encoding if possible
 
    Use this flag to produce the compact forms of encoding (e.g. no indentation) which are supported by some formats (e.g. JSON, HTML).
@@ -588,7 +644,6 @@ Equivalent to the `execute` command with the `--render` flag.
    Currently only supported by instructions where it is useful for debugging the rendering of prompts without making a potentially slow generative model API request.
 * `--standalone` — Encode as a standalone document
 * `--not-standalone` — Do not encode as a standalone document when writing to file
-* `-r`, `--render` — For executable nodes, only encode outputs, not source properties
 * `-c`, `--compact` — Use compact form of encoding if possible
 
    Use this flag to produce the compact forms of encoding (e.g. no indentation) which are supported by some formats (e.g. JSON, HTML).
@@ -629,17 +684,19 @@ Equivalent to the `execute` command with the `--render` flag.
 
 ## `stencila preview`
 
-Preview a document or site
+Preview a document
 
-Opens a preview of a document or site in the browser. When `--sync=in` (the default) the preview will update when the document is saved to disk.
+Opens a preview of a document in the browser. If the path supplied is a folder then the first file with name `index.*`, `main.*`, or `readme.*` will be opened.
+
+When `--sync=in` (the default) the preview will update when the document is changed and saved to disk.
 
 **Usage:** `stencila preview [OPTIONS] [PATH]`
 
 ###### **Arguments:**
 
-* `<PATH>` — The path to the document file or site directory to preview
+* `<PATH>` — The path to the document or parent folder
 
-   Defaults to the current directory.
+   Defaults to the current folder.
 
   Default value: `.`
 
@@ -834,7 +891,7 @@ Publish to Ghost
 
 ###### **Options:**
 
-* `--ghost <GHOST>` — The Ghost domain
+* `--domain <DOMAIN>` — The Ghost domain
 
    This is the domain name of your Ghost instance, with an optional port.
 
@@ -844,12 +901,12 @@ Publish to Ghost
    To create one, create a new Custom Integration under the Integrations screen in Ghost Admin. Use the Admin API Key, rather than the Content API Key.
 
    You can also set the key as a secret so that it does not need to be entered here each time: `stencila secrets set GHOST_ADMIN_API_KEY`.
-* `--page` — Create a page
+* `--post` — Create a post
 
    Does not apply when pushing to, or pulling from, and existing Ghost resource.
 
-  Default value: `false`
-* `--post` — Create a post
+  Default value: `true`
+* `--page` — Create a page
 
    Does not apply when pushing to, or pulling from, and existing Ghost resource.
 * `--push` — Create or update Ghost post or page from a file
@@ -1115,7 +1172,7 @@ List the kernels available
 
 * `-t`, `--type <TYPE>` — Only list kernels of a particular type
 
-  Possible values: `programming`, `templating`, `diagrams`, `math`, `styling`
+  Possible values: `programming`, `database`, `templating`, `diagrams`, `math`, `styling`
 
 * `-a`, `--as <AS>` — Output the list as JSON or YAML
 
@@ -1163,7 +1220,7 @@ Creates a temporary kernel instance, executes one or more lines of code, and ret
 
 Mainly intended for quick testing of kernels during development.
 
-**Usage:** `stencila kernels execute <NAME> <CODE>`
+**Usage:** `stencila kernels execute [OPTIONS] <NAME> <CODE>`
 
 ###### **Arguments:**
 
@@ -1171,6 +1228,10 @@ Mainly intended for quick testing of kernels during development.
 * `<CODE>` — The code to execute
 
    Escaped newline characters (i.e. "\n") in the code will be transformed into new lines before passing to the kernel.
+
+###### **Options:**
+
+* `-b`, `--box` — Execute code in a kernel instance with `Box` execution bounds
 
 
 

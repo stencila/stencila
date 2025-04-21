@@ -49,7 +49,7 @@ The `CitationGroup` type can be encoded (serialized) to, and/or decoded (deseria
 | ---------------------------------------------------------------------------- | ------------ | ---------- | ---------------------------------- | ----- |
 | [DOM HTML](https://stencila.ghost.io/docs/reference/formats/dom.html)        | 🟢 No loss    |            |                                    |
 | [HTML](https://stencila.ghost.io/docs/reference/formats/html)                | 🔷 Low loss   |            |                                    |
-| [JATS](https://stencila.ghost.io/docs/reference/formats/jats)                |              |            |                                    |
+| [JATS](https://stencila.ghost.io/docs/reference/formats/jats)                |              |            | Encoded using special function     |
 | [Markdown](https://stencila.ghost.io/docs/reference/formats/md)              | ⚠️ High loss |            | Encoded using implemented function |
 | [Stencila Markdown](https://stencila.ghost.io/docs/reference/formats/smd)    | ⚠️ High loss |            |                                    |
 | [Quarto Markdown](https://stencila.ghost.io/docs/reference/formats/qmd)      | ⚠️ High loss |            |                                    |
