@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use kernel_kuzu::kuzu::{LogicalType, Value};
 use schema::{
-    Article, Author, AuthorRoleAuthor, Block, IfBlockClause, Inline, ListItem, Node, NodeId,
-    NodePath, NodeProperty, NodeSlot, NodeType, Organization, Person, Reference, TableCell,
+    Article, Author, AuthorRoleAuthor, Block, Citation, IfBlockClause, Inline, ListItem, Node,
+    NodeId, NodePath, NodeProperty, NodeSlot, NodeType, Organization, Person, Reference, TableCell,
     TableRow, Visitor, WalkControl,
 };
 
@@ -207,6 +207,23 @@ impl Visitor for DatabaseWalker {
         self.visit_database_node(node)
     }
 
+    fn visit_inline(&mut self, node: &Inline) -> WalkControl {
+        self.position += 1;
+
+        if matches!(node, Inline::Citation(..)) {
+            // Avoid visiting citations twice
+            WalkControl::Continue
+        } else {
+            self.visit_database_node(node)
+        }
+    }
+
+    fn visit_citation(&mut self, node: &Citation) -> WalkControl {
+        self.position += 1;
+
+        self.visit_database_node(node)
+    }
+
     fn visit_if_block_clause(&mut self, node: &IfBlockClause) -> WalkControl {
         self.visit_database_node(node)
     }
@@ -224,11 +241,5 @@ impl Visitor for DatabaseWalker {
         // Break the walk so that the content (usually just a single Paragraph)
         // is not collected. We do this to reduce the number of nodes in the db.
         WalkControl::Break
-    }
-
-    fn visit_inline(&mut self, node: &Inline) -> WalkControl {
-        self.position += 1;
-
-        self.visit_database_node(node)
     }
 }

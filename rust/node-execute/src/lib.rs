@@ -15,7 +15,7 @@ use common::{
 use kernels::{KernelLintingOptions, Kernels};
 use prompts::prompt::{DocumentContext, InstructionContext};
 use schema::{
-    AuthorRole, AuthorRoleName, Block, CompilationDigest, CompilationMessage, Config,
+    AuthorRole, AuthorRoleName, Block, Citation, CompilationDigest, CompilationMessage, Config,
     ExecutionBounds, ExecutionMode, ExecutionStatus, Inline, Link, List, ListItem, ListOrder, Node,
     NodeId, NodePath, NodeProperty, NodeType, Paragraph, Patch, PatchNode, PatchOp, PatchValue,
     Reference, Timestamp, VisitorAsync, WalkControl, WalkNode,
@@ -29,7 +29,6 @@ mod article;
 mod call_block;
 mod chat;
 mod citation;
-mod citation_group;
 mod code_chunk;
 mod code_expression;
 mod code_utils;
@@ -1224,7 +1223,6 @@ impl VisitorAsync for Executor {
         use Inline::*;
         Ok(match inline {
             Citation(node) => self.visit_executable(node).await,
-            CitationGroup(node) => self.visit_executable(node).await,
             CodeExpression(node) => self.visit_executable(node).await,
             InstructionInline(node) => self.visit_executable(node).await,
             MathInline(node) => self.visit_executable(node).await,
@@ -1232,6 +1230,10 @@ impl VisitorAsync for Executor {
             StyledInline(node) => self.visit_executable(node).await,
             _ => WalkControl::Continue,
         })
+    }
+
+    async fn visit_citation(&mut self, citation: &mut Citation) -> Result<WalkControl> {
+        Ok(self.visit_executable(citation).await)
     }
 
     fn enter_struct(&mut self, node_type: NodeType, _node_id: NodeId) -> WalkControl {

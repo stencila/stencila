@@ -1,7 +1,7 @@
 use common::{eyre::Result, futures::future::try_join_all, once_cell::sync::Lazy, regex::Regex};
 use schema::{
-    replicate, Article, Author, AuthorRole, AuthorRoleAuthor, Citation, Inline, Node, Organization,
-    Person, Reference, VisitorMut, WalkControl, WalkNode,
+    replicate, Article, Author, AuthorRole, AuthorRoleAuthor, Citation, Node, Organization, Person,
+    Reference, VisitorMut, WalkControl, WalkNode,
 };
 
 mod cbor_hash;
@@ -64,11 +64,13 @@ impl Linker {
 
         Self { references }
     }
+}
 
-    fn visit_citation(&self, citation: &mut Citation) {
+impl VisitorMut for Linker {
+    fn visit_citation(&mut self, citation: &mut Citation) -> WalkControl {
         // Do not change the targets of citations that are already DOIs and which have a reference
         if citation.target.starts_with("10.") && citation.options.cites.is_some() {
-            return;
+            return WalkControl::Continue;
         }
 
         // Find the reference with the target as either id or DOI
@@ -83,14 +85,6 @@ impl Linker {
                 citation.options.cites = Some(cites);
             }
         };
-    }
-}
-
-impl VisitorMut for Linker {
-    fn visit_inline(&mut self, inline: &mut Inline) -> WalkControl {
-        if let Inline::Citation(citation) = inline {
-            self.visit_citation(citation)
-        }
 
         WalkControl::Continue
     }

@@ -71,6 +71,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
     let (visit, visit_mut, visit_async) = {
         let method = match struct_name.to_string().as_str() {
+            "Citation" => Some(quote!(visit_citation)),
             "IfBlockClause" => Some(quote!(visit_if_block_clause)),
             "ListItem" => Some(quote!(visit_list_item)),
             "SuggestionBlock" => Some(quote!(visit_suggestion_block)),
@@ -153,7 +154,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         }
     });
 
-    if fields.is_empty() {
+    if visit.is_empty() && fields.is_empty() {
         quote! {
             impl WalkNode for #struct_name {}
         }

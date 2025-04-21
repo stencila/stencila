@@ -81,6 +81,16 @@ impl Visitor for Walker {
         WalkControl::Continue
     }
 
+    fn visit_citation(&mut self, citation: &schema::Citation) -> WalkControl {
+        let node_id = citation.node_id();
+        if self.node_ids.contains(&node_id) {
+            self.node_id = Some(node_id);
+            return WalkControl::Break;
+        }
+
+        WalkControl::Continue
+    }
+
     fn visit_if_block_clause(&mut self, clause: &schema::IfBlockClause) -> WalkControl {
         let node_id = clause.node_id();
         if self.node_ids.contains(&node_id) {

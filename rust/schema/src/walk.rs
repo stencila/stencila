@@ -5,9 +5,9 @@ use node_id::NodeId;
 use node_type::{NodeProperty, NodeType};
 
 use crate::{
-    Array, Block, Boolean, CreativeWorkType, IfBlockClause, Inline, Integer, ListItem, Node, Null,
-    Number, Object, SuggestionBlock, SuggestionInline, TableCell, TableRow, UnsignedInteger,
-    WalkthroughStep,
+    Array, Block, Boolean, Citation, CreativeWorkType, IfBlockClause, Inline, Integer, ListItem,
+    Node, Null, Number, Object, SuggestionBlock, SuggestionInline, TableCell, TableRow,
+    UnsignedInteger, WalkthroughStep,
 };
 
 /// Controls whether to continue walking over a node or not
@@ -65,6 +65,11 @@ pub trait Visitor: Sized {
 
     /// Visit an `Inline` node type
     fn visit_inline(&mut self, inline: &Inline) -> WalkControl {
+        WalkControl::Continue
+    }
+
+    /// Visit a `Citation` node (singular, or an item in a `CitationGroup`)
+    fn visit_citation(&mut self, citation: &Citation) -> WalkControl {
         WalkControl::Continue
     }
 
@@ -159,6 +164,11 @@ pub trait VisitorMut: Sized {
         WalkControl::Continue
     }
 
+    /// Visit a `Citation` node (singular, or an item in a `CitationGroup`)
+    fn visit_citation(&mut self, citation: &mut Citation) -> WalkControl {
+        WalkControl::Continue
+    }
+
     /// Visit, and potentially mutate, a `SuggestionBlock` node type
     fn visit_suggestion_block(&mut self, block: &mut SuggestionBlock) -> WalkControl {
         WalkControl::Continue
@@ -249,6 +259,14 @@ pub trait VisitorAsync: Send + Sync {
     fn visit_inline(
         &mut self,
         inline: &mut Inline,
+    ) -> impl Future<Output = Result<WalkControl>> + Send {
+        async { Ok(WalkControl::Continue) }
+    }
+
+    /// Visit, and potentially mutate, a `Citation` node (singular, or an item in a `CitationGroup`)
+    fn visit_citation(
+        &mut self,
+        citation: &mut Citation,
     ) -> impl Future<Output = Result<WalkControl>> + Send {
         async { Ok(WalkControl::Continue) }
     }

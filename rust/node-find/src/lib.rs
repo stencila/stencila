@@ -76,6 +76,15 @@ impl Visitor for Finder {
         WalkControl::Continue
     }
 
+    fn visit_citation(&mut self, citation: &schema::Citation) -> WalkControl {
+        if citation.node_id() == self.node_id {
+            self.node = Some(Node::Citation(citation.clone()));
+            return WalkControl::Break;
+        }
+
+        WalkControl::Continue
+    }
+
     fn visit_if_block_clause(&mut self, clause: &schema::IfBlockClause) -> WalkControl {
         if clause.node_id() == self.node_id {
             self.node = Some(Node::IfBlockClause(clause.clone()));

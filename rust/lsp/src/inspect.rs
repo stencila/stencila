@@ -5,15 +5,15 @@ use codecs::{Mapping, PoshMap};
 use common::tracing;
 use schema::{
     Admonition, Annotation, Article, AudioObject, Block, Button, CallBlock, Chat, ChatMessage,
-    ChatMessageGroup, Citation, CitationGroup, Claim, CodeBlock, CodeChunk, CodeExpression,
-    CodeInline, Date, DateTime, Duration, Emphasis, Excerpt, ExecutionStatus, Figure, File,
-    ForBlock, Form, Heading, IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline,
-    InstructionBlock, InstructionInline, LabelType, Link, List, ListItem, MathBlock, MathInline,
-    MediaObject, Node, NodeId, NodeProperty, NodeType, Note, Paragraph, Parameter, Prompt,
-    PromptBlock, ProvenanceCount, QuoteBlock, QuoteInline, RawBlock, Reference, Section, Strikeout,
-    Strong, StyledBlock, StyledInline, Subscript, SuggestionBlock, SuggestionInline, Superscript,
-    Table, TableCell, TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject,
-    Visitor, WalkControl, Walkthrough, WalkthroughStep,
+    ChatMessageGroup, CitationGroup, Claim, CodeBlock, CodeChunk, CodeExpression, CodeInline, Date,
+    DateTime, Duration, Emphasis, Excerpt, ExecutionStatus, Figure, File, ForBlock, Form, Heading,
+    IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline, InstructionBlock, InstructionInline,
+    LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject, Node, NodeId,
+    NodeProperty, NodeType, Note, Paragraph, Parameter, Prompt, PromptBlock, ProvenanceCount,
+    QuoteBlock, QuoteInline, RawBlock, Reference, Section, Strikeout, Strong, StyledBlock,
+    StyledInline, Subscript, SuggestionBlock, SuggestionInline, Superscript, Table, TableCell,
+    TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl,
+    Walkthrough, WalkthroughStep,
 };
 
 use crate::{
@@ -193,7 +193,8 @@ impl Visitor for Inspector<'_, '_> {
             ($( $variant:ident ),*) => {
                 match inline {
                     $(Inline::$variant(node) => node.inspect(self),)*
-                    Inline::SuggestionInline(..) |Inline::Null(..) | Inline::Boolean(..) | Inline::Integer(..) | Inline::UnsignedInteger(..) | Inline::Number(..) => {}
+                    Inline::Citation(citation) => { self.visit_citation(citation); },
+                    Inline::SuggestionInline(..) | Inline::Null(..) | Inline::Boolean(..) | Inline::Integer(..) | Inline::UnsignedInteger(..) | Inline::Number(..) => {}
                 }
             };
         }
@@ -201,7 +202,6 @@ impl Visitor for Inspector<'_, '_> {
             Annotation,
             AudioObject,
             Button,
-            Citation,
             CitationGroup,
             CodeExpression,
             CodeInline,
@@ -230,6 +230,28 @@ impl Visitor for Inspector<'_, '_> {
         );
 
         // Break walk because `variant` visited above
+        WalkControl::Break
+    }
+
+    fn visit_citation(&mut self, citation: &schema::Citation) -> WalkControl {
+        let node_id = citation.node_id();
+
+        let code_range = self
+            .poshmap
+            .node_property_to_range16(&node_id, NodeProperty::Target)
+            .map(range16_to_range);
+
+        let execution = Some(TextNodeExecution {
+            compilation_messages: citation.options.compilation_messages.clone(),
+            code_range,
+            ..Default::default()
+        });
+
+        self.enter_node(citation.node_type(), node_id, None, None, execution, None);
+        self.visit(&citation.options.content);
+        self.exit_node();
+
+        // Break walk because `content` already visited above
         WalkControl::Break
     }
 
@@ -451,27 +473,6 @@ impl Inspect for ChatMessageGroup {
             message.inspect(inspector);
         }
 
-        inspector.exit_node();
-    }
-}
-
-impl Inspect for Citation {
-    fn inspect(&self, inspector: &mut Inspector) {
-        let node_id = self.node_id();
-
-        let code_range = inspector
-            .poshmap
-            .node_property_to_range16(&node_id, NodeProperty::Target)
-            .map(range16_to_range);
-
-        let execution = Some(TextNodeExecution {
-            compilation_messages: self.options.compilation_messages.clone(),
-            code_range,
-            ..Default::default()
-        });
-
-        inspector.enter_node(self.node_type(), node_id, None, None, execution, None);
-        inspector.visit(self);
         inspector.exit_node();
     }
 }
