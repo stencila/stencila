@@ -35,10 +35,13 @@ use kernel_jinja::{
 /// Uses single digit codes and spacing to ensure that the code stays the same length.
 pub(super) fn transform_filters(code: &str) -> String {
     static POSITION: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"@(above|below)").expect("invalid regex"));
+        Lazy::new(|| Regex::new(r"@(above|below|return)").expect("invalid regex"));
 
-    let code = POSITION.replace_all(code, |captures: &Captures| {
-        ["pos_=", if &captures[1] == "above" { "0" } else { "1" }].concat()
+    let code = POSITION.replace_all(code, |captures: &Captures| match &captures[1] {
+        "above" => "pos_=0",
+        "below" => "pos_=1",
+        "return" => "retu_=1",
+        _ => unreachable!(),
     });
 
     static FILTERS: Lazy<Regex> = Lazy::new(|| {
@@ -243,12 +246,6 @@ impl Query {
                 format!("node type method `{method}` can not be used with `match` method"),
             ));
         }
-        if self.return_used {
-            return Err(Error::new(
-                ErrorKind::InvalidOperation,
-                format!("`return` method should come after any node type method `{method}`"),
-            ));
-        }
 
         let mut query = self.clone();
 
@@ -355,6 +352,15 @@ impl Query {
                                 query.order_by_order = Some("DESC".to_string());
                             }
                         }
+                    } else if arg == "retu_" {
+                        if self.return_used {
+                            return Err(Error::new(
+                                ErrorKind::InvalidOperation,
+                                format!("`return` already specified"),
+                            ));
+                        }
+                        query.r#return = Some(alias.to_string());
+                        query.return_used = true;
                     } else {
                         let filter = apply_filter(&alias, arg, value);
                         query.ands.push(filter)
@@ -362,8 +368,6 @@ impl Query {
                 }
             }
         }
-
-        query.r#return = Some(alias);
 
         query.node_table_used = Some(table);
 
@@ -389,6 +393,13 @@ impl Query {
     /// The default is `RETURN <table>` where <table> was the last table used in the method chain.
     /// This makes sense for most queries but this method allows the user to override that if desired.
     fn r#return(&self, what: String, distinct: Option<bool>) -> Result<Self, Error> {
+        if self.return_used {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!("`return` already specified"),
+            ));
+        }
+
         let mut query = self.clone();
 
         query.r#return = Some(what);
@@ -400,6 +411,13 @@ impl Query {
 
     /// Select columns to output in a datatable
     fn select(&self, args: &[Value], kwargs: Kwargs) -> Result<Self, Error> {
+        if self.return_used {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!("`return` already specified"),
+            ));
+        }
+
         let mut query = self.clone();
 
         let alias = query
@@ -460,12 +478,20 @@ impl Query {
     }
 
     /// Set `RETURN` clause to `count(*)`
-    fn count(&self) -> Self {
+    fn count(&self) -> Result<Self, Error> {
+        if self.return_used {
+            return Err(Error::new(
+                ErrorKind::InvalidOperation,
+                format!("`return` already specified"),
+            ));
+        }
+
         let mut query = self.clone();
         query.out = Some(QueryResultTransform::Value);
         query.r#return = Some("count(*)".into());
         query.return_used = true;
-        query
+
+        Ok(query)
     }
 
     /// Apply an `ORDER BY` clause to query
@@ -602,8 +628,16 @@ impl Query {
             if self.return_distinct.unwrap_or_default() {
                 cypher.push_str("DISTINCT ");
             }
-            let r#return = self.r#return.as_deref().unwrap_or("*");
-            cypher.push_str(r#return);
+            let r#return = self
+                .r#return
+                .clone()
+                .or_else(|| {
+                    self.node_table_used
+                        .clone()
+                        .map(|table| alias_for_table(table))
+                })
+                .unwrap_or("*".to_string());
+            cypher.push_str(&r#return);
         }
 
         if let Some(order_by) = &self.order_by {
@@ -908,7 +942,7 @@ impl Object for Query {
                         format!("Method `{name}` takes no arguments."),
                     ));
                 }
-                self.count()
+                self.count()?
             }
             "order_by" | "orderBy" => {
                 let (order_by, order) = from_args(args)?;
