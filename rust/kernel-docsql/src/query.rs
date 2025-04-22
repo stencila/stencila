@@ -290,7 +290,7 @@ impl Query {
                     ("Article", "Person") => "[:authors]",
                     ("Reference", "Person") => "[:authors]",
                     ("Person", "Organization") => "[:affiliations]",
-                    _ => "[:content* acyclic]",
+                    _ => "[* acyclic]",
                 };
                 [&pattern, "-", relation, "->", &node].concat()
             }
