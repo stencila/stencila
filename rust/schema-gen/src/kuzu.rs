@@ -272,6 +272,15 @@ impl Schemas {
             ("Person", vec![("name", "self.name()")]),
         ]);
 
+        // Node types where the primary key is not the node id. These node types are treated
+        // as being "outside" of documents: we do not use node ids to create relations with them
+        // rather, we use these canonical ids.
+        let primary_keys = HashMap::from([
+            ("Reference", "doi"),
+            ("Person", "orcid"),
+            ("Organization", "ror"),
+        ]);
+
         write(
             dir.join("fts_indices.rs"),
             r#"// Generated file, do not edit. See the Rust `schema-gen` crate.
@@ -291,6 +300,7 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
         let mut node_tables = Vec::new();
         let mut one_to_many = BTreeMap::new();
         let mut one_to_one = BTreeMap::new();
+        let mut many_to_many = BTreeMap::new();
         let mut implems = Vec::new();
         for (title, schema) in &self.schemas {
             if !schema.is_object()
@@ -380,12 +390,19 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
                                     relations
                                         .push((name, on_options, is_option, is_array, ref_type));
 
-                                    one_to_many
-                                        .entry(name)
-                                        .and_modify(|existing: &mut Vec<String>| {
-                                            existing.append(&mut pairs)
-                                        })
-                                        .or_insert(pairs);
+                                    if primary_keys.contains_key(&ref_type.as_str())
+                                        || ref_type == "Author"
+                                        || ref_type == "AuthorRole"
+                                    {
+                                        &mut many_to_many
+                                    } else {
+                                        &mut one_to_many
+                                    }
+                                    .entry(name)
+                                    .and_modify(|existing: &mut Vec<String>| {
+                                        existing.append(&mut pairs)
+                                    })
+                                    .or_insert(pairs);
 
                                     continue;
                                 }
@@ -470,16 +487,33 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
                     node_table_props.push_str(&format!("\n  `{name}` STRING,"));
                 }
             }
-            node_tables.push(format!(
-                "CREATE NODE TABLE IF NOT EXISTS `{title}` ({}
+
+            let extra = if let Some(primary_key) = primary_keys.get(&title.as_str()) {
+                format!(
+                    "
+  PRIMARY KEY (`{primary_key}`)
+"
+                )
+            } else {
+                "
   `docId` STRING,
   `nodeId` STRING PRIMARY KEY,
   `nodePath` STRING,
   `nodeAncestors` STRING,
   `position` UINT32
-);",
-                node_table_props
+"
+                .to_string()
+            };
+
+            node_tables.push(format!(
+                "CREATE NODE TABLE IF NOT EXISTS `{title}` ({}{});",
+                node_table_props, extra,
             ));
+
+            let primary_key = primary_keys
+                .get(&title.as_str())
+                .map(|primary_key| format!("self.{primary_key}.to_kuzu_value()"))
+                .unwrap_or("self.node_id().to_kuzu_value()".to_string());
 
             let mut implem_node_table = properties
                 .iter()
@@ -539,7 +573,7 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
                     };
 
                     let collect = if ref_type == "AuthorRoleAuthor" {
-                        format!("vec![(self.{field}.node_type(), self.{field}.node_id())]")
+                        format!("vec![(self.{field}.node_type(), self.{field}.primary_key())]")
                     } else {
                         let mut collect = format!("self.{field}");
 
@@ -568,13 +602,17 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
         {title}::node_id(self)
     }}
     
+    fn primary_key(&self) -> Value {{
+        {primary_key}
+    }}
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {{
         vec![
             {implem_node_table}
         ]
     }}
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {{
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {{
         vec![
             {implem_rel_tables}
         ]
@@ -606,6 +644,16 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
             })
             .join("\n\n");
 
+        let many_to_many = many_to_many
+            .into_iter()
+            .map(|(name, pairs)| {
+                format!(
+                    "CREATE REL TABLE IF NOT EXISTS `{name}` (\n  {},\n  MANY_MANY\n);",
+                    pairs.join(",\n  ")
+                )
+            })
+            .join("\n\n");
+
         write(
             dir.join("schema.kuzu"),
             format!(
@@ -616,12 +664,14 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
 {one_to_one}
 
 {one_to_many}
+
+{many_to_many}
 "
             ),
         )
         .await?;
 
-        for title in ["Node", "Block", "Inline", "Author"] {
+        for title in ["Node", "Block", "Inline", "Author", "AuthorRoleAuthor"] {
             let variants = self
                 .schemas
                 .get(title)
@@ -648,6 +698,11 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
             let node_id = variants
                 .iter()
                 .map(|variant| format!("{title}::{variant}(node) => node.node_id()"))
+                .join(",\n            ");
+
+            let primary_key = variants
+                .iter()
+                .map(|variant| format!("{title}::{variant}(node) => node.primary_key()"))
                 .join(",\n            ");
 
             let node_table = variants
@@ -677,6 +732,13 @@ impl DatabaseNode for {title} {{
         }}
     }}
 
+    fn primary_key(&self) -> Value {{
+        match self {{
+            {primary_key},
+            _ => Value::Null(LogicalType::Any)
+        }}
+    }}
+
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {{
         match self {{
             {node_table},
@@ -684,7 +746,7 @@ impl DatabaseNode for {title} {{
         }}
     }}
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {{
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {{
         match self {{
             {rel_tables},
             _ => Vec::new()
@@ -694,6 +756,11 @@ impl DatabaseNode for {title} {{
 "#
             ));
         }
+
+        let primary_keys = primary_keys
+            .iter()
+            .map(|(node_type, value)| format!("NodeType::{node_type} => \"{value}\","))
+            .join("\n        ");
 
         let implems = implems.join("\n");
 
@@ -708,12 +775,19 @@ use schema::*;
 
 use super::DatabaseNode;
 
-fn relations<'lt, I, D>(iter: I) -> Vec<(NodeType, NodeId)>
+pub(super) fn primary_key(node_type: &NodeType) -> &'static str {{
+    match node_type {{
+        {primary_keys}
+        _ => \"nodeId\"
+    }}
+}}
+
+fn relations<'lt, I, D>(iter: I) -> Vec<(NodeType, Value)>
 where
     I: Iterator<Item = &'lt D>,
     D: DatabaseNode + 'lt,
 {{
-    iter.flat_map(|item| (!matches!(item.node_type(), NodeType::Unknown)).then_some((item.node_type(), item.node_id())))
+    iter.flat_map(|item| (!matches!(item.node_type(), NodeType::Unknown)).then_some((item.node_type(), item.primary_key())))
         .collect()
 }}
 

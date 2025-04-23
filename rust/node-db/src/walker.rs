@@ -37,7 +37,7 @@ pub struct DatabaseWalker {
     >,
 
     /// Entries for the database relation tables
-    pub rel_tables: HashMap<(NodeType, NodeProperty, NodeType), Vec<(NodeId, Vec<NodeId>)>>,
+    pub rel_tables: HashMap<(NodeType, NodeProperty, NodeType), Vec<(Value, Vec<Value>)>>,
 }
 
 impl DatabaseWalker {
@@ -49,6 +49,7 @@ impl DatabaseWalker {
     {
         let node_type = node.node_type();
         let node_id = node.node_id();
+        let primary_key = node.primary_key();
         let node_table = node.node_table();
         let rel_tables = node.rel_tables();
 
@@ -75,19 +76,19 @@ impl DatabaseWalker {
             ));
 
         for (node_property, to_nodes) in rel_tables {
-            let mut to_node_ids: HashMap<NodeType, Vec<NodeId>> = HashMap::new();
-            for (to_node_type, to_node_id) in to_nodes {
-                to_node_ids
+            let mut to_node_pks: HashMap<NodeType, Vec<Value>> = HashMap::new();
+            for (to_node_type, to_node_pk) in to_nodes {
+                to_node_pks
                     .entry(to_node_type)
                     .or_default()
-                    .push(to_node_id);
+                    .push(to_node_pk);
             }
 
-            for (to_node_type, to_node_ids) in to_node_ids {
+            for (to_node_type, to_node_pks) in to_node_pks {
                 self.rel_tables
                     .entry((node_type, node_property, to_node_type))
                     .or_default()
-                    .push((node_id.clone(), to_node_ids));
+                    .push((primary_key.clone(), to_node_pks));
             }
         }
 

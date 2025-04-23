@@ -6,12 +6,21 @@ use schema::*;
 
 use super::DatabaseNode;
 
-fn relations<'lt, I, D>(iter: I) -> Vec<(NodeType, NodeId)>
+pub(super) fn primary_key(node_type: &NodeType) -> &'static str {
+    match node_type {
+        NodeType::Reference => "doi",
+        NodeType::Person => "orcid",
+        NodeType::Organization => "ror",
+        _ => "nodeId"
+    }
+}
+
+fn relations<'lt, I, D>(iter: I) -> Vec<(NodeType, Value)>
 where
     I: Iterator<Item = &'lt D>,
     D: DatabaseNode + 'lt,
 {
-    iter.flat_map(|item| (!matches!(item.node_type(), NodeType::Unknown)).then_some((item.node_type(), item.node_id())))
+    iter.flat_map(|item| (!matches!(item.node_type(), NodeType::Unknown)).then_some((item.node_type(), item.primary_key())))
         .collect()
 }
 
@@ -24,6 +33,10 @@ impl DatabaseNode for Admonition {
         Admonition::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::AdmonitionType, String::to_kuzu_type(), self.admonition_type.to_kuzu_value()),
@@ -31,7 +44,7 @@ impl DatabaseNode for Admonition {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Title, relations(self.title.iter().flatten())),
             (NodeProperty::Content, relations(self.content.iter())),
@@ -49,13 +62,17 @@ impl DatabaseNode for Annotation {
         Annotation::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Content, relations(self.content.iter())),
             (NodeProperty::Annotation, relations(self.annotation.iter().flatten()))
@@ -70,6 +87,10 @@ impl DatabaseNode for Article {
 
     fn node_id(&self) -> NodeId {
         Article::node_id(self)
+    }
+    
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
     }
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
@@ -99,7 +120,7 @@ impl DatabaseNode for Article {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Abstract, relations(self.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
@@ -119,6 +140,10 @@ impl DatabaseNode for AudioObject {
 
     fn node_id(&self) -> NodeId {
         AudioObject::node_id(self)
+    }
+    
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
     }
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
@@ -143,7 +168,7 @@ impl DatabaseNode for AudioObject {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
@@ -165,6 +190,10 @@ impl DatabaseNode for AuthorRole {
         AuthorRole::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::RoleName, String::to_kuzu_type(), self.role_name.to_kuzu_value()),
@@ -173,9 +202,9 @@ impl DatabaseNode for AuthorRole {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
-            (NodeProperty::Author, vec![(self.author.node_type(), self.author.node_id())])
+            (NodeProperty::Author, vec![(self.author.node_type(), self.author.primary_key())])
         ]
     }
 }
@@ -189,6 +218,10 @@ impl DatabaseNode for Citation {
         Citation::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::Target, String::to_kuzu_type(), self.target.to_kuzu_value()),
@@ -198,7 +231,7 @@ impl DatabaseNode for Citation {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             
         ]
@@ -214,13 +247,17 @@ impl DatabaseNode for CitationGroup {
         CitationGroup::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Items, relations(self.items.iter()))
         ]
@@ -234,6 +271,10 @@ impl DatabaseNode for Claim {
 
     fn node_id(&self) -> NodeId {
         Claim::node_id(self)
+    }
+    
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
     }
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
@@ -255,7 +296,7 @@ impl DatabaseNode for Claim {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
@@ -277,6 +318,10 @@ impl DatabaseNode for CodeBlock {
         CodeBlock::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::Code, String::to_kuzu_type(), self.code.to_kuzu_value()),
@@ -284,7 +329,7 @@ impl DatabaseNode for CodeBlock {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
@@ -298,6 +343,10 @@ impl DatabaseNode for CodeChunk {
 
     fn node_id(&self) -> NodeId {
         CodeChunk::node_id(self)
+    }
+    
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
     }
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
@@ -322,7 +371,7 @@ impl DatabaseNode for CodeChunk {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
             (NodeProperty::Caption, relations(self.caption.iter().flatten()))
@@ -337,6 +386,10 @@ impl DatabaseNode for CodeExpression {
 
     fn node_id(&self) -> NodeId {
         CodeExpression::node_id(self)
+    }
+    
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
     }
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
@@ -354,7 +407,7 @@ impl DatabaseNode for CodeExpression {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
@@ -370,6 +423,10 @@ impl DatabaseNode for Directory {
         Directory::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::Name, String::to_kuzu_type(), self.name.to_kuzu_value()),
@@ -377,7 +434,7 @@ impl DatabaseNode for Directory {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             
         ]
@@ -391,6 +448,10 @@ impl DatabaseNode for Figure {
 
     fn node_id(&self) -> NodeId {
         Figure::node_id(self)
+    }
+    
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
     }
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
@@ -413,7 +474,7 @@ impl DatabaseNode for Figure {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
@@ -436,6 +497,10 @@ impl DatabaseNode for File {
         File::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::Name, String::to_kuzu_type(), self.name.to_kuzu_value()),
@@ -447,7 +512,7 @@ impl DatabaseNode for File {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             
         ]
@@ -461,6 +526,10 @@ impl DatabaseNode for ForBlock {
 
     fn node_id(&self) -> NodeId {
         ForBlock::node_id(self)
+    }
+    
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
     }
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
@@ -479,7 +548,7 @@ impl DatabaseNode for ForBlock {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
             (NodeProperty::Content, relations(self.content.iter())),
@@ -498,13 +567,17 @@ impl DatabaseNode for Function {
         Function::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::Name, String::to_kuzu_type(), self.name.to_kuzu_value())
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Parameters, relations(self.parameters.iter()))
         ]
@@ -520,13 +593,17 @@ impl DatabaseNode for Heading {
         Heading::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::Level, i64::to_kuzu_type(), self.level.to_kuzu_value())
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Content, relations(self.content.iter())),
             (NodeProperty::Authors, relations(self.authors.iter().flatten()))
@@ -543,6 +620,10 @@ impl DatabaseNode for IfBlock {
         IfBlock::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::ExecutionMode, String::to_kuzu_type(), self.execution_mode.to_kuzu_value()),
@@ -554,7 +635,7 @@ impl DatabaseNode for IfBlock {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Clauses, relations(self.clauses.iter()))
         ]
@@ -568,6 +649,10 @@ impl DatabaseNode for IfBlockClause {
 
     fn node_id(&self) -> NodeId {
         IfBlockClause::node_id(self)
+    }
+    
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
     }
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
@@ -586,7 +671,7 @@ impl DatabaseNode for IfBlockClause {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
             (NodeProperty::Content, relations(self.content.iter()))
@@ -601,6 +686,10 @@ impl DatabaseNode for ImageObject {
 
     fn node_id(&self) -> NodeId {
         ImageObject::node_id(self)
+    }
+    
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
     }
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
@@ -625,7 +714,7 @@ impl DatabaseNode for ImageObject {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
@@ -647,6 +736,10 @@ impl DatabaseNode for IncludeBlock {
         IncludeBlock::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::ExecutionMode, String::to_kuzu_type(), self.execution_mode.to_kuzu_value()),
@@ -661,7 +754,7 @@ impl DatabaseNode for IncludeBlock {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Content, relations(self.content.iter().flatten()))
         ]
@@ -677,6 +770,10 @@ impl DatabaseNode for Link {
         Link::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::Target, String::to_kuzu_type(), self.target.to_kuzu_value()),
@@ -685,7 +782,7 @@ impl DatabaseNode for Link {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Content, relations(self.content.iter()))
         ]
@@ -701,13 +798,17 @@ impl DatabaseNode for List {
         List::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::Order, String::to_kuzu_type(), self.order.to_kuzu_value())
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Items, relations(self.items.iter())),
             (NodeProperty::Authors, relations(self.authors.iter().flatten()))
@@ -724,6 +825,10 @@ impl DatabaseNode for ListItem {
         ListItem::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::AlternateNames, Vec::<String>::to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
@@ -734,7 +839,7 @@ impl DatabaseNode for ListItem {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Content, relations(self.content.iter()))
         ]
@@ -750,6 +855,10 @@ impl DatabaseNode for MathBlock {
         MathBlock::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::Code, String::to_kuzu_type(), self.code.to_kuzu_value()),
@@ -759,7 +868,7 @@ impl DatabaseNode for MathBlock {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
@@ -775,6 +884,10 @@ impl DatabaseNode for MathInline {
         MathInline::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::Code, String::to_kuzu_type(), self.code.to_kuzu_value()),
@@ -782,7 +895,7 @@ impl DatabaseNode for MathInline {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
@@ -796,6 +909,10 @@ impl DatabaseNode for MediaObject {
 
     fn node_id(&self) -> NodeId {
         MediaObject::node_id(self)
+    }
+    
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
     }
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
@@ -820,7 +937,7 @@ impl DatabaseNode for MediaObject {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
@@ -841,13 +958,17 @@ impl DatabaseNode for Note {
         Note::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::NoteType, String::to_kuzu_type(), self.note_type.to_kuzu_value())
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Content, relations(self.content.iter()))
         ]
@@ -863,6 +984,10 @@ impl DatabaseNode for Organization {
         Organization::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.ror.to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::AlternateNames, Vec::<String>::to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
@@ -874,7 +999,7 @@ impl DatabaseNode for Organization {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::ParentOrganization, relations(self.options.parent_organization.iter()))
         ]
@@ -890,13 +1015,17 @@ impl DatabaseNode for Paragraph {
         Paragraph::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::Text, String::to_kuzu_type(), to_text(self).to_kuzu_value())
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Content, relations(self.content.iter())),
             (NodeProperty::Authors, relations(self.authors.iter().flatten()))
@@ -913,6 +1042,10 @@ impl DatabaseNode for Parameter {
         Parameter::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::ExecutionMode, String::to_kuzu_type(), self.execution_mode.to_kuzu_value()),
@@ -927,7 +1060,7 @@ impl DatabaseNode for Parameter {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             
         ]
@@ -941,6 +1074,10 @@ impl DatabaseNode for Periodical {
 
     fn node_id(&self) -> NodeId {
         Periodical::node_id(self)
+    }
+    
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
     }
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
@@ -957,7 +1094,7 @@ impl DatabaseNode for Periodical {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             
         ]
@@ -973,6 +1110,10 @@ impl DatabaseNode for Person {
         Person::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.orcid.to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::AlternateNames, Vec::<String>::to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
@@ -986,7 +1127,7 @@ impl DatabaseNode for Person {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Affiliations, relations(self.affiliations.iter().flatten()))
         ]
@@ -1002,13 +1143,17 @@ impl DatabaseNode for PublicationIssue {
         PublicationIssue::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::IssueNumber, String::to_kuzu_type(), to_text(&self.issue_number).to_kuzu_value())
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             
         ]
@@ -1024,13 +1169,17 @@ impl DatabaseNode for PublicationVolume {
         PublicationVolume::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::VolumeNumber, String::to_kuzu_type(), to_text(&self.volume_number).to_kuzu_value())
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             
         ]
@@ -1046,13 +1195,17 @@ impl DatabaseNode for QuoteBlock {
         QuoteBlock::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Content, relations(self.content.iter())),
             (NodeProperty::Authors, relations(self.authors.iter().flatten()))
@@ -1069,13 +1222,17 @@ impl DatabaseNode for QuoteInline {
         QuoteInline::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Content, relations(self.content.iter()))
         ]
@@ -1091,6 +1248,10 @@ impl DatabaseNode for RawBlock {
         RawBlock::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::Format, String::to_kuzu_type(), self.format.to_kuzu_value()),
@@ -1099,7 +1260,7 @@ impl DatabaseNode for RawBlock {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
@@ -1115,6 +1276,10 @@ impl DatabaseNode for Reference {
         Reference::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.doi.to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::Doi, String::to_kuzu_type(), self.doi.to_kuzu_value()),
@@ -1123,7 +1288,7 @@ impl DatabaseNode for Reference {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Authors, relations(self.authors.iter().flatten()))
         ]
@@ -1139,13 +1304,17 @@ impl DatabaseNode for Section {
         Section::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::SectionType, String::to_kuzu_type(), self.section_type.to_kuzu_value())
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Content, relations(self.content.iter())),
             (NodeProperty::Authors, relations(self.authors.iter().flatten()))
@@ -1160,6 +1329,10 @@ impl DatabaseNode for SoftwareApplication {
 
     fn node_id(&self) -> NodeId {
         SoftwareApplication::node_id(self)
+    }
+    
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
     }
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
@@ -1181,7 +1354,7 @@ impl DatabaseNode for SoftwareApplication {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
@@ -1203,6 +1376,10 @@ impl DatabaseNode for StyledBlock {
         StyledBlock::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::Code, String::to_kuzu_type(), self.code.to_kuzu_value()),
@@ -1212,7 +1389,7 @@ impl DatabaseNode for StyledBlock {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
             (NodeProperty::Content, relations(self.content.iter()))
@@ -1229,6 +1406,10 @@ impl DatabaseNode for StyledInline {
         StyledInline::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::Code, String::to_kuzu_type(), self.code.to_kuzu_value()),
@@ -1238,7 +1419,7 @@ impl DatabaseNode for StyledInline {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
             (NodeProperty::Content, relations(self.content.iter()))
@@ -1253,6 +1434,10 @@ impl DatabaseNode for Table {
 
     fn node_id(&self) -> NodeId {
         Table::node_id(self)
+    }
+    
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
     }
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
@@ -1275,7 +1460,7 @@ impl DatabaseNode for Table {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.authors.iter().flatten())),
@@ -1299,6 +1484,10 @@ impl DatabaseNode for TableCell {
         TableCell::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::CellType, String::to_kuzu_type(), self.cell_type.to_kuzu_value()),
@@ -1312,7 +1501,7 @@ impl DatabaseNode for TableCell {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             
         ]
@@ -1328,13 +1517,17 @@ impl DatabaseNode for TableRow {
         TableRow::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::RowType, String::to_kuzu_type(), self.row_type.to_kuzu_value())
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Cells, relations(self.cells.iter()))
         ]
@@ -1350,13 +1543,17 @@ impl DatabaseNode for ThematicBreak {
         ThematicBreak::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             
         ]
@@ -1372,6 +1569,10 @@ impl DatabaseNode for Thing {
         Thing::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::AlternateNames, Vec::<String>::to_kuzu_type(), self.options.alternate_names.to_kuzu_value()),
@@ -1381,7 +1582,7 @@ impl DatabaseNode for Thing {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             
         ]
@@ -1397,6 +1598,10 @@ impl DatabaseNode for Variable {
         Variable::node_id(self)
     }
     
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         vec![
             (NodeProperty::Name, String::to_kuzu_type(), self.name.to_kuzu_value()),
@@ -1407,7 +1612,7 @@ impl DatabaseNode for Variable {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             
         ]
@@ -1421,6 +1626,10 @@ impl DatabaseNode for VideoObject {
 
     fn node_id(&self) -> NodeId {
         VideoObject::node_id(self)
+    }
+    
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
     }
     
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
@@ -1445,7 +1654,7 @@ impl DatabaseNode for VideoObject {
         ]
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
             (NodeProperty::Abstract, relations(self.options.r#abstract.iter().flatten())),
             (NodeProperty::Authors, relations(self.options.authors.iter().flatten())),
@@ -1572,6 +1781,62 @@ impl DatabaseNode for Node {
         }
     }
 
+    fn primary_key(&self) -> Value {
+        match self {
+            Node::Admonition(node) => node.primary_key(),
+            Node::Annotation(node) => node.primary_key(),
+            Node::Article(node) => node.primary_key(),
+            Node::AudioObject(node) => node.primary_key(),
+            Node::AuthorRole(node) => node.primary_key(),
+            Node::Citation(node) => node.primary_key(),
+            Node::CitationGroup(node) => node.primary_key(),
+            Node::Claim(node) => node.primary_key(),
+            Node::CodeBlock(node) => node.primary_key(),
+            Node::CodeChunk(node) => node.primary_key(),
+            Node::CodeExpression(node) => node.primary_key(),
+            Node::Directory(node) => node.primary_key(),
+            Node::Figure(node) => node.primary_key(),
+            Node::File(node) => node.primary_key(),
+            Node::ForBlock(node) => node.primary_key(),
+            Node::Function(node) => node.primary_key(),
+            Node::Heading(node) => node.primary_key(),
+            Node::IfBlock(node) => node.primary_key(),
+            Node::IfBlockClause(node) => node.primary_key(),
+            Node::ImageObject(node) => node.primary_key(),
+            Node::IncludeBlock(node) => node.primary_key(),
+            Node::Link(node) => node.primary_key(),
+            Node::List(node) => node.primary_key(),
+            Node::ListItem(node) => node.primary_key(),
+            Node::MathBlock(node) => node.primary_key(),
+            Node::MathInline(node) => node.primary_key(),
+            Node::MediaObject(node) => node.primary_key(),
+            Node::Note(node) => node.primary_key(),
+            Node::Organization(node) => node.primary_key(),
+            Node::Paragraph(node) => node.primary_key(),
+            Node::Parameter(node) => node.primary_key(),
+            Node::Periodical(node) => node.primary_key(),
+            Node::Person(node) => node.primary_key(),
+            Node::PublicationIssue(node) => node.primary_key(),
+            Node::PublicationVolume(node) => node.primary_key(),
+            Node::QuoteBlock(node) => node.primary_key(),
+            Node::QuoteInline(node) => node.primary_key(),
+            Node::RawBlock(node) => node.primary_key(),
+            Node::Reference(node) => node.primary_key(),
+            Node::Section(node) => node.primary_key(),
+            Node::SoftwareApplication(node) => node.primary_key(),
+            Node::StyledBlock(node) => node.primary_key(),
+            Node::StyledInline(node) => node.primary_key(),
+            Node::Table(node) => node.primary_key(),
+            Node::TableCell(node) => node.primary_key(),
+            Node::TableRow(node) => node.primary_key(),
+            Node::ThematicBreak(node) => node.primary_key(),
+            Node::Thing(node) => node.primary_key(),
+            Node::Variable(node) => node.primary_key(),
+            Node::VideoObject(node) => node.primary_key(),
+            _ => Value::Null(LogicalType::Any)
+        }
+    }
+
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         match self {
             Node::Admonition(node) => node.node_table(),
@@ -1628,7 +1893,7 @@ impl DatabaseNode for Node {
         }
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         match self {
             Node::Admonition(node) => node.rel_tables(),
             Node::Annotation(node) => node.rel_tables(),
@@ -1743,6 +2008,34 @@ impl DatabaseNode for Block {
         }
     }
 
+    fn primary_key(&self) -> Value {
+        match self {
+            Block::Admonition(node) => node.primary_key(),
+            Block::AudioObject(node) => node.primary_key(),
+            Block::Claim(node) => node.primary_key(),
+            Block::CodeBlock(node) => node.primary_key(),
+            Block::CodeChunk(node) => node.primary_key(),
+            Block::Figure(node) => node.primary_key(),
+            Block::File(node) => node.primary_key(),
+            Block::ForBlock(node) => node.primary_key(),
+            Block::Heading(node) => node.primary_key(),
+            Block::IfBlock(node) => node.primary_key(),
+            Block::ImageObject(node) => node.primary_key(),
+            Block::IncludeBlock(node) => node.primary_key(),
+            Block::List(node) => node.primary_key(),
+            Block::MathBlock(node) => node.primary_key(),
+            Block::Paragraph(node) => node.primary_key(),
+            Block::QuoteBlock(node) => node.primary_key(),
+            Block::RawBlock(node) => node.primary_key(),
+            Block::Section(node) => node.primary_key(),
+            Block::StyledBlock(node) => node.primary_key(),
+            Block::Table(node) => node.primary_key(),
+            Block::ThematicBreak(node) => node.primary_key(),
+            Block::VideoObject(node) => node.primary_key(),
+            _ => Value::Null(LogicalType::Any)
+        }
+    }
+
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         match self {
             Block::Admonition(node) => node.node_table(),
@@ -1771,7 +2064,7 @@ impl DatabaseNode for Block {
         }
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         match self {
             Block::Admonition(node) => node.rel_tables(),
             Block::AudioObject(node) => node.rel_tables(),
@@ -1842,6 +2135,26 @@ impl DatabaseNode for Inline {
         }
     }
 
+    fn primary_key(&self) -> Value {
+        match self {
+            Inline::Annotation(node) => node.primary_key(),
+            Inline::AudioObject(node) => node.primary_key(),
+            Inline::Citation(node) => node.primary_key(),
+            Inline::CitationGroup(node) => node.primary_key(),
+            Inline::CodeExpression(node) => node.primary_key(),
+            Inline::ImageObject(node) => node.primary_key(),
+            Inline::Link(node) => node.primary_key(),
+            Inline::MathInline(node) => node.primary_key(),
+            Inline::MediaObject(node) => node.primary_key(),
+            Inline::Note(node) => node.primary_key(),
+            Inline::Parameter(node) => node.primary_key(),
+            Inline::QuoteInline(node) => node.primary_key(),
+            Inline::StyledInline(node) => node.primary_key(),
+            Inline::VideoObject(node) => node.primary_key(),
+            _ => Value::Null(LogicalType::Any)
+        }
+    }
+
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         match self {
             Inline::Annotation(node) => node.node_table(),
@@ -1862,7 +2175,7 @@ impl DatabaseNode for Inline {
         }
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         match self {
             Inline::Annotation(node) => node.rel_tables(),
             Inline::AudioObject(node) => node.rel_tables(),
@@ -1905,6 +2218,16 @@ impl DatabaseNode for Author {
         }
     }
 
+    fn primary_key(&self) -> Value {
+        match self {
+            Author::Person(node) => node.primary_key(),
+            Author::Organization(node) => node.primary_key(),
+            Author::SoftwareApplication(node) => node.primary_key(),
+            Author::AuthorRole(node) => node.primary_key(),
+            _ => Value::Null(LogicalType::Any)
+        }
+    }
+
     fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
         match self {
             Author::Person(node) => node.node_table(),
@@ -1915,12 +2238,65 @@ impl DatabaseNode for Author {
         }
     }
 
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)> {
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         match self {
             Author::Person(node) => node.rel_tables(),
             Author::Organization(node) => node.rel_tables(),
             Author::SoftwareApplication(node) => node.rel_tables(),
             Author::AuthorRole(node) => node.rel_tables(),
+            _ => Vec::new()
+        }
+    }
+}
+
+#[allow(unreachable_patterns)]
+impl DatabaseNode for AuthorRoleAuthor {
+    fn node_type(&self) -> NodeType {
+        match self {
+            AuthorRoleAuthor::Person(node) => node.node_type(),
+            AuthorRoleAuthor::Organization(node) => node.node_type(),
+            AuthorRoleAuthor::SoftwareApplication(node) => node.node_type(),
+            AuthorRoleAuthor::Thing(node) => node.node_type(),
+            _ => NodeType::Unknown
+        }
+    }
+
+    fn node_id(&self) -> NodeId {
+        match self {
+            AuthorRoleAuthor::Person(node) => node.node_id(),
+            AuthorRoleAuthor::Organization(node) => node.node_id(),
+            AuthorRoleAuthor::SoftwareApplication(node) => node.node_id(),
+            AuthorRoleAuthor::Thing(node) => node.node_id(),
+            _ => NodeId::null()
+        }
+    }
+
+    fn primary_key(&self) -> Value {
+        match self {
+            AuthorRoleAuthor::Person(node) => node.primary_key(),
+            AuthorRoleAuthor::Organization(node) => node.primary_key(),
+            AuthorRoleAuthor::SoftwareApplication(node) => node.primary_key(),
+            AuthorRoleAuthor::Thing(node) => node.primary_key(),
+            _ => Value::Null(LogicalType::Any)
+        }
+    }
+
+    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
+        match self {
+            AuthorRoleAuthor::Person(node) => node.node_table(),
+            AuthorRoleAuthor::Organization(node) => node.node_table(),
+            AuthorRoleAuthor::SoftwareApplication(node) => node.node_table(),
+            AuthorRoleAuthor::Thing(node) => node.node_table(),
+            _ => Vec::new()
+        }
+    }
+
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
+        match self {
+            AuthorRoleAuthor::Person(node) => node.rel_tables(),
+            AuthorRoleAuthor::Organization(node) => node.rel_tables(),
+            AuthorRoleAuthor::SoftwareApplication(node) => node.rel_tables(),
+            AuthorRoleAuthor::Thing(node) => node.rel_tables(),
             _ => Vec::new()
         }
     }

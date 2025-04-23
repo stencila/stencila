@@ -8,6 +8,7 @@ use std::{
 };
 
 use derive_more::{Deref, DerefMut};
+use node_types::primary_key;
 use time::format_description::{self, BorrowedFormatItem};
 
 use common::{
@@ -68,8 +69,13 @@ pub trait DatabaseNode {
 
     /// Get the [`NodeId`] for the node
     ///
-    /// Used for the `nodeId` and `parentId` columns of the node table.
+    /// Used to populate the `nodeId` column of the node table.
     fn node_id(&self) -> NodeId;
+
+    /// Get the value of the primary key for the node
+    ///
+    /// Used when creating relations between nodes.
+    fn primary_key(&self) -> Value;
 
     /// Get the names, types, and values of properties of the node table for the node type
     ///
@@ -80,7 +86,7 @@ pub trait DatabaseNode {
     /// Get the names of relation tables and lists of node id and position for each
     ///
     /// Used to create an entry in relation tables.
-    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, NodeId)>)>;
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)>;
 }
 
 /// A database of Stencila Schema nodes
@@ -318,18 +324,26 @@ impl NodeDatabase {
     ) -> Result<()> {
         let connection = Connection::new(&self.database)?;
 
+        // Whether or not the node id is the primary key. This is true for most
+        // not types (but not for Reference, Person & Organization where we use
+        // the canonical id instead) and we add docId, nodeId etc columns.
+        let node_id_is_pk = primary_key(&node_type) == "nodeId";
+
         // Get node table properties and add additional properties
         let mut properties = properties
             .into_iter()
             .map(|(prop, ..)| prop.to_camel_case())
             .collect_vec();
-        properties.append(&mut vec![
-            "docId".to_string(),
-            "nodeId".to_string(),
-            "nodePath".to_string(),
-            "nodeAncestors".to_string(),
-            "position".to_string(),
-        ]);
+
+        if node_id_is_pk {
+            properties.append(&mut vec![
+                "docId".to_string(),
+                "nodeId".to_string(),
+                "nodePath".to_string(),
+                "nodeAncestors".to_string(),
+                "position".to_string(),
+            ]);
+        }
 
         // It is necessary to specify the format for timestamps in CSV files because `to_string`
         // adds offset seconds which the Kuzu CSV parser does not like
@@ -371,13 +385,15 @@ impl NodeDatabase {
                     .collect_vec();
                 let names = names.iter().map(|name| name.as_str());
 
-                values.append(&mut vec![
-                    doc_id.to_kuzu_value(),
-                    node_id.to_kuzu_value(),
-                    node_path.to_kuzu_value(),
-                    node_ancestors.to_kuzu_value(),
-                    position.to_kuzu_value(),
-                ]);
+                if node_id_is_pk {
+                    values.append(&mut vec![
+                        doc_id.to_kuzu_value(),
+                        node_id.to_kuzu_value(),
+                        node_path.to_kuzu_value(),
+                        node_ancestors.to_kuzu_value(),
+                        position.to_kuzu_value(),
+                    ]);
+                }
 
                 let params = names.zip(values.into_iter()).collect_vec();
 
@@ -400,16 +416,23 @@ impl NodeDatabase {
                     write!(&mut buffer, "{field},")?;
                 }
 
-                writeln!(
-                    &mut buffer,
-                    "{doc_id},{node_id},{node_path},{node_ancestors},{position}"
-                )?;
+                if node_id_is_pk {
+                    writeln!(
+                        &mut buffer,
+                        "{doc_id},{node_id},{node_path},{node_ancestors},{position}"
+                    )?;
+                } else {
+                    writeln!(&mut buffer)?;
+                }
             }
             buffer.flush()?;
 
+            // Ignore errors associated with duplicate primary keys if node_id is not the primary key
+            let ignore_errors = if node_id_is_pk { false } else { true };
+
             let filename = csv.path().to_string_lossy();
             connection.query(&format!(
-                "COPY `{node_type}` FROM '{filename}' (header=true, file_format='csv', auto_detect=false);"
+                "COPY `{node_type}` FROM '{filename}' (header=true, ignore_errors={ignore_errors}, file_format='csv', auto_detect=false);"
             )).wrap_err_with(|| eyre!("Error copying into `{node_type}` from CSV with `{}`", properties.join(", ")))?;
         }
 
@@ -426,7 +449,7 @@ impl NodeDatabase {
         from_node_type: NodeType,
         node_property: NodeProperty,
         to_node_type: NodeType,
-        entries: Vec<(NodeId, Vec<NodeId>)>,
+        entries: Vec<(Value, Vec<Value>)>,
     ) -> Result<()> {
         let connection = Connection::new(&self.database)?;
         let relation = node_property.to_camel_case();
@@ -437,10 +460,13 @@ impl NodeDatabase {
             let statement = match self.create_rel_statements.get_mut(&key) {
                 Some(statement) => statement,
                 None => {
+                    let from_pk_name = primary_key(&from_node_type);
+                    let to_pk_name = primary_key(&to_node_type);
+
                     let statement = format!(
                         "
                     MATCH (from:`{from_node_type}`), (to:`{to_node_type}`)
-                    WHERE from.nodeId = $from_node_id AND to.nodeId = $to_node_id
+                    WHERE from.{from_pk_name} = $from_node_pk AND to.{to_pk_name} = $to_node_pk
                     CREATE (from)-[:`{relation}`]->(to)
                     "
                     );
@@ -455,11 +481,11 @@ impl NodeDatabase {
             };
 
             // Execute prepared statement for each entry
-            for (from_node_id, to_nodes) in entries {
-                for node_id in to_nodes {
+            for (from_node_pk, to_nodes) in entries {
+                for node_pk in to_nodes {
                     let params = vec![
-                        ("from_node_id", from_node_id.to_kuzu_value()),
-                        ("to_node_id", node_id.to_kuzu_value()),
+                        ("from_node_pk", from_node_pk.clone()),
+                        ("to_node_pk", node_pk),
                     ];
                     connection.execute(statement, params)?;
                 }
@@ -468,16 +494,16 @@ impl NodeDatabase {
             let csv = NamedTempFile::new()?;
             let mut buffer = BufWriter::new(&csv);
             writeln!(&mut buffer, "from,to")?;
-            for (from_node_id, to_nodes) in entries {
-                for node_id in to_nodes {
-                    writeln!(&mut buffer, "{from_node_id},{node_id}")?;
+            for (from_node_pk, to_nodes) in entries {
+                for node_pk in to_nodes {
+                    writeln!(&mut buffer, "{from_node_pk},{node_pk}")?;
                 }
             }
             buffer.flush()?;
 
             let filename = csv.path().to_string_lossy();
             connection.query(&format!(
-                "COPY `{relation}` FROM '{filename}' (from='{from_node_type}', to='{to_node_type}', header=true, file_format='csv', auto_detect=false);"
+                "COPY `{relation}` FROM '{filename}' (from='{from_node_type}', to='{to_node_type}', ignore_errors=true, header=true, file_format='csv', auto_detect=false);"
             ))?;
         }
 
