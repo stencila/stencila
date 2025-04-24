@@ -100,6 +100,22 @@ pub struct Query {
     /// If not supplied the output content is written to `stdout`.
     output: Option<PathBuf>,
 
+    /// The database to query
+    #[arg(long, default_value = "workspace")]
+    db: String,
+
+    /// The directory from which the closest workspace should be found
+    ///
+    /// Defaults to the current directory. Use this option if wanting
+    /// to query a database outside of the current workspace, or if
+    /// not in a workspace.
+    #[arg(long, default_value = ".")]
+    dir: PathBuf,
+
+    /// Use Cypher as the query language (instead of DocsQL the default)
+    #[arg(long, short)]
+    cypher: bool,
+
     /// The format to output the result as
     ///
     /// Defaults to inferring the format from the file name extension
@@ -112,7 +128,7 @@ pub struct Query {
     ///
     /// Use this flag to produce the compact forms of encoding (e.g. no indentation)
     /// which are supported by some formats (e.g. JSON, HTML).
-    #[arg(long, short, conflicts_with = "pretty")]
+    #[arg(long, conflicts_with = "pretty")]
     compact: bool,
 
     /// Use a "pretty" form of encoding if possible
@@ -121,14 +137,6 @@ pub struct Query {
     /// which are supported by some formats (e.g. JSON, HTML).
     #[arg(long, short, conflicts_with = "compact")]
     pretty: bool,
-
-    /// The directory from which the closest workspace should be found
-    ///
-    /// Defaults to the current directory. Use this option if wanting
-    /// to query a database outside of the current workspace, or if
-    /// not in a workspace.
-    #[arg(long, short, default_value = ".")]
-    dir: PathBuf,
 }
 
 impl Query {
@@ -138,13 +146,21 @@ impl Query {
             bail!("Directory `{}` does not exist", self.dir.display())
         }
 
+        let (kernel, query) = if self.cypher {
+            ("docsdb", format!("// @{}\n{}", self.db, self.query))
+        } else if !self.query.starts_with(&self.db) {
+            ("docsql", format!("{}.{}", self.db, self.query))
+        } else {
+            ("docsql", self.query)
+        };
+
         // Create a docs kernel and execute query
-        let Some(kernel) = kernels::get("docsql").await else {
-            bail!("Unable to create DocsQL kernel")
+        let Some(kernel) = kernels::get(kernel).await else {
+            bail!("Unable to create `{kernel}` kernel")
         };
         let mut kernel = kernel.create_instance(schema::ExecutionBounds::Box)?;
         kernel.start(&self.dir).await?;
-        let (nodes, messages) = kernel.execute(&self.query).await?;
+        let (nodes, messages) = kernel.execute(&query).await?;
 
         // Display any messages as a diagnostic
         for msg in messages {
@@ -159,7 +175,7 @@ impl Query {
                 code: None,
                 code_location: msg.code_location.clone(),
             }
-            .to_stderr_pretty("<code>", &self.query, &None)
+            .to_stderr_pretty("<code>", &query, &None)
             .ok();
         }
 
