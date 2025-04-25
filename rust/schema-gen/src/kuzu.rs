@@ -67,9 +67,6 @@ impl Schemas {
             "Citation.citationSuffix",
             "Citation.pagination",
             "Citation.content", // Provided for by the derived `text` field
-            // Exclude citation `cites` relation because it is generated
-            // based on DOIs, rather than node ids
-            "Citation.cites",
             // Exclude unnecessary reference properties
             "Reference.pageStart",
             "Reference.pageEnd",
@@ -275,7 +272,7 @@ impl Schemas {
         // Node types where the primary key is not the node id. These node types are treated
         // as being "outside" of documents: we do not use node ids to create relations with them
         // rather, we use these canonical ids.
-        let primary_keys = HashMap::from([
+        let primary_keys = BTreeMap::from([
             ("Reference", "doi"),
             ("Person", "orcid"),
             ("Organization", "ror"),
@@ -464,12 +461,17 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
 
                             relations.push((name, on_options, is_option, is_array, ref_type));
 
-                            one_to_one
-                                .entry(name)
-                                .and_modify(|existing: &mut Vec<String>| {
-                                    existing.append(&mut pairs)
-                                })
-                                .or_insert(pairs);
+                            if primary_keys.contains_key(&ref_type.as_str())
+                                || ref_type == "Author"
+                                || ref_type == "AuthorRole"
+                            {
+                                &mut many_to_many
+                            } else {
+                                &mut one_to_one
+                            }
+                            .entry(name)
+                            .and_modify(|existing: &mut Vec<String>| existing.append(&mut pairs))
+                            .or_insert(pairs);
 
                             continue;
                         }

@@ -8,9 +8,9 @@ use super::DatabaseNode;
 
 pub(super) fn primary_key(node_type: &NodeType) -> &'static str {
     match node_type {
-        NodeType::Reference => "doi",
-        NodeType::Person => "orcid",
         NodeType::Organization => "ror",
+        NodeType::Person => "orcid",
+        NodeType::Reference => "doi",
         _ => "nodeId"
     }
 }
@@ -233,7 +233,7 @@ impl DatabaseNode for Citation {
 
     fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
         vec![
-            
+            (NodeProperty::Cites, relations(self.options.cites.iter()))
         ]
     }
 }

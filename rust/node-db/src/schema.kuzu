@@ -713,11 +713,6 @@ CREATE REL TABLE IF NOT EXISTS `author` (
   ONE_ONE
 );
 
-CREATE REL TABLE IF NOT EXISTS `parentOrganization` (
-  FROM `Organization` TO `Organization`,
-  ONE_ONE
-);
-
 CREATE REL TABLE IF NOT EXISTS `abstract` (
   FROM `Article` TO `Admonition`,
   FROM `Article` TO `AudioObject`,
@@ -1776,6 +1771,11 @@ CREATE REL TABLE IF NOT EXISTS `authors` (
   MANY_MANY
 );
 
+CREATE REL TABLE IF NOT EXISTS `cites` (
+  FROM `Citation` TO `Reference`,
+  MANY_MANY
+);
+
 CREATE REL TABLE IF NOT EXISTS `contributors` (
   FROM `Article` TO `Person`,
   FROM `Article` TO `Organization`,
@@ -1826,6 +1826,11 @@ CREATE REL TABLE IF NOT EXISTS `editors` (
   FROM `SoftwareApplication` TO `Person`,
   FROM `Table` TO `Person`,
   FROM `VideoObject` TO `Person`,
+  MANY_MANY
+);
+
+CREATE REL TABLE IF NOT EXISTS `parentOrganization` (
+  FROM `Organization` TO `Organization`,
   MANY_MANY
 );
 

@@ -284,13 +284,16 @@ impl Query {
                 let prev_table = self.node_table_used.as_deref().unwrap_or_default();
                 let relation = match (prev_table, table.as_str()) {
                     ("CitationGroup", "Citation") => "[:items]",
+                    (_, "Citation") => "[:content|:items*]",
+                    ("Citation", "Reference") => "[:cites]",
+                    (_, "Reference") => "[:content|:items|:cites*]",
                     ("Table", "TableRow") => "[:rows]",
                     ("TableRow", "TableCell") => "[:cells]",
-                    ("Table", "TableCell") => "[:rows]-[:cells]",
+                    ("Table", "TableCell") => "[:rows]-(row:TableRow)-[:cells]",
                     ("Article", "Person") => "[:authors]",
                     ("Reference", "Person") => "[:authors]",
                     ("Person", "Organization") => "[:affiliations]",
-                    _ => "[* acyclic]",
+                    _ => "[:content|:items* acyclic]",
                 };
                 [&pattern, "-", relation, "->", &node].concat()
             }
