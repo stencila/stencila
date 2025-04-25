@@ -45,14 +45,15 @@ pub(super) fn transform_filters(code: &str) -> String {
     });
 
     static FILTERS: Lazy<Regex> = Lazy::new(|| {
-        Regex::new(r"@([a-zA-Z][\w_]*)\s*(==|\!=|<=|<|>=|>|=\~|\~=|\!\~|\^=|\$=|in|has|=)\s*")
+        Regex::new(r"((?:\(|,)\s*)\.([a-zA-Z][\w_]*)\s*(==|\!=|<=|<|>=|>|=\~|\~=|\!\~|\^=|\$=|in|has|=)\s*")
             .expect("invalid regex")
     });
 
     FILTERS
         .replace_all(&code, |captures: &Captures| {
-            let var = &captures[1];
-            let op = match &captures[2] {
+            let pre = &captures[1];
+            let var = &captures[2];
+            let op = match &captures[3] {
                 "=" | "==" => "",
                 "!=" => "0",
                 "<" => "1",
@@ -68,10 +69,10 @@ pub(super) fn transform_filters(code: &str) -> String {
                 echo => echo,
             };
 
-            let spaces = captures[0].len().saturating_sub(var.len() + op.len() + 1);
+            let spaces = captures[0].len().saturating_sub(pre.len() + var.len() + op.len() + 1);
             let spaces = " ".repeat(spaces);
 
-            [var, op, &spaces, "="].concat()
+            [pre, var, op, &spaces, "="].concat()
         })
         .into()
 }
@@ -1559,38 +1560,38 @@ mod tests {
         use super::transform_filters as t;
 
         assert_eq!(t(""), "");
-        assert_eq!(t("@a"), "@a");
+        assert_eq!(t(".a"), ".a");
 
-        assert_eq!(t("@a = 1"), "a   =1");
-        assert_eq!(t("@a= 1"), "a  =1");
-        assert_eq!(t("@a =1"), "a  =1");
-        assert_eq!(t("@a=1"), "a =1");
+        assert_eq!(t("(.a = 1"), "(a   =1");
+        assert_eq!(t("(.a= 1"), "(a  =1");
+        assert_eq!(t("(.a =1"), "(a  =1");
+        assert_eq!(t("(.a=1"), "(a =1");
 
-        assert_eq!(t("@a == 1"), "a    =1");
-        assert_eq!(t("@a== 1"), "a   =1");
-        assert_eq!(t("@a ==1"), "a   =1");
-        assert_eq!(t("@a==1"), "a  =1");
+        assert_eq!(t("(.a == 1"), "(a    =1");
+        assert_eq!(t("(.a== 1"), "(a   =1");
+        assert_eq!(t("(.a ==1"), "(a   =1");
+        assert_eq!(t("(.a==1"), "(a  =1");
 
-        assert_eq!(t("@a < 1"), "a1  =1");
-        assert_eq!(t("@a< 1"), "a1 =1");
-        assert_eq!(t("@a <1"), "a1 =1");
-        assert_eq!(t("@a<1"), "a1=1");
+        assert_eq!(t("(.a < 1"), "(a1  =1");
+        assert_eq!(t("(.a< 1"), "(a1 =1");
+        assert_eq!(t("(.a <1"), "(a1 =1");
+        assert_eq!(t("(.a<1"), "(a1=1");
 
-        assert_eq!(t("@abc !~ 'regex'"), "abc6   ='regex'");
-        assert_eq!(t("@abc!~ 'regex'"), "abc6  ='regex'");
-        assert_eq!(t("@abc !~'regex'"), "abc6  ='regex'");
-        assert_eq!(t("@abc!~'regex'"), "abc6 ='regex'");
+        assert_eq!(t("(.abc !~ 'regex'"), "(abc6   ='regex'");
+        assert_eq!(t("(.abc!~ 'regex'"), "(abc6  ='regex'");
+        assert_eq!(t("(.abc !~'regex'"), "(abc6  ='regex'");
+        assert_eq!(t("(.abc!~'regex'"), "(abc6 ='regex'");
 
-        assert_eq!(t("@a != 1"), "a0   =1");
-        assert_eq!(t("@a < 1"), "a1  =1");
-        assert_eq!(t("@a <= 1"), "a2   =1");
-        assert_eq!(t("@a > 1"), "a3  =1");
-        assert_eq!(t("@a >= 1"), "a4   =1");
-        assert_eq!(t("@a =~ 1"), "a5   =1");
-        assert_eq!(t("@a !~ 1"), "a6   =1");
-        assert_eq!(t("@a ^= 1"), "a7   =1");
-        assert_eq!(t("@a $= 1"), "a8   =1");
-        assert_eq!(t("@a in 1"), "a9   =1");
-        assert_eq!(t("@a has 1"), "a_    =1");
+        assert_eq!(t("(.a != 1"), "(a0   =1");
+        assert_eq!(t("(.a < 1"), "(a1  =1");
+        assert_eq!(t("(.a <= 1"), "(a2   =1");
+        assert_eq!(t("(.a > 1"), "(a3  =1");
+        assert_eq!(t("(.a >= 1"), "(a4   =1");
+        assert_eq!(t("(.a =~ 1"), "(a5   =1");
+        assert_eq!(t("(.a !~ 1"), "(a6   =1");
+        assert_eq!(t("(.a ^= 1"), "(a7   =1");
+        assert_eq!(t("(.a $= 1"), "(a8   =1");
+        assert_eq!(t("(.a in 1"), "(a9   =1");
+        assert_eq!(t("(.a has 1"), "(a_    =1");
     }
 }

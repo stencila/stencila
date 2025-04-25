@@ -470,7 +470,7 @@ LIMIT 2"
         );
 
         expect!(
-            "test.cells(@position < 3)",
+            "test.cells(.position < 3)",
             r#"MATCH (cell:TableCell)
 WHERE cell.position < 3
 RETURN cell
@@ -478,7 +478,7 @@ LIMIT 10"#
         );
 
         expect!(
-            "test.cells(@text != 'a')",
+            "test.cells(.text != 'a')",
             r#"MATCH (cell:TableCell)
 WHERE cell.text <> 'a'
 RETURN cell
@@ -486,7 +486,7 @@ LIMIT 10"#
         );
 
         expect!(
-            "test.cells(@text =~ 'a')",
+            "test.cells(.text =~ 'a')",
             r#"MATCH (cell:TableCell)
 WHERE regexp_matches(cell.text, 'a')
 RETURN cell
@@ -494,7 +494,7 @@ LIMIT 10"#
         );
 
         expect!(
-            "test.cells(@text !~ 'a')",
+            "test.cells(.text !~ 'a')",
             r#"MATCH (cell:TableCell)
 WHERE NOT regexp_matches(cell.text, 'a')
 RETURN cell
@@ -502,7 +502,7 @@ LIMIT 10"#
         );
 
         expect!(
-            "test.cells(@text ^= 'a')",
+            "test.cells(.text ^= 'a')",
             r#"MATCH (cell:TableCell)
 WHERE starts_with(cell.text, 'a')
 RETURN cell
@@ -510,7 +510,7 @@ LIMIT 10"#
         );
 
         expect!(
-            "test.cells(@text $= 'a')",
+            "test.cells(.text $= 'a')",
             r#"MATCH (cell:TableCell)
 WHERE ends_with(cell.text, 'a')
 RETURN cell
@@ -518,7 +518,7 @@ LIMIT 10"#
         );
 
         expect!(
-            "test.cells(@text in ['a', 'b'])",
+            "test.cells(.text in ['a', 'b'])",
             r#"MATCH (cell:TableCell)
 WHERE list_contains(["a", "b"], cell.text)
 RETURN cell
@@ -526,7 +526,7 @@ LIMIT 10"#
         );
 
         expect!(
-            "test.cells(@text has 'a')",
+            "test.cells(.text has 'a')",
             r#"MATCH (cell:TableCell)
 WHERE list_contains(cell.text, 'a')
 RETURN cell
@@ -588,7 +588,7 @@ LIMIT 10"#
         );
 
         expect!(
-            "test.paragraphs(@text ^= 'Word', search = 'keyword')",
+            "test.paragraphs(.text ^= 'Word', search = 'keyword')",
             r#"CALL QUERY_FTS_INDEX('Paragraph', 'fts', 'keyword')
 WHERE starts_with(node.text, 'Word')
 RETURN node
