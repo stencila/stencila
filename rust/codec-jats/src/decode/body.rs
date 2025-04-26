@@ -3,14 +3,16 @@ use roxmltree::Node;
 use std::str::FromStr;
 
 use codec::{
+    common::itertools::Itertools,
     schema::{
-        shortcuts::{em, img, mi, p, qb, qi, stg, stk, sub, sup, t, u},
+        shortcuts::{em, mi, p, qb, qi, stg, stk, sub, sup, t, u},
         Admonition, Article, AudioObject, AudioObjectOptions, Block, Citation, CitationMode,
         CitationOptions, Claim, ClaimType, CodeBlock, CodeChunk, CodeExpression, CodeInline, Cord,
         Date, DateTime, Duration, ExecutionMode, Figure, Heading, ImageObject, ImageObjectOptions,
-        Inline, Link, List, ListItem, ListOrder, MathBlock, MediaObject, MediaObjectOptions, Note,
-        NoteType, Parameter, Section, SectionType, StyledInline, Table, TableCell, TableRow,
-        TableRowType, Text, ThematicBreak, Time, Timestamp, VideoObject, VideoObjectOptions,
+        Inline, Link, List, ListItem, ListOrder, MathBlock, MathBlockOptions, MediaObject,
+        MediaObjectOptions, Note, NoteType, Parameter, Section, SectionType, StyledInline, Table,
+        TableCell, TableRow, TableRowType, Text, ThematicBreak, Time, Timestamp, VideoObject,
+        VideoObjectOptions,
     },
     Losses,
 };
@@ -60,13 +62,18 @@ pub(super) fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>
                 blocks.append(&mut decode_fn(&child_path, &child, losses, depth));
                 continue;
             }
-            "graphic" => decode_graphic(&child_path, &child, losses),
+            "graphic" => {
+                blocks.push(p([Inline::ImageObject(decode_graphic(
+                    &child_path,
+                    &child,
+                    losses,
+                ))]));
+                continue;
+            }
             "hr" => decode_hr(&child_path, &child, losses),
             "list" => decode_list(&child_path, &child, losses, depth),
             "p" => {
-                if let Some(para) = decode_p(&child_path, &child, losses) {
-                    blocks.push(para);
-                }
+                blocks.append(&mut decode_p(&child_path, &child, losses));
                 continue;
             }
             "sec" => decode_sec(&child_path, &child, losses, depth + 1),
@@ -125,22 +132,51 @@ fn decode_hr(path: &str, node: &Node, losses: &mut Losses) -> Block {
     Block::ThematicBreak(ThematicBreak::new())
 }
 
-/// Decode a `<p>` to a [`Block::Paragraph`]
-fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Option<Block> {
+/// Decode a <p> element to a vector of blocks
+///
+/// In addition to [`Paragraph`]nodes, this function may return [`MathBlock`] nodes,
+/// which in JATS can be within a <p> element.
+fn decode_p(path: &str, node: &Node, losses: &mut Losses) -> Vec<Block> {
     record_attrs_lost(path, node, [], losses);
 
-    let inlines = decode_inlines(path, node.children(), losses);
+    /// Create a paragraph using collected nodes
+    fn para(path: &str, children: Vec<Node>, losses: &mut Losses) -> Option<Block> {
+        let inlines = decode_inlines(path, children.into_iter(), losses);
 
-    if inlines.is_empty()
-        || inlines.iter().all(|inline| match inline {
-            Inline::Text(Text { value, .. }) => value.trim().is_empty(),
-            _ => false,
-        })
-    {
-        None
-    } else {
-        Some(p(inlines))
+        if !(inlines.is_empty()
+            || inlines.iter().all(|inline| match inline {
+                Inline::Text(Text { value, .. }) => value.trim().is_empty(),
+                _ => false,
+            }))
+        {
+            Some(p(inlines))
+        } else {
+            None
+        }
     }
+
+    let mut blocks = Vec::new();
+    let mut children = Vec::new();
+    for child in node.children() {
+        let child_tag = child.tag_name().name();
+        if child_tag == "disp-formula" {
+            if let Some(para) = para(path, children, losses) {
+                blocks.push(para);
+            }
+            children = Vec::new();
+
+            let math_block = decode_disp_formula(path, &child, losses, 0);
+            blocks.push(math_block);
+        } else {
+            children.push(child);
+        }
+    }
+
+    if let Some(para) = para(path, children, losses) {
+        blocks.push(para);
+    }
+
+    blocks
 }
 
 /// Decode a `<disp-quote>` to a [`Block::QuoteBlock`]
@@ -296,8 +332,8 @@ fn decode_fn(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Vec<Blo
     decode_blocks(path, node.children(), losses, depth)
 }
 
-/// Decode a `<graphic>` element to a Stencila [`Block::Paragraph`] with a single [`Inline::ImageObject`]
-fn decode_graphic(path: &str, node: &Node, losses: &mut Losses) -> Block {
+/// Decode a `<graphic>` element to an [`ImageObject`]
+fn decode_graphic(path: &str, node: &Node, losses: &mut Losses) -> ImageObject {
     let url = node
         .attribute((XLINK, "href"))
         .map(String::from)
@@ -305,7 +341,10 @@ fn decode_graphic(path: &str, node: &Node, losses: &mut Losses) -> Block {
 
     record_attrs_lost(path, node, ["href"], losses);
 
-    p(vec![img(url)])
+    ImageObject {
+        content_url: url,
+        ..Default::default()
+    }
 }
 
 /// Decode a `<code>` to a Stencila [`Block::CodeBlock`] or Stencila [`Block::CodeChunk`]
@@ -383,11 +422,22 @@ fn decode_disp_formula(path: &str, node: &Node, losses: &mut Losses, _depth: u8)
 
     let math_language = node.attribute("language").map(|lang| lang.to_string());
 
+    let images = node
+        .children()
+        .filter(|child| child.tag_name().name() == "graphic")
+        .map(|graphic| decode_graphic(&extend_path(path, "graphic"), &graphic, losses))
+        .collect_vec();
+    let images = (!images.is_empty()).then_some(images);
+
     record_attrs_lost(path, node, ["code", "language"], losses);
 
     Block::MathBlock(MathBlock {
         code: code.into(),
         math_language,
+        options: Box::new(MathBlockOptions {
+            images,
+            ..Default::default()
+        }),
         ..Default::default()
     })
 }
@@ -635,7 +685,7 @@ pub fn decode_inlines<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>>(
                 "duration" => decode_duration(&child_path, &child, losses),
                 "ext-link" => decode_link(&child_path, &child, losses),
                 "fn" => decode_footnote(&child_path, &child, losses),
-                "inline-formula" => decode_math_fragment(&child_path, &child, losses),
+                "inline-formula" => decode_inline_formula(&child_path, &child, losses),
                 "inline-graphic" | "inline-media" => {
                     decode_inline_media(&child_path, &child, losses)
                 }
@@ -885,7 +935,7 @@ fn decode_footnote(path: &str, node: &Node, losses: &mut Losses) -> Inline {
 }
 
 /// Decode a `<inline-formula>` to a [`Inline::MathInline`]
-fn decode_math_fragment(path: &str, node: &Node, losses: &mut Losses) -> Inline {
+fn decode_inline_formula(path: &str, node: &Node, losses: &mut Losses) -> Inline {
     let code = node.attribute("code").map(Cord::from).unwrap_or_default();
     let lang = node.attribute("language");
 

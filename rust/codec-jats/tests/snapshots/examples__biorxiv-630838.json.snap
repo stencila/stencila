@@ -9580,7 +9580,24 @@ expression: article
                       "value": {
                         "string": " and mean squared displacement over time and speed were computed according to:\n"
                       }
-                    },
+                    }
+                  ]
+                },
+                {
+                  "type": "MathBlock",
+                  "code": {
+                    "string": ""
+                  },
+                  "images": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "630838v1_eqn7.gif"
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
                     {
                       "type": "Text",
                       "value": {
@@ -9631,7 +9648,24 @@ expression: article
                       "value": {
                         "string": "The MSD from each track was utilized and the data was fitted to Furth’s formula according to persistent random walk (PRW) model of migration and is described in equation 8 to obtain persistence time P and diffusion coefficient D.\n"
                       }
-                    },
+                    }
+                  ]
+                },
+                {
+                  "type": "MathBlock",
+                  "code": {
+                    "string": ""
+                  },
+                  "images": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "630838v1_eqn8.gif"
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
                     {
                       "type": "Text",
                       "value": {
@@ -9953,7 +9987,24 @@ expression: article
                       "value": {
                         "string": "\n"
                       }
-                    },
+                    }
+                  ]
+                },
+                {
+                  "type": "MathBlock",
+                  "code": {
+                    "string": ""
+                  },
+                  "images": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "630838v1_eqn10.gif"
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
                     {
                       "type": "Text",
                       "value": {
@@ -10011,7 +10062,24 @@ expression: article
                       "value": {
                         "string": " and K was the rate constant.\n"
                       }
-                    },
+                    }
+                  ]
+                },
+                {
+                  "type": "MathBlock",
+                  "code": {
+                    "string": ""
+                  },
+                  "images": [
+                    {
+                      "type": "ImageObject",
+                      "contentUrl": "630838v1_eqn11.gif"
+                    }
+                  ]
+                },
+                {
+                  "type": "Paragraph",
+                  "content": [
                     {
                       "type": "Text",
                       "value": {
@@ -10064,7 +10132,24 @@ expression: article
                   "value": {
                     "string": "A rectangular area spanning the width of the leader bleb was bleached in the rear quadrant of the bleb and intensity recovery was analyzed by drawing a line perpendicular to the long axis of the rectangle in Fiji. The intensity linescans were measured over time and each was fitted with an inverse non-linear gaussian curve fit using a Gaussian amplitude (GaussAMp) function in Origin Lab to find the minima of the fitted inverse gaussian, where the function is given by\n"
                   }
-                },
+                }
+              ]
+            },
+            {
+              "type": "MathBlock",
+              "code": {
+                "string": ""
+              },
+              "images": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_eqn12.gif"
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Text",
                   "value": {
@@ -10462,7 +10547,24 @@ expression: article
                   "value": {
                     "string": ") and steady-state material balance equations for the protein may thus be written as\n"
                   }
-                },
+                }
+              ]
+            },
+            {
+              "type": "MathBlock",
+              "code": {
+                "string": ""
+              },
+              "images": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_ueqn1.gif"
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Text",
                   "value": {
@@ -10580,7 +10682,24 @@ expression: article
                   "value": {
                     "string": " by convention, and therefore a positive/negative value indicates net flux or flow towards the tip/neck. Zero net flux at the tip dictates the boundary condition,\n"
                   }
-                },
+                }
+              ]
+            },
+            {
+              "type": "MathBlock",
+              "code": {
+                "string": ""
+              },
+              "images": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_ueqn2.gif"
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Text",
                   "value": {
@@ -10744,7 +10863,24 @@ expression: article
                   "value": {
                     "string": " as the flow velocity and turnover frequency of bulk membrane, respectively, and with the ansatz that the total mass density is constant throughout the bleb (confirmed by experiment),\n"
                   }
-                },
+                }
+              ]
+            },
+            {
+              "type": "MathBlock",
+              "code": {
+                "string": ""
+              },
+              "images": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_ueqn3.gif"
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Text",
                   "value": {
@@ -11029,7 +11165,24 @@ expression: article
                   "value": {
                     "string": " as the local velocity of the F-actin, we take\n"
                   }
-                },
+                }
+              ]
+            },
+            {
+              "type": "MathBlock",
+              "code": {
+                "string": ""
+              },
+              "images": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_ueqn4.gif"
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Text",
                   "value": {
@@ -11215,7 +11368,24 @@ expression: article
                   "value": {
                     "string": " (μm/s), was used to approximate the experimentally estimated profile from PIV analysis. Regarding the protein diffusivity, it is reduced by the corralling effects as well, and so we likewise take\n"
                   }
-                },
+                }
+              ]
+            },
+            {
+              "type": "MathBlock",
+              "code": {
+                "string": ""
+              },
+              "images": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_ueqn5.gif"
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Text",
                   "value": {
@@ -11476,7 +11646,24 @@ expression: article
                   "value": {
                     "string": ", the length scale of its gradient:\n"
                   }
-                },
+                }
+              ]
+            },
+            {
+              "type": "MathBlock",
+              "code": {
+                "string": ""
+              },
+              "images": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_ueqn6.gif"
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Text",
                   "value": {
@@ -11583,7 +11770,24 @@ expression: article
                   "value": {
                     "string": " (constant). Finally, to model protein turnover frequency in the simplest manner, consistent with observations, we equated it to that of the bulk membrane.\n"
                   }
-                },
+                }
+              ]
+            },
+            {
+              "type": "MathBlock",
+              "code": {
+                "string": ""
+              },
+              "images": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_ueqn7.gif"
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Text",
                   "value": {
@@ -11606,19 +11810,70 @@ expression: article
                   "value": {
                     "string": " The scheme for solving the model equations was to transform them into a set of coupled, first-order differential equations:\n"
                   }
-                },
+                }
+              ]
+            },
+            {
+              "type": "MathBlock",
+              "code": {
+                "string": ""
+              },
+              "images": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_ueqn8.gif"
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Text",
                   "value": {
                     "string": "\nwhere\n"
                   }
-                },
+                }
+              ]
+            },
+            {
+              "type": "MathBlock",
+              "code": {
+                "string": ""
+              },
+              "images": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_ueqn9.gif"
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Text",
                   "value": {
                     "string": "\nThe latter equation, was fit to the mean of 17 representative width profiles (μm). This scheme permitted forward integration, with boundary conditions\n"
                   }
-                },
+                }
+              ]
+            },
+            {
+              "type": "MathBlock",
+              "code": {
+                "string": ""
+              },
+              "images": [
+                {
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_ueqn10.gif"
+                }
+              ]
+            },
+            {
+              "type": "Paragraph",
+              "content": [
                 {
                   "type": "Text",
                   "value": {

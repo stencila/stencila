@@ -267,8 +267,14 @@ expression: jats
         <title level="2">Image Analysis</title>
         <sec>
           <title level="3">Cell migration analysis</title>
-          <p>Migration analysis of the cells under confinement was performed on time-lapse phase contrast image series (acquired every 1min for 60 min) in Fiji using “Manual Tracking plug-in” (MTrackJ; (<xref ref-type="bibr" rid="c83">83</xref>) where each step was manually tracked following the center of the cell body. The tracking coordinates were then exported to the Microsoft Excel plug-in Diper (<xref ref-type="bibr" rid="c84">84</xref>) and mean squared displacement over time and speed were computed according to:&#10;&#10;by utilizing overlapping time intervals. MSD is computed for a given cell for step size<italic>n</italic>with N being the total number of displacements per trajectory and<italic>Δt</italic>is the minimum time interval between the adjacent points in the trajectory.</p>
-          <p>The MSD from each track was utilized and the data was fitted to Furth’s formula according to persistent random walk (PRW) model of migration and is described in equation 8 to obtain persistence time P and diffusion coefficient D.&#10;&#10;Fittings were performed in Origin (Pro) using the non-linear curve function with orthogonal distance regression. Persistence and diffusion coefficient values were then plotted using GraphPad Prism.</p>
+          <p>Migration analysis of the cells under confinement was performed on time-lapse phase contrast image series (acquired every 1min for 60 min) in Fiji using “Manual Tracking plug-in” (MTrackJ; (<xref ref-type="bibr" rid="c83">83</xref>) where each step was manually tracked following the center of the cell body. The tracking coordinates were then exported to the Microsoft Excel plug-in Diper (<xref ref-type="bibr" rid="c84">84</xref>) and mean squared displacement over time and speed were computed according to:&#10;</p>
+          <disp-formula code="">
+          </disp-formula>
+          <p>&#10;by utilizing overlapping time intervals. MSD is computed for a given cell for step size<italic>n</italic>with N being the total number of displacements per trajectory and<italic>Δt</italic>is the minimum time interval between the adjacent points in the trajectory.</p>
+          <p>The MSD from each track was utilized and the data was fitted to Furth’s formula according to persistent random walk (PRW) model of migration and is described in equation 8 to obtain persistence time P and diffusion coefficient D.&#10;</p>
+          <disp-formula code="">
+          </disp-formula>
+          <p>&#10;Fittings were performed in Origin (Pro) using the non-linear curve function with orthogonal distance regression. Persistence and diffusion coefficient values were then plotted using GraphPad Prism.</p>
         </sec>
         <sec>
           <title level="3">Bleb distribution and lifetime</title>
@@ -305,12 +311,21 @@ expression: jats
         <sec>
           <title level="3">Spot FRAP and analysis</title>
           <p>For spot fluorescence recovery after photobleaching (FRAP) experiments, the intensity recovery over time was extracted from small area of ∼1 micron diameter where photobleaching was performed. Intensity data was extracted from this region pre- and post-bleaching. Two other similar sized ROIs were used to extract intensities from the background of the image and another region in the cell used for bleaching control. The extracted intensities from each ROI was then uploaded in EasyFRAP-web FRAP analysis tool (<xref ref-type="bibr" rid="c85">85</xref>). Intensity values were normalized and fit with a single term exponential equation. The web tool computes t<sub>1/2</sub>(half-time of maximal recovery) for each of the of the recovery profiles and plotted for different conditions.</p>
-          <p>EGFR diffusion coefficient was computed by averaging the normalized recovery intensity and the average was fitted with one phase association, least squares fit to compute t<sub>1/2</sub>&#10;&#10;t<sub>1/2</sub>was used to calculate the diffusion coefficient of EGFR-GFP on the membrane using Soumpasis equation (<xref ref-type="bibr" rid="c86">86</xref>;<xref ref-type="bibr" rid="c87">87</xref>) and K was the rate constant.&#10;&#10;Where D is the diffusion coefficient, r is the radius of the circular FRAP area and t<sub>1/2</sub>half maximal recovery time.</p>
+          <p>EGFR diffusion coefficient was computed by averaging the normalized recovery intensity and the average was fitted with one phase association, least squares fit to compute t<sub>1/2</sub>&#10;</p>
+          <disp-formula code="">
+          </disp-formula>
+          <p>&#10;t<sub>1/2</sub>was used to calculate the diffusion coefficient of EGFR-GFP on the membrane using Soumpasis equation (<xref ref-type="bibr" rid="c86">86</xref>;<xref ref-type="bibr" rid="c87">87</xref>) and K was the rate constant.&#10;</p>
+          <disp-formula code="">
+          </disp-formula>
+          <p>&#10;Where D is the diffusion coefficient, r is the radius of the circular FRAP area and t<sub>1/2</sub>half maximal recovery time.</p>
         </sec>
       </sec>
       <sec>
         <title level="2">Rectangular FRAP and flow analysis</title>
-        <p>A rectangular area spanning the width of the leader bleb was bleached in the rear quadrant of the bleb and intensity recovery was analyzed by drawing a line perpendicular to the long axis of the rectangle in Fiji. The intensity linescans were measured over time and each was fitted with an inverse non-linear gaussian curve fit using a Gaussian amplitude (GaussAMp) function in Origin Lab to find the minima of the fitted inverse gaussian, where the function is given by&#10;&#10;xC= center of the peak, y<sub>0</sub>= offset, w=width, A=amplitude of the gaussian, the position of the center of the minima of the gaussian was tracked in the images taken in the first few seconds of intensity recovery and then averaged across several blebs.</p>
+        <p>A rectangular area spanning the width of the leader bleb was bleached in the rear quadrant of the bleb and intensity recovery was analyzed by drawing a line perpendicular to the long axis of the rectangle in Fiji. The intensity linescans were measured over time and each was fitted with an inverse non-linear gaussian curve fit using a Gaussian amplitude (GaussAMp) function in Origin Lab to find the minima of the fitted inverse gaussian, where the function is given by&#10;</p>
+        <disp-formula code="">
+        </disp-formula>
+        <p>&#10;xC= center of the peak, y<sub>0</sub>= offset, w=width, A=amplitude of the gaussian, the position of the center of the minima of the gaussian was tracked in the images taken in the first few seconds of intensity recovery and then averaged across several blebs.</p>
       </sec>
       <sec>
         <title level="2">Whole bleb FRAP and recovery analysis</title>
@@ -335,27 +350,57 @@ expression: jats
           </italic>), the advection velocity (<italic>v<sub>p</sub>
           </italic>), and turnover frequency (<italic>k<sub>p</sub>
           </italic>) of the protein potentially vary with position<italic>x</italic>in the bleb, measured from the neck of the bleb. In the material balances, we also need to account for the geometry of the bleb; its length,<italic>L</italic>(set to 45 μm), and position-dependent width,<italic>w(x)</italic>(see below), were estimated from mean measurements. Flux (<italic>N<sub>p</sub>
-          </italic>) and steady-state material balance equations for the protein may thus be written as&#10;&#10;The spatial dimension<italic>x</italic>is defined as the distance from the neck of the bleb (μm);<italic>x= L</italic>is at the tip of the bleb.</p>
+          </italic>) and steady-state material balance equations for the protein may thus be written as&#10;</p>
+        <disp-formula code="">
+        </disp-formula>
+        <p>&#10;The spatial dimension<italic>x</italic>is defined as the distance from the neck of the bleb (μm);<italic>x= L</italic>is at the tip of the bleb.</p>
         <p>
           <italic>N<sub>p</sub>
           </italic>and<italic>v<sub>p</sub>
-          </italic>point in the direction of<italic>x</italic>by convention, and therefore a positive/negative value indicates net flux or flow towards the tip/neck. Zero net flux at the tip dictates the boundary condition,&#10;&#10;The calculated protein density profiles are presented on a normalized scale, and therefore the second boundary condition is arbitrary.</p>
+          </italic>point in the direction of<italic>x</italic>by convention, and therefore a positive/negative value indicates net flux or flow towards the tip/neck. Zero net flux at the tip dictates the boundary condition,&#10;</p>
+        <disp-formula code="">
+        </disp-formula>
+        <p>&#10;The calculated protein density profiles are presented on a normalized scale, and therefore the second boundary condition is arbitrary.</p>
         <p>
-          <italic>Protein advection velocity, diffusivity, and turnover:</italic>To further define the aforementioned<italic>v<sub>p</sub>(x)</italic>and<italic>k<sub>p</sub>(x)</italic>, it was necessary to consider the material balance of the bulk membrane. Defining<italic>v<sub>m</sub>(x)</italic>and<italic>k<sub>m</sub>(x)</italic>as the flow velocity and turnover frequency of bulk membrane, respectively, and with the ansatz that the total mass density is constant throughout the bleb (confirmed by experiment),&#10;&#10;If the bleb has a constant shape, it implies that there is zero flow at the tip (<italic>v<sub>m</sub>(L) = 0</italic>). This boundary condition dictates that<italic>v<sub>m</sub>(x) c,0</italic>; membrane flow is towards the tip of the bleb. For the calculations presented here, we took<italic>k<sub>m</sub>(x)</italic>= constant and set its value to 0.003 s<sup>-</sup>(<xref ref-type="bibr" rid="c1">1</xref>), thus approximately matching the estimated bulk flow velocity of<italic>v<sub>m</sub>
-          </italic>≈ 0.1 μm/s measured at<italic>x</italic>≈ 10 μm. Relative to the calculated<italic>v<sub>m</sub>(x)</italic>, we consider that<italic>v<sub>p</sub>(x)</italic>is potentially influenced by two distinct, protein-corralling effects: restriction of free protein mobility, and physical interaction with the F-actin retrograde flow. Defining<italic>v<sub>F</sub>(x)</italic>as the local velocity of the F-actin, we take&#10;&#10;where<italic>E<sub>1</sub>(x)</italic>are<italic>E<sub>2</sub>(x)</italic>are variables, each ranging between 0 and 1, which we refer to as<italic>corralling efficiencies</italic>.</p>
+          <italic>Protein advection velocity, diffusivity, and turnover:</italic>To further define the aforementioned<italic>v<sub>p</sub>(x)</italic>and<italic>k<sub>p</sub>(x)</italic>, it was necessary to consider the material balance of the bulk membrane. Defining<italic>v<sub>m</sub>(x)</italic>and<italic>k<sub>m</sub>(x)</italic>as the flow velocity and turnover frequency of bulk membrane, respectively, and with the ansatz that the total mass density is constant throughout the bleb (confirmed by experiment),&#10;</p>
+        <disp-formula code="">
+        </disp-formula>
+        <p>&#10;If the bleb has a constant shape, it implies that there is zero flow at the tip (<italic>v<sub>m</sub>(L) = 0</italic>). This boundary condition dictates that<italic>v<sub>m</sub>(x) c,0</italic>; membrane flow is towards the tip of the bleb. For the calculations presented here, we took<italic>k<sub>m</sub>(x)</italic>= constant and set its value to 0.003 s<sup>-</sup>(<xref ref-type="bibr" rid="c1">1</xref>), thus approximately matching the estimated bulk flow velocity of<italic>v<sub>m</sub>
+          </italic>≈ 0.1 μm/s measured at<italic>x</italic>≈ 10 μm. Relative to the calculated<italic>v<sub>m</sub>(x)</italic>, we consider that<italic>v<sub>p</sub>(x)</italic>is potentially influenced by two distinct, protein-corralling effects: restriction of free protein mobility, and physical interaction with the F-actin retrograde flow. Defining<italic>v<sub>F</sub>(x)</italic>as the local velocity of the F-actin, we take&#10;</p>
+        <disp-formula code="">
+        </disp-formula>
+        <p>&#10;where<italic>E<sub>1</sub>(x)</italic>are<italic>E<sub>2</sub>(x)</italic>are variables, each ranging between 0 and 1, which we refer to as<italic>corralling efficiencies</italic>.</p>
         <p>Their values reflect the ‘strengths’ of protein mobility restriction and interaction with flowing F-actin, respectively. The function,<italic>v<sub>F</sub>
           </italic>(<italic>x</italic>) = -0.10 + 0.08<italic>e</italic>
           <sup>-0.2<italic>x</italic>
-          </sup>(μm/s), was used to approximate the experimentally estimated profile from PIV analysis. Regarding the protein diffusivity, it is reduced by the corralling effects as well, and so we likewise take&#10;&#10;where<italic>v<sub>pO</sub>
+          </sup>(μm/s), was used to approximate the experimentally estimated profile from PIV analysis. Regarding the protein diffusivity, it is reduced by the corralling effects as well, and so we likewise take&#10;</p>
+        <disp-formula code="">
+        </disp-formula>
+        <p>&#10;where<italic>v<sub>pO</sub>
           </italic>is the diffusivity value in the absence of corralling; for each scenario, the value of<italic>v<sub>pO</sub>
           </italic>was set to approximately match the estimated EGFR diffusivity<italic>v<sub>p</sub>
           </italic>≈ 0.02 μm (<xref ref-type="bibr" rid="c2">2</xref>)/s measured at<italic>x</italic>≈ 10 μm. Considering the potential for spatially varying<italic>E<sub>i</sub>(x)</italic>(with<italic>i</italic>= 1 or 2) in a simple manner, we allow each function to be characterized by its value evaluated at the neck (<italic>x= 0</italic>),<italic>E<sub>i,O</sub>
           </italic>, and another parameter,<italic>ε<sub>i</sub>
           </italic>
-          <sub>,0</sub>, the length scale of its gradient:&#10;&#10;In the limit of λ<sub>i</sub>→ ∞,<italic>ε<sub>i</sub>
+          <sub>,0</sub>, the length scale of its gradient:&#10;</p>
+        <disp-formula code="">
+        </disp-formula>
+        <p>&#10;In the limit of λ<sub>i</sub>→ ∞,<italic>ε<sub>i</sub>
           </italic>(<italic>x</italic>) =<italic>ε<sub>i</sub>
           </italic>
-          <sub>,0</sub>(constant). Finally, to model protein turnover frequency in the simplest manner, consistent with observations, we equated it to that of the bulk membrane.&#10;&#10;<italic>Solution scheme:</italic>The scheme for solving the model equations was to transform them into a set of coupled, first-order differential equations:&#10;&#10;where&#10;&#10;The latter equation, was fit to the mean of 17 representative width profiles (μm). This scheme permitted forward integration, with boundary conditions&#10;&#10;The domain was discretized with a spatial step size of<italic>0.001</italic>, and the initial value problem was solved using the improved Euler method/Heun’s method, implemented in Excel for rapid evaluation of the model output and analysis of numerical accuracy and stability. Once the solution for each scenario was obtained, the<italic>1(x)</italic>profile was normalized by the maximum value for presentation in figures. , EGFR density (P) with changes in<italic>E<sub>1</sub>(x)</italic>which reflect the ‘strengths’ of protein mobility restriction. It was set to 0.1, 0.3, 0.5, 0.7 and 0.9 while<italic>E<sub>2</sub>(x)</italic>which reflect the interaction with flowing F-actin was set constant to 0.1 (weak interaction). The actin retrograde flow velocity was set to<italic>v<sub>F</sub>
+          <sub>,0</sub>(constant). Finally, to model protein turnover frequency in the simplest manner, consistent with observations, we equated it to that of the bulk membrane.&#10;</p>
+        <disp-formula code="">
+        </disp-formula>
+        <p>&#10;<italic>Solution scheme:</italic>The scheme for solving the model equations was to transform them into a set of coupled, first-order differential equations:&#10;</p>
+        <disp-formula code="">
+        </disp-formula>
+        <p>&#10;where&#10;</p>
+        <disp-formula code="">
+        </disp-formula>
+        <p>&#10;The latter equation, was fit to the mean of 17 representative width profiles (μm). This scheme permitted forward integration, with boundary conditions&#10;</p>
+        <disp-formula code="">
+        </disp-formula>
+        <p>&#10;The domain was discretized with a spatial step size of<italic>0.001</italic>, and the initial value problem was solved using the improved Euler method/Heun’s method, implemented in Excel for rapid evaluation of the model output and analysis of numerical accuracy and stability. Once the solution for each scenario was obtained, the<italic>1(x)</italic>profile was normalized by the maximum value for presentation in figures. , EGFR density (P) with changes in<italic>E<sub>1</sub>(x)</italic>which reflect the ‘strengths’ of protein mobility restriction. It was set to 0.1, 0.3, 0.5, 0.7 and 0.9 while<italic>E<sub>2</sub>(x)</italic>which reflect the interaction with flowing F-actin was set constant to 0.1 (weak interaction). The actin retrograde flow velocity was set to<italic>v<sub>F</sub>
           </italic>(<italic>x</italic>) = -0.10 + 0.08<italic>e</italic>
           <sup>-0.2<italic>x</italic>
           </sup>(μm/s).</p>
