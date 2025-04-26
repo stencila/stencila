@@ -2063,6 +2063,7 @@ dependencies = [
  "node-execute",
  "node-find",
  "node-map",
+ "node-sentencize",
  "node-strip",
  "notify",
  "schema",
@@ -4190,6 +4191,14 @@ dependencies = [
  "common",
  "darling",
  "syn 2.0.100",
+]
+
+[[package]]
+name = "node-sentencize"
+version = "0.0.0"
+dependencies = [
+ "common-dev",
+ "schema",
 ]
 
 [[package]]
