@@ -255,6 +255,7 @@ impl Schemas {
             ("Figure", vec![("caption", "to_text(&self.caption)")]),
             ("CodeChunk", vec![("caption", "to_text(&self.caption)")]),
             ("Paragraph", vec![("text", "to_text(self)")]),
+            ("Sentence", vec![("text", "to_text(self)")]),
             ("TableCell", vec![("text", "to_text(self)")]),
             ("Citation", vec![("text", "to_text(&self.options.content)")]),
             ("Reference", vec![("title", "to_text(&self.title)")]),
@@ -288,6 +289,7 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
     ("Figure",         &["caption"]),
     ("CodeChunk",      &["caption", "code"]),
     ("Paragraph",      &["text"]),
+    ("Sentence",       &["text"]),
 ];
 "#
             .to_string(),

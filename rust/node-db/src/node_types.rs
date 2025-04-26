@@ -1322,6 +1322,32 @@ impl DatabaseNode for Section {
     }
 }
 
+impl DatabaseNode for Sentence {
+    fn node_type(&self) -> NodeType {
+        NodeType::Sentence
+    }
+
+    fn node_id(&self) -> NodeId {
+        Sentence::node_id(self)
+    }
+    
+    fn primary_key(&self) -> Value {
+        self.node_id().to_kuzu_value()
+    }
+    
+    fn node_table(&self) -> Vec<(NodeProperty, LogicalType, Value)> {
+        vec![
+            (NodeProperty::Text, String::to_kuzu_type(), to_text(self).to_kuzu_value())
+        ]
+    }
+
+    fn rel_tables(&self) -> Vec<(NodeProperty, Vec<(NodeType, Value)>)> {
+        vec![
+            (NodeProperty::Content, relations(self.content.iter()))
+        ]
+    }
+}
+
 impl DatabaseNode for SoftwareApplication {
     fn node_type(&self) -> NodeType {
         NodeType::SoftwareApplication
@@ -1711,6 +1737,7 @@ impl DatabaseNode for Node {
             Node::RawBlock(node) => node.node_type(),
             Node::Reference(node) => node.node_type(),
             Node::Section(node) => node.node_type(),
+            Node::Sentence(node) => node.node_type(),
             Node::SoftwareApplication(node) => node.node_type(),
             Node::StyledBlock(node) => node.node_type(),
             Node::StyledInline(node) => node.node_type(),
@@ -1767,6 +1794,7 @@ impl DatabaseNode for Node {
             Node::RawBlock(node) => node.node_id(),
             Node::Reference(node) => node.node_id(),
             Node::Section(node) => node.node_id(),
+            Node::Sentence(node) => node.node_id(),
             Node::SoftwareApplication(node) => node.node_id(),
             Node::StyledBlock(node) => node.node_id(),
             Node::StyledInline(node) => node.node_id(),
@@ -1823,6 +1851,7 @@ impl DatabaseNode for Node {
             Node::RawBlock(node) => node.primary_key(),
             Node::Reference(node) => node.primary_key(),
             Node::Section(node) => node.primary_key(),
+            Node::Sentence(node) => node.primary_key(),
             Node::SoftwareApplication(node) => node.primary_key(),
             Node::StyledBlock(node) => node.primary_key(),
             Node::StyledInline(node) => node.primary_key(),
@@ -1879,6 +1908,7 @@ impl DatabaseNode for Node {
             Node::RawBlock(node) => node.node_table(),
             Node::Reference(node) => node.node_table(),
             Node::Section(node) => node.node_table(),
+            Node::Sentence(node) => node.node_table(),
             Node::SoftwareApplication(node) => node.node_table(),
             Node::StyledBlock(node) => node.node_table(),
             Node::StyledInline(node) => node.node_table(),
@@ -1935,6 +1965,7 @@ impl DatabaseNode for Node {
             Node::RawBlock(node) => node.rel_tables(),
             Node::Reference(node) => node.rel_tables(),
             Node::Section(node) => node.rel_tables(),
+            Node::Sentence(node) => node.rel_tables(),
             Node::SoftwareApplication(node) => node.rel_tables(),
             Node::StyledBlock(node) => node.rel_tables(),
             Node::StyledInline(node) => node.rel_tables(),
@@ -2109,6 +2140,7 @@ impl DatabaseNode for Inline {
             Inline::Note(node) => node.node_type(),
             Inline::Parameter(node) => node.node_type(),
             Inline::QuoteInline(node) => node.node_type(),
+            Inline::Sentence(node) => node.node_type(),
             Inline::StyledInline(node) => node.node_type(),
             Inline::VideoObject(node) => node.node_type(),
             _ => NodeType::Unknown
@@ -2129,6 +2161,7 @@ impl DatabaseNode for Inline {
             Inline::Note(node) => node.node_id(),
             Inline::Parameter(node) => node.node_id(),
             Inline::QuoteInline(node) => node.node_id(),
+            Inline::Sentence(node) => node.node_id(),
             Inline::StyledInline(node) => node.node_id(),
             Inline::VideoObject(node) => node.node_id(),
             _ => NodeId::null()
@@ -2149,6 +2182,7 @@ impl DatabaseNode for Inline {
             Inline::Note(node) => node.primary_key(),
             Inline::Parameter(node) => node.primary_key(),
             Inline::QuoteInline(node) => node.primary_key(),
+            Inline::Sentence(node) => node.primary_key(),
             Inline::StyledInline(node) => node.primary_key(),
             Inline::VideoObject(node) => node.primary_key(),
             _ => Value::Null(LogicalType::Any)
@@ -2169,6 +2203,7 @@ impl DatabaseNode for Inline {
             Inline::Note(node) => node.node_table(),
             Inline::Parameter(node) => node.node_table(),
             Inline::QuoteInline(node) => node.node_table(),
+            Inline::Sentence(node) => node.node_table(),
             Inline::StyledInline(node) => node.node_table(),
             Inline::VideoObject(node) => node.node_table(),
             _ => Vec::new()
@@ -2189,6 +2224,7 @@ impl DatabaseNode for Inline {
             Inline::Note(node) => node.rel_tables(),
             Inline::Parameter(node) => node.rel_tables(),
             Inline::QuoteInline(node) => node.rel_tables(),
+            Inline::Sentence(node) => node.rel_tables(),
             Inline::StyledInline(node) => node.rel_tables(),
             Inline::VideoObject(node) => node.rel_tables(),
             _ => Vec::new()
