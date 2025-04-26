@@ -92,9 +92,6 @@ pub enum Command {
         config: Config,
     },
 
-    /// Canonicalize the document
-    CanonicalizeDocument,
-
     /// Execute the entire document
     ExecuteDocument(ExecuteOptions),
 
@@ -754,14 +751,6 @@ impl Document {
             config,
         })
         .await
-    }
-
-    /// Canonicalize the document
-    #[tracing::instrument(skip(self))]
-    pub async fn canonicalize(&self) -> Result<()> {
-        tracing::trace!("Canonicalizing document");
-
-        self.command_wait(Command::CanonicalizeDocument).await
     }
 
     /// Execute the document

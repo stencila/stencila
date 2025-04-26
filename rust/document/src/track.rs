@@ -5,7 +5,9 @@ use std::{
     time::UNIX_EPOCH,
 };
 
+use node_canonicalize::canonicalize;
 use node_db::NodeDatabase;
+use node_sentencize::sentencize;
 use schema::{Node, NodeId};
 use url::Url;
 
@@ -459,10 +461,12 @@ impl Document {
                 Document::track_path(path, Some(time_now()), Some(time_now())).await?;
 
             let doc = Document::open(path).await?;
-            doc.canonicalize().await?;
 
-            let root = doc.root().await;
+            let root = &mut *doc.root.write().await;
 
+            canonicalize(root).await?;
+            sentencize(root);
+            
             // Store root node
             codec_json::to_path(
                 &root,
