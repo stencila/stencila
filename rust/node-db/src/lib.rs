@@ -428,7 +428,7 @@ impl NodeDatabase {
             buffer.flush()?;
 
             // Ignore errors associated with duplicate primary keys if node_id is not the primary key
-            let ignore_errors = if node_id_is_pk { false } else { true };
+            let ignore_errors = !node_id_is_pk;
 
             let filename = csv.path().to_string_lossy();
             connection.query(&format!(

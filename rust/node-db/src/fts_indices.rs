@@ -6,5 +6,5 @@ pub const FTS_INDICES: &[(&str, &[&str])] = &[
     ("Figure",         &["caption"]),
     ("CodeChunk",      &["caption", "code"]),
     ("Paragraph",      &["text"]),
-    ("Sentence",      &["text"]),
+    ("Sentence",       &["text"]),
 ];

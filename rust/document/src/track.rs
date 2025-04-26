@@ -466,10 +466,10 @@ impl Document {
 
             canonicalize(root).await?;
             sentencize(root);
-            
+
             // Store root node
             codec_json::to_path(
-                &root,
+                root,
                 &store_path,
                 Some(EncodeOptions {
                     compact: Some(false),
@@ -478,7 +478,7 @@ impl Document {
             )?;
 
             // Upsert root node to database
-            db.upsert(&doc_id, &root)?;
+            db.upsert(&doc_id, root)?;
         }
 
         // Update database indices

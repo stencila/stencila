@@ -29,9 +29,9 @@ fn transform(inlines: &mut Vec<Inline>) {
                 sentence.push(Inline::Text(Text::new(sentence_text.into())));
 
                 if sentence_text.ends_with(". ") {
-                    sentences.push(Inline::Sentence(Sentence::new(
-                        sentence.drain(..).collect(),
-                    )));
+                    sentences.push(Inline::Sentence(Sentence::new(std::mem::take(
+                        &mut sentence,
+                    ))));
                 }
             }
         } else {

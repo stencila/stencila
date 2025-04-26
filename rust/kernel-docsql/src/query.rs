@@ -69,7 +69,9 @@ pub(super) fn transform_filters(code: &str) -> String {
                 echo => echo,
             };
 
-            let spaces = captures[0].len().saturating_sub(pre.len() + var.len() + op.len() + 1);
+            let spaces = captures[0]
+                .len()
+                .saturating_sub(pre.len() + var.len() + op.len() + 1);
             let spaces = " ".repeat(spaces);
 
             [pre, var, op, &spaces, "="].concat()
@@ -360,7 +362,7 @@ impl Query {
                         if self.return_used {
                             return Err(Error::new(
                                 ErrorKind::InvalidOperation,
-                                format!("`return` already specified"),
+                                "`return` already specified".to_string(),
                             ));
                         }
                         query.r#return = Some(alias.to_string());
@@ -400,7 +402,7 @@ impl Query {
         if self.return_used {
             return Err(Error::new(
                 ErrorKind::InvalidOperation,
-                format!("`return` already specified"),
+                "`return` already specified".to_string(),
             ));
         }
 
@@ -418,7 +420,7 @@ impl Query {
         if self.return_used {
             return Err(Error::new(
                 ErrorKind::InvalidOperation,
-                format!("`return` already specified"),
+                "`return` already specified".to_string(),
             ));
         }
 
@@ -486,7 +488,7 @@ impl Query {
         if self.return_used {
             return Err(Error::new(
                 ErrorKind::InvalidOperation,
-                format!("`return` already specified"),
+                "`return` already specified".to_string(),
             ));
         }
 
@@ -635,11 +637,7 @@ impl Query {
             let r#return = self
                 .r#return
                 .clone()
-                .or_else(|| {
-                    self.node_table_used
-                        .clone()
-                        .map(|table| alias_for_table(table))
-                })
+                .or_else(|| self.node_table_used.clone().map(alias_for_table))
                 .unwrap_or("*".to_string());
             cypher.push_str(&r#return);
         }
