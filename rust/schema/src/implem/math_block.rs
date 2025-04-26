@@ -80,6 +80,10 @@ impl DomCodec for MathBlock {
             });
         }
 
+        if let Some(images) = &self.options.images {
+            context.push_slot_fn("div", "images", |context| images.to_dom(context));
+        }
+
         context.exit_node();
     }
 }

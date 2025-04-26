@@ -60,6 +60,10 @@ impl DomCodec for MathInline {
             });
         }
 
+        if let Some(images) = &self.options.images {
+            context.push_slot_fn("span", "images", |context| images.to_dom(context));
+        }
+
         context.exit_node();
     }
 }
