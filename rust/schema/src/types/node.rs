@@ -104,6 +104,7 @@ use super::raw_block::RawBlock;
 use super::reference::Reference;
 use super::review::Review;
 use super::section::Section;
+use super::sentence::Sentence;
 use super::software_application::SoftwareApplication;
 use super::software_source_code::SoftwareSourceCode;
 use super::strikeout::Strikeout;
@@ -346,6 +347,8 @@ pub enum Node {
     Review(Review),
 
     Section(Section),
+
+    Sentence(Sentence),
 
     SoftwareApplication(SoftwareApplication),
 

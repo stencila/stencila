@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/QuoteInline",
-  "name": "QuoteInline",
+  "@id": "https://stencila.org/Sentence",
+  "name": "Sentence",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,19 +9,19 @@
   },
   "@graph": [
     {
-      "@id": "stencila:QuoteInline",
+      "@id": "stencila:Sentence",
       "@type": "rdfs:Class",
-      "rdfs:label": "QuoteInline",
-      "rdfs:comment": "Inline, quoted content.",
+      "rdfs:label": "Sentence",
+      "rdfs:comment": "A sentence, usually within a `Paragraph`.",
       "rdfs:subClassOf": {
-        "@id": "stencila:Mark"
+        "@id": "stencila:Entity"
       }
     },
     {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
-      "rdfs:comment": "The content that is marked.",
+      "rdfs:comment": "The content of the sentence.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Article"
@@ -129,37 +129,6 @@
       "schema:rangeIncludes": {
         "@id": "stencila:Inline"
       }
-    },
-    {
-      "@id": "stencila:source",
-      "@type": "rdfs:Property",
-      "rdfs:label": "source",
-      "rdfs:comment": "The source of the quote.",
-      "schema:domainIncludes": [
-        {
-          "@id": "stencila:CodeLocation"
-        },
-        {
-          "@id": "stencila:Excerpt"
-        },
-        {
-          "@id": "stencila:IncludeBlock"
-        },
-        {
-          "@id": "stencila:QuoteBlock"
-        },
-        {
-          "@id": "stencila:QuoteInline"
-        }
-      ],
-      "schema:rangeIncludes": [
-        {
-          "@id": "stencila:Citation"
-        },
-        {
-          "@id": "schema:Text"
-        }
-      ]
     }
   ]
 }

@@ -167,6 +167,15 @@
       "$ref": "QuoteInline.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Sentence` nodes in inline content.",
+          "skip": true
+        }
+      },
+      "$ref": "Sentence.schema.json"
+    },
+    {
       "$ref": "StyledInline.schema.json"
     },
     {

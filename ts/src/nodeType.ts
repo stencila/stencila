@@ -104,6 +104,7 @@ export type NodeType =
   | "Reference"
   | "Review"
   | "Section"
+  | "Sentence"
   | "SoftwareApplication"
   | "SoftwareSourceCode"
   | "Strikeout"
@@ -239,6 +240,7 @@ export const NodeTypeList = [
   "Reference",
   "Review",
   "Section",
+  "Sentence",
   "SoftwareApplication",
   "SoftwareSourceCode",
   "Strikeout",

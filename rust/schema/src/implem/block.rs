@@ -140,6 +140,7 @@ impl TryFrom<Node> for Block {
             Note,
             Parameter,
             QuoteInline,
+            Sentence,
             Strikeout,
             Strong,
             StyledInline,

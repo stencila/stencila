@@ -151,6 +151,7 @@
     "Role": "schema:Role",
     "Section": "stencila:Section",
     "SectionType": "stencila:SectionType",
+    "Sentence": "stencila:Sentence",
     "SoftwareApplication": "schema:SoftwareApplication",
     "SoftwareSourceCode": "schema:SoftwareSourceCode",
     "Strikeout": "stencila:Strikeout",

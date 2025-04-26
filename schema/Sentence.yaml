@@ -1,0 +1,17 @@
+title: Sentence
+"@id": stencila:Sentence
+nick: sen
+extends: Entity
+category: prose
+description: A sentence, usually within a `Paragraph`.
+required:
+  - content
+properties:
+  content:
+    "@id": stencila:content
+    description: The content of the sentence.
+    type: array
+    items:
+      $ref: Inline
+    dom:
+      elem: none

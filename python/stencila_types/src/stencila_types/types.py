@@ -2711,6 +2711,18 @@ class Section(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
+class Sentence(Entity):
+    """
+    A sentence, usually within a `Paragraph`.
+    """
+
+    type: Literal["Sentence"] = "Sentence"
+
+    content: list[Inline]
+    """The content of the sentence."""
+
+
+@dataclass(kw_only=True, repr=False)
 class SoftwareApplication(CreativeWork):
     """
     A software application.
@@ -3282,6 +3294,7 @@ Inline = Union[
     Note,
     Parameter,
     QuoteInline,
+    Sentence,
     StyledInline,
     Strikeout,
     Strong,
@@ -3419,6 +3432,7 @@ Node = Union[
     Reference,
     Review,
     Section,
+    Sentence,
     SoftwareApplication,
     SoftwareSourceCode,
     Strikeout,
@@ -3621,6 +3635,7 @@ TYPES = [
     Reference,
     Review,
     Section,
+    Sentence,
     SoftwareApplication,
     SoftwareSourceCode,
     Strikeout,

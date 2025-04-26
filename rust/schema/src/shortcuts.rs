@@ -89,6 +89,11 @@ pub fn qi<I: Into<Vec<Inline>>>(content: I) -> Inline {
     Inline::QuoteInline(QuoteInline::new(content.into()))
 }
 
+/// Create an [`Inline::Sentence`] node
+pub fn sen<I: Into<Vec<Inline>>>(content: I) -> Inline {
+    Inline::Sentence(Sentence::new(content.into()))
+}
+
 /// Create an [`Inline::StyledInline`] node
 pub fn sti<C: Into<Cord>, I: Into<Vec<Inline>>>(code: C, content: I) -> Inline {
     Inline::StyledInline(StyledInline::new(code.into(), content.into()))

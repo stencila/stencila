@@ -119,6 +119,12 @@ anyOf:
 
   - $ref: QuoteInline
 
+  - $ref: Sentence
+    proptest:
+      min:
+        description: Do not generate `Sentence` nodes in inline content.
+        skip: true
+
   - $ref: StyledInline
 
   - $ref: Strikeout

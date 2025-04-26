@@ -10,10 +10,10 @@ use schema::{
     IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline, InstructionBlock, InstructionInline,
     LabelType, Link, List, ListItem, MathBlock, MathInline, MediaObject, Node, NodeId,
     NodeProperty, NodeType, Note, Paragraph, Parameter, Prompt, PromptBlock, ProvenanceCount,
-    QuoteBlock, QuoteInline, RawBlock, Reference, Section, Strikeout, Strong, StyledBlock,
-    StyledInline, Subscript, SuggestionBlock, SuggestionInline, Superscript, Table, TableCell,
-    TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor, WalkControl,
-    Walkthrough, WalkthroughStep,
+    QuoteBlock, QuoteInline, RawBlock, Reference, Section, Sentence, Strikeout, Strong,
+    StyledBlock, StyledInline, Subscript, SuggestionBlock, SuggestionInline, Superscript, Table,
+    TableCell, TableRow, Text, ThematicBreak, Time, Timestamp, Underline, VideoObject, Visitor,
+    WalkControl, Walkthrough, WalkthroughStep,
 };
 
 use crate::{
@@ -217,6 +217,7 @@ impl Visitor for Inspector<'_, '_> {
             Note,
             Parameter,
             QuoteInline,
+            Sentence,
             StyledInline,
             Strikeout,
             Strong,
@@ -835,6 +836,7 @@ default!(
     MediaObject,
     Note,
     QuoteInline,
+    Sentence,
     StyledInline,
     Strikeout,
     Strong,

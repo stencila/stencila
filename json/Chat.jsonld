@@ -933,6 +933,9 @@
           "@id": "stencila:Section"
         },
         {
+          "@id": "stencila:Sentence"
+        },
+        {
           "@id": "stencila:StyledBlock"
         },
         {

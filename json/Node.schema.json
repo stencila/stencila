@@ -312,6 +312,9 @@
       "$ref": "Section.schema.json"
     },
     {
+      "$ref": "Sentence.schema.json"
+    },
+    {
       "$ref": "SoftwareApplication.schema.json"
     },
     {

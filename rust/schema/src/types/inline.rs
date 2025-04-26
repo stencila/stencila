@@ -25,6 +25,7 @@ use super::null::Null;
 use super::number::Number;
 use super::parameter::Parameter;
 use super::quote_inline::QuoteInline;
+use super::sentence::Sentence;
 use super::strikeout::Strikeout;
 use super::strong::Strong;
 use super::styled_inline::StyledInline;
@@ -114,6 +115,12 @@ pub enum Inline {
     Parameter(Parameter),
 
     QuoteInline(QuoteInline),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    Sentence(Sentence),
 
     StyledInline(StyledInline),
 

@@ -20,6 +20,7 @@ export type InlineType =
   | "Note"
   | "Parameter"
   | "QuoteInline"
+  | "Sentence"
   | "StyledInline"
   | "Strikeout"
   | "Strong"
@@ -57,6 +58,7 @@ export const InlineTypeList = [
   "Note",
   "Parameter",
   "QuoteInline",
+  "Sentence",
   "StyledInline",
   "Strikeout",
   "Strong",

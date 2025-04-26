@@ -22,6 +22,7 @@ import { type MediaObject } from "./MediaObject.js";
 import { type Note } from "./Note.js";
 import { type Parameter } from "./Parameter.js";
 import { type QuoteInline } from "./QuoteInline.js";
+import { type Sentence } from "./Sentence.js";
 import { type Strikeout } from "./Strikeout.js";
 import { type Strong } from "./Strong.js";
 import { type StyledInline } from "./StyledInline.js";
@@ -58,6 +59,7 @@ export type Inline =
   Note |
   Parameter |
   QuoteInline |
+  Sentence |
   StyledInline |
   Strikeout |
   Strong |
@@ -102,6 +104,7 @@ export function inline(other: Inline): Inline {
     case "Note":
     case "Parameter":
     case "QuoteInline":
+    case "Sentence":
     case "StyledInline":
     case "Strikeout":
     case "Strong":
