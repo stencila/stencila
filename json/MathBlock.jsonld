@@ -226,6 +226,23 @@
       }
     },
     {
+      "@id": "schema:image",
+      "@type": "rdfs:Property",
+      "rdfs:label": "images",
+      "rdfs:comment": "Images of the math.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Math"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:ImageObject"
+      }
+    },
+    {
       "@id": "stencila:label",
       "@type": "rdfs:Property",
       "rdfs:label": "label",

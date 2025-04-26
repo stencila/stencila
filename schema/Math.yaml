@@ -99,3 +99,13 @@ properties:
       content: true
     type: string
     strip: [output]
+  images:
+    '@id': schema:image
+    description: Images of the math.
+    $comment: |
+      Some document formats, such as JATS XML, often represent math using images. This property
+      allows for such instances whilst being consistent with the `images` property of the `Thing` node type.
+    type: array
+    items:
+      $ref: ImageObject
+    strip: [content]

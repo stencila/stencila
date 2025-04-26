@@ -867,6 +867,9 @@ class Math(Entity):
     mathml: str | None = None
     """The MathML transpiled from the `code`."""
 
+    images: list[ImageObject] | None = None
+    """Images of the math."""
+
 
 @dataclass(kw_only=True, repr=False)
 class MediaObject(CreativeWork):

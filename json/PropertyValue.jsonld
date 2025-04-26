@@ -63,9 +63,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "images",
       "rdfs:comment": "Images of the item.",
-      "schema:domainIncludes": {
-        "@id": "schema:Thing"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Math"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:ImageObject"
       }

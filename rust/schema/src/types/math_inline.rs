@@ -6,6 +6,7 @@ use super::author::Author;
 use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
 use super::cord::Cord;
+use super::image_object::ImageObject;
 use super::provenance_count::ProvenanceCount;
 use super::string::String;
 
@@ -99,6 +100,13 @@ pub struct MathInlineOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(content)]
     pub mathml: Option<String>,
+
+    /// Images of the math.
+    #[serde(alias = "image")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(content)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub images: Option<Vec<ImageObject>>,
 }
 
 impl MathInline {

@@ -5,6 +5,7 @@ import { CompilationDigest } from "./CompilationDigest.js";
 import { CompilationMessage } from "./CompilationMessage.js";
 import { Cord } from "./Cord.js";
 import { Entity } from "./Entity.js";
+import { ImageObject } from "./ImageObject.js";
 import { ProvenanceCount } from "./ProvenanceCount.js";
 
 /**
@@ -48,6 +49,11 @@ export class Math extends Entity {
    * The MathML transpiled from the `code`.
    */
   mathml?: string;
+
+  /**
+   * Images of the math.
+   */
+  images?: ImageObject[];
 
   constructor(code: Cord, options?: Partial<Math>) {
     super();
