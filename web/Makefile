@@ -27,6 +27,7 @@ playwright: install
 
 # Run end-to-end tests
 e2e: playwright build
+	cargo build -p cli
 	npm run e2e
 
 # Run watch

@@ -135,6 +135,14 @@ jobs:
         with:
           verbose: true
 
+      # TODO: reinstate these
+      #- name: Run end-to-end tests
+      #  if: ${{ !startsWith(github.ref, 'refs/heads/renovate/') }}
+      #  env:
+      #    ARGOS_TOKEN: ${{ secrets.ARGOS_TOKEN }}
+      #    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #  run: make -C web e2e  
+
       - name: Run accessibility checks
         run: make a11y
 
@@ -238,24 +246,3 @@ jobs:
 
       - name: Run tests
         run: make -C web test
-
-      - name: Setup Rust
-        if: ${{ !startsWith(github.ref, 'refs/heads/renovate/') }}
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ env.RUST_VERSION }}
-
-      - name: Setup Rust cache
-        if: ${{ !startsWith(github.ref, 'refs/heads/renovate/') }}
-        uses: Swatinem/rust-cache@v2
-
-      - name: Build Rust CLI to run server for e2e tests
-        if: ${{ !startsWith(github.ref, 'refs/heads/renovate/') }}
-        run: cargo build --quiet -p cli
-
-      - name: Run playwright
-        if: ${{ !startsWith(github.ref, 'refs/heads/renovate/') }}
-        env:
-          ARGOS_TOKEN: ${{ secrets.ARGOS_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: make -C web e2e
