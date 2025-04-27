@@ -6006,13 +6006,8 @@ expression: article
               ],
               "content": [
                 {
-                  "type": "Paragraph",
-                  "content": [
-                    {
-                      "type": "ImageObject",
-                      "contentUrl": "630838v1_fige1"
-                    }
-                  ]
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_fige1"
                 }
               ]
             },
@@ -6080,13 +6075,8 @@ expression: article
               ],
               "content": [
                 {
-                  "type": "Paragraph",
-                  "content": [
-                    {
-                      "type": "ImageObject",
-                      "contentUrl": "630838v1_fig1"
-                    }
-                  ]
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_fig1"
                 }
               ]
             },
@@ -6470,13 +6460,8 @@ expression: article
               ],
               "content": [
                 {
-                  "type": "Paragraph",
-                  "content": [
-                    {
-                      "type": "ImageObject",
-                      "contentUrl": "630838v1_fig2"
-                    }
-                  ]
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_fig2"
                 }
               ]
             },
@@ -6690,13 +6675,8 @@ expression: article
               ],
               "content": [
                 {
-                  "type": "Paragraph",
-                  "content": [
-                    {
-                      "type": "ImageObject",
-                      "contentUrl": "630838v1_fig3"
-                    }
-                  ]
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_fig3"
                 }
               ]
             },
@@ -7124,13 +7104,8 @@ expression: article
               ],
               "content": [
                 {
-                  "type": "Paragraph",
-                  "content": [
-                    {
-                      "type": "ImageObject",
-                      "contentUrl": "630838v1_fige2"
-                    }
-                  ]
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_fige2"
                 }
               ]
             },
@@ -7344,13 +7319,8 @@ expression: article
               ],
               "content": [
                 {
-                  "type": "Paragraph",
-                  "content": [
-                    {
-                      "type": "ImageObject",
-                      "contentUrl": "630838v1_fig4"
-                    }
-                  ]
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_fig4"
                 }
               ]
             },
@@ -7708,13 +7678,8 @@ expression: article
               ],
               "content": [
                 {
-                  "type": "Paragraph",
-                  "content": [
-                    {
-                      "type": "ImageObject",
-                      "contentUrl": "630838v1_fig5"
-                    }
-                  ]
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_fig5"
                 }
               ]
             },
@@ -7878,13 +7843,8 @@ expression: article
               ],
               "content": [
                 {
-                  "type": "Paragraph",
-                  "content": [
-                    {
-                      "type": "ImageObject",
-                      "contentUrl": "630838v1_fige3"
-                    }
-                  ]
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_fige3"
                 }
               ]
             },
@@ -8035,13 +7995,8 @@ expression: article
               ],
               "content": [
                 {
-                  "type": "Paragraph",
-                  "content": [
-                    {
-                      "type": "ImageObject",
-                      "contentUrl": "630838v1_fige4"
-                    }
-                  ]
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_fige4"
                 }
               ]
             },
@@ -8075,13 +8030,8 @@ expression: article
               ],
               "content": [
                 {
-                  "type": "Paragraph",
-                  "content": [
-                    {
-                      "type": "ImageObject",
-                      "contentUrl": "630838v1_fig6"
-                    }
-                  ]
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_fig6"
                 }
               ]
             },
@@ -8262,13 +8212,8 @@ expression: article
               ],
               "content": [
                 {
-                  "type": "Paragraph",
-                  "content": [
-                    {
-                      "type": "ImageObject",
-                      "contentUrl": "630838v1_fige5"
-                    }
-                  ]
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_fige5"
                 }
               ]
             },
@@ -8336,13 +8281,8 @@ expression: article
               ],
               "content": [
                 {
-                  "type": "Paragraph",
-                  "content": [
-                    {
-                      "type": "ImageObject",
-                      "contentUrl": "630838v1_fig7"
-                    }
-                  ]
+                  "type": "ImageObject",
+                  "contentUrl": "630838v1_fig7"
                 }
               ]
             }

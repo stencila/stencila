@@ -63,11 +63,11 @@ pub(super) fn decode_blocks<'a, 'input: 'a, I: Iterator<Item = Node<'a, 'input>>
                 continue;
             }
             "graphic" => {
-                blocks.push(p([Inline::ImageObject(decode_graphic(
+                blocks.push(Block::ImageObject(decode_graphic(
                     &child_path,
                     &child,
                     losses,
-                ))]));
+                )));
                 continue;
             }
             "hr" => decode_hr(&child_path, &child, losses),

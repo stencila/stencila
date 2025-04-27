@@ -4818,13 +4818,8 @@ expression: article
               ],
               "content": [
                 {
-                  "type": "Paragraph",
-                  "content": [
-                    {
-                      "type": "ImageObject",
-                      "contentUrl": "573522v1_fig1"
-                    }
-                  ]
+                  "type": "ImageObject",
+                  "contentUrl": "573522v1_fig1"
                 }
               ]
             },
@@ -4920,13 +4915,8 @@ expression: article
               ],
               "content": [
                 {
-                  "type": "Paragraph",
-                  "content": [
-                    {
-                      "type": "ImageObject",
-                      "contentUrl": "573522v1_fig3"
-                    }
-                  ]
+                  "type": "ImageObject",
+                  "contentUrl": "573522v1_fig3"
                 }
               ]
             }
@@ -5158,13 +5148,8 @@ expression: article
               ],
               "content": [
                 {
-                  "type": "Paragraph",
-                  "content": [
-                    {
-                      "type": "ImageObject",
-                      "contentUrl": "573522v1_fig2"
-                    }
-                  ]
+                  "type": "ImageObject",
+                  "contentUrl": "573522v1_fig2"
                 }
               ]
             },
@@ -5704,13 +5689,8 @@ expression: article
                   ],
                   "content": [
                     {
-                      "type": "Paragraph",
-                      "content": [
-                        {
-                          "type": "ImageObject",
-                          "contentUrl": "573522v1_fig4"
-                        }
-                      ]
+                      "type": "ImageObject",
+                      "contentUrl": "573522v1_fig4"
                     }
                   ]
                 },
@@ -5938,13 +5918,8 @@ expression: article
                   ],
                   "content": [
                     {
-                      "type": "Paragraph",
-                      "content": [
-                        {
-                          "type": "ImageObject",
-                          "contentUrl": "573522v1_fig5"
-                        }
-                      ]
+                      "type": "ImageObject",
+                      "contentUrl": "573522v1_fig5"
                     }
                   ]
                 },
@@ -6166,13 +6141,8 @@ expression: article
                   ],
                   "content": [
                     {
-                      "type": "Paragraph",
-                      "content": [
-                        {
-                          "type": "ImageObject",
-                          "contentUrl": "573522v1_fig6"
-                        }
-                      ]
+                      "type": "ImageObject",
+                      "contentUrl": "573522v1_fig6"
                     }
                   ]
                 },
@@ -6411,13 +6381,8 @@ expression: article
                   ],
                   "content": [
                     {
-                      "type": "Paragraph",
-                      "content": [
-                        {
-                          "type": "ImageObject",
-                          "contentUrl": "573522v1_fig7"
-                        }
-                      ]
+                      "type": "ImageObject",
+                      "contentUrl": "573522v1_fig7"
                     }
                   ]
                 },
