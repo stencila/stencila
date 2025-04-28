@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.17.4",
-    "@cloudflare/workers-types": "4.20250321.0",
+    "@cloudflare/workers-types": "4.20250427.0",
     "@eslint/js": "9.23.0",
     "@prettier/plugin-xml": "3.4.1",
     "@types/benchmark": "2.1.5",
@@ -41,6 +41,6 @@
     "tsup": "8.4.0",
     "typescript": "5.8.2",
     "typescript-eslint": "8.28.0",
-    "wrangler": "4.4.0"
+    "wrangler": "4.13.2"
   }
 }
