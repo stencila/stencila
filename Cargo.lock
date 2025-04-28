@@ -1175,6 +1175,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "codec-noweb"
+version = "0.0.0"
+dependencies = [
+ "codec",
+ "codec-latex",
+ "codec-pandoc",
+]
+
+[[package]]
 name = "codec-odt"
 version = "0.0.0"
 dependencies = [
@@ -1274,6 +1283,7 @@ dependencies = [
  "codec-latex",
  "codec-lexical",
  "codec-markdown",
+ "codec-noweb",
  "codec-odt",
  "codec-pandoc",
  "codec-pdf",
