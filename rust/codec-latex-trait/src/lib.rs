@@ -1,6 +1,7 @@
 //! Provides the `LatexCodec` trait for generating Latex for Stencila Schema nodes
 
 use codec_info::{Losses, Mapping, NodeId, NodeProperty, NodeType};
+use format::Format;
 
 pub use codec_latex_derive::LatexCodec;
 
@@ -23,6 +24,8 @@ where
 
 #[derive(Default)]
 pub struct LatexEncodeContext {
+    pub format: Format,
+
     /// The encoded Latex content
     pub content: String,
 
@@ -40,8 +43,11 @@ pub struct LatexEncodeContext {
 }
 
 impl LatexEncodeContext {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(format: Format) -> Self {
+        Self {
+            format,
+            ..Default::default()
+        }
     }
 
     /// Get the current insertion position (i.e. the number of characters in the content)

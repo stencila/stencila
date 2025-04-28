@@ -75,9 +75,10 @@ impl Codec for LatexCodec {
         options: Option<EncodeOptions>,
     ) -> Result<(String, EncodeInfo)> {
         let options = options.unwrap_or_default();
+        let format = options.format.unwrap_or(Format::Latex);
 
         if let Some("--builtin") = options.passthrough_args.first().map(|arg| arg.as_str()) {
-            let mut context = LatexEncodeContext::default();
+            let mut context = LatexEncodeContext::new(format);
             node.to_latex(&mut context);
 
             let mut output = context.content;
@@ -92,7 +93,7 @@ impl Codec for LatexCodec {
 
             Ok((output, info))
         } else {
-            let (pandoc, info) = root_to_pandoc(node, Format::Latex)?;
+            let (pandoc, info) = root_to_pandoc(node, format)?;
 
             let mut args = options.passthrough_args;
             args.push("--listings".into());

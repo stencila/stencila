@@ -1,14 +1,16 @@
 use pandoc_types::definition::{self as pandoc, Attr, Target};
 
 use codec::{
-    common::{itertools::Itertools, once_cell::sync::Lazy, regex::Regex, serde_json},
+    common::{itertools::Itertools, serde_json},
     schema::*,
 };
 use codec_text_trait::to_text;
 
 use crate::{
     blocks::{blocks_from_pandoc, blocks_to_pandoc},
-    shared::{attrs_classes, attrs_empty, PandocDecodeContext, PandocEncodeContext},
+    shared::{
+        attrs_attributes, attrs_classes, attrs_empty, PandocDecodeContext, PandocEncodeContext,
+    },
 };
 
 pub(super) fn inlines_to_pandoc(
@@ -356,14 +358,16 @@ fn code_expression_to_pandoc(
     expr: &CodeExpression,
     _context: &mut PandocEncodeContext,
 ) -> pandoc::Inline {
-    // Encode output value, if any, otherwise code with language in curly braces as prefix
     let content = if let Some(output) = &expr.output {
         to_text(output)
     } else {
-        let lang = expr.programming_language.clone().unwrap_or_default();
-        ["{", &lang, "} ", &expr.code].concat()
+        expr.code.to_string()
     };
-    pandoc::Inline::Code(attrs_empty(), content)
+
+    pandoc::Inline::Span(
+        attrs_attributes(vec![("custom-style".into(), "CodeExpression".into())]),
+        vec![pandoc::Inline::Str(content)],
+    )
 }
 
 fn code_inline_to_pandoc(code: &CodeInline, _context: &mut PandocEncodeContext) -> pandoc::Inline {
@@ -371,27 +375,30 @@ fn code_inline_to_pandoc(code: &CodeInline, _context: &mut PandocEncodeContext) 
 }
 
 fn code_inline_from_pandoc(
-    _attrs: Attr,
+    attrs: Attr,
     code: String,
     _context: &mut PandocDecodeContext,
 ) -> Inline {
-    // If the code starts with {lang} then treat as a code expression
-    static REGEX: Lazy<Regex> =
-        Lazy::new(|| Regex::new(r"^\{(\w+)?\}\s*(.*)").expect("invalid regex"));
+    let programming_language = attrs.classes.first().cloned();
 
-    if let Some(captures) = REGEX.captures(&code) {
-        let programming_language = captures.get(1).map(|lang| lang.as_str().to_string());
-        Inline::CodeExpression(CodeExpression {
-            programming_language,
-            code: captures[2].into(),
-            ..Default::default()
-        })
-    } else {
-        Inline::CodeInline(CodeInline {
+    if let Some(lang) = programming_language
+        .as_ref()
+        .and_then(|lang| lang.strip_suffix("exec"))
+    {
+        let lang = (!lang.is_empty()).then_some(lang.into());
+
+        return Inline::CodeExpression(CodeExpression {
+            programming_language: lang,
             code: code.into(),
             ..Default::default()
-        })
+        });
     }
+
+    Inline::CodeInline(CodeInline {
+        programming_language,
+        code: code.into(),
+        ..Default::default()
+    })
 }
 
 fn math_inline_to_pandoc(math: &MathInline, _context: &mut PandocEncodeContext) -> pandoc::Inline {
