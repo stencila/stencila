@@ -1,0 +1,66 @@
+---
+source: rust/codec-noweb/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Chunk name, no options, no code:"
+          }
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "code": {
+        "string": ""
+      },
+      "programmingLanguage": "r"
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "No chunk name, options and code:"
+          }
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "code": {
+        "string": "# Some code"
+      },
+      "programmingLanguage": "r",
+      "isEchoed": false
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "All:"
+          }
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "code": {
+        "string": "# Some code"
+      },
+      "programmingLanguage": "r",
+      "isEchoed": false,
+      "isHidden": true
+    }
+  ]
+}

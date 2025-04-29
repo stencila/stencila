@@ -89,6 +89,7 @@ impl Codec for NowebCodec {
 /// (both with the `exec` attributes). These directives are then decoded by
 /// the LaTeX codec into `CodeChunk` and `CodeExpression` nodes respectively.
 fn latex_from_noweb(noweb: &str) -> String {
+    // Code expression regex
     static SEXPR: Lazy<Regex> =
         Lazy::new(|| Regex::new(r"\\Sexpr\{([^}]*)\}").expect("invalid regex"));
 
@@ -106,7 +107,43 @@ fn latex_from_noweb(noweb: &str) -> String {
             "?"
         };
 
-        [r"\lstinline[language=rexec]", char, code, char].concat()
+        ["\\lstinline[language=rexec]", char, code, char].concat()
+    });
+
+    // Code chunk regex
+    //
+    // (?m) multi-line mode  → ^ and $ match at every line break
+    // (?s) dot-all mode    → . also matches new-lines, so the body can span lines
+    //
+    // ^\s*                 → allow indentation before ‘<<’
+    // <<\s*
+    //   (?:                → ── optional chunk-name part ──
+    //       ([^,\s>]+)     →   capture *chunk name*  (group 1)
+    //       \s*,\s*        →   followed by a comma
+    //   )?                 → ────────────────────────────────
+    //   ([^>]+?)           → capture everything up to “>>” as *options* (group 2)
+    // \s*>>= \n            → header terminator
+    // (.*?)                → lazily capture the chunk body        (group 3)
+    // ^\s*@\s*$            → a line containing only “@” closes the chunk
+    static CHUNK: Lazy<Regex> = Lazy::new(|| {
+        Regex::new(r"(?ms)^\s*<<\s*(?:([^,\s>]+)\s*,\s*)?([^>]+?)\s*>>=\n(.*?)^\s*@\s*$")
+            .expect("invalid regex")
+    });
+
+    let latex = CHUNK.replace_all(&latex, |captures: &Captures| {
+        let options = captures.get(2).map(|mat| mat.as_str());
+        let code = &captures[3];
+
+        [
+            "\\begin{lstlisting}[language=r, exec",
+            &options
+                .map(|options| [", ", options].concat())
+                .unwrap_or_default(),
+            "]\n",
+            code,
+            "\\end{lstlisting}\n\n",
+        ]
+        .concat()
     });
 
     latex.into()

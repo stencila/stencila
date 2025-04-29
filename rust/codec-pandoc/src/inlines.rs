@@ -379,8 +379,12 @@ fn code_inline_from_pandoc(
     code: String,
     _context: &mut PandocDecodeContext,
 ) -> Inline {
+    // Note: Pandoc currently only observes the `language` option
+    // (and puts its value into the `attrs.classes`). This differs to the handling
+    // of code blocks (in which all attributes are preserved in `attrs.attributes`).
+    // For that reason we rely on the language name being "exec", or suffixed with "exec",
+    // to be able to identify code expressions
     let programming_language = attrs.classes.first().cloned();
-
     if let Some(lang) = programming_language
         .as_ref()
         .and_then(|lang| lang.strip_suffix("exec"))

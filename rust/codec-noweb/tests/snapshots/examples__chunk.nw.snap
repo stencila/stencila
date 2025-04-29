@@ -1,0 +1,21 @@
+---
+source: rust/codec-noweb/tests/examples.rs
+expression: "&noweb"
+---
+Chunk name, no options, no code:
+
+<<unnamed>>=
+
+@
+
+No chunk name, options and code:
+
+<<unnamed, echo=FALSE>>=
+# Some code
+@
+
+All:
+
+<<unnamed, echo=FALSE, hidden=TRUE>>=
+# Some code
+@
