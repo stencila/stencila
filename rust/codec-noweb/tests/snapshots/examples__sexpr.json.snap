@@ -1,0 +1,101 @@
+---
+source: rust/codec-noweb/tests/examples.rs
+expression: article
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A code expression "
+          }
+        },
+        {
+          "type": "CodeExpression",
+          "code": {
+            "string": "6*7"
+          },
+          "programmingLanguage": "r"
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " within a paragraph."
+          }
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "Handles possible delimiter characters in code:"
+          }
+        }
+      ]
+    },
+    {
+      "type": "List",
+      "items": [
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": {
+                    "string": "!foo"
+                  },
+                  "programmingLanguage": "r"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": {
+                    "string": "!foo|bar"
+                  },
+                  "programmingLanguage": "r"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "ListItem",
+          "content": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "CodeExpression",
+                  "code": {
+                    "string": "!foo|bar+baz"
+                  },
+                  "programmingLanguage": "r"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "order": "Unordered"
+    }
+  ]
+}

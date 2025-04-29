@@ -1,0 +1,13 @@
+---
+source: rust/codec-noweb/tests/examples.rs
+expression: "&noweb"
+---
+A code expression \Sexpr{6*7} within a paragraph.
+
+Handles possible delimiter characters in code:
+
+\begin{itemize}
+    \item \Sexpr{!foo}
+    \item \Sexpr{!foo|bar}
+    \item \Sexpr{!foo|bar+baz}
+\end{itemize}

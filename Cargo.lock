@@ -1181,6 +1181,7 @@ dependencies = [
  "codec",
  "codec-latex",
  "codec-pandoc",
+ "common-dev",
 ]
 
 [[package]]

@@ -1,0 +1,5 @@
+---
+source: rust/codec-noweb/tests/examples.rs
+expression: info.losses
+---
+{}
